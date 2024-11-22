@@ -4,8 +4,57 @@ toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
 ## TypeSpec
+### `@continuationToken` {#@continuationToken}
+
+Pagination property defining the token to get to the next page.
+It MUST be specified both on the request parameter and the response.
+```typespec
+@continuationToken
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @continuationToken continuationToken: string;
+}
+@list op listPets(@continuationToken continuationToken: string): Page<Pet>;
+```
+
+
+### `@defaultVisibility` {#@defaultVisibility}
+
+Declares the default visibility modifiers for a visibility class.
+
+The default modifiers are used when a property does not have any visibility decorators
+applied to it.
+
+The modifiers passed to this decorator _MUST_ be members of the target Enum.
+```typespec
+@defaultVisibility(...visibilities: valueof EnumMember[])
+```
+
+#### Target
+
+`Enum`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof EnumMember[]` | the list of modifiers to use as the default visibility modifiers. |
+
+
+
 ### `@deprecated` {#@deprecated}
-:::warning
+:::caution
 **Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
 :::
 
@@ -253,6 +302,36 @@ model Pet {
 ```
 
 
+### `@firstLink` {#@firstLink}
+
+Pagination property defining a link to the first page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@firstLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
@@ -343,6 +422,35 @@ A debugging decorator used to inspect a type name.
 
 
 
+### `@invisible` {#@invisible}
+
+Indicates that a property is not visible in the given visibility class.
+
+This decorator removes all active visibility modifiers from the property within
+the given visibility class.
+```typespec
+@invisible(visibilityClass: Enum)
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilityClass | `Enum` | The visibility class to make the property invisible within. |
+
+#### Examples
+
+```typespec
+model Example {
+  @invisible(Lifecycle)
+  hidden_property: string;
+}
+```
+
+
 ### `@key` {#@key}
 
 Mark a model property as the key to identify instances of that type
@@ -369,7 +477,7 @@ model Pet {
 
 
 ### `@knownValues` {#@knownValues}
-:::warning
+:::caution
 **Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
 :::
 
@@ -400,11 +508,41 @@ enum KnownErrorCode {
 ```
 
 
+### `@lastLink` {#@lastLink}
+
+Pagination property defining a link to the last page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@lastLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
 ### `@list` {#@list}
 
-Mark this operation as a `list` operation for resource types.
+Mark this operation as a `list` operation that returns a paginated list of items.
 ```typespec
-@list(listedType?: Model)
+@list
 ```
 
 #### Target
@@ -412,9 +550,7 @@ Mark this operation as a `list` operation for resource types.
 `Operation`
 
 #### Parameters
-| Name | Type | Description |
-|------|------|-------------|
-| listedType | `Model` | Optional type of the items in the list. |
+None
 
 
 
@@ -612,6 +748,60 @@ scalar distance is float64;
 ```
 
 
+### `@nextLink` {#@nextLink}
+
+Pagination property defining a link to the next page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@nextLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
+### `@offset` {#@offset}
+
+Pagination property defining the number of items to skip.
+```typespec
+@offset
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@offset skip: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
 ### `@opExample` {#@opExample}
 
 Provide example values for an operation's parameters and corresponding return type.
@@ -632,7 +822,7 @@ Provide example values for an operation's parameters and corresponding return ty
 #### Examples
 
 ```tsp
-@example(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+@opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
 op createPet(pet: Pet): Pet;
 ```
 
@@ -664,11 +854,83 @@ op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): vo
 ```
 
 
+### `@pageIndex` {#@pageIndex}
+
+Pagination property defining the page index.
+```typespec
+@pageIndex
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
+### `@pageItems` {#@pageItems}
+
+Specify the the property that contains the array of page items.
+```typespec
+@pageItems
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
+### `@pageSize` {#@pageSize}
+
+Specify the pagination parameter that controls the maximum number of items to include in a page.
+```typespec
+@pageSize
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+}
+@list op listPets(@pageIndex page: int32, @pageSize pageSize: int8): Page<Pet>;
+```
+
+
 ### `@parameterVisibility` {#@parameterVisibility}
 
 Sets which visibilities apply to parameters for the given operation.
 ```typespec
-@parameterVisibility(...visibilities: valueof string[])
+@parameterVisibility(...visibilities: valueof string | EnumMember[])
 ```
 
 #### Target
@@ -678,7 +940,7 @@ Sets which visibilities apply to parameters for the given operation.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string[]` | List of visibility strings which apply to this operation. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibility strings which apply to this operation. |
 
 
 
@@ -714,8 +976,38 @@ scalar LowerAlpha extends string;
 ```
 
 
+### `@prevLink` {#@prevLink}
+
+Pagination property defining a link to the previous page.
+
+It is expected that navigating to the link will return the same set of responses as the operation that returned the current page.
+```typespec
+@prevLink
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+None
+
+#### Examples
+
+```tsp
+model Page<T> {
+  @pageItems items: T[];
+  @nextLink next: url;
+  @prevLink prev: url;
+  @firstLink first: url;
+  @lastLink last: url;
+}
+@list op listPets(): Page<Pet>;
+```
+
+
 ### `@projectedName` {#@projectedName}
-:::warning
+:::caution
 **Deprecated**: Use `@encodedName` instead for changing the name over the wire.
 :::
 
@@ -742,6 +1034,38 @@ Provide an alternative name for this type.
 model Certificate {
   @projectedName("json", "exp")
   expireAt: int32;
+}
+```
+
+
+### `@removeVisibility` {#@removeVisibility}
+
+Removes visibility modifiers from a property.
+
+If the visibility modifiers for a visibility class have not been initialized,
+this decorator will use the default visibility modifiers for the visibility
+class as the default modifier set.
+```typespec
+@removeVisibility(...visibilities: valueof EnumMember[])
+```
+
+#### Target
+The property to remove visibility from.
+`ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof EnumMember[]` | The visibility modifiers to remove from the target property. |
+
+#### Examples
+
+```typespec
+model Example {
+  // This property will have the Create and Update visibilities, but not the
+  // Read visibility, since it is removed.
+  @removeVisibility(Lifecycle.Read)
+  secret_property: string;
 }
 ```
 
@@ -775,7 +1099,7 @@ op get(): Pet | NotFound;
 
 Sets which visibilities apply to the return type for the given operation.
 ```typespec
-@returnTypeVisibility(...visibilities: valueof string[])
+@returnTypeVisibility(...visibilities: valueof string | EnumMember[])
 ```
 
 #### Target
@@ -785,7 +1109,7 @@ Sets which visibilities apply to the return type for the given operation.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string[]` | List of visibility strings which apply to this operation. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibility strings which apply to this operation. |
 
 
 
@@ -909,7 +1233,7 @@ with standard emitters that interpret them as follows:
 
 See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
 ```typespec
-@visibility(...visibilities: valueof string[])
+@visibility(...visibilities: valueof string | EnumMember[])
 ```
 
 #### Target
@@ -919,16 +1243,16 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibilities which apply to this property. |
 
 #### Examples
 
 ```typespec
 model Dog {
   // the service will generate an ID, so you don't need to send it.
-  @visibility("read") id: int32;
+  @visibility(Lifecycle.Read) id: int32;
   // the service will store this secret name, but won't ever return it
-  @visibility("create", "update") secretName: string;
+  @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
   // the regular name is always present
   name: string;
 }
@@ -938,8 +1262,18 @@ model Dog {
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
 
 Set the visibility of key properties in a model if not already set.
+
+This will set the visibility modifiers of all key properties in the model if the visibility is not already _explicitly_ set,
+but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
+is the same as the default visibility.
+
+Visibility may be explicitly set using any of the following decorators:
+
+- `@visibility`
+- `@removeVisibility`
+- `@invisible`
 ```typespec
-@withDefaultKeyVisibility(visibility: valueof string)
+@withDefaultKeyVisibility(visibility: valueof string | EnumMember)
 ```
 
 #### Target
@@ -949,8 +1283,47 @@ Set the visibility of key properties in a model if not already set.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | [valueof `string`](#string) | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
+| visibility | `valueof string \| EnumMember` | The desired default visibility value. If a key property already has visibility set, it will not be changed. |
 
+
+
+### `@withLifecycleUpdate` {#@withLifecycleUpdate}
+
+Transforms the `target` model to include only properties that are visible during the
+"Update" lifecycle phase.
+
+Any nested models of optional properties will be transformed into the "CreateOrUpdate"
+lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
+fully updated.
+```typespec
+@withLifecycleUpdate
+```
+
+#### Target
+The model to apply the transformation to.
+`Model`
+
+#### Parameters
+None
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
+  name: string;
+}
+
+@withLifecycleUpdate
+model DogUpdate {
+  ...Dog
+}
+```
 
 
 ### `@withOptionalProperties` {#@withOptionalProperties}
@@ -1049,7 +1422,7 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 ```typespec
-@withVisibility(...visibilities: valueof string[])
+@withVisibility(...visibilities: valueof string | EnumMember[])
 ```
 
 #### Target
@@ -1059,7 +1432,7 @@ not necessary to use this decorator.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibilities which apply to this property. |
 
 #### Examples
 
@@ -1086,6 +1459,42 @@ model DogCreateOrUpdate {
 @withVisibility("read")
 model DogRead {
   ...Dog;
+}
+```
+
+
+### `@withVisibilityFilter` {#@withVisibilityFilter}
+
+Applies the given visibility filter to the properties of the target model.
+
+This transformation is recursive, so it will also apply the filter to any nested
+or referenced models that are the types of any properties in the `target`.
+```typespec
+@withVisibilityFilter(filter: valueof VisibilityFilter)
+```
+
+#### Target
+The model to apply the visibility filter to.
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| filter | [valueof `VisibilityFilter`](./built-in-data-types.md#VisibilityFilter) | The visibility filter to apply to the properties of the target model. |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  name: string;
+}
+
+@withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+model DogRead {
+ ...Dog
 }
 ```
 

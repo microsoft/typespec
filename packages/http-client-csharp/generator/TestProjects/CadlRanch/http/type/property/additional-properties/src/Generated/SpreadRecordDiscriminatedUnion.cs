@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.AdditionalProperties.Models;
 
@@ -21,14 +22,14 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual ClientResult<SpreadRecordForDiscriminatedUnion> Get() => throw null;
 
-        public virtual Task<ClientResult<SpreadRecordForDiscriminatedUnion>> GetAsync() => throw null;
+        public virtual Task<ClientResult<SpreadRecordForDiscriminatedUnion>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(SpreadRecordForDiscriminatedUnion body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(SpreadRecordForDiscriminatedUnion body) => throw null;
+        public virtual Task<ClientResult> PutAsync(SpreadRecordForDiscriminatedUnion body, CancellationToken cancellationToken = default) => throw null;
     }
 }

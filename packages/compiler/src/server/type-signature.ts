@@ -1,3 +1,4 @@
+import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
@@ -21,7 +22,7 @@ import {
 
 /** @internal */
 export function getSymbolSignature(program: Program, sym: Sym): string {
-  const decl = sym.declarations[0];
+  const decl = getSymNode(sym);
   switch (decl?.kind) {
     case SyntaxKind.AliasStatement:
       return fence(`alias ${getAliasSignature(decl)}`);

@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Model.Empty.Models;
 
@@ -18,13 +19,13 @@ namespace _Type.Model.Empty
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult PutEmpty(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutEmpty(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutEmptyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult PutEmpty(EmptyInput input) => throw null;
 
-        public virtual Task<ClientResult> PutEmptyAsync(EmptyInput input) => throw null;
+        public virtual Task<ClientResult> PutEmptyAsync(EmptyInput input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetEmpty(RequestOptions options) => throw null;
 
@@ -32,14 +33,14 @@ namespace _Type.Model.Empty
 
         public virtual ClientResult<EmptyOutput> GetEmpty() => throw null;
 
-        public virtual Task<ClientResult<EmptyOutput>> GetEmptyAsync() => throw null;
+        public virtual Task<ClientResult<EmptyOutput>> GetEmptyAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PostRoundTripEmpty(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PostRoundTripEmpty(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PostRoundTripEmptyAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PostRoundTripEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult<EmptyInputOutput> PostRoundTripEmpty(EmptyInputOutput body) => throw null;
 
-        public virtual Task<ClientResult<EmptyInputOutput>> PostRoundTripEmptyAsync(EmptyInputOutput body) => throw null;
+        public virtual Task<ClientResult<EmptyInputOutput>> PostRoundTripEmptyAsync(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
     }
 }

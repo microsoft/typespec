@@ -322,6 +322,7 @@ Area of the codebase
 | `openapi3:converter`         | #957300 | Issues for @typespec/openapi3 openapi to typespec converter       |
 | `emitter:service:csharp`     | #967200 |                                                                   |
 | `emitter:service:js`         | #967200 |                                                                   |
+| `emitter:service:java`       | #967200 | Issue for Java service emitter                                    |
 | `eng`                        | #65bfff |                                                                   |
 | `ui:playground`              | #3256a8 |                                                                   |
 | `ui:type-graph-viewer`       | #3256a8 |                                                                   |
@@ -370,10 +371,11 @@ Process labels
 
 Misc labels
 
-| Name                       | Color   | Description        |
-| -------------------------- | ------- | ------------------ |
-| `Client Emitter Migration` | #FD92F0 |                    |
-| `good first issue`         | #7057ff | Good for newcomers |
+| Name                       | Color   | Description           |
+| -------------------------- | ------- | --------------------- |
+| `Client Emitter Migration` | #FD92F0 |                       |
+| `good first issue`         | #7057ff | Good for newcomers    |
+| `mq`                       | #0969da | Good candidate for MQ |
 
 <!-- LABEL GENERATED REF END -->
 

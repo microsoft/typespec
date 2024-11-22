@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.ValueTypes.Models;
 
@@ -21,14 +22,14 @@ namespace _Type.Property.ValueTypes
 
         public virtual ClientResult<UnionFloatLiteralProperty> Get() => throw null;
 
-        public virtual Task<ClientResult<UnionFloatLiteralProperty>> GetAsync() => throw null;
+        public virtual Task<ClientResult<UnionFloatLiteralProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(UnionFloatLiteralProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(UnionFloatLiteralProperty body) => throw null;
+        public virtual Task<ClientResult> PutAsync(UnionFloatLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

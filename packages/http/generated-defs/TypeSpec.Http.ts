@@ -7,6 +7,10 @@ import type {
   Type,
 } from "@typespec/compiler";
 
+export interface CookieOptions {
+  readonly name?: string;
+}
+
 export interface QueryOptions {
   readonly name?: string;
   readonly explode?: boolean;
@@ -71,6 +75,29 @@ export type HeaderDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   headerNameOrOptions?: Type,
+) => void;
+
+/**
+ * Specify this property is to be sent or received in the cookie.
+ *
+ * @param cookieNameOrOptions Optional name of the cookie in the cookie or cookie options.
+ * By default the cookie name will be the property name converted from camelCase to snake_case. (e.g. `authToken` -> `auth_token`)
+ * @example
+ * ```typespec
+ * op read(@cookie token: string): {data: string[]};
+ * op create(@cookie({name: "auth_token"}) data: string[]): void;
+ * ```
+ * @example Implicit header name
+ *
+ * ```typespec
+ * op read(): {@cookie authToken: string}; // headerName: auth_token
+ * op update(@cookie AuthToken: string): void; // headerName: auth_token
+ * ```
+ */
+export type CookieDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+  cookieNameOrOptions?: string | CookieOptions,
 ) => void;
 
 /**
@@ -328,6 +355,7 @@ export type TypeSpecHttpDecorators = {
   statusCode: StatusCodeDecorator;
   body: BodyDecorator;
   header: HeaderDecorator;
+  cookie: CookieDecorator;
   query: QueryDecorator;
   path: PathDecorator;
   bodyRoot: BodyRootDecorator;

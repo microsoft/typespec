@@ -41,6 +41,8 @@ export interface EmitterOptions {
 
   "group-etag-headers"?: boolean;
 
+  "enable-subclient"?: boolean;
+
   "advanced-versioning"?: boolean;
   "api-version"?: string;
   "service-version-exclude-preview"?: boolean;
@@ -63,7 +65,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
     "output-dir": { type: "string", nullable: true },
     "package-dir": { type: "string", nullable: true },
 
-    flavor: { type: "string", nullable: true, default: "Azure" },
+    flavor: { type: "string", nullable: true },
 
     // service
     "service-name": { type: "string", nullable: true },
@@ -78,7 +80,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 
     "enable-sync-stack": { type: "boolean", nullable: true, default: true },
     "stream-style-serialization": { type: "boolean", nullable: true, default: true },
-    "use-object-for-unknown": { type: "boolean", nullable: true, default: true },
+    "use-object-for-unknown": { type: "boolean", nullable: true, default: false },
 
     // customization
     "partial-update": { type: "boolean", nullable: true, default: false },
@@ -89,6 +91,8 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
     polling: { type: "object", additionalProperties: true, nullable: true },
 
     "group-etag-headers": { type: "boolean", nullable: true },
+
+    "enable-subclient": { type: "boolean", nullable: true, default: false },
 
     "advanced-versioning": { type: "boolean", nullable: true, default: false },
     "api-version": { type: "string", nullable: true },
@@ -113,10 +117,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
   if (!options["flavor"]) {
     if (options["package-dir"]?.toLocaleLowerCase().startsWith("azure")) {
       // Azure package
-      options["flavor"] = "Azure";
-    } else {
-      // default
-      options["flavor"] = "Azure";
+      options["flavor"] = "azure";
     }
   }
   const builder = new CodeModelBuilder(program, context);

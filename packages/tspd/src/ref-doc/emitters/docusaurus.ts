@@ -13,7 +13,6 @@ import {
   inlinecode,
   renderMarkdowDoc,
   section,
-  tabs,
 } from "../utils/markdown.js";
 import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 
@@ -300,4 +299,25 @@ export class DocusaurusRenderer extends MarkdownRenderer {
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
     return [":::warning", `**Deprecated**: ${notice.message}`, ":::"];
   }
+}
+
+type Tab = {
+  id: string;
+  label: string;
+  content: string;
+};
+
+function tabs(tabs: Tab[]) {
+  const result = ["<Tabs>"];
+  for (const tab of tabs) {
+    result.push(
+      `<TabItem value="${tab.id}" label="${tab.label}" default>`,
+      "",
+      tab.content,
+      "",
+      "</TabItem>",
+    );
+  }
+  result.push("</Tabs>", "");
+  return result.join("\n");
 }

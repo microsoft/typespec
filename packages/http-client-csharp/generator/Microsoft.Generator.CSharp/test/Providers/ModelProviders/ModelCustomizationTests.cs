@@ -769,5 +769,36 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public async Task CanCustomizeDiscriminatorModel()
+        {
+            await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
+            var discriminatorValues = InputFactory.Enum("discriminatorValue", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
+            [
+                InputFactory.EnumMember.String("Foo", "foo"),
+                InputFactory.EnumMember.String("Bar", "bar")
+            ]);
+            var discriminatorProp = InputFactory.Property("discriminator", discriminatorValues, isDiscriminator: true, isRequired: true);
+            var fooModel = InputFactory.Model("fooModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "foo");
+            var barModel = InputFactory.Model("barModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "bar");
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [modelProp, discriminatorProp], derivedModels: [fooModel, barModel],
+                usage: InputModelTypeUsage.Json);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [inputModel, fooModel, barModel],
+                inputEnumTypes: [discriminatorValues],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider && t.Name == "FooModel");
+            Assert.IsNotNull(modelProvider);
+            var writer = new TypeProviderWriter(modelProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Authentication.Union
@@ -25,7 +26,7 @@ namespace Authentication.Union
 
         public virtual ClientResult ValidKey() => throw null;
 
-        public virtual Task<ClientResult> ValidKeyAsync() => throw null;
+        public virtual Task<ClientResult> ValidKeyAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult ValidToken(RequestOptions options) => throw null;
 
@@ -33,6 +34,6 @@ namespace Authentication.Union
 
         public virtual ClientResult ValidToken() => throw null;
 
-        public virtual Task<ClientResult> ValidTokenAsync() => throw null;
+        public virtual Task<ClientResult> ValidTokenAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

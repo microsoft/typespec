@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.AdditionalProperties.Models;
 
@@ -21,14 +22,14 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual ClientResult<DifferentSpreadModelArrayDerived> Get() => throw null;
 
-        public virtual Task<ClientResult<DifferentSpreadModelArrayDerived>> GetAsync() => throw null;
+        public virtual Task<ClientResult<DifferentSpreadModelArrayDerived>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(DifferentSpreadModelArrayDerived body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(DifferentSpreadModelArrayDerived body) => throw null;
+        public virtual Task<ClientResult> PutAsync(DifferentSpreadModelArrayDerived body, CancellationToken cancellationToken = default) => throw null;
     }
 }

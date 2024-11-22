@@ -5,6 +5,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace _Type.Dictionary
@@ -21,14 +22,14 @@ namespace _Type.Dictionary
 
         public virtual ClientResult<IDictionary<string, int>> Get() => throw null;
 
-        public virtual Task<ClientResult<IDictionary<string, int>>> GetAsync() => throw null;
+        public virtual Task<ClientResult<IDictionary<string, int>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual ClientResult Put(IDictionary<string, int> body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(IDictionary<string, int> body) => throw null;
+        public virtual Task<ClientResult> PutAsync(IDictionary<string, int> body, CancellationToken cancellationToken = default) => throw null;
     }
 }

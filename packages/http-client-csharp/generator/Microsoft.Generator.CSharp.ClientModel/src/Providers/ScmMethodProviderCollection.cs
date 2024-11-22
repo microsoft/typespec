@@ -23,15 +23,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
 
-        private readonly string _createRequestMethodName;
-
         private ClientProvider Client { get; }
 
         public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
             _cleanOperationName = operation.Name.ToCleanName();
-            _createRequestMethodName = "Create" + _cleanOperationName + "Request";
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
         }
@@ -59,9 +56,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ];
         }
 
-        private MethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
+        private ScmMethodProvider BuildConvenienceMethod(MethodProvider protocolMethod, bool isAsync)
         {
-            if (EnclosingType is not ClientProvider client)
+            if (EnclosingType is not ClientProvider)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
@@ -78,8 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodModifier,
                 GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
-                ConvenienceMethodParameters);
-            var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+                isAsync ? [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken] : ConvenienceMethodParameters);
 
             MethodBodyStatement[] methodBody;
 
@@ -88,7 +84,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, declarations), Null], isAsync))
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(ConvenienceMethodParameters, declarations, isAsync)], isAsync))
                 ];
             }
             else
@@ -96,7 +92,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetParamConversions(ConvenienceMethodParameters, paramDeclarations), Null], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(ConvenienceMethodParameters, paramDeclarations, isAsync)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse())),
                 ];
@@ -316,10 +312,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return result.CastTo(responseBodyType);
         }
 
-        private IReadOnlyList<ValueExpression> GetParamConversions(IReadOnlyList<ParameterProvider> convenienceMethodParameters, Dictionary<string, ValueExpression> declarations)
+        private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(
+            IReadOnlyList<ParameterProvider> convenienceMethodParameters,
+            Dictionary<string, ValueExpression> declarations,
+            bool isAsync)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
             bool addedSpreadSource = false;
+
             foreach (var param in convenienceMethodParameters)
             {
                 if (param.SpreadSource is not null)
@@ -362,18 +362,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     conversions.Add(param);
                 }
             }
+            // RequestOptions argument
+
+            conversions.Add(
+                isAsync
+                    ? IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
+                    : ScmKnownParameters.RequestOptions.PositionalReference(Null));
             return conversions;
         }
 
-        public IReadOnlyList<ParameterProvider> MethodParameters => _createRequestMethod.Signature.Parameters;
+        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Protocol);
+        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
 
+        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation, RestClientProvider.MethodType.Convenience);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(Operation);
 
-        private MethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
+        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync)
         {
-            ClientProvider? client = EnclosingType as ClientProvider;
-            if (client is null)
+            if (EnclosingType is not ClientProvider client)
             {
                 throw new InvalidOperationException("Protocol methods can only be built for client types.");
             }
@@ -383,19 +389,52 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 methodModifier |= MethodSignatureModifiers.Async;
             }
+
+            var requiredParameters = new List<ParameterProvider>();
+            var optionalParameters = new List<ParameterProvider>();
+
+            for (var i = 0; i < ProtocolMethodParameters.Count; i++)
+            {
+                var parameter = ProtocolMethodParameters[i];
+                if (parameter.DefaultValue is null)
+                {
+                    requiredParameters.Add(parameter);
+                }
+                else
+                {
+                    optionalParameters.Add(parameter);
+                }
+            }
+            bool addOptionalRequestOptionsParameter = ShouldAddOptionalRequestOptionsParameter();
+            ParameterProvider requestOptionsParameter = addOptionalRequestOptionsParameter ? ScmKnownParameters.OptionalRequestOptions : ScmKnownParameters.RequestOptions;
+
+            if (!addOptionalRequestOptionsParameter && optionalParameters.Count > 0)
+            {
+                // If there are optional parameters, but the request options parameter is not optional, make the optional parameters nullable required.
+                // This is to ensure that the request options parameter is always the last parameter.
+                foreach (var parameter in optionalParameters)
+                {
+                    parameter.DefaultValue = null;
+                    parameter.Type = parameter.Type.WithNullable(true);
+                }
+
+                requiredParameters.AddRange(optionalParameters);
+                optionalParameters.Clear();
+            }
+
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
                 FormattableStringHelpers.FromString(Operation.Description),
                 methodModifier,
-                GetResponseType(Operation.Responses, false, isAsync, out var responseBodyType),
+                GetResponseType(Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
-                MethodParameters);
+                [.. requiredParameters, .. optionalParameters, requestOptionsParameter]);
             var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
 
             MethodBodyStatement[] methodBody =
             [
-                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. MethodParameters]), out var message),
-                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, ScmKnownParameters.RequestOptions], isAsync, true))),
+                UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. requiredParameters, ..optionalParameters, requestOptionsParameter]), out var message),
+                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true))),
             ];
 
             var protocolMethod =
@@ -430,6 +469,31 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return response is null || responseBodyType is null
                 ? ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseType
                 : new CSharpType(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+        }
+
+        private bool ShouldAddOptionalRequestOptionsParameter()
+        {
+            var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
+            if (convenienceMethodParameterCount == 0)
+            {
+                return false;
+            }
+
+            // the request options parameter is optional if the methods have different parameters.
+            if (ProtocolMethodParameters.Count != convenienceMethodParameterCount)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < convenienceMethodParameterCount; i++)
+            {
+                if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
