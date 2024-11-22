@@ -13,6 +13,10 @@
   --sl-color-gray-5: var(--colorNeutralStroke1);
 }
 
+:root[data-theme="dark"] {
+  --sl-color-bg-inline-code: var(--ec-frm-edBg);
+}
+
 .DocSearch-Button {
   border-radius: 4px !important;
 
