@@ -5,7 +5,6 @@ import "@typespec/versioning";
 using Http;
 using Spector;
 using TypeSpec.Versioning;
-using TypeSpec.Rest;
 
 @versioned(Versions)
 @service({
