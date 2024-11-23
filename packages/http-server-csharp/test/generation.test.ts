@@ -579,6 +579,7 @@ it("creates Valid Identifiers", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
+      `[JsonPropertyName( "**()invalid~~Name")]`,
       `public string GeneratedInvalidName { get; set; } = "This is a string literal";`,
     ],
   );

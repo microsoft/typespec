@@ -312,7 +312,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       );
       const [typeName, typeDefault] = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
-      const attributes = getModelAttributes(this.emitter.getProgram(), property);
+      const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
       // eslint-disable-next-line @typescript-eslint/no-deprecated
       const defaultValue = property.default
         ? // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -1216,7 +1216,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     if (!service) service = getService(program, target);
     if (service) {
       for (const [_, model] of target.models) {
-        if (!isTemplateDeclaration(model)) {
+        if (!isTemplateDeclaration(model) && !isEmptyResponseModel(program, model)) {
           emitter.emitType(model);
         }
       }

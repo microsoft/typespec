@@ -535,9 +535,9 @@ export function ensureCSharpIdentifier(
 export function getModelAttributes(
   program: Program,
   entity: Type,
-  csharpName?: string,
+  cSharpName?: string,
 ): Attribute[] {
-  return getAttributes(program, entity);
+  return getAttributes(program, entity, cSharpName);
 }
 
 export function getModelInstantiationName(program: Program, model: Model, name: string): string {
