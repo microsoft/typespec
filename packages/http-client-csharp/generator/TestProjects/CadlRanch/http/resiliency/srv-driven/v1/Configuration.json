@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Resiliency.ServiceDriven.V1",
+  "library-name": "Resiliency.ServiceDriven.V1",
+  "use-model-reader-writer": true
+}

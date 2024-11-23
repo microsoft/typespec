@@ -3,9 +3,9 @@
 
 package client.structure;
 
-import client.structure.service.FirstClientBuilder;
+import client.structure.anotherclientoperationgroup.subnamespace.SecondClientBuilder;
+import client.structure.clientoperationgroup.FirstClientBuilder;
 import client.structure.service.models.ClientType;
-import client.structure.service.subnamespace.SecondClientBuilder;
 import org.junit.jupiter.api.Test;
 
 public class ClientOperationGroupTests {

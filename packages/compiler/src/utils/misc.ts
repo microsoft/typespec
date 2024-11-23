@@ -500,7 +500,7 @@ class CaseInsensitiveMap<T> extends Map<string, T> {
   }
 }
 
-export function createRekeyableMap<K, V>(entries?: [K, V][]): RekeyableMap<K, V> {
+export function createRekeyableMap<K, V>(entries?: Iterable<[K, V]>): RekeyableMap<K, V> {
   return new RekeyableMapImpl<K, V>(entries);
 }
 
@@ -512,7 +512,7 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
   #keys = new Map<K, RekeyableMapKey<K>>();
   #values = new Map<RekeyableMapKey<K>, V>();
 
-  constructor(entries?: [K, V][]) {
+  constructor(entries?: Iterable<[K, V]>) {
     if (entries) {
       for (const [key, value] of entries) {
         this.set(key, value);

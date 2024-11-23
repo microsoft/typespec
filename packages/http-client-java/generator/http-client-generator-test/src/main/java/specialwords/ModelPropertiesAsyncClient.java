@@ -18,7 +18,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import specialwords.implementation.ModelPropertiesImpl;
-import specialwords.models.SameAsModel;
+import specialwords.modelproperties.models.SameAsModel;
 
 /**
  * Initializes a new instance of the asynchronous SpecialWordsClient type.

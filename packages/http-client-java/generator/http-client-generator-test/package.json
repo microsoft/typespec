@@ -7,13 +7,13 @@
     "format": "npm run -s prettier -- --write",
     "check-format": "npm run prettier -- --check",
     "prettier": "prettier --config ./.prettierrc.yaml **/*.tsp",
-    "testserver-run": "npx cadl-ranch serve ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java.json",
-    "testserver-start": "npx cadl-ranch server start ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java.json",
-    "testserver-stop": "npx cadl-ranch server stop"
+    "testserver-run": "cadl-ranch serve ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java-standard.json",
+    "testserver-start": "cadl-ranch server start ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java-standard.json",
+    "testserver-stop": "cadl-ranch server stop"
   },
   "dependencies": {
-    "@azure-tools/cadl-ranch-specs": "0.39.0",
-    "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.0.tgz",
+    "@azure-tools/cadl-ranch-specs": "0.39.4",
+    "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.1.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {

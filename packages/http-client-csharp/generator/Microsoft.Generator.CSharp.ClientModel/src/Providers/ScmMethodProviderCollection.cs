@@ -23,15 +23,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
 
-        private readonly string _createRequestMethodName;
-
         private ClientProvider Client { get; }
 
         public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
             _cleanOperationName = operation.Name.ToCleanName();
-            _createRequestMethodName = "Create" + _cleanOperationName + "Request";
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
         }
@@ -78,8 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodModifier,
                 GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
-                ConvenienceMethodParameters);
-            var processMessageName = isAsync ? "ProcessMessageAsync" : "ProcessMessage";
+                isAsync ? [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken] : ConvenienceMethodParameters);
 
             MethodBodyStatement[] methodBody;
 
@@ -88,7 +84,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(ConvenienceMethodParameters, declarations)], isAsync))
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(ConvenienceMethodParameters, declarations, isAsync)], isAsync))
                 ];
             }
             else
@@ -96,7 +92,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(ConvenienceMethodParameters, paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(ConvenienceMethodParameters, paramDeclarations, isAsync)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse())),
                 ];
@@ -316,7 +312,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return result.CastTo(responseBodyType);
         }
 
-        private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(IReadOnlyList<ParameterProvider> convenienceMethodParameters, Dictionary<string, ValueExpression> declarations)
+        private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(
+            IReadOnlyList<ParameterProvider> convenienceMethodParameters,
+            Dictionary<string, ValueExpression> declarations,
+            bool isAsync)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
             bool addedSpreadSource = false;
@@ -364,7 +363,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
             // RequestOptions argument
-            conversions.Add(Null);
+
+            conversions.Add(
+                isAsync
+                    ? IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken)
+                    : ScmKnownParameters.RequestOptions.PositionalReference(Null));
             return conversions;
         }
 
@@ -389,6 +392,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var requiredParameters = new List<ParameterProvider>();
             var optionalParameters = new List<ParameterProvider>();
+
             for (var i = 0; i < ProtocolMethodParameters.Count; i++)
             {
                 var parameter = ProtocolMethodParameters[i];
@@ -413,8 +417,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     parameter.DefaultValue = null;
                     parameter.Type = parameter.Type.WithNullable(true);
                 }
-                // Now, the request options parameter can be optional due to the above changes to the method signature.
-                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
+
                 requiredParameters.AddRange(optionalParameters);
                 optionalParameters.Clear();
             }
@@ -485,14 +488,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
                 if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
-                {
-                    return true;
-                }
-                if (ProtocolMethodParameters[i].DefaultValue == null && ConvenienceMethodParameters[i].DefaultValue != null)
-                {
-                    return true;
-                }
-                if (ProtocolMethodParameters[i].DefaultValue != null && ConvenienceMethodParameters[i].DefaultValue == null)
                 {
                     return true;
                 }

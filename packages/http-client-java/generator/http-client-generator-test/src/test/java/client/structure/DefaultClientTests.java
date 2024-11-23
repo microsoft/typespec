@@ -18,20 +18,25 @@ public class DefaultClientTests {
     private final ServiceClientClient client
         = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client(ClientType.DEFAULT).buildClient();
 
-    private final FooClient client2
-        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client(ClientType.DEFAULT).buildFooClient();
+    private final FooClient client2 = new ServiceClientClientBuilder().endpoint("http://localhost:3000")
+        .client(ClientType.DEFAULT)
+        .buildFooClient();
 
-    private final BarClient client3
-        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client(ClientType.DEFAULT).buildBarClient();
+    private final BarClient client3 = new ServiceClientClientBuilder().endpoint("http://localhost:3000")
+        .client(ClientType.DEFAULT)
+        .buildBarClient();
 
-    private final QuxClient client4
-        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client(ClientType.DEFAULT).buildQuxClient();
+    private final QuxClient client4 = new ServiceClientClientBuilder().endpoint("http://localhost:3000")
+        .client(ClientType.DEFAULT)
+        .buildQuxClient();
 
-    private final QuxBarClient client5
-        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client(ClientType.DEFAULT).buildQuxBarClient();
+    private final QuxBarClient client5 = new ServiceClientClientBuilder().endpoint("http://localhost:3000")
+        .client(ClientType.DEFAULT)
+        .buildQuxBarClient();
 
-    private final BazFooClient client6
-        = new ServiceClientClientBuilder().endpoint("http://localhost:3000").client(ClientType.DEFAULT).buildBazFooClient();
+    private final BazFooClient client6 = new ServiceClientClientBuilder().endpoint("http://localhost:3000")
+        .client(ClientType.DEFAULT)
+        .buildBazFooClient();
 
     @Test
     public void testClient() {

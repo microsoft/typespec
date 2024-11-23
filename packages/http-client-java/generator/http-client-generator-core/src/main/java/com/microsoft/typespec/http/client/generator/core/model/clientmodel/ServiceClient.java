@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -80,6 +81,11 @@ public class ServiceClient {
 
     private PipelinePolicyDetails pipelinePolicyDetails;
 
+    private List<ClientAccessorMethod> clientAccessorMethods;
+    private ServiceClient parentClient;
+    private AsyncSyncClient asyncClient;
+    private AsyncSyncClient syncClient;
+
     /**
      * Create a new ServiceClient with the provided properties.
      * 
@@ -104,7 +110,8 @@ public class ServiceClient {
         ClientMethodParameter httpPipelineParameter, ClientMethodParameter serializerAdapterParameter,
         ClientMethodParameter defaultPollIntervalParameter, String defaultCredentialScopes, boolean builderDisabled,
         String builderPackageName, SecurityInfo securityInfo, String baseUrl,
-        PipelinePolicyDetails pipelinePolicyDetails, String crossLanguageDefinitionId) {
+        PipelinePolicyDetails pipelinePolicyDetails, List<ClientAccessorMethod> clientAccessorMethods,
+        String crossLanguageDefinitionId) {
         this.packageName = packageName;
         this.className = className;
         this.interfaceName = interfaceName;
@@ -125,6 +132,7 @@ public class ServiceClient {
         this.securityInfo = securityInfo;
         this.baseUrl = baseUrl;
         this.pipelinePolicyDetails = pipelinePolicyDetails;
+        this.clientAccessorMethods = clientAccessorMethods;
         this.crossLanguageDefinitionId = crossLanguageDefinitionId;
     }
 
@@ -222,6 +230,51 @@ public class ServiceClient {
         return pipelinePolicyDetails;
     }
 
+    /**
+     * Gets the list of client accessor methods.
+     *
+     * @return the list of client accessor methods
+     */
+    public List<ClientAccessorMethod> getClientAccessorMethods() {
+        return clientAccessorMethods;
+    }
+
+    /**
+     * Gets the parent class.
+     *
+     * @return the parent class
+     */
+    public ServiceClient getParentClient() {
+        return parentClient;
+    }
+
+    // Use a setter instead of builder, to avoid circular reference during build,
+    // as ServiceClient already refers to sub client via ClientAccessorMethod.
+    /**
+     * Sets the parent class.
+     *
+     * @param parentClient the parent class
+     */
+    public void setParentClient(ServiceClient parentClient) {
+        this.parentClient = parentClient;
+    }
+
+    public AsyncSyncClient getAsyncClient() {
+        return asyncClient;
+    }
+
+    public void setAsyncClient(AsyncSyncClient asyncClient) {
+        this.asyncClient = asyncClient;
+    }
+
+    public AsyncSyncClient getSyncClient() {
+        return syncClient;
+    }
+
+    public void setSyncClient(AsyncSyncClient syncClient) {
+        this.syncClient = syncClient;
+    }
+
     public String getCrossLanguageDefinitionId() {
         return crossLanguageDefinitionId;
     }
@@ -238,6 +291,12 @@ public class ServiceClient {
         if (!includeBuilderImports) {
             for (ClientMethod clientMethod : getClientMethods()) {
                 clientMethod.addImportsTo(imports, includeImplementationImports, settings);
+            }
+        }
+
+        if (includeImplementationImports) {
+            for (ClientAccessorMethod clientAccessorMethod : getClientAccessorMethods()) {
+                clientAccessorMethod.addImportsTo(imports, false);
             }
         }
 
@@ -332,6 +391,7 @@ public class ServiceClient {
         protected SecurityInfo securityInfo;
         protected String baseUrl;
         protected PipelinePolicyDetails pipelinePolicyDetails;
+        protected List<ClientAccessorMethod> clientAccessorMethods = Collections.emptyList();
         private String crossLanguageDefinitionId;
 
         /**
@@ -543,16 +603,22 @@ public class ServiceClient {
             return this;
         }
 
-        public ServiceClient build() {
-            return new ServiceClient(packageName, className, interfaceName, proxy, methodGroupClients, properties,
-                constructors, clientMethods, azureEnvironmentParameter, tokenCredentialParameter, httpPipelineParameter,
-                serializerAdapterParameter, defaultPollIntervalParameter, defaultCredentialScopes, builderDisabled,
-                builderPackageName, securityInfo, baseUrl, pipelinePolicyDetails, crossLanguageDefinitionId);
+        public Builder clientAccessorMethods(List<ClientAccessorMethod> clientAccessorMethods) {
+            this.clientAccessorMethods = clientAccessorMethods;
+            return this;
         }
 
         public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
             this.crossLanguageDefinitionId = crossLanguageDefinitionId;
             return this;
+        }
+
+        public ServiceClient build() {
+            return new ServiceClient(packageName, className, interfaceName, proxy, methodGroupClients, properties,
+                constructors, clientMethods, azureEnvironmentParameter, tokenCredentialParameter, httpPipelineParameter,
+                serializerAdapterParameter, defaultPollIntervalParameter, defaultCredentialScopes, builderDisabled,
+                builderPackageName, securityInfo, baseUrl, pipelinePolicyDetails, clientAccessorMethods,
+                crossLanguageDefinitionId);
         }
     }
 }

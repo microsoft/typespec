@@ -5,9 +5,9 @@
 package _specs_.azure.clientgenerator.core.usage;
 
 import _specs_.azure.clientgenerator.core.usage.implementation.ModelInOperationsImpl;
-import _specs_.azure.clientgenerator.core.usage.models.InputModel;
-import _specs_.azure.clientgenerator.core.usage.models.OutputModel;
-import _specs_.azure.clientgenerator.core.usage.models.RoundTripModel;
+import _specs_.azure.clientgenerator.core.usage.modelinoperation.models.InputModel;
+import _specs_.azure.clientgenerator.core.usage.modelinoperation.models.OutputModel;
+import _specs_.azure.clientgenerator.core.usage.modelinoperation.models.RoundTripModel;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;

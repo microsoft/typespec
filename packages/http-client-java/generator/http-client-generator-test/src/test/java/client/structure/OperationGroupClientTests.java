@@ -3,10 +3,10 @@
 
 package client.structure;
 
-import client.structure.service.Group1Client;
-import client.structure.service.Group2Client;
-import client.structure.service.TwoOperationGroupClientBuilder;
 import client.structure.service.models.ClientType;
+import client.structure.twooperationgroup.Group1Client;
+import client.structure.twooperationgroup.Group2Client;
+import client.structure.twooperationgroup.TwoOperationGroupClientBuilder;
 import org.junit.jupiter.api.Test;
 
 public class OperationGroupClientTests {

@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Server.Endpoint.NotDefined
@@ -25,6 +26,6 @@ namespace Server.Endpoint.NotDefined
 
         public virtual ClientResult Valid() => throw null;
 
-        public virtual Task<ClientResult> ValidAsync() => throw null;
+        public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }
