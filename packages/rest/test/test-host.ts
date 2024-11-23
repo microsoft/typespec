@@ -87,15 +87,23 @@ export async function getOperationsWithServiceNamespace(
   routeOptions?: RouteResolutionOptions,
 ): Promise<[HttpOperation[], readonly Diagnostic[]]> {
   const runner = await createRestTestRunner();
-  await runner.compileAndDiagnose(
+  const [_, diagnostics] = await runner.compileAndDiagnose(
     `@service({title: "Test Service"}) namespace TestService;
     ${code}`,
     {
       noEmit: true,
     },
   );
+  const originalDiagnosticsLength = runner.program.diagnostics.length;
   const [services] = getAllHttpServices(runner.program, routeOptions);
-  return [services[0].operations, runner.program.diagnostics];
+  // the diagnostics from compileAndDiagnose may be different from program.diagnostic according to some test configuration
+  // (i.e. having the unnecessary diagnostics filtered out), so here return the combination of diagnostics from compileAndDiagnose
+  // and getAllHttpServices
+  const allDiagnostics = [
+    ...diagnostics,
+    ...runner.program.diagnostics.slice(originalDiagnosticsLength),
+  ];
+  return [services[0].operations, allDiagnostics];
 }
 
 export async function getOperations(code: string): Promise<HttpOperation[]> {

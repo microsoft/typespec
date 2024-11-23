@@ -21,7 +21,11 @@ describe("compiler: entrypoints", () => {
 
     it("compile library with TypeSpec entrypoint", async () => {
       const program = await compileScenario("typespec-lib");
-      expectDiagnosticEmpty(program.diagnostics);
+      expectDiagnostics(program.diagnostics, {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./lib.js"`,
+        severity: "hint",
+      });
     });
 
     it("emit diagnostics if library has invalid main", async () => {
@@ -36,7 +40,11 @@ describe("compiler: entrypoints", () => {
       const program = await compileScenario("emitter-with-typespec", {
         emit: ["@typespec/test-emitter-with-typespec"],
       });
-      expectDiagnosticEmpty(program.diagnostics);
+      expectDiagnostics(program.diagnostics, {
+        code: "unnecessary",
+        message: `Unnecessary code: import "./lib.js"`,
+        severity: "hint",
+      });
     });
   });
 
@@ -134,21 +142,32 @@ describe("compiler: entrypoints", () => {
       const program = await compileScenario("same-library-same-version", {
         emit: ["@typespec/lib2"],
       });
-      expectDiagnosticEmpty(program.diagnostics);
+      expectDiagnostics(program.diagnostics, {
+        code: "unnecessary",
+        message: `Unnecessary code: import "@typespec/lib1"`,
+        severity: "hint",
+      });
     });
 
     it("emit error if loading different install of the same library at different version", async () => {
       const program = await compileScenario("same-library-diff-version", {
         emit: ["@typespec/lib2"],
       });
-      expectDiagnostics(program.diagnostics, {
-        code: "incompatible-library",
-        message: [
-          `Multiple versions of "@typespec/my-lib" library were loaded:`,
-          `  - Version: "1.0.0" installed at "${scenarioRoot}/same-library-diff-version/node_modules/@typespec/lib1"`,
-          `  - Version: "2.0.0" installed at "${scenarioRoot}/same-library-diff-version/node_modules/@typespec/lib2"`,
-        ].join("\n"),
-      });
+      expectDiagnostics(program.diagnostics, [
+        {
+          code: "unnecessary",
+          message: `Unnecessary code: import "@typespec/lib1"`,
+          severity: "hint",
+        },
+        {
+          code: "incompatible-library",
+          message: [
+            `Multiple versions of "@typespec/my-lib" library were loaded:`,
+            `  - Version: "1.0.0" installed at "${scenarioRoot}/same-library-diff-version/node_modules/@typespec/lib1"`,
+            `  - Version: "2.0.0" installed at "${scenarioRoot}/same-library-diff-version/node_modules/@typespec/lib2"`,
+          ].join("\n"),
+        },
+      ]);
     });
 
     it("Back compat: succeed if main.cadl exists", async () => {
