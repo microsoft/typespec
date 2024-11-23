@@ -151,7 +151,7 @@ describe("compiler: linter", () => {
       const files = {
         "main.tsp": `
           import "my-lib";
-          model Bar {}
+          model Bar extends Foo {}
         `,
         "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
         "node_modules/my-lib/main.tsp": "model Foo {}",
@@ -159,20 +159,14 @@ describe("compiler: linter", () => {
       const linter = await createTestLinterAndEnableRules(files, {
         rules: [noModelFoo],
       });
-      expectDiagnostics(linter.lint(), [
-        {
-          code: "unnecessary",
-          message: `Unnecessary code: import "my-lib"`,
-          severity: "hint",
-        },
-      ]);
+      expectDiagnosticEmpty(linter.lint());
     });
 
     it("emit diagnostic when in the user code", async () => {
       const files = {
         "main.tsp": `
           import "my-lib";
-          model Foo {}
+          model Foo extends Bar {}
         `,
         "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
         "node_modules/my-lib/main.tsp": "model Bar {}",
@@ -185,11 +179,6 @@ describe("compiler: linter", () => {
           severity: "warning",
           code: "@typespec/test-linter/no-model-foo",
           message: `Cannot call model 'Foo'`,
-        },
-        {
-          code: "unnecessary",
-          message: `Unnecessary code: import "my-lib"`,
-          severity: "hint",
         },
       ]);
     });
