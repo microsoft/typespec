@@ -33,24 +33,31 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private readonly Dictionary<string, PropertyProvider> _pipelineMessage20xClassifiers;
         private readonly InputClient _inputClient;
-        private readonly FieldProvider _pipelineMessageClassifier2xxAnd4xx;
-        private readonly PropertyProvider _classifier2xxAnd4xxProperty;
-        private readonly TypeProvider _classifier2xxAnd4xxDefinition;
+        private readonly PropertyProvider? _classifier2xxAnd4xxProperty;
+        private readonly TypeProvider? _classifier2xxAnd4xxDefinition;
 
         public RestClientProvider(InputClient inputClient, ClientProvider clientProvider)
         {
             _inputClient = inputClient;
             ClientProvider = clientProvider;
             _pipelineMessage20xClassifiers = BuildPipelineMessage20xClassifiers();
-            _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
-            _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx", this);
-            _classifier2xxAnd4xxProperty = new PropertyProvider(
-                $"Gets the PipelineMessageClassifier2xxAnd4xx",
-                MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
-                _classifier2xxAnd4xxDefinition.Type,
-                "PipelineMessageClassifier2xxAnd4xx",
-                new ExpressionPropertyBody(_pipelineMessageClassifier2xxAnd4xx.Assign(New.Instance(_classifier2xxAnd4xxDefinition.Type), true)),
-                this);
+
+            if (inputClient.Operations.Any(o => o.HttpMethod == HttpMethod.Head.ToString()))
+            {
+                _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
+                var pipelineMessageClassifier2xxAnd4xxField = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx", this);
+
+                _classifier2xxAnd4xxProperty = new PropertyProvider(
+                    $"Gets the PipelineMessageClassifier2xxAnd4xx",
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
+                    _classifier2xxAnd4xxDefinition.Type,
+                    "PipelineMessageClassifier2xxAnd4xx",
+                    new ExpressionPropertyBody(pipelineMessageClassifier2xxAnd4xxField.Assign(New.Instance(_classifier2xxAnd4xxDefinition.Type), true)),
+                    this)
+                {
+                    BackingField = pipelineMessageClassifier2xxAnd4xxField
+                };
+            }
         }
 
         internal ClientProvider ClientProvider { get; }
@@ -73,7 +80,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            return [.. pipelineMessage20xClassifiersProperties, _classifier2xxAnd4xxProperty];
+            return _classifier2xxAnd4xxProperty != null
+                ? [.. pipelineMessage20xClassifiersProperties, _classifier2xxAnd4xxProperty]
+                : [.. pipelineMessage20xClassifiersProperties];
         }
 
         protected override FieldProvider[] BuildFields()
@@ -90,12 +99,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
             }
 
-            return [.. pipelineMessage20xClassifiersFields, _pipelineMessageClassifier2xxAnd4xx];
+            return _classifier2xxAnd4xxProperty?.BackingField != null
+                ? [.. pipelineMessage20xClassifiersFields, _classifier2xxAnd4xxProperty.BackingField]
+                : [.. pipelineMessage20xClassifiersFields];
         }
 
         protected override TypeProvider[] BuildNestedTypes()
         {
-            return [_classifier2xxAnd4xxDefinition];
+            return _classifier2xxAnd4xxDefinition != null ? [_classifier2xxAnd4xxDefinition] : [];
         }
 
         protected override MethodProvider[] BuildMethods()
@@ -200,7 +211,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private PropertyProvider GetClassifier(InputOperation operation)
         {
-            if (operation.HttpMethod == HttpMethod.Head.ToString())
+            if (operation.HttpMethod == HttpMethod.Head.ToString() && _classifier2xxAnd4xxProperty != null)
                 return _classifier2xxAnd4xxProperty;
 
             if (TryGetPipelineMessageClassifierSuffix(operation, out var classifierSuffix) &&

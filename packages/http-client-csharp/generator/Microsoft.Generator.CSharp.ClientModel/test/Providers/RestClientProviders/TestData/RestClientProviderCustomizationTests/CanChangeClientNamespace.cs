@@ -2,41 +2,10 @@
 
 #nullable disable
 
-using System;
-using System.ClientModel.Primitives;
-
 namespace Sample.Custom
 {
     /// <summary></summary>
     public partial class TestClient
     {
-        private static global::Sample.Custom.TestClient.Classifier2xxAnd4xx _pipelineMessageClassifier2xxAnd4xx;
-
-        private static global::Sample.Custom.TestClient.Classifier2xxAnd4xx PipelineMessageClassifier2xxAnd4xx => _pipelineMessageClassifier2xxAnd4xx ??= new global::Sample.Custom.TestClient.Classifier2xxAnd4xx();
-
-        private class Classifier2xxAnd4xx : global::System.ClientModel.Primitives.PipelineMessageClassifier
-        {
-            public override bool TryClassify(global::System.ClientModel.Primitives.PipelineMessage message, out bool isError)
-            {
-                isError = false;
-                if ((message.Response == null))
-                {
-                    return false;
-                }
-                isError = message.Response.Status switch
-                {
-                    ((>= 200) and (< 300)) => false,
-                    ((>= 400) and (< 500)) => false,
-                    _ => true
-                };
-                return true;
-            }
-
-            public override bool TryClassify(global::System.ClientModel.Primitives.PipelineMessage message, global::System.Exception exception, out bool isRetryable)
-            {
-                isRetryable = false;
-                return false;
-            }
-        }
     }
 }

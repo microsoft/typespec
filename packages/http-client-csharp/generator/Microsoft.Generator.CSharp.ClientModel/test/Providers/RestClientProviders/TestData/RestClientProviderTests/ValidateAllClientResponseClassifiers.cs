@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 
@@ -19,7 +18,6 @@ namespace Sample
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier204;
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier205;
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier _pipelineMessageClassifier206;
-        private static global::Sample.TestClient.Classifier2xxAnd4xx _pipelineMessageClassifier2xxAnd4xx;
 
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
@@ -36,8 +34,6 @@ namespace Sample
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier205 => _pipelineMessageClassifier205 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 205 });
 
         private static global::System.ClientModel.Primitives.PipelineMessageClassifier PipelineMessageClassifier206 => _pipelineMessageClassifier206 = global::System.ClientModel.Primitives.PipelineMessageClassifier.Create(stackalloc ushort[] { 206 });
-
-        private static global::Sample.TestClient.Classifier2xxAnd4xx PipelineMessageClassifier2xxAnd4xx => _pipelineMessageClassifier2xxAnd4xx ??= new global::Sample.TestClient.Classifier2xxAnd4xx();
 
         internal global::System.ClientModel.Primitives.PipelineMessage CreateTestOperation204Request(global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options)
         {
@@ -163,31 +159,6 @@ namespace Sample
             request.Content = content;
             message.Apply(options);
             return message;
-        }
-
-        private class Classifier2xxAnd4xx : global::System.ClientModel.Primitives.PipelineMessageClassifier
-        {
-            public override bool TryClassify(global::System.ClientModel.Primitives.PipelineMessage message, out bool isError)
-            {
-                isError = false;
-                if ((message.Response == null))
-                {
-                    return false;
-                }
-                isError = message.Response.Status switch
-                {
-                    ((>= 200) and (< 300)) => false,
-                    ((>= 400) and (< 500)) => false,
-                    _ => true
-                };
-                return true;
-            }
-
-            public override bool TryClassify(global::System.ClientModel.Primitives.PipelineMessage message, global::System.Exception exception, out bool isRetryable)
-            {
-                isRetryable = false;
-                return false;
-            }
         }
     }
 }

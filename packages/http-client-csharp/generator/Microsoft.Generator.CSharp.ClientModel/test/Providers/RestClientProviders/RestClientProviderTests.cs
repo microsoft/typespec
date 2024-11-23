@@ -77,13 +77,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             Assert.IsFalse(fieldHash.ContainsKey("_pipelineMessageClassifier201"));
             //validate _pipelineMessageClassifier204 isn't present
             Assert.IsFalse(fieldHash.ContainsKey("_pipelineMessageClassifier204"));
-
-            //validate _pipelineMessageClassifier2xxAnd4xx
-            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier2xxAnd4xx"));
-            var pipelineMessageClassifier2xxAnd4xx = fieldHash["_pipelineMessageClassifier2xxAnd4xx"];
-            Assert.AreEqual("Classifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Type.Name);
-            Assert.AreEqual("_pipelineMessageClassifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Name);
-            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier2xxAnd4xx.Modifiers);
         }
 
         [Test]
@@ -104,14 +97,41 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier201"));
             //validate _pipelineMessageClassifier204 isn't present
             Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier204"));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestPipelineMessageClassifier2xxAnd4xx(bool shouldBeGenerated)
+        {
+            string httpMethod = shouldBeGenerated ? "HEAD" : "POST";
+            InputOperation inputOperation = InputFactory.Operation(
+                "CreateMessage",
+                httpMethod: httpMethod,
+                responses: [
+                    InputFactory.OperationResponse([200]),
+                ]);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            var restClient = new ClientProvider(inputClient).RestClient;
 
             //validate _pipelineMessageClassifier2xxAnd4xx
-            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier2xxAnd4xx"));
-            var pipelineMessageClassifier2xxAnd4xx = propertyHash["PipelineMessageClassifier2xxAnd4xx"];
-            Assert.AreEqual("Classifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Type.Name);
-            Assert.AreEqual("PipelineMessageClassifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Name);
-            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier2xxAnd4xx.Modifiers);
-            Assert.IsFalse(pipelineMessageClassifier2xxAnd4xx.Body.HasSetter);
+            Dictionary<string, FieldProvider> fieldHash = restClient.Fields.ToDictionary(f => f.Name);
+            Assert.AreEqual(shouldBeGenerated, fieldHash.ContainsKey("_pipelineMessageClassifier2xxAnd4xx"));
+
+            Dictionary<string, PropertyProvider> propertyHash = restClient.Properties.ToDictionary(p => p.Name);
+            Assert.AreEqual(shouldBeGenerated, propertyHash.ContainsKey("PipelineMessageClassifier2xxAnd4xx"));
+            if (shouldBeGenerated)
+            {
+                var pipelineMessageClassifier2xxAnd4xx = fieldHash["_pipelineMessageClassifier2xxAnd4xx"];
+                Assert.AreEqual("Classifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Type.Name);
+                Assert.AreEqual("_pipelineMessageClassifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Name);
+                Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier2xxAnd4xx.Modifiers);
+
+                var pipelineMessageClassifier2xxAnd4xxProperty = propertyHash["PipelineMessageClassifier2xxAnd4xx"];
+                Assert.AreEqual("Classifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xxProperty.Type.Name);
+                Assert.AreEqual("PipelineMessageClassifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xxProperty.Name);
+                Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier2xxAnd4xxProperty.Modifiers);
+                Assert.IsFalse(pipelineMessageClassifier2xxAnd4xxProperty.Body.HasSetter);
+            }
         }
 
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
@@ -303,8 +323,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             var classifierFields = restClientProvider.Fields.Where(f => f.Name.StartsWith("_pipelineMessageClassifier")).ToList();
             var classifierProperties = restClientProvider.Properties.Where(p => p.Name.StartsWith("PipelineMessageClassifier")).ToList();
 
-            Assert.AreEqual(5, classifierFields.Count);
-            Assert.AreEqual(5, classifierProperties.Count);
+            Assert.AreEqual(4, classifierFields.Count);
+            Assert.AreEqual(4, classifierProperties.Count);
 
             Assert.IsTrue(classifierFields.Any(f => f.Name == "_pipelineMessageClassifier200"));
             Assert.IsTrue(classifierFields.Any(f => f.Name == "_pipelineMessageClassifier201202"));
