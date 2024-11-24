@@ -63,7 +63,7 @@ export async function activate(context: ExtensionContext) {
     }),
   );
 
-  vscode.tasks.registerTaskProvider("Typespec.GenerateSdk", {
+  const taskDisposal = vscode.tasks.registerTaskProvider("typespec", {
     provideTasks: () => {
       return generatSdkTask();
     },
@@ -71,6 +71,7 @@ export async function activate(context: ExtensionContext) {
       return undefined;
     },
   });
+  context.subscriptions.push(taskDisposal);
 
   return await vscode.window.withProgress(
     {
@@ -92,9 +93,9 @@ function generatSdkTask(): vscode.Task[] {
   let task = new vscode.Task(
     { type: "Typespec.GenerateSdk" },
     vscode.TaskScope.Workspace,
-    "Generate Sdk",
-    "generate sdk",
-    new vscode.ShellExecution("echo Hello World"),
+    "Generate Sdk Task",
+    "generate sdk Task",
+    new vscode.ShellExecution("code --command 'typespec.GenerateSDK'"),
   );
   return [task];
 }
@@ -105,6 +106,7 @@ export async function doEmit(
   overallProgress: vscode.Progress<{ message?: string; increment?: number }>,
 ) {
   const baseDir = (await isFile(uri.fsPath)) ? dirname(uri.fsPath) : uri.fsPath;
+  /*TODO: check the main.tsp file if it is a project folder. */
   logger.info("Collecting emitters...", [], {
     showOutput: false,
     showPopup: false,
@@ -253,6 +255,7 @@ export async function doEmit(
     /* install emitter package. */
     logger.info(`select ${e.package}`);
     const { action, version } = await npmUtil.ensureNpmPackageInstall(e.package, e.version);
+    /* TODO: check the dependent compiler version. */
     if (action === InstallationAction.Upgrade) {
       logger.info(`Upgrading ${e.package} to version ${version}`);
       const options = {
@@ -334,7 +337,7 @@ function getWebviewContent(selectedEmitters: EmitQuickPickItem[]): string {
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Multi Input</title>
+          <title>Configure Output Directory</title>
       </head>
       <body>
           <h1>Configure output directory for each SDK</h1>

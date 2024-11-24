@@ -114,25 +114,25 @@
             "scope": "window",
             "type": "string",
             "default": "@typespec/http-client-csharp",
-            "description": "Define the emitter to generate .NET SDK."
+            "description": "Define the emitter to generate .NET SDK.\n\nExample (with version): @typespec/http-client-csharp@1.0.0\n\nExample (without version): @typespec/http-client-csharp"
           },
           "typespec.emitter.java": {
             "scope": "window",
             "type": "string",
             "default": "@typespec/http-client-java",
-            "description": "Define the emitter to generate Java SDK."
+            "description": "Define the emitter to generate Java SDK.\n\nExample (with version): @typespec/http-client-java@1.0.0\n\nExample (without version): @typespec/http-client-java"
           },
           "typespec.emitter.python": {
             "scope": "window",
             "type": "string",
             "default": "@typespec/http-client-python",
-            "description": "Define the emitter to generate Python SDK."
+            "description": "Define the emitter to generate Python SDK.\n\nExample (with version): @typespec/http-client-python@1.0.0\n\nExample (without version): @typespec/http-client-python"
           },
           "typespec.emitter.javascript": {
             "scope": "window",
             "type": "string",
             "default": "@azure-tools/typespec-ts",
-            "description": "Define the emitter to generate Js SDK."
+            "description": "Define the emitter to generate Js SDK.\n\nExample (with version): @azure-tools/typespec-ts@1.0.0\n\nExample (without version): @azure-tools/typespec-ts"
           }
         }
       }
