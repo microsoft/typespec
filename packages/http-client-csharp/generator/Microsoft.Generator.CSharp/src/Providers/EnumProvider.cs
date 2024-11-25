@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _inputType = input;
             _deprecated = input.Deprecated;
             IsExtensible = input.IsExtensible;
-            Description = DocHelpers.GetFormattableDescription(input.Summary, input.Doc) ?? $"The {Name}.";
+            Description = DocHelpers.GetFormattableDescription(input.Summary, input.Doc) ?? FormattableStringHelpers.Empty;
         }
 
         public bool IsExtensible { get; }
