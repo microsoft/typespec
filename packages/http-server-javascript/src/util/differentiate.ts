@@ -18,7 +18,7 @@ import {
 import { getJsScalar } from "../common/scalar.js";
 import { JsContext } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
-import { parseCase } from "./case.js";
+import { isUnspeakable, parseCase } from "./case.js";
 import { UnimplementedError, UnreachableError } from "./error.js";
 import { getAllProperties } from "./extends.js";
 import { categorize, indent } from "./iter.js";
@@ -227,6 +227,8 @@ export interface SubjectReference {
   kind: "subject";
 }
 
+const SUBJECT = { kind: "subject" } as SubjectReference;
+
 /**
  * A reference to a model property. Model property references are rendered by the `referenceModelProperty` function in the
  * options given to `writeCodeTree`, allowing the caller to define how model properties are stored.
@@ -299,7 +301,7 @@ export function differentiateUnion(
       }
     }
 
-    return differentiateTypes(ctx, cases, PROPERTY_ID);
+    return differentiateTypes(ctx, cases, renderPropertyName);
   } else {
     const property = (variants[0].type as Model).properties.get(discriminator)!;
 
@@ -362,7 +364,7 @@ export function differentiateTypes(
   const scalars = (categories.Scalar as Scalar[]) ?? [];
 
   if (literals.length + scalars.length === 0) {
-    return differentiateModelTypes(ctx, select(models, cases));
+    return differentiateModelTypes(ctx, select(models, cases), renderPropertyName);
   } else {
     const branches: IfBranch[] = [];
     for (const literal of literals) {
@@ -370,7 +372,7 @@ export function differentiateTypes(
         condition: {
           kind: "binary-op",
           operator: "===",
-          left: { kind: "subject" },
+          left: SUBJECT,
           right: { kind: "literal", value: getJsValue(ctx, literal) },
         },
         body: {
@@ -403,7 +405,7 @@ export function differentiateTypes(
           test = {
             kind: "binary-op",
             operator: "instanceof",
-            left: { kind: "subject" },
+            left: SUBJECT,
             right: { kind: "verbatim", text: "Uint8Array" },
           };
           break;
@@ -411,7 +413,7 @@ export function differentiateTypes(
           test = {
             kind: "binary-op",
             operator: "===",
-            left: { kind: "typeof", operand: { kind: "subject" } },
+            left: { kind: "typeof", operand: SUBJECT },
             right: { kind: "literal", value: "number" },
           };
           break;
@@ -419,7 +421,7 @@ export function differentiateTypes(
           test = {
             kind: "binary-op",
             operator: "===",
-            left: { kind: "typeof", operand: { kind: "subject" } },
+            left: { kind: "typeof", operand: SUBJECT },
             right: { kind: "literal", value: "bigint" },
           };
           break;
@@ -427,7 +429,7 @@ export function differentiateTypes(
           test = {
             kind: "binary-op",
             operator: "===",
-            left: { kind: "typeof", operand: { kind: "subject" } },
+            left: { kind: "typeof", operand: SUBJECT },
             right: { kind: "literal", value: "string" },
           };
           break;
@@ -435,7 +437,7 @@ export function differentiateTypes(
           test = {
             kind: "binary-op",
             operator: "===",
-            left: { kind: "typeof", operand: { kind: "subject" } },
+            left: { kind: "typeof", operand: SUBJECT },
             right: { kind: "literal", value: "boolean" },
           };
           break;
@@ -443,7 +445,7 @@ export function differentiateTypes(
           test = {
             kind: "binary-op",
             operator: "instanceof",
-            left: { kind: "subject" },
+            left: SUBJECT,
             right: { kind: "verbatim", text: "Date" },
           };
           break;
@@ -465,7 +467,10 @@ export function differentiateTypes(
     return {
       kind: "if-chain",
       branches,
-      else: models.length > 0 ? differentiateModelTypes(ctx, select(models, cases)) : undefined,
+      else:
+        models.length > 0
+          ? differentiateModelTypes(ctx, select(models, cases), renderPropertyName)
+          : undefined,
     };
   }
 
@@ -580,6 +585,9 @@ export function differentiateModelTypes(
     for (const prop of getAllProperties(model)) {
       // Don't consider optional properties for differentiation.
       if (prop.optional) continue;
+
+      // Ignore properties that have no parseable name.
+      if (isUnspeakable(prop.name)) continue;
 
       const renderedPropName = renderPropertyName(prop) as RenderedPropertyName;
 
@@ -701,11 +709,21 @@ export function differentiateModelTypes(
       branches.push({
         condition: {
           kind: "binary-op",
-          left: { kind: "model-property", property },
-          operator: "===",
+          left: {
+            kind: "binary-op",
+            left: { kind: "literal", value: renderPropertyName(property) },
+            operator: "in",
+            right: SUBJECT,
+          },
+          operator: "&&",
           right: {
-            kind: "literal",
-            value: getJsValue(ctx, property.type as JsLiteralType),
+            kind: "binary-op",
+            left: { kind: "model-property", property },
+            operator: "===",
+            right: {
+              kind: "literal",
+              value: getJsValue(ctx, property.type as JsLiteralType),
+            },
           },
         },
         body: { kind: "result", type: model },
@@ -738,7 +756,7 @@ export function differentiateModelTypes(
           kind: "binary-op",
           left: { kind: "literal", value: firstUniqueProp },
           operator: "in",
-          right: { kind: "subject" },
+          right: SUBJECT,
         },
         body: { kind: "result", type: model },
       });
