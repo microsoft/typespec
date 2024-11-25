@@ -649,6 +649,31 @@ it("Generates types for generic model instantiation", async () => {
   );
 });
 
+it("Generates good name for model instantiation without hints", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       model Toy {
+        @key("toyId")
+        id: int64;
+      
+        petId: int64;
+        name: string;
+      }
+
+      model Foo<T> {
+        prop: T;
+      }
+
+       op foo(): Foo<Toy>;
+    `,
+    "FooToy.cs",
+    ["public partial class FooToy"],
+  );
+});
+
 it("Generates types and controllers in a service subnamespace", async () => {
   await compileAndValidateMultiple(
     runner,
