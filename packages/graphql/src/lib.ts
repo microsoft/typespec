@@ -1,4 +1,4 @@
-import { createTypeSpecLibrary, type JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage, type JSONSchemaType } from "@typespec/compiler";
 
 export const NAMESPACE = "TypeSpec.GraphQL";
 
@@ -93,11 +93,25 @@ const EmitterOptionsSchema: JSONSchemaType<GraphQLEmitterOptions> = {
 
 export const libDef = {
   name: "@typespec/graphql",
-  diagnostics: {},
+  diagnostics: {
+    "operation-field-conflict": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Operation \`${"operation"}\` conflicts with an existing ${"conflictType"} on model \`${"model"}\`.`,
+      },
+    },
+    "operation-field-duplicate": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Operation \`${"operation"}\` is defined multiple times on \`${"model"}\`.`,
+      },
+    },
+  },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,
   },
   state: {
+    operationFields: { description: "State for the @operationFields decorator." },
     schema: { description: "State for the @schema decorator." },
   },
 } as const;
