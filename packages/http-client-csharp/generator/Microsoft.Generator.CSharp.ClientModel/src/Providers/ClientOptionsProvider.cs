@@ -128,9 +128,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     FormattableString? description = null;
                     var parameterDescription = DocHelpers.GetDescription(p.Summary, p.Doc);
-                    if (!string.IsNullOrEmpty(parameterDescription))
+                    if (parameterDescription is not null)
                     {
-                        description = $"{description}";
+                        description = $"{parameterDescription}";
                     }
 
                     var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;

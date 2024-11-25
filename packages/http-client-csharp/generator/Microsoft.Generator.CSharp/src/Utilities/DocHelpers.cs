@@ -2,33 +2,24 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp.Utilities
 {
     public class DocHelpers
     {
-        public static string GetDescription(string? summary, string? doc, string defaultDescription = "")
+        public static string? GetDescription(string? summary, string? doc)
         {
             return (summary, doc) switch
             {
-                (null or "", null or "") => defaultDescription,
+                (null or "", null or "") => null,
                 (string s, null or "") => s,
                 _ => doc,
             };
         }
 
-        public static FormattableString GetFormattableDescription(string? summary, string? doc, FormattableString? defaultDescription = null)
+        public static FormattableString? GetFormattableDescription(string? summary, string? doc)
         {
-            return (summary, doc) switch
-            {
-                (null or "", null or "") => defaultDescription ?? $"",
-                (string s, null or "") => $"{s}",
-                _ => $"{doc}",
-            };
+            return FormattableStringHelpers.FromString(GetDescription(summary, doc));
         }
     }
 }

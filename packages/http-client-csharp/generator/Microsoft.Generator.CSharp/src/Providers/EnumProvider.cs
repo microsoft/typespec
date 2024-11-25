@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Utilities;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -33,8 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _inputType = input;
             _deprecated = input.Deprecated;
             IsExtensible = input.IsExtensible;
-            Description = string.IsNullOrEmpty(input.Summary) ? (string.IsNullOrEmpty(input.Doc) ? $"The {Name}." : FormattableStringHelpers.FromString(input.Doc))
-                : FormattableStringHelpers.FromString(input.Summary);
+            Description = DocHelpers.GetFormattableDescription(input.Summary, input.Doc) ?? $"The {Name}.";
         }
 
         public bool IsExtensible { get; }

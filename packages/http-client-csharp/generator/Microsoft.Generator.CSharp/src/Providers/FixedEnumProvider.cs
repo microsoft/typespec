@@ -99,7 +99,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     EnumUnderlyingType,
                     name,
                     this,
-                    DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc, $"{name}"),
+                    DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
                     initializationValue);
 
                 values[i] = new EnumTypeMember(name, field, inputValue.Value);

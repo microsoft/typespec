@@ -90,13 +90,13 @@ namespace Microsoft.Generator.CSharp.Providers
                 ? $"{inputProperty.Name.ToCleanName()}Property"
                 : inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
-            Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc, PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter));
+            Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
             IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc, FormattableStringHelpers.Empty));
+            InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
         }
 
         public PropertyProvider(
