@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            Description = FormattableStringHelpers.FromString(DocHelpers.GetDescription(inputModel.Summary, inputModel.Doc, $"The {Name}."));
+            Description = DocHelpers.GetFormattableDescription(inputModel.Summary, inputModel.Doc, $"The {Name}.");
 
             if (inputModel.BaseModel is not null)
             {

@@ -60,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     EnumUnderlyingType,
                     name,
                     this,
-                    FormattableStringHelpers.FromString(DocHelpers.GetDescription(inputValue.Summary, inputValue.Doc)),
+                    DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc),
                     initializationValue);
 
                 values[i] = new EnumTypeMember(valueName, field, inputValue.Value);

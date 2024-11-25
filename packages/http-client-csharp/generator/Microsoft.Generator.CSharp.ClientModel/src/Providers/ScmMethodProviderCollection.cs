@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
-                FormattableStringHelpers.FromString(DocHelpers.GetDescription(Operation.Summary, Operation.Doc, Operation.Name)),
+                DocHelpers.GetFormattableDescription(Operation.Summary, Operation.Doc, FormattableStringHelpers.FromString(Operation.Name)),
                 methodModifier,
                 GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
@@ -425,7 +425,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
-                FormattableStringHelpers.FromString(DocHelpers.GetDescription(Operation.Summary, Operation.Doc, Operation.Name)),
+                DocHelpers.GetFormattableDescription(Operation.Summary, Operation.Doc, FormattableStringHelpers.FromString(Operation.Name)),
                 methodModifier,
                 GetResponseType(Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",

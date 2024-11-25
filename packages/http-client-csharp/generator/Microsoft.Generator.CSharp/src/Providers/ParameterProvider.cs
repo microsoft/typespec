@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterProvider(InputParameter inputParameter)
         {
             Name = inputParameter.Name;
-            Description = FormattableStringHelpers.FromString(DocHelpers.GetDescription(inputParameter.Summary, inputParameter.Doc)) ?? FormattableStringHelpers.Empty;
+            Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc);
             var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             if (!inputParameter.IsRequired && !type.IsCollection)
             {
