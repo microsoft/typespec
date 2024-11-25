@@ -90,7 +90,6 @@ import {
   getNamespaceFullName,
   getOverloadedOperation,
   getSummary,
-  getVisibility,
   isArrayModelType,
   isRecordModelType,
   listServices,
@@ -339,10 +338,16 @@ export class CodeModelBuilder {
 
           case "apiKey":
             {
-              const keyScheme = new KeySecurityScheme({
-                name: scheme.name,
-              });
-              securitySchemes.push(keyScheme);
+              if (scheme.in === "header") {
+                const keyScheme = new KeySecurityScheme({
+                  name: scheme.name,
+                });
+                securitySchemes.push(keyScheme);
+              } else {
+                this.logWarning(
+                  `ApiKey auth is currently only supported for ApiKeyLocation.header.`,
+                );
+              }
             }
             break;
 
@@ -355,7 +360,9 @@ export class CodeModelBuilder {
 
                 if (this.isBranded()) {
                   // Azure would not allow BasicAuth or BearerAuth
-                  this.logWarning(`${scheme.scheme} auth method is currently not supported.`);
+                  this.logWarning(
+                    `HTTP auth with ${scheme.scheme} scheme is not supported for Azure.`,
+                  );
                   continue;
                 }
               }
@@ -2426,14 +2433,14 @@ export class CodeModelBuilder {
     if (segment) {
       return true;
     } else {
-      const visibility = target.__raw ? getVisibility(this.program, target.__raw) : undefined;
+      const visibility = target.kind === "property" ? target.visibility : undefined;
       if (visibility) {
         return (
-          !visibility.includes("write") &&
-          !visibility.includes("create") &&
-          !visibility.includes("update") &&
-          !visibility.includes("delete") &&
-          !visibility.includes("query")
+          !visibility.includes(Visibility.All) &&
+          !visibility.includes(Visibility.Create) &&
+          !visibility.includes(Visibility.Update) &&
+          !visibility.includes(Visibility.Delete) &&
+          !visibility.includes(Visibility.Query)
         );
       } else {
         return false;
