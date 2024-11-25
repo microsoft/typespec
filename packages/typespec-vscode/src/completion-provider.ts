@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import vscode from "vscode";
+import { normalizeSlash } from "./utils.js";
 
 export function createExtendsCompletionItemProvider() {
   return vscode.languages.registerCompletionItemProvider(
@@ -61,7 +62,7 @@ function findFilesWithSameExtension(rootPath: string, fileName: string): string[
         searchDirectory(fullPath);
       } else if (file !== fileName && path.extname(file) === fileExtension) {
         const newRelativePath = path.relative(rootPath, fullPath);
-        result.push(" ./" + newRelativePath.replace("\\", "/"));
+        result.push(" ./" + normalizeSlash(newRelativePath));
       }
     }
   }
