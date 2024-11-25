@@ -95,7 +95,8 @@ namespace Microsoft.Generator.CSharp.Input
             model.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             model.Access = accessibility;
             model.Deprecation = deprecation;
-            model.Description = string.IsNullOrEmpty(summary) ? doc : summary;
+            model.Summary = summary;
+            model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
             // TO-DO: Manually add JSON usage flag for now until support for parsing this is added to the TSP https://github.com/microsoft/typespec/issues/3392
             parsedUsage |= InputModelTypeUsage.Json;

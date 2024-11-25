@@ -21,7 +21,8 @@ namespace Microsoft.Generator.CSharp.Input
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Access = access;
             Deprecation = deprecation;
-            Description = string.IsNullOrEmpty(summary) ? doc : summary;
+            Summary = summary;
+            Doc = doc;
             Usage = usage;
             Properties = properties;
             BaseModel = baseModel;
@@ -48,7 +49,8 @@ namespace Microsoft.Generator.CSharp.Input
         public string CrossLanguageDefinitionId { get; internal set; }
         public string? Access { get; internal set; }
         public string? Deprecation { get; internal set; }
-        public string? Description { get; internal set; }
+        public string? Summary { get; internal set; }
+        public string? Doc { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
 
         public IReadOnlyList<InputModelProperty> Properties
