@@ -5,9 +5,9 @@
 package _specs_.azure.clientgenerator.core.access;
 
 import _specs_.azure.clientgenerator.core.access.implementation.InternalOperationsImpl;
-import _specs_.azure.clientgenerator.core.access.implementation.models.InternalDecoratorModelInInternal;
-import _specs_.azure.clientgenerator.core.access.implementation.models.NoDecoratorModelInInternal;
-import _specs_.azure.clientgenerator.core.access.models.PublicDecoratorModelInInternal;
+import _specs_.azure.clientgenerator.core.access.internaloperation.implementation.models.InternalDecoratorModelInInternal;
+import _specs_.azure.clientgenerator.core.access.internaloperation.implementation.models.NoDecoratorModelInInternal;
+import _specs_.azure.clientgenerator.core.access.internaloperation.models.PublicDecoratorModelInInternal;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;

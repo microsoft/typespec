@@ -3,9 +3,9 @@
 
 package encode.numeric;
 
-import encode.numeric.models.SafeintAsStringProperty;
-import encode.numeric.models.Uint32AsStringProperty;
-import encode.numeric.models.Uint8AsStringProperty;
+import encode.numeric.property.models.SafeintAsStringProperty;
+import encode.numeric.property.models.Uint32AsStringProperty;
+import encode.numeric.property.models.Uint8AsStringProperty;
 import org.junit.jupiter.api.Test;
 
 public class StringEncodeTests {
