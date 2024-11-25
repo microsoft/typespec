@@ -135,7 +135,7 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "@typespec/openapi/invalid-extension-key",
-        message: `OpenAPI extension must start with 'x-' but was 'foo'`,
+        message: `extension decorator only support minProperties/maxProperties/uniqueItems/multipleOf/'x-' but was 'foo'`,
       });
     });
   });
