@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { ModelProperty, Type } from "@typespec/compiler";
+import { ModelProperty, Type, compilerAssert } from "@typespec/compiler";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -19,7 +19,7 @@ import {
   requireSerialization,
 } from "../../common/serialization/index.js";
 import { Module, completePendingDeclarations, createModule } from "../../ctx.js";
-import { parseCase } from "../../util/case.js";
+import { isUnspeakable, parseCase } from "../../util/case.js";
 import { UnimplementedError } from "../../util/error.js";
 import { getAllProperties } from "../../util/extends.js";
 import { bifilter, indent } from "../../util/iter.js";
@@ -27,6 +27,7 @@ import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../index.js";
 
 import { module as routerHelpers } from "../../../generated-defs/helpers/router.js";
+import { reportDiagnostic } from "../../lib.js";
 import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
@@ -345,8 +346,25 @@ function* emitResultProcessingForType(
       yield `response.setHeader(${JSON.stringify(headerName.toLowerCase())}, result.${parseCase(property.name).camelCase});`;
       if (!body) yield `delete (result as any).${parseCase(property.name).camelCase};`;
     } else if (isStatusCode(ctx.program, property)) {
-      yield `response.statusCode = result.${parseCase(property.name).camelCase};`;
-      if (!body) yield `delete (result as any).${parseCase(property.name).camelCase};`;
+      if (isUnspeakable(property.name)) {
+        if (!isValueLiteralType(property.type)) {
+          reportDiagnostic(ctx.program, {
+            code: "unspeakable-status-code",
+            target: property,
+            format: {
+              name: property.name,
+            },
+          });
+          continue;
+        }
+
+        compilerAssert(property.type.kind === "Number", "Status code must be a number.");
+
+        yield `response.statusCode = ${property.type.valueAsString};`;
+      } else {
+        yield `response.statusCode = result.${parseCase(property.name).camelCase};`;
+        if (!body) yield `delete (result as any).${parseCase(property.name).camelCase};`;
+      }
     }
   }
 
