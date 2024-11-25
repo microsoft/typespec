@@ -145,10 +145,11 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 ImportType.SDKCORE,
             )
         if self.code_model.options["models_mode"] == "dpg":
-            relative_path = "..." if async_mode else ".."
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            relative_path = self.code_model.get_relative_import_path(serialize_namespace)
             file_import.merge(self.item_type.imports(**kwargs))
             if self.default_error_deserialization or any(r.type for r in self.responses):
-                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
+                file_import.add_submodule_import(f"{relative_path}._model_base", "_deserialize", ImportType.LOCAL)
         return file_import
 
 

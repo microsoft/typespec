@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any, List
+from typing import Any, List, Optional
 from jinja2 import Environment
 from .import_serializer import FileImportSerializer, TypingSection
 from ..models.imports import MsrestImportType, FileImport
@@ -21,8 +21,10 @@ from .base_serializer import BaseSerializer
 class GeneralSerializer(BaseSerializer):
     """General serializer for SDK root level files"""
 
-    def __init__(self, code_model: CodeModel, env: Environment, async_mode: bool):
-        super().__init__(code_model, env)
+    def __init__(
+        self, code_model: CodeModel, env: Environment, async_mode: bool, *, serialize_namespace: Optional[str] = None
+    ):
+        super().__init__(code_model, env, serialize_namespace=serialize_namespace)
         self.async_mode = async_mode
 
     def serialize_setup_file(self) -> str:
@@ -100,7 +102,7 @@ class GeneralSerializer(BaseSerializer):
                 TypingSection.TYPING,
             )
             file_import.add_msrest_import(
-                relative_path=".." if self.async_mode else ".",
+                serialize_namespace=self.serialize_namespace,
                 msrest_import_type=MsrestImportType.SerializerDeserializer,
                 typing_section=TypingSection.TYPING,
             )

@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 from typing import TypeVar, Dict
+from enum import Enum
 
 T = TypeVar("T")
 OrderedSet = Dict[T, None]
@@ -19,3 +20,9 @@ def add_to_pylint_disable(curr_str: str, entry: str) -> str:
     if curr_str:
         return f"{curr_str},{entry}"
     return f"  # pylint: disable={entry}"
+
+class NamespaceType(str, Enum):
+    """Special signal for impports"""
+    MODEL = "model"
+    OPERATION = "operation"
+

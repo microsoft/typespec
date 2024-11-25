@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List, Dict, Any, Set, Union, Literal
+from typing import List, Dict, Any, Set, Union, Literal, Optional
 
 from .base import BaseType
 from .enum_type import EnumType
@@ -11,10 +11,25 @@ from .model_type import ModelType, UsageFlags
 from .combined_type import CombinedType
 from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
-
+from .operation_group import OperationGroup
+from .utils import NamespaceType
 
 def _is_legacy(options) -> bool:
     return not (options.get("version_tolerant") or options.get("low_level_client"))
+
+
+class ClientNamespaceType:
+    def __init__(
+        self,
+        client_namespace: str,
+        clients: List[Client],
+        models: List[ModelType],
+        operation_groups: List[OperationGroup],
+    ):
+        self.client_namespace = client_namespace
+        self.clients = clients
+        self.models = models
+        self.operation_groups = operation_groups
 
 
 class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-instance-attributes
@@ -71,6 +86,31 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         ]
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
         self.for_test: bool = False
+        self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
+    # | serialize_namespace  | imported_namespace | relative_import_path |
+    # |----------------------|--------------------|----------------------|
+    # |azure.test.operations | azure.test         | ..                   |
+    # |azure.test.operations | azure.test.subtest | ..subtest            |
+    # |azure.test.operations | azure              | ...                  |
+    # |azure.test.aio.operations | azure.test     | ...                  |
+    # |azure.test.subtest.aio.operations|azure.test| ....                |
+    # |azure.test            |azure.test.subtest  | .subtest             |
+    def get_relative_import_path(self, serialize_namespace: str, imported_namespace: Optional[str] = None, *, namespace_type = Optional[NamespaceType] = None) -> str:
+        imported_namespace = self.namespace if imported_namespace is None else imported_namespace
+        idx = 0
+        while idx < min(len(serialize_namespace), len(imported_namespace)):
+            if serialize_namespace[idx] != imported_namespace[idx]:
+                break
+            idx += 1
+        return "." * (len(serialize_namespace[idx:].strip(".").split(".")) + 1) + imported_namespace[idx:].strip(".")
+
+    @property
+    def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:
+        if not self._client_namespace_types:
+            for client in self.clients:
+                # TODO
+                pass
+        return self._client_namespace_types
 
     @property
     def has_form_data(self) -> bool:
@@ -130,12 +170,14 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def has_abstract_operations(self) -> bool:
         return any(c for c in self.clients if c.has_abstract_operations)
 
-    @property
-    def operations_folder_name(self) -> str:
+    @staticmethod
+    def operations_folder_name(self, client_namespace: str) -> str:
         """Get the name of the operations folder that holds operations."""
         name = "operations"
+        client_namespace_type = self.client_namespace_types.get(client_namespace)
+        operation_groups = client_namespace_type.operation_groups if client_namespace_type else []
         if self.options["version_tolerant"] and not any(
-            og for client in self.clients for og in client.operation_groups if not og.is_mixin
+            og for client in self.clients for og in operation_groups if not og.is_mixin
         ):
             name = f"_{name}"
         return name

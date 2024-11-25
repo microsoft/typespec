@@ -8,6 +8,7 @@ from typing import Any, Dict, List, TYPE_CHECKING, Optional, cast
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
 
+
 if TYPE_CHECKING:
     from .code_model import CodeModel
 
@@ -75,7 +76,14 @@ class EnumValue(BaseType):
         file_import = FileImport(self.code_model)
         file_import.merge(self.value_type.imports(**kwargs))
         file_import.add_submodule_import("typing", "Literal", ImportType.STDLIB, TypingSection.REGULAR)
-        file_import.add_submodule_import("._enums", self.enum_type.name, ImportType.LOCAL, TypingSection.REGULAR)
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        file_import.add_submodule_import(
+            self.code_model.get_relative_import_path(serialize_namespace, self.enum_type.client_namespace),
+            self.enum_type.name,
+            ImportType.LOCAL,
+            TypingSection.REGULAR,
+            client_namespace=self.enum_type.client_namespace,
+        )
 
         return file_import
 
@@ -124,6 +132,7 @@ class EnumType(BaseType):
         self.value_type = value_type
         self.internal: bool = self.yaml_data.get("internal", False)
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
+        self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
 
     def __lt__(self, other):
         return self.name.lower() < other.name.lower()
@@ -212,27 +221,28 @@ class EnumType(BaseType):
         )
 
     def imports(self, **kwargs: Any) -> FileImport:
-        operation = kwargs.pop("operation", False)
+        in_operation_file = kwargs.pop("in_operation_file", False)
         file_import = FileImport(self.code_model)
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.code_model.options["models_mode"]:
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
-            if not operation:
+            if not in_operation_file:
                 file_import.add_submodule_import(
-                    "..",
+                    self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
                     "models",
                     ImportType.LOCAL,
                     TypingSection.TYPING,
                     alias="_models",
                 )
-        file_import.merge(self.value_type.imports(operation=operation, **kwargs))
+        file_import.merge(self.value_type.imports(in_operation_file=in_operation_file, **kwargs))
         relative_path = kwargs.pop("relative_path", None)
         if self.code_model.options["models_mode"] and relative_path:
             # add import for enums in operations file
             file_import.add_submodule_import(
-                relative_path,
+                self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
                 "models",
                 ImportType.LOCAL,
                 alias="_models",
-                typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
+                typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),  # TODO
             )
         return file_import

@@ -144,12 +144,13 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         file_import = FileImport(self.code_model)
         if self.is_discriminator and isinstance(self.type, EnumType):
             return file_import
-        file_import.merge(self.type.imports(**kwargs, relative_path="..", model_typing=True))
+        file_import.merge(self.type.imports(**kwargs, model_typing=True))
         if self.optional and self.client_default_value is None:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
-        if self.code_model.options["models_mode"] == "dpg":
+        if self.code_model.options["models_mode"] == "dpg" and isinstance(self.type, ModelType):
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                ".._model_base",
+                f"{self.code_model.get_relative_import_path(serialize_namespace)}._model_base",
                 "rest_discriminator" if self.is_discriminator else "rest_field",
                 ImportType.LOCAL,
             )

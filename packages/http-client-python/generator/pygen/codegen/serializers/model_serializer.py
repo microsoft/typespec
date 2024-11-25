@@ -132,7 +132,7 @@ class MsrestModelSerializer(_ModelSerializer):
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_msrest_import(
-            relative_path="..",
+            serialize_namespace=self.serialize_namespace,
             msrest_import_type=MsrestImportType.Module,
             typing_section=TypingSection.REGULAR,
         )
@@ -210,7 +210,7 @@ class DpgModelSerializer(_ModelSerializer):
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import(
-            "..",
+            self.code_model.get_relative_import_path(self.serialize_namespace)
             "_model_base",
             ImportType.LOCAL,
             TypingSection.REGULAR,

@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List
+from typing import List, Optional
 from jinja2 import Environment
 
 from ..models import FileImport
@@ -19,8 +19,10 @@ class RequestBuildersSerializer(BaseSerializer):
         code_model: CodeModel,
         env: Environment,
         request_builders: List[RequestBuilderType],
+        *,
+        serialize_namespace: Optional[str] = None,
     ) -> None:
-        super().__init__(code_model, env)
+        super().__init__(code_model, env, serialize_namespace=serialize_namespace)
         self.request_builders = request_builders
         self.group_name = request_builders[0].group_name
 

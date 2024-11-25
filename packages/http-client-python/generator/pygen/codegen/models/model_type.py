@@ -82,6 +82,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
         self.snake_case_name: str = self.yaml_data["snakeCaseName"]
         self.cross_language_definition_id: Optional[str] = self.yaml_data.get("crossLanguageDefinitionId")
         self.usage: int = self.yaml_data.get("usage", UsageFlags.Input.value | UsageFlags.Output.value)
+        self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
 
     @property
     def is_usage_output(self) -> bool:
@@ -298,23 +299,24 @@ class GeneratedModelType(ModelType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        relative_path = kwargs.pop("relative_path", None)
-        if relative_path:
-            # add import for models in operations or _types file
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+        # add import for models in operations or _types file
+        file_import.add_submodule_import(
+            relative_path,
+            "models",
+            ImportType.LOCAL,
+            alias="_models",
+            typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),  # TODO,
+            client_namespace=self.client_namespace,
+        )
+        if self.is_form_data:
             file_import.add_submodule_import(
-                relative_path,
-                "models",
+                self.code_model.get_relative_import_path(serialize_namespace),
+                "_model_base",
                 ImportType.LOCAL,
-                alias="_models",
                 typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
             )
-            if self.is_form_data:
-                file_import.add_submodule_import(
-                    relative_path,
-                    "_model_base",
-                    ImportType.LOCAL,
-                    typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
-                )
         return file_import
 
 

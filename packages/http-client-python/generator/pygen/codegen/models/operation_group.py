@@ -46,6 +46,7 @@ class OperationGroup(BaseModel):
                 for op_group in self.yaml_data.get("operationGroups", [])
             ]
             self.link_lro_initial_operations()
+        self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
 
     @property
     def has_abstract_operations(self) -> bool:
@@ -66,11 +67,11 @@ class OperationGroup(BaseModel):
             base_classes.append(f"{self.client.name}MixinABC")
         return ", ".join(base_classes)
 
-    def imports_for_multiapi(self, async_mode: bool) -> FileImport:
+    def imports_for_multiapi(self, async_mode: bool, **kwargs) -> FileImport:
         file_import = FileImport(self.code_model)
         relative_path = ".." if async_mode else "."
         for operation in self.operations:
-            file_import.merge(operation.imports_for_multiapi(async_mode, relative_path=relative_path))
+            file_import.merge(operation.imports_for_multiapi(async_mode, **kwargs))
         if (self.code_model.model_types or self.code_model.enums) and self.code_model.options[
             "models_mode"
         ] == "msrest":
@@ -94,12 +95,13 @@ class OperationGroup(BaseModel):
         """Whether any of its operations need validation"""
         return any(o for o in self.operations if o.need_validation)
 
-    def imports(self, async_mode: bool) -> FileImport:
+    def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
 
-        relative_path = ("..." if async_mode else "..") + ("." if self.client.is_subclient else "")
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
         for operation in self.operations:
-            file_import.merge(operation.imports(async_mode, relative_path=relative_path))
+            file_import.merge(operation.imports(async_mode, **kwargs))
         if not self.code_model.options["combine_operation_files"]:
             for og in self.operation_groups:
                 file_import.add_submodule_import(
@@ -108,16 +110,16 @@ class OperationGroup(BaseModel):
                     ImportType.LOCAL,
                 )
         # for multiapi
-        if (
-            (self.code_model.public_model_types)
-            and self.code_model.options["models_mode"] == "msrest"
-            and not self.is_mixin
-        ):
-            file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
+        # if (
+        #     (self.code_model.public_model_types)
+        #     and self.code_model.options["models_mode"] == "msrest"
+        #     and not self.is_mixin
+        # ):
+        #     file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
         if self.is_mixin:
-            file_import.add_submodule_import(".._vendor", f"{self.client.name}MixinABC", ImportType.LOCAL)
+            file_import.add_submodule_import(f"{relative_path}._vendor", f"{self.client.name}MixinABC", ImportType.LOCAL)
         if self.has_abstract_operations:
-            file_import.add_submodule_import(".._vendor", "raise_if_not_implemented", ImportType.LOCAL)
+            file_import.add_submodule_import(f"{relative_path}._vendor", "raise_if_not_implemented", ImportType.LOCAL)
         if all(o.abstract for o in self.operations):
             return file_import
         file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)

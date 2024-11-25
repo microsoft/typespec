@@ -201,7 +201,11 @@ export function capitalize(name: string): string {
 }
 
 export function getClientNamespace(clientNamespace: string, rootNameSpace: string) {
-  if (["azure.core", "azure.resourcemanager"].some(item => clientNamespace.toLowerCase().startsWith(item))) {
+  if (
+    ["azure.core", "azure.resourcemanager"].some((item) =>
+      clientNamespace.toLowerCase().startsWith(item),
+    )
+  ) {
     return rootNameSpace;
   }
   return clientNamespace;

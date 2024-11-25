@@ -89,12 +89,7 @@ class BinaryType(PrimitiveType):
 
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import("typing", "IO", ImportType.STDLIB)
-        operation = kwargs.get("operation")
-        if (
-            isinstance(operation, OperationBase)
-            and operation.parameters.has_body
-            and isinstance(operation.parameters.body_parameter.type, CombinedType)
-        ):
+        if kwargs.get("need_import_iobase", False):
             file_import.add_submodule_import("io", "IOBase", ImportType.STDLIB)
         return file_import
 
@@ -646,8 +641,9 @@ class MultiPartFileType(PrimitiveType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        relative_path = "..." if kwargs.get("async_mode") else ".."
-        file_import.add_submodule_import(f"{relative_path}_vendor", self.name, ImportType.LOCAL)
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        relative_path = self.code_model.get_relative_import_path(serialize_namespace)
+        file_import.add_submodule_import(f"{relative_path}._vendor", self.name, ImportType.LOCAL)
         return file_import
 
     @property

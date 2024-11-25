@@ -21,7 +21,13 @@ import { Type } from "@typespec/compiler";
 import { HttpAuth, Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
 import { PythonSdkContext } from "./lib.js";
-import { camelToSnakeCase, emitParamBase, getAddedOn, getImplementation, getClientNamespace } from "./utils.js";
+import {
+  camelToSnakeCase,
+  emitParamBase,
+  getAddedOn,
+  getClientNamespace,
+  getImplementation,
+} from "./utils.js";
 
 export const typesMap = new Map<SdkType, Record<string, any>>();
 export const simpleTypesMap = new Map<string | null, Record<string, any>>();
@@ -249,7 +255,6 @@ function emitProperty<TServiceOperation extends SdkServiceOperation>(
   };
 }
 
-
 function emitModel<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
   type: SdkModelType,
@@ -316,10 +321,9 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
   return newValue;
 }
 
-
 function emitEnum<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
-  type: SdkEnumType
+  type: SdkEnumType,
 ): Record<string, any> {
   if (typesMap.has(type)) {
     return typesMap.get(type)!;

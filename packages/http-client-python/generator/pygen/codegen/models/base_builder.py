@@ -72,6 +72,7 @@ class BaseBuilder(
         self.api_versions: List[str] = yaml_data["apiVersions"]
         self.added_on: Optional[str] = yaml_data.get("addedOn")
         self.external_docs: Optional[Dict[str, Any]] = yaml_data.get("externalDocs")
+        self.client_namespace: str = yaml_data.get("clientNamespace", code_model.namespace)
 
         if code_model.options["version_tolerant"] and yaml_data.get("abstract"):
             _LOGGER.warning(

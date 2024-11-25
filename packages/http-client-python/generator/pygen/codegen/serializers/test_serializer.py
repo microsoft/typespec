@@ -137,8 +137,15 @@ class Test(TestName):
 
 
 class TestGeneralSerializer(BaseSerializer):
-    def __init__(self, code_model: CodeModel, env: Environment, *, is_async: bool = False) -> None:
-        super().__init__(code_model, env)
+    def __init__(
+        self,
+        code_model: CodeModel,
+        env: Environment,
+        *,
+        is_async: bool = False,
+        serialize_namespace: Optional[str] = None,
+    ) -> None:
+        super().__init__(code_model, env, serialize_namespace=serialize_namespace)
         self.is_async = is_async
 
     @property

@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Dict, Any, Union, Tuple
+from typing import Dict, Any, Union, Tuple, Optional
 from jinja2 import Environment
 
 from ..models.operation import OperationBase
@@ -34,8 +34,10 @@ class SampleSerializer(BaseSerializer):
         operation: OperationBase[Any],
         sample: Dict[str, Any],
         file_name: str,
+        *,
+        serialize_namespace: Optional[str] = None,
     ) -> None:
-        super().__init__(code_model, env)
+        super().__init__(code_model, env, serialize_namespace=serialize_namespace)
         self.operation_group = operation_group
         self.operation = operation
         self.sample = sample

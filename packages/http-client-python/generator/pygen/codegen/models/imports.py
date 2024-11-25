@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 from enum import Enum, auto
 from typing import Dict, List, Optional, Tuple, Union, Set, TYPE_CHECKING
+from .._utils import get_parent_namespace
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -44,6 +45,7 @@ class ImportModel:
         submodule_name: Optional[str] = None,
         alias: Optional[str] = None,
         version_modules: Optional[Tuple[Tuple[Tuple[int, int], str, Optional[str]]]] = None,
+        client_namespace: Optional[str] = None,  # namespace where the imported model is
     ):
         self.typing_section = typing_section
         self.import_type = import_type
@@ -54,6 +56,7 @@ class ImportModel:
         #                  It's a list of "python version, module_name, comments".
         #                  The python version is in form of (major, minor), for instance (3, 9) stands for py3.9.
         self.version_modules = version_modules
+        self.client_namespace = client_namespace
 
     def __eq__(self, other):
         try:
@@ -122,6 +125,8 @@ class FileImport:
         typing_section: TypingSection = TypingSection.REGULAR,
         alias: Optional[str] = None,
         version_modules: Optional[Tuple[Tuple[Tuple[int, int], str, Optional[str]]]] = None,
+        *,
+        client_namespace: Optional[str] = None,  # namespace where the imported model is
     ) -> None:
         """Add an import to this import block."""
         self._append_import(
@@ -132,6 +137,7 @@ class FileImport:
                 submodule_name=submodule_name,
                 alias=alias,
                 version_modules=version_modules,
+                client_namespace=client_namespace or self.code_model.namespace,
             )
         )
 
@@ -259,7 +265,7 @@ class FileImport:
     def add_msrest_import(
         self,
         *,
-        relative_path: str,
+        serialize_namespace: str,
         msrest_import_type: MsrestImportType,
         typing_section: TypingSection,
     ):
@@ -271,21 +277,25 @@ class FileImport:
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
                     self.add_submodule_import("msrest", "Deserializer", ImportType.THIRDPARTY, typing_section)
         else:
+            # _serialization.py is always in root namespace
+            imported_namespace = self.code_model.namespace
             if self.code_model.options["multiapi"]:
-                relative_path += "."
+                # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX while _serialization.py is in azure.mgmt.xxx
+                imported_namespace = get_parent_namespace(imported_namespace)
+            relative_path = self.code_model.get_relative_import_path(serialize_namespace, imported_namespace)
             if msrest_import_type == MsrestImportType.Module:
                 self.add_submodule_import(relative_path, "_serialization", ImportType.LOCAL, typing_section)
             else:
                 self.add_submodule_import(
-                    f"{relative_path}_serialization",
+                    f"{relative_path}._serialization",
                     "Serializer",
                     ImportType.LOCAL,
-                    typing_section,
+                    typing_section
                 )
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
                     self.add_submodule_import(
-                        f"{relative_path}_serialization",
+                        f"{relative_path}._serialization",
                         "Deserializer",
                         ImportType.LOCAL,
-                        typing_section,
+                        typing_section
                     )

@@ -15,3 +15,10 @@ SWAGGER_PACKAGE_MODE = ["mgmtplane", "dataplane"]  # for backward compatibility
 TYPESPEC_PACKAGE_MODE = ["azure-mgmt", "azure-dataplane", "generic"]
 VALID_PACKAGE_MODE = SWAGGER_PACKAGE_MODE + TYPESPEC_PACKAGE_MODE
 NAME_LENGTH_LIMIT = 40
+
+
+def get_unique_alias(relative_import: str, module_name: str = "models") -> str:
+    pass
+
+def get_parent_namespace(namespace: str) -> str:
+    return namespace.rsplit(".", 1)[0]
