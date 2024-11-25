@@ -14,11 +14,12 @@ namespace Microsoft.Generator.CSharp.Input
         /// <param name="summary">The summary of the header.</param>
         /// <param name="doc">The doc string of the header.</param>
         /// <param name="type">The input type.</param>
-        public OperationResponseHeader(string name, string nameInResponse, string summary, string doc, InputType type)
+        public OperationResponseHeader(string name, string nameInResponse, string? summary, string? doc, InputType type)
         {
             Name = name;
             NameInResponse = nameInResponse;
-            Description = string.IsNullOrEmpty(summary) ? doc : summary;
+            Summary = summary;
+            Doc = doc;
             Type = type;
         }
 
@@ -26,7 +27,8 @@ namespace Microsoft.Generator.CSharp.Input
 
         public string Name { get; }
         public string NameInResponse { get; }
-        public string Description { get; }
+        public string? Summary { get; }
+        public string? Doc { get; }
         public InputType Type { get; }
     }
 }

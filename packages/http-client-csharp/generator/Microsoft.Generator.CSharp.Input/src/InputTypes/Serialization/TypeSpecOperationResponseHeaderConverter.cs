@@ -49,8 +49,6 @@ namespace Microsoft.Generator.CSharp.Input
 
             name = name ?? throw new JsonException("OperationResponseHeader must have Name");
             nameInResponse = nameInResponse ?? throw new JsonException("OperationResponseHeader must have NameInResponse");
-            summary = summary ?? string.Empty;
-            doc = doc ?? string.Empty;
             type = type ?? throw new JsonException("OperationResponseHeader must have Type");
 
             var result = new OperationResponseHeader(name, nameInResponse, summary, doc, type);
