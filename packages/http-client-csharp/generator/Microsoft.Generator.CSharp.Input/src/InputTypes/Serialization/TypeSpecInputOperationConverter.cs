@@ -90,7 +90,8 @@ namespace Microsoft.Generator.CSharp.Input
 
             operation.Name = name ?? throw new JsonException("InputOperation must have name");
             operation.ResourceName = resourceName;
-            operation.Description = string.IsNullOrEmpty(summary) ? (string.IsNullOrEmpty(doc) ? name : doc) : summary; // default to name to avoid a case that we do not have description (and leads to no xml doc at all)
+            operation.Summary = summary;
+            operation.Doc = doc;
             operation.Deprecated = deprecated;
             operation.Accessibility = accessibility;
             operation.Parameters = parameters ?? Array.Empty<InputParameter>();

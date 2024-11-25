@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp.Utilities
 {
-    internal class DocHelpers
+    public class DocHelpers
     {
         public static string GetDescription(string? summary, string? doc, string defaultDescription = "")
         {

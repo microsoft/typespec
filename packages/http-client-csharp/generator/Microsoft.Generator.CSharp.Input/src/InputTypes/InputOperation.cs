@@ -14,8 +14,8 @@ namespace Microsoft.Generator.CSharp.Input
         public InputOperation(
             string name,
             string? resourceName,
-            string summary,
-            string doc,
+            string? summary,
+            string? doc,
             string? deprecated,
             string? accessibility,
             IReadOnlyList<InputParameter> parameters,
@@ -35,7 +35,6 @@ namespace Microsoft.Generator.CSharp.Input
         {
             Name = name;
             ResourceName = resourceName;
-            Description = string.IsNullOrEmpty(summary) ? doc : summary;
             Deprecated = deprecated;
             Accessibility = accessibility;
             Parameters = parameters;
@@ -79,7 +78,8 @@ namespace Microsoft.Generator.CSharp.Input
 
         public string Name { get; internal set; }
         public string? ResourceName { get; internal set; }
-        public string Description { get; internal set; }
+        public string? Summary { get; internal set; }
+        public string? Doc { get; internal set; }
         public string? Deprecated { get; internal set; }
         public string? Accessibility { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
