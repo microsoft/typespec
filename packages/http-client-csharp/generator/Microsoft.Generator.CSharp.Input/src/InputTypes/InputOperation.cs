@@ -35,6 +35,8 @@ namespace Microsoft.Generator.CSharp.Input
         {
             Name = name;
             ResourceName = resourceName;
+            Summary = summary;
+            Doc = doc;
             Deprecated = deprecated;
             Accessibility = accessibility;
             Parameters = parameters;

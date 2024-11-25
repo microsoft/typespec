@@ -9,10 +9,8 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
-using System.ClientModel.Primitives;
-using Microsoft.Build.Framework;
 using Microsoft.Generator.CSharp.Utilities;
+using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
