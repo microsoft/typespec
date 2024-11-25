@@ -37,15 +37,23 @@ namespace Microsoft.Generator.CSharp.Statements
         private List<FormattableString> FormatLines(IEnumerable<FormattableString> lines)
         {
             List<FormattableString> escapedLines = new List<FormattableString>();
+
             foreach (var line in lines)
+            {
+                escapedLines.Add(FormattableStringFactory.Create(EscapeLine(line.Format), EscapeArguments(line.GetArguments())));
+            }
+
+            List<FormattableString> allLines = new List<FormattableString>();
+            foreach (var line in escapedLines)
             {
                 var splitLines = line.ToString().Split("\n");
                 foreach (var s in splitLines)
                 {
-                    escapedLines.Add(FormattableStringFactory.Create(EscapeLine(s), EscapeArguments(line.GetArguments())));
+                    allLines.Add($"{s}");
                 }
             }
-            return escapedLines;
+
+            return allLines;
         }
 
         private static object?[] EscapeArguments(object?[] objects)
@@ -92,6 +100,21 @@ namespace Microsoft.Generator.CSharp.Statements
             {
                 string periodOrEmpty = GetPeriodOrEmpty(Lines[0]);
                 writer.WriteLine($"/// {StartTag} {Lines[0]}{periodOrEmpty} {EndTag}");
+                //string periodOrEmpty = GetPeriodOrEmpty(Lines[0]);
+                //var splitLines = Lines[0].ToString().Split("\n");
+                //if (splitLines.Length > 1)
+                //{
+                //    writer.WriteLine($"/// {StartTag}");
+                //    foreach (var line in splitLines)
+                //    {
+                //        writer.WriteLine($"/// {line}");
+                //    }
+                //    writer.WriteLine($"/// {EndTag}");
+                //}
+                //else
+                //{
+                //    writer.WriteLine($"/// {StartTag} {Lines[0]}{periodOrEmpty} {EndTag}");
+                //}
             }
         }
 
