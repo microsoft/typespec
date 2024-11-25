@@ -11,6 +11,8 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 using System.ClientModel.Primitives;
+using Microsoft.Build.Framework;
+using Microsoft.Generator.CSharp.Utilities;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -125,9 +127,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (!p.IsEndpoint && !p.IsApiVersion && p.DefaultValue != null)
                 {
                     FormattableString? description = null;
-                    if (p.Description != null)
+                    var parameterDescription = DocHelpers.GetDescription(p.Summary, p.Doc);
+                    if (!string.IsNullOrEmpty(parameterDescription))
                     {
-                        description = $"{p.Description}";
+                        description = $"{description}";
                     }
 
                     var type = ClientModelPlugin.Instance.TypeFactory.CreateCSharpType(p.Type)?.PropertyInitializationType;

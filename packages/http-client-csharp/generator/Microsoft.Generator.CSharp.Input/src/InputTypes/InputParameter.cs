@@ -28,7 +28,8 @@ namespace Microsoft.Generator.CSharp.Input
         {
             Name = name;
             NameInRequest = nameInRequest;
-            Description = summary ?? doc;
+            Summary = summary;
+            Doc = doc;
             Type = type;
             Location = location;
             DefaultValue = defaultValue;
@@ -46,7 +47,8 @@ namespace Microsoft.Generator.CSharp.Input
 
         public string Name { get; }
         public string NameInRequest { get; }
-        public string? Description { get; }
+        public string? Summary { get; }
+        public string? Doc { get; }
         public InputType Type { get; }
         public RequestLocation Location { get; }
         public InputConstant? DefaultValue { get; }
