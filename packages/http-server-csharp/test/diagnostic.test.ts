@@ -126,3 +126,42 @@ it("warns for invalid interpolation", async () => {
     },
   ]);
 });
+
+it("warns for anonymous models", async () => {
+  const [_, diagnostics] = await runner.compileAndDiagnose(
+    getStandardService(`
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        intProp: [8, 10];
+        
+        /** A complex property */
+        modelProp: {
+          bar: string;
+        };
+        
+        anotherModelProp: {
+          baz: string;
+        };
+        
+        yetAnother: Foo.modelProp;
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `),
+  );
+
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http-server-csharp/anonymous-model",
+      message:
+        "Inline models use generated names in emitted code. Consider defining each model with an explicit name.  This model will be named 'Model0' in emitted code",
+    },
+    {
+      code: "@typespec/http-server-csharp/anonymous-model",
+      message:
+        "Inline models use generated names in emitted code. Consider defining each model with an explicit name.  This model will be named 'Model1' in emitted code",
+    },
+  ]);
+});

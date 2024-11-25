@@ -38,6 +38,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Invalid identifier '${"identifier"}' in ${"location"}`,
       },
     },
+    "anonymous-model": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Inline models use generated names in emitted code. Consider defining each model with an explicit name.  This model will be named '${"emittedName"}' in emitted code`,
+      },
+    },
     "missing-type-parent": {
       severity: "warning",
       messages: {

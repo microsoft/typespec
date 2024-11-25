@@ -125,8 +125,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     declarationName(declarationType: TypeSpecDeclaration): string {
       switch (declarationType.kind) {
         case "Enum":
+          if (!declarationType.name) return `Enum${_unionCounter++}`;
+          return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Interface":
+          if (!declarationType.name) return `Interface${_unionCounter++}`;
+          return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Model":
+          if (!declarationType.name) return `Model${_unionCounter++}`;
+          return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Operation":
           return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Union":
@@ -255,7 +261,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const modelFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
-      return this.#createModelContext(modelNamespace, modelFile);
+      return this.#createModelContext(modelNamespace, modelFile, modelName);
     }
 
     modelInstantiationContext(model: Model): Context {
@@ -267,7 +273,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const sourceFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
-      const context = this.#createModelContext(modelNamespace, sourceFile);
+      const context = this.#createModelContext(modelNamespace, sourceFile, model.name);
       context.instantiationName = modelName;
       return context;
     }
@@ -292,15 +298,45 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           !isNeverType(prop.type) &&
           !isNullType(prop.type) &&
           !isErrorModel(this.emitter.getProgram(), prop.type)
-        )
+        ) {
           result.push(code`${this.emitter.emitModelProperty(prop)}`);
+        }
       }
 
       return result.reduce();
     }
 
+    modelLiteralContext(model: Model): Context {
+      const name = this.emitter.emitDeclarationName(model) || "";
+      return this.modelDeclarationContext(model, name);
+    }
+
+    modelLiteral(model: Model): EmitterOutput<string> {
+      const modelName: string = this.emitter.getContext().name;
+      reportDiagnostic(this.emitter.getProgram(), {
+        code: "anonymous-model",
+        target: model,
+        format: { emittedName: modelName },
+      });
+      return this.modelDeclaration(model, modelName);
+    }
+
     #isRecord(type: Type): boolean {
       return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
+    }
+
+    #isInheritedProperty(property: ModelProperty): boolean {
+      const visited: Model[] = [];
+      function isInherited(model: Model, propertyName: string) {
+        if (visited.includes(model)) return false;
+        visited.push(model);
+        if (model.properties.has(propertyName)) return true;
+        if (model.baseModel === undefined) return false;
+        return isInherited(model.baseModel, propertyName);
+      }
+      const model = property.model;
+      if (model === undefined || model.baseModel === undefined) return false;
+      return isInherited(model.baseModel, property.name);
     }
 
     modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
@@ -319,7 +355,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           code`${this.emitter.emitType(property.default)}`
         : typeDefault;
       return this.emitter.result
-        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${typeName}${
+        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
         property.optional && isValueType(this.emitter.getProgram(), property.type) ? "?" : ""
       } ${propertyName} { get; ${typeDefault ? "}" : "set; }"}${
         defaultValue ? ` = ${defaultValue};\n` : "\n"
@@ -468,7 +504,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Interface;
       const ifaceNamespace = this.#getOrSetBaseNamespace(iface);
       const modelNamespace = `${ifaceNamespace}.Models`;
-      const context = this.#createModelContext(ifaceNamespace, sourceFile);
+      const context = this.#createModelContext(ifaceNamespace, sourceFile, ifaceName);
       context.file.imports.set("System", ["System"]);
       context.file.imports.set("System.Net", ["System.Net"]);
       context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
@@ -923,9 +959,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
     }
 
-    #createModelContext(namespace: string, file: SourceFile<string>): Context {
+    #createModelContext(namespace: string, file: SourceFile<string>, name: string): Context {
       const context = {
         namespace: namespace,
+        name: name,
         file: file,
         scope: file.globalScope,
       };

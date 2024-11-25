@@ -927,3 +927,75 @@ it("generates appropriate types for literal tuples in operation parameters", asy
     ],
   );
 });
+
+it("generates valid code for overridden parameters", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A base model */
+      model FooBase {
+        intProp: int32[];
+      }
+      /** A simple test model*/
+      model Foo extends FooBase {
+        /** Numeric literal */
+        intProp: [8, 10];
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `,
+    [
+      ["FooBase.cs", ["public partial class FooBase", "public int[] IntProp { get; set; }"]],
+      [
+        "Foo.cs",
+        ["public partial class Foo : FooBase", "public new int[] IntProp { get; } = [8, 10]"],
+      ],
+      ["ContosoOperationsControllerBase.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+    ],
+  );
+});
+
+it("generates valid code for anonymous models", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        intProp: [8, 10];
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        /** A complex property */
+        modelProp: {
+          bar: string;
+        };
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        anotherModelProp: {
+          baz: string;
+        };
+        
+        yetAnother: Foo.modelProp;
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `,
+    [
+      ["Model0.cs", ["public partial class Model0", "public string Bar { get; set; }"]],
+      ["Model1.cs", ["public partial class Model1", "public string Baz { get; set; }"]],
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int[] IntProp { get; } = [8, 10]",
+          "public Model0 ModelProp { get; set; }",
+          "public Model1 AnotherModelProp { get; set; }",
+          "public Model0 YetAnother { get; set; }",
+        ],
+      ],
+      ["ContosoOperationsControllerBase.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+    ],
+  );
+});
