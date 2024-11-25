@@ -20,5 +20,15 @@ namespace Microsoft.Generator.CSharp.Utilities
                 _ => doc,
             };
         }
+
+        public static FormattableString GetFormattableDescription(string? summary, string? doc, FormattableString? defaultDescription = null)
+        {
+            return (summary, doc) switch
+            {
+                (null or "", null or "") => defaultDescription ?? $"",
+                (string s, null or "") => $"{s}",
+                _ => $"{doc}",
+            };
+        }
     }
 }

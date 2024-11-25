@@ -14,7 +14,6 @@ namespace Microsoft.Generator.CSharp.Input
             SerializedName = serializedName;
             Summary = summary;
             Doc = doc;
-            Description = string.IsNullOrEmpty(summary) ? doc : summary;
             Type = type;
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
@@ -25,7 +24,6 @@ namespace Microsoft.Generator.CSharp.Input
         public string SerializedName { get; }
         public string? Summary { get; }
         public string? Doc { get; }
-        public string? Description { get; }
         public InputType Type { get; }
         public bool IsRequired { get; }
         public bool IsReadOnly { get; }
