@@ -4,4 +4,4 @@ packages:
   - "@typespec/json-schema"
 ---
 
-Adds support for template instantiations with literal union template arguments by inlining template schema where referenced.
+Fixes crash that occurred when a template instantiation's template argument was a union that references a declaration.
