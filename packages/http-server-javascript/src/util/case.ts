@@ -2,6 +2,33 @@
 // Licensed under the MIT license.
 
 /**
+ * Separators recognized by the case parser.
+ */
+const SEPARATORS = /[\s:_\-./\\]/;
+
+/**
+ * Returns true if a name cannot be spoken. A name is unspeakable if:
+ *
+ * - It contains only separators and whitespace.
+ *
+ * OR
+ *
+ * - The first non-separator, non-whitespace character is a digit.
+ *
+ * @param name - a name in any case
+ * @returns true if the name is unspeakable
+ */
+export function isUnspeakable(name: string): boolean {
+  for (const c of name) {
+    if (!SEPARATORS.test(c)) {
+      return /[0-9]/.test(c);
+    }
+  }
+
+  return true;
+}
+
+/**
  * Destructures a name into its components.
  *
  * The following case conventions are supported:
@@ -49,7 +76,7 @@ export function parseCase(name: string): ReCase {
       }
     }
 
-    if (![":", "_", "-", ".", "/"].includes(char) && !/\s/.test(char)) {
+    if (!SEPARATORS.test(char)) {
       currentComponent += char.toLowerCase();
     }
 
