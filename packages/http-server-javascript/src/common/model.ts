@@ -8,7 +8,7 @@ import {
   isTemplateInstance,
 } from "@typespec/compiler";
 import { JsContext, Module } from "../ctx.js";
-import { parseCase } from "../util/case.js";
+import { isUnspeakable, parseCase } from "../util/case.js";
 import { indent } from "../util/iter.js";
 import { KEYWORDS } from "../util/keywords.js";
 import { getFullyQualifiedTypeName } from "../util/name.js";
@@ -61,6 +61,11 @@ export function* emitModel(
   yield `export interface ${ifaceName} ${extendsClause}{`;
 
   for (const field of model.properties.values()) {
+    // Skip properties with unspeakable names.
+    if (isUnspeakable(field.name)) {
+      continue;
+    }
+
     const nameCase = parseCase(field.name);
     const basicName = nameCase.camelCase;
 
