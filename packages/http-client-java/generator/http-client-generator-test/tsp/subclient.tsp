@@ -1,14 +1,14 @@
 import "@typespec/http";
-import "@azure-tools/cadl-ranch-expect";
+import "@typespec/spector";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
+using TypeSpec.Spector;
 using Azure.ClientGenerator.Core;
 
 /**
  * Describe client with `@clientInitialization`
  */
-@supportedBy("dpg")
 @scenarioService("/client/initialization/basic")
 @scenario
 @scenarioDoc("""
