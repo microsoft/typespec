@@ -14,7 +14,7 @@
   },
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
-    "build": "npm run gen-extern-signature && tsc -p tsconfig.build.json",
+    "build": "pnpm run gen-extern-signature && tsc -p tsconfig.build.json",
     "clean": "rimraf dist/ temp/",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "test": "vitest run",

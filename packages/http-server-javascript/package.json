@@ -28,7 +28,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run build:helpers && npm run build:src",
+    "build": "pnpm run build:helpers && pnpm run build:src",
     "build:src": "tsc -p ./tsconfig.json",
     "build:helpers": "tsx ./build-helpers.ts",
     "watch": "tsc -p . --watch",

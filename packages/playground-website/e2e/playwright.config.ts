@@ -9,7 +9,7 @@ const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
   timeout: 120 * 1000,
   webServer: {
-    command: "npm run watch",
+    command: "pnpm run watch",
     port: 5173,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,

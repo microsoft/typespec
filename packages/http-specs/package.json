@@ -14,7 +14,7 @@
     "regen-docs": "pnpm generate-scenarios-summary",
     "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
     "check-scenario-coverage": "tsp-spector check-coverage ./specs",
-    "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"npm run client\" && tsp-spector server stop",
+    "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"pnpm run client\" && tsp-spector server stop",
     "client": "tsp-spector server-test ./specs",
     "serve": "tsp-spector serve ./specs",
     "test": "echo \"Error: no test specified\""
