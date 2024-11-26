@@ -15,6 +15,8 @@ from ..models import (
     OverloadedRequestBuilder,
     CodeModel,
     Client,
+    ModelType,
+    EnumType,
 )
 from .enum_serializer import EnumSerializer
 from .general_serializer import GeneralSerializer
@@ -64,7 +66,6 @@ def _sample_output_path(source_file_path: str) -> Path:
         after_examples = Path(posix_path.split("examples/", maxsplit=1)[-1]).parent
         return Path("/".join([to_snake_case(i) for i in after_examples.parts]))
     return Path("")
-
 
 class JinjaSerializer(ReaderAndWriter):
     def __init__(
@@ -144,54 +145,104 @@ class JinjaSerializer(ReaderAndWriter):
             lstrip_blocks=True,
         )
 
-        namespace_path = (
-            Path(".") if self.code_model.options["no_namespace_folders"] else Path(*self._name_space().split("."))
-        )
-
-        p = namespace_path.parent
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
-        while p != Path("."):
-            # write pkgutil init file
-            self.write_file(
-                p / Path("__init__.py"),
+
+        for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
+            
+            if client_namespace == "":
+              # Write the setup file
+              if self.code_model.options["basic_setup_py"]:
+                  self.write_file(Path("setup.py"), general_serializer.serialize_setup_file())
+
+              # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
+              self._serialize_and_write_package_files(client_namespace)
+
+              # add generated samples and generated tests
+              ...
+
+            elif client_namespace_type.clients:
+              # add clients folder if there are clients in this namespace
+              self._serialize_client_and_config_files(client_namespace, general_serializer, client_namespace_type.clients, env)
+            else:
+              # add pkgutil init file if no clients in this namespace
+              self.write_file(
+                self.exec_path(client_namespace) / Path("__init__.py"),
                 general_serializer.serialize_pkgutil_init_file(),
             )
-            p = p.parent
+            
+            # _model_base.py/_serialization.py/_vendor.py/py.typed/_types.py/_validation.py is always put in top level namespace
+            if client_namespace == self.code_model.namespace:
+                self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
+            
+            # add models folder if there are models in this namespace
+            if (client_namespace_type.models or client_namespace_type.enums) and self.code_model.options["models_mode"]:
+                self._serialize_and_write_models_folder(env=env, namespace=client_namespace, models=client_namespace_type.models, enums=client_namespace_type.enums)
+                    
+            if not self.code_model.options["models_mode"]:
+                # keep models file if users ended up just writing a models file
+                model_path = self.exec_path(client_namespace) / Path("models.py")
+                if self.read_file(model_path):
+                    self.write_file(
+                        model_path,
+                        self.read_file(model_path),
+                    )   
+          
+            # add operations folder if there are operations in this namespace
+            if client_namespace_type.operation_groups:
+                self._serialize_and_write_operations_folder(client_namespace_type.operation_groups, env=env, namespace=client_namespace)
+                if self.code_model.options["multiapi"]:
+                    self._serialize_and_write_metadata(env=env, namespace_path=namespace_path)
 
-        # serialize main module
-        self._serialize_namespace_level(
-            env,
-            namespace_path,
-            [c for c in self.code_model.clients if c.has_operations],
-        )
-        # serialize sub modules
-        for (
-            subnamespace,
-            clients,
-        ) in self.code_model.subnamespace_to_clients.items():
-            subnamespace_path = namespace_path / Path(subnamespace)
-            self._serialize_namespace_level(env, subnamespace_path, [c for c in clients if c.has_operations])
 
-        if self.code_model.options["models_mode"] and (self.code_model.model_types or self.code_model.enums):
-            self._keep_patch_file(namespace_path / Path("models") / Path("_patch.py"), env)
 
-        if self.code_model.options["models_mode"] and (self.code_model.model_types or self.code_model.enums):
-            self._serialize_and_write_models_folder(env=env, namespace_path=namespace_path)
-        if not self.code_model.options["models_mode"]:
-            # keep models file if users ended up just writing a models file
-            if self.read_file(namespace_path / Path("models.py")):
-                self.write_file(
-                    namespace_path / Path("models.py"),
-                    self.read_file(namespace_path / Path("models.py")),
-                )
-        if self.code_model.named_unions:
-            self.write_file(
-                namespace_path / Path("_types.py"),
-                TypesSerializer(code_model=self.code_model, env=env).serialize(),
-            )
 
-    def _serialize_and_write_package_files(self, namespace_path: Path) -> None:
-        root_of_sdk = self._package_root_folder(namespace_path)
+
+
+
+
+
+
+        # namespace_path = (
+        #     Path(".") if self.code_model.options["no_namespace_folders"] else Path(*self._name_space().split("."))
+        # )
+
+        # p = namespace_path.parent
+        # general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
+        # while p != Path("."):
+        #     # write pkgutil init file
+        #     self.write_file(
+        #         p / Path("__init__.py"),
+        #         general_serializer.serialize_pkgutil_init_file(),
+        #     )
+        #     p = p.parent
+
+        # # serialize main module
+        # self._serialize_namespace_level(
+        #     env,
+        #     namespace_path,
+        #     [c for c in self.code_model.clients if c.has_operations],
+        # )
+
+        # if self.code_model.options["models_mode"] and (self.code_model.model_types or self.code_model.enums):
+        #     self._keep_patch_file(namespace_path / Path("models") / Path("_patch.py"), env)
+
+        # if self.code_model.options["models_mode"] and (self.code_model.model_types or self.code_model.enums):
+        #     self._serialize_and_write_models_folder(env=env, namespace_path=namespace_path)
+        # if not self.code_model.options["models_mode"]:
+        #     # keep models file if users ended up just writing a models file
+        #     if self.read_file(namespace_path / Path("models.py")):
+        #         self.write_file(
+        #             namespace_path / Path("models.py"),
+        #             self.read_file(namespace_path / Path("models.py")),
+        #         )
+        # if self.code_model.named_unions:
+        #     self.write_file(
+        #         namespace_path / Path("_types.py"),
+        #         TypesSerializer(code_model=self.code_model, env=env).serialize(),
+        #     )
+
+    def _serialize_and_write_package_files(self, namespace_path: str) -> None:
+        root_of_sdk = self.exec_path(namespace_path)
         if self.code_model.options["package_mode"] in VALID_PACKAGE_MODE:
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
@@ -230,24 +281,48 @@ class JinjaSerializer(ReaderAndWriter):
                 PatchSerializer(env=env, code_model=self.code_model).serialize(),
             )
 
-    def _serialize_and_write_models_folder(self, env: Environment, namespace_path: Path) -> None:
+    def _serialize_and_write_models_folder(self, env: Environment, namespace: str, models: List[ModelType], enums: List[EnumType]) -> None:
         # Write the models folder
-        models_path = namespace_path / Path("models")
+        models_namespace = namespace + ".models"
+        models_path = self.exec_path(models_namespace)
         serializer = DpgModelSerializer if self.code_model.options["models_mode"] == "dpg" else MsrestModelSerializer
-        if self.code_model.model_types:
+        if models:
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
-                serializer(code_model=self.code_model, env=env).serialize(),
+                serializer(code_model=self.code_model, env=env, serialize_namespace=models_namespace).serialize(),
             )
-        if self.code_model.enums:
+        if enums:
             self.write_file(
                 models_path / Path(f"{self.code_model.enums_filename}.py"),
-                EnumSerializer(code_model=self.code_model, env=env).serialize(),
+                EnumSerializer(code_model=self.code_model, env=env, serialize_namespace=models_namespace).serialize(),
             )
         self.write_file(
             models_path / Path("__init__.py"),
             ModelInitSerializer(code_model=self.code_model, env=env).serialize(),
         )
+
+        self._keep_patch_file(models_path / Path("_patch.py"), env)
+        
+
+
+    # def _serialize_and_write_models_folder(self, env: Environment, namespace_path: Path) -> None:
+    #     # Write the models folder
+    #     models_path = namespace_path / Path("models")
+    #     serializer = DpgModelSerializer if self.code_model.options["models_mode"] == "dpg" else MsrestModelSerializer
+    #     if self.code_model.model_types:
+    #         self.write_file(
+    #             models_path / Path(f"{self.code_model.models_filename}.py"),
+    #             serializer(code_model=self.code_model, env=env).serialize(),
+    #         )
+    #     if self.code_model.enums:
+    #         self.write_file(
+    #             models_path / Path(f"{self.code_model.enums_filename}.py"),
+    #             EnumSerializer(code_model=self.code_model, env=env).serialize(),
+    #         )
+    #     self.write_file(
+    #         models_path / Path("__init__.py"),
+    #         ModelInitSerializer(code_model=self.code_model, env=env).serialize(),
+    #     )
 
     def _serialize_and_write_rest_layer(self, env: Environment, namespace_path: Path) -> None:
         rest_path = namespace_path / Path(self.code_model.rest_layer_name)
@@ -327,26 +402,27 @@ class JinjaSerializer(ReaderAndWriter):
                 operation_group_async_serializer.serialize(),
             )
 
+
     def _serialize_and_write_operations_folder(
-        self, clients: List[Client], env: Environment, namespace_path: Path
+        self, operation_groups: List[OperationGroup], env: Environment, namespace: str
     ) -> None:
+        operations_folder_name = self.code_model.operations_folder_name(namespace)
+
         # write sync operations init file
         operations_init_serializer = OperationsInitSerializer(
-            code_model=self.code_model, clients=clients, env=env, async_mode=False
+            code_model=self.code_model, operation_groups=operation_groups, env=env, async_mode=False
         )
         self.write_file(
-            namespace_path / Path(self.code_model.operations_folder_name) / Path("__init__.py"),
+            self.exec_path(namespace) / operations_folder_name / Path("__init__.py"),
             operations_init_serializer.serialize(),
         )
 
         # write async operations init file
         if self.has_aio_folder:
-            operations_async_init_serializer = OperationsInitSerializer(
-                code_model=self.code_model, clients=clients, env=env, async_mode=True
-            )
+            operations_init_serializer.async_mode = True
             self.write_file(
-                namespace_path / Path("aio") / Path(self.code_model.operations_folder_name) / Path("__init__.py"),
-                operations_async_init_serializer.serialize(),
+                self.exec_path(namespace) / "aio" / operations_folder_name / Path("__init__.py"),
+                operations_init_serializer.serialize(),
             )
 
         if self.code_model.options["combine_operation_files"]:
@@ -364,17 +440,54 @@ class JinjaSerializer(ReaderAndWriter):
                     clients=clients,
                 )
 
+    # def _serialize_and_write_operations_folder(
+    #     self, clients: List[Client], env: Environment, namespace_path: Path
+    # ) -> None:
+    #     # write sync operations init file
+    #     operations_init_serializer = OperationsInitSerializer(
+    #         code_model=self.code_model, clients=clients, env=env, async_mode=False
+    #     )
+    #     self.write_file(
+    #         namespace_path / Path(self.code_model.operations_folder_name) / Path("__init__.py"),
+    #         operations_init_serializer.serialize(),
+    #     )
+
+    #     # write async operations init file
+    #     if self.has_aio_folder:
+    #         operations_async_init_serializer = OperationsInitSerializer(
+    #             code_model=self.code_model, clients=clients, env=env, async_mode=True
+    #         )
+    #         self.write_file(
+    #             namespace_path / Path("aio") / Path(self.code_model.operations_folder_name) / Path("__init__.py"),
+    #             operations_async_init_serializer.serialize(),
+    #         )
+
+    #     if self.code_model.options["combine_operation_files"]:
+    #         self._serialize_and_write_operations_file(
+    #             env=env,
+    #             namespace_path=namespace_path,
+    #             clients=clients,
+    #         )
+    #     else:
+    #         for operation_group in get_all_operation_groups_recursively(self.code_model.clients):
+    #             self._serialize_and_write_operations_file(
+    #                 env=env,
+    #                 namespace_path=namespace_path,
+    #                 operation_group=operation_group,
+    #                 clients=clients,
+    #             )
+
     def _serialize_and_write_version_file(
         self,
-        namespace_path: Path,
+        namespace: str,
         general_serializer: GeneralSerializer,
     ):
         def _read_version_file(original_version_file_name: str) -> str:
-            return self.read_file(namespace_path / original_version_file_name)
+            return self.read_file(self.exec_path(namespace) / original_version_file_name)
 
         def _write_version_file(original_version_file_name: str) -> None:
             self.write_file(
-                namespace_path / Path("_version.py"),
+                self.exec_path(namespace) / Path("_version.py"),
                 _read_version_file(original_version_file_name),
             )
 
@@ -385,99 +498,190 @@ class JinjaSerializer(ReaderAndWriter):
             _write_version_file(original_version_file_name="version.py")
         elif self.code_model.options["package_version"]:
             self.write_file(
-                namespace_path / Path("_version.py"),
+                self.exec_path(namespace) / Path("_version.py"),
                 general_serializer.serialize_version_file(),
             )
 
     def _serialize_client_and_config_files(
         self,
-        namespace_path: Path,
+        namespace: str,
         general_serializer: GeneralSerializer,
-        async_mode: bool,
         clients: List[Client],
+        env: Environment,
     ) -> None:
-        if self.code_model.has_operations:
-            namespace_path = namespace_path / Path("aio") if async_mode else namespace_path
-            self.write_file(
-                namespace_path / Path(f"{self.code_model.client_filename}.py"),
-                general_serializer.serialize_service_client_file(clients),
-            )
-            self.write_file(
-                namespace_path / Path("_configuration.py"),
-                general_serializer.serialize_config_file(clients),
-            )
+        general_serializer.async_mode = False
+        self.write_file(
+            self.exec_path(namespace) / Path(f"{self.code_model.client_filename}.py"),
+            general_serializer.serialize_service_client_file(clients),
+        )
+        self.write_file(
+            self.exec_path(namespace) / Path("_configuration.py"),
+            general_serializer.serialize_config_file(clients),
+        )
+
+        # if there was a patch file before, we keep it
+        self._keep_patch_file(self.exec_path(namespace) / Path("_patch.py"), env)
+
+        general_serializer.async_mode = True
+        self.write_file(
+            self.exec_path(namespace) / Path(f"aio/{self.code_model.client_filename}.py"),
+            general_serializer.serialize_service_client_file(clients),
+        )
+        self.write_file(
+            self.exec_path(namespace) / Path("aio/_configuration.py"),
+            general_serializer.serialize_config_file(clients),
+        )
+
+        if self.has_aio_folder:
+            self._keep_patch_file(self.exec_path(namespace) / Path("aio/_patch.py"), env)
+
+    # def _serialize_client_and_config_files(
+    #     self,
+    #     namespace_path: Path,
+    #     general_serializer: GeneralSerializer,
+    #     async_mode: bool,
+    #     clients: List[Client],
+    # ) -> None:
+    #     if self.code_model.has_operations:
+    #         namespace_path = namespace_path / Path("aio") if async_mode else namespace_path
+    #         self.write_file(
+    #             namespace_path / Path(f"{self.code_model.client_filename}.py"),
+    #             general_serializer.serialize_service_client_file(clients),
+    #         )
+    #         self.write_file(
+    #             namespace_path / Path("_configuration.py"),
+    #             general_serializer.serialize_config_file(clients),
+    #         )
 
     def _serialize_and_write_top_level_folder(
-        self, env: Environment, namespace_path: Path, clients: List[Client]
+        self, env: Environment, namespace: str
     ) -> None:
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
-        self.write_file(
-            namespace_path / Path("__init__.py"),
-            general_serializer.serialize_init_file(clients),
-        )
-
-        # Write the service client
-        self._serialize_client_and_config_files(namespace_path, general_serializer, async_mode=False, clients=clients)
+        # write _vendor.py
         if self.code_model.need_vendored_code(async_mode=False):
             self.write_file(
-                namespace_path / Path("_vendor.py"),
-                general_serializer.serialize_vendor_file(clients),
+                self.exec_path(namespace) / Path("_vendor.py"),
+                general_serializer.serialize_vendor_file(self.code_model.clients),
+            )
+        if self.code_model.need_vendored_code(async_mode=True):
+            self.write_file(
+                self.exec_path(namespace) / Path("aio/_vendor.py"),
+                general_serializer.serialize_vendor_file(self.code_model.clients),
             )
 
-        self._serialize_and_write_version_file(namespace_path, general_serializer)
+        # write _version.py
+        self._serialize_and_write_version_file(namespace, general_serializer)
 
         # write the empty py.typed file
-        self.write_file(namespace_path / Path("py.typed"), "# Marker file for PEP 561.")
+        self.write_file(self.exec_path(namespace) / Path("py.typed"), "# Marker file for PEP 561.")
 
+        # write _serialization.py
         if not self.code_model.options["client_side_validation"] and not self.code_model.options["multiapi"]:
             self.write_file(
-                namespace_path / Path("_serialization.py"),
+                self.exec_path(namespace) / Path("_serialization.py"),
                 general_serializer.serialize_serialization_file(),
             )
+        
+        # write _model_base.py
         if self.code_model.options["models_mode"] == "dpg":
             self.write_file(
-                namespace_path / Path("_model_base.py"),
+                self.exec_path(namespace) / Path("_model_base.py"),
                 general_serializer.serialize_model_base_file(),
             )
 
+        # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
             self.write_file(
-                namespace_path / Path("_validation.py"),
+                self.exec_path(namespace) / Path("_validation.py"),
                 general_serializer.serialize_validation_file(),
             )
+
+        # write apiview_mapping_python.json
         if self.code_model.options.get("emit_cross_language_definition_file"):
             self.write_file(
-                Path("./apiview_mapping_python.json"),
+                self.exec_path(namespace) / Path("apiview_mapping_python.json"),
                 general_serializer.serialize_cross_language_definition_file(),
             )
 
-        # Write the setup file
-        if self.code_model.options["basic_setup_py"]:
-            self.write_file(Path("setup.py"), general_serializer.serialize_setup_file())
-
-    def _serialize_and_write_aio_top_level_folder(
-        self, env: Environment, namespace_path: Path, clients: List[Client]
-    ) -> None:
-        aio_general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=True)
-
-        aio_path = namespace_path / Path("aio")
-
-        # Write the __init__ file
-        self.write_file(
-            aio_path / Path("__init__.py"),
-            aio_general_serializer.serialize_init_file(clients),
-        )
-
-        # Write the service client
-        self._serialize_client_and_config_files(
-            namespace_path, aio_general_serializer, async_mode=True, clients=clients
-        )
-        if self.code_model.need_vendored_code(async_mode=True):
+        # write _types.py
+        if self.code_model.named_unions:
             self.write_file(
-                aio_path / Path("_vendor.py"),
-                aio_general_serializer.serialize_vendor_file(clients),
+                self.exec_path(namespace) / Path("_types.py"),
+                TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
+
+    # def _serialize_and_write_top_level_folder(
+    #     self, env: Environment, namespace_path: Path, clients: List[Client]
+    # ) -> None:
+    #     general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
+
+    #     self.write_file(
+    #         namespace_path / Path("__init__.py"),
+    #         general_serializer.serialize_init_file(clients),
+    #     )
+
+    #     # Write the service client
+    #     self._serialize_client_and_config_files(namespace_path, general_serializer, async_mode=False, clients=clients)
+    #     if self.code_model.need_vendored_code(async_mode=False):
+    #         self.write_file(
+    #             namespace_path / Path("_vendor.py"),
+    #             general_serializer.serialize_vendor_file(clients),
+    #         )
+
+    #     self._serialize_and_write_version_file(namespace_path, general_serializer)
+
+    #     # write the empty py.typed file
+    #     self.write_file(namespace_path / Path("py.typed"), "# Marker file for PEP 561.")
+
+    #     if not self.code_model.options["client_side_validation"] and not self.code_model.options["multiapi"]:
+    #         self.write_file(
+    #             namespace_path / Path("_serialization.py"),
+    #             general_serializer.serialize_serialization_file(),
+    #         )
+    #     if self.code_model.options["models_mode"] == "dpg":
+    #         self.write_file(
+    #             namespace_path / Path("_model_base.py"),
+    #             general_serializer.serialize_model_base_file(),
+    #         )
+
+    #     if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
+    #         self.write_file(
+    #             namespace_path / Path("_validation.py"),
+    #             general_serializer.serialize_validation_file(),
+    #         )
+    #     if self.code_model.options.get("emit_cross_language_definition_file"):
+    #         self.write_file(
+    #             Path("./apiview_mapping_python.json"),
+    #             general_serializer.serialize_cross_language_definition_file(),
+    #         )
+
+    #     # Write the setup file
+    #     if self.code_model.options["basic_setup_py"]:
+    #         self.write_file(Path("setup.py"), general_serializer.serialize_setup_file())
+
+    # def _serialize_and_write_aio_top_level_folder(
+    #     self, env: Environment, namespace_path: Path, clients: List[Client]
+    # ) -> None:
+    #     aio_general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=True)
+
+    #     aio_path = namespace_path / Path("aio")
+
+    #     # Write the __init__ file
+    #     self.write_file(
+    #         aio_path / Path("__init__.py"),
+    #         aio_general_serializer.serialize_init_file(clients),
+    #     )
+
+    #     # Write the service client
+    #     self._serialize_client_and_config_files(
+    #         namespace_path, aio_general_serializer, async_mode=True, clients=clients
+    #     )
+    #     if self.code_model.need_vendored_code(async_mode=True):
+    #         self.write_file(
+    #             aio_path / Path("_vendor.py"),
+    #             aio_general_serializer.serialize_vendor_file(clients),
+    #         )
 
     def _serialize_and_write_metadata(self, env: Environment, namespace_path: Path) -> None:
         metadata_serializer = MetadataSerializer(self.code_model, env)
@@ -492,6 +696,14 @@ class JinjaSerializer(ReaderAndWriter):
             return self.code_model.namespace
 
         return self._namespace_from_package_name
+
+    @property
+    def _exec_path_implimentation(self) -> Path:
+        """ Assume the process is running in the root folder of the package. If not, we need the path implementation."""
+        return  Path("../" * (self._name_space().count(".") + 1)) if self.code_model.options["no_namespace_folders"] else Path(".")
+    
+    def exec_path(self, namespace: str) -> Path:
+        return self._exec_path_implimentation / Path(*namespace.split("."))
 
     # find root folder where "setup.py" is
     def _package_root_folder(self, namespace_path: Path) -> Path:

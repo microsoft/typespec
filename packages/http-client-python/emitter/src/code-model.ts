@@ -243,14 +243,9 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   const codeModel: Record<string, any> = {
     namespace: removeUnderscoresFromNamespace(sdkPackage.rootNamespace).toLowerCase(),
     clients: [],
-    subnamespaceToClients: {},
   };
   for (const client of sdkPackage.clients) {
     codeModel["clients"].push(emitClient(sdkContext, client));
-    if (client.nameSpace === sdkPackage.rootNamespace) {
-    } else {
-      codeModel["subnamespaceToClients"][client.nameSpace] = emitClient(sdkContext, client);
-    }
   }
   // loop through models and enums since there may be some orphaned models needs to be generated
   for (const model of sdkPackage.models) {

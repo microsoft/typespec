@@ -47,6 +47,9 @@ class OperationGroup(BaseModel):
             ]
             self.link_lro_initial_operations()
         self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
+        self.has_parent_operation_group: bool = False
+        for og in self.operation_groups:
+            og.has_parent_operation_group = True
 
     @property
     def has_abstract_operations(self) -> bool:

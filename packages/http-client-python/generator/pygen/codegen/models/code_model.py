@@ -24,11 +24,13 @@ class ClientNamespaceType:
         client_namespace: str,
         clients: List[Client],
         models: List[ModelType],
+        enums: List[EnumType],
         operation_groups: List[OperationGroup],
     ):
         self.client_namespace = client_namespace
         self.clients = clients
         self.models = models
+        self.enums = enums
         self.operation_groups = operation_groups
 
 
@@ -74,10 +76,6 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.clients: List[Client] = [
             Client.from_yaml(client_yaml_data, self) for client_yaml_data in yaml_data["clients"]
         ]
-        self.subnamespace_to_clients: Dict[str, List[Client]] = {
-            subnamespace: [Client.from_yaml(client_yaml, self, is_subclient=True) for client_yaml in client_yamls]
-            for subnamespace, client_yamls in yaml_data.get("subnamespaceToClients", {}).items()
-        }
         if self.options["models_mode"] and self.model_types:
             self.sort_model_types()
         self.is_subnamespace = is_subnamespace
@@ -87,6 +85,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
         self.for_test: bool = False
         self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
+
     # | serialize_namespace  | imported_namespace | relative_import_path |
     # |----------------------|--------------------|----------------------|
     # |azure.test.operations | azure.test         | ..                   |
@@ -122,15 +121,11 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     @property
     def has_operations(self) -> bool:
-        if any(c for c in self.clients if c.has_operations):
-            return True
-        return any(c for clients in self.subnamespace_to_clients.values() for c in clients if c.has_operations)
+        return any(c for c in self.clients if c.has_operations)
 
     @property
     def has_non_abstract_operations(self) -> bool:
-        return any(c for c in self.clients if c.has_non_abstract_operations) or any(
-            c for cs in self.subnamespace_to_clients.values() for c in cs if c.has_non_abstract_operations
-        )
+        return any(c for c in self.clients if c.has_non_abstract_operations)
 
     def lookup_request_builder(self, request_builder_id: int) -> Union[RequestBuilder, OverloadedRequestBuilder]:
         """Find the request builder based off of id"""
