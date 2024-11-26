@@ -71,7 +71,7 @@ extends:
               - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
                 displayName: Bump version to prerelease targets
 
-              - script: npm run gen-manifest
+              - script: pnpm run gen-manifest
                 displayName: Regen manifest for compiler
                 workingDirectory: ./packages/compiler
 
