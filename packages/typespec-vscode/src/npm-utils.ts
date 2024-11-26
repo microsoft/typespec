@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import logger from "./log/logger.js";
-import { executeCommand, loadModule } from "./utils.js";
+import { ExecOutput, executeCommand, loadModule } from "./utils.js";
 
 export enum InstallationAction {
   Install = "Install",
@@ -25,14 +25,20 @@ export class NpmUtil {
     this.cwd = cwd;
   }
 
-  public async npmInstallPackages(packages: string[] = [], options: any = {}) {
+  public async npmInstallPackages(packages: string[] = [], options: any = {}): Promise<ExecOutput> {
     let command;
     if (packages.length > 0) {
       command = `npm install ${packages.join(" ")}`;
     } else {
       command = `npm install`;
     }
-    await executeCommand(command, [], { ...options, cwd: this.cwd });
+    // const output = await new Promise<ExecOutput>((resolve) => {
+    //   const execResult = executeCommand(command, [], { ...options, cwd: this.cwd });
+    //   resolve(execResult);
+    // });
+    // return output;
+    return await executeCommand(command, [], { ...options, cwd: this.cwd });
+    //return spawnExecution("npm", ["install", ...packages], { ...options, cwd: this.cwd });
   }
 
   public async ensureNpmPackageInstall(

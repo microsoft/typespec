@@ -1,7 +1,8 @@
 import type { ModuleResolutionResult, ResolveModuleHost } from "@typespec/compiler";
 import { exec, spawn, SpawnOptions } from "child_process";
 import { readFile, realpath, stat } from "fs/promises";
-import { dirname, normalize, resolve } from "path";
+import path, { dirname, normalize, resolve } from "path";
+import { promisify } from "util";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 
@@ -104,23 +105,6 @@ export async function loadModule(
   }
 }
 
-export async function executeCommand(command: string, args: string[], options: any): Promise<any> {
-  if (args.length > 0) {
-    command = `${command} ${args.join(" ")}`;
-  }
-  exec(command, options, (error, stdout, stderr) => {
-    if (error) {
-      logger.error(`Error: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      logger.error(`Stderr: ${stderr}`);
-      return;
-    }
-    logger.info(`Stdout: ${stdout}`);
-  });
-}
-
 export interface ExecOutput {
   stdout: string;
   stderr: string;
@@ -128,6 +112,47 @@ export interface ExecOutput {
   error: string;
   spawnOptions: SpawnOptions;
 }
+
+export async function executeCommand(
+  command: string,
+  args: string[],
+  options: any,
+): Promise<ExecOutput> {
+  let stdoutstr: string = "";
+  let errMessage: string = "";
+  let retcode = 0;
+  if (args.length > 0) {
+    command = `${command} ${args.join(" ")}`;
+  }
+  // exec(command, options, (error, stdout, stderr) => {
+  //   if (error) {
+  //     logger.error(`Error: ${error.message}`);
+  //     errMessage += error.message;
+  //     retcode = error.code ?? 0;
+  //     return;
+  //   }
+  //   if (stderr) {
+  //     logger.error(`Stderr: ${stderr}`);
+  //     errMessage += stderr;
+  //     return;
+  //   }
+  //   stdoutstr += stdout;
+  //   logger.info(`Stdout: ${stdout}`);
+  // });
+  const execPromise = promisify(exec);
+
+  const { stdout, stderr } = await execPromise(command, options);
+  if (stdout) stdoutstr += stdout;
+  if (stderr) errMessage += stderr;
+  return {
+    stdout: stdoutstr,
+    stderr: errMessage,
+    exitCode: retcode,
+    error: errMessage,
+    spawnOptions: options,
+  };
+}
+
 export async function spawnExecution(
   command: string,
   args: string[],
@@ -160,4 +185,20 @@ export async function spawnExecution(
     error: stderr,
     spawnOptions: options,
   };
+}
+
+export async function resolveTypeSpecCli(absolutePath: string): Promise<Executable | undefined> {
+  if (!path.isAbsolute(absolutePath) || (await isFile(absolutePath))) {
+    return undefined;
+  }
+  const modelInfo = await loadModule(absolutePath, "@typespec/compiler");
+  if (modelInfo) {
+    //const cli = modelInfo.executables.find((exe) => exe.name === "tsp");
+    const cmdPath = path.resolve(modelInfo.path, "cmd/tsp.js");
+    return {
+      command: "node",
+      args: [cmdPath],
+    };
+  }
+  return undefined;
 }
