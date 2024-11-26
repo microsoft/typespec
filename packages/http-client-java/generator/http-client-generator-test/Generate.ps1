@@ -121,7 +121,7 @@ $generateScript = {
 
 ./Setup.ps1
 
-New-Item -Path ./existingcode/src/main/java/com/cadl/ -ItemType Directory -Force | Out-Null
+New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 
 if (Test-Path ./src/main/java/tsptest/partialupdate) {
   Copy-Item -Path ./src/main/java/tsptest/partialupdate -Destination ./existingcode/src/main/java/tsptest/partialupdate -Recurse -Force
