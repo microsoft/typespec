@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import logger from "./log/logger.js";
-import { ExecOutput, executeCommand, loadModule } from "./utils.js";
+import { ExecOutput, loadModule, promisifyExec } from "./utils.js";
 
 export enum InstallationAction {
   Install = "Install",
@@ -32,12 +32,8 @@ export class NpmUtil {
     } else {
       command = `npm install`;
     }
-    // const output = await new Promise<ExecOutput>((resolve) => {
-    //   const execResult = executeCommand(command, [], { ...options, cwd: this.cwd });
-    //   resolve(execResult);
-    // });
-    // return output;
-    return await executeCommand(command, [], { ...options, cwd: this.cwd });
+
+    return await promisifyExec(command, [], { ...options, cwd: this.cwd });
     //return spawnExecution("npm", ["install", ...packages], { ...options, cwd: this.cwd });
   }
 

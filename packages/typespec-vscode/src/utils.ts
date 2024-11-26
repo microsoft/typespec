@@ -124,26 +124,52 @@ export async function executeCommand(
   if (args.length > 0) {
     command = `${command} ${args.join(" ")}`;
   }
-  // exec(command, options, (error, stdout, stderr) => {
-  //   if (error) {
-  //     logger.error(`Error: ${error.message}`);
-  //     errMessage += error.message;
-  //     retcode = error.code ?? 0;
-  //     return;
-  //   }
-  //   if (stderr) {
-  //     logger.error(`Stderr: ${stderr}`);
-  //     errMessage += stderr;
-  //     return;
-  //   }
-  //   stdoutstr += stdout;
-  //   logger.info(`Stdout: ${stdout}`);
-  // });
+  exec(command, options, (error, stdout, stderr) => {
+    if (error) {
+      logger.error(`Error: ${error.message}`);
+      errMessage += error.message;
+      retcode = error.code ?? 0;
+      return;
+    }
+    if (stderr) {
+      logger.error(`Stderr: ${stderr}`);
+      errMessage += stderr;
+      return;
+    }
+    stdoutstr += stdout;
+    logger.info(`Stdout: ${stdout}`);
+  });
+
+  return {
+    stdout: stdoutstr,
+    stderr: errMessage,
+    exitCode: retcode,
+    error: errMessage,
+    spawnOptions: options,
+  };
+}
+
+export async function promisifyExec(
+  command: string,
+  args: string[],
+  options: any,
+): Promise<ExecOutput> {
+  let stdoutstr: string = "";
+  let errMessage: string = "";
+  let retcode = 0;
+  if (args.length > 0) {
+    command = `${command} ${args.join(" ")}`;
+  }
+
   const execPromise = promisify(exec);
 
   const { stdout, stderr } = await execPromise(command, options);
   if (stdout) stdoutstr += stdout;
-  if (stderr) errMessage += stderr;
+  if (stderr) {
+    errMessage += stderr;
+    retcode = 1;
+  }
+
   return {
     stdout: stdoutstr,
     stderr: errMessage,

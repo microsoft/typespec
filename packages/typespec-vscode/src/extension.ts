@@ -429,7 +429,7 @@ export async function doEmit(
     });
     const compileResult = await compile(cli, startFile, e.package, options);
     if (compileResult.exitCode !== 0) {
-      logger.info(
+      logger.error(
         `Failed to generate Client SDK for ${e.language}. error: ${compileResult.error}`,
         [],
         {
