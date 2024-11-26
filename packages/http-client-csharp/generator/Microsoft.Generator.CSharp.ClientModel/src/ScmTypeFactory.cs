@@ -135,8 +135,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
             SerializationFormat serializationFormat,
             ValueExpression value,
             Type valueType,
-            ScopedApi<Utf8JsonWriter> utf8JsonWriterSnippet,
-            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameterSnippet)
-            => MrwSerializationTypeDefinition.SerializeValueTypeCore(type, serializationFormat, value, valueType, utf8JsonWriterSnippet, mrwOptionsParameterSnippet);
+            ScopedApi<Utf8JsonWriter> utf8JsonWriter,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
+            => MrwSerializationTypeDefinition.SerializeValueTypeCore(type, serializationFormat, value, valueType, utf8JsonWriter, mrwOptionsParameter);
     }
 }
