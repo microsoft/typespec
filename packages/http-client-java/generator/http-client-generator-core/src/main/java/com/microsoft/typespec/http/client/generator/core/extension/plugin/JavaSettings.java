@@ -756,6 +756,17 @@ public class JavaSettings {
      * @return The package name with the provided package suffixes appended.
      */
     public final String getPackage(String... packageSuffixes) {
+        return getPackageName(packageName, packageSuffixes);
+    }
+
+    /**
+     * Get the package name with the provided package suffixes appended.
+     *
+     * @param packageName the package name.
+     * @param packageSuffixes The package suffixes to append to the package name.
+     * @return The package name with the provided package suffixes appended.
+     */
+    public final String getPackageName(String packageName, String... packageSuffixes) {
         StringBuilder packageBuilder = new StringBuilder(packageName);
         if (packageSuffixes != null) {
             for (String packageSuffix : packageSuffixes) {

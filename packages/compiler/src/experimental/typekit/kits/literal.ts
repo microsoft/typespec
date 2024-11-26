@@ -2,6 +2,7 @@ import { Numeric } from "../../../core/numeric.js";
 import type { BooleanLiteral, NumericLiteral, StringLiteral, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
+/** @experimental */
 interface LiteralKit {
   literal: {
     /**
@@ -63,7 +64,7 @@ interface LiteralKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends LiteralKit {}
+  interface Typekit extends LiteralKit {}
 }
 
 defineKit<LiteralKit>({

@@ -1254,6 +1254,10 @@ function createOAPIEmitter(
       Object.assign(param, attributes);
     }
 
+    if (isDeprecated(program, parameter.param)) {
+      param.deprecated = true;
+    }
+
     return param;
   }
 
@@ -1545,6 +1549,21 @@ function createOAPIEmitter(
     }
   }
 
+  function validateComponentFixedFieldKey(type: Type, name: string) {
+    const pattern = /^[a-zA-Z0-9.\-_]+$/;
+    if (!pattern.test(name)) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "invalid-component-fixed-field-key",
+          format: {
+            value: name,
+          },
+          target: type,
+        }),
+      );
+    }
+  }
+
   function emitParameters() {
     for (const [property, param] of params) {
       const key = getParameterKey(
@@ -1554,6 +1573,7 @@ function createOAPIEmitter(
         root.components!.parameters!,
         typeNameOptions,
       );
+      validateComponentFixedFieldKey(property, key);
 
       root.components!.parameters![key] = { ...param };
       for (const key of Object.keys(param)) {
@@ -1578,6 +1598,8 @@ function createOAPIEmitter(
       const schemas = root.components!.schemas!;
       const declarations = files[0].globalScope.declarations;
       for (const declaration of declarations) {
+        validateComponentFixedFieldKey(serviceNamespace, declaration.name);
+
         schemas[declaration.name] = declaration.value as any;
       }
     }

@@ -304,28 +304,33 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       ]);
     });
 
-    it("encodes parameter keys in references", async () => {
-      const oapi = await openApiFor(`
-      model Pet extends Pet$Id {
-        name: string;
+  it("errors on invalid parameter keys", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      model Pet {
+        @query()
+        $take?: int32;
+        
+        @query()
+        $top?: int32;
       }
-      model Pet$Id {
-        @path
-        petId: string;
+      @service
+      namespace Endpoints {
+        op list(...Pet): void;
       }
+      `,
+      { "omit-unreachable-types": true },
+    );
 
-      @route("/Pets")
-      @get()
-      op get(... Pet$Id): Pet;
-      `);
-
-      ok(oapi.paths["/Pets/{petId}"].get);
-      strictEqual(
-        oapi.paths["/Pets/{petId}"].get.parameters[0]["$ref"],
-        "#/components/parameters/Pet%24Id",
-      );
-      strictEqual(oapi.components.parameters["Pet$Id"].name, "petId");
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/openapi3/invalid-component-fixed-field-key",
+      },
+      {
+        code: "@typespec/openapi3/invalid-component-fixed-field-key",
+      },
+    ]);
+  });
 
     it("inline spread of parameters from anonymous model", async () => {
       const oapi = await openApiFor(

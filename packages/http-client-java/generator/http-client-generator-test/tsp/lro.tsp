@@ -11,7 +11,7 @@ using Azure.Core.Traits;
 })
 @versioned(ApiVersions)
 @route("/long-running")
-namespace Cadl.LongRunning {
+namespace TspTest.LongRunning {
   enum ApiVersions {
     @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
     v2022_06_01_preview: "2022-06-01-preview",
@@ -122,9 +122,12 @@ namespace Cadl.LongRunning {
   }
 }
 
-@useDependency(Azure.Core.Versions.v1_0_Preview_2, Cadl.LongRunning.ApiVersions.v2022_06_01_preview)
-namespace Cadl.NonService {
+@useDependency(
+  Azure.Core.Versions.v1_0_Preview_2,
+  TspTest.LongRunning.ApiVersions.v2022_06_01_preview
+)
+namespace TspTest.NonService {
   @route("/poll")
   @get
-  op poll(): Cadl.LongRunning.PollResponse;
+  op poll(): TspTest.LongRunning.PollResponse;
 }

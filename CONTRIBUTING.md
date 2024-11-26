@@ -365,16 +365,18 @@ Process labels
 | -------------- | ------- | --------------------------------------------------------------------------------- |
 | `needs-area`   | #ffffff |                                                                                   |
 | `needs-info`   | #ffffff | Mark an issue that needs reply from the author or it will be closed automatically |
+| `stale`        | #ffffff | Mark a PR that hasn't been recently updated and will be closed.                   |
 | `triaged:core` | #5319e7 |                                                                                   |
 
 #### misc
 
 Misc labels
 
-| Name                       | Color   | Description        |
-| -------------------------- | ------- | ------------------ |
-| `Client Emitter Migration` | #FD92F0 |                    |
-| `good first issue`         | #7057ff | Good for newcomers |
+| Name                       | Color   | Description           |
+| -------------------------- | ------- | --------------------- |
+| `Client Emitter Migration` | #FD92F0 |                       |
+| `good first issue`         | #7057ff | Good for newcomers    |
+| `mq`                       | #0969da | Good candidate for MQ |
 
 <!-- LABEL GENERATED REF END -->
 

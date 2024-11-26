@@ -79,7 +79,11 @@ public class ClientModelUtil {
         boolean generateAsyncMethods = JavaSettings.getInstance().isGenerateAsyncMethods();
         boolean generateSyncMethods = JavaSettings.getInstance().isGenerateSyncMethods();
 
-        if (serviceClient.getProxy() != null) {
+        if (serviceClient.getProxy() != null || !CoreUtils.isNullOrEmpty(serviceClient.getClientAccessorMethods())) {
+            // need wrapper for either
+            // 1. ServiceClient has operations
+            // 2. ServiceClient has sub clients
+
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
                 .crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
@@ -94,14 +98,18 @@ public class ClientModelUtil {
 
             if (generateAsyncMethods) {
                 String asyncClassName = clientNameToAsyncClientName(serviceClient.getClientBaseName());
-                asyncClients.add(builder.className(asyncClassName).build());
+                AsyncSyncClient asyncClient = builder.className(asyncClassName).build();
+                serviceClient.setAsyncClient(asyncClient);
+                asyncClients.add(asyncClient);
             }
 
             if (generateSyncMethods) {
                 String syncClassName = serviceClient.getClientBaseName().endsWith("Client")
                     ? serviceClient.getClientBaseName()
                     : serviceClient.getClientBaseName() + "Client";
-                syncClients.add(builder.className(syncClassName).build());
+                AsyncSyncClient syncClient = builder.className(syncClassName).build();
+                serviceClient.setSyncClient(syncClient);
+                syncClients.add(syncClient);
             }
         }
 

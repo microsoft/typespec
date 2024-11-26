@@ -290,11 +290,17 @@ async function main() {
           .option("setName", {
             type: "string",
             description: "Set used to generate the manifest.",
+            array: true,
             demandOption: true,
           })
           .option("storageAccountName", {
             type: "string",
             description: "Name of the storage account",
+          })
+          .option("containerName", {
+            type: "string",
+            description: "Name of the Container",
+            demandOption: true,
           })
           .demandOption("storageAccountName");
       },
@@ -302,7 +308,8 @@ async function main() {
         await uploadScenarioManifest({
           scenariosPaths: args.scenariosPaths,
           storageAccountName: args.storageAccountName,
-          setName: args.setName,
+          setNames: args.setName,
+          containerName: args.containerName,
         });
       },
     )
@@ -342,6 +349,11 @@ async function main() {
             type: "string",
             description: "Mode of generator to upload.",
           })
+          .option("containerName", {
+            type: "string",
+            description: "Name of the Container",
+            demandOption: true,
+          })
           .demandOption("generatorMode");
       },
       async (args) => {
@@ -352,6 +364,7 @@ async function main() {
           generatorVersion: args.generatorVersion,
           generatorCommit: args.generatorCommit ?? getCommit(process.cwd()),
           generatorMode: args.generatorMode,
+          containerName: args.containerName,
         });
       },
     )

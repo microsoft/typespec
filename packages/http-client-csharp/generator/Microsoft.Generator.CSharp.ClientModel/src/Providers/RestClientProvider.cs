@@ -134,13 +134,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
 
             var options = ScmKnownParameters.RequestOptions;
+            var parameters = GetMethodParameters(operation, MethodType.CreateRequest);
+
             var signature = new MethodSignature(
                 $"Create{operation.Name.ToCleanName()}Request",
                 null,
                 MethodSignatureModifiers.Internal,
                 ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
-                [.. GetMethodParameters(operation, true), options]);
+                [.. parameters, options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
             foreach (var param in ClientProvider.GetClientParameters())
@@ -158,7 +160,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
                     Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
                     request.SetMethod(operation.HttpMethod),
-                    Declare("uri", New.Instance<ClientUriBuilderDefinition>(), out ScopedApi<ClientUriBuilderDefinition> uri),
+                    Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri),
                     uri.Reset(ClientProvider.EndpointField).Terminate(),
                     .. AppendPathParameters(uri, operation, paramMap),
                     .. AppendQueryParameters(uri, operation, paramMap),
@@ -173,7 +175,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
         {
-            var contentParam = parameters.FirstOrDefault(p => ReferenceEquals(p, ScmKnownParameters.RequestContent));
+            var contentParam = parameters.FirstOrDefault(
+                p => ReferenceEquals(p, ScmKnownParameters.RequestContent) || ReferenceEquals(p, ScmKnownParameters.OptionalRequestContent));
             return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
 
@@ -228,7 +231,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return statements;
         }
 
-        private IEnumerable<MethodBodyStatement> AppendQueryParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private static List<MethodBodyStatement> AppendQueryParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
 
@@ -239,14 +242,51 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 string? format;
                 ValueExpression valueExpression;
-                GetParamInfo(paramMap, operation, inputParameter, out var type, out format, out valueExpression);
+                GetParamInfo(paramMap, operation, inputParameter, out var paramType, out format, out valueExpression);
                 var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                ValueExpression toStringExpression = type?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
+                ValueExpression toStringExpression = paramType?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
                 MethodBodyStatement statement;
-                if (type?.IsCollection == true)
+
+                if (paramType?.IsCollection == true)
                 {
-                    statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest),
-                       valueExpression, format, true).Terminate();
+                    var delimiter = inputParameter.ArraySerializationDelimiter;
+
+                    if (inputParameter.Type is InputDictionaryType)
+                    {
+                        if (inputParameter.Explode)
+                        {
+                            statement = new ForeachStatement("param", valueExpression.AsDictionary(paramType),
+                                out KeyValuePairExpression item)
+                            {
+                                uri.AppendQuery(item.Key, item.Value, true).Terminate()
+                            };
+                        }
+                        else
+                        {
+                            statement = new[]
+                            {
+                                Declare("list", New.List<object>(), out var list),
+                                new ForeachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
+                                {
+                                    list.Add(item.Key),
+                                    list.Add(item.Value)
+                                },
+                                uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), list, format, true)
+                                    .Terminate()
+                            };
+                        }
+                    }
+                    else if (!inputParameter.Explode)
+                    {
+                        statement = uri.AppendQueryDelimited(Literal(inputParameter.NameInRequest), valueExpression, format, true, delimiter: delimiter).Terminate();
+                    }
+                    else
+                    {
+                        statement = new ForeachStatement("param", valueExpression.As(paramType), out VariableExpression item)
+                        {
+                            uri.AppendQuery(Literal(inputParameter.NameInRequest), item, true).Terminate()
+                        };
+                    }
                 }
                 else
                 {
@@ -254,19 +294,55 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         .Terminate();
                 }
 
-                statement = inputParameter.IsRequired
-                    ? statement
-                    : new IfStatement(valueExpression.NotEqual(Null))
-                    {
-                        statement
-                    };
+                if (!inputParameter.IsRequired || paramType?.IsNullable == true ||
+                    (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
+                {
+                    statement = BuildQueryParameterNullCheck(paramType, valueExpression, statement);
+                }
+
                 statements.Add(statement);
             }
 
             return statements;
         }
 
-        private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi<ClientUriBuilderDefinition> uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
+        private static IfStatement BuildQueryParameterNullCheck(
+            CSharpType? parameterType,
+            ValueExpression valueExpression,
+            MethodBodyStatement originalStatement)
+        {
+            if (parameterType?.IsCollection == true)
+            {
+                DeclarationExpression? changeTrackingCollectionDeclaration;
+                VariableExpression? changeTrackingReference;
+                if (parameterType.IsDictionary)
+                {
+                    changeTrackingCollectionDeclaration = Declare(
+                        "changeTrackingDictionary",
+                        ClientModelPlugin.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(parameterType.Arguments),
+                        out changeTrackingReference);
+                }
+                else
+                {
+                    changeTrackingCollectionDeclaration = Declare(
+                        "changeTrackingList",
+                        ClientModelPlugin.Instance.TypeFactory.ListInitializationType.MakeGenericType(parameterType
+                            .Arguments),
+                        out changeTrackingReference);
+                }
+
+                return new IfStatement(valueExpression.NotEqual(Null)
+                    .And(Not(valueExpression.Is(changeTrackingCollectionDeclaration)
+                    .And(changeTrackingReference.Property("IsUndefined")))))
+                {
+                    originalStatement
+                };
+            }
+
+            return new IfStatement(valueExpression.NotEqual(Null)) { originalStatement };
+        }
+
+        private IEnumerable<MethodBodyStatement> AppendPathParameters(ScopedApi uri, InputOperation operation, Dictionary<string, ParameterProvider> paramMap)
         {
             Dictionary<string, InputParameter> inputParamHash = new(operation.Parameters.ToDictionary(p => p.Name));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
@@ -280,7 +356,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private void AddUriSegments(
             string segments,
             int offset,
-            ScopedApi<ClientUriBuilderDefinition> uri,
+            ScopedApi uri,
             List<MethodBodyStatement> statements,
             Dictionary<string, InputParameter> inputParamHash,
             Dictionary<string, ParameterProvider> paramMap,
@@ -307,13 +383,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 CSharpType? type;
                 string? format;
                 ValueExpression valueExpression;
+                InputParameter? inputParam = null;
                 if (isClientParameter)
                 {
                     GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
                 }
                 else
                 {
-                    var inputParam = inputParamHash[paramName];
+                    inputParam = inputParamHash[paramName];
                     if (inputParam.Location == RequestLocation.Path || inputParam.Location == RequestLocation.Uri)
                     {
                         GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
@@ -324,8 +401,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     }
                 }
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
-                valueExpression = type?.Equals(typeof(string)) == true ? valueExpression : valueExpression.Invoke(nameof(ToString), toStringParams);
-                statements.Add(uri.AppendPath(valueExpression, true).Terminate());
+                bool escape = !inputParam?.SkipUrlEncoding ?? true;
+                if (type?.OutputType.IsCollection == true)
+                {
+                    statements.Add(uri.AppendPathDelimited(
+                        valueExpression, format, escape, inputParam?.ArraySerializationDelimiter).Terminate());
+                }
+                else
+                {
+                    valueExpression = type?.Equals(typeof(string)) == true
+                        ? valueExpression
+                        : valueExpression.Invoke(nameof(ToString), toStringParams);
+                    statements.Add(uri.AppendPath(valueExpression, escape).Terminate());
+                }
 
                 pathSpan = pathSpan.Slice(paramEndIndex + 1);
             }
@@ -419,7 +507,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return MethodCache[operation];
         }
 
-        internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, bool isProtocol = false)
+        internal static List<ParameterProvider> GetMethodParameters(InputOperation operation, MethodType methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -439,11 +527,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 ParameterProvider? parameter = ClientModelPlugin.Instance.TypeFactory.CreateParameter(inputParam).ToPublicInputParameter();
 
-                if (isProtocol)
+                if (methodType is MethodType.Protocol or MethodType.CreateRequest)
                 {
                     if (inputParam.Location == RequestLocation.Body)
                     {
-                        parameter = ScmKnownParameters.RequestContent;
+                        if (methodType == MethodType.CreateRequest)
+                        {
+                            parameter = ScmKnownParameters.RequestContent;
+                        }
+                        else
+                        {
+                            parameter = parameter.DefaultValue == null
+                                ? ScmKnownParameters.RequestContent
+                                : ScmKnownParameters.OptionalRequestContent;
+                        }
                     }
                     else
                     {
@@ -491,7 +588,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         }
                         break;
                     case ParameterLocation.Body:
-                        sortedParams.Add(bodyRequired++, parameter);
+                        sortedParams.Add(parameter.DefaultValue == null ? bodyRequired++ : bodyOptional++, parameter);
                         break;
                     default:
                         sortedParams.Add(optional++, parameter);
@@ -502,6 +599,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (operation.IsMultipartFormData)
             {
                 sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
+            }
+
+            // All the parameters should be required for the CreateRequest method
+            if (methodType == MethodType.CreateRequest)
+            {
+                foreach (var parameter in sortedParams.Values)
+                {
+                    parameter.DefaultValue = null;
+                }
             }
 
             return [.. sortedParams.Values];
@@ -515,6 +621,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
+        }
+
+        internal enum MethodType
+        {
+            CreateRequest,
+            Protocol,
+            Convenience
         }
     }
 }
