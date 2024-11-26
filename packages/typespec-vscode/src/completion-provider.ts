@@ -13,7 +13,7 @@ export function createExtendsCompletionItemProvider() {
         const linePrefix = document.lineAt(position).text.slice(0, position.character);
         const result: vscode.CompletionItem[] = [];
 
-        if (linePrefix.includes("extends:")) {
+        if (linePrefix.startsWith("extends:")) {
           const curActiveFile = vscode.window.activeTextEditor?.document.fileName;
           if (!curActiveFile) {
             return result;

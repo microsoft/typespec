@@ -80,6 +80,22 @@ export async function provideTspconfigCompletionItems(
         itemsFromEmitter.push(...more);
       }
       return [...itemsFromBuiltIn, ...itemsFromEmitter];
+    }
+    if (
+      nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
+      nodePath[0] === "linter" &&
+      targetType === "key"
+    ) {
+      const items: CompletionItem[] = [];
+      const schema = TypeSpecConfigJsonSchema;
+
+      const more = resolveCompleteItems(schema.properties?.linter, {
+        ...target,
+        path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_EMITTER_LIST),
+      });
+      items.push(...more);
+
+      return items;
     } else {
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target) : [];
