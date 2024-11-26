@@ -842,7 +842,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (_additionalBinaryDataProperty != null)
             {
-                var binaryDataDeserializationValue = GetValueTypeDeserializationExpression(
+                var binaryDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(
                     _additionalBinaryDataProperty.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
@@ -850,7 +850,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                var rawDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -1267,11 +1267,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
-                    GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
+                    ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(GetValueTypeDeserializationExpression(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
+                    valueType.ToEnum(ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
 
@@ -1585,7 +1585,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ValueExpression value)
         {
             if (type.IsFrameworkType)
-                return SerializeValueType(type, serializationFormat, value, type.FrameworkType);
+                return ClientModelPlugin.Instance.TypeFactory.SerializeValueType(type, serializationFormat, value, type.FrameworkType, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet);
 
             if (!type.IsEnum)
                 return _utf8JsonWriterSnippet.WriteObjectValue(value.As(type), options: _mrwOptionsParameterSnippet);
@@ -1609,154 +1609,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
                 return _utf8JsonWriterSnippet.WriteNumberValue(enumerableSnippet.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
             }
-        }
-
-        private MethodBodyStatement SerializeValueType(
-            CSharpType type,
-            SerializationFormat serializationFormat,
-            ValueExpression value,
-            Type valueType)
-        {
-            if (valueType == typeof(Nullable<>))
-            {
-                valueType = type.Arguments[0].FrameworkType;
-            }
-
-            value = value.NullableStructValue(type);
-
-            return valueType switch
-            {
-                var t when t == typeof(JsonElement) =>
-                    value.As<JsonElement>().WriteTo(_utf8JsonWriterSnippet),
-                var t when ValueTypeIsInt(t) && serializationFormat == SerializationFormat.Int_String =>
-                    _utf8JsonWriterSnippet.WriteStringValue(value.InvokeToString()),
-                var t when ValueTypeIsNumber(t) =>
-                    _utf8JsonWriterSnippet.WriteNumberValue(value),
-                var t when t == typeof(object) =>
-                    _utf8JsonWriterSnippet.WriteObjectValue(value.As(valueType), _mrwOptionsParameterSnippet),
-                var t when t == typeof(string) || t == typeof(char) || t == typeof(Guid) =>
-                    _utf8JsonWriterSnippet.WriteStringValue(value),
-                var t when t == typeof(bool) =>
-                    _utf8JsonWriterSnippet.WriteBooleanValue(value),
-                var t when t == typeof(byte[]) =>
-                    _utf8JsonWriterSnippet.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier()),
-                var t when t == typeof(DateTimeOffset) || t == typeof(DateTime) || t == typeof(TimeSpan) =>
-                    SerializeDateTimeRelatedTypes(valueType, serializationFormat, value),
-                var t when t == typeof(IPAddress) =>
-                    _utf8JsonWriterSnippet.WriteStringValue(value.InvokeToString()),
-                var t when t == typeof(Uri) =>
-                    _utf8JsonWriterSnippet.WriteStringValue(new MemberExpression(value, nameof(Uri.AbsoluteUri))),
-                var t when t == typeof(BinaryData) =>
-                    SerializeBinaryData(valueType, serializationFormat, value),
-                var t when t == typeof(Stream) =>
-                    _utf8JsonWriterSnippet.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
-                _ => throw new NotSupportedException($"Type {valueType} serialization is not supported.")
-            };
-        }
-
-        public static ValueExpression GetValueTypeDeserializationExpression(
-            Type valueType,
-            ScopedApi<JsonElement> element,
-            SerializationFormat format)
-        {
-            return valueType switch
-            {
-                Type t when t == typeof(Uri) =>
-                    New.Instance(valueType, element.GetString()),
-                Type t when t == typeof(IPAddress) =>
-                    Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
-                Type t when t == typeof(BinaryData) =>
-                    format is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url
-                        ? BinaryDataSnippets.FromBytes(element.GetBytesFromBase64(format.ToFormatSpecifier()))
-                        : BinaryDataSnippets.FromString(element.GetRawText()),
-                Type t when t == typeof(Stream) =>
-                    BinaryDataSnippets.FromString(element.GetRawText()).ToStream(),
-                Type t when t == typeof(JsonElement) =>
-                    element.InvokeClone(),
-                Type t when t == typeof(object) =>
-                    element.GetObject(),
-                Type t when t == typeof(bool) =>
-                    element.GetBoolean(),
-                Type t when t == typeof(char) =>
-                    element.GetChar(),
-                Type t when ValueTypeIsInt(t) =>
-                    GetIntTypeDeserializationExpress(element, t, format),
-                Type t when t == typeof(float) =>
-                    element.GetSingle(),
-                Type t when t == typeof(double) =>
-                    element.GetDouble(),
-                Type t when t == typeof(decimal) =>
-                    element.GetDecimal(),
-                Type t when t == typeof(string) =>
-                    element.GetString(),
-                Type t when t == typeof(Guid) =>
-                    element.GetGuid(),
-                Type t when t == typeof(byte[]) =>
-                    element.GetBytesFromBase64(format.ToFormatSpecifier()),
-                Type t when t == typeof(DateTimeOffset) =>
-                    format == SerializationFormat.DateTime_Unix
-                        ? DateTimeOffsetSnippets.FromUnixTimeSeconds(element.GetInt64())
-                        : element.GetDateTimeOffset(format.ToFormatSpecifier()),
-                Type t when t == typeof(DateTime) =>
-                    element.GetDateTime(),
-                Type t when t == typeof(TimeSpan) => format switch
-                {
-                    SerializationFormat.Duration_Seconds => TimeSpanSnippets.FromSeconds(element.GetInt32()),
-                    SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => TimeSpanSnippets.FromSeconds(element.GetDouble()),
-                    _ => element.GetTimeSpan(format.ToFormatSpecifier())
-                },
-                _ => throw new NotSupportedException($"Framework type {valueType} is not supported.")
-            };
-        }
-
-        private static bool ValueTypeIsInt(Type valueType) =>
-            valueType == typeof(long) ||
-            valueType == typeof(int) ||
-            valueType == typeof(short) ||
-            valueType == typeof(sbyte) ||
-            valueType == typeof(byte);
-
-        private static bool ValueTypeIsNumber(Type valueType) =>
-            valueType == typeof(decimal) ||
-            valueType == typeof(double) ||
-            valueType == typeof(float) ||
-            ValueTypeIsInt(valueType);
-
-        private static ValueExpression GetIntTypeDeserializationExpress(ScopedApi<JsonElement> element, Type type, SerializationFormat format) => format switch
-        {
-            // when `@encode(string)`, the type is serialized as string, so we need to deserialize it from string
-            // sbyte.Parse(element.GetString())
-            SerializationFormat.Int_String => new InvokeMethodExpression(type, nameof(int.Parse), [element.GetString()]),
-            _ => type switch
-            {
-                Type t when t == typeof(long) => element.GetInt64(),
-                Type t when t == typeof(int) => element.GetInt32(),
-                Type t when t == typeof(short) => element.GetInt16(),
-                Type t when t == typeof(sbyte) => element.GetSByte(),
-                Type t when t == typeof(byte) => element.GetByte(),
-                _ => throw new NotSupportedException($"Framework type {type} is not int.")
-            }
-        };
-
-        private MethodBodyStatement SerializeDateTimeRelatedTypes(Type valueType, SerializationFormat serializationFormat, ValueExpression value)
-        {
-            var format = serializationFormat.ToFormatSpecifier();
-            return serializationFormat switch
-            {
-                SerializationFormat.Duration_Seconds => _utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().InvokeToString(format))),
-                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => _utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippets.InvokeToDouble(value.As<TimeSpan>().InvokeToString(format))),
-                SerializationFormat.DateTime_Unix => _utf8JsonWriterSnippet.WriteNumberValue(value, format),
-                _ => format is not null ? _utf8JsonWriterSnippet.WriteStringValue(value, format) : _utf8JsonWriterSnippet.WriteStringValue(value)
-            };
-        }
-
-        private MethodBodyStatement SerializeBinaryData(Type valueType, SerializationFormat serializationFormat, ValueExpression value)
-        {
-            if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
-            {
-                return _utf8JsonWriterSnippet.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
-            }
-            return _utf8JsonWriterSnippet.WriteBinaryData(value);
         }
 
         private static ScopedApi GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)
@@ -1862,6 +1714,27 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             return false;
+        }
+
+        internal static MethodBodyStatement SerializeDateTimeRelatedTypes(Type valueType, SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriterSnippet)
+        {
+            var format = serializationFormat.ToFormatSpecifier();
+            return serializationFormat switch
+            {
+                SerializationFormat.Duration_Seconds => utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().InvokeToString(format))),
+                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippets.InvokeToDouble(value.As<TimeSpan>().InvokeToString(format))),
+                SerializationFormat.DateTime_Unix => utf8JsonWriterSnippet.WriteNumberValue(value, format),
+                _ => format is not null ? utf8JsonWriterSnippet.WriteStringValue(value, format) : utf8JsonWriterSnippet.WriteStringValue(value)
+            };
+        }
+
+        internal static MethodBodyStatement SerializeBinaryData(Type valueType, SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriterSnippet)
+        {
+            if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
+            {
+                return utf8JsonWriterSnippet.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
+            }
+            return utf8JsonWriterSnippet.WriteBinaryData(value);
         }
     }
 }
