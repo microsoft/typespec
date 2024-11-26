@@ -8,8 +8,11 @@ import {
   Scalar,
   Type,
   getFriendlyName,
+  isNullType,
   isNumericType,
   isTemplateInstance,
+  isUnknownType,
+  isVoidType,
 } from "@typespec/compiler";
 import { StringBuilder } from "@typespec/compiler/emitter-framework";
 import {
@@ -196,31 +199,32 @@ export function getCSharpTypeForIntrinsic(
   program: Program,
   type: IntrinsicType,
 ): { type: CSharpType; value?: CSharpValue } | undefined {
-  switch (type.name) {
-    case "unknown":
-      return { type: UnknownType };
-    case "void":
-      return {
-        type: new CSharpType({
-          name: "void",
-          namespace: "System",
-          isBuiltIn: true,
-          isValueType: false,
-        }),
-      };
-    case "null":
-      return {
-        type: new CSharpType({
-          name: "object",
-          namespace: "System",
-          isBuiltIn: true,
-          isValueType: false,
-        }),
-        value: new NullValue(),
-      };
-    default:
-      return undefined;
+  if (isUnknownType(type)) {
+    return { type: UnknownType };
   }
+  if (isVoidType(type)) {
+    return {
+      type: new CSharpType({
+        name: "void",
+        namespace: "System",
+        isBuiltIn: true,
+        isValueType: false,
+      }),
+    };
+  }
+  if (isNullType(type)) {
+    return {
+      type: new CSharpType({
+        name: "object",
+        namespace: "System",
+        isBuiltIn: true,
+        isValueType: false,
+      }),
+      value: new NullValue(),
+    };
+  }
+
+  return undefined;
 }
 
 type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
@@ -531,9 +535,9 @@ export function ensureCSharpIdentifier(
 export function getModelAttributes(
   program: Program,
   entity: Type,
-  csharpName?: string,
+  cSharpName?: string,
 ): Attribute[] {
-  return getAttributes(program, entity);
+  return getAttributes(program, entity, cSharpName);
 }
 
 export function getModelInstantiationName(program: Program, model: Model, name: string): string {
