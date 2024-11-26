@@ -20,6 +20,7 @@
   "main": "dist/src/index.js",
   "exports": {
     ".": {
+      "typespec": "./lib/main.tsp",
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
     },
@@ -30,6 +31,12 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "graphql": {
+    "documents": "test/**/*.{js,ts}"
+  },
+  "dependencies": {
+    "graphql": "^16.9.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",

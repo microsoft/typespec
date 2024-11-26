@@ -1,5 +1,7 @@
 import { createTypeSpecLibrary, type JSONSchemaType } from "@typespec/compiler";
 
+export const NAMESPACE = "TypeSpec.GraphQL";
+
 export interface GraphQLEmitterOptions {
   /**
    * Name of the output file.
@@ -95,8 +97,11 @@ export const libDef = {
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<GraphQLEmitterOptions>,
   },
+  state: {
+    schema: { description: "State for the @schema decorator." },
+  },
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
 
-export const { reportDiagnostic, createDiagnostic } = $lib;
+export const { reportDiagnostic, createDiagnostic, stateKeys: GraphQLKeys } = $lib;

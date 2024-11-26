@@ -18,7 +18,7 @@ export function createGraphQLEmitter(
       const filePath = interpolatePath(options.outputFile, { "schema-name": "schema" });
       await emitFile(program, {
         path: filePath,
-        content: "Hello world",
+        content: "",
         newLine: options.newLine,
       });
     }
