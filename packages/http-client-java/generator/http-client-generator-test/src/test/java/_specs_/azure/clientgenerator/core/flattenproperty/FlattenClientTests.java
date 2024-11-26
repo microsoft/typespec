@@ -10,7 +10,8 @@ import _specs_.azure.clientgenerator.core.flattenproperty.models.NestedFlattenMo
 import org.junit.jupiter.api.Test;
 
 public class FlattenClientTests {
-    private final FlattenPropertyClient flattenClient = new FlattenPropertyClientBuilder().buildClient();
+    private final FlattenPropertyClient flattenClient
+        = new FlattenPropertyClientBuilder().endpoint("http://localhost:3001").buildClient();
 
     @Test
     public void testFlattenModel() {

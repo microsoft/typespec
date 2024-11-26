@@ -52,8 +52,8 @@ try {
             if (!(Test-Path $coverageReportDir)) {
                 New-Item -ItemType Directory -Path $coverageReportDir
 
-                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-test/cadl-ranch-coverage-java-standard.json'
-                $targetFile = Join-Path $coverageReportDir 'cadl-ranch-coverage-java-standard.json'
+                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-test/tsp-spector-coverage-java-standard.json'
+                $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
                 Copy-Item $sourceFile -Destination $targetFile
             }
         } catch {
