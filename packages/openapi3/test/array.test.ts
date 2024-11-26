@@ -226,8 +226,10 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
 
     strictEqual(res.schemas.Foo.title, "FooArray");
   });
+});
 
-  it("can specify tuple defaults using tuple syntax", async () => {
+worksFor(["3.0.0"], ({ oapiForModel }) => {
+  it("can specify tuple defaults using tuple syntax (empty items)", async () => {
     const res = await oapiForModel(
       "Pet",
       `
@@ -255,6 +257,58 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
       type: "array",
       items: {},
       default: ["hi", 456.7],
+    });
+  });
+});
+
+worksFor(["3.1.0"], ({ oapiForModel }) => {
+  it("can specify tuple defaults using tuple syntax (prefix items)", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        names: [string, int32] = #["bismarck", 12];
+        decimals: [string, decimal] = #["hi", 456.7];
+        decimal128s: [string, decimal128] = #["hi", 456.7];
+      };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      prefixItems: [{ type: "string" }, { type: "integer", format: "int32" }],
+      default: ["bismarck", 12],
+    });
+
+    deepStrictEqual(res.schemas.Pet.properties.decimals, {
+      type: "array",
+      prefixItems: [{ type: "string" }, { type: "number", format: "decimal" }],
+      default: ["hi", 456.7],
+    });
+
+    deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
+      type: "array",
+      prefixItems: [{ type: "string" }, { type: "number", format: "decimal128" }],
+      default: ["hi", 456.7],
+    });
+  });
+
+  it("can specify tuple with constants", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet {
+        names: ["bismark", 32];
+      };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      prefixItems: [
+        { type: "string", enum: ["bismark"] },
+        { type: "number", enum: [32] },
+      ],
     });
   });
 });
