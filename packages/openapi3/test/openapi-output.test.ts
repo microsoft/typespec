@@ -146,7 +146,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
       strictEqual(res.paths["/"].get.deprecated, true);
     });
   });
-
   it("deprecate inline parameters with #deprecated", async () => {
     const res = await openApiFor(
       `
@@ -193,7 +192,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
     strictEqual(res.components.parameters["PetId.foo"].deprecated, true);
     strictEqual(res.components.parameters["PetId.name"].deprecated, undefined);
   });
-});
 
   describe("openapi3: request", () => {
     describe("binary request", () => {
