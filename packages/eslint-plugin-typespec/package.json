@@ -37,20 +37,20 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "eslint": "^9.12.0"
+    "eslint": "^9.15.0"
   },
   "devDependencies": {
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@typescript-eslint/parser": "^8.8.1",
     "@typescript-eslint/rule-tester": "^8.8.1",
     "@typescript-eslint/types": "^8.8.1",
-    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/coverage-v8": "^2.1.5",
     "@vitest/ui": "^2.1.2",
     "c8": "^10.1.2",
-    "eslint": "^9.12.0",
+    "eslint": "^9.15.0",
     "rimraf": "~6.0.1",
     "typescript": "~5.6.3",
-    "vitest": "^2.1.2"
+    "vitest": "^2.1.5"
   },
   "dependencies": {
     "@typescript-eslint/utils": "^8.8.1"

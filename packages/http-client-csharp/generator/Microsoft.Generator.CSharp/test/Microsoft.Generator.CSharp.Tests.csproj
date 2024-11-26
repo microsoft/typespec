@@ -15,6 +15,7 @@
   <ItemGroup>
     <Compile Remove="**\TestData\**\*.cs" />
     <Compile Remove="**\common\**\*.cs" />
+    <Compile Include="**\TestData\**\Shared\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

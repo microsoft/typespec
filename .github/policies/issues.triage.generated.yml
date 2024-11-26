@@ -44,6 +44,8 @@ configuration:
                 - hasLabel:
                     label: emitter:client:python
                 - hasLabel:
+                    label: emitter:graphql
+                - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
                     label: emitter:protobuf
@@ -99,6 +101,8 @@ configuration:
                   label: emitter:client:java
               - labelAdded:
                   label: emitter:client:python
+              - labelAdded:
+                  label: emitter:graphql
               - labelAdded:
                   label: emitter:json-schema
               - labelAdded:
@@ -157,6 +161,8 @@ configuration:
               - labelRemoved:
                   label: emitter:client:python
               - labelRemoved:
+                  label: emitter:graphql
+              - labelRemoved:
                   label: emitter:json-schema
               - labelRemoved:
                   label: emitter:protobuf
@@ -204,6 +210,8 @@ configuration:
                     label: emitter:client:java
                 - hasLabel:
                     label: emitter:client:python
+                - hasLabel:
+                    label: emitter:graphql
                 - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
