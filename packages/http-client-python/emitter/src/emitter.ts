@@ -4,14 +4,14 @@ import {
   SdkHttpOperation,
   SdkServiceOperation,
 } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext } from "@typespec/compiler";
+import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
-import { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
+import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
@@ -79,8 +79,10 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const outputDir = context.emitterOutputDir;
   const yamlMap = emitCodeModel(sdkContext);
   if (yamlMap.clients.length === 0) {
-    // eslint-disable-next-line no-console
-    console.log("Warning: Can't generate Python SDK since there is no valid client defined!!!");
+    reportDiagnostic(program, {
+      code: "no-valid-client",
+      target: NoTarget,
+    });
     return;
   }
 
