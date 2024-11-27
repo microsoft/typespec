@@ -34,22 +34,22 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                     (FormattableString)$"{"A timestamp indicating the last modified time\nclient. The operation will be performed only\nbeen modified since the specified time."}",
                     new List<FormattableString> { $"{"A timestamp indicating the last modified time"}", $"{"client. The operation will be performed only"}", $"{"been modified since the specified time."}" });
 
-                //case for FormattableString in arg
+                // Case for FormattableString in arg
                 yield return new TestCaseData(
                 (FormattableString)$"first{"x"}second\nthird{"y"}",
                 new List<FormattableString> { $"first{"x"}second", $"third{"y"}" });
 
-                //case for \n in argument
+                // Case for \n in argument
                 yield return new TestCaseData(
                 (FormattableString)$"first{"x\nz"}second\nthird{"y"}",
                 new List<FormattableString> { $"first{"x"}", $"{"z"}second", $"third{"y"}" });
 
-                //case for \n at end of argument
+                // Case for \n at end of argument
                 yield return new TestCaseData(
                 (FormattableString)$"first{"x"}second\nthird{"y\n"}",
                 new List<FormattableString> { $"first{"x"}second", $"third{"y"}", $"{""}" });
 
-                //case for null argument
+                // Case for null argument
                 yield return new TestCaseData(
                 (FormattableString)$"first{"x"}second\nthird{null}",
                 new List<FormattableString> { $"first{"x"}second", $"third{null}"});
