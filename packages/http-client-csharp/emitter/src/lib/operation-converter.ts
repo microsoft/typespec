@@ -41,13 +41,15 @@ import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { getInputType } from "./model.js";
 import { capitalize, isSdkPathParameter } from "./utils.js";
+import { CodeModelType, Hook } from "../emitter.js";
 
-export function fromSdkServiceMethod(
+export function fromSdkServiceMethod<T extends CodeModelType>(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
   sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap,
+  hook?: Hook<T>
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
@@ -68,7 +70,7 @@ export function fromSdkServiceMethod(
     sdkContext,
     typeMap,
   );
-  return {
+  const unbrandingOperation = {
     Name: method.name,
     ResourceName:
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
@@ -103,6 +105,7 @@ export function fromSdkServiceMethod(
         )
       : undefined,
   };
+  return hook?.emitOperation ? hook.emitOperation(method, unbrandingOperation) : unbrandingOperation;
 }
 
 export function getParameterDefaultValue(

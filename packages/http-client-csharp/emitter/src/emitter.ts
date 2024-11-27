@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, SdkClientType, SdkHttpOperation, SdkServiceMethod, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -23,6 +23,9 @@ import { Logger } from "./lib/logger.js";
 import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
+import { CodeModel } from "./type/code-model.js";
+import { InputClient } from "./type/input-client.js";
+import { InputOperation } from "./type/input-operation.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -44,7 +47,75 @@ function findProjectRoot(path: string): string | undefined {
   }
 }
 
-export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
+/** Start: all these in azure emitter */
+interface AzureCodeModel extends CodeModel {
+  AzureStuff: string;
+}
+
+interface AzureInputClient extends InputClient {
+  AzureStuff: string;
+}
+
+interface AzureInputOperation extends InputOperation {
+  AzureStuff: string;
+}
+
+interface ResoureceMetadata {
+  models?: {
+    operations: string[]
+  }
+}
+
+type AzureModelType = {
+  client: AzureInputClient;
+  operation: AzureInputOperation;
+  resources: ResoureceMetadata;
+}
+
+const azureHook: Hook<AzureModelType> = {
+  emitClient: (client: SdkClientType<SdkHttpOperation>, unbrandingClient: InputClient) => {
+    // Get something from TCGC client raw.
+    const azureStuff = "hello azure";
+    return {
+      ...unbrandingClient,
+      AzureStuff: azureStuff
+    };
+  },
+  emitOperation: (method: SdkServiceMethod<SdkHttpOperation>, unbrandingOperation: InputOperation) => {
+    // Get something from TCGC operation raw.
+    const azureStuff = "hello azure";
+    return {
+      ...unbrandingOperation,
+      AzureStuff: azureStuff
+    };
+  },
+  emitResources: () => {
+    // Get data from arm
+    return { "models": { "operations": []} };
+  }
+}
+
+export async function $onEmitInAzureEmitter(context: EmitContext<NetEmitterOptions>) {
+  $onEmit<AzureModelType>({
+    ...context,
+    "hook": azureHook
+  });
+}
+/** End: all these in azure emitter */
+
+
+export type CodeModelType = Record<"client"| "operation" | "resources", any>; // I think "resources" should be renamed to something like "others", just telling unbranding emitter just append these data.
+
+export interface Hook<T extends CodeModelType> {
+  emitClient?: (client: SdkClientType<SdkHttpOperation>, unbrandingClient: InputClient) => T["client"];
+  emitOperation?: (method: SdkServiceMethod<SdkHttpOperation>, unbrandingOperation: InputOperation) => T["operation"];
+  emitResources?: () => T["resources"];
+}
+
+export type ContextType<T extends CodeModelType> = EmitContext<NetEmitterOptions> & {"hook"?: Hook<T>};
+
+export async function $onEmit<T extends CodeModelType>(context: ContextType<T>) {
+  context.hook = azureHook as Hook<T>; // Ignore this line. Test purpose
   const program: Program = context.program;
   const options = resolveOptions(context);
   const outputFolder = resolveOutputFolder(context);
@@ -59,7 +130,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       "@typespec/http-client-csharp",
       defaultSDKContextOptions,
     );
-    const root = createModel(sdkContext);
+    const root = createModel<T>(sdkContext, context.hook); // context.hook is already in sdkContext. We should change createSdkContext signature to somehow accept hook type
     if (
       context.program.diagnostics.length > 0 &&
       context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
