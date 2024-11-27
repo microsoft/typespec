@@ -191,13 +191,13 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
+     * Need to be set as 'v1', 'v2preview' or 'v2' in client.
      */
     @Generated
     private Versions version;
 
     /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
+     * Sets Need to be set as 'v1', 'v2preview' or 'v2' in client.
      * 
      * @param version the version value.
      * @return the RemovedClientBuilder.

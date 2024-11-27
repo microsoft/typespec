@@ -9,12 +9,17 @@ package versioning.removed.models;
  */
 public enum Versions {
     /**
-     * The version v1.
+     * The original version v1.
      */
     V1("v1"),
 
     /**
-     * The version v2.
+     * The V2 Preview version.
+     */
+    V2PREVIEW("v2preview"),
+
+    /**
+     * The latest version v2.
      */
     V2("v2");
 

@@ -22,6 +22,6 @@
     "payload.contentnegotiation.SameBodyClient.getAvatarAsJpegWithResponse": "Payload.ContentNegotiation.SameBody.getAvatarAsJpeg",
     "payload.contentnegotiation.SameBodyClient.getAvatarAsPng": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
     "payload.contentnegotiation.SameBodyClient.getAvatarAsPngWithResponse": "Payload.ContentNegotiation.SameBody.getAvatarAsPng",
-    "payload.contentnegotiation.models.PngImageAsJson": "Payload.ContentNegotiation.DifferentBody.PngImageAsJson"
+    "payload.contentnegotiation.differentbody.models.PngImageAsJson": "Payload.ContentNegotiation.DifferentBody.PngImageAsJson"
   }
 }

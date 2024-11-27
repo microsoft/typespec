@@ -139,9 +139,7 @@ public class JavaSettings {
                 getStringValue(host, "key-credential-header-name", ""),
                 getBooleanValue(host, "disable-client-builder", false),
                 host.getValueWithJsonReader("polling", jsonReader -> jsonReader.readMap(PollingDetails::fromJson)),
-                getBooleanValue(host, "generate-samples", false), getBooleanValue(host, "generate-tests", false), false, // getBooleanValue(host,
-                                                                                                                         // "generate-send-request-method",
-                                                                                                                         // false),
+                getBooleanValue(host, "generate-samples", false), getBooleanValue(host, "generate-tests", false), false,
                 getBooleanValue(host, "annotate-getters-and-setters-for-serialization", false),
                 getStringValue(host, "default-http-exception-type"),
                 getBooleanValue(host, "use-default-http-status-code-to-exception-type-mapping", false),
@@ -756,6 +754,17 @@ public class JavaSettings {
      * @return The package name with the provided package suffixes appended.
      */
     public final String getPackage(String... packageSuffixes) {
+        return getPackageName(packageName, packageSuffixes);
+    }
+
+    /**
+     * Get the package name with the provided package suffixes appended.
+     *
+     * @param packageName the package name.
+     * @param packageSuffixes The package suffixes to append to the package name.
+     * @return The package name with the provided package suffixes appended.
+     */
+    public final String getPackageName(String packageName, String... packageSuffixes) {
         StringBuilder packageBuilder = new StringBuilder(packageName);
         if (packageSuffixes != null) {
             for (String packageSuffix : packageSuffixes) {

@@ -12,8 +12,8 @@
     "testserver-stop": "cadl-ranch server stop"
   },
   "dependencies": {
-    "@azure-tools/cadl-ranch-specs": "0.39.0",
-    "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.0.tgz",
+    "@azure-tools/cadl-ranch-specs": "0.39.4",
+    "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.1.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {

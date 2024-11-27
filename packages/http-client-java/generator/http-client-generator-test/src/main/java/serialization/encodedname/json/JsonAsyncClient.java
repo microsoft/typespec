@@ -18,7 +18,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import serialization.encodedname.json.implementation.PropertiesImpl;
-import serialization.encodedname.json.models.JsonEncodedNameModel;
+import serialization.encodedname.json.property.models.JsonEncodedNameModel;
 
 /**
  * Initializes a new instance of the asynchronous JsonClient type.

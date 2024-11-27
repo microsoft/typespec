@@ -14,6 +14,7 @@ import {
   getMinValueExclusive,
   resolveEncodedName,
 } from "@typespec/compiler";
+import { camelCase } from "change-case";
 import {
   Attribute,
   AttributeType,
@@ -51,6 +52,7 @@ export function getFormatValue(program: Program, type: Scalar | ModelProperty): 
 export function getEncodedNameAttribute(
   program: Program,
   type: ModelProperty,
+  cSharpName?: string,
 ): Attribute | undefined {
   const encodedName = resolveEncodedName(program, type, "application/json");
   if (encodedName !== type.name) {
@@ -66,6 +68,32 @@ export function getEncodedNameAttribute(
       new Parameter({
         name: "name",
         value: new StringValue(encodedName),
+        optional: false,
+        type: new CSharpType({
+          name: "string",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: true,
+        }),
+      }),
+    );
+
+    return attr;
+  }
+
+  if (cSharpName && type.name !== camelCase(cSharpName)) {
+    const attr: Attribute = new Attribute(
+      new AttributeType({
+        name: "JsonPropertyName",
+        namespace: JsonNamespace,
+      }),
+      [],
+    );
+
+    attr.parameters.push(
+      new Parameter({
+        name: "name",
+        value: new StringValue(type.name),
         optional: false,
         type: new CSharpType({
           name: "string",
@@ -422,7 +450,7 @@ export function getAttributes(program: Program, type: Type, cSharpName?: string)
       const arrayAttr = getArrayConstraintAttribute(program, type);
       const stringAttr = getStringConstraintAttribute(program, type);
       const numberAttr = getNumericConstraintAttribute(program, type);
-      const name = getEncodedNameAttribute(program, type);
+      const name = getEncodedNameAttribute(program, type, cSharpName);
       if (arrayAttr) result.add(arrayAttr);
       if (stringAttr) result.add(stringAttr);
       if (numberAttr) result.add(numberAttr);

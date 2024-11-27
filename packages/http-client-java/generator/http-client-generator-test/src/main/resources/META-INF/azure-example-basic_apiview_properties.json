@@ -1,0 +1,16 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.example.basic.AzureExampleAsyncClient": "Client.AzureExampleClient",
+    "azure.example.basic.AzureExampleAsyncClient.basicAction": "Client.AzureExampleClient.basicAction",
+    "azure.example.basic.AzureExampleAsyncClient.basicActionWithResponse": "Client.AzureExampleClient.basicAction",
+    "azure.example.basic.AzureExampleClient": "Client.AzureExampleClient",
+    "azure.example.basic.AzureExampleClient.basicAction": "Client.AzureExampleClient.basicAction",
+    "azure.example.basic.AzureExampleClient.basicActionWithResponse": "Client.AzureExampleClient.basicAction",
+    "azure.example.basic.AzureExampleClientBuilder": "Client.AzureExampleClient",
+    "azure.example.basic.models.ActionRequest": "_Specs_.Azure.Example.Basic.ActionRequest",
+    "azure.example.basic.models.ActionResponse": "_Specs_.Azure.Example.Basic.ActionResponse",
+    "azure.example.basic.models.Enum": "_Specs_.Azure.Example.Basic.Enum",
+    "azure.example.basic.models.Model": "_Specs_.Azure.Example.Basic.Model"
+  }
+}
