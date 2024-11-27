@@ -104,6 +104,7 @@ import {
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
+  isCookieParam,
   isHeader,
   isPathParam,
   isQueryParam,
@@ -871,6 +872,12 @@ export class CodeModelBuilder {
     clientContext.hostParameters.forEach((it) => codeModelOperation.addParameter(it));
     // path/query/header parameters
     for (const param of httpOperation.parameters) {
+      // TODO, switch to TCGC kind="cookie"
+      if (param.__raw && isCookieParam(this.program, param.__raw)) {
+        // ignore cookie parameter
+        continue;
+      }
+
       // if it's paged operation with request body, skip content-type header added by TCGC, as next link call should not have content type header
       if (
         (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") &&
