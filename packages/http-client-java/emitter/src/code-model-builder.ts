@@ -872,7 +872,7 @@ export class CodeModelBuilder {
     clientContext.hostParameters.forEach((it) => codeModelOperation.addParameter(it));
     // path/query/header parameters
     for (const param of httpOperation.parameters) {
-      // TODO, switch to TCGC kind="cookie"
+      // TODO, switch to TCGC param.kind=="cookie"
       if (param.__raw && isCookieParam(this.program, param.__raw)) {
         // ignore cookie parameter
         continue;
