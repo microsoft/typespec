@@ -44,7 +44,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
   }
 
   private createOpenUrlCodeAction(diagnostic: vscode.Diagnostic, url: string): vscode.CodeAction {
-    // vscode. CodeActionKind.Empty does not generate a Quick Fix menu
+    // 'vscode.CodeActionKind.Empty' does not generate a Code Action menu, You must use 'vscode.CodeActionKind.QuickFix'
     const action = new vscode.CodeAction("Open Document", vscode.CodeActionKind.QuickFix);
     action.command = {
       command: OPEN_URL_COMMAND,
