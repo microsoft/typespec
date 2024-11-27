@@ -44,8 +44,23 @@ namespace Microsoft.Generator.CSharp.Statements
             }
 
             List<FormattableString> allLines = new List<FormattableString>();
-            foreach (var line in escapedLines)
+            foreach (FormattableString line in escapedLines)
             {
+                var format = line.Format;
+
+                var arguments = line.GetArguments();
+                foreach (var arg in arguments)
+                {
+                    if (arg is string str)
+                    {
+                        var splitArgs = str.Split("\n");
+                        foreach (var s in splitArgs)
+                        {
+                            allLines.Add(FormattableStringFactory.Create(s));
+                        }
+                    }
+                }
+
                 var splitLines = line.ToString().Split("\n");
                 foreach (var s in splitLines)
                 {

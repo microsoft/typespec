@@ -161,7 +161,7 @@
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
     "http-special-headers-conditional-request": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/special-headers/conditional-request -p StubLibraryPlugin",
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/special-headers/conditional-request -p ClientModelPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },

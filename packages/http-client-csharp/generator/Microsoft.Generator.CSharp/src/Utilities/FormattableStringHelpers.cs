@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -96,6 +97,70 @@ namespace Microsoft.Generator.CSharp
         {
             var position = text.LastIndexOf(oldValue, StringComparison.Ordinal);
             return position < 0 ? text : text.Substring(0, position) + newValue + text.Substring(position + oldValue.Length);
+        }
+
+        internal static IReadOnlyList<FormattableString> BreakLines(FormattableString fs)
+        {
+            StringBuilder formatBuilder = new StringBuilder();
+            var args = new List<object?>();
+            List<FormattableString> result = new List<FormattableString>();
+            foreach ((var span, bool isLiteral, int index) in StringExtensions.GetPathParts(fs.Format))
+            {
+                // if isLiteral - put in formatBuilder
+                if (isLiteral)
+                {
+                    var splitNewLine = span.ToString().Split("\n");
+                    for (int i = 0; i < splitNewLine.Length; i++)
+                    {
+                        var part = splitNewLine[i];
+                        formatBuilder.Append(part);
+                        if (i < splitNewLine.Length - 1)
+                        {
+                            FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
+                            result.Add(formattableString);
+                            formatBuilder.Clear();
+                            args.Clear();
+                        }
+                    }
+                }
+                // if not Literal, is Args - recurse through Args and check if args has breaklines
+                else
+                {
+                    var arg = fs.GetArgument(index);
+                    if (arg is string str)
+                    {
+                        var splitNewLine = str.Split("\n");
+                        for (int i = 0; i < splitNewLine.Length; i++)
+                        {
+                            var argPart = splitNewLine[i];
+                            formatBuilder.Append("{" + args.Count + "}");
+                            args.Add(argPart);
+
+                            if (i < splitNewLine.Length - 1) // if not last part we know this part ends with \n, add to current result and clear
+                            {
+                                FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
+                                result.Add(formattableString);
+                                formatBuilder.Clear();
+                                args.Clear();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // if not a string or FormattableString, add to args because we cannot parse it
+                        // also add to FormatBuilder to maintain equal count between args and formatBuilder
+                        formatBuilder.Append("{" + args.Count + "}");
+                        args.Add(arg);
+                    }
+                }
+            }
+            // if formatBuilder is not empty at end, add it to result
+            if (formatBuilder.Length > 0)
+            {
+                FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
+                result.Add(formattableString);
+            }
+            return result;
         }
     }
 }
