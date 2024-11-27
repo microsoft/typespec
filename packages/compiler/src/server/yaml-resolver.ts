@@ -250,7 +250,13 @@ function createYamlPathFromVisitScalarNode(
     if (key === "value" && newline && newline.offset < offset) {
       // if the scalar node is marked as value but separated by newline from the key, it's more likely that the user is inputting the first property of an object
       // so build the target as an object key
-      path.push(n.source ?? "");
+      // If the value of type is QUOTE_DOUBLE, you need to include ""
+      if (n.source !== undefined && n.source.length === 0 && n.type === "QUOTE_DOUBLE") {
+        path.push('""');
+      } else {
+        path.push(n.source ?? "");
+      }
+
       return {
         path,
         type: "key",

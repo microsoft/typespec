@@ -44,11 +44,12 @@ export async function provideTspconfigCompletionItems(
       const items: CompletionItem[] = [];
       for (const [name, pkg] of Object.entries(emitters)) {
         if (!siblings.includes(name)) {
+          // If there are already double quotes, no double quotes will be inserted.
           const item: CompletionItem = {
             label: name,
             kind: CompletionItemKind.Field,
             documentation: (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
-            insertText: `"${name}"`,
+            insertText: nodePath[1] === '""' ? `${name}` : `"${name}"`,
           };
           items.push(item);
         }
