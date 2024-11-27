@@ -65,10 +65,30 @@ extends:
                       --source "./website/dist/" \
                       --overwrite
 
+              - task: CopyFiles@2
+                displayName: "Copy VSCode extension .vsix to artifact directory"
+                inputs:
+                  SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+                  Contents: "*.vsix"
+                  TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
+              - script: |
+                  echo "##[section]Retrieving artifact URL..."
+                  artifactUrl=$(curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactsName=vscode-extension-unsigned&api-version=7.1-preview.5" | jq -r '.value.resource.downloadUrl')
+                  echo "##vso[task.setvariable variable=vscodeUrl]$artifactUrl"
+                displayName: Get vscode artifact URL
+
               - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts
                 displayName: Check already commented
                 env:
                   GH_TOKEN: $(azuresdk-github-pat)
+                  VSCODE_DOWNLOAD_URL: $(vscodeUrl)
+
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/vscode-extension
+                  artifact: vscode-extension-unsigned
+                  displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
           - job: change_comment
             displayName: Describe changes on PR
