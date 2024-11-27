@@ -32,7 +32,7 @@ model VisibilityModel {
 
   @doc("Property that does not exist in any payload.")
   @visibility("none")
-  noneProp: boolean;
+  noneProp: "none";
 }
 
 /** RoundTrip model with readonly optional properties. */
