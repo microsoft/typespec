@@ -712,7 +712,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)
         {
-            var expr = MrwSerializationTypeDefinition.GetValueTypeDeserializationExpression(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
+            var expr = MrwSerializationTypeDefinition.GetValueTypeDeserializationExpressionCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
             return expr.ToDisplayString();
         }
 
