@@ -45,7 +45,7 @@ function addDefaultOptions(sdkContext: SdkContext) {
   }
   if (!options["package-name"]) {
     options["package-name"] = removeUnderscoresFromNamespace(
-      sdkContext.sdkPackage.rootNamespace.toLowerCase(),
+      (sdkContext.sdkPackage.rootNamespace ?? "").toLowerCase(),
     ).replace(/\./g, "-");
   }
   if (options.flavor !== "azure") {
@@ -78,6 +78,12 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
   const yamlMap = emitCodeModel(sdkContext);
+  if (yamlMap.clients.length === 0) {
+    // eslint-disable-next-line no-console
+    console.log("Warning: Can't generate Python SDK since there is no valid client defined!!!");
+    return;
+  }
+
   addDefaultOptions(sdkContext);
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
   let venvPath = path.join(root, "venv");
