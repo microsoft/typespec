@@ -200,13 +200,17 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
-export function getClientNamespace(clientNamespace: string, rootNameSpace: string) {
+export function getClientNamespace<TServiceOperation extends SdkServiceOperation>(context: PythonSdkContext<TServiceOperation>,clientNamespace: string) {
+  const options = context.emitContext.options
+  if ([undefined, false].includes(options["enable-typespec-namespace"])) {
+    return context.sdkPackage.rootNamespace;
+  }
   if (
     ["azure.core", "azure.resourcemanager"].some((item) =>
       clientNamespace.toLowerCase().startsWith(item),
     )
   ) {
-    return rootNameSpace;
+    return context.sdkPackage.rootNamespace;
   }
   return clientNamespace;
 }

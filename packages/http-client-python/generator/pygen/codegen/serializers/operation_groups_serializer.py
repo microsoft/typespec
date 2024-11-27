@@ -28,25 +28,22 @@ class OperationGroupsSerializer(BaseSerializer):
     def __init__(
         self,
         code_model: CodeModel,
-        clients: List[Client],
+        operation_groups: List[OperationGroup],
         env: Environment,
         async_mode: bool,
-        operation_group: Optional[OperationGroup] = None,
         *,
         serialize_namespace: Optional[str] = None,
     ):
         super().__init__(code_model, env, serialize_namespace=serialize_namespace)
-        self.clients = clients
+        self.operation_groups = operation_groups
         self.async_mode = async_mode
-        self.operation_group = operation_group
 
     def _get_request_builders(
         self, operation_group: OperationGroup
     ) -> List[Union[OverloadedRequestBuilder, RequestBuilder]]:
         return [
             r
-            for client in self.clients
-            for r in client.request_builders
+            for r in operation_group.client.request_builders
             if r.client.name == operation_group.client.name
             and r.group_name == operation_group.identify_name
             and not r.is_overload
@@ -55,13 +52,8 @@ class OperationGroupsSerializer(BaseSerializer):
         ]
 
     def serialize(self) -> str:
-        if self.operation_group:
-            operation_groups = [self.operation_group]
-        else:
-            operation_groups = get_all_operation_groups_recursively(self.clients)
-
         imports = FileImport(self.code_model)
-        for operation_group in operation_groups:
+        for operation_group in self.operation_groups:
             imports.merge(
                 operation_group.imports(
                     async_mode=self.async_mode,
@@ -72,7 +64,7 @@ class OperationGroupsSerializer(BaseSerializer):
 
         return template.render(
             code_model=self.code_model,
-            operation_groups=operation_groups,
+            operation_groups=self.operation_groups,
             imports=FileImportSerializer(
                 imports,
                 async_mode=self.async_mode,

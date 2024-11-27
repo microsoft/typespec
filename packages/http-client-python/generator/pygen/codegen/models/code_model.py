@@ -13,6 +13,7 @@ from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
 from .operation_group import OperationGroup
 from .utils import NamespaceType
+from ..serializers.utils import get_all_operation_groups_recursively
 
 def _is_legacy(options) -> bool:
     return not (options.get("version_tolerant") or options.get("low_level_client"))
@@ -22,10 +23,10 @@ class ClientNamespaceType:
     def __init__(
         self,
         client_namespace: str,
-        clients: List[Client],
-        models: List[ModelType],
-        enums: List[EnumType],
-        operation_groups: List[OperationGroup],
+        clients: List[Client] = [],
+        models: List[ModelType] = [],
+        enums: List[EnumType] = [],
+        operation_groups: List[OperationGroup] = [],
     ):
         self.client_namespace = client_namespace
         self.clients = clients
@@ -61,8 +62,6 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self,
         yaml_data: Dict[str, Any],
         options: Dict[str, Any],
-        *,
-        is_subnamespace: bool = False,
     ) -> None:
         self.yaml_data = yaml_data
         self.options = options
@@ -78,13 +77,13 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         ]
         if self.options["models_mode"] and self.model_types:
             self.sort_model_types()
-        self.is_subnamespace = is_subnamespace
         self.named_unions: List[CombinedType] = [
             t for t in self.types_map.values() if isinstance(t, CombinedType) and t.name
         ]
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
         self.for_test: bool = False
         self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
+        self.has_subnamespace = False
 
     # | serialize_namespace  | imported_namespace | relative_import_path |
     # |----------------------|--------------------|----------------------|
@@ -107,8 +106,32 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:
         if not self._client_namespace_types:
             for client in self.clients:
-                # TODO
-                pass
+                if client.client_namespace not in self._client_namespace_types:
+                    self._client_namespace_types[client.client_namespace] = ClientNamespaceType(client.client_namespace)
+                self._client_namespace_types[client.client_namespace].clients.append(client)
+            for model in self.model_types:
+                if model.client_namespace not in self._client_namespace_types:
+                    self._client_namespace_types[model.client_namespace] = ClientNamespaceType(model.client_namespace)
+                self._client_namespace_types[model.client_namespace].models.append(model)
+            for enum in self.enums:
+                if enum.client_namespace not in self._client_namespace_types:
+                    self._client_namespace_types[enum.client_namespace] = ClientNamespaceType(enum.client_namespace)
+                self._client_namespace_types[enum.client_namespace].enums.append(enum)
+            for operation_group in get_all_operation_groups_recursively(self.clients):
+                if operation_group.client_namespace not in self._client_namespace_types:
+                    self._client_namespace_types[operation_group.client_namespace] = ClientNamespaceType(operation_group.client_namespace)
+                self._client_namespace_types[operation_group.client_namespace].operation_groups.append(operation_group)
+            
+            if len(self._client_namespace_types.keys()) > 1:
+                self.has_subnamespace = True
+            
+            # insert namespace to make sure it is continuous(e.g. ("", "azure", "azure.mgmt", "azure.mgmt.service", ...))
+            longest_namespace = sorted(self._client_namespace_types.keys())[-1]
+            namespace_parts = longest_namespace.split(".")
+            for idx in range(len(namespace_parts) + 1):
+                namespace = ".".join(namespace_parts[:idx])
+                if namespace not in self._client_namespace_types:
+                    self._client_namespace_types[namespace] = ClientNamespaceType(namespace)
         return self._client_namespace_types
 
     @property
