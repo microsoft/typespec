@@ -5,7 +5,7 @@ using Http;
 using Spector;
 
 /**
- * Test for list operations.
+ * Test for pageable payload.
  */
 @scenarioService("/payload/pageable")
 namespace Payload.Pageable;
