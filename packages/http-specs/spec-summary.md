@@ -1680,7 +1680,7 @@ Two requests need to be tested.
     { "id": "2", "name": "cat" }
   ],
   "links": {
-    "next": "/payload/pageable/server-driven-pagination/link/nextPage"
+    "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
   }
 }
 ```

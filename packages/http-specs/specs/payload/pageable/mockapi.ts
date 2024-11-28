@@ -1,4 +1,4 @@
-import { json, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { json, MockRequest, passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -15,9 +15,23 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
           { id: "2", name: "cat" },
         ],
         links: {
-          next: "/payload/pageable/server-driven-pagination/link/nextPage",
+          next: "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage",
         },
       }),
+    },
+    handler: (req: MockRequest) => {
+      return {
+        status: 200,
+        body: json({
+          pets: [
+            { id: "1", name: "dog" },
+            { id: "2", name: "cat" },
+          ],
+          links: {
+            next: `${req.baseUrl}/payload/pageable/server-driven-pagination/link/nextPage`,
+          },
+        }),
+      };
     },
     kind: "MockApiDefinition",
   },
