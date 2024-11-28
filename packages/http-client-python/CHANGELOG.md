@@ -1,5 +1,15 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.11
+
+### Other Changes
+
+- Pad special property name in model to avoid conflict
+
+### Bug Fixes
+
+- Fix crash if no valid client define in typespec file
+
 ## 0.3.10
 
 ### Bug Fixes
