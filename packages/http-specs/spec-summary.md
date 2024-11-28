@@ -1673,8 +1673,9 @@ Two requests need to be tested.
    Expected route: /payload/pageable/server-driven-pagination/link
    Expected response body:
 
-````json
-{ "pets": [
+```json
+{
+  "pets": [
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
@@ -1682,16 +1683,20 @@ Two requests need to be tested.
     "next": "/payload/pageable/server-driven-pagination/link/nextPage"
   }
 }
+```
+
 2. Next page request:
-Expected route: /payload/pageable/server-driven-pagination/link/nextPage
-Expected response body:
+   Expected route: /payload/pageable/server-driven-pagination/link/nextPage
+   Expected response body:
+
 ```json
-{ "pets": [
+{
+  "pets": [
     { "id": "3", "name": "bird" },
     { "id": "4", "name": "fish" }
   ]
 }
-````
+```
 
 ### Payload_Xml_ModelWithArrayOfModelValue_get
 

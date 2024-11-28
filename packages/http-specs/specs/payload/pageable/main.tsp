@@ -34,6 +34,7 @@ namespace ServerDrivenPagination {
         "next": "/payload/pageable/server-driven-pagination/link/nextPage"
       }
     }
+    ```
     2. Next page request:
     Expected route: /payload/pageable/server-driven-pagination/link/nextPage
     Expected response body:
