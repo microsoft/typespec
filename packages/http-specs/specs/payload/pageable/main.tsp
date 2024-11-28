@@ -7,8 +7,8 @@ using Spector;
 /**
  * Test for list operations.
  */
-@scenarioService("/operations/list")
-namespace Operations.List;
+@scenarioService("/payload/pageable")
+namespace Payload.Pageable;
 
 model Pet {
   id: string;
@@ -23,7 +23,7 @@ namespace ServerDrivenPagination {
     
     Two requests need to be tested.
     1. Initial request:
-    Expected route: /operations/list/server-driven-pagination/link
+    Expected route: /payload/pageable/server-driven-pagination/link
     Expected response body:
     ```json
     { "pets": [
@@ -31,11 +31,11 @@ namespace ServerDrivenPagination {
         { "id": "2", "name": "cat" }
       ],
       "links": {
-        "next": "/operations/list/server-driven-pagination/link/nextPage"
+        "next": "/payload/pageable/server-driven-pagination/link/nextPage"
       }
     }
     2. Next page request:
-    Expected route: /operations/list/server-driven-pagination/link/nextPage
+    Expected route: /payload/pageable/server-driven-pagination/link/nextPage
     Expected response body:
     ```json
     { "pets": [
