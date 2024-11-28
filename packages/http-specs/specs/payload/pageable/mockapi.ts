@@ -15,7 +15,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
           { id: "2", name: "cat" },
         ],
         links: {
-          next: "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage",
+          next: "/payload/pageable/server-driven-pagination/link/nextPage",
         },
       }),
     },
