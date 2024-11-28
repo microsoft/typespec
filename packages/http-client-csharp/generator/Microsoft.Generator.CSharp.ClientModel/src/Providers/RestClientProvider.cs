@@ -36,12 +36,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private FieldProvider _pipelineMessageClassifier200;
         private FieldProvider _pipelineMessageClassifier201;
+        private FieldProvider _pipelineMessageClassifier202;
         private FieldProvider _pipelineMessageClassifier204;
         private FieldProvider _pipelineMessageClassifier2xxAnd4xx;
         private TypeProvider _classifier2xxAnd4xxDefinition;
 
         private PropertyProvider _classifier201Property;
         private PropertyProvider _classifier200Property;
+        private PropertyProvider _classifier202Property;
         private PropertyProvider _classifier204Property;
         private PropertyProvider _classifier2xxAnd4xxProperty;
 
@@ -51,11 +53,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ClientProvider = clientProvider;
             _pipelineMessageClassifier200 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier200", this);
             _pipelineMessageClassifier201 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier201", this);
+            _pipelineMessageClassifier202 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier202", this);
             _pipelineMessageClassifier204 = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType, "_pipelineMessageClassifier204", this);
             _classifier2xxAnd4xxDefinition = new Classifier2xxAnd4xxDefinition(this);
             _pipelineMessageClassifier2xxAnd4xx = new FieldProvider(FieldModifiers.Private | FieldModifiers.Static, _classifier2xxAnd4xxDefinition.Type, "_pipelineMessageClassifier2xxAnd4xx", this);
             _classifier200Property = GetResponseClassifierProperty(_pipelineMessageClassifier200, 200);
             _classifier201Property = GetResponseClassifierProperty(_pipelineMessageClassifier201, 201);
+            _classifier202Property = GetResponseClassifierProperty(_pipelineMessageClassifier202, 202);
             _classifier204Property = GetResponseClassifierProperty(_pipelineMessageClassifier204, 204);
             _classifier2xxAnd4xxProperty = new PropertyProvider(
                 $"Gets the PipelineMessageClassifier2xxAnd4xx",
@@ -76,6 +80,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             [
                 _classifier200Property,
                 _classifier201Property,
+                _classifier202Property,
                 _classifier204Property,
                 _classifier2xxAnd4xxProperty
             ];
@@ -99,6 +104,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             [
                 _pipelineMessageClassifier200,
                 _pipelineMessageClassifier201,
+                _pipelineMessageClassifier202,
                 _pipelineMessageClassifier204,
                 _pipelineMessageClassifier2xxAnd4xx
             ];
@@ -193,6 +199,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     200 => _classifier200Property,
                     201 => _classifier201Property,
+                    202 => _classifier202Property,
                     204 => _classifier204Property,
                     _ => throw new InvalidOperationException($"Unexpected status code {response.StatusCodes[0]}")
                 };

@@ -29,6 +29,10 @@ model VisibilityModel {
   @doc("Required bool, illustrating a delete property.")
   @visibility("delete")
   deleteProp: boolean;
+
+  @doc("Property that does not exist in any payload.")
+  @visibility("none")
+  noneProp: "none";
 }
 
 /** RoundTrip model with readonly optional properties. */
