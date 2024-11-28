@@ -54,7 +54,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
-            Func<InputLibrary>? createInputLibrary = null,
             Func<InputClient, ClientProvider>? createClientCore = null,
             string? configuration = null,
             ClientResponseApi? clientResponseApi = null,
@@ -131,11 +130,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             if (httpMessageApi is not null)
             {
                 mockTypeFactory.Setup(p => p.HttpMessageApi).Returns(httpMessageApi);
-            }
-
-            if (createInputLibrary is not null)
-            {
-                mockPluginInstance.Setup(p => p.InputNamespace).Returns(createInputLibrary().InputNamespace);
             }
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };

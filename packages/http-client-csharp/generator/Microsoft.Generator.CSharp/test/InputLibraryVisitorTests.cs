@@ -16,7 +16,6 @@ namespace Microsoft.Generator.CSharp.Tests
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         private Mock<CodeModelPlugin> _mockPlugin;
         private Mock<LibraryVisitor> _mockVisitor;
-        private Mock<InputLibrary> _mockInputLibrary;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [SetUp]
@@ -24,8 +23,6 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             _mockPlugin = MockHelpers.LoadMockPlugin();
             _mockVisitor = new Mock<LibraryVisitor> { CallBase = true };
-            _mockInputLibrary = new Mock<InputLibrary>();
-            _mockPlugin.Setup(p => p.InputNamespace).Returns(_mockInputLibrary.Object.InputNamespace);
         }
 
         [Test]
@@ -35,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
             var inputModel = InputFactory.Model("foo", "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
-            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
+            _mockPlugin.Setup(p => p.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
@@ -51,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Tests
             var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
             var inputModel = InputFactory.Model("foo", "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
-            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
+            _mockPlugin.Setup(p => p.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
@@ -70,7 +67,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var inputModel2 = InputFactory.Model("Model2", "internal", usage: InputModelTypeUsage.Input, properties: [inputModel2Property]);
 
-            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel1, inputModel2]));
+            _mockPlugin.Setup(p => p.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel1, inputModel2]));
 
             var visitor = new PreVisitor();
             _mockPlugin.Object.AddVisitor(visitor);
@@ -87,7 +84,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             var inputModel2 = InputFactory.Model("Model2", "internal", usage: InputModelTypeUsage.Input, properties: [inputModel2Property]);
 
-            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel1, inputModel2]));
+            _mockPlugin.Setup(p => p.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel1, inputModel2]));
 
             var visitor = new PreVisitor(true);
             _mockPlugin.Object.AddVisitor(visitor);
