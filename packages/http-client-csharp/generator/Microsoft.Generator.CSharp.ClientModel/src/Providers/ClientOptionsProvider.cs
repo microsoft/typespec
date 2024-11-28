@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
-            var inputEnumType = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Enums
+            var inputEnumType = ClientModelPlugin.Instance.InputNamespace.Enums
                     .FirstOrDefault(e => e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum));
             if (inputEnumType != null)
             {

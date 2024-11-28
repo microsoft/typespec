@@ -64,7 +64,7 @@ namespace Microsoft.Generator.CSharp
         public virtual SourceInputModel SourceInputModel => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
-        public virtual InputLibrary InputLibrary => _inputLibrary.Value;
+        public virtual InputNamespace InputNamespace => _inputLibrary.Value.InputNamespace;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public IReadOnlyList<MetadataReference> AdditionalMetadataReferences => _additionalMetadataReferences;
 

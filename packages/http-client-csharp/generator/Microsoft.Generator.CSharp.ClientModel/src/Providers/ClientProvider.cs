@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
-            _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
+            _inputAuth = ClientModelPlugin.Instance.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
 
@@ -472,7 +472,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         // TODO: Update method to be more efficient
         private IReadOnlyList<Lazy<ClientProvider>> GetSubClients()
         {
-            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var inputClients = ClientModelPlugin.Instance.InputNamespace.Clients;
             var subClients = new List<Lazy<ClientProvider>>(inputClients.Count);
 
             foreach (var client in inputClients)

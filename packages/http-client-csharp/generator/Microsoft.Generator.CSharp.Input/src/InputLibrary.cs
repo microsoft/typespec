@@ -39,24 +39,5 @@ namespace Microsoft.Generator.CSharp.Input
             var json = File.ReadAllText(codeModelFile);
             return TypeSpecSerialization.Deserialize(json) ?? throw new InvalidOperationException($"Deserializing {codeModelFile} has failed.");
         }
-
-        private bool? _hasMultipartFormDataOperation;
-        public bool HasMultipartFormDataOperation => _hasMultipartFormDataOperation ??= GetHasMultipartFormDataOperation();
-
-        private bool GetHasMultipartFormDataOperation()
-        {
-            foreach (var client in InputNamespace.Clients)
-            {
-                foreach (var operation in client.Operations)
-                {
-                    if (operation.IsMultipartFormData)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
     }
 }

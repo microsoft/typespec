@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.Tests
                 models: inputModelTypes,
                 enums: inputEnumTypes));
 
-            mockPlugin.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
+            mockPlugin.Setup(p => p.InputNamespace).Returns(mockInputLibrary.Object.InputNamespace);
 
             mockPlugin.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
 

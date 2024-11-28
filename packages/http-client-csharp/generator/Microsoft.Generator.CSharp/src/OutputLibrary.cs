@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp
 
         private static TypeProvider[] BuildEnums()
         {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var input = CodeModelPlugin.Instance.InputNamespace;
             var enums = new List<TypeProvider>(input.Enums.Count);
             foreach (var inputEnum in input.Enums)
             {
@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp
 
         private static TypeProvider[] BuildModels()
         {
-            var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
+            var input = CodeModelPlugin.Instance.InputNamespace;
             var models = new List<TypeProvider>(input.Models.Count);
             foreach (var inputModel in input.Models)
             {

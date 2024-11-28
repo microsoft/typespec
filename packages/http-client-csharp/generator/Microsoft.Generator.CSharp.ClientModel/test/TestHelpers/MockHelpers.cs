@@ -117,7 +117,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
             var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
-            mockPluginInstance.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
+            mockPluginInstance.Setup(p => p.InputNamespace).Returns(mockInputLibrary.Object.InputNamespace);
             if (clientResponseApi is not null)
             {
                 mockTypeFactory.Setup(p => p.ClientResponseApi).Returns(clientResponseApi);
@@ -135,7 +135,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             if (createInputLibrary is not null)
             {
-                mockPluginInstance.Setup(p => p.InputLibrary).Returns(createInputLibrary);
+                mockPluginInstance.Setup(p => p.InputNamespace).Returns(createInputLibrary().InputNamespace);
             }
 
             var sourceInputModel = new Mock<SourceInputModel>(() => new SourceInputModel(null)) { CallBase = true };

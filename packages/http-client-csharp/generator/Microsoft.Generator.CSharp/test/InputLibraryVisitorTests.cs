@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockPlugin = MockHelpers.LoadMockPlugin();
             _mockVisitor = new Mock<LibraryVisitor> { CallBase = true };
             _mockInputLibrary = new Mock<InputLibrary>();
-            _mockPlugin.Setup(p => p.InputLibrary).Returns(_mockInputLibrary.Object);
+            _mockPlugin.Setup(p => p.InputNamespace).Returns(_mockInputLibrary.Object.InputNamespace);
         }
 
         [Test]

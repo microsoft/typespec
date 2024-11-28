@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
     {
         private static TypeProvider[] BuildClients()
         {
-            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var inputClients = ClientModelPlugin.Instance.InputNamespace.Clients;
             var clients = new List<TypeProvider>(inputClients.Count * 3);
             foreach (var inputClient in inputClients)
             {
@@ -58,7 +58,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         private IEnumerable<TypeProvider> GetMultipartFormDataBinaryContentDefinition()
         {
-            if (ClientModelPlugin.Instance.InputLibrary.HasMultipartFormDataOperation)
+            if (ClientModelPlugin.Instance.InputNamespace.HasMultipartFormDataOperation)
             {
                 var multipart = new MultiPartFormDataBinaryContentDefinition();
                 ClientModelPlugin.Instance.AddTypeToKeep(multipart.Name);

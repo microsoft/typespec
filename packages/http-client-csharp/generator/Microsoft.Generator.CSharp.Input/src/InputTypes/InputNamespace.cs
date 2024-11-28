@@ -26,5 +26,24 @@ namespace Microsoft.Generator.CSharp.Input
         public IReadOnlyList<InputModelType> Models { get; init; }
         public IReadOnlyList<InputClient> Clients { get; init; }
         public InputAuth Auth { get; init; }
+
+        private bool? _hasMultipartFormDataOperation;
+        public bool HasMultipartFormDataOperation => _hasMultipartFormDataOperation ??= GetHasMultipartFormDataOperation();
+
+        private bool GetHasMultipartFormDataOperation()
+        {
+            foreach (var client in Clients)
+            {
+                foreach (var operation in client.Operations)
+                {
+                    if (operation.IsMultipartFormData)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }
