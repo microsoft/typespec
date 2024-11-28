@@ -1,5 +1,11 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CompletionItem, CompletionItemKind, Position } from "vscode-languageserver/node.js";
+import {
+  CompletionItem,
+  CompletionItemKind,
+  Position,
+  Range,
+  TextEdit,
+} from "vscode-languageserver/node.js";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
 import { JSONSchemaType, ServerLog } from "../../index.js";
 import { distinctArray } from "../../utils/misc.js";
@@ -23,14 +29,19 @@ export async function provideTspconfigCompletionItems(
   if (target === undefined) {
     return [];
   }
-  const items = resolveTspConfigCompleteItems(await fileService.getPath(tspConfigDoc), target);
+  const items = resolveTspConfigCompleteItems(
+    await fileService.getPath(tspConfigDoc),
+    target,
+    tspConfigPosition,
+  );
   return items;
 
   async function resolveTspConfigCompleteItems(
     tspConfigFile: string,
     target: YamlScalarTarget,
+    tspConfigPosition: Position,
   ): Promise<CompletionItem[]> {
-    const { path: nodePath, type: targetType, siblings } = target;
+    const { path: nodePath, type: targetType, siblings, sourceQuotation, source } = target;
     const CONFIG_PATH_LENGTH_FOR_EMITTER_LIST = 2;
     if (
       (nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
@@ -44,12 +55,30 @@ export async function provideTspconfigCompletionItems(
       const items: CompletionItem[] = [];
       for (const [name, pkg] of Object.entries(emitters)) {
         if (!siblings.includes(name)) {
-          // If there are already double quotes, no double quotes will be inserted.
+          // Generate new text
+          let newText: string = "";
+          if (sourceQuotation === "QUOTE_SINGLE") {
+            newText = `${name}'`;
+          } else if (sourceQuotation === "QUOTE_DOUBLE") {
+            newText = `${name}"`;
+          } else {
+            newText = `"${name}"`;
+          }
+
+          // The position of the new text
+          const edit = TextEdit.replace(
+            Range.create(
+              Position.create(tspConfigPosition.line, tspConfigPosition.character - source.length),
+              Position.create(tspConfigPosition.line, tspConfigPosition.character + newText.length),
+            ),
+            newText,
+          );
+
           const item: CompletionItem = {
             label: name,
             kind: CompletionItemKind.Field,
             documentation: (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
-            insertText: nodePath[1] === '""' ? `${name}` : `"${name}"`,
+            textEdit: edit,
           };
           items.push(item);
         }
@@ -81,22 +110,6 @@ export async function provideTspconfigCompletionItems(
         itemsFromEmitter.push(...more);
       }
       return [...itemsFromBuiltIn, ...itemsFromEmitter];
-    }
-    if (
-      nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
-      nodePath[0] === "linter" &&
-      targetType === "key"
-    ) {
-      const items: CompletionItem[] = [];
-      const schema = TypeSpecConfigJsonSchema;
-
-      const more = resolveCompleteItems(schema.properties?.linter, {
-        ...target,
-        path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_EMITTER_LIST),
-      });
-      items.push(...more);
-
-      return items;
     } else {
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target) : [];

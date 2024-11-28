@@ -1,5 +1,4 @@
 import vscode, { commands, ExtensionContext } from "vscode";
-import { createExtendsCompletionItemProvider } from "./completion-provider.js";
 import { SettingName } from "./const.js";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
@@ -17,8 +16,6 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 
 export async function activate(context: ExtensionContext) {
   context.subscriptions.push(createTaskProvider());
-
-  context.subscriptions.push(createExtendsCompletionItemProvider());
 
   context.subscriptions.push(
     commands.registerCommand("typespec.showOutputChannel", () => {

@@ -35,6 +35,11 @@ export interface YamlScalarTarget {
    * The siblings of the target node
    */
   siblings: string[];
+
+  /**
+   *  The input quotes (double quotes or single quotes)
+   */
+  sourceQuotation: string;
 }
 
 interface YamlVisitScalarNode {
@@ -86,6 +91,7 @@ export function resolveYamlScalarTarget(
         type: "key",
         source: "",
         siblings: rootProperties,
+        sourceQuotation: "",
       };
     }
     for (let i = position.line - 1; i >= 0; i--) {
@@ -132,6 +138,7 @@ export function resolveYamlScalarTarget(
             type: "key",
             source: "",
             siblings: [...yp.siblings, yp.source],
+            sourceQuotation: "",
           };
         }
         break;
@@ -175,6 +182,7 @@ export function resolveYamlScalarTarget(
             siblings: isMap(last.value)
               ? (last.value?.items.map((item) => (item.key as any).source ?? "") ?? [])
               : [],
+            sourceQuotation: "",
           };
         }
         break;
@@ -237,6 +245,7 @@ function createYamlPathFromVisitScalarNode(
       type: key === null ? "key" : "value",
       source: n.source ?? "",
       siblings: [],
+      sourceQuotation: n.type ?? "",
     };
   } else if (isPair(last)) {
     if (nodePath.length < 2) {
@@ -250,18 +259,14 @@ function createYamlPathFromVisitScalarNode(
     if (key === "value" && newline && newline.offset < offset) {
       // if the scalar node is marked as value but separated by newline from the key, it's more likely that the user is inputting the first property of an object
       // so build the target as an object key
-      // If the value of type is QUOTE_DOUBLE, you need to include ""
-      if (n.source !== undefined && n.source.length === 0 && n.type === "QUOTE_DOUBLE") {
-        path.push('""');
-      } else {
-        path.push(n.source ?? "");
-      }
+      path.push(n.source ?? "");
 
       return {
         path,
         type: "key",
         source: n.source ?? "",
         siblings: [],
+        sourceQuotation: n.type ?? "",
       };
     } else {
       const parent = nodePath[nodePath.length - 2];
@@ -273,6 +278,7 @@ function createYamlPathFromVisitScalarNode(
         type: key === "key" ? "key" : "value",
         source: n.source ?? "",
         siblings: targetSiblings,
+        sourceQuotation: n.type ?? "",
       };
     }
   } else if (isSeq(last)) {
@@ -283,6 +289,7 @@ function createYamlPathFromVisitScalarNode(
       siblings: last.items
         .filter((i) => i !== n)
         .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
+      sourceQuotation: n.type ?? "",
     };
   } else {
     log({
