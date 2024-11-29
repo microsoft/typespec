@@ -167,8 +167,8 @@ export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
-  private baseJavaNamespace: string = ""; // it will be set at the start of "build" function
-  private legacyJavaNamespace: boolean = false; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
+  private baseJavaNamespace!: string;
+  private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
   private options: EmitterOptions;
   private codeModel: CodeModel;
