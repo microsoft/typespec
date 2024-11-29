@@ -150,7 +150,7 @@ namespace Microsoft.Generator.CSharp
         /// <summary> Gets the namespace for the models. </summary>
         public string ModelNamespace { get; }
 
-        internal string OutputDirectory { get; }
+        public string OutputDirectory { get; }
 
         internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
 
