@@ -386,7 +386,7 @@ export class CodeModelBuilder {
   }
 
   private isBranded(): boolean {
-    return !this.options["flavor"] || this.options["flavor"].toLocaleLowerCase() === "azure";
+    return this.options["flavor"]?.toLocaleLowerCase() === "azure";
   }
 
   private processModels() {
@@ -957,6 +957,11 @@ export class CodeModelBuilder {
     responses: SdkHttpResponse[],
     sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
+    if (!this.isBranded()) {
+      // TODO: currently unbranded does not support paged operation
+      return;
+    }
+
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
       for (const response of responses) {
         const bodyType = response.type;
