@@ -1661,6 +1661,43 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_Pageable_ServerDrivenPagination_link
+
+- Endpoint: `get /payload/pageable/server-driven-pagination/link`
+
+Test case for using link as pagination.
+
+Two requests need to be tested.
+
+1. Initial request:
+   Expected route: /payload/pageable/server-driven-pagination/link
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ],
+  "links": {
+    "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
+  }
+}
+```
+
+2. Next page request:
+   Expected route: /payload/pageable/server-driven-pagination/link/nextPage
+   Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
 ### Payload_Xml_ModelWithArrayOfModelValue_get
 
 - Endpoint: `get /payload/xml/modelWithArrayOfModel`
