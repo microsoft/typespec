@@ -90,7 +90,6 @@ import {
   getNamespaceFullName,
   getOverloadedOperation,
   getSummary,
-  getVisibility,
   isArrayModelType,
   isRecordModelType,
   listServices,
@@ -105,6 +104,7 @@ import {
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
+  isCookieParam,
   isHeader,
   isPathParam,
   isQueryParam,
@@ -167,8 +167,8 @@ export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
-  private baseJavaNamespace: string = ""; // it will be set at the start of "build" function
-  private legacyJavaNamespace: boolean = false; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
+  private baseJavaNamespace!: string;
+  private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
   private options: EmitterOptions;
   private codeModel: CodeModel;
@@ -339,10 +339,16 @@ export class CodeModelBuilder {
 
           case "apiKey":
             {
-              const keyScheme = new KeySecurityScheme({
-                name: scheme.name,
-              });
-              securitySchemes.push(keyScheme);
+              if (scheme.in === "header") {
+                const keyScheme = new KeySecurityScheme({
+                  name: scheme.name,
+                });
+                securitySchemes.push(keyScheme);
+              } else {
+                this.logWarning(
+                  `ApiKey auth is currently only supported for ApiKeyLocation.header.`,
+                );
+              }
             }
             break;
 
@@ -355,7 +361,9 @@ export class CodeModelBuilder {
 
                 if (this.isBranded()) {
                   // Azure would not allow BasicAuth or BearerAuth
-                  this.logWarning(`${scheme.scheme} auth method is currently not supported.`);
+                  this.logWarning(
+                    `HTTP auth with ${scheme.scheme} scheme is not supported for Azure.`,
+                  );
                   continue;
                 }
               }
@@ -378,7 +386,7 @@ export class CodeModelBuilder {
   }
 
   private isBranded(): boolean {
-    return !this.options["flavor"] || this.options["flavor"].toLocaleLowerCase() === "azure";
+    return this.options["flavor"]?.toLocaleLowerCase() === "azure";
   }
 
   private processModels() {
@@ -864,6 +872,12 @@ export class CodeModelBuilder {
     clientContext.hostParameters.forEach((it) => codeModelOperation.addParameter(it));
     // path/query/header parameters
     for (const param of httpOperation.parameters) {
+      // TODO, switch to TCGC param.kind=="cookie"
+      if (param.__raw && isCookieParam(this.program, param.__raw)) {
+        // ignore cookie parameter
+        continue;
+      }
+
       // if it's paged operation with request body, skip content-type header added by TCGC, as next link call should not have content type header
       if (
         (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") &&
@@ -943,6 +957,11 @@ export class CodeModelBuilder {
     responses: SdkHttpResponse[],
     sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
+    if (!this.isBranded()) {
+      // TODO: currently unbranded does not support paged operation
+      return;
+    }
+
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
       for (const response of responses) {
         const bodyType = response.type;
@@ -2426,14 +2445,14 @@ export class CodeModelBuilder {
     if (segment) {
       return true;
     } else {
-      const visibility = target.__raw ? getVisibility(this.program, target.__raw) : undefined;
+      const visibility = target.kind === "property" ? target.visibility : undefined;
       if (visibility) {
         return (
-          !visibility.includes("write") &&
-          !visibility.includes("create") &&
-          !visibility.includes("update") &&
-          !visibility.includes("delete") &&
-          !visibility.includes("query")
+          !visibility.includes(Visibility.All) &&
+          !visibility.includes(Visibility.Create) &&
+          !visibility.includes(Visibility.Update) &&
+          !visibility.includes(Visibility.Delete) &&
+          !visibility.includes(Visibility.Query)
         );
       } else {
         return false;
