@@ -226,6 +226,18 @@ function validateMultiTypeReference(program: Program, source: Type, options?: Ty
     const availMap = getAvailabilityMap(program, type);
     const availability = availMap?.get(version.name) ?? Availability.Available;
     if ([Availability.Added, Availability.Available].includes(availability)) {
+      // Check if there are any indexed/template arguments that are validated...
+      if (isTemplateInstance(type)) {
+        for (const arg of type.templateMapper.args) {
+          if (isType(arg)) {
+            validateReference(program, source, arg);
+          }
+        }
+      } else if (type.kind === "Union") {
+        for (const variant of type.variants.values()) {
+          validateReference(program, source, variant.type);
+        }
+      }
       continue;
     }
     reportDiagnostic(program, {
