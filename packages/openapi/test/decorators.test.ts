@@ -6,6 +6,7 @@ import {
   getExtensions,
   getExternalDocs,
   getInfo,
+  getSchemaExtensions,
   getTagsMetadata,
   resolveInfo,
   setInfo,
@@ -56,13 +57,14 @@ describe("openapi: decorators", () => {
           model Foo {
             @extension("${key}", ${value})
             @test
-            prop: string
+            prop: string[]
           }
         `);
 
-      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, prop)), {
+      deepStrictEqual(Object.fromEntries(getSchemaExtensions(runner.program, prop)), {
         [key]: value,
       });
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, prop)), {});
     });
 
     it.each(["minProperties", "maxProperties", "uniqueItems", "multipleOf"])(
@@ -81,6 +83,20 @@ describe("openapi: decorators", () => {
         });
       },
     );
+
+    it("uniqueItems can only apply to arrays", async () => {
+      const diagnostics = await runner.diagnose(`        
+        model Foo {
+          @extension("uniqueItems", true)
+          @test
+          prop: string
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/invalid-target-uniqueItems",
+      });
+    });
 
     it("apply extension on model", async () => {
       const { Foo } = await runner.compile(`

@@ -4,6 +4,7 @@ import {
   getDoc,
   getService,
   getSummary,
+  isArrayModelType,
   Model,
   Namespace,
   Operation,
@@ -26,6 +27,7 @@ import {
 import { isOpenAPIExtensionKey, validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs, SchemaExtensionKey } from "./types.js";
+const schemaExtensions = ["minProperties", "maxProperties", "uniqueItems", "multipleOf"];
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -58,11 +60,10 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value: TypeSpecValue,
 ) => {
-  const validExtensions = ["minProperties", "maxProperties", "uniqueItems", "multipleOf"];
   const isModelProperty = entity.kind === "ModelProperty";
 
   if (
-    !(validExtensions.includes(extensionName) && isModelProperty) &&
+    !(schemaExtensions.includes(extensionName) && isModelProperty) &&
     !isOpenAPIExtensionKey(extensionName)
   ) {
     reportDiagnostic(context.program, {
@@ -83,45 +84,58 @@ export const $extension: ExtensionDecorator = (
     return;
   }
 
-  let inputData: any = true;
-  if (value !== undefined) {
-    const [data, diagnostics] = typespecTypeToJson(value, entity);
-    const numberExtensions = ["minProperties", "maxProperties", "multipleOf"];
-    if (numberExtensions.includes(extensionName) && isNaN(Number(data))) {
-      reportDiagnostic(context.program, {
-        code: "invalid-extension-value",
-        format: { extensionName: extensionName },
-        target: entity,
-      });
-      return;
-    }
-
-    if (extensionName === "uniqueItems" && data !== true && data !== false) {
-      reportDiagnostic(context.program, {
-        code: "invalid-extension-value",
-        messageId: "uniqueItems",
-        format: { extensionName: extensionName },
-        target: entity,
-      });
-      return;
-    }
-
-    switch (extensionName) {
-      case "minProperties":
-      case "maxProperties":
-      case "multipleOf":
-        inputData = Number(data);
-        break;
-      case "uniqueItems":
-        inputData = data === true ? true : false;
-        break;
-      default:
-        if (diagnostics.length > 0) {
-          context.program.reportDiagnostics(diagnostics);
-        }
-        inputData = data;
-    }
+  const [data, diagnostics] = typespecTypeToJson(value, entity);
+  const numberExtensions = ["minProperties", "maxProperties", "multipleOf"];
+  if (numberExtensions.includes(extensionName) && isNaN(Number(data))) {
+    reportDiagnostic(context.program, {
+      code: "invalid-extension-value",
+      format: { extensionName: extensionName },
+      target: entity,
+    });
+    return;
   }
+
+  if (extensionName === "uniqueItems" && data !== true && data !== false) {
+    reportDiagnostic(context.program, {
+      code: "invalid-extension-value",
+      messageId: "uniqueItems",
+      format: { extensionName: extensionName },
+      target: entity,
+    });
+    return;
+  }
+
+  if (
+    extensionName === "uniqueItems" &&
+    isModelProperty &&
+    ((entity.type.kind === "Model" && !isArrayModelType(context.program, entity.type)) ||
+      entity.type.kind === "Scalar")
+  ) {
+    reportDiagnostic(context.program, {
+      code: "invalid-target-uniqueItems",
+      format: { paramName: entity.kind },
+      target: entity,
+    });
+    return;
+  }
+
+  let inputData: any;
+  switch (extensionName) {
+    case "minProperties":
+    case "maxProperties":
+    case "multipleOf":
+      inputData = Number(data);
+      break;
+    case "uniqueItems":
+      inputData = data === true ? true : false;
+      break;
+    default:
+      if (diagnostics.length > 0) {
+        context.program.reportDiagnostics(diagnostics);
+      }
+      inputData = data;
+  }
+
   setExtension(
     context.program,
     entity,
@@ -168,11 +182,39 @@ export function setExtension(
  * @param program Program
  * @param entity Type
  */
-export function getExtensions(
+export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
+  const allExtensions = program.stateMap(openApiExtensionKey).get(entity);
+  return allExtensions
+    ? filterSchemaExtensions<ExtensionKey>(allExtensions, false)
+    : new Map<ExtensionKey, any>();
+}
+
+/**
+ * Get schema extensions set for the given type.
+ * @param program Program
+ * @param entity Type
+ */
+export function getSchemaExtensions(
   program: Program,
   entity: Type,
-): ReadonlyMap<ExtensionKey | SchemaExtensionKey, any> {
-  return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
+): ReadonlyMap<SchemaExtensionKey, any> {
+  const allExtensions = program.stateMap(openApiExtensionKey).get(entity);
+  return allExtensions
+    ? filterSchemaExtensions<SchemaExtensionKey>(allExtensions, true)
+    : new Map<SchemaExtensionKey, any>();
+}
+
+function filterSchemaExtensions<T>(
+  extensions: Map<ExtensionKey | SchemaExtensionKey, any>,
+  isSchema: boolean,
+): ReadonlyMap<T, any> {
+  const result = new Map<T, any>();
+  for (const [key, value] of extensions) {
+    if (schemaExtensions.includes(key) === isSchema) {
+      result.set(key as T, value);
+    }
+  }
+  return result;
 }
 
 /**

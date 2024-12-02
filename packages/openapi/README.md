@@ -77,7 +77,7 @@ Attach some custom data to the OpenAPI element generated from this type.
 op read(): string;
 ```
 
-###### Specify that every item in the array must be unique.
+###### A schema can ensure that each of the items in an array is unique.
 
 ```typespec
 model Foo {
@@ -86,7 +86,7 @@ model Foo {
 }
 ```
 
-###### Specify that the numeric type must be a multiple of some numeric value.
+###### Numbers can be restricted to a multiple of a given number, using the multipleOf keyword. It may be set to any positive number.
 
 ```typespec
 model Foo {
@@ -95,7 +95,7 @@ model Foo {
 }
 ```
 
-###### Specify the maximum number of properties this object can have.
+###### The number of properties on an object can be restricted using the maxProperties keyword.
 
 ```typespec
 model Foo {
@@ -104,7 +104,7 @@ model Foo {
 }
 ```
 
-###### Specify the minimum number of properties this object can have.
+###### The number of properties on an object can be restricted using the minProperties keyword.
 
 ```typespec
 model Foo {

@@ -78,6 +78,7 @@ import {
   getExternalDocs,
   getOpenAPITypeName,
   getParameterKey,
+  getSchemaExtensions,
   getTagsMetadata,
   isReadonlyProperty,
   resolveInfo,
@@ -1643,20 +1644,21 @@ function createOAPIEmitter(
     return callSchemaEmitter(type, visibility) as any;
   }
 
-  function attachExtensions(
-    program: Program,
-    type: Type,
-    emitObject: any,
-    enabled: boolean = false,
-  ) {
-    const schemaExtensions = ["minProperties", "maxProperties", "uniqueItems", "multipleOf"];
+  function attachExtensions(program: Program, type: Type, emitObject: any) {
     // Attach any OpenAPI extensions
     const extensions = getExtensions(program, type);
     if (extensions) {
       for (const key of extensions.keys()) {
-        if (!enabled && schemaExtensions.includes(key)) {
-          continue;
-        }
+        emitObject[key] = extensions.get(key);
+      }
+    }
+  }
+
+  function attachSchemaExtensions(program: Program, type: Type, emitObject: any) {
+    // Attach any OpenAPI extensions
+    const extensions = getSchemaExtensions(program, type);
+    if (extensions) {
+      for (const key of extensions.keys()) {
         emitObject[key] = extensions.get(key);
       }
     }
@@ -1737,7 +1739,9 @@ function createOAPIEmitter(
       };
     }
 
-    attachExtensions(program, typespecType, newTarget, true);
+    attachExtensions(program, typespecType, newTarget);
+    // attach schema extensions
+    attachSchemaExtensions(program, typespecType, newTarget);
 
     return newTarget;
   }

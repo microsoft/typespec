@@ -16,7 +16,7 @@ describe("inline adds an extension to a parameter", () => {
       op get(
         @path
         @extension("${key}", ${value})
-        petId: string;
+        petId: string[];
       ): void;
       `,
     );
@@ -35,7 +35,7 @@ describe("adds an extension to a parameter", () => {
       model PetId {
         @path
         @extension("${key}", ${value})
-        petId: string;
+        petId: string[];
       }
       @route("/Pets")
       @get()
@@ -59,7 +59,7 @@ describe("adds an extension to a model", () => {
       "Foo",
       `model Foo {
         @extension("${key}", ${value})
-        x: int32;
+        x: int32[];
       };`,
     );
 
