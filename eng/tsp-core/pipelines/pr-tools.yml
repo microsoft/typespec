@@ -34,8 +34,13 @@ extends:
 
               - template: /eng/tsp-core/pipelines/templates/install.yml
               - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
-
               - template: /eng/tsp-core/pipelines/templates/build.yml
+                templateContext:
+                  outputs:
+                    - output: pipelineArtifact
+                      path: $(Build.SourcesDirectory)/packages/typespec-vscode/*.vsix
+                      artifact: vscode-extension
+                      displayName: Copy VSCode extension .vsix to artifact directory
 
               - task: AzureCLI@1
                 displayName: "Publish playground to PR endpoint"
@@ -64,20 +69,6 @@ extends:
                       --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
                       --source "./website/dist/" \
                       --overwrite
-
-              - task: CopyFiles@2
-                displayName: "Copy VSCode extension .vsix to artifact directory"
-                inputs:
-                  SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
-                  Contents: "*.vsix"
-                  TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
-
-              - task: PublishPipelineArtifact@1
-                displayName: "Publish VSCode extension artifact"
-                inputs:
-                  targetPath: "$(Build.ArtifactStagingDirectory)/vscode-extension"
-                  artifact: "vscode-extension-unsigned"
-                  publishLocation: "pipeline"
 
               - script: |
                   echo "##[section]Retrieving artifact URL..."
