@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CompletionItem,
@@ -7,6 +8,13 @@ import {
   TextEdit,
 } from "vscode-languageserver/node.js";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
+import {
+  getAnyExtensionFromPath,
+  getBaseFileName,
+  getDirectoryPath,
+  getRelativePathFromDirectory,
+  joinPaths,
+} from "../../core/path-utils.js";
 import { JSONSchemaType, ServerLog } from "../../index.js";
 import { distinctArray } from "../../utils/misc.js";
 import { FileService } from "../file-service.js";
@@ -176,6 +184,21 @@ export async function provideTspconfigCompletionItems(
 
         return [...itemsFromLintter];
       }
+    } else if (nodePath.length < CONFIG_PATH_LENGTH_FOR_EMITTER_LIST && nodePath[0] === "extends") {
+      const currentFolder = getDirectoryPath(tspConfigFile);
+      const extName = getAnyExtensionFromPath(tspConfigFile);
+      const newFolderPath = joinPaths(currentFolder, source);
+      const configFile = getBaseFileName(tspConfigFile);
+
+      const relativeFiles = findFilesWithSameExtension(
+        newFolderPath,
+        extName,
+        configFile,
+        tspConfigFile,
+      );
+
+      const schema = TypeSpecConfigJsonSchema;
+      return schema ? resolveCompleteItems(schema, target, "", relativeFiles) : [];
     } else {
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target) : [];
@@ -251,6 +274,7 @@ export async function provideTspconfigCompletionItems(
     schema: ObjectJSONSchemaType,
     target: YamlScalarTarget,
     libName?: string,
+    relativeFiles?: string[],
   ): CompletionItem[] {
     const { path: nodePath, type: targetType, source, sourceQuoteType } = target;
     // if the target is a key which means it's pointing to an object property, we should remove the last element of the path to get it's parent object for its schema
@@ -318,6 +342,18 @@ export async function provideTspconfigCompletionItems(
               return item;
             });
             result.push(...enums);
+          } else if (cur.type === "string") {
+            // extends
+            if (relativeFiles && relativeFiles.length > 0) {
+              for (const file of relativeFiles) {
+                const item: CompletionItem = {
+                  label: file,
+                  kind: CompletionItemKind.Field,
+                  textEdit: getNewTextAndPosition(file, source, tspConfigPosition),
+                };
+                result.push(item);
+              }
+            }
           }
         }
       });
@@ -363,4 +399,43 @@ function getNewTextAndPosition(
     ),
     newText,
   );
+}
+
+/**
+ * Find a set of relative paths to files with the same suffix
+ * @param rootPath The root path of the current configuration file
+ * @param fileExtension  File extension
+ * @param configFile Configuration file name
+ * @param tspConfigFile Full path of configuration file (including file name)
+ * @returns
+ */
+function findFilesWithSameExtension(
+  rootPath: string,
+  fileExtension: string,
+  configFile: string,
+  tspConfigFile: string,
+): string[] {
+  const exclude = ["node_modules", "tsp-output"];
+  const files: string[] = [];
+  const filesInDir = fs.readdirSync(rootPath);
+  for (const file of filesInDir) {
+    const ext = getAnyExtensionFromPath(file);
+    if (
+      (ext && ext.length > 0 && ext !== fileExtension) ||
+      exclude.includes(file) ||
+      getBaseFileName(file) === configFile
+    ) {
+      continue;
+    }
+
+    const filePath = joinPaths(rootPath, file);
+    const stat = fs.statSync(filePath);
+    if (stat.isDirectory()) {
+      files.push(...findFilesWithSameExtension(filePath, fileExtension, configFile, tspConfigFile));
+    } else if (stat.isFile() && file.endsWith(fileExtension)) {
+      const relativePath = getRelativePathFromDirectory(tspConfigFile, filePath, false);
+      files.push(relativePath.slice(1, relativePath.length));
+    }
+  }
+  return files;
 }
