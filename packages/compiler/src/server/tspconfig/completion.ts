@@ -9,8 +9,8 @@ import {
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
 import { JSONSchemaType, ServerLog } from "../../index.js";
 import { distinctArray } from "../../utils/misc.js";
-import { EmitterProvider } from "../emitter-provider.js";
 import { FileService } from "../file-service.js";
+import { LibraryProvider } from "../lib-provider.js";
 import { resolveYamlScalarTarget, YamlScalarTarget } from "../yaml-resolver.js";
 
 type ObjectJSONSchemaType = JSONSchemaType<object>;
@@ -20,11 +20,11 @@ export async function provideTspconfigCompletionItems(
   tspConfigPosition: Position,
   context: {
     fileService: FileService;
-    emitterProvider: EmitterProvider;
+    libProvider: LibraryProvider;
     log: (log: ServerLog) => void;
   },
 ): Promise<CompletionItem[]> {
-  const { fileService, emitterProvider, log } = context;
+  const { fileService, libProvider, log } = context;
   const target = resolveYamlScalarTarget(tspConfigDoc, tspConfigPosition, log);
   if (target === undefined) {
     return [];
@@ -41,7 +41,14 @@ export async function provideTspconfigCompletionItems(
     target: YamlScalarTarget,
     tspConfigPosition: Position,
   ): Promise<CompletionItem[]> {
-    const { path: nodePath, type: targetType, siblings, sourceQuotation, source } = target;
+    const {
+      path: nodePath,
+      type: targetType,
+      siblings,
+      sourceQuoteType,
+      source,
+      siblingsChildren,
+    } = target;
     const CONFIG_PATH_LENGTH_FOR_EMITTER_LIST = 2;
     if (
       (nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
@@ -51,34 +58,19 @@ export async function provideTspconfigCompletionItems(
         nodePath[0] === "emit" &&
         targetType === "arr-item")
     ) {
-      const emitters = await emitterProvider.listEmitters(tspConfigFile);
+      libProvider.setIsGetEmitterVal(true);
+      const libs = await libProvider.listLibraries(tspConfigFile);
       const items: CompletionItem[] = [];
-      for (const [name, pkg] of Object.entries(emitters)) {
+      for (const [name, pkg] of Object.entries(libs)) {
         if (!siblings.includes(name)) {
           // Generate new text
-          let newText: string = "";
-          if (sourceQuotation === "QUOTE_SINGLE") {
-            newText = `${name}'`;
-          } else if (sourceQuotation === "QUOTE_DOUBLE") {
-            newText = `${name}"`;
-          } else {
-            newText = `"${name}"`;
-          }
-
-          // The position of the new text
-          const edit = TextEdit.replace(
-            Range.create(
-              Position.create(tspConfigPosition.line, tspConfigPosition.character - source.length),
-              Position.create(tspConfigPosition.line, tspConfigPosition.character + newText.length),
-            ),
-            newText,
-          );
+          const newText = getNewTextValue(sourceQuoteType, name);
 
           const item: CompletionItem = {
             label: name,
             kind: CompletionItemKind.Field,
             documentation: (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
-            textEdit: edit,
+            textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
           };
           items.push(item);
         }
@@ -86,7 +78,8 @@ export async function provideTspconfigCompletionItems(
       return items;
     } else if (nodePath.length > CONFIG_PATH_LENGTH_FOR_EMITTER_LIST && nodePath[0] === "options") {
       const emitterName = nodePath[CONFIG_PATH_LENGTH_FOR_EMITTER_LIST - 1];
-      const emitter = await emitterProvider.getEmitter(tspConfigFile, emitterName);
+      libProvider.setIsGetEmitterVal(true);
+      const emitter = await libProvider.getLibrary(tspConfigFile, emitterName);
       if (!emitter) {
         return [];
       }
@@ -110,6 +103,79 @@ export async function provideTspconfigCompletionItems(
         itemsFromEmitter.push(...more);
       }
       return [...itemsFromBuiltIn, ...itemsFromEmitter];
+    } else if (nodePath.length > CONFIG_PATH_LENGTH_FOR_EMITTER_LIST && nodePath[0] === "linter") {
+      const linterName = nodePath[CONFIG_PATH_LENGTH_FOR_EMITTER_LIST - 1];
+      libProvider.setIsGetEmitterVal(false);
+      if (linterName === "extends") {
+        const linters = await libProvider.listLibraries(tspConfigFile);
+        const items: CompletionItem[] = [];
+        for (const [name, pkg] of Object.entries(linters)) {
+          if (!siblings.includes(name)) {
+            // If a ruleSet exists for the linter, add it to the end of the library name.
+            const exports = await pkg.getModuleExports();
+            let additionalContent: string = "";
+            if (exports?.$linter?.ruleSets !== undefined) {
+              additionalContent = Object.keys(exports?.$linter?.ruleSets)[0];
+            }
+
+            const labelName =
+              additionalContent.length === 0 ? name : `${name}/${additionalContent}`;
+            const newText = getNewTextValue(sourceQuoteType, labelName);
+
+            const item: CompletionItem = {
+              label: labelName,
+              kind: CompletionItemKind.Field,
+              documentation:
+                (await pkg.getPackageJsonData())?.description ?? `Linters from ${name}`,
+              textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
+            };
+            items.push(item);
+          }
+        }
+        return items;
+      } else {
+        const itemsFromLintter = [];
+        const libNames: string[] = [];
+        if (siblingsChildren && siblingsChildren.length > 0) {
+          // Filter duplicate library names
+          for (const extendsValue of siblingsChildren) {
+            const arrLine = extendsValue.split("/");
+            let libName: string = "";
+            if (arrLine.length >= 2) {
+              libName = arrLine[0] + "/" + arrLine[1];
+            } else {
+              continue;
+            }
+            if (!libNames.includes(libName)) {
+              libNames.push(libName);
+            }
+          }
+
+          // Get rules in each library
+          for (const name of libNames) {
+            const linter = await libProvider.getLibrary(tspConfigFile, name);
+            if (!linter) {
+              return [];
+            }
+
+            const exports = await linter.getModuleExports();
+
+            if (exports?.$linter?.rules !== undefined) {
+              const more = resolveCompleteItems(
+                exports?.$linter?.rules,
+                {
+                  ...target,
+                  path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_EMITTER_LIST),
+                },
+                name,
+              );
+              itemsFromLintter.push(...more);
+            }
+          }
+        }
+
+        return [...itemsFromLintter];
+      }
     } else {
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target) : [];
@@ -184,8 +250,9 @@ export async function provideTspconfigCompletionItems(
   function resolveCompleteItems(
     schema: ObjectJSONSchemaType,
     target: YamlScalarTarget,
+    libName?: string,
   ): CompletionItem[] {
-    const { path: nodePath, type: targetType } = target;
+    const { path: nodePath, type: targetType, source, sourceQuoteType } = target;
     // if the target is a key which means it's pointing to an object property, we should remove the last element of the path to get it's parent object for its schema
     const path = targetType === "key" ? nodePath.slice(0, -1) : nodePath;
     const foundSchemas = findSchemaByPath(schema, path, 0);
@@ -209,6 +276,23 @@ export async function provideTspconfigCompletionItems(
                 return item;
               });
             result.push(...props);
+          } else if (cur.type === undefined) {
+            // lint rule
+            for (const key of Object.keys(cur ?? {})) {
+              const labelName = `${libName}/${cur[key].name}`;
+              if (target.siblingsChildren.includes(labelName)) {
+                continue;
+              }
+
+              const newText = getNewTextValue(sourceQuoteType, labelName);
+              const item: CompletionItem = {
+                label: labelName,
+                kind: CompletionItemKind.Field,
+                documentation: cur[key].description,
+                textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
+              };
+              result.push(item);
+            }
           }
         }
         if (targetType === "value" || targetType === "arr-item") {
@@ -240,4 +324,43 @@ export async function provideTspconfigCompletionItems(
 
     return distinctArray(result, (t) => t.label);
   }
+}
+
+/**
+ * Get the new text value
+ * @param sourceQuoteType input quote type(single, double, none)
+ * @param formatText format text value
+ * @returns
+ */
+function getNewTextValue(sourceQuoteType: string, formatText: string): string {
+  let newText: string = "";
+  if (sourceQuoteType === "QUOTE_SINGLE") {
+    newText = `${formatText}'`;
+  } else if (sourceQuoteType === "QUOTE_DOUBLE") {
+    newText = `${formatText}"`;
+  } else {
+    newText = `"${formatText}"`;
+  }
+  return newText;
+}
+
+/**
+ * Get the position of the new text
+ * @param newText  the new text
+ * @param source source text
+ * @param tspConfigPosition original position
+ * @returns
+ */
+function getNewTextAndPosition(
+  newText: string,
+  source: string,
+  tspConfigPosition: Position,
+): TextEdit {
+  return TextEdit.replace(
+    Range.create(
+      Position.create(tspConfigPosition.line, tspConfigPosition.character - source.length),
+      Position.create(tspConfigPosition.line, tspConfigPosition.character + newText.length),
+    ),
+    newText,
+  );
 }

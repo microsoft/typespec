@@ -16,13 +16,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TargetVsixContainer>$(MSBuildThisFileDirectory)..\$(AssemblyName).vsix</TargetVsixContainer>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>NU1902;NU1903</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>NU1902;NU1903</NoWarn>
-  </PropertyGroup>
+  </PropertyGroup>  
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Visible="False" />
   </ItemGroup>

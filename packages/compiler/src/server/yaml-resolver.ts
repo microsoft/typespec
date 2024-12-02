@@ -37,9 +37,14 @@ export interface YamlScalarTarget {
   siblings: string[];
 
   /**
+   * The children of the siblings of the target node
+   */
+  siblingsChildren: string[];
+
+  /**
    *  The input quotes (double quotes or single quotes)
    */
-  sourceQuotation: string;
+  sourceQuoteType: string;
 }
 
 interface YamlVisitScalarNode {
@@ -90,8 +95,9 @@ export function resolveYamlScalarTarget(
         path: [""],
         type: "key",
         source: "",
+        sourceQuoteType: "",
         siblings: rootProperties,
-        sourceQuotation: "",
+        siblingsChildren: [],
       };
     }
     for (let i = position.line - 1; i >= 0; i--) {
@@ -137,8 +143,9 @@ export function resolveYamlScalarTarget(
             path: [...yp.path.slice(0, yp.path.length - 1), ""],
             type: "key",
             source: "",
+            sourceQuoteType: "",
             siblings: [...yp.siblings, yp.source],
-            sourceQuotation: "",
+            siblingsChildren: yp.siblingsChildren,
           };
         }
         break;
@@ -179,10 +186,11 @@ export function resolveYamlScalarTarget(
             path: [...yp.path, ""],
             type: "key",
             source: "",
+            sourceQuoteType: "",
             siblings: isMap(last.value)
               ? (last.value?.items.map((item) => (item.key as any).source ?? "") ?? [])
               : [],
-            sourceQuotation: "",
+            siblingsChildren: yp.siblingsChildren,
           };
         }
         break;
@@ -244,8 +252,9 @@ function createYamlPathFromVisitScalarNode(
       path: [],
       type: key === null ? "key" : "value",
       source: n.source ?? "",
+      sourceQuoteType: n.type ?? "",
       siblings: [],
-      sourceQuotation: n.type ?? "",
+      siblingsChildren: [],
     };
   } else if (isPair(last)) {
     if (nodePath.length < 2) {
@@ -265,20 +274,38 @@ function createYamlPathFromVisitScalarNode(
         path,
         type: "key",
         source: n.source ?? "",
+        sourceQuoteType: n.type ?? "",
         siblings: [],
-        sourceQuotation: n.type ?? "",
+        siblingsChildren: [],
       };
     } else {
       const parent = nodePath[nodePath.length - 2];
       const targetSiblings = isMap(parent)
         ? parent.items.filter((item) => item !== last).map((item) => (item.key as any).source ?? "")
         : [];
+
+      // This function mainly provides support for linter
+      const targetSiblingChildren: string[] = [];
+      if (isMap(parent)) {
+        for (const p of parent.items) {
+          if (p !== last && isPair(p)) {
+            (p.value as any)?.items.forEach((i: any) => {
+              if (i.key !== undefined) {
+                targetSiblingChildren.push((i.key as any).source ?? "");
+              } else {
+                targetSiblingChildren.push((i as any).source ?? "");
+              }
+            });
+          }
+        }
+      }
       return {
         path: path,
         type: key === "key" ? "key" : "value",
         source: n.source ?? "",
         siblings: targetSiblings,
-        sourceQuotation: n.type ?? "",
+        siblingsChildren: targetSiblingChildren,
+        sourceQuoteType: n.type ?? "",
       };
     }
   } else if (isSeq(last)) {
@@ -286,10 +313,11 @@ function createYamlPathFromVisitScalarNode(
       path: path,
       type: "arr-item",
       source: n.source ?? "",
+      sourceQuoteType: n.type ?? "",
       siblings: last.items
         .filter((i) => i !== n)
         .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
-      sourceQuotation: n.type ?? "",
+      siblingsChildren: [],
     };
   } else {
     log({
