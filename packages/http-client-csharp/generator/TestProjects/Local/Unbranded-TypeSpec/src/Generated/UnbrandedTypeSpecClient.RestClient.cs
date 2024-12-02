@@ -13,13 +13,10 @@ namespace UnbrandedTypeSpec
     {
         private static PipelineMessageClassifier _pipelineMessageClassifier200;
         private static PipelineMessageClassifier _pipelineMessageClassifier204;
-        private static Classifier2xxAnd4xx _pipelineMessageClassifier2xxAnd4xx;
 
         private static PipelineMessageClassifier PipelineMessageClassifier200 => _pipelineMessageClassifier200 = PipelineMessageClassifier.Create(stackalloc ushort[] { 200 });
 
         private static PipelineMessageClassifier PipelineMessageClassifier204 => _pipelineMessageClassifier204 = PipelineMessageClassifier.Create(stackalloc ushort[] { 204 });
-
-        private static Classifier2xxAnd4xx PipelineMessageClassifier2xxAnd4xx => _pipelineMessageClassifier2xxAnd4xx ??= new Classifier2xxAnd4xx();
 
         internal PipelineMessage CreateSayHiRequest(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
@@ -308,7 +305,7 @@ namespace UnbrandedTypeSpec
         internal PipelineMessage CreateHeadAsBooleanRequest(string id, RequestOptions options)
         {
             PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier2xxAnd4xx;
+            message.ResponseClassifier = PipelineMessageClassifier204;
             PipelineRequest request = message.Request;
             request.Method = "HEAD";
             ClientUriBuilder uri = new ClientUriBuilder();
@@ -334,31 +331,6 @@ namespace UnbrandedTypeSpec
             request.Headers.Set("p1", p1);
             message.Apply(options);
             return message;
-        }
-
-        private class Classifier2xxAnd4xx : PipelineMessageClassifier
-        {
-            public override bool TryClassify(PipelineMessage message, out bool isError)
-            {
-                isError = false;
-                if (message.Response == null)
-                {
-                    return false;
-                }
-                isError = message.Response.Status switch
-                {
-                    >= 200 and < 300 => false,
-                    >= 400 and < 500 => false,
-                    _ => true
-                };
-                return true;
-            }
-
-            public override bool TryClassify(PipelineMessage message, Exception exception, out bool isRetryable)
-            {
-                isRetryable = false;
-                return false;
-            }
         }
     }
 }

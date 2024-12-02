@@ -99,41 +99,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier204"));
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void TestPipelineMessageClassifier2xxAnd4xx(bool shouldBeGenerated)
-        {
-            string httpMethod = shouldBeGenerated ? "HEAD" : "POST";
-            InputOperation inputOperation = InputFactory.Operation(
-                "CreateMessage",
-                httpMethod: httpMethod,
-                responses: [
-                    InputFactory.OperationResponse([200]),
-                ]);
-            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            var restClient = new ClientProvider(inputClient).RestClient;
-
-            //validate _pipelineMessageClassifier2xxAnd4xx
-            Dictionary<string, FieldProvider> fieldHash = restClient.Fields.ToDictionary(f => f.Name);
-            Assert.AreEqual(shouldBeGenerated, fieldHash.ContainsKey("_pipelineMessageClassifier2xxAnd4xx"));
-
-            Dictionary<string, PropertyProvider> propertyHash = restClient.Properties.ToDictionary(p => p.Name);
-            Assert.AreEqual(shouldBeGenerated, propertyHash.ContainsKey("PipelineMessageClassifier2xxAnd4xx"));
-            if (shouldBeGenerated)
-            {
-                var pipelineMessageClassifier2xxAnd4xx = fieldHash["_pipelineMessageClassifier2xxAnd4xx"];
-                Assert.AreEqual("Classifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Type.Name);
-                Assert.AreEqual("_pipelineMessageClassifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Name);
-                Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier2xxAnd4xx.Modifiers);
-
-                var pipelineMessageClassifier2xxAnd4xxProperty = propertyHash["PipelineMessageClassifier2xxAnd4xx"];
-                Assert.AreEqual("Classifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xxProperty.Type.Name);
-                Assert.AreEqual("PipelineMessageClassifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xxProperty.Name);
-                Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier2xxAnd4xxProperty.Modifiers);
-                Assert.IsFalse(pipelineMessageClassifier2xxAnd4xxProperty.Body.HasSetter);
-            }
-        }
-
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
         public void TestGetMethodParameters(InputOperation inputOperation)
         {
