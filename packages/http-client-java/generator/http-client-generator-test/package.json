@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@azure-tools/cadl-ranch-specs": "0.39.4",
-    "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.1.tgz",
+    "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.2.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {
@@ -24,7 +24,7 @@
     "@typespec/openapi": "~0.62.0",
     "@typespec/xml": "~0.62.0",
     "@azure-tools/typespec-azure-core": "~0.48.0",
-    "@azure-tools/typespec-client-generator-core": "~0.48.0",
+    "@azure-tools/typespec-client-generator-core": "~0.48.3",
     "@azure-tools/typespec-azure-resource-manager": "~0.48.0",
     "@azure-tools/typespec-autorest": "~0.48.0"
   },
