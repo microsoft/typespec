@@ -289,7 +289,7 @@ function createYamlPathFromVisitScalarNode(
       if (isMap(parent)) {
         for (const p of parent.items) {
           if (p !== last && isPair(p)) {
-            (p.value as any)?.items.forEach((i: any) => {
+            (p.value as any)?.items?.forEach((i: any) => {
               if (i.key !== undefined) {
                 targetSiblingChildren.push((i.key as any).source ?? "");
               } else {

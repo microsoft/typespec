@@ -199,6 +199,23 @@ export async function provideTspconfigCompletionItems(
 
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target, "", relativeFiles) : [];
+    } else if (
+      nodePath.length >= CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
+      nodePath[0] === "imports"
+    ) {
+      const currentFolder = getDirectoryPath(tspConfigFile);
+      const newFolderPath = joinPaths(currentFolder, source);
+      const configFile = getBaseFileName(tspConfigFile);
+
+      const relativeFiles = findFilesWithSameExtension(
+        newFolderPath,
+        ".tsp",
+        configFile,
+        tspConfigFile,
+      );
+
+      const schema = TypeSpecConfigJsonSchema;
+      return schema ? resolveCompleteItems(schema, target, "", relativeFiles) : [];
     } else {
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target) : [];
@@ -346,6 +363,10 @@ export async function provideTspconfigCompletionItems(
             // extends
             if (relativeFiles && relativeFiles.length > 0) {
               for (const file of relativeFiles) {
+                if (target.siblings.includes(file)) {
+                  continue;
+                }
+
                 const item: CompletionItem = {
                   label: file,
                   kind: CompletionItemKind.Field,
@@ -416,6 +437,9 @@ function findFilesWithSameExtension(
   tspConfigFile: string,
 ): string[] {
   const exclude = ["node_modules", "tsp-output"];
+  if (fileExtension === ".tsp") {
+    exclude.push("main.tsp");
+  }
   const files: string[] = [];
   const filesInDir = fs.readdirSync(rootPath);
   for (const file of filesInDir) {
