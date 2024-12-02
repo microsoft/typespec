@@ -35,12 +35,6 @@ extends:
               - template: /eng/tsp-core/pipelines/templates/install.yml
               - template: /eng/tsp-core/pipelines/templates/install-browsers.yml
               - template: /eng/tsp-core/pipelines/templates/build.yml
-                templateContext:
-                  outputs:
-                    - output: pipelineArtifact
-                      path: $(Build.SourcesDirectory)/packages/typespec-vscode/*.vsix
-                      artifact: vscode-extension
-                      displayName: Copy VSCode extension .vsix to artifact directory
 
               - task: AzureCLI@1
                 displayName: "Publish playground to PR endpoint"
@@ -69,10 +63,19 @@ extends:
                       --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
                       --source "./website/dist/" \
                       --overwrite
-
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  path: $(Build.SourcesDirectory)/packages/typespec-vscode/typespec-vscode-0.62.0.vsix
+                  artifact: vscode-extension
+                  displayName: Copy VSCode extension .vsix to artifact directory
+          - job: tryit_comment
+            displayName: Create TryIt comment
+            dependsOn: tryit
+            steps:
               - script: |
                   echo "##[section]Retrieving artifact URL..."
-                  artifactUrl=$(curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension-unsigned" | jq -r 'resource.downloadUrl')
+                  artifactUrl=$(curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension" | jq -r 'resource.downloadUrl')
                   echo "Artifact URL: $artifactUrl"
                   echo "##vso[task.setvariable variable=vscodeUrl]$artifactUrl"
                 displayName: Get vscode artifact URL
