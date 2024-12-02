@@ -63,10 +63,20 @@ extends:
                       --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
                       --source "./website/dist/" \
                       --overwrite
+              - script: |
+                  vsCodeExtensionFile=$(ls $(Build.SourcesDirectory)/packages/typespec-vscode |grep ".vsix")
+                  echo "##vso[task.setvariable variable=vsCodeExtensionFileName]$vsCodeExtensionFile"
+                displayName: Get the vscode extension file
+              - task: CopyFiles@2
+                displayName: "Copy VSCode extension .vsix to artifact directory"
+                inputs:
+                  SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+                  Contents: "$(vsCodeExtensionFileName)"
+                  TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
             templateContext:
               outputs:
                 - output: pipelineArtifact
-                  path: $(Build.SourcesDirectory)/packages/typespec-vscode/typespec-vscode-0.62.0.vsix
+                  path: $(Build.ArtifactStagingDirectory)/vscode-extension
                   artifact: vscode-extension
                   displayName: Copy VSCode extension .vsix to artifact directory
           - job: tryit_comment
@@ -74,9 +84,9 @@ extends:
             dependsOn: tryit
             steps:
               - script: |
-                  echo "##[section]Retrieving artifact URL..."
-                  artifactUrl=$(curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension" | jq -r 'resource.downloadUrl')
-                  echo "Artifact URL: $artifactUrl"
+                  echo "##[section]Retrieving typespec-vscode artifact URL..."
+                  artifactUrl=$(curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension" | jq -r '.resource.downloadUrl')
+                  echo "Typespec-Vscode Artifact URL: $artifactUrl"
                   echo "##vso[task.setvariable variable=vscodeUrl]$artifactUrl"
                 displayName: Get vscode artifact URL
 
