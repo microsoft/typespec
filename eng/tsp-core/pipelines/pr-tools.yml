@@ -71,12 +71,13 @@ extends:
                   SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
                   Contents: "*.vsix"
                   TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
-                templateContext:
-                  outputs:
-                    - output: pipelineArtifact
-                      path: $(Build.ArtifactStagingDirectory)/vscode-extension/typespec-vscode-0.62.0.vsix
-                      artifact: "vscode-extension-unsigned"
-                      displayName: Publish VSCode extension artifact
+
+              - task: PublishPipelineArtifact@1
+                displayName: "Publish VSCode extension artifact"
+                inputs:
+                  targetPath: "$(Build.ArtifactStagingDirectory)/vscode-extension"
+                  artifact: "vscode-extension-unsigned"
+                  publishLocation: "pipeline"
 
               - script: |
                   echo "##[section]Retrieving artifact URL..."
