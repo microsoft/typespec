@@ -16,6 +16,7 @@ from ..models import (
     Client,
     FileImport,
 )
+from ..models.utils import NamespaceType
 from .import_serializer import FileImportSerializer
 from .builder_serializer import (
     get_operation_serializer,
@@ -34,7 +35,7 @@ class OperationGroupsSerializer(BaseSerializer):
         *,
         serialize_namespace: Optional[str] = None,
     ):
-        super().__init__(code_model, env, serialize_namespace=serialize_namespace)
+        super().__init__(code_model, env, async_mode, serialize_namespace=serialize_namespace)
         self.operation_groups = operation_groups
         self.async_mode = async_mode
 
@@ -50,6 +51,9 @@ class OperationGroupsSerializer(BaseSerializer):
             and not r.abstract
             and not r.is_lro  # lro has already initial builder
         ]
+    @property
+    def serialize_namespace(self) -> str:
+        return self.code_model.get_serialize_namespace(self.client_namespace, async_mode=self.async_mode, namespace_type=NamespaceType.OPERATION)
 
     def serialize(self) -> str:
         imports = FileImport(self.code_model)
@@ -57,6 +61,7 @@ class OperationGroupsSerializer(BaseSerializer):
             imports.merge(
                 operation_group.imports(
                     async_mode=self.async_mode,
+                    serialize_namespace=self.serialize_namespace,
                 )
             )
 

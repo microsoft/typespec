@@ -10,7 +10,7 @@ from ..models import ModelType, Property, ConstantType, EnumValue
 from ..models.imports import FileImport, TypingSection, MsrestImportType, ImportType
 from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
-
+from ..models.utils import NamespaceType
 
 def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> List[str]:
     retval: List[str] = []
@@ -127,6 +127,9 @@ class _ModelSerializer(BaseSerializer, ABC):
     def global_pylint_disables(self) -> str:
         return ""
 
+    @property
+    def serialize_namespace(self) -> str:
+        return self.code_model.get_serialize_namespace(self.client_namespace, namespace_type=NamespaceType.MODEL)
 
 class MsrestModelSerializer(_ModelSerializer):
     def imports(self) -> FileImport:
@@ -219,9 +222,9 @@ class DpgModelSerializer(_ModelSerializer):
         for model in self.code_model.model_types:
             if model.base == "json":
                 continue
-            file_import.merge(model.imports(is_operation_file=False))
+            file_import.merge(model.imports(is_operation_file=False, serialize_namespace=self.serialize_namespace))
             for prop in model.properties:
-                file_import.merge(prop.imports())
+                file_import.merge(prop.imports(serialize_namespace=self.serialize_namespace))
             if model.is_polymorphic:
                 file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             if not model.internal and self.init_line(model):

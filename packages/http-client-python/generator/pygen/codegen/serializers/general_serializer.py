@@ -21,12 +21,6 @@ from .base_serializer import BaseSerializer
 class GeneralSerializer(BaseSerializer):
     """General serializer for SDK root level files"""
 
-    def __init__(
-        self, code_model: CodeModel, env: Environment, async_mode: bool, *, serialize_namespace: Optional[str] = None
-    ):
-        super().__init__(code_model, env, serialize_namespace=serialize_namespace)
-        self.async_mode = async_mode
-
     def serialize_setup_file(self) -> str:
         template = self.env.get_template("packaging_templates/setup.py.jinja2")
         params = {}
@@ -74,7 +68,7 @@ class GeneralSerializer(BaseSerializer):
 
         imports = FileImport(self.code_model)
         for client in clients:
-            imports.merge(client.imports(self.async_mode))
+            imports.merge(client.imports(self.async_mode, serliaze_namespace=self.serialize_namespace))
 
         return template.render(
             code_model=self.code_model,
@@ -155,7 +149,7 @@ class GeneralSerializer(BaseSerializer):
         template = self.env.get_template("config_container.py.jinja2")
         imports = FileImport(self.code_model)
         for client in self.code_model.clients:
-            imports.merge(client.config.imports(self.async_mode))
+            imports.merge(client.config.imports(self.async_mode, serialize_namespace=self.serialize_namespace))
         return template.render(
             code_model=self.code_model,
             async_mode=self.async_mode,

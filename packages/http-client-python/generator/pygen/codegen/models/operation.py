@@ -402,7 +402,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 ImportType.SDKCORE,
             )
         if self.code_model.options["builders_visibility"] == "embedded" and not async_mode:
-            file_import.merge(self.request_builder.imports())
+            file_import.merge(self.request_builder.imports(**kwargs))
         file_import.add_submodule_import(
             f"{'' if self.code_model.is_azure_flavor else 'runtime.'}pipeline",
             "PipelineResponse",

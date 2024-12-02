@@ -117,7 +117,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             and self.code_model.options["builders_visibility"] == "embedded"
             and not async_mode
         ):
-            file_import.merge(self.next_request_builder.imports())
+            file_import.merge(self.next_request_builder.imports(**kwargs))
         return file_import
 
     @property
