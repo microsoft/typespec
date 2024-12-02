@@ -19,7 +19,7 @@ extern dec operationId(target: Operation, operationId: valueof string);
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param key minProperties/maxProperties/uniqueItems/multipleOf or Extension key. the extension key must start with `x-`
+ * @param key minProperties/maxProperties/uniqueItems/multipleOf or Extension key. The extension key must start with `x-`
  * @param value Extension value.
  *
  * @example
@@ -32,7 +32,7 @@ extern dec operationId(target: Operation, operationId: valueof string);
  * @example Specify that every item in the array must be unique.
  * ```typespec
  * model Foo {
- *  @extension("uniqueItems")
+ *  @extension("uniqueItems", true)
  *  x: unknown[];
  * };
  * ```
@@ -61,7 +61,7 @@ extern dec operationId(target: Operation, operationId: valueof string);
  * };
  * ```
  */
-extern dec extension(target: unknown, key: valueof string, value?: unknown);
+extern dec extension(target: unknown, key: valueof string, value: unknown);
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.

@@ -31,7 +31,7 @@ export type OperationIdDecorator = (
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param key minProperties/maxProperties/uniqueItems/multipleOf or Extension key. the extension key must start with `x-`
+ * @param key minProperties/maxProperties/uniqueItems/multipleOf or Extension key. The extension key must start with `x-`
  * @param value Extension value.
  * @example
  * ```typespec
@@ -42,7 +42,7 @@ export type OperationIdDecorator = (
  * @example Specify that every item in the array must be unique.
  * ```typespec
  * model Foo {
- *  @extension("uniqueItems")
+ *  @extension("uniqueItems", true)
  *  x: unknown[];
  * };
  * ```
@@ -72,7 +72,7 @@ export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value?: Type,
+  value: Type,
 ) => void;
 
 /**

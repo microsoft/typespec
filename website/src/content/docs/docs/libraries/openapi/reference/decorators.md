@@ -37,7 +37,7 @@ op listPets(): Pet[] | PetStoreResponse;
 Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-@TypeSpec.OpenAPI.extension(key: valueof string, value?: unknown)
+@TypeSpec.OpenAPI.extension(key: valueof string, value: unknown)
 ```
 
 #### Target
@@ -48,7 +48,7 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 | Name  | Type             | Description                                                                                                 |
 | ----- | ---------------- | ----------------------------------------------------------------------------------------------------------- |
-| key   | `valueof string` | minProperties/maxProperties/uniqueItems/multipleOf or Extension key. the extension key must start with `x-` |
+| key   | `valueof string` | minProperties/maxProperties/uniqueItems/multipleOf or Extension key. The extension key must start with `x-` |
 | value | `unknown`        | Extension value.                                                                                            |
 
 #### Examples
@@ -68,7 +68,7 @@ op read(): string;
 
 ```typespec
 model Foo {
-  @extension("uniqueItems")
+  @extension("uniqueItems", true)
   x: unknown[];
 }
 ```

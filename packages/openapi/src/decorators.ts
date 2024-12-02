@@ -56,7 +56,7 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value?: TypeSpecValue,
+  value: TypeSpecValue,
 ) => {
   const validExtensions = ["minProperties", "maxProperties", "uniqueItems", "multipleOf"];
   const isModelProperty = entity.kind === "ModelProperty";
