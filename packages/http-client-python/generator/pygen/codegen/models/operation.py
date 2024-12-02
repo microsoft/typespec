@@ -19,7 +19,7 @@ from typing import (
 
 from .request_builder_parameter import RequestBuilderParameter
 
-from .utils import OrderedSet, add_to_pylint_disable
+from .utils import OrderedSet, add_to_pylint_disable, NamespaceType
 from .base_builder import BaseBuilder
 from .imports import FileImport, ImportType, TypingSection
 from .response import (
@@ -299,10 +299,8 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                     alias="rest",
                 )
         if self.code_model.options["builders_visibility"] == "embedded" and async_mode:
-            operations_folder_name = self.code_model.operations_folder_name(self.client_namespace)
-            client_namespace = self.client_namespace + operations_folder_name
             file_import.add_submodule_import(
-                f"{self.code_model.get_relative_import_path(serialize_namespace, client_namespace)}.{operations_folder_name}.{self.filename}",
+                f"{self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace, namespace_type=NamespaceType.OPERATION)}.{self.filename}",
                 request_builder.name,
                 import_type=ImportType.LOCAL,
             )

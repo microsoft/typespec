@@ -255,8 +255,7 @@ class JSONModelType(ModelType):
     def type_annotation(self, **kwargs: Any) -> str:
         return "ET.Element" if self.is_xml else "JSON"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "object"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -282,13 +281,15 @@ class GeneratedModelType(ModelType):
     def type_annotation(self, **kwargs: Any) -> str:
         is_operation_file = kwargs.pop("is_operation_file", False)
         skip_quote = kwargs.get("skip_quote", False)
-        module_name = "_models." if kwargs.get("need_module_name", True) else ""
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
+        module_name = model_alias if kwargs.get("need_model_alias", True) else ""
         file_name = f"{self.code_model.models_filename}." if self.internal else ""
         retval = module_name + file_name + self.name
         return retval if is_operation_file or skip_quote else f'"{retval}"'
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.namespace}.models.{self.type_annotation(need_module_name=False, skip_quote=True)}"
+        return f"~{self.code_model.namespace}.models.{self.type_annotation(need_model_alias=False, skip_quote=True)}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return self.name
@@ -323,9 +324,8 @@ class GeneratedModelType(ModelType):
 class MsrestModelType(GeneratedModelType):
     base = "msrest"
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type_annotation(skip_quote=True) if self.internal else self.name
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type_annotation(skip_quote=True, **kwargs) if self.internal else self.name
 
     @property
     def instance_check_template(self) -> str:
@@ -340,12 +340,11 @@ class MsrestModelType(GeneratedModelType):
 class DPGModelType(GeneratedModelType):
     base = "dpg"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return (
-            self.type_annotation(skip_quote=True)
+            self.type_annotation(skip_quote=True, **kwargs)
             if self.internal
-            else self.type_annotation(need_module_name=False, skip_quote=True)
+            else self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
         )
 
     @property

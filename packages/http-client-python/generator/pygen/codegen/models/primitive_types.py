@@ -49,8 +49,7 @@ class PrimitiveType(BaseType):
 
 
 class BooleanType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "bool"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -66,8 +65,7 @@ class BinaryType(PrimitiveType):
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.type = "IO"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return self.type
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -102,8 +100,7 @@ class BinaryIteratorType(PrimitiveType):
     def _iterator_name(self, **kwargs: Any) -> str:
         return "AsyncIterator" if kwargs.pop("async_mode") else "Iterator"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "IO"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -130,8 +127,7 @@ class BinaryIteratorType(PrimitiveType):
 
 
 class AnyType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "object"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -155,8 +151,7 @@ class AnyType(PrimitiveType):
 
 
 class AnyObjectType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "object"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -234,8 +229,7 @@ class IntegerType(NumberType):
         if yaml_data.get("encode") == "string":
             self.encode = "str"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "int"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -254,8 +248,7 @@ class IntegerType(NumberType):
 
 
 class FloatType(NumberType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "float"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -274,8 +267,7 @@ class FloatType(NumberType):
 
 
 class DecimalType(NumberType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "decimal"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -337,8 +329,7 @@ class StringType(PrimitiveType):
     def get_declaration(self, value) -> str:
         return f'"{value}"'
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "str"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -358,8 +349,7 @@ class DatetimeType(PrimitiveType):
             else "rfc7231"
         )
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         formats_to_attribute_type = {
             "rfc3339": "iso-8601",
             "rfc7231": "rfc-1123",
@@ -405,8 +395,7 @@ class DatetimeType(PrimitiveType):
 
 
 class TimeType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "time"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -452,8 +441,7 @@ class UnixTimeType(PrimitiveType):
     def encode(self) -> str:
         return "unix-timestamp"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "unix-time"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -495,8 +483,7 @@ class UnixTimeType(PrimitiveType):
 
 
 class DateType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "date"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -538,8 +525,7 @@ class DateType(PrimitiveType):
 
 
 class DurationType(PrimitiveType):
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return "duration"
 
     def docstring_type(self, **kwargs: Any) -> str:
@@ -585,8 +571,7 @@ class ByteArraySchema(PrimitiveType):
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.encode = yaml_data.get("encode", "base64")
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         if self.encode == "base64url":
             return "base64"
         return "bytearray"
@@ -623,8 +608,7 @@ class SdkCoreType(PrimitiveType):
     def instance_check_template(self) -> str:
         return f"isinstance({{}}, {self.name})"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return self.name
 
 

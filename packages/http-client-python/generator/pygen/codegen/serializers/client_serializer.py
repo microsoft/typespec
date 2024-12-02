@@ -12,9 +12,10 @@ from ...utils import build_policies
 
 
 class ClientSerializer:
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: Client, serialize_namespace: str) -> None:
         self.client = client
-        self.parameter_serializer = ParameterSerializer()
+        self.parameter_serializer = ParameterSerializer(serialize_namespace)
+        self.serialize_namespace = serialize_namespace
 
     def _init_signature(self, async_mode: bool) -> str:
         pylint_disable = ""
@@ -244,9 +245,10 @@ class ClientSerializer:
 
 
 class ConfigSerializer:
-    def __init__(self, client: Client) -> None:
+    def __init__(self, client: Client, serialize_namespace: str) -> None:
         self.client = client
-        self.parameter_serializer = ParameterSerializer()
+        self.parameter_serializer = ParameterSerializer(serialize_namespace)
+        self.serialize_namespace = serialize_namespace
 
     def _init_signature(self, async_mode: bool) -> str:
         return self.parameter_serializer.serialize_method(

@@ -64,9 +64,8 @@ class EnumValue(BaseType):
             client_default_value_declaration=client_default_value_declaration,
         )
 
-    @property
-    def serialization_type(self) -> str:
-        return self.value_type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.value_type.serialization_type(**kwargs)
 
     @property
     def instance_check_template(self) -> str:
@@ -137,14 +136,13 @@ class EnumType(BaseType):
     def __lt__(self, other):
         return self.name.lower() < other.name.lower()
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         """Returns the serialization value for msrest.
 
         :return: The serialization value for msrest
         :rtype: str
         """
-        return self.value_type.serialization_type
+        return self.value_type.serialization_type(**kwargs)
 
     def description(self, *, is_operation_file: bool) -> str:
         possible_values = [self.get_declaration(v.value) for v in self.values]
@@ -169,7 +167,9 @@ class EnumType(BaseType):
         :rtype: str
         """
         if self.code_model.options["models_mode"]:
-            module_name = "_models." if kwargs.get("need_module_name", True) else ""
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
+            module_name = model_alias if kwargs.get("need_model_alias", True) else ""
             file_name = f"{self.code_model.enums_filename}." if self.internal else ""
             model_name = module_name + file_name + self.name
             # we don't need quoted annotation in operation files, and need it in model folder files.
@@ -232,7 +232,7 @@ class EnumType(BaseType):
                     "models",
                     ImportType.LOCAL,
                     TypingSection.TYPING,
-                    alias="_models",
+                    alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
                 )
         file_import.merge(self.value_type.imports(in_operation_file=in_operation_file, **kwargs))
         relative_path = kwargs.pop("relative_path", None)
@@ -242,7 +242,7 @@ class EnumType(BaseType):
                 self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
                 "models",
                 ImportType.LOCAL,
-                alias="_models",
+                alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
                 typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),  # TODO
             )
         return file_import

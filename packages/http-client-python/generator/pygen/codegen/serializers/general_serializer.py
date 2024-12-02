@@ -82,6 +82,7 @@ class GeneralSerializer(BaseSerializer):
             async_mode=self.async_mode,
             get_serializer=ClientSerializer,
             imports=FileImportSerializer(imports),
+            serialize_namespace=self.serialize_namespace,
         )
 
     def serialize_vendor_file(self, clients: List[Client]) -> str:
@@ -161,6 +162,7 @@ class GeneralSerializer(BaseSerializer):
             imports=FileImportSerializer(imports),
             get_serializer=ConfigSerializer,
             clients=clients,
+            serialize_namespace=self.serialize_namespace,
         )
 
     def serialize_version_file(self) -> str:

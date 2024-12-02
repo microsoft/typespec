@@ -84,6 +84,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self.for_test: bool = False
         self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
         self.has_subnamespace = False
+        self._operations_folder_name: Dict[str, str] = {}
 
     # | serialize_namespace  | imported_namespace | relative_import_path |
     # |----------------------|--------------------|----------------------|
@@ -93,14 +94,36 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     # |azure.test.aio.operations | azure.test     | ...                  |
     # |azure.test.subtest.aio.operations|azure.test| ....                |
     # |azure.test            |azure.test.subtest  | .subtest             |
-    def get_relative_import_path(self, serialize_namespace: str, imported_namespace: Optional[str] = None, *, namespace_type = Optional[NamespaceType] = None) -> str:
-        imported_namespace = self.namespace if imported_namespace is None else imported_namespace
+    def get_relative_import_path(self, serialize_namespace: str, imported_namespace: Optional[str] = None, *, namespace_type: NamespaceType = NamespaceType.MODEL, async_mode: bool = False) -> str:
+        if imported_namespace is None:
+            imported_namespace = self.namespace
+        else:
+            async_namespace = ".aio" if async_mode else ""
+            if namespace_type == NamespaceType.MODEL:
+                module_namespace = ".models"
+            elif namespace_type == NamespaceType.OPERATION:
+                module_namespace = f".{self.operations_folder_name(imported_namespace)}"
+            else:
+                module_namespace = ""
+            imported_namespace = imported_namespace + async_namespace + module_namespace
         idx = 0
         while idx < min(len(serialize_namespace), len(imported_namespace)):
             if serialize_namespace[idx] != imported_namespace[idx]:
                 break
             idx += 1
         return "." * (len(serialize_namespace[idx:].strip(".").split(".")) + 1) + imported_namespace[idx:].strip(".")
+
+    @property
+    def need_unique_model_alias(self) -> bool:
+        return self.options["enable_typespec_namespace"] and self.has_subnamespace
+
+    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
+        if not self.need_unique_model_alias:
+            return "_models."
+        relative_path = self.get_relative_import_path(serialize_namespace, imported_namespace)
+        dot_num = max(relative_path.count(".") - 1, 0)
+        parts = [""] + [p for p in relative_path.split(".") if p]
+        return "_".join(parts) + str(dot_num)
 
     @property
     def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:
@@ -188,17 +211,18 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def has_abstract_operations(self) -> bool:
         return any(c for c in self.clients if c.has_abstract_operations)
 
-    @staticmethod
     def operations_folder_name(self, client_namespace: str) -> str:
         """Get the name of the operations folder that holds operations."""
-        name = "operations"
-        client_namespace_type = self.client_namespace_types.get(client_namespace)
-        operation_groups = client_namespace_type.operation_groups if client_namespace_type else []
-        if self.options["version_tolerant"] and not any(
-            og for client in self.clients for og in operation_groups if not og.is_mixin
-        ):
-            name = f"_{name}"
-        return name
+        if client_namespace not in self._operations_folder_name:
+            name = "operations"
+            client_namespace_type = self.client_namespace_types.get(client_namespace)
+            operation_groups = client_namespace_type.operation_groups if client_namespace_type else []
+            if self.options["version_tolerant"] and not any(
+                og for client in self.clients for og in operation_groups if not og.is_mixin
+            ):
+                name = f"_{name}"
+            self._operations_folder_name[client_namespace] = name
+        return self._operations_folder_name[client_namespace]
 
     @property
     def description(self) -> str:

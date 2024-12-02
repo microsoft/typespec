@@ -52,8 +52,11 @@ SPECIAL_HEADER_SERIALIZATION: Dict[str, List[str]] = {
 
 
 class ParameterSerializer:
-    @staticmethod
-    def serialize_parameter(parameter: ParameterType, serializer_name: str) -> str:
+    
+    def __init__(self, serialize_namespace: str) -> None:
+        self.serialize_namespace = serialize_namespace
+
+    def serialize_parameter(self, parameter: ParameterType, serializer_name: str) -> str:
         optional_parameters = []
 
         if parameter.skip_url_encoding:
@@ -88,7 +91,7 @@ class ParameterSerializer:
         parameters = [
             f'"{origin_name.lstrip("_")}"',
             "q" if parameter.explode else origin_name,
-            f"'{type.serialization_type}'",
+            f"'{type.serialization_type(serialize_namespace=self.serialize_namespace)}'",
             *optional_parameters,
         ]
         parameters_line = ", ".join(parameters)

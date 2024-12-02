@@ -155,9 +155,8 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     def docstring_type(self, **kwargs: Any) -> str:
         return self.type.docstring_type(**kwargs)
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type.serialization_type(**kwargs)
 
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)

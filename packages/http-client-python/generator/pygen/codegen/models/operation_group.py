@@ -10,7 +10,7 @@ from .utils import OrderedSet
 from .base import BaseModel
 from .operation import get_operation
 from .imports import FileImport, ImportType, TypingSection
-from .utils import add_to_pylint_disable
+from .utils import add_to_pylint_disable, NamespaceType
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation
 from ...utils import NAME_LENGTH_LIMIT
@@ -102,23 +102,23 @@ class OperationGroup(BaseModel):
         file_import = FileImport(self.code_model)
 
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+        relative_path = self.code_model.get_relative_import_path(serialize_namespace)
         for operation in self.operations:
             file_import.merge(operation.imports(async_mode, **kwargs))
         if not self.code_model.options["combine_operation_files"]:
             for og in self.operation_groups:
                 file_import.add_submodule_import(
-                    ".",
+                    self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace, namespace_type=NamespaceType.OPERATION, async_mode=async_mode),
                     og.class_name,
                     ImportType.LOCAL,
                 )
         # for multiapi
-        # if (
-        #     (self.code_model.public_model_types)
-        #     and self.code_model.options["models_mode"] == "msrest"
-        #     and not self.is_mixin
-        # ):
-        #     file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
+        if (
+            (self.code_model.public_model_types)
+            and self.code_model.options["models_mode"] == "msrest"
+            and not self.is_mixin
+        ):
+            file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
         if self.is_mixin:
             file_import.add_submodule_import(f"{relative_path}._vendor", f"{self.client.name}MixinABC", ImportType.LOCAL)
         if self.has_abstract_operations:

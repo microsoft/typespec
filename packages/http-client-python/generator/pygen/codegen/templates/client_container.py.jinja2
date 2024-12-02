@@ -7,6 +7,6 @@
 {{ imports }}
 
 {% for client in clients %}
-    {% set serializer = get_serializer(client) %}
+    {% set serializer = get_serializer(client, serialize_namespace) %}
 {% include "client.py.jinja2" %}
 {% endfor %}

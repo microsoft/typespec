@@ -29,9 +29,8 @@ class ResponseHeader(BaseModel):
         self.wire_name: str = yaml_data["wireName"]
         self.type = type
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type.serialization_type(**kwargs)
 
     @classmethod
     def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "ResponseHeader":
@@ -88,10 +87,9 @@ class Response(BaseModel):
         )
         return retval
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         if self.type:
-            return self.type.serialization_type
+            return self.type.serialization_type(**kwargs)
         return "None"
 
     def type_annotation(self, **kwargs: Any) -> str:

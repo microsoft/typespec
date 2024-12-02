@@ -74,6 +74,7 @@ class OperationGroupsSerializer(BaseSerializer):
                 get_operation_serializer,
                 code_model=self.code_model,
                 async_mode=self.async_mode,
+                serialize_namespace=self.serialize_namespace,
             ),
             request_builder_serializer=RequestBuilderSerializer(
                 self.code_model,

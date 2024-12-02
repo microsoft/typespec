@@ -76,9 +76,8 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
     def is_input(self):
         return not (self.constant or self.readonly or self.is_discriminator)
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type.serialization_type(**kwargs)
 
     @property
     def msrest_deserialization_key(self) -> str:
