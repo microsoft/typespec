@@ -28,6 +28,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
             ]);
 
+        [Test]
+        public void TestBuildProperties()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // validate the properties
+            var properties = clientProvider.Properties;
+            Assert.IsTrue(properties.Count > 0);
+            // there should be a pipeline property
+            Assert.AreEqual(1, properties.Count);
+
+            var pipelineProperty = properties.First();
+            Assert.AreEqual(typeof(ClientPipeline), pipelineProperty.Type.FrameworkType);
+            Assert.AreEqual("Pipeline", pipelineProperty.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Public, pipelineProperty.Modifiers);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void TestGetClientOptions(bool isSubClient)

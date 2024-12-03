@@ -44,26 +44,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
-        [Test]
-        public void TestBuildProperties()
-        {
-            var client = InputFactory.Client(TestClientName);
-            var clientProvider = new ClientProvider(client);
-
-            Assert.IsNotNull(clientProvider);
-
-            // validate the properties
-            var properties = clientProvider.Properties;
-            Assert.IsTrue(properties.Count > 0);
-            // there should be a pipeline property
-            Assert.AreEqual(1, properties.Count);
-
-            var pipelineProperty = properties.First();
-            Assert.AreEqual(typeof(ClientPipeline), pipelineProperty.Type.FrameworkType);
-            Assert.AreEqual("Pipeline", pipelineProperty.Name);
-            Assert.AreEqual(MethodSignatureModifiers.Public, pipelineProperty.Modifiers);
-        }
-
         [TestCaseSource(nameof(BuildFieldsTestCases))]
         public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalParams)
         {
