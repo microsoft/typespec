@@ -64,35 +64,43 @@ defineKit<Typekit>({
       function getClientName(name: string): string {
         return name.endsWith("Client") ? name : `${name}Client`;
       }
-      if (type.kind === "Client") {
-        const clientType = type.type;
-        const clientIsNamespace = clientType.kind === "Namespace";
-        if (!clientIsNamespace) {
-          return [];
+      if (type.kind === "Namespace") {
+        const topLevelNamespaces = listServices($.program)
+          .filter((i) => i.type === type)
+          .map((sn) => {
+            return {
+              kind: "Client",
+              name: getClientName(sn.type.name),
+              service: sn.type,
+              type: sn.type,
+            } as Client;
+          });
+        if (topLevelNamespaces.length !== 0) {
+          // if we're trying to get top-level namespaces, we should return them
+          return topLevelNamespaces;
         }
-        const subnamespaces: (Namespace | Interface)[] = [
-          ...$.clientLibrary.listNamespaces(clientType),
-          ...clientType.interfaces.values(),
-        ];
-        return subnamespaces.map((sn) => {
-          return {
-            kind: "Client",
-            name: getClientName(sn.name),
-            service: sn,
-            type: sn,
-          } as Client;
-        });
       }
-      return listServices($.program)
-        .filter((i) => i.type === type)
-        .map((service) => {
-          return {
-            kind: "Client",
-            name: getClientName(service.type.name),
-            service: service.type,
-            type: service.type,
-          };
-        });
+      const clientType = type.kind === "Client" ? type.type : type;
+      const clientIsNamespace = clientType.kind === "Namespace";
+      if (!clientIsNamespace) {
+        return [];
+      }
+      const subnamespaces: (Namespace | Interface)[] = [
+        ...$.clientLibrary.listNamespaces(clientType),
+        ...clientType.interfaces.values(),
+      ];
+      if (type.kind === "Namespace") {
+        // this means we're trying to get the clients of a subnamespace, so we have to include the subnamespace itself
+        subnamespaces.push(clientType);
+      }
+      return subnamespaces.map((sn) => {
+        return {
+          kind: "Client",
+          name: getClientName(sn.name),
+          service: sn,
+          type: sn,
+        } as Client;
+      });
     },
     listModels(namespace) {
       const allModels = [...namespace.models.values()];

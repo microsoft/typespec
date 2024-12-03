@@ -86,15 +86,6 @@ defineKit<TypeKit>({
             operations.push(op);
           }
         }
-
-        if (current.kind === "Namespace") {
-          for (const subItem of current.namespaces.values()) {
-            addOperations(subItem);
-          }
-          for (const subItem of current.interfaces.values()) {
-            addOperations(subItem);
-          }
-        }
       }
 
       addOperations(client.type);

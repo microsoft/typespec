@@ -259,3 +259,40 @@ describe("isPubliclyInitializable", () => {
     expect($.client.isPubliclyInitializable(subclients[0])).toBeFalsy();
   });
 });
+
+describe("listServiceOperations", () => {
+  it("no operations", async () => {
+    const { DemoService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+    const client = $.clientLibrary.listClients(DemoService)[0];
+    const operations = $.client.listServiceOperations(client);
+    expect(operations).toHaveLength(0);
+  });
+  it("nested namespace", async () => {
+    const { DemoService, NestedService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService {
+        @route("demo")
+        op demoServiceOp(): void;
+        @test namespace NestedService {
+          @route("nested")
+          op nestedServiceOp(): void;
+        };
+      }
+      `)) as { DemoService: Namespace, NestedService: Namespace };
+
+    const demoServiceClient = $.clientLibrary.listClients(DemoService)[0];
+    expect($.client.listServiceOperations(demoServiceClient)).toHaveLength(1);
+    expect($.client.listServiceOperations(demoServiceClient)[0].name).toEqual("demoServiceOp");
+
+    const nestedServiceClient = $.clientLibrary.listClients(NestedService)[0];
+    expect($.client.listServiceOperations(nestedServiceClient)).toHaveLength(1);
+    expect($.client.listServiceOperations(nestedServiceClient)[0].name).toEqual("nestedServiceOp");
+  });
+})
