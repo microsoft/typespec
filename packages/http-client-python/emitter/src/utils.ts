@@ -206,14 +206,14 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
 ) {
   const options = context.emitContext.options;
   if ([undefined, false].includes(options["enable-typespec-namespace"])) {
-    return context.sdkPackage.rootNamespace;
+    return context.sdkPackage.rootNamespace.toLowerCase();
   }
   if (
     ["azure.core", "azure.resourcemanager"].some((item) =>
       clientNamespace.toLowerCase().startsWith(item),
     )
   ) {
-    return context.sdkPackage.rootNamespace;
+    return context.sdkPackage.rootNamespace.toLowerCase();
   }
-  return clientNamespace;
+  return clientNamespace.toLowerCase();
 }

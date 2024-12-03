@@ -283,7 +283,7 @@ class GeneratedModelType(ModelType):
         skip_quote = kwargs.get("skip_quote", False)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
-        module_name = model_alias if kwargs.get("need_model_alias", True) else ""
+        module_name = f"{model_alias}." if kwargs.get("need_model_alias", True) else ""
         file_name = f"{self.code_model.models_filename}." if self.internal else ""
         retval = module_name + file_name + self.name
         return retval if is_operation_file or skip_quote else f'"{retval}"'
@@ -307,7 +307,7 @@ class GeneratedModelType(ModelType):
             relative_path,
             "models",
             ImportType.LOCAL,
-            alias=self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
+            alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
             typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
         )
         if self.is_form_data:
