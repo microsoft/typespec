@@ -18,7 +18,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
-    public class ApiKeyAuthClientProviderTests
+    public class ClientProviderApiKeyAuthTests
     {
         private const string SubClientsCategory = "WithSubClients";
         private const string TestClientName = "TestClient";
@@ -275,29 +275,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             if (expectedValue != null)
             {
                 Assert.IsTrue(endpoint?.InitializationValue is NewInstanceExpression);
-            }
-        }
-
-        [TestCase(true)]
-        [TestCase(false)]
-        public void TestGetClientOptions(bool isSubClient)
-        {
-            string? parentClientName = null;
-            if (isSubClient)
-            {
-                parentClientName = "parent";
-            }
-
-            var client = InputFactory.Client(TestClientName, parent: parentClientName);
-            var clientProvider = new ClientProvider(client);
-
-            if (isSubClient)
-            {
-                Assert.IsNull(clientProvider?.ClientOptions);
-            }
-            else
-            {
-                Assert.IsNotNull(clientProvider?.ClientOptions);
             }
         }
 

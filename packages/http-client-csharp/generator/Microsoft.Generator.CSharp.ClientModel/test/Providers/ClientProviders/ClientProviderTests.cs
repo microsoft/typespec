@@ -28,6 +28,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
             ]);
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestGetClientOptions(bool isSubClient)
+        {
+            string? parentClientName = null;
+            if (isSubClient)
+            {
+                parentClientName = "parent";
+            }
+
+            var client = InputFactory.Client(TestClientName, parent: parentClientName);
+            var clientProvider = new ClientProvider(client);
+
+            if (isSubClient)
+            {
+                Assert.IsNull(clientProvider?.ClientOptions);
+            }
+            else
+            {
+                Assert.IsNotNull(clientProvider?.ClientOptions);
+            }
+        }
+
         [Test]
         public void ValidateQueryParamDiff()
         {
