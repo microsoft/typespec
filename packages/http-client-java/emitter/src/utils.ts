@@ -1,5 +1,15 @@
 import { NoTarget, Program, Type } from "@typespec/compiler";
 
+export function logError(program: Program, msg: string) {
+  trace(program, msg);
+  program.reportDiagnostic({
+    code: "http-client-java",
+    severity: "error",
+    message: msg,
+    target: NoTarget,
+  });
+}
+
 export function logWarning(program: Program, msg: string) {
   trace(program, msg);
   program.reportDiagnostic({

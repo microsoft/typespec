@@ -155,6 +155,7 @@ import {
 } from "./type-utils.js";
 import {
   getNamespace,
+  logError,
   logWarning,
   pascalCase,
   removeClientSuffix,
@@ -201,7 +202,7 @@ export class CodeModelBuilder {
 
     const service = listServices(this.program)[0];
     if (!service) {
-      throw Error("TypeSpec for HTTP must define a service.");
+      this.logError("TypeSpec for HTTP must define a service.");
     }
     this.serviceNamespace = service.type;
 
@@ -555,7 +556,7 @@ export class CodeModelBuilder {
       } else {
         this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
         if (!this.apiVersion) {
-          throw new Error("Unrecognized api-version: " + this.sdkContext.apiVersion);
+          this.logError("Unrecognized api-version: " + this.sdkContext.apiVersion);
         }
       }
 
@@ -587,7 +588,7 @@ export class CodeModelBuilder {
               }
             }
           } else if (initializationProperty.type.variantTypes.length > 2) {
-            throw new Error("Multiple server url defined for one client is not supported yet.");
+            this.logError("Multiple server url defined for one client is not supported yet.");
           }
         } else if (initializationProperty.type.kind === "endpoint") {
           sdkPathParameters = initializationProperty.type.templateArguments;
@@ -1836,7 +1837,9 @@ export class CodeModelBuilder {
           }
       }
     }
-    throw new Error(`Unrecognized type: '${type.kind}'.`);
+    const errorMsg = `Unrecognized type: '${type.kind}'.`;
+    this.logError(errorMsg);
+    throw new Error(errorMsg);
   }
 
   private processBuiltInType(type: SdkBuiltInType, nameHint: string): Schema {
@@ -2263,7 +2266,7 @@ export class CodeModelBuilder {
 
   private processUnionSchema(type: SdkUnionType, name: string): Schema {
     if (!(type.__raw && type.__raw.kind === "Union")) {
-      throw new Error(`Invalid type for union: '${type.kind}'.`);
+      this.logError(`Invalid type for union: '${type.kind}'.`);
     }
     const rawUnionType: Union = type.__raw as Union;
     const namespace = getNamespace(rawUnionType);
@@ -2316,7 +2319,8 @@ export class CodeModelBuilder {
 
   private getUnionVariantName(type: Type | undefined, option: any): string {
     if (type === undefined) {
-      throw new Error("type is undefined.");
+      this.logError("type is undefined.");
+      return "UnionVariant";
     }
     switch (type.kind) {
       case "Scalar": {
@@ -2368,7 +2372,8 @@ export class CodeModelBuilder {
       case "UnionVariant":
         return (typeof type.name === "string" ? type.name : undefined) ?? "UnionVariant";
       default:
-        throw new Error(`Unrecognized type for union variable: '${type.kind}'.`);
+        this.logError(`Unrecognized type for union variable: '${type.kind}'.`);
+        return "UnionVariant";
     }
   }
 
@@ -2415,7 +2420,9 @@ export class CodeModelBuilder {
         },
       );
     } else {
-      throw new Error(`Invalid type for multipart form data: '${property.type.kind}'.`);
+      const errorMsg = `Invalid type for multipart form data: '${property.type.kind}'.`;
+      this.logError(errorMsg);
+      throw new Error(errorMsg);
     }
   }
 
@@ -2556,6 +2563,10 @@ export class CodeModelBuilder {
     } else {
       return clientNamespace.toLowerCase();
     }
+  }
+
+  private logError(msg: string) {
+    logError(this.program, msg);
   }
 
   private logWarning(msg: string) {

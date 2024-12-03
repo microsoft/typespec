@@ -12,6 +12,7 @@ import { dump } from "js-yaml";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
+import { logError } from "./utils.js";
 
 export interface EmitterOptions {
   namespace?: string;
@@ -136,7 +137,8 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
     await promises.mkdir(outputPath, { recursive: true }).catch((err) => {
       if (err.code !== "EISDIR" && err.code !== "EEXIST") {
-        throw err;
+        logError(program, `Failed to create output directory: ${outputPath}`);
+        return;
       }
     });
 
@@ -233,9 +235,9 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
           message: msg,
           target: NoTarget,
         });
-        throw new Error(msg);
+        logError(program, msg);
       } else {
-        throw error;
+        logError(program, error.message);
       }
     }
 
