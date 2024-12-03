@@ -109,8 +109,7 @@ class ParameterSerializer:
             return f"[{serialize_line} if q is not None else '' for q in {origin_name}]"
         return serialize_line
 
-    @staticmethod
-    def serialize_path(
+    def serialize_path(self,
         parameters: Union[
             List[Parameter],
             List[RequestBuilderParameter],
@@ -124,7 +123,7 @@ class ParameterSerializer:
             [
                 '    "{}": {},'.format(
                     path_parameter.wire_name,
-                    ParameterSerializer.serialize_parameter(path_parameter, serializer_name),
+                    self.serialize_parameter(path_parameter, serializer_name),
                 )
                 for path_parameter in parameters
             ]
@@ -132,8 +131,8 @@ class ParameterSerializer:
         retval.append("}")
         return retval
 
-    @staticmethod
     def serialize_query_header(
+        self,
         param: Parameter,
         kwarg_name: str,
         serializer_name: str,
@@ -149,7 +148,7 @@ class ParameterSerializer:
         set_parameter = "_{}['{}'] = {}".format(
             kwarg_name,
             param.wire_name,
-            ParameterSerializer.serialize_parameter(param, serializer_name),
+            self.serialize_parameter(param, serializer_name),
         )
         if not param.optional and (param.in_method_signature or param.constant):
             retval = [set_parameter]

@@ -12,12 +12,22 @@ from .combined_type import CombinedType
 from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
 from .operation_group import OperationGroup
-from .utils import NamespaceType, get_all_operation_groups_recursively
+from .utils import NamespaceType
 
 
 def _is_legacy(options) -> bool:
     return not (options.get("version_tolerant") or options.get("low_level_client"))
 
+def get_all_operation_groups_recursively(clients: List[Client]) -> List[OperationGroup]:
+    operation_groups = []
+    queue = []
+    for client in clients:
+        queue.extend(client.operation_groups)
+    while queue:
+        operation_groups.append(queue.pop(0))
+        if operation_groups[-1].operation_groups:
+            queue.extend(operation_groups[-1].operation_groups)
+    return operation_groups
 
 class ClientNamespaceType:
     def __init__(
@@ -241,7 +251,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             return client_namespace + ".models"
 
         operations_folder_name = self.operations_folder_name(client_namespace)
-        return client_namespace + (".aio." if async_mode else ".") + +operations_folder_name
+        return client_namespace + (".aio." if async_mode else ".") + operations_folder_name
 
     @property
     def description(self) -> str:

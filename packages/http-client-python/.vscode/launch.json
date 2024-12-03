@@ -26,7 +26,7 @@
       "cwd": "${workspaceFolder}",
       "args": [
         "compile",
-        "${workspaceFolder}/alpha/common-properties/main.tsp",
+        "${workspaceFolder}/alpha/main.tsp",
         "--emit=${workspaceFolder}",
         "--option=@typespec/http-client-python.flavor=azure"
       ],

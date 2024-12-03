@@ -307,7 +307,6 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
                 f"{self.code_model.operations_folder_name(og.client_namespace)}",
                 og.class_name,
                 ImportType.LOCAL,
-                client_namespace=og.client_namespace,
             )
 
         if self.code_model.model_types and self.code_model.options["models_mode"] == "msrest":

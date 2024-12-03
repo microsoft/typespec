@@ -31,9 +31,9 @@ class OperationGroupsSerializer(BaseSerializer):
         env: Environment,
         async_mode: bool,
         *,
-        serialize_namespace: Optional[str] = None,
+        client_namespace: Optional[str] = None,
     ):
-        super().__init__(code_model, env, async_mode, serialize_namespace=serialize_namespace)
+        super().__init__(code_model, env, async_mode, client_namespace=client_namespace)
         self.operation_groups = operation_groups
         self.async_mode = async_mode
 
