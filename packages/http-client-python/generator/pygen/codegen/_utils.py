@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+from typing import List
 
 DEFAULT_HEADER_TEXT = (
     "Copyright (c) {company_name} Corporation. All rights reserved.\n"
@@ -17,9 +18,8 @@ VALID_PACKAGE_MODE = SWAGGER_PACKAGE_MODE + TYPESPEC_PACKAGE_MODE
 NAME_LENGTH_LIMIT = 40
 
 
-def get_unique_alias(relative_import: str, module_name: str = "models") -> str:
-    pass
-
-
 def get_parent_namespace(namespace: str) -> str:
     return namespace.rsplit(".", 1)[0]
+
+
+

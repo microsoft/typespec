@@ -207,15 +207,14 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             file_import.merge(
                 gp.imports(
                     async_mode,
-                    in_operation_file=True,
+                    is_operation_file=True,
                     **kwargs,
                 )
             )
         file_import.add_submodule_import(
-            "_configuration",
+            "._configuration",
             f"{self.name}Configuration",
             ImportType.LOCAL,
-            client_namespace=self.client_namespace,
         )
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import.add_msrest_import(

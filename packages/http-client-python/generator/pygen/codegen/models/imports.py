@@ -45,7 +45,6 @@ class ImportModel:
         submodule_name: Optional[str] = None,
         alias: Optional[str] = None,
         version_modules: Optional[Tuple[Tuple[Tuple[int, int], str, Optional[str]]]] = None,
-        client_namespace: Optional[str] = None,  # namespace where the imported model is
     ):
         self.typing_section = typing_section
         self.import_type = import_type
@@ -56,7 +55,6 @@ class ImportModel:
         #                  It's a list of "python version, module_name, comments".
         #                  The python version is in form of (major, minor), for instance (3, 9) stands for py3.9.
         self.version_modules = version_modules
-        self.client_namespace = client_namespace
 
     def __eq__(self, other):
         try:
@@ -125,8 +123,6 @@ class FileImport:
         typing_section: TypingSection = TypingSection.REGULAR,
         alias: Optional[str] = None,
         version_modules: Optional[Tuple[Tuple[Tuple[int, int], str, Optional[str]]]] = None,
-        *,
-        client_namespace: Optional[str] = None,  # namespace where the imported model is
     ) -> None:
         """Add an import to this import block."""
         self._append_import(
@@ -137,7 +133,6 @@ class FileImport:
                 submodule_name=submodule_name,
                 alias=alias,
                 version_modules=version_modules,
-                client_namespace=client_namespace or self.code_model.namespace,
             )
         )
 

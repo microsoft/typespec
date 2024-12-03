@@ -7,13 +7,11 @@ from typing import Optional, List, Union
 import functools
 from jinja2 import Environment
 
-from .utils import get_all_operation_groups_recursively
 from ..models import (
     CodeModel,
     OperationGroup,
     RequestBuilder,
     OverloadedRequestBuilder,
-    Client,
     FileImport,
 )
 from ..models.utils import NamespaceType

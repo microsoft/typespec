@@ -221,7 +221,7 @@ class EnumType(BaseType):
         )
 
     def imports(self, **kwargs: Any) -> FileImport:
-        in_operation_file = kwargs.pop("in_operation_file", False)
+        in_operation_file = kwargs.get("in_operation_file", False)
         file_import = FileImport(self.code_model)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.code_model.options["models_mode"]:
@@ -234,7 +234,7 @@ class EnumType(BaseType):
                     TypingSection.TYPING,
                     alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
                 )
-        file_import.merge(self.value_type.imports(in_operation_file=in_operation_file, **kwargs))
+        file_import.merge(self.value_type.imports(**kwargs))
         relative_path = kwargs.pop("relative_path", None)
         if self.code_model.options["models_mode"] and relative_path:
             # add import for enums in operations file
@@ -243,6 +243,6 @@ class EnumType(BaseType):
                 "models",
                 ImportType.LOCAL,
                 alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
-                typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),  # TODO
+                typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
             )
         return file_import

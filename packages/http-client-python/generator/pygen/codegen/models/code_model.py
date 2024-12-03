@@ -12,8 +12,7 @@ from .combined_type import CombinedType
 from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
 from .operation_group import OperationGroup
-from .utils import NamespaceType
-from ..serializers.utils import get_all_operation_groups_recursively
+from .utils import NamespaceType, get_all_operation_groups_recursively
 
 
 def _is_legacy(options) -> bool:
@@ -23,13 +22,11 @@ def _is_legacy(options) -> bool:
 class ClientNamespaceType:
     def __init__(
         self,
-        client_namespace: str,
         clients: List[Client] = [],
         models: List[ModelType] = [],
         enums: List[EnumType] = [],
         operation_groups: List[OperationGroup] = [],
     ):
-        self.client_namespace = client_namespace
         self.clients = clients
         self.models = models
         self.enums = enums
@@ -86,6 +83,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
         self.has_subnamespace = False
         self._operations_folder_name: Dict[str, str] = {}
+        self._relative_import_path: Dict[str, str] = {}
 
     # | serialize_namespace  | imported_namespace | relative_import_path |
     # |----------------------|--------------------|----------------------|
@@ -114,17 +112,21 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             else:
                 module_namespace = ""
             imported_namespace = imported_namespace + async_namespace + module_namespace
-        idx = 0
-        while idx < min(len(serialize_namespace), len(imported_namespace)):
-            if serialize_namespace[idx] != imported_namespace[idx]:
-                break
-            idx += 1
-        return "." * (len(serialize_namespace[idx:].strip(".").split(".")) + 1) + imported_namespace[idx:].strip(".")
+        
+        key = f"{serialize_namespace}-{imported_namespace}"
+        if key not in self._relative_import_path:
+          idx = 0
+          while idx < min(len(serialize_namespace), len(imported_namespace)):
+              if serialize_namespace[idx] != imported_namespace[idx]:
+                  break
+              idx += 1
+          self._relative_import_path[key] = "." * (len(serialize_namespace[idx:].strip(".").split(".")) + 1) + imported_namespace[idx:].strip(".")
+        return self._relative_import_path[key]
 
     @property
     def need_unique_model_alias(self) -> bool:
-        return self.options["enable_typespec_namespace"] and self.has_subnamespace
-
+        return self.has_subnamespace and self.options["enable_typespec_namespace"]
+    
     def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
         if not self.need_unique_model_alias:
             return "_models."
@@ -138,21 +140,19 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         if not self._client_namespace_types:
             for client in self.clients:
                 if client.client_namespace not in self._client_namespace_types:
-                    self._client_namespace_types[client.client_namespace] = ClientNamespaceType(client.client_namespace)
+                    self._client_namespace_types[client.client_namespace] = ClientNamespaceType()
                 self._client_namespace_types[client.client_namespace].clients.append(client)
             for model in self.model_types:
                 if model.client_namespace not in self._client_namespace_types:
-                    self._client_namespace_types[model.client_namespace] = ClientNamespaceType(model.client_namespace)
+                    self._client_namespace_types[model.client_namespace] = ClientNamespaceType()
                 self._client_namespace_types[model.client_namespace].models.append(model)
             for enum in self.enums:
                 if enum.client_namespace not in self._client_namespace_types:
-                    self._client_namespace_types[enum.client_namespace] = ClientNamespaceType(enum.client_namespace)
+                    self._client_namespace_types[enum.client_namespace] = ClientNamespaceType()
                 self._client_namespace_types[enum.client_namespace].enums.append(enum)
             for operation_group in get_all_operation_groups_recursively(self.clients):
                 if operation_group.client_namespace not in self._client_namespace_types:
-                    self._client_namespace_types[operation_group.client_namespace] = ClientNamespaceType(
-                        operation_group.client_namespace
-                    )
+                    self._client_namespace_types[operation_group.client_namespace] = ClientNamespaceType()
                 self._client_namespace_types[operation_group.client_namespace].operation_groups.append(operation_group)
 
             if len(self._client_namespace_types.keys()) > 1:
@@ -164,7 +164,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             for idx in range(len(namespace_parts) + 1):
                 namespace = ".".join(namespace_parts[:idx])
                 if namespace not in self._client_namespace_types:
-                    self._client_namespace_types[namespace] = ClientNamespaceType(namespace)
+                    self._client_namespace_types[namespace] = ClientNamespaceType()
         return self._client_namespace_types
 
     @property
@@ -227,9 +227,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             name = "operations"
             client_namespace_type = self.client_namespace_types.get(client_namespace)
             operation_groups = client_namespace_type.operation_groups if client_namespace_type else []
-            if self.options["version_tolerant"] and not any(
-                og for client in self.clients for og in operation_groups if not og.is_mixin
-            ):
+            if self.options["version_tolerant"] and all(og.is_mixin for og in operation_groups):
                 name = f"_{name}"
             self._operations_folder_name[client_namespace] = name
         return self._operations_folder_name[client_namespace]

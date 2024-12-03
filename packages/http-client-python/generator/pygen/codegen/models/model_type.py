@@ -307,9 +307,8 @@ class GeneratedModelType(ModelType):
             relative_path,
             "models",
             ImportType.LOCAL,
-            alias="_models",
-            typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),  # TODO,
-            client_namespace=self.client_namespace,
+            alias=self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
+            typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
         )
         if self.is_form_data:
             file_import.add_submodule_import(
