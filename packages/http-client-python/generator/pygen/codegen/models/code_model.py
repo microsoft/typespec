@@ -15,6 +15,7 @@ from .operation_group import OperationGroup
 from .utils import NamespaceType
 from ..serializers.utils import get_all_operation_groups_recursively
 
+
 def _is_legacy(options) -> bool:
     return not (options.get("version_tolerant") or options.get("low_level_client"))
 
@@ -94,7 +95,14 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     # |azure.test.aio.operations | azure.test     | ...                  |
     # |azure.test.subtest.aio.operations|azure.test| ....                |
     # |azure.test            |azure.test.subtest  | .subtest             |
-    def get_relative_import_path(self, serialize_namespace: str, imported_namespace: Optional[str] = None, *, namespace_type: NamespaceType = NamespaceType.MODEL, async_mode: bool = False) -> str:
+    def get_relative_import_path(
+        self,
+        serialize_namespace: str,
+        imported_namespace: Optional[str] = None,
+        *,
+        namespace_type: NamespaceType = NamespaceType.MODEL,
+        async_mode: bool = False,
+    ) -> str:
         if imported_namespace is None:
             imported_namespace = self.namespace
         else:
@@ -142,12 +150,14 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
                 self._client_namespace_types[enum.client_namespace].enums.append(enum)
             for operation_group in get_all_operation_groups_recursively(self.clients):
                 if operation_group.client_namespace not in self._client_namespace_types:
-                    self._client_namespace_types[operation_group.client_namespace] = ClientNamespaceType(operation_group.client_namespace)
+                    self._client_namespace_types[operation_group.client_namespace] = ClientNamespaceType(
+                        operation_group.client_namespace
+                    )
                 self._client_namespace_types[operation_group.client_namespace].operation_groups.append(operation_group)
-            
+
             if len(self._client_namespace_types.keys()) > 1:
                 self.has_subnamespace = True
-            
+
             # insert namespace to make sure it is continuous(e.g. ("", "azure", "azure.mgmt", "azure.mgmt.service", ...))
             longest_namespace = sorted(self._client_namespace_types.keys())[-1]
             namespace_parts = longest_namespace.split(".")
@@ -224,14 +234,16 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             self._operations_folder_name[client_namespace] = name
         return self._operations_folder_name[client_namespace]
 
-    def get_serialize_namespace(self, client_namespace: str, async_mode: bool = False, namespace_type: NamespaceType = NamespaceType.NONE) -> str:
+    def get_serialize_namespace(
+        self, client_namespace: str, async_mode: bool = False, namespace_type: NamespaceType = NamespaceType.NONE
+    ) -> str:
         if namespace_type == NamespaceType.NONE:
             return client_namespace + (".aio" if async_mode else "")
         if namespace_type == NamespaceType.MODEL:
             return client_namespace + ".models"
 
         operations_folder_name = self.operations_folder_name(client_namespace)
-        return client_namespace + (".aio." if async_mode else ".") + + operations_folder_name
+        return client_namespace + (".aio." if async_mode else ".") + +operations_folder_name
 
     @property
     def description(self) -> str:

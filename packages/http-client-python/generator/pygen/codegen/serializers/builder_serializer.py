@@ -946,7 +946,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 pylint_disable = "  # pylint: disable=protected-access"
             if self.code_model.options["models_mode"] == "msrest":
                 deserialize_code.append("deserialized = self._deserialize(")
-                deserialize_code.append(f"    '{response.serialization_type(serialize_namespace=self.serialize_namespace)}',{pylint_disable}")
+                deserialize_code.append(
+                    f"    '{response.serialization_type(serialize_namespace=self.serialize_namespace)}',{pylint_disable}"
+                )
                 deserialize_code.append(" pipeline_response.http_response")
                 deserialize_code.append(")")
             elif self.code_model.options["models_mode"] == "dpg":
@@ -1102,7 +1104,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 if isinstance(e.type, ModelType):
                     if self.code_model.options["models_mode"] == "msrest":
                         error_model_str = (
-                            f", model=self._deserialize(" f"{e.type.serialization_type(serialize_namespace=self.serialize_namespace)}, response)"
+                            f", model=self._deserialize("
+                            f"{e.type.serialization_type(serialize_namespace=self.serialize_namespace)}, response)"
                         )
                     elif self.code_model.options["models_mode"] == "dpg":
                         error_model_str = f", model=_deserialize(_models.{e.type.name}, response.json())"

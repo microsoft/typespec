@@ -287,15 +287,9 @@ class FileImport:
                 self.add_submodule_import(relative_path, "_serialization", ImportType.LOCAL, typing_section)
             else:
                 self.add_submodule_import(
-                    f"{relative_path}._serialization",
-                    "Serializer",
-                    ImportType.LOCAL,
-                    typing_section
+                    f"{relative_path}._serialization", "Serializer", ImportType.LOCAL, typing_section
                 )
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
                     self.add_submodule_import(
-                        f"{relative_path}._serialization",
-                        "Deserializer",
-                        ImportType.LOCAL,
-                        typing_section
+                        f"{relative_path}._serialization", "Deserializer", ImportType.LOCAL, typing_section
                     )

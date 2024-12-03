@@ -36,9 +36,7 @@ async def test_client_signature(credential, authentication_policy):
         # make sure signautre order is correct
         await client.top_level.get(RESOURCE_GROUP_NAME, "top")
         # make sure signautre name is correct
-        await client.top_level.get(
-            resource_group_name=RESOURCE_GROUP_NAME, top_level_tracked_resource_name="top"
-        )
+        await client.top_level.get(resource_group_name=RESOURCE_GROUP_NAME, top_level_tracked_resource_name="top")
 
 
 @pytest.mark.asyncio

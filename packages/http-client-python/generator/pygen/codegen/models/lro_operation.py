@@ -133,7 +133,11 @@ class LROOperationBase(OperationBase[LROResponseType]):
             # used in the case if initial operation returns none
             # but final call returns a model
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-            file_import.add_submodule_import(f"{self.code_model.get_relative_import_path(serialize_namespace)}._model_base", "_deserialize", ImportType.LOCAL)
+            file_import.add_submodule_import(
+                f"{self.code_model.get_relative_import_path(serialize_namespace)}._model_base",
+                "_deserialize",
+                ImportType.LOCAL,
+            )
         file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
         file_import.add_submodule_import("typing", "cast", ImportType.STDLIB)
         return file_import

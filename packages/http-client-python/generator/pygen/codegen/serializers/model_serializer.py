@@ -12,6 +12,7 @@ from .import_serializer import FileImportSerializer
 from .base_serializer import BaseSerializer
 from ..models.utils import NamespaceType
 
+
 def _documentation_string(prop: Property, description_keyword: str, docstring_type_keyword: str) -> List[str]:
     retval: List[str] = []
     sphinx_prefix = f":{description_keyword} {prop.client_name}:"
@@ -131,6 +132,7 @@ class _ModelSerializer(BaseSerializer, ABC):
     def serialize_namespace(self) -> str:
         return self.code_model.get_serialize_namespace(self.client_namespace, namespace_type=NamespaceType.MODEL)
 
+
 class MsrestModelSerializer(_ModelSerializer):
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
@@ -213,7 +215,7 @@ class DpgModelSerializer(_ModelSerializer):
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import(
-            self.code_model.get_relative_import_path(self.serialize_namespace)
+            self.code_model.get_relative_import_path(self.serialize_namespace),
             "_model_base",
             ImportType.LOCAL,
             TypingSection.REGULAR,

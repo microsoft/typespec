@@ -14,7 +14,14 @@ from ..models import (
 class BaseSerializer:
     """Base serializer for SDK root level files"""
 
-    def __init__(self, code_model: CodeModel, env: Environment, async_mode: bool = False, *, client_namespace: Optional[str] = None):
+    def __init__(
+        self,
+        code_model: CodeModel,
+        env: Environment,
+        async_mode: bool = False,
+        *,
+        client_namespace: Optional[str] = None
+    ):
         self.code_model = code_model
         self.env = env
         self.async_mode = async_mode

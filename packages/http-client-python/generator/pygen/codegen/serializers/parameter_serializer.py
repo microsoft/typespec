@@ -52,7 +52,7 @@ SPECIAL_HEADER_SERIALIZATION: Dict[str, List[str]] = {
 
 
 class ParameterSerializer:
-    
+
     def __init__(self, serialize_namespace: str) -> None:
         self.serialize_namespace = serialize_namespace
 

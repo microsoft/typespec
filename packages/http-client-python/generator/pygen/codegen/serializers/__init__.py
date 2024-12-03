@@ -66,6 +66,7 @@ def _sample_output_path(source_file_path: str) -> Path:
         return Path("/".join([to_snake_case(i) for i in after_examples.parts]))
     return Path("")
 
+
 class JinjaSerializer(ReaderAndWriter):
     def __init__(
         self,
@@ -99,53 +100,59 @@ class JinjaSerializer(ReaderAndWriter):
 
         for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
             if client_namespace == "":
-              # Write the setup file
-              if self.code_model.options["basic_setup_py"]:
-                  self.write_file(self.exec_path(client_namespace) / Path("setup.py"), general_serializer.serialize_setup_file())
+                # Write the setup file
+                if self.code_model.options["basic_setup_py"]:
+                    self.write_file(
+                        self.exec_path(client_namespace) / Path("setup.py"), general_serializer.serialize_setup_file()
+                    )
 
-              # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
-              self._serialize_and_write_package_files(client_namespace)
+                # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
+                self._serialize_and_write_package_files(client_namespace)
 
-              # add generated samples and generated tests
-              if (
-                  self.code_model.options["show_operations"]
-                  and self.code_model.has_operations
-              ):
-                  if self.code_model.options["generate_sample"]:
-                    self._serialize_and_write_sample(env, namespace=client_namespace)
-                  if self.code_model.options["generate_test"]:
-                    self._serialize_and_write_test(env, namespace=client_namespace)
+                # add generated samples and generated tests
+                if self.code_model.options["show_operations"] and self.code_model.has_operations:
+                    if self.code_model.options["generate_sample"]:
+                        self._serialize_and_write_sample(env, namespace=client_namespace)
+                    if self.code_model.options["generate_test"]:
+                        self._serialize_and_write_test(env, namespace=client_namespace)
             elif client_namespace_type.clients:
-              # add clients folder if there are clients in this namespace
-              self._serialize_client_and_config_files(client_namespace, general_serializer, client_namespace_type.clients, env)
+                # add clients folder if there are clients in this namespace
+                self._serialize_client_and_config_files(
+                    client_namespace, general_serializer, client_namespace_type.clients, env
+                )
             else:
-              # add pkgutil init file if no clients in this namespace
-              self.write_file(
-                self.exec_path(client_namespace) / Path("__init__.py"),
-                general_serializer.serialize_pkgutil_init_file(),
-            )
-            
+                # add pkgutil init file if no clients in this namespace
+                self.write_file(
+                    self.exec_path(client_namespace) / Path("__init__.py"),
+                    general_serializer.serialize_pkgutil_init_file(),
+                )
+
             # _model_base.py/_serialization.py/_vendor.py/py.typed/_types.py/_validation.py is always put in top level namespace
             if client_namespace == self.code_model.namespace:
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
-            
+
             # add models folder if there are models in this namespace
             if (client_namespace_type.models or client_namespace_type.enums) and self.code_model.options["models_mode"]:
-                self._serialize_and_write_models_folder(env=env, namespace=client_namespace, models=client_namespace_type.models, enums=client_namespace_type.enums)
-                    
+                self._serialize_and_write_models_folder(
+                    env=env,
+                    namespace=client_namespace,
+                    models=client_namespace_type.models,
+                    enums=client_namespace_type.enums,
+                )
+
             if not self.code_model.options["models_mode"]:
                 # keep models file if users ended up just writing a models file
                 model_path = self.exec_path(client_namespace) / Path("models.py")
                 if self.read_file(model_path):
-                    self.write_file(model_path, self.read_file(model_path))   
-          
+                    self.write_file(model_path, self.read_file(model_path))
+
             # add operations folder if there are operations in this namespace
             if client_namespace_type.operation_groups:
-                self._serialize_and_write_operations_folder(client_namespace_type.operation_groups, env=env, namespace=client_namespace)
+                self._serialize_and_write_operations_folder(
+                    client_namespace_type.operation_groups, env=env, namespace=client_namespace
+                )
                 if self.code_model.options["multiapi"]:
                     self._serialize_and_write_metadata(env=env, namespace=client_namespace)
-
-
 
     def _serialize_and_write_package_files(self, namespace: str) -> None:
         root_of_sdk = self.exec_path(namespace)
@@ -187,7 +194,9 @@ class JinjaSerializer(ReaderAndWriter):
                 PatchSerializer(env=env, code_model=self.code_model).serialize(),
             )
 
-    def _serialize_and_write_models_folder(self, env: Environment, namespace: str, models: List[ModelType], enums: List[EnumType]) -> None:
+    def _serialize_and_write_models_folder(
+        self, env: Environment, namespace: str, models: List[ModelType], enums: List[EnumType]
+    ) -> None:
         # Write the models folder
         models_namespace = namespace + ".models"
         models_path = self.exec_path(models_namespace)
@@ -208,7 +217,6 @@ class JinjaSerializer(ReaderAndWriter):
         )
 
         self._keep_patch_file(models_path / Path("_patch.py"), env)
-        
 
     def _serialize_and_write_rest_layer(self, env: Environment, namespace_path: Path) -> None:
         rest_path = namespace_path / Path(self.code_model.rest_layer_name)
@@ -282,7 +290,6 @@ class JinjaSerializer(ReaderAndWriter):
                 operation_group_serializer.serialize(),
             )
 
-
     def _serialize_and_write_operations_folder(
         self, operation_groups: List[OperationGroup], env: Environment, namespace: str
     ) -> None:
@@ -323,6 +330,7 @@ class JinjaSerializer(ReaderAndWriter):
                     namespace=namespace,
                     operation_group=operation_group,
                 )
+
     def _serialize_and_write_version_file(
         self,
         namespace: str,
@@ -382,9 +390,7 @@ class JinjaSerializer(ReaderAndWriter):
         if self.has_aio_folder:
             self._keep_patch_file(self.exec_path(namespace) / Path("aio/_patch.py"), env)
 
-    def _serialize_and_write_top_level_folder(
-        self, env: Environment, namespace: str
-    ) -> None:
+    def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
         # write _vendor.py
@@ -411,7 +417,7 @@ class JinjaSerializer(ReaderAndWriter):
                 self.exec_path(namespace) / Path("_serialization.py"),
                 general_serializer.serialize_serialization_file(),
             )
-        
+
         # write _model_base.py
         if self.code_model.options["models_mode"] == "dpg":
             self.write_file(
@@ -456,9 +462,13 @@ class JinjaSerializer(ReaderAndWriter):
 
     @property
     def _exec_path_implimentation(self) -> Path:
-        """ Assume the process is running in the root folder of the package. If not, we need the path implementation."""
-        return  Path("../" * (self._name_space().count(".") + 1)) if self.code_model.options["no_namespace_folders"] else Path(".")
-    
+        """Assume the process is running in the root folder of the package. If not, we need the path implementation."""
+        return (
+            Path("../" * (self._name_space().count(".") + 1))
+            if self.code_model.options["no_namespace_folders"]
+            else Path(".")
+        )
+
     def exec_path(self, namespace: str) -> Path:
         return self._exec_path_implimentation / Path(*namespace.split("."))
 

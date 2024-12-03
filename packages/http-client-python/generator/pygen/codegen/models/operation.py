@@ -247,10 +247,18 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 )
             )
         for response in self.responses:
-            file_import.merge(response.imports_for_multiapi(async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs))
+            file_import.merge(
+                response.imports_for_multiapi(
+                    async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs
+                )
+            )
         if self.code_model.options["models_mode"]:
             for exception in self.exceptions:
-                file_import.merge(exception.imports_for_multiapi(async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs))
+                file_import.merge(
+                    exception.imports_for_multiapi(
+                        async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs
+                    )
+                )
         return file_import
 
     @staticmethod
@@ -311,7 +319,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
     ) -> FileImport:
         if self.abstract:
             return FileImport(self.code_model)
-        
+
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import = self._imports_shared(async_mode, **kwargs)
 
@@ -324,13 +332,17 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 )
             )
         for response in self.responses:
-            file_import.merge(response.imports(async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs))
+            file_import.merge(
+                response.imports(async_mode=async_mode, need_import_iobase=self.need_import_iobase, **kwargs)
+            )
         if self.code_model.options["models_mode"]:
             for exception in self.exceptions:
                 file_import.merge(exception.imports(async_mode=async_mode, **kwargs))
 
         if self.parameters.has_body and self.parameters.body_parameter.flattened:
-            file_import.merge(self.parameters.body_parameter.type.imports(need_import_iobase=self.need_import_iobase, **kwargs))
+            file_import.merge(
+                self.parameters.body_parameter.type.imports(need_import_iobase=self.need_import_iobase, **kwargs)
+            )
         if not async_mode:
             for param in self.parameters.headers:
                 if param.wire_name.lower() == "repeatability-request-id":
@@ -387,8 +399,16 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 ImportType.SDKCORE,
             )
             if not async_mode:
-                file_import.add_submodule_import(f"{self.code_model.get_relative_import_path(serialize_namespace)}._vendor", "prep_if_match", ImportType.LOCAL)
-                file_import.add_submodule_import(f"{self.code_model.get_relative_import_path(serialize_namespace)}._vendor", "prep_if_none_match", ImportType.LOCAL)
+                file_import.add_submodule_import(
+                    f"{self.code_model.get_relative_import_path(serialize_namespace)}._vendor",
+                    "prep_if_match",
+                    ImportType.LOCAL,
+                )
+                file_import.add_submodule_import(
+                    f"{self.code_model.get_relative_import_path(serialize_namespace)}._vendor",
+                    "prep_if_none_match",
+                    ImportType.LOCAL,
+                )
         if async_mode:
             file_import.add_submodule_import(
                 "rest",

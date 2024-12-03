@@ -51,9 +51,12 @@ class OperationGroupsSerializer(BaseSerializer):
             and not r.abstract
             and not r.is_lro  # lro has already initial builder
         ]
+
     @property
     def serialize_namespace(self) -> str:
-        return self.code_model.get_serialize_namespace(self.client_namespace, async_mode=self.async_mode, namespace_type=NamespaceType.OPERATION)
+        return self.code_model.get_serialize_namespace(
+            self.client_namespace, async_mode=self.async_mode, namespace_type=NamespaceType.OPERATION
+        )
 
     def serialize(self) -> str:
         imports = FileImport(self.code_model)

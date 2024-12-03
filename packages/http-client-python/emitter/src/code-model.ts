@@ -30,7 +30,12 @@ import {
   simpleTypesMap,
   typesMap,
 } from "./types.js";
-import { emitParamBase, getImplementation, removeUnderscoresFromNamespace, getClientNamespace } from "./utils.js";
+import {
+  emitParamBase,
+  getClientNamespace,
+  getImplementation,
+  removeUnderscoresFromNamespace,
+} from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
@@ -195,7 +200,8 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
   // operation has same clientNamespace as the operation group
   for (const og of operationGroups) {
     for (const op of og.operations) {
-      op.clientNamespace = og.clientNamespace;
+      op.clientNamespace = getClientNamespace(context, og.clientNamespace);
+    }
   }
 
   return operationGroups.length > 0 ? operationGroups : undefined;

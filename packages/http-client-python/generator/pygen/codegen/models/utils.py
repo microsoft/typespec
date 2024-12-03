@@ -21,9 +21,10 @@ def add_to_pylint_disable(curr_str: str, entry: str) -> str:
         return f"{curr_str},{entry}"
     return f"  # pylint: disable={entry}"
 
+
 class NamespaceType(str, Enum):
     """Special signal for impports"""
+
     NONE = "none"
     MODEL = "model"
     OPERATION = "operation"
-
