@@ -14,6 +14,10 @@ import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<Client> {
   /**
+   * Get a client from a single namespace / interface
+   */
+  getClient(namespace: Namespace | Interface): Client;
+  /**
    * Get the constructor for a client. Will return the base intersection of all possible constructors.
    *
    * If you'd like to look at overloads, call `$.operation.getOverloads` on the result of this function.
@@ -48,8 +52,20 @@ declare module "@typespec/compiler/typekit" {
   interface TypekitPrototype extends TypeKit {}
 }
 
+function getClientName(name: string): string {
+  return name.endsWith("Client") ? name : `${name}Client`;
+}
+
 defineKit<TypeKit>({
   client: {
+    getClient(namespace) {
+      return {
+        kind: "Client",
+        name: getClientName(namespace.name),
+        service: namespace,
+        type: namespace,
+      } as Client;
+    },
     getConstructor(client) {
       const constructors = getConstructors(client);
       if (constructors.length === 1) {

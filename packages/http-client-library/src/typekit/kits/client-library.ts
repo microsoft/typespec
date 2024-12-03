@@ -60,20 +60,11 @@ defineKit<Typekit>({
       );
     },
     listClients(type) {
-      // if there is no explicit client, we will treat namespaces with service decorator as clients
-      function getClientName(name: string): string {
-        return name.endsWith("Client") ? name : `${name}Client`;
-      }
       if (type.kind === "Namespace") {
         const topLevelNamespaces = listServices($.program)
           .filter((i) => i.type === type)
           .map((sn) => {
-            return {
-              kind: "Client",
-              name: getClientName(sn.type.name),
-              service: sn.type,
-              type: sn.type,
-            } as Client;
+            return $.client.getClient(sn.type);
           });
         if (topLevelNamespaces.length !== 0) {
           // if we're trying to get top-level namespaces, we should return them
@@ -94,12 +85,7 @@ defineKit<Typekit>({
         subnamespaces.push(clientType);
       }
       return subnamespaces.map((sn) => {
-        return {
-          kind: "Client",
-          name: getClientName(sn.name),
-          service: sn,
-          type: sn,
-        } as Client;
+        return $.client.getClient(sn);
       });
     },
     listModels(namespace) {

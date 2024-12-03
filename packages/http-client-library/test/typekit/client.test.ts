@@ -285,7 +285,7 @@ describe("listServiceOperations", () => {
           op nestedServiceOp(): void;
         };
       }
-      `)) as { DemoService: Namespace, NestedService: Namespace };
+      `)) as { DemoService: Namespace; NestedService: Namespace };
 
     const demoServiceClient = $.clientLibrary.listClients(DemoService)[0];
     expect($.client.listServiceOperations(demoServiceClient)).toHaveLength(1);
@@ -295,4 +295,4 @@ describe("listServiceOperations", () => {
     expect($.client.listServiceOperations(nestedServiceClient)).toHaveLength(1);
     expect($.client.listServiceOperations(nestedServiceClient)[0].name).toEqual("nestedServiceOp");
   });
-})
+});
