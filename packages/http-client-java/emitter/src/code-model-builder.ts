@@ -2566,9 +2566,7 @@ export class CodeModelBuilder {
   }
 
   private logError(msg: string) {
-    if (this.loggingEnabled) {
-      logError(this.program, msg);
-    }
+    logError(this.program, msg);
   }
 
   private logWarning(msg: string) {
