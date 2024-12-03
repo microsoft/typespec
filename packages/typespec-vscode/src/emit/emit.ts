@@ -105,12 +105,14 @@ export async function doEmit(
   const all = [...recommendedEmitters].map((e) =>
     toQuickPickItem(e.language, e.package, true, false),
   );
-  const selectedEmitters = await vscode.window.showQuickPick<EmitQuickPickItem>(all, {
-    canPickMany: true,
-    placeHolder: "Select emitters to run",
+
+  const selectedEmitter = await vscode.window.showQuickPick<EmitQuickPickItem>(all, {
+    title: "Select a Language",
+    canPickMany: false,
+    placeHolder: "Pick a Language",
   });
 
-  if (!selectedEmitters || selectedEmitters.length === 0) {
+  if (!selectedEmitter) {
     logger.info("No emitters selected. Emit canceled.", [], {
       showOutput: false,
       showPopup: true,
@@ -141,6 +143,17 @@ export async function doEmit(
     return;
   }
 
+  /* config the output dir. */
+  const outputDirInput = await vscode.window.showInputBox({
+    placeHolder: `client/${selectedEmitter.language}`,
+    value: `client/${selectedEmitter.language}`,
+    prompt: `Please provide the output directory for ${selectedEmitter.language} SDK`,
+    validateInput: (text: string) => {
+      return text.trim() === "" ? "Input cannot be empty" : null;
+    },
+  });
+  selectedEmitter.outputDir = outputDirInput;
+
   /* config the emitter. */
   await vscode.window
     .showInformationMessage("configure the emitters in the tspConfig.yaml", "Yes", "No")
@@ -163,40 +176,6 @@ export async function doEmit(
       } else if (selection === "No") {
       }
     });
-
-  /*config the output dir for each selected sdk. */
-  const root = vscode.Uri.joinPath(context.extensionUri, "outputDir_view");
-  const panel = vscode.window.createWebviewPanel(
-    "Configure output directory", // Identifies the type of the webview. Used internally
-    "Configure output directory", // Title of the panel displayed to the user
-    vscode.ViewColumn.Beside, // Editor column to show the new webview panel in
-    {
-      retainContextWhenHidden: true,
-      enableScripts: true,
-      localResourceRoots: [root],
-    }, // Webview options. More on these later.
-  );
-
-  // And set its HTML content
-  panel.webview.html = getWebviewContent(selectedEmitters);
-
-  // Handle messages from the webview
-  const outputDirs = await new Promise<{}>((resolve) => {
-    panel.webview.onDidReceiveMessage(
-      async (message) => {
-        switch (message.command) {
-          case "submitValues":
-            resolve(message);
-            panel.dispose();
-        }
-      },
-      undefined,
-      context.subscriptions,
-    );
-  });
-
-  const outputDirsRecord: Record<string, string> = outputDirs;
-  selectedEmitters.forEach((e) => (e.outputDir = outputDirsRecord[e.language]));
 
   /* config the output dir one by one. */
   // for (const e of selectedEmitters) {
@@ -222,41 +201,42 @@ export async function doEmit(
   const npmUtil = new NpmUtil(baseDir);
 
   const packagesToInstall: string[] = [];
-  for (const e of selectedEmitters) {
-    /* install emitter package. */
-    logger.info(`select ${e.package}`);
-    const { action, version } = await npmUtil.ensureNpmPackageInstall(e.package, e.version);
-    /* TODO: check the dependent compiler version. */
-    if (action === InstallationAction.Upgrade) {
-      logger.info(`Upgrading ${e.package} to version ${version}`);
-      const options = {
-        ok: `OK (install ${e.package}@${version} by 'npm install'`,
-        recheck: `Check again (install ${e.package} manually)`,
-        ignore: `Ignore emitter ${e.label}`,
-        cancel: "Cancel",
-      };
-      const selected = await vscode.window.showQuickPick(Object.values(options), {
-        canPickMany: false,
-        ignoreFocusOut: true,
-        placeHolder: `Package '${e.package}' needs to be installed for emitting`,
-        title: `TypeSpec Emit...`,
-      });
-      if (selected === options.ok) {
-        packagesToInstall.push(`${e.package}@${version}`);
-      }
-    } else if (action === InstallationAction.Install) {
-      // logger.info(`Installing ${e.package} version ${version}`, [], {
-      //   showOutput: true,
-      //   showPopup: true,
-      //   progress: overallProgress,
-      // });
-      let packageFullName = e.package;
-      if (e.version) {
-        packageFullName = `${e.package}@${e.version}`;
-      }
-      logger.info(`Installing ${packageFullName}`);
-      packagesToInstall.push(`${packageFullName}`);
+  /* install emitter package. */
+  logger.info(`select ${selectedEmitter.package}`);
+  const { action, version } = await npmUtil.ensureNpmPackageInstall(
+    selectedEmitter.package,
+    selectedEmitter.version,
+  );
+  /* TODO: check the dependent compiler version. */
+  if (action === InstallationAction.Upgrade) {
+    logger.info(`Upgrading ${selectedEmitter.package} to version ${version}`);
+    const options = {
+      ok: `OK (install ${selectedEmitter.package}@${version} by 'npm install'`,
+      recheck: `Check again (install ${selectedEmitter.package} manually)`,
+      ignore: `Ignore emitter ${selectedEmitter.label}`,
+      cancel: "Cancel",
+    };
+    const selected = await vscode.window.showQuickPick(Object.values(options), {
+      canPickMany: false,
+      ignoreFocusOut: true,
+      placeHolder: `Package '${selectedEmitter.package}' needs to be installed for emitting`,
+      title: `TypeSpec Emit...`,
+    });
+    if (selected === options.ok) {
+      packagesToInstall.push(`${selectedEmitter.package}@${version}`);
     }
+  } else if (action === InstallationAction.Install) {
+    // logger.info(`Installing ${e.package} version ${version}`, [], {
+    //   showOutput: true,
+    //   showPopup: true,
+    //   progress: overallProgress,
+    // });
+    let packageFullName = selectedEmitter.package;
+    if (selectedEmitter.version) {
+      packageFullName = `${selectedEmitter.package}@${selectedEmitter.version}`;
+    }
+    logger.info(`Installing ${packageFullName}`);
+    packagesToInstall.push(`${packageFullName}`);
   }
 
   /* npm install packages. */
@@ -286,15 +266,6 @@ export async function doEmit(
       return;
     }
   }
-  // const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall);
-  // if (npmInstallResult.exitCode !== 0) {
-  //   logger.error(`Error occurred when installing packages: ${npmInstallResult.stderr}`, [], {
-  //     showOutput: true,
-  //     showPopup: true,
-  //     progress: overallProgress,
-  //   });
-  //   return;
-  // }
 
   /* emit */
   logger.info("Emit code ...", [], {
@@ -313,77 +284,37 @@ export async function doEmit(
     });
     return;
   }
-  for (const e of selectedEmitters) {
-    let outputDir = path.resolve(baseDir, "tsp-output", e.language);
-    if (e.outputDir) {
-      if (!path.isAbsolute(e.outputDir)) {
-        outputDir = path.resolve(baseDir, e.outputDir);
-      } else {
-        outputDir = e.outputDir;
-      }
+  let outputDir = path.resolve(baseDir, "tsp-output", selectedEmitter.language);
+  if (selectedEmitter.outputDir) {
+    if (!path.isAbsolute(selectedEmitter.outputDir)) {
+      outputDir = path.resolve(baseDir, selectedEmitter.outputDir);
+    } else {
+      outputDir = selectedEmitter.outputDir;
     }
-
-    const options: Record<string, string> = {};
-    options["emitter-output-dir"] = outputDir;
-    logger.info(`Generate Client SDK for ${e.language} ...`, [], {
-      showOutput: false,
-      showPopup: true,
-      progress: overallProgress,
-    });
-    const compileResult = await compile(cli, startFile, e.package, options);
-    if (compileResult.exitCode !== 0) {
-      logger.error(
-        `Failed to generate Client SDK for ${e.language}. error: ${compileResult.error}`,
-        [],
-        {
-          showOutput: false,
-          showPopup: true,
-          progress: overallProgress,
-        },
-      );
-    }
-    logger.info(`complete generating ${e.language} SDK.`);
-
-    /*TODO: build sdk. */
-  }
-}
-
-function getWebviewContent(selectedEmitters: EmitQuickPickItem[]): string {
-  let body = "";
-  let script = "";
-  let directories = "";
-  for (const e of selectedEmitters) {
-    body += `<label for="${e.language}" width="150" align="left">${e.language}:</label>
-    <input type="text" id="${e.language}" name="${e.language}"><br><br>`;
-    script += `const ${e.language} = document.getElementById('${e.language}').value;`;
-    directories += `${e.language}: ${e.language},`;
   }
 
-  script += `vscode.postMessage({ command: "submitValues", ${directories} });`;
+  const options: Record<string, string> = {};
+  options["emitter-output-dir"] = outputDir;
+  logger.info(`Generate Client SDK for ${selectedEmitter.language} ...`, [], {
+    showOutput: false,
+    showPopup: true,
+    progress: overallProgress,
+  });
+  const compileResult = await compile(cli, startFile, selectedEmitter.package, options);
+  if (compileResult.exitCode !== 0) {
+    logger.error(
+      `Failed to generate Client SDK for ${selectedEmitter.language}. error: ${compileResult.error}`,
+      [],
+      {
+        showOutput: false,
+        showPopup: true,
+        progress: overallProgress,
+      },
+    );
+  }
+  logger.info(`complete generating ${selectedEmitter.language} SDK.`);
 
-  return `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Configure Output Directory</title>
-      </head>
-      <body width="200">
-          <h1>Configure output directory for each language SDK</h1>
-          <form id="inputForm">
-              ${body}
-              <button type="button" onclick="submitValues()">Submit</button>
-          </form>
-          <script>
-              const vscode = acquireVsCodeApi();
-              function submitValues() {
-                  ${script}
-              }
-          </script>
-      </body>
-      </html>
-  `;
+  /*TODO: build sdk. */
 }
 
 export async function compile(
