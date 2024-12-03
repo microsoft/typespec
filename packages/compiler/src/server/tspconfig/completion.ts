@@ -118,27 +118,26 @@ export async function provideTspconfigCompletionItems(
         const linters = await libProvider.listLibraries(tspConfigFile);
         const items: CompletionItem[] = [];
         for (const [name, pkg] of Object.entries(linters)) {
-          if (!siblings.includes(name)) {
-            // If a ruleSet exists for the linter, add it to the end of the library name.
-            const exports = await pkg.getModuleExports();
-            let additionalContent: string = "";
-            if (exports?.$linter?.ruleSets !== undefined) {
-              additionalContent = Object.keys(exports?.$linter?.ruleSets)[0];
-            }
-
-            const labelName =
-              additionalContent.length === 0 ? name : `${name}/${additionalContent}`;
-            const newText = getNewTextValue(sourceQuoteType, labelName);
-
-            const item: CompletionItem = {
-              label: labelName,
-              kind: CompletionItemKind.Field,
-              documentation:
-                (await pkg.getPackageJsonData())?.description ?? `Linters from ${name}`,
-              textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
-            };
-            items.push(item);
+          // If a ruleSet exists for the linter, add it to the end of the library name.
+          const exports = await pkg.getModuleExports();
+          let additionalContent: string = "";
+          if (exports?.$linter?.ruleSets !== undefined) {
+            additionalContent = Object.keys(exports?.$linter?.ruleSets)[0];
           }
+
+          const labelName = additionalContent.length === 0 ? name : `${name}/${additionalContent}`;
+          if (siblings.includes(labelName)) {
+            continue;
+          }
+
+          const newText = getNewTextValue(sourceQuoteType, labelName);
+          const item: CompletionItem = {
+            label: labelName,
+            kind: CompletionItemKind.Field,
+            documentation: (await pkg.getPackageJsonData())?.description ?? `Linters from ${name}`,
+            textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
+          };
+          items.push(item);
         }
         return items;
       } else {
@@ -312,7 +311,12 @@ export async function provideTspconfigCompletionItems(
                 const item: CompletionItem = {
                   label: key,
                   kind: CompletionItemKind.Field,
-                  documentation: cur.properties[key].description,
+                  documentation:
+                    cur.properties[key].description !== undefined
+                      ? cur.required?.includes(key)
+                        ? "[required]\n" + cur.properties[key].description
+                        : "[optional]\n" + cur.properties[key].description
+                      : "",
                 };
                 return item;
               });
