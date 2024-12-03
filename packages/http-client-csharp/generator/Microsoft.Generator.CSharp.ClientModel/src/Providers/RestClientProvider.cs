@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private Dictionary<InputOperation, MethodProvider>? _methodCache;
         private Dictionary<InputOperation, MethodProvider> MethodCache => _methodCache ??= [];
 
-        private readonly Dictionary<string, PropertyProvider> _pipelineMessage20xClassifiers;
+        private readonly Dictionary<List<int>, PropertyProvider> _pipelineMessage20xClassifiers;
         private readonly InputClient _inputClient;
 
         public RestClientProvider(InputClient inputClient, ClientProvider clientProvider)
@@ -48,29 +48,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override PropertyProvider[] BuildProperties()
         {
-            List<PropertyProvider> pipelineMessage20xClassifiersProperties = new(_pipelineMessage20xClassifiers.Count);
-            var orderedClassifierNameSuffixes = _pipelineMessage20xClassifiers.Keys.OrderBy(k => k);
-
-            foreach (var classifierNameSuffix in orderedClassifierNameSuffixes)
-            {
-                var classifierProperty = _pipelineMessage20xClassifiers[classifierNameSuffix];
-                if (classifierProperty.BackingField != null)
-                {
-                    pipelineMessage20xClassifiersProperties.Add(classifierProperty);
-                }
-            }
-
-            return [.. pipelineMessage20xClassifiersProperties];
+            return [.. _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name)];
         }
 
         protected override FieldProvider[] BuildFields()
         {
             List<FieldProvider> pipelineMessage20xClassifiersFields = new(_pipelineMessage20xClassifiers.Count);
-            var orderedClassifierNameSuffixes = _pipelineMessage20xClassifiers.Keys.OrderBy(k => k);
+            var orderedClassifierProperties = _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name);
 
-            foreach (var classifierNameSuffix in orderedClassifierNameSuffixes)
+            foreach (var classifierProperty in orderedClassifierProperties)
             {
-                var classifierProperty = _pipelineMessage20xClassifiers[classifierNameSuffix];
                 if (classifierProperty.BackingField != null)
                 {
                     pipelineMessage20xClassifiersFields.Add(classifierProperty.BackingField);
@@ -145,15 +132,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return contentParam is null ? [] : [request.Content().Assign(contentParam).Terminate()];
         }
 
-        private Dictionary<string, PropertyProvider> BuildPipelineMessage20xClassifiers()
+        private Dictionary<List<int>, PropertyProvider> BuildPipelineMessage20xClassifiers()
         {
-            // Contains a mapping of classifier status code suffixes to their corresponding pipeline message classifier property
-            Dictionary<string, PropertyProvider> classifiers = [];
+            // Contains a mapping of classifier status codes to their corresponding pipeline message classifier property
+            Dictionary<List<int>, PropertyProvider> classifiers = new(new StatusCodesComparer());
 
             foreach (var inputOperation in _inputClient.Operations)
             {
-                if (TryGetPipelineMessageClassifierSuffix(inputOperation, out var classifierNameSuffix) &&
-                    !classifiers.ContainsKey(classifierNameSuffix))
+                var statusCodes = GetSuccessStatusCodes(inputOperation);
+                if (TryGetPipelineMessageClassifierSuffix(inputOperation, out var classifierNameSuffix)
+                    && !classifiers.ContainsKey(statusCodes))
                 {
                     var classifierBackingField = new FieldProvider(
                         FieldModifiers.Private | FieldModifiers.Static,
@@ -173,7 +161,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         BackingField = classifierBackingField
                     };
 
-                    classifiers[classifierNameSuffix] = classifierProperty;
+                    classifiers[statusCodes] = classifierProperty;
                 }
             }
 
@@ -182,8 +170,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private PropertyProvider GetClassifier(InputOperation operation)
         {
-            if (TryGetPipelineMessageClassifierSuffix(operation, out var classifierSuffix) &&
-                _pipelineMessage20xClassifiers.TryGetValue(classifierSuffix, out var classifier))
+            if (_pipelineMessage20xClassifiers.TryGetValue(GetSuccessStatusCodes(operation), out var classifier))
             {
                 return classifier;
             }
@@ -651,6 +638,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             CreateRequest,
             Protocol,
             Convenience
+        }
+
+        private class StatusCodesComparer : IEqualityComparer<List<int>>
+        {
+            bool IEqualityComparer<List<int>>.Equals(List<int>? x, List<int>? y)
+            {
+                return x != null && y != null && x.SequenceEqual(y);
+            }
+
+            int IEqualityComparer<List<int>>.GetHashCode(List<int> obj)
+            {
+                HashCode hash = new();
+                foreach (var item in obj)
+                {
+                    hash.Add(item);
+                }
+                return hash.ToHashCode();
+            }
         }
     }
 }
