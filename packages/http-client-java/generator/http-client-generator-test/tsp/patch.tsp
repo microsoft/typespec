@@ -13,7 +13,7 @@ using TypeSpec.Versioning;
   title: "Patch",
 })
 @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-namespace Cadl.Patch;
+namespace TspTest.Patch;
 
 @resource("resources")
 model Resource {

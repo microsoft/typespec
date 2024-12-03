@@ -327,7 +327,7 @@ class StringType(PrimitiveType):
         return validation or None
 
     def get_declaration(self, value) -> str:
-        return f'"{value}"'
+        return f"'{value}'" if value == '"' else f'"{value}"'
 
     def serialization_type(self, **kwargs: Any) -> str:
         return "str"

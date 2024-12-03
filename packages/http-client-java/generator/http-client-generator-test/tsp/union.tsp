@@ -21,7 +21,7 @@ using Azure.ClientGenerator.Core;
   }
 )
 @versioned(ServiceApiVersions)
-namespace Cadl.Union;
+namespace TspTest.Union;
 
 enum ServiceApiVersions {
   @useDependency(Azure.Core.Versions.v1_0_Preview_2)

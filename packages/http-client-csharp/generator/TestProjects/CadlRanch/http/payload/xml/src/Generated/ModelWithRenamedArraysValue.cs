@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using Payload.Xml.Models;
 
@@ -21,7 +22,7 @@ namespace Payload.Xml
 
         public virtual ClientResult<ModelWithRenamedArrays> Get() => throw null;
 
-        public virtual Task<ClientResult<ModelWithRenamedArrays>> GetAsync() => throw null;
+        public virtual Task<ClientResult<ModelWithRenamedArrays>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -29,6 +30,6 @@ namespace Payload.Xml
 
         public virtual ClientResult Put(ModelWithRenamedArrays input) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(ModelWithRenamedArrays input) => throw null;
+        public virtual Task<ClientResult> PutAsync(ModelWithRenamedArrays input, CancellationToken cancellationToken = default) => throw null;
     }
 }

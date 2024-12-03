@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "tsBuildInfoFile": "temp/.tsbuildinfo",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
+    "lib": ["DOM"],
+    "types": ["@emotion/react"]
+  },
+  "references": [{ "path": "../spec-coverage-sdk/tsconfig.build.json" }],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "src/main.tsx", "vite.config.ts"]
+}
