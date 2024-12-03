@@ -75,15 +75,6 @@ export const $extension: ExtensionDecorator = (
     return;
   }
 
-  if (extensionName !== "uniqueItems" && value === undefined) {
-    reportDiagnostic(context.program, {
-      code: "missing-extension-value",
-      format: { extension: extensionName },
-      target: entity,
-    });
-    return;
-  }
-
   const [data, diagnostics] = typespecTypeToJson(value, entity);
   const numberExtensions = ["minProperties", "maxProperties", "multipleOf"];
   if (numberExtensions.includes(extensionName) && isNaN(Number(data))) {

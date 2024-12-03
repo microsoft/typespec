@@ -10,12 +10,6 @@ export const $lib = createTypeSpecLibrary({
         decorator: paramMessage`Extension decorator only support minProperties/maxProperties/uniqueItems/multipleOf/'x-' but was '${"value"}'`,
       },
     },
-    "missing-extension-value": {
-      severity: "error",
-      messages: {
-        default: paramMessage`Extension should have a value for '${"extension"}'`,
-      },
-    },
     "invalid-extension-value": {
       severity: "error",
       messages: {
