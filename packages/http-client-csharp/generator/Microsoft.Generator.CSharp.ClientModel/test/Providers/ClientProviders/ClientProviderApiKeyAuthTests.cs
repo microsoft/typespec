@@ -77,7 +77,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             if (containsAdditionalParams)
             {
                 Assert.AreEqual(6, fields.Count);
-
             }
             else
             {
