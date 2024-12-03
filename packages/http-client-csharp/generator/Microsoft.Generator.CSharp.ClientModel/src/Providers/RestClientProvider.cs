@@ -140,9 +140,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             foreach (var inputOperation in _inputClient.Operations)
             {
                 var statusCodes = GetSuccessStatusCodes(inputOperation);
-                if (TryGetPipelineMessageClassifierSuffix(inputOperation, out var classifierNameSuffix)
-                    && !classifiers.ContainsKey(statusCodes))
+                if (statusCodes.Count > 0 && !classifiers.ContainsKey(statusCodes))
                 {
+                    var classifierNameSuffix = string.Join(string.Empty, statusCodes);
                     var classifierBackingField = new FieldProvider(
                         FieldModifiers.Private | FieldModifiers.Static,
                         ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
@@ -475,19 +475,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             parameterProvider = null;
-            return false;
-        }
-
-        private static bool TryGetPipelineMessageClassifierSuffix(InputOperation operation, [NotNullWhen(true)] out string? classifierSuffix)
-        {
-            var successStatusCodes = GetSuccessStatusCodes(operation);
-            if (successStatusCodes.Count > 0)
-            {
-                classifierSuffix = string.Join(string.Empty, successStatusCodes);
-                return true;
-            }
-
-            classifierSuffix = null;
             return false;
         }
 
