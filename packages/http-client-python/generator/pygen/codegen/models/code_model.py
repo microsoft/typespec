@@ -97,12 +97,12 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     # | serialize_namespace  | imported_namespace   | relative_import_path |
     # |----------------------|----------------------|----------------------|
-    # |azure.test.operations | azure.test.operations| ..                 |
+    # |azure.test.operations | azure.test.operations| .                    |
     # |azure.test.operations | azure.test           | ..                   |
     # |azure.test.operations | azure.test.subtest   | ..subtest            |
     # |azure.test.operations | azure                | ...                  |
     # |azure.test.aio.operations | azure.test       | ...                  |
-    # |azure.test.subtest.aio.operations|azure.test | ....                |
+    # |azure.test.subtest.aio.operations|azure.test | ....                 |
     # |azure.test            |azure.test.subtest    | .subtest             |
     def get_relative_import_path(
         self,
@@ -148,7 +148,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
         if not self.need_unique_model_alias:
             return "_models"
-        relative_path = self.get_relative_import_path(serialize_namespace, imported_namespace)
+        relative_path = self.get_relative_import_path(serialize_namespace, imported_namespace, namespace_type=NamespaceType.MODEL)
         dot_num = max(relative_path.count(".") - 1, 0)
         parts = [""] + [p for p in relative_path.split(".") if p]
         return "_".join(parts) + str(dot_num)

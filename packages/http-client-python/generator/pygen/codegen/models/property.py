@@ -148,7 +148,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         file_import.merge(self.type.imports(**kwargs, model_typing=True))
         if self.optional and self.client_default_value is None:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
-        if self.code_model.options["models_mode"] == "dpg" and isinstance(self.type, ModelType):
+        if self.code_model.options["models_mode"] == "dpg":
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace, module_name="_model_base"),

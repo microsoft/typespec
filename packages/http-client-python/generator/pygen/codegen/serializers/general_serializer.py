@@ -68,7 +68,7 @@ class GeneralSerializer(BaseSerializer):
 
         imports = FileImport(self.code_model)
         for client in clients:
-            imports.merge(client.imports(self.async_mode, serliaze_namespace=self.serialize_namespace))
+            imports.merge(client.imports(self.async_mode, serialize_namespace=self.serialize_namespace))
 
         return template.render(
             code_model=self.code_model,

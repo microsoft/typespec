@@ -8,7 +8,7 @@ from typing import Any, Dict, TYPE_CHECKING, TypeVar, Generic, Union, List, Opti
 from .base import BaseModel
 from .parameter_list import ClientGlobalParameterList, ConfigGlobalParameterList
 from .imports import FileImport, ImportType, TypingSection, MsrestImportType
-from .utils import add_to_pylint_disable
+from .utils import add_to_pylint_disable, NamespaceType
 from .operation_group import OperationGroup
 from .request_builder import (
     RequestBuilder,
@@ -302,9 +302,10 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             ImportType.SDKCORE,
             TypingSection.CONDITIONAL,
         )
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         for og in self.operation_groups:
             file_import.add_submodule_import(
-                f"{self.code_model.operations_folder_name(og.client_namespace)}",
+                self.code_model.get_relative_import_path(serialize_namespace, og.client_namespace, async_mode=async_mode, namespace_type=NamespaceType.OPERATION),
                 og.class_name,
                 ImportType.LOCAL,
             )

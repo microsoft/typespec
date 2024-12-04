@@ -204,18 +204,17 @@ class JinjaSerializer(ReaderAndWriter):
         self, env: Environment, namespace: str, models: List[ModelType], enums: List[EnumType]
     ) -> None:
         # Write the models folder
-        models_namespace = namespace + ".models"
-        models_path = self.exec_path(models_namespace)
+        models_path = self.exec_path(namespace + ".models")
         serializer = DpgModelSerializer if self.code_model.options["models_mode"] == "dpg" else MsrestModelSerializer
         if models:
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
-                serializer(code_model=self.code_model, env=env, client_namespace=models_namespace).serialize(),
+                serializer(code_model=self.code_model, env=env, client_namespace=namespace).serialize(),
             )
         if enums:
             self.write_file(
                 models_path / Path(f"{self.code_model.enums_filename}.py"),
-                EnumSerializer(code_model=self.code_model, env=env, client_namespace=models_namespace).serialize(),
+                EnumSerializer(code_model=self.code_model, env=env, client_namespace=namespace).serialize(),
             )
         self.write_file(
             models_path / Path("__init__.py"),
@@ -338,7 +337,7 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         exec_path = self.exec_path(namespace)
         for async_mode, async_path in self.serialize_loop:
-            general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=async_mode)
+            general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace)
             # when there is client.py, there must be __init__.py
             self.write_file(
                 exec_path / Path(f"{async_path}__init__.py"),
@@ -364,58 +363,57 @@ class JinjaSerializer(ReaderAndWriter):
 
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
-        general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
-
+        exec_path = self.exec_path(namespace)
         # write _vendor.py
-        if self.code_model.need_vendored_code(async_mode=False):
-            self.write_file(
-                self.exec_path(namespace) / Path("_vendor.py"),
-                general_serializer.serialize_vendor_file(self.code_model.clients),
-            )
-        if self.code_model.need_vendored_code(async_mode=True):
-            self.write_file(
-                self.exec_path(namespace) / Path("aio/_vendor.py"),
-                general_serializer.serialize_vendor_file(self.code_model.clients),
-            )
+        for async_mode, async_path in self.serialize_loop:
+            if self.code_model.need_vendored_code(async_mode=async_mode):
+                self.write_file(
+                    exec_path / Path(f"{async_path}_vendor.py"),
+                    GeneralSerializer(code_model=self.code_model, env=env, async_mode=async_mode).serialize_vendor_file(
+                        self.code_model.clients
+                    )
+                )
+
+        general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 
         # write _version.py
         self._serialize_and_write_version_file(namespace, general_serializer)
 
         # write the empty py.typed file
-        self.write_file(self.exec_path(namespace) / Path("py.typed"), "# Marker file for PEP 561.")
+        self.write_file(exec_path / Path("py.typed"), "# Marker file for PEP 561.")
 
         # write _serialization.py
         if not self.code_model.options["client_side_validation"] and not self.code_model.options["multiapi"]:
             self.write_file(
-                self.exec_path(namespace) / Path("_serialization.py"),
+                exec_path / Path("_serialization.py"),
                 general_serializer.serialize_serialization_file(),
             )
 
         # write _model_base.py
         if self.code_model.options["models_mode"] == "dpg":
             self.write_file(
-                self.exec_path(namespace) / Path("_model_base.py"),
+                exec_path / Path("_model_base.py"),
                 general_serializer.serialize_model_base_file(),
             )
 
         # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
             self.write_file(
-                self.exec_path(namespace) / Path("_validation.py"),
+                exec_path / Path("_validation.py"),
                 general_serializer.serialize_validation_file(),
             )
 
         # write apiview_mapping_python.json
         if self.code_model.options.get("emit_cross_language_definition_file"):
             self.write_file(
-                self.exec_path(namespace) / Path("apiview_mapping_python.json"),
+                exec_path / Path("apiview_mapping_python.json"),
                 general_serializer.serialize_cross_language_definition_file(),
             )
 
         # write _types.py
         if self.code_model.named_unions:
             self.write_file(
-                self.exec_path(namespace) / Path("_types.py"),
+                exec_path / Path("_types.py"),
                 TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
 

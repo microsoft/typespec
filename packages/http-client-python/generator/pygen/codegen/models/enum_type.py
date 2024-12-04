@@ -235,8 +235,7 @@ class EnumType(BaseType):
                     alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
                 )
         file_import.merge(self.value_type.imports(**kwargs))
-        relative_path = kwargs.pop("relative_path", None)
-        if self.code_model.options["models_mode"] and relative_path:
+        if self.code_model.options["models_mode"]:
             # add import for enums in operations file
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),

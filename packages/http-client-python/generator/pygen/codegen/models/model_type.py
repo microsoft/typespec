@@ -7,7 +7,7 @@ from enum import Enum
 from collections import OrderedDict
 from typing import Any, Dict, List, Optional, TYPE_CHECKING, cast
 import sys
-from .utils import add_to_pylint_disable
+from .utils import add_to_pylint_disable, NamespaceType
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
@@ -301,10 +301,9 @@ class GeneratedModelType(ModelType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
         # add import for models in operations or _types file
         file_import.add_submodule_import(
-            relative_path,
+            self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
             "models",
             ImportType.LOCAL,
             alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
