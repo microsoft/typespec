@@ -444,6 +444,29 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestGetClientOptions(bool isSubClient)
+        {
+            string? parentClientName = null;
+            if (isSubClient)
+            {
+                parentClientName = "parent";
+            }
+
+            var client = InputFactory.Client(TestClientName, parent: parentClientName);
+            var clientProvider = new ClientProvider(client);
+
+            if (isSubClient)
+            {
+                Assert.IsNull(clientProvider?.ClientOptions);
+            }
+            else
+            {
+                Assert.IsNotNull(clientProvider?.ClientOptions);
+            }
+        }
+
         [TestCaseSource(nameof(SubClientFactoryMethodTestCases), Category = SubClientsCategory)]
         public void TestSubClientAccessorFactoryMethods(InputClient client, bool hasSubClients)
         {
@@ -475,29 +498,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             else
             {
                 Assert.AreEqual(0, subClientAccessorFactoryMethods.Count);
-            }
-        }
-
-        [TestCase(true)]
-        [TestCase(false)]
-        public void TestGetClientOptions(bool isSubClient)
-        {
-            string? parentClientName = null;
-            if (isSubClient)
-            {
-                parentClientName = "parent";
-            }
-
-            var client = InputFactory.Client(TestClientName, parent: parentClientName);
-            var clientProvider = new ClientProvider(client);
-
-            if (isSubClient)
-            {
-                Assert.IsNull(clientProvider?.ClientOptions);
-            }
-            else
-            {
-                Assert.IsNotNull(clientProvider?.ClientOptions);
             }
         }
 
@@ -753,118 +753,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             protected override PropertyProvider[] BuildProperties() => [];
         }
 
-        public static IEnumerable<TestCaseData> SubClientFactoryMethodTestCases
-        {
-            get
-            {
-                yield return new TestCaseData(InputFactory.Client(TestClientName), true);
-                yield return new TestCaseData(_animalClient, true);
-                yield return new TestCaseData(_dogClient, true);
-                yield return new TestCaseData(_huskyClient, false);
-            }
-        }
-
-        public static IEnumerable<TestCaseData> BuildConstructorsTestCases
-        {
-            get
-            {
-                yield return new TestCaseData(new List<InputParameter>
-                {
-                    InputFactory.Parameter(
-                        "optionalParam",
-                        InputPrimitiveType.String,
-                        location: RequestLocation.None,
-                        kind: InputOperationParameterKind.Client),
-                    InputFactory.Parameter(
-                        KnownParameters.Endpoint.Name,
-                        InputPrimitiveType.String,
-                        location: RequestLocation.None,
-                        defaultValue: InputFactory.Constant.String("someValue"),
-                        kind: InputOperationParameterKind.Client,
-                        isEndpoint: true)
-                });
-                // scenario where endpoint is required
-                yield return new TestCaseData(new List<InputParameter>
-                {
-                    InputFactory.Parameter(
-                        KnownParameters.Endpoint.Name,
-                        InputPrimitiveType.String,
-                        location: RequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
-                        isRequired: true,
-                        isEndpoint: true),
-                    InputFactory.Parameter(
-                        "optionalParam",
-                        InputPrimitiveType.String,
-                        location: RequestLocation.None,
-                        kind: InputOperationParameterKind.Client)
-                });
-            }
-        }
-
-        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases
-        {
-            get
-            {
-                // string primitive type
-                yield return new TestCaseData(
-                    InputFactory.Parameter(
-                        "param",
-                        InputPrimitiveType.String,
-                        location: RequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
-                        isEndpoint: true,
-                        defaultValue: InputFactory.Constant.String("mockValue")),
-                    New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
-            }
-        }
-
-        // TODO -- this is temporary here before System.ClientModel officially supports OAuth2 auth
-        private record TestClientPipelineApi : ClientPipelineApi
-        {
-            private static ClientPipelineApi? _instance;
-            internal static ClientPipelineApi Instance => _instance ??= new TestClientPipelineApi(Empty);
-
-            public TestClientPipelineApi(ValueExpression original) : base(typeof(string), original)
-            {
-            }
-
-            public override CSharpType ClientPipelineType => typeof(string);
-
-            public override CSharpType ClientPipelineOptionsType => typeof(string);
-
-            public override CSharpType PipelinePolicyType => typeof(string);
-
-            public override CSharpType KeyCredentialType => typeof(ApiKeyCredential);
-
-            public override CSharpType TokenCredentialType => typeof(TestTokenCredential);
-
-            public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
-                => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
-
-            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
-                => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
-
-            public override ClientPipelineApi FromExpression(ValueExpression expression)
-                => new TestClientPipelineApi(expression);
-
-            public override ValueExpression ConsumeKeyAuth(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
-                => Original.Invoke("GetFakeApiKeyAuthorizationPolicy", keyPrefix != null ? [credential, headerName, keyPrefix] : [credential, headerName]);
-
-            public override ValueExpression ConsumeOAuth2Auth(ValueExpression credential, ValueExpression scopes)
-                => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
-
-            public override ClientPipelineApi ToExpression() => this;
-
-            public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
-                => [Original.Invoke("GetFakeProcessMessage", [message, options]).Terminate()];
-
-            public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
-                => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
-        }
-
-        internal class TestTokenCredential { }
-
         public static IEnumerable<TestCaseData> BuildAuthFieldsTestCases
         {
             get
@@ -1041,6 +929,72 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 kind: InputOperationParameterKind.Spread),
                         ])
                     ]));
+            }
+        }
+
+        public static IEnumerable<TestCaseData> SubClientFactoryMethodTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(InputFactory.Client(TestClientName), true);
+                yield return new TestCaseData(_animalClient, true);
+                yield return new TestCaseData(_dogClient, true);
+                yield return new TestCaseData(_huskyClient, false);
+            }
+        }
+
+        public static IEnumerable<TestCaseData> BuildConstructorsTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(new List<InputParameter>
+                {
+                    InputFactory.Parameter(
+                        "optionalParam",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client),
+                    InputFactory.Parameter(
+                        KnownParameters.Endpoint.Name,
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.String("someValue"),
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true)
+                });
+                // scenario where endpoint is required
+                yield return new TestCaseData(new List<InputParameter>
+                {
+                    InputFactory.Parameter(
+                        KnownParameters.Endpoint.Name,
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true,
+                        isEndpoint: true),
+                    InputFactory.Parameter(
+                        "optionalParam",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client)
+                });
+            }
+        }
+
+        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases
+        {
+            get
+            {
+                // string primitive type
+                yield return new TestCaseData(
+                    InputFactory.Parameter(
+                        "param",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true,
+                        defaultValue: InputFactory.Constant.String("mockValue")),
+                    New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
             }
         }
 
@@ -1230,5 +1184,51 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         ]));
             }
         }
+
+        // TODO -- this is temporary here before System.ClientModel officially supports OAuth2 auth
+        private record TestClientPipelineApi : ClientPipelineApi
+        {
+            private static ClientPipelineApi? _instance;
+            internal static ClientPipelineApi Instance => _instance ??= new TestClientPipelineApi(Empty);
+
+            public TestClientPipelineApi(ValueExpression original) : base(typeof(string), original)
+            {
+            }
+
+            public override CSharpType ClientPipelineType => typeof(string);
+
+            public override CSharpType ClientPipelineOptionsType => typeof(string);
+
+            public override CSharpType PipelinePolicyType => typeof(string);
+
+            public override CSharpType KeyCredentialType => typeof(ApiKeyCredential);
+
+            public override CSharpType TokenCredentialType => typeof(TestTokenCredential);
+
+            public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
+                => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
+
+            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
+                => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
+
+            public override ClientPipelineApi FromExpression(ValueExpression expression)
+                => new TestClientPipelineApi(expression);
+
+            public override ValueExpression ConsumeKeyAuth(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
+                => Original.Invoke("GetFakeApiKeyAuthorizationPolicy", keyPrefix != null ? [credential, headerName, keyPrefix] : [credential, headerName]);
+
+            public override ValueExpression ConsumeOAuth2Auth(ValueExpression credential, ValueExpression scopes)
+                => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
+
+            public override ClientPipelineApi ToExpression() => this;
+
+            public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
+                => [Original.Invoke("GetFakeProcessMessage", [message, options]).Terminate()];
+
+            public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+                => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
+        }
+
+        internal class TestTokenCredential { }
     }
 }
