@@ -11,6 +11,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
 {
     public class FormattableStringHelpersTests
     {
+        //TODO: refactor into the second test
         [TestCase("A timestamp indicating the last modified time\nclient. The operation will be performed only\nbeen modified since the specified time.", new string[] { "A timestamp indicating the last modified time", "client. The operation will be performed only", "been modified since the specified time." })]
         public void TestBreakLinesWithLiteralsNoArgs(string inputFormat, string[] expected)
         {
@@ -53,6 +54,17 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                 yield return new TestCaseData(
                 (FormattableString)$"first{"x"}second\nthird{null}",
                 new List<FormattableString> { $"first{"x"}second", $"third{null}"});
+
+                // Case for format specifier trivial
+                yield return new TestCaseData(
+                (FormattableString)$"first{"x":L}second\nthird{null}",
+                new List<FormattableString> { $"first{"x":L}second", $"third{null}" });
+
+                // TODO: Check if this is valid after we update logic in FormattableStringHelpers to handle FormatSpecifier and \n in one argument
+                // Case for format specifier
+                yield return new TestCaseData(
+                (FormattableString)$"first{"x\ny":L}second\nthird{null}",
+                new List<FormattableString> { $"first{"x\ny":L}second", $"third{null}" });
             }
         }
 

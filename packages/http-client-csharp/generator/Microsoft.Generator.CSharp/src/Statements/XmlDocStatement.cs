@@ -115,21 +115,6 @@ namespace Microsoft.Generator.CSharp.Statements
             {
                 string periodOrEmpty = GetPeriodOrEmpty(Lines[0]);
                 writer.WriteLine($"/// {StartTag} {Lines[0]}{periodOrEmpty} {EndTag}");
-                //string periodOrEmpty = GetPeriodOrEmpty(Lines[0]);
-                //var splitLines = Lines[0].ToString().Split("\n");
-                //if (splitLines.Length > 1)
-                //{
-                //    writer.WriteLine($"/// {StartTag}");
-                //    foreach (var line in splitLines)
-                //    {
-                //        writer.WriteLine($"/// {line}");
-                //    }
-                //    writer.WriteLine($"/// {EndTag}");
-                //}
-                //else
-                //{
-                //    writer.WriteLine($"/// {StartTag} {Lines[0]}{periodOrEmpty} {EndTag}");
-                //}
             }
         }
 

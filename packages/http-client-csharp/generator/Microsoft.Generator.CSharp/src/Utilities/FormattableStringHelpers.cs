@@ -104,17 +104,19 @@ namespace Microsoft.Generator.CSharp
             StringBuilder formatBuilder = new StringBuilder();
             var args = new List<object?>();
             List<FormattableString> result = new List<FormattableString>();
-            foreach ((var span, bool isLiteral, int index) in StringExtensions.GetPathParts(fs.Format))
+            Span<Range> destination = stackalloc Range[fs.Format.Length];
+
+            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetPathParts(fs.Format))
             {
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
                 {
-                    var splitNewLine = span.ToString().Split("\n");
-                    for (int i = 0; i < splitNewLine.Length; i++)
+                    var numSplits = span.Split(destination, "\n");
+                    for (int i = 0; i < numSplits; i++)
                     {
-                        var part = splitNewLine[i];
+                        var part = span[destination[i]];
                         formatBuilder.Append(part);
-                        if (i < splitNewLine.Length - 1)
+                        if (i < numSplits - 1)
                         {
                             FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
                             result.Add(formattableString);
@@ -127,13 +129,19 @@ namespace Microsoft.Generator.CSharp
                 else
                 {
                     var arg = fs.GetArgument(index);
-                    if (arg is string str)
+                    // when span has a format specifier, go into else case
+                    // if span contains ':' we don't need to split arg and add it directly to FormatBuilder
+                    // TODO: The following logic of the FormatSpecifier handling is temporary until we have a case where FormatSpecifier and \n both exist in an argument.
+                    // TODO: https://github.com/microsoft/typespec/issues/5255
+                    if (!span.Contains(':') && arg is string str)
                     {
                         var splitNewLine = str.Split("\n");
                         for (int i = 0; i < splitNewLine.Length; i++)
                         {
                             var argPart = splitNewLine[i];
-                            formatBuilder.Append("{" + args.Count + "}");
+                            formatBuilder.Append('{');
+                            formatBuilder.Append(args.Count);
+                            formatBuilder.Append('}');
                             args.Add(argPart);
 
                             if (i < splitNewLine.Length - 1) // if not last part we know this part ends with \n, add to current result and clear
@@ -148,8 +156,15 @@ namespace Microsoft.Generator.CSharp
                     else
                     {
                         // if not a string or FormattableString, add to args because we cannot parse it
-                        // also add to FormatBuilder to maintain equal count between args and formatBuilder
-                        formatBuilder.Append("{" + args.Count + "}");
+                        // add to FormatBuilder to maintain equal count between args and formatBuilder
+                        formatBuilder.Append('{');
+                        formatBuilder.Append(args.Count);
+                        var indexOfFormatSpecifier = span.IndexOf(':');
+                        if (indexOfFormatSpecifier >= 0)
+                        {
+                            formatBuilder.Append(span[indexOfFormatSpecifier..]);
+                        }
+                        formatBuilder.Append('}');
                         args.Add(arg);
                     }
                 }
