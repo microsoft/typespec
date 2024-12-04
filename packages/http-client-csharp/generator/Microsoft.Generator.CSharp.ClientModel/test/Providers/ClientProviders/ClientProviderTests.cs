@@ -318,6 +318,56 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
         }
 
+        private static InputClient GetEnumQueryParamClient()
+            => InputFactory.Client(
+                TestClientName,
+                operations:
+                [
+                    InputFactory.Operation(
+                        "Operation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "queryParam",
+                                InputFactory.Enum(
+                                    "InputEnum",
+                                    InputPrimitiveType.String,
+                                    usage: InputModelTypeUsage.Input,
+                                    isExtensible: true,
+                                    values:
+                                    [
+                                        InputFactory.EnumMember.String("value1", "value1"),
+                                        InputFactory.EnumMember.String("value2", "value2")
+                                    ]),
+                                isRequired: true,
+                                location: RequestLocation.Query)
+                        ])
+                ]);
+
+        private class ValidateQueryParamDiffClientProvider : ClientProvider
+        {
+            private readonly bool _isAsync;
+
+            public ValidateQueryParamDiffClientProvider(InputClient client, bool isAsync = false)
+                : base(client)
+            {
+                _isAsync = isAsync;
+            }
+
+            protected override MethodProvider[] BuildMethods()
+            {
+                var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
+                    p is { Name: "queryParam", Type.Name: "InputEnum" } &&
+                    ((_isAsync && m.Signature.Name.EndsWith("Async")) || (!_isAsync && !m.Signature.Name.EndsWith("Async")))));
+                method.Update(xmlDocProvider: new XmlDocProvider()); // null out the docs
+                return [method];
+            }
+
+            protected override FieldProvider[] BuildFields() => [];
+            protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
+        }
+
         public static IEnumerable<TestCaseData> BuildFieldsTestCases
         {
             get
@@ -408,56 +458,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint")
                 });
             }
-        }
-
-        private static InputClient GetEnumQueryParamClient()
-            => InputFactory.Client(
-                TestClientName,
-                operations:
-                [
-                    InputFactory.Operation(
-                        "Operation",
-                        parameters:
-                        [
-                            InputFactory.Parameter(
-                                "queryParam",
-                                InputFactory.Enum(
-                                    "InputEnum",
-                                    InputPrimitiveType.String,
-                                    usage: InputModelTypeUsage.Input,
-                                    isExtensible: true,
-                                    values:
-                                    [
-                                        InputFactory.EnumMember.String("value1", "value1"),
-                                        InputFactory.EnumMember.String("value2", "value2")
-                                    ]),
-                                isRequired: true,
-                                location: RequestLocation.Query)
-                        ])
-                ]);
-
-        private class ValidateQueryParamDiffClientProvider : ClientProvider
-        {
-            private readonly bool _isAsync;
-
-            public ValidateQueryParamDiffClientProvider(InputClient client, bool isAsync = false)
-                : base(client)
-            {
-                _isAsync = isAsync;
-            }
-
-            protected override MethodProvider[] BuildMethods()
-            {
-                var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
-                    p is { Name: "queryParam", Type.Name: "InputEnum" } &&
-                    ((_isAsync && m.Signature.Name.EndsWith("Async")) || (!_isAsync && !m.Signature.Name.EndsWith("Async")))));
-                method.Update(xmlDocProvider: new XmlDocProvider()); // null out the docs
-                return [method];
-            }
-
-            protected override FieldProvider[] BuildFields() => [];
-            protected override ConstructorProvider[] BuildConstructors() => [];
-            protected override PropertyProvider[] BuildProperties() => [];
         }
 
         public static IEnumerable<TestCaseData> ValidateClientWithSpreadTestCases
