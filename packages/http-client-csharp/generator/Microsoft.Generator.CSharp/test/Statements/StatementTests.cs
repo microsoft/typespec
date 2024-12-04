@@ -488,5 +488,36 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             var test = writer.ToString(false);
             Assert.AreEqual(expectedResult, test);
         }
+
+        [Test]
+        public void TestFlatten()
+        {
+            var ifTrueStatement = new IfStatement(True) { Return(True) };
+            var ifFalseStatement = new IfStatement(False) { Return(False) };
+            var ifElseStatement = new IfElseStatement(True, new SingleLineCommentStatement("$hello"), new SingleLineCommentStatement("$world"));
+            MethodBodyStatement methodBodyStatements = new List<MethodBodyStatement>
+            {
+                ifTrueStatement,
+                ifElseStatement,
+                ifFalseStatement
+            };
+
+            var flattened = methodBodyStatements.Flatten().ToList();
+            Assert.AreEqual(3, flattened.Count);
+            Assert.AreEqual(ifTrueStatement, flattened[0]);
+            Assert.AreEqual(ifElseStatement, flattened[1]);
+            Assert.AreEqual(ifFalseStatement, flattened[2]);
+
+            // Test flattening a single statement
+            var singleStatementFlattened = ifTrueStatement.Flatten().ToList();
+            Assert.AreEqual(1, singleStatementFlattened.Count);
+
+            // flatten the body
+            var body = ifTrueStatement.Body.Flatten().ToList();
+            Assert.AreEqual(1, body.Count);
+            Assert.AreEqual(ifTrueStatement.Body.ToDisplayString(), body[0].ToDisplayString());
+        }
+
+
     }
 }

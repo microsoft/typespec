@@ -26,6 +26,29 @@ namespace Microsoft.Generator.CSharp.Statements
 
         public string ToDisplayString() => GetDebuggerDisplay();
 
+        public IEnumerable<MethodBodyStatement> Flatten()
+        {
+            Queue<MethodBodyStatement> queue = new();
+            queue.Enqueue(this);
+
+            while (queue.Count > 0)
+            {
+                MethodBodyStatement current = queue.Dequeue();
+
+                if (current is MethodBodyStatements statements)
+                {
+                    foreach (var subStatement in statements.Statements)
+                    {
+                        queue.Enqueue(subStatement);
+                    }
+                }
+                else
+                {
+                    yield return current;
+                }
+            }
+        }
+
         private string GetDebuggerDisplay()
         {
             using CodeWriter writer = new CodeWriter();
