@@ -119,7 +119,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
             }
         }
@@ -202,7 +202,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
                     new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
             }
         }
@@ -367,7 +367,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 }
                 else if (authParam?.Name == "tokenCredential")
                 {
-                    Assert.AreEqual(new CSharpType(typeof(TestTokenCredential)), authParam?.Type);
+                    Assert.AreEqual(new CSharpType(typeof(FakeTokenCredential)), authParam?.Type);
                 }
                 else
                 {
@@ -1203,7 +1203,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             public override CSharpType KeyCredentialType => typeof(ApiKeyCredential);
 
-            public override CSharpType TokenCredentialType => typeof(TestTokenCredential);
+            public override CSharpType TokenCredentialType => typeof(FakeTokenCredential);
 
             public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
                 => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
@@ -1229,6 +1229,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
         }
 
-        internal class TestTokenCredential { }
+        internal class FakeTokenCredential { }
     }
 }
