@@ -4360,77 +4360,6 @@ Expected input body:
 }
 ```
 
-### Type_Model_Templated_float32Type
-
-- Endpoint: `put /type/model/templated/float32ValuesType`
-
-Expected input body:
-
-```json
-{
-  "kind": "Float32Values",
-  "values": [0.5],
-  "value": 0.5
-}
-```
-
-Expected response body:
-
-```json
-{
-  "kind": "Float32Values",
-  "values": [0.5],
-  "value": 0.5
-}
-```
-
-### Type_Model_Templated_int32Type
-
-- Endpoint: `put /type/model/templated/int32ValuesType`
-
-Expected input body:
-
-```json
-{
-  "kind": "Int32Values",
-  "values": [1234],
-  "value": 1234
-}
-```
-
-Expected response body:
-
-```json
-{
-  "kind": "Int32Values",
-  "values": [1234],
-  "value": 1234
-}
-```
-
-### Type_Model_Templated_numericType
-
-- Endpoint: `put /type/model/templated/numericType`
-
-Expected input body:
-
-```json
-{
-  "kind": "Int32Values",
-  "values": [1234],
-  "value": 1234
-}
-```
-
-Expected response body:
-
-```json
-{
-  "values": [1234],
-  "value": 1234
-}
-```
-
 ### Type_Model_Usage_input
 
 - Endpoint: `get /type/model/usage/input`
@@ -7434,6 +7363,49 @@ Expected request body:
 
 ```json
 { "prop": "foo" }
+```
+
+### Versioning_Removed_modelV3
+
+- Endpoint: `post /versioning/removed/api-version:{version}/v3`
+
+path: "/versioning/removed/api-version[:]v1/v3"
+Expected request body:
+
+```json
+{ "id": "123", "enumProp": "enumMemberV1" }
+```
+
+Expected response body:
+
+```json
+{ "id": "123", "enumProp": "enumMemberV1" }
+```
+
+path: "/versioning/removed/api-version[:]v2preview/v3"
+Expected request body:
+
+```json
+{ "id": "123" }
+```
+
+Expected response body:
+
+```json
+{ "id": "123" }
+```
+
+path: "/versioning/removed/api-version[:]v2/v3"
+Expected request body:
+
+```json
+{ "id": "123", "enumProp": "enumMemberV1" }
+```
+
+Expected response body:
+
+```json
+{ "id": "123", "enumProp": "enumMemberV1" }
 ```
 
 ### Versioning_Removed_v2
