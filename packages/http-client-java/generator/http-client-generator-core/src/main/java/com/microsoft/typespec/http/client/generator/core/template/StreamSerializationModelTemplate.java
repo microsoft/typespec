@@ -247,7 +247,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
         // If the model is polymorphic and all the models in the polymorphic hierarchy are in the same package we don't
         // need to shade parent properties.
-        if (canUseFromJsonShared(propertiesManager)) {
+        if (propertiesManager.getModel().isAllPolymorphicModelsInSamePackage()) {
             return fieldProperties;
         }
 
