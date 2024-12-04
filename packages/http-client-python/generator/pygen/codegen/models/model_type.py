@@ -302,20 +302,21 @@ class GeneratedModelType(ModelType):
         file_import = super().imports(**kwargs)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         # add import for models in operations or _types file
-        file_import.add_submodule_import(
-            self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
-            "models",
-            ImportType.LOCAL,
-            alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
-            typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
-        )
-        if self.is_form_data:
-            file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace),
-                "_model_base",
-                ImportType.LOCAL,
-                typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
-            )
+        if kwargs.get("need_import_models", False):
+          file_import.add_submodule_import(
+              self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
+              "models",
+              ImportType.LOCAL,
+              alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
+              typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
+          )
+          if self.is_form_data:
+              file_import.add_submodule_import(
+                  self.code_model.get_relative_import_path(serialize_namespace),
+                  "_model_base",
+                  ImportType.LOCAL,
+                  typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
+              )
         return file_import
 
 

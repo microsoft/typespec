@@ -102,9 +102,8 @@ class OperationGroup(BaseModel):
         file_import = FileImport(self.code_model)
 
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-        relative_path = self.code_model.get_relative_import_path(serialize_namespace)
         for operation in self.operations:
-            file_import.merge(operation.imports(async_mode, **kwargs))
+            file_import.merge(operation.imports(async_mode, need_import_models=True, **kwargs))
         if not self.code_model.options["combine_operation_files"]:
             for og in self.operation_groups:
                 file_import.add_submodule_import(
@@ -123,13 +122,13 @@ class OperationGroup(BaseModel):
             and self.code_model.options["models_mode"] == "msrest"
             and not self.is_mixin
         ):
-            file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
+            file_import.add_submodule_import(self.code_model.get_relative_import_path(serialize_namespace), "models", ImportType.LOCAL, alias="_models")
         if self.is_mixin:
             file_import.add_submodule_import(
-                f"{relative_path}_vendor", f"{self.client.name}MixinABC", ImportType.LOCAL
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"), f"{self.client.name}MixinABC", ImportType.LOCAL
             )
         if self.has_abstract_operations:
-            file_import.add_submodule_import(f"{relative_path}_vendor", "raise_if_not_implemented", ImportType.LOCAL)
+            file_import.add_submodule_import(self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"), "raise_if_not_implemented", ImportType.LOCAL)
         if all(o.abstract for o in self.operations):
             return file_import
         file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)

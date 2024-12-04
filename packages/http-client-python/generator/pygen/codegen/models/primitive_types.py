@@ -621,7 +621,7 @@ class MultiPartFileType(PrimitiveType):
         return self.name
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.namespace}_vendor.{self.name}"
+        return f"~{self.code_model.namespace}._vendor.{self.name}"
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)

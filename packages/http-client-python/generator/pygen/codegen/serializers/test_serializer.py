@@ -143,9 +143,9 @@ class TestGeneralSerializer(BaseSerializer):
         env: Environment,
         *,
         is_async: bool = False,
-        serialize_namespace: Optional[str] = None,
+        client_namespace: Optional[str] = None,
     ) -> None:
-        super().__init__(code_model, env, is_async, serialize_namespace=serialize_namespace)
+        super().__init__(code_model, env, is_async, client_namespace=client_namespace)
         self.is_async = is_async
 
     @property
