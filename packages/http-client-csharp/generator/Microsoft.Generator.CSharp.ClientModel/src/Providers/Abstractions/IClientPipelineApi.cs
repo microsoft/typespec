@@ -10,5 +10,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         CSharpType ClientPipelineType { get; }
         CSharpType ClientPipelineOptionsType { get; }
         CSharpType PipelinePolicyType { get; }
+
+        CSharpType? KeyCredentialType { get; }
+        CSharpType? TokenCredentialType { get; }
     }
 }

@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
@@ -19,11 +20,9 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
-    public class ClientProviderAuthTests
+    public class ClientProviderNoAuthTests
     {
         private const string SubClientsCategory = "WithSubClients";
-        private const string KeyAuthCategory = "KeyAuth";
-        private const string OAuth2Category = "OAuth2";
         private const string TestClientName = "TestClient";
         private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
         private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
@@ -34,31 +33,47 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             var categories = TestContext.CurrentContext.Test?.Properties["Category"];
             bool containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
-            bool hasKeyAuth = categories?.Contains(KeyAuthCategory) ?? false;
-            bool hasOAuth2 = categories?.Contains(OAuth2Category) ?? false;
 
-            Func<IReadOnlyList<InputClient>>? clients = containsSubClients ?
-                () => [_animalClient, _dogClient, _huskyClient] :
-                null;
-            Func<InputApiKeyAuth>? apiKeyAuth = hasKeyAuth ? () => new InputApiKeyAuth("mock", null) : null;
-            Func<InputOAuth2Auth>? oauth2Auth = hasOAuth2 ? () => new InputOAuth2Auth(["mock"]) : null;
-            MockHelpers.LoadMockPlugin(
-                apiKeyAuth: apiKeyAuth,
-                oauth2Auth: oauth2Auth,
-                clients: clients);
+            if (containsSubClients)
+            {
+                MockHelpers.LoadMockPlugin(
+                    clients: () => [_animalClient, _dogClient, _huskyClient]);
+            }
+            else
+            {
+                MockHelpers.LoadMockPlugin();
+            }
         }
 
-        [TestCaseSource(nameof(BuildFieldsTestCases), Category = KeyAuthCategory)]
-        public void TestBuildFields(List<InputParameter> inputParameters)
+        [Test]
+        public void TestBuildProperties()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // validate the properties
+            var properties = clientProvider.Properties;
+            Assert.IsTrue(properties.Count > 0);
+            // there should be a pipeline property
+            Assert.AreEqual(1, properties.Count);
+
+            var pipelineProperty = properties[0];
+            Assert.AreEqual(typeof(ClientPipeline), pipelineProperty.Type.FrameworkType);
+            Assert.AreEqual("Pipeline", pipelineProperty.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Public, pipelineProperty.Modifiers);
+        }
+
+        [TestCaseSource(nameof(BuildFieldsTestCases))]
+        public void TestBuildFields(List<InputParameter> inputParameters, List<ExpectedFieldProvider> expectedFields)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
 
-            // key auth should have the following fields: AuthorizationHeader, _keyCredential
-
-            AssertHasFields(clientProvider, expectedFields);
+            AssertClientFields(clientProvider, expectedFields);
         }
 
         // validates the fields are built correctly when a client has sub-clients
@@ -69,11 +84,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             Assert.IsNotNull(clientProvider);
 
-            AssertHasFields(clientProvider, expectedFields);
+            AssertClientFields(clientProvider, expectedFields);
         }
 
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
-        public void TestBuildConstructors_PrimaryConstructor(List<InputParameter> inputParameters)
+        public void TestBuildConstructors_PrimaryConstructor(List<InputParameter> inputParameters, int expectedCount)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
@@ -81,7 +96,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(clientProvider);
 
             var constructors = clientProvider.Constructors;
-            Assert.AreEqual(3, constructors.Count);
+            Assert.AreEqual(expectedCount, constructors.Count);
 
             var primaryPublicConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
@@ -89,7 +104,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
-        public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
+        public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters, int expectedCount)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
@@ -98,7 +113,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             var constructors = clientProvider.Constructors;
 
-            Assert.AreEqual(3, constructors.Count);
+            Assert.AreEqual(expectedCount, constructors.Count);
             var primaryPublicConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
 
@@ -123,7 +138,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(3, ctorParams?.Count);
+            Assert.AreEqual(2, ctorParams?.Count); // only 2 because there is no credential parameter
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -137,15 +152,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(primaryPublicConstructor);
 
             var primaryCtorParams = primaryPublicConstructor?.Signature?.Parameters;
-            var expectedPrimaryCtorParamCount = 3;
 
-            Assert.AreEqual(expectedPrimaryCtorParamCount, primaryCtorParams?.Count);
+            Assert.AreEqual(2, primaryCtorParams?.Count); // only 2 because there is no credential parameter
 
             // validate the order of the parameters (endpoint, credential, client options)
             var endpointParam = primaryCtorParams?[0];
             Assert.AreEqual(KnownParameters.Endpoint.Name, endpointParam?.Name);
-            Assert.AreEqual("keyCredential", primaryCtorParams?[1].Name);
-            Assert.AreEqual("options", primaryCtorParams?[2].Name);
+            Assert.AreEqual("options", primaryCtorParams?[1].Name);
 
             if (endpointParam?.DefaultValue != null)
             {
@@ -167,21 +180,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(secondaryPublicConstructor);
             var ctorParams = secondaryPublicConstructor?.Signature?.Parameters;
 
-            // secondary ctor should consist of all required parameters + auth parameter
+            // secondary ctor should consist of all required parameters + auth parameter, but here we do not have auth, therefore they should be the same
             var requiredParams = inputParameters.Where(p => p.IsRequired).ToList();
-            Assert.AreEqual(requiredParams.Count + 1, ctorParams?.Count);
+            Assert.AreEqual(requiredParams.Count, ctorParams?.Count);
             var endpointParam = ctorParams?.FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
 
             if (requiredParams.Count == 0)
             {
-                // auth should be the only parameter if endpoint is optional
-                Assert.AreEqual("keyCredential", ctorParams?[0].Name);
+                // there should be no parameter if endpoint is optional and we do not have an auth
+                Assert.AreEqual(0, ctorParams?.Count);
             }
             else
             {
-                // otherwise, it should only consist of the auth parameter
+                // otherwise, it should only consist of the endpoint parameter
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
-                Assert.AreEqual("keyCredential", ctorParams?[1].Name);
             }
 
             Assert.AreEqual(MethodBodyStatement.Empty, secondaryPublicConstructor?.BodyStatements);
@@ -262,7 +274,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         location:RequestLocation.None,
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                });
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), true), "_optionalParam")
+                }
+                );
                 yield return new TestCaseData(new List<InputParameter>
                 {
                     // have to explicitly set isRequired because we now call CreateParameter in buildFields
@@ -294,6 +312,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         defaultValue: null,
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), true), "_optionalNullableParam"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), false), "_requiredParam2"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(long), false), "_requiredParam3")
                 });
             }
         }
@@ -304,23 +329,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             {
                 yield return new TestCaseData(InputFactory.Client(TestClientName), new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Animal", "Sample", true), "_cachedAnimal"),
                 });
                 yield return new TestCaseData(_animalClient, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Dog", "Sample", true), "_cachedDog"),
                 });
                 yield return new TestCaseData(_dogClient, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Husky", "Sample", true), "_cachedHusky"),
                 });
                 yield return new TestCaseData(_huskyClient, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
                 });
             }
         }
@@ -354,7 +378,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         defaultValue: InputFactory.Constant.String("someValue"),
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                });
+                }, 2); // in this case, the secondary ctor has the same ctor list as the protected ctor
                 // scenario where endpoint is required
                 yield return new TestCaseData(new List<InputParameter>
                 {
@@ -370,25 +394,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         kind: InputOperationParameterKind.Client)
-                });
+                }, 3);
             }
         }
 
-        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases
+        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases()
         {
-            get
-            {
-                // string primitive type
-                yield return new TestCaseData(
-                    InputFactory.Parameter(
-                        "param",
-                        InputPrimitiveType.String,
-                        location: RequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
-                        isEndpoint: true,
-                        defaultValue: InputFactory.Constant.String("mockValue")),
-                    New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
-            }
+            // string primitive type
+            yield return new TestCaseData(
+                InputFactory.Parameter(
+                    "param",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.None,
+                    kind: InputOperationParameterKind.Client,
+                    isEndpoint: true,
+                    defaultValue: InputFactory.Constant.String("mockValue")),
+                New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
         }
     }
 }

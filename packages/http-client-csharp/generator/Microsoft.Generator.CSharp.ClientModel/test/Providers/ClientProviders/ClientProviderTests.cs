@@ -33,24 +33,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
             ]);
 
-        [SetUp]
-        public void SetUp()
-        {
-            var categories = TestContext.CurrentContext.Test?.Properties["Category"];
-            bool containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
-
-            if (containsSubClients)
-            {
-                MockHelpers.LoadMockPlugin(
-                    apiKeyAuth: () => new InputApiKeyAuth("mock", null),
-                    clients: () => [_animalClient, _dogClient, _huskyClient]);
-            }
-            else
-            {
-                MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null));
-            }
-        }
-
         [Test]
         public void TestBuildProperties()
         {

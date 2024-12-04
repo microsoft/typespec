@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
@@ -19,11 +20,9 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
-    public class ClientProviderAuthTests
+    public class ClientProviderOAuth2AuthTests
     {
         private const string SubClientsCategory = "WithSubClients";
-        private const string KeyAuthCategory = "KeyAuth";
-        private const string OAuth2Category = "OAuth2";
         private const string TestClientName = "TestClient";
         private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
         private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
@@ -34,31 +33,31 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             var categories = TestContext.CurrentContext.Test?.Properties["Category"];
             bool containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
-            bool hasKeyAuth = categories?.Contains(KeyAuthCategory) ?? false;
-            bool hasOAuth2 = categories?.Contains(OAuth2Category) ?? false;
 
-            Func<IReadOnlyList<InputClient>>? clients = containsSubClients ?
-                () => [_animalClient, _dogClient, _huskyClient] :
-                null;
-            Func<InputApiKeyAuth>? apiKeyAuth = hasKeyAuth ? () => new InputApiKeyAuth("mock", null) : null;
-            Func<InputOAuth2Auth>? oauth2Auth = hasOAuth2 ? () => new InputOAuth2Auth(["mock"]) : null;
-            MockHelpers.LoadMockPlugin(
-                apiKeyAuth: apiKeyAuth,
-                oauth2Auth: oauth2Auth,
-                clients: clients);
+            if (containsSubClients)
+            {
+                MockHelpers.LoadMockPlugin(
+                    oauth2Auth: () => new InputOAuth2Auth(["mock"]),
+                    clients: () => [_animalClient, _dogClient, _huskyClient],
+                    clientPipelineApi: TestClientPipelineApi.Instance);
+            }
+            else
+            {
+                MockHelpers.LoadMockPlugin(
+                    oauth2Auth: () => new InputOAuth2Auth(["mock"]),
+                    clientPipelineApi: TestClientPipelineApi.Instance);
+            }
         }
 
-        [TestCaseSource(nameof(BuildFieldsTestCases), Category = KeyAuthCategory)]
-        public void TestBuildFields(List<InputParameter> inputParameters)
+        [TestCaseSource(nameof(BuildFieldsTestCases))]
+        public void TestBuildFields(List<InputParameter> inputParameters, List<ExpectedFieldProvider> expectedFields)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
 
-            // key auth should have the following fields: AuthorizationHeader, _keyCredential
-
-            AssertHasFields(clientProvider, expectedFields);
+            AssertClientFields(clientProvider, expectedFields);
         }
 
         // validates the fields are built correctly when a client has sub-clients
@@ -69,7 +68,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             Assert.IsNotNull(clientProvider);
 
-            AssertHasFields(clientProvider, expectedFields);
+            AssertClientFields(clientProvider, expectedFields);
         }
 
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
@@ -144,7 +143,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             // validate the order of the parameters (endpoint, credential, client options)
             var endpointParam = primaryCtorParams?[0];
             Assert.AreEqual(KnownParameters.Endpoint.Name, endpointParam?.Name);
-            Assert.AreEqual("keyCredential", primaryCtorParams?[1].Name);
+            Assert.AreEqual("tokenCredential", primaryCtorParams?[1].Name);
             Assert.AreEqual("options", primaryCtorParams?[2].Name);
 
             if (endpointParam?.DefaultValue != null)
@@ -175,13 +174,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             if (requiredParams.Count == 0)
             {
                 // auth should be the only parameter if endpoint is optional
-                Assert.AreEqual("keyCredential", ctorParams?[0].Name);
+                Assert.AreEqual("tokenCredential", ctorParams?[0].Name);
             }
             else
             {
                 // otherwise, it should only consist of the auth parameter
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
-                Assert.AreEqual("keyCredential", ctorParams?[1].Name);
+                Assert.AreEqual("tokenCredential", ctorParams?[1].Name);
             }
 
             Assert.AreEqual(MethodBodyStatement.Empty, secondaryPublicConstructor?.BodyStatements);
@@ -262,7 +261,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         location:RequestLocation.None,
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                });
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), true), "_optionalParam")
+                }
+                );
                 yield return new TestCaseData(new List<InputParameter>
                 {
                     // have to explicitly set isRequired because we now call CreateParameter in buildFields
@@ -294,6 +301,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         defaultValue: null,
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), true), "_optionalNullableParam"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), false), "_requiredParam2"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(long), false), "_requiredParam3")
                 });
             }
         }
@@ -304,23 +320,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             {
                 yield return new TestCaseData(InputFactory.Client(TestClientName), new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Animal", "Sample", true), "_cachedAnimal"),
                 });
                 yield return new TestCaseData(_animalClient, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Dog", "Sample", true), "_cachedDog"),
                 });
                 yield return new TestCaseData(_dogClient, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Husky", "Sample", true), "_cachedHusky"),
                 });
                 yield return new TestCaseData(_huskyClient, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential")
                 });
             }
         }
@@ -374,21 +397,63 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
-        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases
+        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases()
         {
-            get
-            {
-                // string primitive type
-                yield return new TestCaseData(
-                    InputFactory.Parameter(
-                        "param",
-                        InputPrimitiveType.String,
-                        location: RequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
-                        isEndpoint: true,
-                        defaultValue: InputFactory.Constant.String("mockValue")),
-                    New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
-            }
+            // string primitive type
+            yield return new TestCaseData(
+                InputFactory.Parameter(
+                    "param",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.None,
+                    kind: InputOperationParameterKind.Client,
+                    isEndpoint: true,
+                    defaultValue: InputFactory.Constant.String("mockValue")),
+                New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
         }
+
+        private record TestClientPipelineApi : ClientPipelineApi
+        {
+            private static ClientPipelineApi? _instance;
+            internal static ClientPipelineApi Instance => _instance ??= new TestClientPipelineApi(Empty);
+
+            public TestClientPipelineApi(ValueExpression original) : base(typeof(string), original)
+            {
+            }
+
+            public override CSharpType ClientPipelineType => typeof(string);
+
+            public override CSharpType ClientPipelineOptionsType => typeof(string);
+
+            public override CSharpType PipelinePolicyType => typeof(string);
+
+            public override CSharpType? KeyCredentialType => null;
+
+            public override CSharpType TokenCredentialType => typeof(TestTokenCredential);
+
+            public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
+                => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
+
+            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
+                => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
+
+            public override ClientPipelineApi FromExpression(ValueExpression expression)
+                => new TestClientPipelineApi(expression);
+
+            public override ValueExpression ConsumeKeyAuth(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
+                => throw new InvalidOperationException("ApiKey is not supported in this test");
+
+            public override ValueExpression ConsumeOAuth2Auth(ValueExpression credential, ValueExpression scopes)
+                => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
+
+            public override ClientPipelineApi ToExpression() => this;
+
+            public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
+                => [Original.Invoke("GetFakeProcessMessage", [message, options]).Terminate()];
+
+            public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+                => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
+        }
+
+        internal class TestTokenCredential { }
     }
 }
