@@ -553,6 +553,76 @@ describe("versioning: logic", () => {
       ok((v3.properties.get("prop")!.type as Model).name === "Updated");
     });
 
+    it("can change template arg types to versioned models", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        `
+        @test
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        model Test {
+          @added(Versions.v2)
+          @typeChangedFrom(Versions.v3, Original[])
+          prop: Updated[];
+        }
+        `,
+      );
+
+      ok(v1.properties.get("prop") === undefined);
+
+      const propV2 = v2.properties.get("prop")!.type as Model;
+      const propV3 = v3.properties.get("prop")!.type as Model;
+      ok(propV2.name === "Array");
+      ok((propV2.indexer!.value as Model).name === "Original");
+      ok(propV3.name === "Array");
+      ok((propV3.indexer!.value as Model).name === "Updated");
+    });
+
+    it("can change types to versioned unions", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        `
+        @test
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        union TemporaryUnion {
+          string,
+
+          @added(Versions.v2)
+          Updated,
+        }
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v3, TemporaryUnion)
+          prop: string | Updated;
+        }
+        `,
+      );
+
+      const propV1 = v1.properties.get("prop")!.type as Union;
+      const propV2 = v2.properties.get("prop")!.type as Union;
+      const propV3 = v3.properties.get("prop")!.type as Union;
+      ok(propV1.name === "TemporaryUnion");
+      ok(propV2.name === "TemporaryUnion");
+      ok(propV3.expression);
+      ok([...propV3.variants.values()].find((v) => (v.type as Model)?.name === "Updated"));
+    });
+
     it("can change type over multiple versions", async () => {
       const {
         projections: [v1, v2, v3],
