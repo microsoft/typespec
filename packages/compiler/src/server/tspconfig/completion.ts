@@ -363,6 +363,46 @@ export async function provideTspconfigCompletionItems(
               return item;
             });
             result.push(...enums);
+          } else if (
+            cur.type === "string" &&
+            sourceQuoteType === "QUOTE_DOUBLE" &&
+            /{(env\.)?}|{[^{}]*}/g.test(source)
+          ) {
+            // Variable interpolation
+            // environment-variables
+            if (/{env\.}(?!\S)|{env\.}/g.test(source)) {
+              for (const env of target.envs) {
+                if (!nodePath.includes(env)) {
+                  result.push({
+                    label: env,
+                    kind: CompletionItemKind.Value,
+                    documentation: cur.description,
+                  });
+                }
+              }
+            } else {
+              // built-in variables
+              result.push(
+                ...["cwd", "project-root"].map((value) => {
+                  const item: CompletionItem = {
+                    label: value,
+                    kind: CompletionItemKind.Value,
+                    documentation: cur.description,
+                  };
+                  return item;
+                }),
+              );
+              // parameters
+              for (const param of target.parameters) {
+                if (!nodePath.includes(param)) {
+                  result.push({
+                    label: param,
+                    kind: CompletionItemKind.Value,
+                    documentation: cur.description,
+                  });
+                }
+              }
+            }
           } else if (cur.type === "string") {
             // extends
             if (relativeFiles && relativeFiles.length > 0) {
