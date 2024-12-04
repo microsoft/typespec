@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel.Primitives;
+using System.ClientModel;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
@@ -14,11 +14,12 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders.ClientProviderTestsUtils;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
-    public class ClientProviderApiKeyAuthTests
+    public class ClientProviderAuthTests
     {
         private const string SubClientsCategory = "WithSubClients";
         private const string TestClientName = "TestClient";
@@ -45,77 +46,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [TestCaseSource(nameof(BuildFieldsTestCases))]
-        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalParams)
+        public void TestBuildFields(List<InputParameter> inputParameters, List<ExpectedFieldProvider> expectedFields)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
 
-            // validate the fields
-            var fields = clientProvider.Fields;
-            if (containsAdditionalParams)
-            {
-                Assert.AreEqual(6, fields.Count);
-            }
-            else
-            {
-                Assert.AreEqual(4, fields.Count);
-            }
-
-            // validate the endpoint field
-            if (inputParameters.Any(p => p.IsEndpoint))
-            {
-                var endpointField = fields.FirstOrDefault(f => f.Name == "_endpoint");
-                Assert.IsNotNull(endpointField);
-                Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
-            }
-
-            // validate other parameters as fields
-            if (containsAdditionalParams)
-            {
-                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalNullableParam");
-                Assert.IsNotNull(optionalParamField);
-                Assert.AreEqual(new CSharpType(typeof(string), isNullable: true), optionalParamField?.Type);
-
-                var requiredParam2Field = fields.FirstOrDefault(f => f.Name == "_requiredParam2");
-                Assert.IsNotNull(requiredParam2Field);
-                Assert.AreEqual(new CSharpType(typeof(string), isNullable: false), requiredParam2Field?.Type);
-
-                var requiredParam3Field = fields.FirstOrDefault(f => f.Name == "_requiredParam3");
-                Assert.IsNotNull(requiredParam3Field);
-                Assert.AreEqual(new CSharpType(typeof(long), isNullable: false), requiredParam3Field?.Type);
-            }
+            AssertHasFields(clientProvider, expectedFields);
         }
 
         // validates the fields are built correctly when a client has sub-clients
-        [TestCaseSource(nameof(SubClientTestCases), Category = SubClientsCategory)]
-        public void TestBuildFields_WithSubClients(InputClient client, bool hasSubClients)
+        [TestCaseSource(nameof(SubClientFieldsTestCases), Category = SubClientsCategory)]
+        public void TestBuildFields_WithSubClients(InputClient client, List<ExpectedFieldProvider> expectedFields)
         {
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
 
-            // validate the fields
-            var fields = clientProvider.Fields;
-
-            // validate the endpoint field
-            var endpointField = fields.FirstOrDefault(f => f.Name == "_endpoint");
-            Assert.IsNotNull(endpointField);
-            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
-
-            // there should be n number of caching client fields for every direct sub-client + endpoint field + auth fields
-            if (hasSubClients)
-            {
-                Assert.AreEqual(4, fields.Count);
-                var cachedClientFields = fields.Where(f => f.Name.StartsWith("_cached"));
-                Assert.AreEqual(1, cachedClientFields.Count());
-            }
-            else
-            {
-                // The 3 fields are _endpoint, AuthorizationHeader, and _keyCredential
-                Assert.AreEqual(3, fields.Count);
-            }
+            AssertHasFields(clientProvider, expectedFields);
         }
 
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
@@ -257,7 +206,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
-        [TestCaseSource(nameof(SubClientTestCases), Category = SubClientsCategory)]
+        [TestCaseSource(nameof(SubClientFactoryMethodTestCases), Category = SubClientsCategory)]
         public void TestSubClientAccessorFactoryMethods(InputClient client, bool hasSubClients)
         {
             var clientProvider = new ClientProvider(client);
@@ -308,7 +257,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         location:RequestLocation.None,
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                }, false);
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential"),
+                }
+                );
                 yield return new TestCaseData(new List<InputParameter>
                 {
                     // have to explicitly set isRequired because we now call CreateParameter in buildFields
@@ -340,11 +295,43 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         defaultValue: null,
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                }, true);
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential"),
+                });
             }
         }
 
-        public static IEnumerable<TestCaseData> SubClientTestCases
+        public static IEnumerable<TestCaseData> SubClientFieldsTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(InputFactory.Client(TestClientName), new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                });
+                yield return new TestCaseData(_animalClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                });
+                yield return new TestCaseData(_dogClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                });
+                yield return new TestCaseData(_huskyClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                });
+            }
+        }
+
+        public static IEnumerable<TestCaseData> SubClientFactoryMethodTestCases
         {
             get
             {

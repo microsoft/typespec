@@ -14,12 +14,17 @@ using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
+using static Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders.ClientProviderTestsUtils;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
     public class ClientProviderTests
     {
+        private const string SubClientsCategory = "WithSubClients";
         private const string TestClientName = "TestClient";
+        private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -27,6 +32,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             [
                 InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
             ]);
+
+        [SetUp]
+        public void SetUp()
+        {
+            var categories = TestContext.CurrentContext.Test?.Properties["Category"];
+            bool containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
+
+            if (containsSubClients)
+            {
+                MockHelpers.LoadMockPlugin(
+                    apiKeyAuth: () => new InputApiKeyAuth("mock", null),
+                    clients: () => [_animalClient, _dogClient, _huskyClient]);
+            }
+            else
+            {
+                MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null));
+            }
+        }
+
+        [TestCaseSource(nameof(BuildFieldsTestCases))]
+        public void TestBuildFields(List<InputParameter> inputParameters, List<ExpectedFieldProvider> expectedFields)
+        {
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            AssertHasFields(clientProvider, expectedFields);
+        }
+
+        // validates the fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(SubClientFieldsTestCases), Category = SubClientsCategory)]
+        public void TestBuildFields_WithSubClients(InputClient client, List<ExpectedFieldProvider> expectedFields)
+        {
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            AssertHasFields(clientProvider, expectedFields);
+        }
 
         [Test]
         public void TestBuildProperties()
@@ -271,6 +316,98 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(method);
             /* verify that the method does not have apiVersion parameter */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
+        public static IEnumerable<TestCaseData> BuildFieldsTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(new List<InputParameter>
+                {
+                    InputFactory.Parameter(
+                        "optionalParam",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client),
+                    InputFactory.Parameter(
+                        KnownParameters.Endpoint.Name,
+                        InputPrimitiveType.String,
+                        location:RequestLocation.None,
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true)
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), true), "_optionalParam")
+                }
+                );
+                yield return new TestCaseData(new List<InputParameter>
+                {
+                    // have to explicitly set isRequired because we now call CreateParameter in buildFields
+                    InputFactory.Parameter(
+                        "optionalNullableParam",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.String("someValue"),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: false),
+                    InputFactory.Parameter(
+                        "requiredParam2",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.String("someValue"),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true),
+                    InputFactory.Parameter(
+                        "requiredParam3",
+                        InputPrimitiveType.Int64,
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.Int64(2),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true),
+                    InputFactory.Parameter(
+                        KnownParameters.Endpoint.Name,
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        defaultValue: null,
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true)
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), true), "_optionalNullableParam"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), false), "_requiredParam2"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(long), false), "_requiredParam3")
+                });
+            }
+        }
+
+        public static IEnumerable<TestCaseData> SubClientFieldsTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(InputFactory.Client(TestClientName), new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Animal", "Sample", false), "_cachedAnimal"),
+                });
+                yield return new TestCaseData(_animalClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Dog", "Sample", false), "_cachedDog"),
+                });
+                yield return new TestCaseData(_dogClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Husky", "Sample", false), "_cachedHusky"),
+                });
+                yield return new TestCaseData(_huskyClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint")
+                });
+            }
         }
 
         private static InputClient GetEnumQueryParamClient()
