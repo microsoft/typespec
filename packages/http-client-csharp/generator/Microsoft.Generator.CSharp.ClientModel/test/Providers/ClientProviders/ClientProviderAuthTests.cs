@@ -29,50 +29,136 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
         private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
 
+        private bool _containsSubClients;
+        private bool _hasKeyAuth;
+        private bool _hasOAuth2;
+        private bool _hasAuth;
+
         [SetUp]
         public void SetUp()
         {
             var categories = TestContext.CurrentContext.Test?.Properties["Category"];
-            bool containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
-            bool hasKeyAuth = categories?.Contains(KeyAuthCategory) ?? false;
-            bool hasOAuth2 = categories?.Contains(OAuth2Category) ?? false;
+            _containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
+            _hasKeyAuth = categories?.Contains(KeyAuthCategory) ?? false;
+            _hasOAuth2 = categories?.Contains(OAuth2Category) ?? false;
+            _hasAuth = _hasKeyAuth || _hasOAuth2;
 
-            Func<IReadOnlyList<InputClient>>? clients = containsSubClients ?
+            Func<IReadOnlyList<InputClient>>? clients = _containsSubClients ?
                 () => [_animalClient, _dogClient, _huskyClient] :
                 null;
-            Func<InputApiKeyAuth>? apiKeyAuth = hasKeyAuth ? () => new InputApiKeyAuth("mock", null) : null;
-            Func<InputOAuth2Auth>? oauth2Auth = hasOAuth2 ? () => new InputOAuth2Auth(["mock"]) : null;
+            Func<InputApiKeyAuth>? apiKeyAuth = _hasKeyAuth ? () => new InputApiKeyAuth("mock", null) : null;
+            Func<InputOAuth2Auth>? oauth2Auth = _hasOAuth2 ? () => new InputOAuth2Auth(["mock"]) : null;
             MockHelpers.LoadMockPlugin(
                 apiKeyAuth: apiKeyAuth,
                 oauth2Auth: oauth2Auth,
-                clients: clients);
+                clients: clients,
+                clientPipelineApi: TestClientPipelineApi.Instance);
         }
 
         [TestCaseSource(nameof(BuildFieldsTestCases), Category = KeyAuthCategory)]
-        public void TestBuildFields(List<InputParameter> inputParameters)
+        public void TestBuildFields_WithAuth(List<InputParameter> inputParameters)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
 
-            // key auth should have the following fields: AuthorizationHeader, _keyCredential
-
-            AssertHasFields(clientProvider, expectedFields);
+            if (_hasKeyAuth)
+            {
+                // key auth should have the following fields: AuthorizationHeader, _keyCredential
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                });
+            }
+            if (_hasOAuth2)
+            {
+                // oauth2 auth should have the following fields: AuthorizationScopes, _tokenCredential
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                });
+            }
         }
 
-        // validates the fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(BuildFieldsTestCases))]
+        public void TestBuildFields_NoAuth(List<InputParameter> inputParameters)
+        {
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // fields here should not have anything related with auth
+            bool authFieldFound = false;
+            foreach (var field in clientProvider.Fields)
+            {
+                if (field.Name.EndsWith("Credential") || field.Name.Contains("Authorization"))
+                {
+                    authFieldFound = true;
+                }
+            }
+
+            Assert.IsFalse(authFieldFound);
+        }
+
+        // validates the credential fields are built correctly when a client has sub-clients
         [TestCaseSource(nameof(SubClientFieldsTestCases), Category = SubClientsCategory)]
-        public void TestBuildFields_WithSubClients(InputClient client, List<ExpectedFieldProvider> expectedFields)
+        public void TestBuildFields_WithSubClients_NoAuth(InputClient client)
         {
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
 
-            AssertHasFields(clientProvider, expectedFields);
+            // fields here should not have anything related with auth
+            bool authFieldFound = false;
+            foreach (var field in clientProvider.Fields)
+            {
+                if (field.Name.EndsWith("Credential") || field.Name.Contains("Authorization"))
+                {
+                    authFieldFound = true;
+                }
+            }
+
+            Assert.IsFalse(authFieldFound);
+        }
+
+        // validates the credential fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(SubClientFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
+        [TestCaseSource(nameof(SubClientFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(SubClientFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
+        public void TestBuildFields_WithSubClients_WithAuth(InputClient client)
+        {
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            if (_hasKeyAuth)
+            {
+                // key auth should have the following fields: AuthorizationHeader, _keyCredential
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                });
+            }
+            if (_hasOAuth2)
+            {
+                // oauth2 auth should have the following fields: AuthorizationScopes, _tokenCredential
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(TestTokenCredential)), "_tokenCredential"),
+                });
+            }
         }
 
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = KeyAuthCategory)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2Category)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
         public void TestBuildConstructors_PrimaryConstructor(List<InputParameter> inputParameters)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
@@ -81,14 +167,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(clientProvider);
 
             var constructors = clientProvider.Constructors;
-            Assert.AreEqual(3, constructors.Count);
 
-            var primaryPublicConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
-            ValidatePrimaryConstructor(primaryPublicConstructor, inputParameters);
+            var primaryPublicConstructors = constructors.Where(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
+
+            // for no auth or one auth case, this should be 1
+            // for both auth case, this should be 2
+            var expectedPrimaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            Assert.AreEqual(expectedPrimaryCtorCount, primaryPublicConstructors.Length);
+
+            foreach (var primaryCtor in primaryPublicConstructors)
+            {
+                ValidatePrimaryConstructor(primaryCtor, inputParameters);
+            }
         }
 
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = KeyAuthCategory)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2Category)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
         public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
@@ -98,19 +195,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             var constructors = clientProvider.Constructors;
 
-            Assert.AreEqual(3, constructors.Count);
-            var primaryPublicConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+            var primaryPublicConstructors = constructors.Where(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
+            var secondaryPublicConstructors = constructors.Where(
+                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
 
-            Assert.IsNotNull(primaryPublicConstructor);
-
-            var secondaryPublicConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
-            ValidateSecondaryConstructor(primaryPublicConstructor, secondaryPublicConstructor, inputParameters);
+            // for no auth or one auth case, this should be 1
+            // for both auth case, this should be 2
+            var expectedSecondaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            Assert.AreEqual(expectedSecondaryCtorCount, secondaryPublicConstructors.Length);
+            foreach (var secondaryPublicConstructor in secondaryPublicConstructors)
+            {
+                ValidateSecondaryConstructor(primaryPublicConstructors, secondaryPublicConstructor, inputParameters);
+            }
         }
 
-        [Test]
-        public void TestBuildConstructors_ForSubClient()
+        [TestCase]
+        public void TestBuildConstructors_ForSubClient_NoAuth()
         {
             var clientProvider = new ClientProvider(_animalClient);
 
@@ -122,6 +223,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
+            // in the no auth case, the ctor no longer has the credentail parameter therefore here we expect 2 parameters.
+            var ctorParams = internalConstructor?.Signature?.Parameters;
+            Assert.AreEqual(2, ctorParams?.Count);
+
+            var mockingConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
+            Assert.IsNotNull(mockingConstructor);
+        }
+
+        [TestCase(Category = KeyAuthCategory)]
+        [TestCase(Category = OAuth2Category)]
+        public void TestBuildConstructors_ForSubClient_KeyAuthOrOAuth2Auth()
+        {
+            var clientProvider = new ClientProvider(_animalClient);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            Assert.AreEqual(2, constructors.Count);
+            var internalConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
+            Assert.IsNotNull(internalConstructor);
+            // when there is only one approach of auth, we have 3 parameters in the ctor.
             var ctorParams = internalConstructor?.Signature?.Parameters;
             Assert.AreEqual(3, ctorParams?.Count);
 
@@ -130,22 +255,43 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(mockingConstructor);
         }
 
-        private static void ValidatePrimaryConstructor(
-            ConstructorProvider? primaryPublicConstructor,
+        [TestCase(Category = $"{KeyAuthCategory},{OAuth2Category}")]
+        public void TestBuildConstructors_ForSubClient_BothAuth()
+        {
+            var clientProvider = new ClientProvider(_animalClient);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            Assert.AreEqual(2, constructors.Count);
+            var internalConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
+            Assert.IsNotNull(internalConstructor);
+            // when we have both auths, we have 4 parameters in the ctor, because now we should have two credential parameters
+            var ctorParams = internalConstructor?.Signature?.Parameters;
+            Assert.AreEqual(4, ctorParams?.Count);
+
+            var mockingConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
+            Assert.IsNotNull(mockingConstructor);
+        }
+
+        private void ValidatePrimaryConstructor(
+            ConstructorProvider primaryPublicConstructor,
             List<InputParameter> inputParameters)
         {
-            Assert.IsNotNull(primaryPublicConstructor);
-
             var primaryCtorParams = primaryPublicConstructor?.Signature?.Parameters;
-            var expectedPrimaryCtorParamCount = 3;
+            // in no auth case, the ctor only have two parameters: endpoint and options
+            // in other cases, the ctor should have three parameters: endpoint, credential, options
+            // specifically, in both auth cases, we should have two ctors corresponding to each credential type as the second parameter
+            var expectedPrimaryCtorParamCount = !_hasKeyAuth && !_hasOAuth2 ? 2 : 3;
 
             Assert.AreEqual(expectedPrimaryCtorParamCount, primaryCtorParams?.Count);
 
-            // validate the order of the parameters (endpoint, credential, client options)
+            // the first should be endpoint
             var endpointParam = primaryCtorParams?[0];
             Assert.AreEqual(KnownParameters.Endpoint.Name, endpointParam?.Name);
-            Assert.AreEqual("keyCredential", primaryCtorParams?[1].Name);
-            Assert.AreEqual("options", primaryCtorParams?[2].Name);
 
             if (endpointParam?.DefaultValue != null)
             {
@@ -154,41 +300,76 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.AreEqual(Literal(parsedValue), endpointParam?.InitializationValue);
             }
 
+            // the last parameter should be the options
+            var optionsParam = primaryCtorParams?[^1];
+            Assert.AreEqual("options", optionsParam?.Name);
+
+            if (_hasAuth)
+            {
+                // when there is any auth, the second should be auth parameter
+                var authParam = primaryCtorParams?[1];
+                Assert.IsNotNull(authParam);
+                if (authParam?.Name == "keyCredential")
+                {
+                    Assert.AreEqual(new CSharpType(typeof(ApiKeyCredential)), authParam?.Type);
+                }
+                else if (authParam?.Name == "tokenCredential")
+                {
+                    Assert.AreEqual(new CSharpType(typeof(TestTokenCredential)), authParam?.Type);
+                }
+                else
+                {
+                    Assert.Fail("Unexpected auth parameter");
+                }
+            }
+
             // validate the body of the primary ctor
             var primaryCtorBody = primaryPublicConstructor?.BodyStatements;
             Assert.IsNotNull(primaryCtorBody);
         }
 
         private void ValidateSecondaryConstructor(
-            ConstructorProvider? primaryConstructor,
-            ConstructorProvider? secondaryPublicConstructor,
+            IReadOnlyList<ConstructorProvider> primaryConstructors,
+            ConstructorProvider secondaryPublicConstructor,
             List<InputParameter> inputParameters)
         {
-            Assert.IsNotNull(secondaryPublicConstructor);
-            var ctorParams = secondaryPublicConstructor?.Signature?.Parameters;
+            var ctorParams = secondaryPublicConstructor.Signature?.Parameters;
 
-            // secondary ctor should consist of all required parameters + auth parameter
+            // secondary ctor should consist of all required parameters + auth parameter (when present)
             var requiredParams = inputParameters.Where(p => p.IsRequired).ToList();
-            Assert.AreEqual(requiredParams.Count + 1, ctorParams?.Count);
+            var authParameterCount = _hasAuth ? 1 : 0;
+            Assert.AreEqual(requiredParams.Count + authParameterCount, ctorParams?.Count);
             var endpointParam = ctorParams?.FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
 
             if (requiredParams.Count == 0)
             {
-                // auth should be the only parameter if endpoint is optional
-                Assert.AreEqual("keyCredential", ctorParams?[0].Name);
+                // auth should be the only parameter if endpoint is optional when there is auth
+                if (_hasAuth)
+                {
+                    Assert.IsTrue(ctorParams?[0].Name.EndsWith("Credential"));
+                }
+                else
+                {
+                    // when there is no auth, the ctor should not have parameters
+                    Assert.AreEqual(0, ctorParams?.Count);
+                }
             }
             else
             {
                 // otherwise, it should only consist of the auth parameter
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
-                Assert.AreEqual("keyCredential", ctorParams?[1].Name);
+                if (_hasAuth)
+                {
+                    Assert.IsTrue(ctorParams?[1].Name.EndsWith("Credential"));
+                }
             }
 
             Assert.AreEqual(MethodBodyStatement.Empty, secondaryPublicConstructor?.BodyStatements);
 
             // validate the initializer
             var initializer = secondaryPublicConstructor?.Signature?.Initializer;
-            Assert.AreEqual(primaryConstructor?.Signature?.Parameters?.Count, initializer?.Arguments?.Count);
+            Assert.NotNull(initializer);
+            Assert.IsTrue(primaryConstructors.Any(pc => pc.Signature.Parameters.Count == initializer?.Arguments.Count));
         }
 
         [TestCaseSource(nameof(EndpointParamInitializationValueTestCases))]
@@ -302,26 +483,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             get
             {
-                yield return new TestCaseData(InputFactory.Client(TestClientName), new List<ExpectedFieldProvider>
-                {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
-                });
-                yield return new TestCaseData(_animalClient, new List<ExpectedFieldProvider>
-                {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
-                });
-                yield return new TestCaseData(_dogClient, new List<ExpectedFieldProvider>
-                {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
-                });
-                yield return new TestCaseData(_huskyClient, new List<ExpectedFieldProvider>
-                {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
-                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
-                });
+                yield return new TestCaseData(InputFactory.Client(TestClientName));
+                yield return new TestCaseData(_animalClient);
+                yield return new TestCaseData(_dogClient);
+                yield return new TestCaseData(_huskyClient);
             }
         }
 
@@ -390,5 +555,51 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
             }
         }
+
+        // TODO -- this is temporary here before System.ClientModel officially supports OAuth2 auth
+        private record TestClientPipelineApi : ClientPipelineApi
+        {
+            private static ClientPipelineApi? _instance;
+            internal static ClientPipelineApi Instance => _instance ??= new TestClientPipelineApi(Empty);
+
+            public TestClientPipelineApi(ValueExpression original) : base(typeof(string), original)
+            {
+            }
+
+            public override CSharpType ClientPipelineType => typeof(string);
+
+            public override CSharpType ClientPipelineOptionsType => typeof(string);
+
+            public override CSharpType PipelinePolicyType => typeof(string);
+
+            public override CSharpType KeyCredentialType => typeof(ApiKeyCredential);
+
+            public override CSharpType TokenCredentialType => typeof(TestTokenCredential);
+
+            public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
+                => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
+
+            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
+                => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
+
+            public override ClientPipelineApi FromExpression(ValueExpression expression)
+                => new TestClientPipelineApi(expression);
+
+            public override ValueExpression ConsumeKeyAuth(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
+                => Original.Invoke("GetFakeApiKeyAuthorizationPolicy", keyPrefix != null ? [credential, headerName, keyPrefix] : [credential, headerName]);
+
+            public override ValueExpression ConsumeOAuth2Auth(ValueExpression credential, ValueExpression scopes)
+                => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
+
+            public override ClientPipelineApi ToExpression() => this;
+
+            public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
+                => [Original.Invoke("GetFakeProcessMessage", [message, options]).Terminate()];
+
+            public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+                => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
+        }
+
+        internal class TestTokenCredential { }
     }
 }
