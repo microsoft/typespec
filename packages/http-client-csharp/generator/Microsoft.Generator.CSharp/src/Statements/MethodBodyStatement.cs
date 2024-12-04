@@ -28,24 +28,19 @@ namespace Microsoft.Generator.CSharp.Statements
 
         public IEnumerable<MethodBodyStatement> Flatten()
         {
-            Queue<MethodBodyStatement> queue = new();
-            queue.Enqueue(this);
-
-            while (queue.Count > 0)
+            if (this is MethodBodyStatements statements)
             {
-                MethodBodyStatement current = queue.Dequeue();
-
-                if (current is MethodBodyStatements statements)
+                foreach (var statement in statements.Statements)
                 {
-                    foreach (var subStatement in statements.Statements)
+                    foreach (var subStatement in statement.Flatten())
                     {
-                        queue.Enqueue(subStatement);
+                        yield return subStatement;
                     }
                 }
-                else
-                {
-                    yield return current;
-                }
+            }
+            else
+            {
+                yield return this;
             }
         }
 
