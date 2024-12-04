@@ -398,7 +398,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     // Attach any additional OpenAPI extensions
     this.#attachExtensions(program, prop, additionalProps);
-    this.#attachSchemaExtensions(program, prop, additionalProps);
 
     if (schema && isRef && !(prop.type.kind === "Model" && isArrayModelType(program, prop.type))) {
       if (Object.keys(additionalProps).length === 0) {
@@ -680,14 +679,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         emitObject[key] = extensions.get(key);
       }
     }
-  }
 
-  #attachSchemaExtensions(program: Program, type: Type, emitObject: OpenAPI3Schema) {
-    // Attach any OpenAPI extensions
-    const extensions = getSchemaExtensions(program, type);
-    if (extensions) {
-      for (const key of extensions.keys()) {
-        emitObject[key] = extensions.get(key);
+    // Attach any OpenAPI schema extensions
+    const schemaExtensions = getSchemaExtensions(program, type);
+    if (schemaExtensions) {
+      for (const key of schemaExtensions.keys()) {
+        emitObject[key] = schemaExtensions.get(key);
       }
     }
   }

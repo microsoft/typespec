@@ -74,12 +74,29 @@ describe("openapi: decorators", () => {
         model Foo {
           @extension("${key}", "string")
           @test
-          prop: string
+          prop: string[]
         }
       `);
 
         expectDiagnostics(diagnostics, {
           code: "@typespec/openapi/invalid-extension-value",
+        });
+      },
+    );
+
+    it.each(["minProperties", "maxProperties", "uniqueItems", "multipleOf"])(
+      "%s, emit diagnostics when passing invalid target",
+      async (key) => {
+        const diagnostics = await runner.diagnose(`
+        @extension("${key}", "string")
+        @test
+        model Foo {
+          prop: string[]
+        }
+      `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-target",
         });
       },
     );
@@ -94,7 +111,7 @@ describe("openapi: decorators", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "@typespec/openapi/invalid-target-uniqueItems",
+        code: "@typespec/openapi/invalid-extension-target",
       });
     });
 

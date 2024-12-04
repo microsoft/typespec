@@ -1644,7 +1644,12 @@ function createOAPIEmitter(
     return callSchemaEmitter(type, visibility) as any;
   }
 
-  function attachExtensions(program: Program, type: Type, emitObject: any) {
+  function attachExtensions(
+    program: Program,
+    type: Type,
+    emitObject: any,
+    ignoreSchemaExtensions = false,
+  ) {
     // Attach any OpenAPI extensions
     const extensions = getExtensions(program, type);
     if (extensions) {
@@ -1652,14 +1657,13 @@ function createOAPIEmitter(
         emitObject[key] = extensions.get(key);
       }
     }
-  }
 
-  function attachSchemaExtensions(program: Program, type: Type, emitObject: any) {
-    // Attach any OpenAPI extensions
-    const extensions = getSchemaExtensions(program, type);
-    if (extensions) {
-      for (const key of extensions.keys()) {
-        emitObject[key] = extensions.get(key);
+    if (ignoreSchemaExtensions) {
+      const schemaextensions = getSchemaExtensions(program, type);
+      if (schemaextensions) {
+        for (const key of schemaextensions.keys()) {
+          emitObject[key] = schemaextensions.get(key);
+        }
       }
     }
   }
@@ -1739,9 +1743,7 @@ function createOAPIEmitter(
       };
     }
 
-    attachExtensions(program, typespecType, newTarget);
-    // attach schema extensions
-    attachSchemaExtensions(program, typespecType, newTarget);
+    attachExtensions(program, typespecType, newTarget, true);
 
     return newTarget;
   }

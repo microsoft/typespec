@@ -17,10 +17,11 @@ export const $lib = createTypeSpecLibrary({
         uniqueItems: paramMessage`${"extensionName"}' must boolean.`,
       },
     },
-    "invalid-target-uniqueItems": {
+    "invalid-extension-target": {
       severity: "error",
       messages: {
-        default: paramMessage`'uniqueItems can only apply to arrays, but ${"paramName"} is not an array`,
+        default: paramMessage`'minProperties/maxProperties/uniqueItems/multipleOf can only apply to property, but ${"paramName"} is not`,
+        uniqueItems: paramMessage`'uniqueItems can only apply to arrays, but ${"paramName"} is not an array`,
       },
     },
     "duplicate-type-name": {

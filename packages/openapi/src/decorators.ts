@@ -60,12 +60,72 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value: TypeSpecValue,
 ) => {
+  // Convert the TypeSpec value to JSON and collect any diagnostics
+  const [data, diagnostics] = typespecTypeToJson(value, entity);
   const isModelProperty = entity.kind === "ModelProperty";
 
-  if (
-    !(schemaExtensions.includes(extensionName) && isModelProperty) &&
-    !isOpenAPIExtensionKey(extensionName)
-  ) {
+  // Handle the "uniqueItems" extension
+  if (extensionName === "uniqueItems") {
+    // Check invalid target
+    if (
+      !(
+        isModelProperty &&
+        entity.type.kind === "Model" &&
+        isArrayModelType(context.program, entity.type)
+      )
+    ) {
+      // Report diagnostic if the target is invalid for "uniqueItems"
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-target",
+        messageId: "uniqueItems",
+        format: { paramName: entity.kind },
+        target: entity,
+      });
+      return;
+    }
+
+    // Check invalid data, Report diagnostic if the extension value is not a boolean
+    if (data !== true && data !== false) {
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-value",
+        messageId: "uniqueItems",
+        format: { extensionName: extensionName },
+        target: entity,
+      });
+      return;
+    }
+    // Set the extension for "uniqueItems"
+    setExtension(context.program, entity, extensionName, data);
+    return;
+  }
+
+  // Handle other schema extensions
+  if (schemaExtensions.includes(extensionName) && extensionName !== "uniqueItems") {
+    // Check invalid target, Report diagnostic if the target is invalid for the schema extension
+    if (!isModelProperty) {
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-target",
+        format: { paramName: entity.kind },
+        target: entity,
+      });
+      return;
+    }
+    // Check invalid data, Report diagnostic if the extension value is not a number
+    if (isNaN(Number(data))) {
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-value",
+        format: { extensionName: extensionName },
+        target: entity,
+      });
+      return;
+    }
+    // Set the extension for the schema extension
+    setExtension(context.program, entity, extensionName as SchemaExtensionKey, Number(data));
+    return;
+  }
+
+  // Check if the extensionName is a valid OpenAPI extension
+  if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
       messageId: "decorator",
@@ -75,64 +135,14 @@ export const $extension: ExtensionDecorator = (
     return;
   }
 
-  const [data, diagnostics] = typespecTypeToJson(value, entity);
-  const numberExtensions = ["minProperties", "maxProperties", "multipleOf"];
-  if (numberExtensions.includes(extensionName) && isNaN(Number(data))) {
-    reportDiagnostic(context.program, {
-      code: "invalid-extension-value",
-      format: { extensionName: extensionName },
-      target: entity,
-    });
+  // Report diagnostics if invalid data is found
+  if (diagnostics.length > 0) {
+    context.program.reportDiagnostics(diagnostics);
     return;
   }
 
-  if (extensionName === "uniqueItems" && data !== true && data !== false) {
-    reportDiagnostic(context.program, {
-      code: "invalid-extension-value",
-      messageId: "uniqueItems",
-      format: { extensionName: extensionName },
-      target: entity,
-    });
-    return;
-  }
-
-  if (
-    extensionName === "uniqueItems" &&
-    isModelProperty &&
-    ((entity.type.kind === "Model" && !isArrayModelType(context.program, entity.type)) ||
-      entity.type.kind === "Scalar")
-  ) {
-    reportDiagnostic(context.program, {
-      code: "invalid-target-uniqueItems",
-      format: { paramName: entity.kind },
-      target: entity,
-    });
-    return;
-  }
-
-  let inputData: any;
-  switch (extensionName) {
-    case "minProperties":
-    case "maxProperties":
-    case "multipleOf":
-      inputData = Number(data);
-      break;
-    case "uniqueItems":
-      inputData = data === true ? true : false;
-      break;
-    default:
-      if (diagnostics.length > 0) {
-        context.program.reportDiagnostics(diagnostics);
-      }
-      inputData = data;
-  }
-
-  setExtension(
-    context.program,
-    entity,
-    extensionName as ExtensionKey | SchemaExtensionKey,
-    inputData,
-  );
+  // Set the extension for valid OpenAPI extensions
+  setExtension(context.program, entity, extensionName, data);
 };
 
 /**
