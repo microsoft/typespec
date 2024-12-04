@@ -390,7 +390,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
         if self.code_model.options["package_version"]:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                f"{self.code_model.get_relative_import_path(serialize_namespace, module_name="_version")}", "VERSION", ImportType.LOCAL
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_version"), "VERSION", ImportType.LOCAL
             )
         if self.code_model.options["azure_arm"]:
             policy = "AsyncARMChallengeAuthenticationPolicy" if async_mode else "ARMChallengeAuthenticationPolicy"
