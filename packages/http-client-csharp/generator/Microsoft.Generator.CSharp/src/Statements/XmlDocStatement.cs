@@ -40,56 +40,35 @@ namespace Microsoft.Generator.CSharp.Statements
 
             foreach (var line in lines)
             {
-                escapedLines.Add(FormattableStringFactory.Create(EscapeLine(line.Format), EscapeArguments(line.GetArguments())));
-            }
-
-            List<FormattableString> allLines = new List<FormattableString>();
-            foreach (FormattableString line in escapedLines)
-            {
-                var format = line.Format;
-
-                var arguments = line.GetArguments();
-                foreach (var arg in arguments)
+                var breakLines = FormattableStringHelpers.BreakLines(line);
+                foreach (FormattableString l in breakLines)
                 {
-                    if (arg is string str)
-                    {
-                        var splitArgs = str.Split("\n");
-                        foreach (var s in splitArgs)
-                        {
-                            allLines.Add(FormattableStringFactory.Create(s));
-                        }
-                    }
-                }
-
-                var splitLines = line.ToString().Split("\n");
-                foreach (var s in splitLines)
-                {
-                    allLines.Add($"{s}");
+                    escapedLines.Add(l);
                 }
             }
 
-            return allLines;
+            return escapedLines;
         }
 
-        private static object?[] EscapeArguments(object?[] objects)
-        {
-            if (objects is null)
-                return Array.Empty<object?>();
+        //private static object?[] EscapeArguments(object?[] objects)
+        //{
+        //    if (objects is null)
+        //        return Array.Empty<object?>();
 
-            object?[] args = new object?[objects.Length];
-            for (int i = 0; i < objects.Length; i++)
-            {
-                if (objects[i] is string str)
-                {
-                    args[i] = EscapeLine(str);
-                }
-                else
-                {
-                    args[i] = objects[i];
-                }
-            }
-            return args;
-        }
+        //    object?[] args = new object?[objects.Length];
+        //    for (int i = 0; i < objects.Length; i++)
+        //    {
+        //        if (objects[i] is string str)
+        //        {
+        //            args[i] = EscapeLine(str);
+        //        }
+        //        else
+        //        {
+        //            args[i] = objects[i];
+        //        }
+        //    }
+        //    return args;
+        //}
 
         internal override void Write(CodeWriter writer)
         {
