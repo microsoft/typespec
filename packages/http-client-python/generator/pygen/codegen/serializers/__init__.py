@@ -296,9 +296,9 @@ class JinjaSerializer(ReaderAndWriter):
         operations_folder_name = self.code_model.operations_folder_name(namespace)
 
         # if there was a patch file before, we keep it
-        self._keep_patch_file(self.exec_path(namespace) / Path("_patch.py"), env)
+        self._keep_patch_file(self.exec_path(namespace) / operations_folder_name / Path("_patch.py"), env)
         if self.has_aio_folder:
-            self._keep_patch_file(self.exec_path(namespace) / Path("aio") / Path("_patch.py"), env)
+            self._keep_patch_file(self.exec_path(namespace) / Path("aio") / operations_folder_name / Path("_patch.py"), env)
 
         # write sync operations init file
         operations_init_serializer = OperationsInitSerializer(

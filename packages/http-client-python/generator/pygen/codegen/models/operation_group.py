@@ -126,10 +126,10 @@ class OperationGroup(BaseModel):
             file_import.add_submodule_import(relative_path, "models", ImportType.LOCAL, alias="_models")
         if self.is_mixin:
             file_import.add_submodule_import(
-                f"{relative_path}._vendor", f"{self.client.name}MixinABC", ImportType.LOCAL
+                f"{relative_path}_vendor", f"{self.client.name}MixinABC", ImportType.LOCAL
             )
         if self.has_abstract_operations:
-            file_import.add_submodule_import(f"{relative_path}._vendor", "raise_if_not_implemented", ImportType.LOCAL)
+            file_import.add_submodule_import(f"{relative_path}_vendor", "raise_if_not_implemented", ImportType.LOCAL)
         if all(o.abstract for o in self.operations):
             return file_import
         file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)

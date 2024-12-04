@@ -151,7 +151,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         if self.code_model.options["models_mode"] == "dpg" and isinstance(self.type, ModelType):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                f"{self.code_model.get_relative_import_path(serialize_namespace)}._model_base",
+                f"{self.code_model.get_relative_import_path(serialize_namespace)}_model_base",
                 "rest_discriminator" if self.is_discriminator else "rest_field",
                 ImportType.LOCAL,
             )

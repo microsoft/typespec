@@ -166,7 +166,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         relative_path = self.code_model.get_relative_import_path(serialize_namespace)
         if self.added_on and self.implementation != "Client":
             file_import.add_submodule_import(
-                f"{relative_path}._validation",
+                f"{relative_path}_validation",
                 "api_version_validation",
                 ImportType.LOCAL,
             )
@@ -275,7 +275,7 @@ class BodyParameter(_ParameterBase):
         if self.is_form_data:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                f"{self.code_model.get_relative_import_path(serialize_namespace)}._vendor",
+                f"{self.code_model.get_relative_import_path(serialize_namespace)}_vendor",
                 "prepare_multipart_form_data",
                 ImportType.LOCAL,
             )

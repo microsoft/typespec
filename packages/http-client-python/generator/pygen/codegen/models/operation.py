@@ -224,7 +224,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         if self.added_on:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                f"{self.code_model.get_relative_import_path(serialize_namespace)}._validation",
+                f"{self.code_model.get_relative_import_path(serialize_namespace)}_validation",
                 "api_version_validation",
                 ImportType.LOCAL,
             )
@@ -400,12 +400,12 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             )
             if not async_mode:
                 file_import.add_submodule_import(
-                    f"{self.code_model.get_relative_import_path(serialize_namespace)}._vendor",
+                    f"{self.code_model.get_relative_import_path(serialize_namespace)}_vendor",
                     "prep_if_match",
                     ImportType.LOCAL,
                 )
                 file_import.add_submodule_import(
-                    f"{self.code_model.get_relative_import_path(serialize_namespace)}._vendor",
+                    f"{self.code_model.get_relative_import_path(serialize_namespace)}_vendor",
                     "prep_if_none_match",
                     ImportType.LOCAL,
                 )
@@ -449,23 +449,23 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                     file_import.add_submodule_import(relative_path, "_model_base", ImportType.LOCAL)
                 elif xml_serializable(self.parameters.body_parameter.default_content_type):
                     file_import.add_submodule_import(
-                        f"{relative_path}._model_base",
+                        f"{relative_path}_model_base",
                         "_get_element",
                         ImportType.LOCAL,
                     )
                 elif json_serializable(self.parameters.body_parameter.default_content_type):
                     file_import.add_submodule_import(
-                        f"{relative_path}._model_base",
+                        f"{relative_path}_model_base",
                         "SdkJSONEncoder",
                         ImportType.LOCAL,
                     )
                     file_import.add_import("json", ImportType.STDLIB)
             if any(xml_serializable(str(r.default_content_type)) for r in self.responses):
-                file_import.add_submodule_import(f"{relative_path}._model_base", "_deserialize_xml", ImportType.LOCAL)
+                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize_xml", ImportType.LOCAL)
             elif any(r.type for r in self.responses):
-                file_import.add_submodule_import(f"{relative_path}._model_base", "_deserialize", ImportType.LOCAL)
+                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
             if self.default_error_deserialization or self.non_default_errors:
-                file_import.add_submodule_import(f"{relative_path}._model_base", "_deserialize", ImportType.LOCAL)
+                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
         return file_import
 
     def get_response_from_status(self, status_code: Optional[Union[str, int]]) -> ResponseType:

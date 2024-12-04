@@ -32,15 +32,15 @@ def get_all_operation_groups_recursively(clients: List[Client]) -> List[Operatio
 class ClientNamespaceType:
     def __init__(
         self,
-        clients: List[Client] = [],
-        models: List[ModelType] = [],
-        enums: List[EnumType] = [],
-        operation_groups: List[OperationGroup] = [],
+        clients: Optional[List[Client]] = None,
+        models: Optional[List[ModelType]] = None,
+        enums: Optional[List[EnumType]] = None,
+        operation_groups: Optional[List[OperationGroup]] = None,
     ):
-        self.clients = clients
-        self.models = models
-        self.enums = enums
-        self.operation_groups = operation_groups
+        self.clients = clients or []
+        self.models = models or []
+        self.enums = enums or []
+        self.operation_groups = operation_groups or []
 
 
 class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-instance-attributes
@@ -130,7 +130,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
               if serialize_namespace[idx] != imported_namespace[idx]:
                   break
               idx += 1
-          self._relative_import_path[key] = "." * (len(serialize_namespace[idx:].strip(".").split(".")) + 1) + imported_namespace[idx:].strip(".")
+          self._relative_import_path[key] = "." * len(serialize_namespace[idx:].strip(".").split(".")) + imported_namespace[idx:].strip(".")
         return self._relative_import_path[key]
 
     @property
