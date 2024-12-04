@@ -63,15 +63,11 @@ extends:
                       --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
                       --source "./website/dist/" \
                       --overwrite
-              - script: |
-                  vsCodeExtensionFile=$(ls $(Build.SourcesDirectory)/packages/typespec-vscode |grep ".vsix")
-                  echo "##vso[task.setvariable variable=vsCodeExtensionFileName]$vsCodeExtensionFile"
-                displayName: Get the vscode extension file
               - task: CopyFiles@2
                 displayName: "Copy VSCode extension .vsix to artifact directory"
                 inputs:
                   SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
-                  Contents: "$(vsCodeExtensionFileName)"
+                  Contents: "*.vsix"
                   TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
             templateContext:
               outputs:
