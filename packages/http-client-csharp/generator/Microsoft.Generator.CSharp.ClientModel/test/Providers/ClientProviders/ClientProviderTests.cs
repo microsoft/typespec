@@ -63,6 +63,37 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 clientPipelineApi: _hasAuth ? TestClientPipelineApi.Instance : null);
         }
 
+        [Test]
+        public void TestBuildProperties()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // validate the properties
+            var properties = clientProvider.Properties;
+            Assert.IsTrue(properties.Count > 0);
+            // there should be a pipeline property
+            Assert.AreEqual(1, properties.Count);
+
+            var pipelineProperty = properties.First();
+            Assert.AreEqual(typeof(ClientPipeline), pipelineProperty.Type.FrameworkType);
+            Assert.AreEqual("Pipeline", pipelineProperty.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Public, pipelineProperty.Modifiers);
+        }
+
+        [TestCaseSource(nameof(BuildFieldsTestCases))]
+        public void TestBuildFields(List<InputParameter> inputParameters, List<ExpectedFieldProvider> expectedFields)
+        {
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            AssertHasFields(clientProvider, expectedFields);
+        }
+
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = KeyAuthCategory)]
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = OAuth2Category)]
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
@@ -114,9 +145,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsFalse(authFieldFound);
         }
 
+        // validates the fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(SubClientFieldsTestCases), Category = SubClientsCategory)]
+        public void TestBuildFields_WithSubClients(InputClient client, List<ExpectedFieldProvider> expectedFields)
+        {
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            AssertHasFields(clientProvider, expectedFields);
+        }
+
         // validates the credential fields are built correctly when a client has sub-clients
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = SubClientsCategory)]
-        public void TestBuildFields_WithSubClients_NoAuth(InputClient client)
+        public void TestBuildAuthFields_WithSubClients_NoAuth(InputClient client)
         {
             var clientProvider = new ClientProvider(client);
 
@@ -139,7 +181,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
-        public void TestBuildFields_WithSubClients_WithAuth(InputClient client)
+        public void TestBuildAuthFields_WithSubClients_WithAuth(InputClient client)
         {
             var clientProvider = new ClientProvider(client);
 
@@ -434,48 +476,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             {
                 Assert.AreEqual(0, subClientAccessorFactoryMethods.Count);
             }
-        }
-
-        [Test]
-        public void TestBuildProperties()
-        {
-            var client = InputFactory.Client(TestClientName);
-            var clientProvider = new ClientProvider(client);
-
-            Assert.IsNotNull(clientProvider);
-
-            // validate the properties
-            var properties = clientProvider.Properties;
-            Assert.IsTrue(properties.Count > 0);
-            // there should be a pipeline property
-            Assert.AreEqual(1, properties.Count);
-
-            var pipelineProperty = properties.First();
-            Assert.AreEqual(typeof(ClientPipeline), pipelineProperty.Type.FrameworkType);
-            Assert.AreEqual("Pipeline", pipelineProperty.Name);
-            Assert.AreEqual(MethodSignatureModifiers.Public, pipelineProperty.Modifiers);
-        }
-
-        [TestCaseSource(nameof(BuildFieldsTestCases))]
-        public void TestBuildFields(List<InputParameter> inputParameters, List<ExpectedFieldProvider> expectedFields)
-        {
-            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
-            var clientProvider = new ClientProvider(client);
-
-            Assert.IsNotNull(clientProvider);
-
-            AssertHasFields(clientProvider, expectedFields);
-        }
-
-        // validates the fields are built correctly when a client has sub-clients
-        [TestCaseSource(nameof(SubClientFieldsTestCases), Category = SubClientsCategory)]
-        public void TestBuildFields_WithSubClients(InputClient client, List<ExpectedFieldProvider> expectedFields)
-        {
-            var clientProvider = new ClientProvider(client);
-
-            Assert.IsNotNull(clientProvider);
-
-            AssertHasFields(clientProvider, expectedFields);
         }
 
         [TestCase(true)]
