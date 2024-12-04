@@ -981,23 +981,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
-        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases
-        {
-            get
-            {
-                // string primitive type
-                yield return new TestCaseData(
-                    InputFactory.Parameter(
-                        "param",
-                        InputPrimitiveType.String,
-                        location: RequestLocation.None,
-                        kind: InputOperationParameterKind.Client,
-                        isEndpoint: true,
-                        defaultValue: InputFactory.Constant.String("mockValue")),
-                    New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
-            }
-        }
-
         public static IEnumerable<TestCaseData> RequestOptionsParameterInSignatureTestCases
         {
             get
@@ -1114,6 +1097,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
                         parameters: []),
                     false, false);
+            }
+        }
+
+        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases
+        {
+            get
+            {
+                // string primitive type
+                yield return new TestCaseData(
+                    InputFactory.Parameter(
+                        "param",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true,
+                        defaultValue: InputFactory.Constant.String("mockValue")),
+                    New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
             }
         }
 
