@@ -163,16 +163,15 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
         if self.optional and self.client_default_value is None:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-        relative_path = self.code_model.get_relative_import_path(serialize_namespace)
         if self.added_on and self.implementation != "Client":
             file_import.add_submodule_import(
-                f"{relative_path}_validation",
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_validation"),
                 "api_version_validation",
                 ImportType.LOCAL,
             )
         if isinstance(self.type, CombinedType) and self.type.name:
             file_import.add_submodule_import(
-                relative_path,
+                self.code_model.get_relative_import_path(serialize_namespace),
                 "_types",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
@@ -275,7 +274,7 @@ class BodyParameter(_ParameterBase):
         if self.is_form_data:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                f"{self.code_model.get_relative_import_path(serialize_namespace)}_vendor",
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"),
                 "prepare_multipart_form_data",
                 ImportType.LOCAL,
             )

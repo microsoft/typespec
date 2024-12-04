@@ -626,8 +626,7 @@ class MultiPartFileType(PrimitiveType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-        relative_path = self.code_model.get_relative_import_path(serialize_namespace)
-        file_import.add_submodule_import(f"{relative_path}_vendor", self.name, ImportType.LOCAL)
+        file_import.add_submodule_import(self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"), self.name, ImportType.LOCAL)
         return file_import
 
     @property

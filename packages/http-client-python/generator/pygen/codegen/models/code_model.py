@@ -95,14 +95,15 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self._operations_folder_name: Dict[str, str] = {}
         self._relative_import_path: Dict[str, str] = {}
 
-    # | serialize_namespace  | imported_namespace | relative_import_path |
-    # |----------------------|--------------------|----------------------|
-    # |azure.test.operations | azure.test         | ..                   |
-    # |azure.test.operations | azure.test.subtest | ..subtest            |
-    # |azure.test.operations | azure              | ...                  |
-    # |azure.test.aio.operations | azure.test     | ...                  |
-    # |azure.test.subtest.aio.operations|azure.test| ....                |
-    # |azure.test            |azure.test.subtest  | .subtest             |
+    # | serialize_namespace  | imported_namespace   | relative_import_path |
+    # |----------------------|----------------------|----------------------|
+    # |azure.test.operations | azure.test.operations| ..                 |
+    # |azure.test.operations | azure.test           | ..                   |
+    # |azure.test.operations | azure.test.subtest   | ..subtest            |
+    # |azure.test.operations | azure                | ...                  |
+    # |azure.test.aio.operations | azure.test       | ...                  |
+    # |azure.test.subtest.aio.operations|azure.test | ....                |
+    # |azure.test            |azure.test.subtest    | .subtest             |
     def get_relative_import_path(
         self,
         serialize_namespace: str,
@@ -110,6 +111,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         *,
         namespace_type: NamespaceType = NamespaceType.NONE,
         async_mode: bool = False,
+        module_name: Optional[str] = None,
     ) -> str:
         if imported_namespace is None:
             imported_namespace = self.namespace
@@ -126,12 +128,18 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         key = f"{serialize_namespace}-{imported_namespace}"
         if key not in self._relative_import_path:
           idx = 0
-          while idx < min(len(serialize_namespace), len(imported_namespace)):
-              if serialize_namespace[idx] != imported_namespace[idx]:
+          serialize_namespace_split = serialize_namespace.split(".")
+          imported_namespace_split = imported_namespace.split(".")
+          while idx < min(len(serialize_namespace_split), len(imported_namespace_split)):
+              if serialize_namespace_split[idx] != imported_namespace_split[idx]:
                   break
               idx += 1
-          self._relative_import_path[key] = "." * len(serialize_namespace[idx:].strip(".").split(".")) + imported_namespace[idx:].strip(".")
-        return self._relative_import_path[key]
+          self._relative_import_path[key] = "." * (len(serialize_namespace_split[idx:]) + 1) + ".".join(imported_namespace_split[idx:])
+        result = self._relative_import_path[key]
+        if module_name is None:
+          return result
+        return f"{result}{module_name}" if result.endswith(".") else f"{result}.{module_name}"
+        
 
     @property
     def need_unique_model_alias(self) -> bool:
