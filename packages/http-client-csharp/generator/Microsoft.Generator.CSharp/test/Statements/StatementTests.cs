@@ -518,6 +518,33 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
             Assert.AreEqual(ifTrueStatement.Body.ToDisplayString(), body[0].ToDisplayString());
         }
 
+        [Test]
+        public void TestFlatten_CorrectNestedOrder()
+        {
+            var statement1 = new IfStatement(True) { Return(True) };
+            var statement2 = new IfStatement(False) { Return(False) };
+            var nestedStatement1 = new IfStatement(False) { Return(Literal("Foo")) };
+            var nestedStatement2 = new IfStatement(True) { Return(Literal("Bar")) };
+            var methodBodyStatements = new MethodBodyStatements(
+            [
+                statement1,
+                new MethodBodyStatements(
+                [
+                    nestedStatement1,
+                    nestedStatement2
+                ]),
+                statement2
+            ]);
 
+            var result = methodBodyStatements.Flatten();
+            var expectedOrder = new List<MethodBodyStatement>
+            {
+                statement1,
+                nestedStatement1,
+                nestedStatement2,
+                statement2
+            };
+            Assert.AreEqual(expectedOrder, result);
+        }
     }
 }
