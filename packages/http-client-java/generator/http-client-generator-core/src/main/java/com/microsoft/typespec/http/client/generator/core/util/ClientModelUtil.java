@@ -873,7 +873,8 @@ public class ClientModelUtil {
             // immutable output model only has package-private setters, making its properties effectively read-only
             || (isImmutableOutputModel(getDefiningModel(model, property), settings))
                 // if property.isReadOnly(), whether it's required or not will not affect it being in constructor or not
-                // , thus only check when !property.isReadOnly() and the model is immutable output(effectively read-only)
+                // , thus only check when !property.isReadOnly() and the model is immutable output(effectively
+                // read-only)
                 && !(property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()));
     }
 
