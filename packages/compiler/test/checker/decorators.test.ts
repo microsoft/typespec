@@ -187,7 +187,7 @@ describe("compiler: checker: decorators", () => {
     const unnecessaryDiags: DiagnosticMatch[] = [
       {
         code: "unused-using",
-        message: `unused using: using TypeSpec.Reflection`,
+        message: `Unused using: using TypeSpec.Reflection`,
         severity: "hint",
       },
     ];
