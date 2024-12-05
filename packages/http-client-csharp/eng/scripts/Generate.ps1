@@ -123,7 +123,7 @@ foreach ($directory in $directories) {
 }
 
 # only write new launch settings if no filter was passed in
-
+if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
     $mgcExe = "`$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
@@ -168,3 +168,4 @@ foreach ($directory in $directories) {
     $launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"
     # Write the settings to JSON and normalize line endings to Unix style (LF)
     $sortedLaunchSettings | ConvertTo-Json | ForEach-Object { $_ -replace "`r`n", "`n" } | Set-Content $launchSettingsPath
+}
