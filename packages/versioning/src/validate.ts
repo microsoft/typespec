@@ -223,33 +223,64 @@ function validateMultiTypeReference(program: Program, source: Type, options?: Ty
   if (versionTypeMap === undefined) return;
   for (const [version, type] of versionTypeMap!) {
     if (type === undefined) continue;
+    validateTypeAvailability(program, version, type, source, options);
+  }
+}
+
+/**
+ * Ensures that a type is available in a given version.
+ * For types that may wrap other types, e.g. unions, tuples, or template instances,
+ * this function will recursively check the wrapped types.
+ */
+function validateTypeAvailability(
+  program: Program,
+  version: Version,
+  targetType: Type,
+  source: Type,
+  options?: TypeNameOptions,
+) {
+  const typesToCheck: Type[] = [targetType];
+  while (typesToCheck.length) {
+    const type = typesToCheck.pop()!;
     const availMap = getAvailabilityMap(program, type);
-    const availability = availMap?.get(version.name) ?? Availability.Available;
-    if ([Availability.Added, Availability.Available].includes(availability)) {
-      // Check if there are any indexed/template arguments that are validated...
-      if (isTemplateInstance(type)) {
-        for (const arg of type.templateMapper.args) {
-          if (isType(arg)) {
-            validateReference(program, source, arg);
-          }
-        }
-      } else if (type.kind === "Union") {
-        for (const variant of type.variants.values()) {
-          validateReference(program, source, variant.type);
+    const availability = availMap?.get(version?.name) ?? Availability.Available;
+    if (![Availability.Added, Availability.Available].includes(availability)) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "doesNotExist",
+        format: {
+          sourceName: getTypeName(source, options),
+          targetName: getTypeName(type, options),
+          version: prettyVersion(version),
+        },
+        target: source,
+      });
+    }
+
+    if (isTemplateInstance(type)) {
+      for (const arg of type.templateMapper.args) {
+        if (isType(arg)) {
+          typesToCheck.push(arg);
         }
       }
-      continue;
+    } else if (type.kind === "Union") {
+      for (const variant of type.variants.values()) {
+        if (type.expression) {
+          // Union expressions don't have decorators applied,
+          // so we need to check the type directly.
+          typesToCheck.push(variant.type);
+        } else {
+          // Named unions can have decorators applied,
+          // so we need to check that the variant type is valid
+          // for whatever decoration the variant has.
+          validateTargetVersionCompatible(program, variant, variant.type);
+        }
+      }
+    } else if (type.kind === "Tuple") {
+      for (const value of type.values) {
+        typesToCheck.push(value);
+      }
     }
-    reportDiagnostic(program, {
-      code: "incompatible-versioned-reference",
-      messageId: "doesNotExist",
-      format: {
-        sourceName: getTypeName(source, options),
-        targetName: getTypeName(type, options),
-        version: prettyVersion(version),
-      },
-      target: source,
-    });
   }
 }
 
