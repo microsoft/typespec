@@ -44,7 +44,7 @@ export interface YamlScalarTarget {
   /**
    *  The input quotes (double quotes or single quotes)
    */
-  sourceQuoteType: string;
+  sourceType: string;
 
   /**
    * The parameters of the config file
@@ -105,7 +105,7 @@ export function resolveYamlScalarTarget(
         path: [""],
         type: "key",
         source: "",
-        sourceQuoteType: "",
+        sourceType: "",
         siblings: rootProperties,
         siblingsChildren: [],
         parameters: [],
@@ -155,7 +155,7 @@ export function resolveYamlScalarTarget(
             path: [...yp.path.slice(0, yp.path.length - 1), ""],
             type: "key",
             source: "",
-            sourceQuoteType: "",
+            sourceType: "",
             siblings: [...yp.siblings, yp.source],
             siblingsChildren: yp.siblingsChildren,
             parameters: yp.parameters,
@@ -200,7 +200,7 @@ export function resolveYamlScalarTarget(
             path: [...yp.path, ""],
             type: "key",
             source: "",
-            sourceQuoteType: "",
+            sourceType: "",
             siblings: isMap(last.value)
               ? (last.value?.items.map((item) => (item.key as any).source ?? "") ?? [])
               : [],
@@ -297,7 +297,7 @@ function createYamlPathFromVisitScalarNode(
       path: [],
       type: key === null ? "key" : "value",
       source: n.source ?? "",
-      sourceQuoteType: n.type ?? "",
+      sourceType: n.type ?? "",
       siblings: [],
       siblingsChildren: [],
       parameters: configParams,
@@ -321,7 +321,7 @@ function createYamlPathFromVisitScalarNode(
         path,
         type: "key",
         source: n.source ?? "",
-        sourceQuoteType: n.type ?? "",
+        sourceType: n.type ?? "",
         siblings: [],
         siblingsChildren: [],
         parameters: configParams,
@@ -361,7 +361,7 @@ function createYamlPathFromVisitScalarNode(
         source: n.source ?? "",
         siblings: targetSiblings,
         siblingsChildren: targetSiblingChildren,
-        sourceQuoteType: n.type ?? "",
+        sourceType: n.type ?? "",
         parameters: configParams,
         envs: configEnvs,
       };
@@ -371,7 +371,7 @@ function createYamlPathFromVisitScalarNode(
       path: path,
       type: "arr-item",
       source: n.source ?? "",
-      sourceQuoteType: n.type ?? "",
+      sourceType: n.type ?? "",
       siblings: last.items
         .filter((i) => i !== n)
         .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
