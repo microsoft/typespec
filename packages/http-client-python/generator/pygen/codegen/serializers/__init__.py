@@ -210,16 +210,16 @@ class JinjaSerializer(ReaderAndWriter):
         if models:
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
-                serializer(code_model=self.code_model, env=env, client_namespace=namespace).serialize(),
+                serializer(code_model=self.code_model, env=env, client_namespace=namespace, models=models).serialize(),
             )
         if enums:
             self.write_file(
                 models_path / Path(f"{self.code_model.enums_filename}.py"),
-                EnumSerializer(code_model=self.code_model, env=env, client_namespace=namespace).serialize(),
+                EnumSerializer(code_model=self.code_model, env=env, client_namespace=namespace, enums=enums).serialize(),
             )
         self.write_file(
             models_path / Path("__init__.py"),
-            ModelInitSerializer(code_model=self.code_model, env=env).serialize(),
+            ModelInitSerializer(code_model=self.code_model, env=env, models=models, enums=enums).serialize(),
         )
 
         self._keep_patch_file(models_path / Path("_patch.py"), env)

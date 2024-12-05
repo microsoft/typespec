@@ -11,6 +11,7 @@ from .utils import add_to_pylint_disable, NamespaceType
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
+from .enum_type import EnumType
 from .imports import FileImport, ImportType, TypingSection
 from ...utils import NAME_LENGTH_LIMIT
 
@@ -301,22 +302,33 @@ class GeneratedModelType(ModelType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
+        alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
+        namespace_type = kwargs.get("namespace_type")
         # add import for models in operations or _types file
-        if kwargs.get("need_import_models", False):
-          file_import.add_submodule_import(
-              self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
-              "models",
-              ImportType.LOCAL,
-              alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
-              typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
-          )
-          if self.is_form_data:
-              file_import.add_submodule_import(
-                  self.code_model.get_relative_import_path(serialize_namespace),
-                  "_model_base",
-                  ImportType.LOCAL,
-                  typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
-              )
+        if namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
+            file_import.add_submodule_import(
+                relative_path,
+                "models",
+                ImportType.LOCAL,
+                alias=alias,
+                typing_section=TypingSection.REGULAR,
+            )
+            if self.is_form_data:
+                file_import.add_submodule_import(
+                    self.code_model.get_relative_import_path(serialize_namespace),
+                    "_model_base",
+                    ImportType.LOCAL,
+                    typing_section=TypingSection.REGULAR,
+                )
+        elif namespace_type == NamespaceType.MODEL:
+            file_import.add_submodule_import(
+                relative_path,
+                "models",
+                ImportType.LOCAL,
+                alias=alias,
+                typing_section=TypingSection.TYPING,
+            )
         return file_import
 
 

@@ -63,6 +63,7 @@ class OperationGroupsSerializer(BaseSerializer):
                 operation_group.imports(
                     async_mode=self.async_mode,
                     serialize_namespace=self.serialize_namespace,
+                    namespace_type=NamespaceType.OPERATION,
                 )
             )
 

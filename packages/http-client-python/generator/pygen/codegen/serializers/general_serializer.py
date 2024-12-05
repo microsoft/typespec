@@ -14,6 +14,7 @@ from ..models import (
     TokenCredentialType,
     Client,
 )
+from ..models.utils import NamespaceType
 from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
 
@@ -68,7 +69,7 @@ class GeneralSerializer(BaseSerializer):
 
         imports = FileImport(self.code_model)
         for client in clients:
-            imports.merge(client.imports(self.async_mode, serialize_namespace=self.serialize_namespace))
+            imports.merge(client.imports(self.async_mode, serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.CLIENT))
 
         return template.render(
             code_model=self.code_model,
@@ -149,7 +150,7 @@ class GeneralSerializer(BaseSerializer):
         template = self.env.get_template("config_container.py.jinja2")
         imports = FileImport(self.code_model)
         for client in self.code_model.clients:
-            imports.merge(client.config.imports(self.async_mode, serialize_namespace=self.serialize_namespace))
+            imports.merge(client.config.imports(self.async_mode, serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.CLIENT))
         return template.render(
             code_model=self.code_model,
             async_mode=self.async_mode,
@@ -180,7 +181,7 @@ class GeneralSerializer(BaseSerializer):
     def serialize_cross_language_definition_file(self) -> str:
         cross_langauge_def_dict = {
             f"{self.code_model.namespace}.models.{model.name}": model.cross_language_definition_id
-            for model in self.code_model.public_model_types
+            for model in self.code_model.public_model_types()
         }
         cross_langauge_def_dict.update(
             {

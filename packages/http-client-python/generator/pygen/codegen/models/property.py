@@ -140,13 +140,10 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         return retval or None
 
     def imports(self, **kwargs) -> FileImport:
-        from .model_type import ModelType
-
         file_import = FileImport(self.code_model)
         if self.is_discriminator and isinstance(self.type, EnumType):
             return file_import
-        need_import_models = isinstance(self.type, ModelType)
-        file_import.merge(self.type.imports(**kwargs, model_typing=True, need_import_models=need_import_models))
+        file_import.merge(self.type.imports(**kwargs))
         if self.optional and self.client_default_value is None:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models_mode"] == "dpg":

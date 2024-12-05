@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List
+from typing import List, Optional
 from abc import ABC, abstractmethod
 
 from ..models import ModelType, Property, ConstantType, EnumValue
@@ -23,6 +23,10 @@ def _documentation_string(prop: Property, description_keyword: str, docstring_ty
 
 
 class _ModelSerializer(BaseSerializer, ABC):
+    def __init__(self, code_model, env, async_mode = False, *, models: List[ModelType], client_namespace: Optional[str] = None):
+        super().__init__(code_model, env, async_mode, client_namespace=client_namespace)
+        self.models = models
+
     @abstractmethod
     def imports(self) -> FileImport: ...
 
@@ -34,6 +38,7 @@ class _ModelSerializer(BaseSerializer, ABC):
             imports=FileImportSerializer(self.imports()),
             str=str,
             serializer=self,
+            models=self.models,
         )
 
     @abstractmethod
@@ -141,7 +146,7 @@ class MsrestModelSerializer(_ModelSerializer):
             msrest_import_type=MsrestImportType.Module,
             typing_section=TypingSection.REGULAR,
         )
-        for model in self.code_model.model_types:
+        for model in self.models:
             file_import.merge(model.imports(is_operation_file=False))
             for param in self._init_line_parameters(model):
                 file_import.merge(param.imports())
@@ -221,12 +226,12 @@ class DpgModelSerializer(_ModelSerializer):
             TypingSection.REGULAR,
         )
 
-        for model in self.code_model.model_types:
+        for model in self.models:
             if model.base == "json":
                 continue
             file_import.merge(model.imports(is_operation_file=False, serialize_namespace=self.serialize_namespace))
             for prop in model.properties:
-                file_import.merge(prop.imports(serialize_namespace=self.serialize_namespace))
+                file_import.merge(prop.imports(serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.MODEL))
             if model.is_polymorphic:
                 file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             if not model.internal and self.init_line(model):
@@ -329,7 +334,7 @@ class DpgModelSerializer(_ModelSerializer):
 
     def global_pylint_disables(self) -> str:
         result = []
-        for model in self.code_model.model_types:
+        for model in self.models:
             if self.need_init(model):
                 for item in self.pylint_disable_items(model):
                     if item:

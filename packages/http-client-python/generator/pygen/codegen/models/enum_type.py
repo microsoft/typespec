@@ -7,6 +7,7 @@ from typing import Any, Dict, List, TYPE_CHECKING, Optional, cast
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
+from .utils import NamespaceType
 
 
 if TYPE_CHECKING:
@@ -81,7 +82,6 @@ class EnumValue(BaseType):
             self.enum_type.name,
             ImportType.LOCAL,
             TypingSection.REGULAR,
-            client_namespace=self.enum_type.client_namespace,
         )
 
         return file_import
@@ -221,27 +221,17 @@ class EnumType(BaseType):
         )
 
     def imports(self, **kwargs: Any) -> FileImport:
-        in_operation_file = kwargs.get("in_operation_file", False)
         file_import = FileImport(self.code_model)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-        if self.code_model.options["models_mode"]:
+        if self.code_model.options["models_mode"] and kwargs.get("namespace_type") in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
-            if not in_operation_file:
-                file_import.add_submodule_import(
-                    self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
-                    "models",
-                    ImportType.LOCAL,
-                    TypingSection.TYPING,
-                    alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
-                )
-        file_import.merge(self.value_type.imports(**kwargs))
-        if self.code_model.options["models_mode"]:
-            # add import for enums in operations file
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace),
                 "models",
                 ImportType.LOCAL,
                 alias=self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace),
-                typing_section=(TypingSection.TYPING if kwargs.get("model_typing") else TypingSection.REGULAR),
+                typing_section=TypingSection.REGULAR,
             )
+
+        file_import.merge(self.value_type.imports(**kwargs))
         return file_import

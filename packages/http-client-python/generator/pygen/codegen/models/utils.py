@@ -29,4 +29,5 @@ class NamespaceType(str, Enum):
     NONE = "none"
     MODEL = "model"
     OPERATION = "operation"
+    CLIENT = "client"
 

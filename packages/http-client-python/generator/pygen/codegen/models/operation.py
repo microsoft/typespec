@@ -341,7 +341,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
         if self.parameters.has_body and self.parameters.body_parameter.flattened:
             file_import.merge(
-                self.parameters.body_parameter.type.imports(need_import_iobase=self.need_import_iobase, **kwargs)
+                self.parameters.body_parameter.type.imports(need_import_iobase=self.need_import_iobase,**kwargs)
             )
         if not async_mode:
             for param in self.parameters.headers:

@@ -15,6 +15,8 @@ from .request_builder import (
     OverloadedRequestBuilder,
     get_request_builder,
 )
+from .model_type import ModelType
+from .enum_type import EnumType
 from .parameter import Parameter, ParameterMethodLocation
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation
@@ -408,7 +410,6 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
             file_import.merge(
                 gp.imports(
                     async_mode=async_mode,
-                    in_operation_file=True,
                     **kwargs,
                 )
             )
@@ -426,7 +427,6 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
             file_import.merge(
                 gp.imports_for_multiapi(
                     async_mode=async_mode,
-                    in_operation_file=True,
                     **kwargs,
                 )
             )
