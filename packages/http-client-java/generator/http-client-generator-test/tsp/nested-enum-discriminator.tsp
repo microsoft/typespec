@@ -64,33 +64,6 @@ model SawShark extends Shark {
 model GoblinShark extends Shark {
   sharktype: SharkKind.Goblin;
 }
-@doc("extensible enum type for discriminator")
-union DogKind {
-  string,
-
-  @doc("Species golden")
-  Golden: "golden",
-}
-
-@doc("Test extensible enum type for discriminator")
-@discriminator("kind")
-model Dog {
-  @doc("discriminator property")
-  kind: DogKind;
-
-  @doc("Weight of the dog")
-  weight: int32;
-
-  @doc("dna of the dog")
-  @visibility("read")
-  dna: string;
-}
-
-@doc("Golden dog model")
-model Golden extends Dog {
-  @doc("discriminator property")
-  kind: DogKind.Golden;
-}
 
 @route("/model")
 @get
@@ -115,7 +88,3 @@ op getMissingDiscriminator(): Fish;
 @route("/wrongdiscriminator")
 @get
 op getWrongDiscriminator(): Fish;
-
-@route("/outputonlymodel")
-@get
-op getOutputOnly(): Dog;
