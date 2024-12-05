@@ -901,7 +901,7 @@ def _failsafe_deserialize(
 ) -> typing.Any:
   try:
       return _deserialize(deserializer, value, module, rf, format)
-  except:
+  except DeserializationError:
       _LOGGER.warning(
           "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
           exc_info=True
