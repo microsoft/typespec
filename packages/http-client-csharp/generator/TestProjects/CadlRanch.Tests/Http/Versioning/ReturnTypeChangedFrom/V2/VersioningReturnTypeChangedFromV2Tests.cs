@@ -9,7 +9,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.ReturnTypeChangedFrom.V2
 {
     public class VersioningReturnTypeChangedFromTests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_ReturnTypeChangedFrom_test() => Test(async (host) =>
         {
             var response = await new ReturnTypeChangedFromClient(host).TestAsync("test");

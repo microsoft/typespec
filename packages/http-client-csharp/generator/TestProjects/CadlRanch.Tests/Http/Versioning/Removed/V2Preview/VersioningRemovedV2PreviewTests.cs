@@ -10,7 +10,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V2Preview
 {
     public class VersioningRemovedV2PreviewTests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_Removed_V3Model() => Test(async (host) =>
         {
             var model = new ModelV3("123");

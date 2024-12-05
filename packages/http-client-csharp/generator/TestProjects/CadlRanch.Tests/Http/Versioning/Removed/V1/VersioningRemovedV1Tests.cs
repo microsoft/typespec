@@ -10,7 +10,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V1
 {
     public class VersioningRemovedV1Tests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public void TestRemovedMembers()
         {
             /* check existence of the removed model ModelV1. */

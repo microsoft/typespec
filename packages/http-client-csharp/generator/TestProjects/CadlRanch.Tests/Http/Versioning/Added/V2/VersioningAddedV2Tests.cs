@@ -12,7 +12,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
 {
     public class VersioningAddedV2Tests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public void TestAddedMembersV2Client()
         {
             /* verify ModelV1. */
@@ -55,7 +55,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.IsNotNull(Type.GetType("Versioning.Added.V2.InterfaceV2"));
         }
 
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_Added_v1() => Test(async (host) =>
         {
             ModelV1 modelV1 = new ModelV1("foo", EnumV1.EnumMemberV2, BinaryData.FromObjectAsJson(10));
@@ -66,7 +66,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.AreEqual(10, response.Value.UnionProp.ToObjectFromJson<int>());
         });
 
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_Added_v2() => Test(async (host) =>
         {
             ModelV2 modelV2 = new ModelV2("foo", EnumV2.EnumMember, BinaryData.FromObjectAsJson("bar"));
@@ -77,7 +77,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.AreEqual("bar", response.Value.UnionProp.ToObjectFromJson<string>());
         });
 
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_Added_InterfaceV2() => Test(async (host) =>
         {
             ModelV2 modelV2 = new ModelV2("foo", EnumV2.EnumMember, BinaryData.FromObjectAsJson("bar"));

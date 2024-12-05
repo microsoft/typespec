@@ -9,7 +9,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.MadeOptional.V1
 {
     public class VersioningMadeOptionalV1Tests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public void CheckMadeOptionalMembers()
         {
             var constructors = typeof(TestModel).GetConstructors();

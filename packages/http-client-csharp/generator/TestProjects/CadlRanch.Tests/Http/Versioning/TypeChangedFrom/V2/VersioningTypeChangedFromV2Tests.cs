@@ -10,7 +10,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.TypeChangedFrom.V2
 {
     public class VersioningTypeChangedFromTests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_TypeChangedFrom_test() => Test(async (host) =>
         {
             TestModel body = new TestModel("foo", "bar");

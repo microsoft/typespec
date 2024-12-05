@@ -12,7 +12,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
 {
     public class VersioningRenamedFromTests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public void TestRenamedMembers()
         {
             /* check the renamed model from `OldModel` to `NewModel` */
@@ -48,7 +48,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
             Assert.IsNotNull(Type.GetType("Versioning.RenamedFrom.V2.NewInterface"));
         }
 
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_RenamedFrom_newOp() => Test(async (host) =>
         {
             NewModel body = new NewModel("foo", NewEnum.NewEnumMember, BinaryData.FromObjectAsJson(10));
@@ -59,7 +59,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
             Assert.AreEqual(10, response.Value.UnionProp.ToObjectFromJson<int>());
         });
 
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_RenamedFrom_NewInterface() => Test(async (host) =>
         {
             NewModel body = new NewModel("foo", NewEnum.NewEnumMember, BinaryData.FromObjectAsJson(10));

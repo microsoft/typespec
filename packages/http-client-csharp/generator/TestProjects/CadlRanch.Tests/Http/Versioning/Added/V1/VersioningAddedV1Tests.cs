@@ -11,7 +11,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V1
 {
     public class VersioningAddedV1Tests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public void TestAddedMembersV1Client()
         {
             /* verify ModelV1. */

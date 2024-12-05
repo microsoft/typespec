@@ -11,7 +11,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.MadeOptional.V2
 {
     public class VersioningMadeOptionalV2Tests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public void CheckMadeOptionalMembers()
         {
             var constructors = typeof(TestModel).GetConstructors();
@@ -21,7 +21,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.MadeOptional.V2
             Assert.False(constructors[0].GetParameters().Any(p => p.Name == "changedProp"));
         }
 
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_MadeOptional_test() => Test(async (host) =>
         {
             TestModel body = new TestModel("foo");

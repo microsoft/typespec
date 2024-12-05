@@ -12,7 +12,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V2
 {
     public class VersioningRemovedV2Tests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public void TestRemovedMembers()
         {
             /* check existence of the removed model ModelV1. */
@@ -57,7 +57,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V2
             Assert.AreEqual(new string[] { "V1", "V2preview", "V2" }, enumType.GetEnumNames());
         }
 
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_Removed_v2() => Test(async (host) =>
         {
             ModelV2 modelV2 = new ModelV2("foo", EnumV2.EnumMemberV2, BinaryData.FromObjectAsJson("bar"));
@@ -68,7 +68,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V2
             Assert.AreEqual("bar", response.Value.UnionProp.ToObjectFromJson<string>());
         });
 
-        [Test]
+        [CadlRanchTest]
         public Task Versioning_Removed_V3Model() => Test(async (host) =>
         {
             var model = new ModelV3("123", EnumV3.EnumMemberV1);
