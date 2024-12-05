@@ -787,6 +787,13 @@ const diagnostics = {
   /**
    * Decorator
    */
+  "invalid-pattern-regex": {
+    severity: "warning",
+    messages: {
+      default: "@pattern decorator expects a valid regular expression pattern.",
+    },
+  },
+
   "decorator-wrong-target": {
     severity: "error",
     messages: {
