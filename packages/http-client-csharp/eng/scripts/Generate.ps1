@@ -79,10 +79,6 @@ foreach ($directory in $directories) {
         continue
     }
 
-    if ($folders.Contains("versioning")) {
-        continue # TODO: adopt versioning cadl ranch specs https://github.com/microsoft/typespec/issues/3965
-    }
-
     if ($failingSpecs.Contains($subPath)) {
         Write-Host "Skipping $subPath" -ForegroundColor Yellow
         continue
@@ -97,11 +93,19 @@ foreach ($directory in $directories) {
     if (-not (Test-Path $generationDir)) {
         New-Item -ItemType Directory -Path $generationDir | Out-Null
     }
+    
+    if ($folders.Contains("versioning")) {
+        Generate-Versioning $directory.FullName $generationDir -generateStub $stubbed
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
+        continue
+    }
 
     $cadlRanchLaunchProjects.Add(($folders -join "-"), ("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
     if ($LaunchOnly) {
         continue
     }
+    
     Write-Host "Generating $subPath" -ForegroundColor Cyan
     Invoke (Get-TspCommand $specFile $generationDir $stubbed)
 

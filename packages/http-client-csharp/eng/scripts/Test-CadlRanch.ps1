@@ -59,10 +59,19 @@ foreach ($directory in $directories) {
     $specFile = Join-Path $specsDirectory $subPath "client.tsp"
     if (-not (Test-Path $specFile)) {
         $specFile = Join-Path $specsDirectory $subPath "main.tsp"
+    }   
+    
+    if ($subPath.Contains("versioning")) {
+        if ($subPath.Contains("v1")) {
+            # this will generate v1 and v2 so we only need to call it once for one of the versions
+            Generate-Versioning ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
     }
-
-    $command = Get-TspCommand $specFile $outputDir
-    Invoke $command
+    else {
+        $command = Get-TspCommand $specFile $outputDir
+        Invoke $command
+    }
+    
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
@@ -72,7 +81,6 @@ foreach ($directory in $directories) {
     if ($subPath.Contains("srv-driven")) {
         Generate-Srv-Driven $(Join-Path $specsDirectory $subPath) $outputDir -createOutputDirIfNotExist $false
     }
-
 
     Write-Host "Testing $subPath" -ForegroundColor Cyan
     $command  = "dotnet test $cadlRanchCsproj --filter `"FullyQualifiedName~$testFilter`""
