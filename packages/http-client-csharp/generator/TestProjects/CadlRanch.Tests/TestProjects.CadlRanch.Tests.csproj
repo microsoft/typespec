@@ -27,27 +27,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="..\CadlRanch\http\versioning\renamedFrom\v1\src\Generated\Models\">
-      <Link>Projects\http\versioning\renamedFrom\v1\src\Generated\Models</Link>
-    </Folder>
-    <Folder Include="..\CadlRanch\http\versioning\returnTypeChangedFrom\v1\src\Generated\">
-      <Link>Projects\http\versioning\returnTypeChangedFrom\v1\src\Generated</Link>
-    </Folder>
-    <Folder Include="..\CadlRanch\http\versioning\typeChangedFrom\src\Generated\Models\">
-      <Link>Projects\http\versioning\typeChangedFrom\src\Generated\Models</Link>
-    </Folder>
-    <Folder Include="..\CadlRanch\http\versioning\typeChangedFrom\v1\src\Generated\Models\">
-      <Link>Projects\http\versioning\typeChangedFrom\v1\src\Generated\Models</Link>
-    </Folder>
-    <Folder Include="Http\Versioning\ReturnTypeChangedFrom\" />
-    <Folder Include="Projects\http\versioning\added\src\Generated\Models\" />
-    <Folder Include="Projects\http\versioning\added\v1\src\Generated\Models\" />
-    <Folder Include="Projects\http\versioning\madeOptional\v1\src\Generated\Models\" />
-    <Folder Include="Projects\http\versioning\removed\v1\src\Generated\Models\" />
-    <Folder Include="Projects\http\versioning\renamedFrom\v1\src\Generated\Models\" />
-    <Folder Include="Projects\http\versioning\returnTypeChangedFrom\v1\src\Generated\" />
-    <Folder Include="Projects\http\versioning\typeChangedFrom\v1\src\Generated\Models\" />
-  </ItemGroup>
-
 </Project>
