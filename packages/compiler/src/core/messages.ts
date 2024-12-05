@@ -576,10 +576,16 @@ const diagnostics = {
       default: "The #deprecated directive cannot be used more than once on the same declaration.",
     },
   },
-  unnecessary: {
+  "unused-import": {
     severity: "hint",
     messages: {
-      default: paramMessage`Unnecessary code: ${"code"}`,
+      default: paramMessage`Unused import: ${"code"}`,
+    },
+  },
+  "unused-using": {
+    severity: "hint",
+    messages: {
+      default: paramMessage`Unused using: ${"code"}`,
     },
   },
 

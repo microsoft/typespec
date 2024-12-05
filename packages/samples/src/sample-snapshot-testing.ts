@@ -106,7 +106,9 @@ function defineSampleSnaphotTest(
     }
 
     const program = await compile(host, sample.fullPath, options);
-    expectDiagnosticEmpty(program.diagnostics.filter((d) => d.code !== "unnecessary"));
+    expectDiagnosticEmpty(
+      program.diagnostics.filter((d) => d.code !== "unused-import" && d.code !== "unused-using"),
+    );
 
     if (shouldUpdateSnapshots) {
       try {

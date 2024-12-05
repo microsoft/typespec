@@ -314,19 +314,19 @@ async function createTestHostInternal(config: TestHostConfig): Promise<TestHost>
     },
   };
 
-  function filterUnnecessaryDiagnostics(diagnostics: readonly Diagnostic[]) {
+  function filterUnusedDiagnostics(diagnostics: readonly Diagnostic[]) {
     if (config.checkUnnecessaryDiagnostics === true) {
       return diagnostics;
     } else {
       // don't check hint diagnostics by default considering many test case contains unnecessary using or import
       // in test tsp code which actually doesn't matter to the test
-      return diagnostics.filter((d) => d.code !== "unnecessary");
+      return diagnostics.filter((d) => d.code !== "unused-import" && d.code !== "unused-using");
     }
   }
 
   async function compile(main: string, options: CompilerOptions = {}) {
     const [testTypes, diagnostics] = await compileAndDiagnose(main, options);
-    expectDiagnosticEmpty(filterUnnecessaryDiagnostics(diagnostics));
+    expectDiagnosticEmpty(filterUnusedDiagnostics(diagnostics));
     return testTypes;
   }
 
@@ -345,7 +345,7 @@ async function createTestHostInternal(config: TestHostConfig): Promise<TestHost>
 
   async function diagnose(main: string, options: CompilerOptions = {}) {
     const [, diagnostics] = await compileAndDiagnose(main, options);
-    return filterUnnecessaryDiagnostics(diagnostics);
+    return filterUnusedDiagnostics(diagnostics);
   }
 
   async function compileAndDiagnose(
@@ -361,7 +361,7 @@ async function createTestHostInternal(config: TestHostConfig): Promise<TestHost>
     logVerboseTestOutput((log) =>
       logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink })),
     );
-    return [testTypes, filterUnnecessaryDiagnostics(p.diagnostics)];
+    return [testTypes, filterUnusedDiagnostics(p.diagnostics)];
   }
 }
 

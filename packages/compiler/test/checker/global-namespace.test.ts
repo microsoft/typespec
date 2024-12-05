@@ -66,8 +66,8 @@ describe("compiler: global namespace", () => {
       const [_, diags] = await testHost.compileAndDiagnose("./");
       expectDiagnostics(diags, [
         {
-          code: "unnecessary",
-          message: `Unnecessary code: import "./a.tsp"`,
+          code: "unused-import",
+          message: `Unused import: import "./a.tsp"`,
           severity: "hint",
         },
       ]);
@@ -89,8 +89,8 @@ describe("compiler: global namespace", () => {
       const [_, diags] = await testHost.compileAndDiagnose("./");
       expectDiagnostics(diags, [
         {
-          code: "unnecessary",
-          message: `Unnecessary code: import "./a.tsp"`,
+          code: "unused-import",
+          message: `Unused import: import "./a.tsp"`,
           severity: "hint",
         },
       ]);
@@ -108,8 +108,8 @@ describe("compiler: global namespace", () => {
       const [_, diags] = await testHost.compileAndDiagnose("./");
       expectDiagnostics(diags, [
         {
-          code: "unnecessary",
-          message: `Unnecessary code: import "./a.tsp"`,
+          code: "unused-import",
+          message: `Unused import: import "./a.tsp"`,
           severity: "hint",
         },
       ]);

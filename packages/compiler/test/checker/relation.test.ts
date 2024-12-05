@@ -50,8 +50,8 @@ describe("compiler: checker: type relations", () => {
     const [_, diags] = await runner.compileAndDiagnose(code);
     expectDiagnostics(diags, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./mock.js"`,
+        code: "unused-import",
+        message: `Unused import: import "./mock.js"`,
         severity: "hint",
       },
     ]);

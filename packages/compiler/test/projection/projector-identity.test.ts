@@ -56,8 +56,8 @@ describe("compiler: projector: Identity", () => {
       const [r, diagnostics] = await runner.compileAndDiagnose(mergedCode);
       expectDiagnostics(diagnostics, [
         {
-          code: "unnecessary",
-          message: `Unnecessary code: import "./track.js"`,
+          code: "unused-import",
+          message: `Unused import: import "./track.js"`,
           severity: "hint",
         },
       ]);

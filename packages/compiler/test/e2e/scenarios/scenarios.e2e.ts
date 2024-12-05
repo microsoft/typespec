@@ -22,8 +22,8 @@ describe("compiler: entrypoints", () => {
     it("compile library with TypeSpec entrypoint", async () => {
       const program = await compileScenario("typespec-lib");
       expectDiagnostics(program.diagnostics, {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./lib.js"`,
+        code: "unused-import",
+        message: `Unused import: import "./lib.js"`,
         severity: "hint",
       });
     });
@@ -41,8 +41,8 @@ describe("compiler: entrypoints", () => {
         emit: ["@typespec/test-emitter-with-typespec"],
       });
       expectDiagnostics(program.diagnostics, {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./lib.js"`,
+        code: "unused-import",
+        message: `Unused import: import "./lib.js"`,
         severity: "hint",
       });
     });
@@ -143,8 +143,8 @@ describe("compiler: entrypoints", () => {
         emit: ["@typespec/lib2"],
       });
       expectDiagnostics(program.diagnostics, {
-        code: "unnecessary",
-        message: `Unnecessary code: import "@typespec/lib1"`,
+        code: "unused-import",
+        message: `Unused import: import "@typespec/lib1"`,
         severity: "hint",
       });
     });
@@ -155,8 +155,8 @@ describe("compiler: entrypoints", () => {
       });
       expectDiagnostics(program.diagnostics, [
         {
-          code: "unnecessary",
-          message: `Unnecessary code: import "@typespec/lib1"`,
+          code: "unused-import",
+          message: `Unused import: import "@typespec/lib1"`,
           severity: "hint",
         },
         {

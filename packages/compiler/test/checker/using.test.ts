@@ -126,8 +126,8 @@ describe("compiler: using statements", () => {
     const diags = await testHost.diagnose("./");
     expectDiagnostics(diags, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using A",
+        code: "unused-using",
+        message: "Unused using: using A",
         severity: "hint",
       },
     ]);
@@ -196,23 +196,23 @@ describe("compiler: using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: 'Unnecessary code: import "./a.tsp"',
+        code: "unused-import",
+        message: 'Unused import: import "./a.tsp"',
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: 'Unnecessary code: import "./b.tsp"',
+        code: "unused-import",
+        message: 'Unused import: import "./b.tsp"',
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N.A",
+        code: "unused-using",
+        message: "Unused using: using N.A",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using M.A",
+        code: "unused-using",
+        message: "Unused using: using M.A",
         severity: "hint",
       },
     ]);
@@ -239,18 +239,18 @@ describe("compiler: using statements", () => {
       const diagnostics = await testHost.diagnose("./");
       expectDiagnostics(diagnostics, [
         {
-          code: "unnecessary",
-          message: "Unnecessary code: using A",
+          code: "unused-using",
+          message: "Unused using: using A",
           severity: "hint",
         },
         {
-          code: "unnecessary",
-          message: "Unnecessary code: using A",
+          code: "unused-using",
+          message: "Unused using: using A",
           severity: "hint",
         },
         {
-          code: "unnecessary",
-          message: "Unnecessary code: using A",
+          code: "unused-using",
+          message: "Unused using: using A",
           severity: "hint",
         },
       ]);
@@ -320,23 +320,23 @@ describe("compiler: using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: 'Unnecessary code: import "./a.tsp"',
+        code: "unused-import",
+        message: 'Unused import: import "./a.tsp"',
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: 'Unnecessary code: import "./b.tsp"',
+        code: "unused-import",
+        message: 'Unused import: import "./b.tsp"',
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N",
+        code: "unused-using",
+        message: "Unused using: using N",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using M",
+        code: "unused-using",
+        message: "Unused using: using M",
         severity: "hint",
       },
     ]);
@@ -374,7 +374,7 @@ describe("compiler: using statements", () => {
     );
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
     expectDiagnostics(
-      diagnostics.filter((d) => d.code !== "unnecessary"),
+      diagnostics.filter((d) => d.code !== "unused-import" && d.code !== "unused-using"),
       [
         {
           code: "ambiguous-symbol",
@@ -414,7 +414,7 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
     expectDiagnostics(
-      diagnostics.filter((d) => d.code !== "unnecessary"),
+      diagnostics.filter((d) => d.code !== "unused-import" && d.code !== "unused-using"),
       [
         {
           code: "ambiguous-symbol",
@@ -450,7 +450,7 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(
-      diagnostics.filter((d) => d.code !== "unnecessary"),
+      diagnostics.filter((d) => d.code !== "unused-import" && d.code !== "unused-using"),
       [
         {
           code: "ambiguous-symbol",
@@ -479,7 +479,7 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(
-      diagnostics.filter((d) => d.code !== "unnecessary"),
+      diagnostics.filter((d) => d.code !== "unused-import" && d.code !== "unused-using"),
       [
         {
           code: "ambiguous-symbol",
@@ -532,7 +532,7 @@ describe("compiler: using statements", () => {
     );
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(
-      diagnostics.filter((d) => d.code !== "unnecessary"),
+      diagnostics.filter((d) => d.code !== "unused-import" && d.code !== "unused-using"),
       [
         {
           code: "ambiguous-symbol",
@@ -579,18 +579,18 @@ describe("compiler: using statements", () => {
     strictEqual(B.properties.get("a")!.type.kind, "Union");
     expectDiagnostics(diags, [
       {
-        code: "unnecessary",
-        message: 'Unnecessary code: import "./a.tsp"',
+        code: "unused-import",
+        message: 'Unused import: import "./a.tsp"',
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: 'Unnecessary code: import "./b.tsp"',
+        code: "unused-import",
+        message: 'Unused import: import "./b.tsp"',
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N",
+        code: "unused-using",
+        message: "Unused using: using N",
         severity: "hint",
       },
     ]);

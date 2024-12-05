@@ -2,12 +2,12 @@ import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
 import { type ImportStatementNode, type UsingStatementNode } from "../types.js";
 
 /**
- * Quick fix that remove unnecessary code.
+ * Quick fix that remove unused code.
  */
-export function removeUnnecessaryCodeCodeFix(node: ImportStatementNode | UsingStatementNode) {
+export function removeUnusedCodeCodeFix(node: ImportStatementNode | UsingStatementNode) {
   return defineCodeFix({
-    id: "remove-unnecessary-code",
-    label: `Remove unnecessary code`,
+    id: "remove-unused-code",
+    label: `Remove unused code`,
     fix: (context) => {
       const location = getSourceLocation(node);
       return context.replaceText(location, "");

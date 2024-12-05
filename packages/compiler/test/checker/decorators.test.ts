@@ -45,13 +45,13 @@ describe("compiler: checker: decorators", () => {
 
     const unnecessaryDiags: DiagnosticMatch[] = [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./test.js"`,
+        code: "unused-import",
+        message: `Unused import: import "./test.js"`,
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: `Unnecessary code: using TypeSpec.Reflection`,
+        code: "unused-using",
+        message: `Unused using: using TypeSpec.Reflection`,
         severity: "hint",
       },
     ];
@@ -186,8 +186,8 @@ describe("compiler: checker: decorators", () => {
 
     const unnecessaryDiags: DiagnosticMatch[] = [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: using TypeSpec.Reflection`,
+        code: "unused-using",
+        message: `unused using: using TypeSpec.Reflection`,
         severity: "hint",
       },
     ];
@@ -575,7 +575,10 @@ describe("compiler: checker: decorators", () => {
           model Foo {}
         `);
         expectDiagnosticEmpty(
-          diagnostics.filter((x) => x.code !== "deprecated" && x.code !== "unnecessary"),
+          diagnostics.filter(
+            (x) =>
+              x.code !== "deprecated" && x.code !== "unused-import" && x.code !== "unused-using",
+          ),
         );
         return calledArgs![2];
       }

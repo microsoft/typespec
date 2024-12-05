@@ -161,7 +161,9 @@ it("empty response model becomes body if it has children", async () => {
 
     `,
   );
-  expectDiagnosticEmpty(diagnostics.filter((d) => d.code !== "unnecessary"));
+  expectDiagnosticEmpty(
+    diagnostics.filter((d) => d.code !== "unused-import" && d.code !== "unused-using"),
+  );
   strictEqual(routes.length, 1);
   const responses = routes[0].responses;
   strictEqual(responses.length, 1);

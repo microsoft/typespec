@@ -404,7 +404,7 @@ export function createServer(host: ServerHost): Server {
         }
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
-        } else if (each.code === "unnecessary") {
+        } else if (each.code === "unused-import" || each.code === "unused-using") {
           // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
           // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
           // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022

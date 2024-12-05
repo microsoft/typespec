@@ -15,7 +15,7 @@ import { PackageJson } from "../types/package-json.js";
 import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { removeUnnecessaryCodeCodeFix } from "./compiler-code-fixes/remove-unnecessary-code.codefix.js";
+import { removeUnusedCodeCodeFix } from "./compiler-code-fixes/remove-unnecessary-code.codefix.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
@@ -247,7 +247,7 @@ export async function compile(
   await runValidators();
 
   validateRequiredImports();
-  validateUnnecessaryCode();
+  validateUnusedCode();
 
   await validateLoadedLibraries();
   if (!continueToNextStage) {
@@ -281,7 +281,7 @@ export async function compile(
     return false;
   }
 
-  function validateUnnecessaryCode() {
+  function validateUnusedCode() {
     // Don't provide unused diagnostics if customer is using projection in the project because
     // the projection statements will only be processed when applying projection. There is no way to determine
     // whether "import" or "using" is referenced from them, so we just skip here to avoid providing incorrect suggestions (diagnostics)
@@ -292,12 +292,12 @@ export async function compile(
       if (!requireImports.has(target.path.value)) {
         reportDiagnostic(
           createDiagnostic({
-            code: "unnecessary",
+            code: "unused-import",
             target: target,
             format: {
               code: `import "${target.path.value}"`,
             },
-            codefixes: [removeUnnecessaryCodeCodeFix(target)],
+            codefixes: [removeUnusedCodeCodeFix(target)],
           }),
         );
       }
@@ -314,12 +314,12 @@ export async function compile(
     resolver.getUnusedUsings().forEach((target) => {
       reportDiagnostic(
         createDiagnostic({
-          code: "unnecessary",
+          code: "unused-using",
           target: target,
           format: {
             code: `using ${getUsingName(target.name)}`,
           },
-          codefixes: [removeUnnecessaryCodeCodeFix(target)],
+          codefixes: [removeUnusedCodeCodeFix(target)],
         }),
       );
     });

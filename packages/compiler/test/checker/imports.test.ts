@@ -233,8 +233,8 @@ describe("compiler: imports", () => {
               if (!filename.includes("my-lib")) {
                 (fileConfig as string[]).forEach((x) => {
                   unnecessaryImportDiags.push({
-                    code: "unnecessary",
-                    message: `Unnecessary code: import "${x}"`,
+                    code: "unused-import",
+                    message: `Unused import: import "${x}"`,
                     severity: "hint",
                   });
                 });

@@ -52,8 +52,8 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./b.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./b.tsp"`,
         severity: "hint",
       },
     ]);
@@ -109,8 +109,8 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./blue.js"`,
+        code: "unused-import",
+        message: `Unused import: import "./blue.js"`,
         severity: "hint",
       },
     ]);
@@ -199,8 +199,8 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./c.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./c.tsp"`,
         severity: "hint",
       },
     ]);
@@ -239,13 +239,13 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./c.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./c.tsp"`,
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./d.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./d.tsp"`,
         severity: "hint",
       },
     ]);
@@ -270,8 +270,8 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./test"`,
+        code: "unused-import",
+        message: `Unused import: import "./test"`,
         severity: "hint",
       },
     ]);
@@ -330,8 +330,8 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "my-lib"`,
+        code: "unused-import",
+        message: `Unused import: import "my-lib"`,
         severity: "hint",
       },
     ]);
@@ -462,8 +462,8 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: using LibA`,
+        code: "unused-using",
+        message: `Unused using: using LibA`,
         severity: "hint",
       },
     ]);
@@ -536,13 +536,13 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./c.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./c.tsp"`,
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./c.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./c.tsp"`,
         severity: "hint",
       },
     ]);
@@ -629,18 +629,18 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./c.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./c.tsp"`,
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./c.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./c.tsp"`,
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./d.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./d.tsp"`,
         severity: "hint",
       },
     ]);
@@ -710,8 +710,8 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./b.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./b.tsp"`,
         severity: "hint",
       },
     ]);
@@ -870,16 +870,16 @@ describe("compiler: unused imports", () => {
     const oldProgram = await host.compileWithProgram("main.tsp");
     expectDiagnostics(oldProgram.diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./a.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./a.tsp"`,
         severity: "hint",
       },
     ]);
     const p = await host.compileWithProgram("main.tsp", undefined, oldProgram);
     expectDiagnostics(p.diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./a.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./a.tsp"`,
         severity: "hint",
       },
     ]);
@@ -989,8 +989,8 @@ describe("compiler: unused imports", () => {
     const diagnostics = await host.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./c.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./c.tsp"`,
         severity: "hint",
       },
     ]);
@@ -1030,8 +1030,8 @@ describe("compiler: unused imports", () => {
     });
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: `Unnecessary code: import "./c.tsp"`,
+        code: "unused-import",
+        message: `Unused import: import "./c.tsp"`,
         severity: "hint",
       },
     ]);

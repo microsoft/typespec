@@ -72,8 +72,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N",
+        code: "unused-using",
+        message: "Unused using: using N",
         severity: "hint",
       },
     ]);
@@ -108,13 +108,13 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N",
+        code: "unused-using",
+        message: "Unused using: using N",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N",
+        code: "unused-using",
+        message: "Unused using: using N",
         severity: "hint",
       },
     ]);
@@ -150,13 +150,13 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N",
+        code: "unused-using",
+        message: "Unused using: using N",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using M",
+        code: "unused-using",
+        message: "Unused using: using M",
         severity: "hint",
       },
     ]);
@@ -192,8 +192,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using M",
+        code: "unused-using",
+        message: "Unused using: using M",
         severity: "hint",
       },
     ]);
@@ -225,8 +225,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using M",
+        code: "unused-using",
+        message: "Unused using: using M",
         severity: "hint",
       },
     ]);
@@ -250,8 +250,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N",
+        code: "unused-using",
+        message: "Unused using: using N",
         severity: "hint",
       },
     ]);
@@ -288,13 +288,13 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N.M",
+        code: "unused-using",
+        message: "Unused using: using N.M",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N.M",
+        code: "unused-using",
+        message: "Unused using: using N.M",
         severity: "hint",
       },
     ]);
@@ -336,13 +336,13 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using TypeSpec.Xyz",
+        code: "unused-using",
+        message: "Unused using: using TypeSpec.Xyz",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Xyz",
+        code: "unused-using",
+        message: "Unused using: using Xyz",
         severity: "hint",
       },
     ]);
@@ -374,13 +374,13 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N.A",
+        code: "unused-using",
+        message: "Unused using: using N.A",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using M.A",
+        code: "unused-using",
+        message: "Unused using: using M.A",
         severity: "hint",
       },
     ]);
@@ -450,8 +450,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using N.M",
+        code: "unused-using",
+        message: "Unused using: using N.M",
         severity: "hint",
       },
     ]);
@@ -554,8 +554,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using M",
+        code: "unused-using",
+        message: "Unused using: using M",
         severity: "hint",
       },
     ]);
@@ -629,48 +629,48 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1",
+        code: "unused-using",
+        message: "Unused using: using Ns1",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1.Ns2",
+        code: "unused-using",
+        message: "Unused using: using Ns1.Ns2",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1.Ns2.Ns3",
+        code: "unused-using",
+        message: "Unused using: using Ns1.Ns2.Ns3",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1.Ns2",
+        code: "unused-using",
+        message: "Unused using: using Ns1.Ns2",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1.Ns2.Ns3",
+        code: "unused-using",
+        message: "Unused using: using Ns1.Ns2.Ns3",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1",
+        code: "unused-using",
+        message: "Unused using: using Ns1",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1.Ns2.Ns3",
+        code: "unused-using",
+        message: "Unused using: using Ns1.Ns2.Ns3",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1",
+        code: "unused-using",
+        message: "Unused using: using Ns1",
         severity: "hint",
       },
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Ns1.Ns2",
+        code: "unused-using",
+        message: "Unused using: using Ns1.Ns2",
         severity: "hint",
       },
     ]);
@@ -749,8 +749,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using TypeSpec",
+        code: "unused-using",
+        message: "Unused using: using TypeSpec",
         severity: "hint",
       },
     ]);
@@ -785,8 +785,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using Other",
+        code: "unused-using",
+        message: "Unused using: using Other",
         severity: "hint",
       },
     ]);
@@ -830,8 +830,8 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
       {
-        code: "unnecessary",
-        message: "Unnecessary code: using LibNs",
+        code: "unused-using",
+        message: "Unused using: using LibNs",
         severity: "hint",
       },
     ]);
