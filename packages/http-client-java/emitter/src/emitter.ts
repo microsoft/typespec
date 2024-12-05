@@ -3,7 +3,6 @@ import {
   EmitContext,
   getNormalizedAbsolutePath,
   JSONSchemaType,
-  NoTarget,
   resolvePath,
 } from "@typespec/compiler";
 import { spawn } from "child_process";
