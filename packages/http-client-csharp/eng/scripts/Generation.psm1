@@ -123,14 +123,24 @@ function Generate-Versioning {
     if ($createOutputDirIfNotExist -and -not (Test-Path $v2Dir)) {
         New-Item -ItemType Directory -Path $v2Dir | Out-Null
     }
+    $outputFolders = $outputDir.Split([System.IO.Path]::DirectorySeparatorChar)
     ## get the last two directories of the output directory and add V1/V2 to disambiguate the namespaces
-    $namespaceRoot = $(($outputDir.Split([System.IO.Path]::DirectorySeparatorChar)[-2..-1] | `
+    $namespaceRoot = $(($outputFolders[-2..-1] | `
                            ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1) }) -join ".")
     $v1NamespaceOverride = $namespaceRoot + ".V1" 
     $v2NamespaceOverride = $namespaceRoot + ".V2"
       
     Invoke (Get-TspCommand $specFilePath $v1Dir -generateStub $generateStub -apiVersion "v1" -namespaceOverride $v1NamespaceOverride)
     Invoke (Get-TspCommand $specFilePath $v2Dir -generateStub $generateStub -apiVersion "v2" -namespaceOverride $v2NamespaceOverride)
+    
+    if ($outputFolders.Contains("removed")) {
+        $v2PreviewDir = $(Join-Path $outputDir "v2Preview")
+        if ($createOutputDirIfNotExist -and -not (Test-Path $v2PreviewDir)) {
+            New-Item -ItemType Directory -Path $v2PreviewDir | Out-Null
+        }
+        $v2PreviewNamespaceOverride = $namespaceRoot + ".V2Preview"
+        Invoke (Get-TspCommand $specFilePath $v2PreviewDir -generateStub $generateStub -apiVersion "v2preview" -namespaceOverride $v2PreviewNamespaceOverride)
+    }
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {

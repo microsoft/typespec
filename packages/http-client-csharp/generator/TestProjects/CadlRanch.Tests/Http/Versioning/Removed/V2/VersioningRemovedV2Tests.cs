@@ -10,7 +10,7 @@ using Versioning.Removed.V2.Models;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V2
 {
-    public class VersioningRemovedTests : CadlRanchTestBase
+    public class VersioningRemovedV2Tests : CadlRanchTestBase
     {
         [Test]
         public void TestRemovedMembers()

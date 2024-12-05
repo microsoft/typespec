@@ -8,7 +8,7 @@ using Versioning.Removed.V1;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V1
 {
-    public class VersioningRemovedTests : CadlRanchTestBase
+    public class VersioningRemovedV1Tests : CadlRanchTestBase
     {
         [Test]
         public void TestRemovedMembers()
