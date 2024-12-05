@@ -7,6 +7,8 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public sealed class InputParameter
     {
+        private readonly bool _isApiVersion;
+
         public InputParameter(
             string name,
             string nameInRequest,
@@ -33,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Input
             DefaultValue = defaultValue;
             Kind = kind;
             IsRequired = isRequired;
-            IsApiVersion = isApiVersion;
+            _isApiVersion = isApiVersion;
             IsResourceParameter = isResourceParameter;
             IsContentType = isContentType;
             IsEndpoint = isEndpoint;
@@ -51,7 +53,7 @@ namespace Microsoft.Generator.CSharp.Input
         public InputConstant? DefaultValue { get; }
         public InputOperationParameterKind Kind { get; }
         public bool IsRequired { get; }
-        public bool IsApiVersion { get; }
+        public bool IsApiVersion => _isApiVersion || Type is InputEnumType enumType && enumType.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
         public bool IsResourceParameter { get; }
         public bool IsContentType { get; }
         public bool IsEndpoint { get; }
