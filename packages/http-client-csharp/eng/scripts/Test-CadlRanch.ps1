@@ -62,7 +62,10 @@ foreach ($directory in $directories) {
     }   
     
     if ($subPath.Contains("versioning")) {
-        Generate-Versioning ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        if ($subPath.Contains("v1")) {
+            # this will generate v1 and v2 so we only need to call it once for one of the versions
+            Generate-Versioning ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
     }
     else {
         $command = Get-TspCommand $specFile $outputDir

@@ -10,7 +10,7 @@ using Versioning.Added.V2.Models;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
 {
-    public class VersioningAddedTestsV2 : CadlRanchTestBase
+    public class VersioningAddedV2Tests : CadlRanchTestBase
     {
         [Test]
         public void TestAddedMembersV2Client()
@@ -31,10 +31,10 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.IsTrue(enumValues.Contains("EnumMemberV2"));
 
             /* check existence of the added model ModelV2. */
-            Assert.IsNull(Type.GetType("Versioning.Added.Models.ModelV2"));
+            Assert.IsNotNull(Type.GetType("Versioning.Added.V2.Models.ModelV2"));
 
             /* check existence of the added enum EnumV2. */
-            Assert.IsNull(Type.GetType("Versioning.Added.Models.EnumV2"));
+            Assert.IsNotNull(Type.GetType("Versioning.Added.V2.Models.EnumV2"));
 
             /* check the added parameter. */
             var methods = typeof(AddedClient).GetMethods().Where(m => m.Name == "V1" || m.Name == "V1Async");
@@ -52,7 +52,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.AreEqual(4, addedMethods.Count());
 
             /* check the existence of added interface in V2. */
-            Assert.IsNull(Type.GetType("Versioning.Added.InterfaceV2"));
+            Assert.IsNotNull(Type.GetType("Versioning.Added.V2.InterfaceV2"));
         }
 
         [Test]

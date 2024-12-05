@@ -40,6 +40,7 @@
     <Folder Include="..\CadlRanch\http\versioning\typeChangedFrom\v1\src\Generated\Models\">
       <Link>Projects\http\versioning\typeChangedFrom\v1\src\Generated\Models</Link>
     </Folder>
+    <Folder Include="Http\Versioning\ReturnTypeChangedFrom\" />
     <Folder Include="Projects\http\versioning\added\src\Generated\Models\" />
     <Folder Include="Projects\http\versioning\added\v1\src\Generated\Models\" />
     <Folder Include="Projects\http\versioning\madeOptional\v1\src\Generated\Models\" />

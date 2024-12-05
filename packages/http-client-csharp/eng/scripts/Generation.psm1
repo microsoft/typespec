@@ -130,8 +130,6 @@ function Generate-Versioning {
     $v2NamespaceOverride = $namespaceRoot + ".V2"
       
     Invoke (Get-TspCommand $specFilePath $v1Dir -generateStub $generateStub -apiVersion "v1" -namespaceOverride $v1NamespaceOverride)
-    
-    Write-Host $v2Dir -ForegroundColor Cyan
     Invoke (Get-TspCommand $specFilePath $v2Dir -generateStub $generateStub -apiVersion "v2" -namespaceOverride $v2NamespaceOverride)
 
     # exit if the generation failed
