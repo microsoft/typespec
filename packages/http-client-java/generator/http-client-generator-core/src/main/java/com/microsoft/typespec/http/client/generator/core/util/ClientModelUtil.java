@@ -891,6 +891,14 @@ public class ClientModelUtil {
         return model.getSerializationFormats().contains(KnownMediaType.MULTIPART.value());
     }
 
+    public static ClientModel getErrorModelFromException(ClassType exceptionType) {
+        String errorBodyClassName = exceptionType.getName();
+        if (errorBodyClassName.endsWith("Exception")) {
+            errorBodyClassName = errorBodyClassName.substring(0, errorBodyClassName.length() - "Exception".length());
+        }
+        return ClientModels.getInstance().getModel(errorBodyClassName);
+    }
+
     private static boolean hasNoUsage(ClientModel model) {
         ImplementationDetails details = model.getImplementationDetails();
         return details == null || CoreUtils.isNullOrEmpty(details.getUsages());
