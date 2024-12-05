@@ -78,7 +78,7 @@ class EnumValue(BaseType):
         file_import.add_submodule_import("typing", "Literal", ImportType.STDLIB, TypingSection.REGULAR)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import.add_submodule_import(
-            self.code_model.get_relative_import_path(serialize_namespace, self.enum_type.client_namespace),
+            self.code_model.get_relative_import_path(serialize_namespace, self.enum_type.client_namespace, namespace_type=NamespaceType.MODEL, module_name=self.code_model.enums_filename),
             self.enum_type.name,
             ImportType.LOCAL,
             TypingSection.REGULAR,
