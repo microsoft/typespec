@@ -11,7 +11,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.TypeChangedFrom.V2
     public class VersioningTypeChangedFromTests : CadlRanchTestBase
     {
         [CadlRanchTest]
-        public Task Versioning_TypeChangedFrom_test() => Test(async (host) =>
+        public Task Versioning_TypeChangedFrom_Test() => Test(async (host) =>
         {
             TestModel body = new TestModel("foo", "bar");
             var response = await new TypeChangedFromClient(host).TestAsync("baz", body);

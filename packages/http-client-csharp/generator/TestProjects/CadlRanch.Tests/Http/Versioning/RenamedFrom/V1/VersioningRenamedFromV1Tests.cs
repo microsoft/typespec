@@ -11,7 +11,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V1
 {
     public class VersioningRenamedFromTests : CadlRanchTestBase
     {
-        [Test]
+        [CadlRanchTest]
         public void TestRenamedMembers()
         {
             Assert.IsNotNull(Type.GetType("Versioning.RenamedFrom.V1.Models.OldModel"));

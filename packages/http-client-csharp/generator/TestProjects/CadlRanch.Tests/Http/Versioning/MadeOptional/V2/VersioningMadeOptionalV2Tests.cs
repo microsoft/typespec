@@ -22,7 +22,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.MadeOptional.V2
         }
 
         [CadlRanchTest]
-        public Task Versioning_MadeOptional_test() => Test(async (host) =>
+        public Task Versioning_MadeOptional_Test() => Test(async (host) =>
         {
             TestModel body = new TestModel("foo");
             var response = await new MadeOptionalClient(host).TestAsync(body);

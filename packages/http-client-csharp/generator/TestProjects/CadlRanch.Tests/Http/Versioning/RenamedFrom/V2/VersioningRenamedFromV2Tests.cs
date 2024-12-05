@@ -49,7 +49,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
         }
 
         [CadlRanchTest]
-        public Task Versioning_RenamedFrom_newOp() => Test(async (host) =>
+        public Task Versioning_RenamedFrom_NewOp() => Test(async (host) =>
         {
             NewModel body = new NewModel("foo", NewEnum.NewEnumMember, BinaryData.FromObjectAsJson(10));
             var response = await new RenamedFromClient(host).NewOpAsync("bar", body);
