@@ -28,11 +28,12 @@ export async function provideTspconfigCompletionItems(
   tspConfigPosition: Position,
   context: {
     fileService: FileService;
-    libProvider: LibraryProvider;
+    emitterProvider: LibraryProvider;
+    linterProvider: LibraryProvider;
     log: (log: ServerLog) => void;
   },
 ): Promise<CompletionItem[]> {
-  const { fileService, libProvider, log } = context;
+  const { fileService, emitterProvider, linterProvider, log } = context;
   const target = resolveYamlScalarTarget(tspConfigDoc, tspConfigPosition, log);
   if (target === undefined) {
     return [];
@@ -51,18 +52,12 @@ export async function provideTspconfigCompletionItems(
     tspConfigPosition: Position,
     log: (log: ServerLog) => void,
   ): Promise<CompletionItem[]> {
-    const {
-      path: nodePath,
-      type: targetType,
-      siblings,
-      sourceType,
-      source,
-      siblingsChildren,
-    } = target;
+    const { path: nodePath, type: targetType, siblings, sourceType, source } = target;
     const CONFIG_PATH_LENGTH_FOR_EMITTER_LIST = 2;
     const CONFIG_PATH_LENGTH_FOR_LINTER_LIST = 2;
     const CONFIG_PATH_LENGTH_FOR_EXTENDS = 1;
     const CONFIG_PATH_LENGTH_FOR_IMPORTS = 2;
+
     if (
       (nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
         nodePath[0] === "options" &&
@@ -71,8 +66,7 @@ export async function provideTspconfigCompletionItems(
         nodePath[0] === "emit" &&
         targetType === "arr-item")
     ) {
-      libProvider.setIsGetEmitterVal(true);
-      const libs = await libProvider.listLibraries(tspConfigFile);
+      const libs = await emitterProvider.listLibraries(tspConfigFile);
       const items: CompletionItem[] = [];
       for (const [name, pkg] of Object.entries(libs)) {
         if (!siblings.includes(name)) {
@@ -91,15 +85,13 @@ export async function provideTspconfigCompletionItems(
       return items;
     } else if (nodePath.length > CONFIG_PATH_LENGTH_FOR_EMITTER_LIST && nodePath[0] === "options") {
       const emitterName = nodePath[CONFIG_PATH_LENGTH_FOR_EMITTER_LIST - 1];
-      libProvider.setIsGetEmitterVal(true);
-      const emitter = await libProvider.getLibrary(tspConfigFile, emitterName);
+      const emitter = await emitterProvider.getLibrary(tspConfigFile, emitterName);
       if (!emitter) {
         return [];
       }
+
       const exports = await emitter.getModuleExports();
-
       const builtInEmitterSchema = emitterOptionsSchema;
-
       const itemsFromBuiltIn = builtInEmitterSchema
         ? resolveCompleteItems(builtInEmitterSchema, {
             ...target,
@@ -118,11 +110,11 @@ export async function provideTspconfigCompletionItems(
       return [...itemsFromBuiltIn, ...itemsFromEmitter];
     } else if (nodePath.length > CONFIG_PATH_LENGTH_FOR_LINTER_LIST && nodePath[0] === "linter") {
       const linterName = nodePath[CONFIG_PATH_LENGTH_FOR_LINTER_LIST - 1];
-      libProvider.setIsGetEmitterVal(false);
-      if (linterName === "extends") {
-        const linters = await libProvider.listLibraries(tspConfigFile);
-        const items: CompletionItem[] = [];
-        for (const [name, pkg] of Object.entries(linters)) {
+      const items: CompletionItem[] = [];
+      const linters = await linterProvider.listLibraries(tspConfigFile);
+
+      for (const [name, pkg] of Object.entries(linters)) {
+        if (linterName === "extends") {
           // If a ruleSet exists for the linter, add it to the end of the library name.
           const exports = await pkg.getModuleExports();
           let additionalContent: string = "";
@@ -143,51 +135,29 @@ export async function provideTspconfigCompletionItems(
             textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
           };
           items.push(item);
-        }
-        return items;
-      } else {
-        const itemsFromLintter = [];
-        const libNames: string[] = [];
-        if (siblingsChildren && siblingsChildren.length > 0) {
-          // Filter duplicate library names
-          for (const extendsValue of siblingsChildren) {
-            const arrLine = extendsValue.split("/");
-            let libName: string = "";
-            if (arrLine.length >= 2) {
-              libName = arrLine[0] + "/" + arrLine[1];
-            } else {
-              continue;
-            }
-            if (!libNames.includes(libName)) {
-              libNames.push(libName);
-            }
+        } else {
+          // enable/disable rules
+          const linter = await linterProvider.getLibrary(tspConfigFile, name);
+          if (!linter) {
+            return [];
           }
 
-          // Get rules in each library
-          for (const name of libNames) {
-            const linter = await libProvider.getLibrary(tspConfigFile, name);
-            if (!linter) {
-              return [];
-            }
+          const exports = await linter.getModuleExports();
 
-            const exports = await linter.getModuleExports();
-
-            if (exports?.$linter?.rules !== undefined) {
-              const more = resolveCompleteItems(
-                exports?.$linter?.rules,
-                {
-                  ...target,
-                  path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_EMITTER_LIST),
-                },
-                name,
-              );
-              itemsFromLintter.push(...more);
-            }
+          if (exports?.$linter?.rules !== undefined) {
+            const more = resolveCompleteItems(
+              exports?.$linter?.rules,
+              {
+                ...target,
+                path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_LINTER_LIST),
+              },
+              name,
+            );
+            items.push(...more);
           }
         }
-
-        return [...itemsFromLintter];
       }
+      return items;
     } else if (nodePath.length === CONFIG_PATH_LENGTH_FOR_EXTENDS && nodePath[0] === "extends") {
       const currentFolder = getDirectoryPath(tspConfigFile);
       const extName = getAnyExtensionFromPath(tspConfigFile);
@@ -280,8 +250,8 @@ export async function provideTspconfigCompletionItems(
   function resolveCompleteItems(
     schema: ObjectJSONSchemaType,
     target: YamlScalarTarget,
-    libName?: string,
-    relativeFiles?: string[],
+    libName: string = "",
+    relativeFiles: string[] = [],
   ): CompletionItem[] {
     const { path: nodePath, type: targetType, source, sourceType } = target;
     // if the target is a key which means it's pointing to an object property, we should remove the last element of the path to get it's parent object for its schema
@@ -311,20 +281,18 @@ export async function provideTspconfigCompletionItems(
             result.push(...props);
           } else if (cur.type === undefined) {
             // lint rule
-            for (const key of Object.keys(cur ?? {})) {
-              const labelName = `${libName}/${cur[key].name}`;
-              if (target.siblingsChildren.includes(labelName)) {
-                continue;
+            if (libName !== "") {
+              for (const key of Object.keys(cur ?? {})) {
+                const labelName = `${libName}/${cur[key].name}`;
+                const newText = getNewTextValue(sourceType, labelName);
+                const item: CompletionItem = {
+                  label: labelName,
+                  kind: CompletionItemKind.Field,
+                  documentation: cur[key].description,
+                  textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
+                };
+                result.push(item);
               }
-
-              const newText = getNewTextValue(sourceType, labelName);
-              const item: CompletionItem = {
-                label: labelName,
-                kind: CompletionItemKind.Field,
-                documentation: cur[key].description,
-                textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
-              };
-              result.push(item);
             }
           }
         }
@@ -393,7 +361,7 @@ export async function provideTspconfigCompletionItems(
             }
           } else if (cur.type === "string") {
             // extends
-            if (relativeFiles && relativeFiles.length > 0) {
+            if (relativeFiles.length > 0) {
               for (const file of relativeFiles) {
                 if (target.siblings.includes(file)) {
                   continue;

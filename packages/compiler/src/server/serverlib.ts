@@ -114,7 +114,14 @@ export function createServer(host: ServerHost): Server {
   });
   const compilerHost = createCompilerHost();
   const npmPackageProvider = new NpmPackageProvider(compilerHost);
-  const libProvider = new LibraryProvider(npmPackageProvider);
+  const emitterProvider = new LibraryProvider(
+    npmPackageProvider,
+    (exports) => exports.$onEmit !== undefined,
+  );
+  const linterProvider = new LibraryProvider(
+    npmPackageProvider,
+    (exports) => exports.$linter !== undefined,
+  );
 
   const compileService = createCompileService({
     fileService,
@@ -703,7 +710,8 @@ export function createServer(host: ServerHost): Server {
       if (doc) {
         const items = await provideTspconfigCompletionItems(doc, params.position, {
           fileService,
-          libProvider: libProvider,
+          emitterProvider,
+          linterProvider,
           log,
         });
         return CompletionList.create(items);
