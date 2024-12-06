@@ -38,6 +38,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Invalid identifier '${"identifier"}' in ${"location"}`,
       },
     },
+    "anonymous-model": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Inline models use generated names in emitted code. Consider defining each model with an explicit name.  This model will be named '${"emittedName"}' in emitted code`,
+      },
+    },
     "missing-type-parent": {
       severity: "warning",
       messages: {
@@ -60,6 +66,12 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`Intrinsic type ${"typeName"} is not valid in this context.  Please use a model, enum, union, scalar, or the unknown type`,
+      },
+    },
+    "invalid-interpolation": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`StringTemplate types should only reference literal-valued constants, enum members, or literal-valued model properties.  The interpolated value will not contain one or more referenced elements in generated code.`,
       },
     },
   },
