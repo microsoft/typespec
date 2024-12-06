@@ -17,20 +17,57 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
     internal sealed class ClientUriBuilderDefinition : TypeProvider
     {
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
-        {
-            return TypeSignatureModifiers.Internal;
-        }
+        private const string ToUriMethodName = "ToUri";
+        private const string ResetMethodName = "Reset";
+        private const string AppendQueryMethodName = "AppendQuery";
+        private const string AppendQueryDelimitedMethodName = "AppendQueryDelimited";
+        private const string AppendPathDelimitedMethodName = "AppendPathDelimited";
+        private const string AppendPathMethodName = "AppendPath";
 
         private readonly FieldProvider _uriBuilderField;
         private readonly FieldProvider _pathBuilderField;
         private readonly FieldProvider _queryBuilderField;
+
+        private PropertyProvider? _uriBuilderProperty;
+        private PropertyProvider UriBuilderProperty => _uriBuilderProperty ??= new(
+            modifiers: MethodSignatureModifiers.Private,
+            name: "UriBuilder",
+            type: typeof(UriBuilder),
+            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _uriBuilderField, New.Instance(typeof(UriBuilder)))),
+            description: null,
+            enclosingType: this);
+
+        private ValueExpression UriBuilderPath => new MemberExpression(UriBuilderProperty, "Path");
+        private ValueExpression UriBuilderQuery => new MemberExpression(UriBuilderProperty, "Query");
+
+        private PropertyProvider? _pathBuilderProperty;
+        private PropertyProvider PathBuilderProperty => _pathBuilderProperty ??= new(
+            modifiers: MethodSignatureModifiers.Private,
+            name: "PathBuilder",
+            type: typeof(StringBuilder),
+            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _pathBuilderField, New.Instance(typeof(StringBuilder), UriBuilderPath))),
+            description: null,
+            enclosingType: this);
+
+        private PropertyProvider? _queryBuilderProperty;
+        private PropertyProvider QueryBuilderProperty => _queryBuilderProperty ??= new(
+            modifiers: MethodSignatureModifiers.Private,
+            name: "QueryBuilder",
+            type: typeof(StringBuilder),
+            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _queryBuilderField, New.Instance(typeof(StringBuilder), UriBuilderQuery))),
+            description: null,
+            enclosingType: this);
 
         public ClientUriBuilderDefinition()
         {
             _uriBuilderField = new(FieldModifiers.Private, typeof(UriBuilder), "_uriBuilder", this);
             _pathBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_pathBuilder", this);
             _queryBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_queryBuilder", this);
+        }
+
+        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        {
+            return TypeSignatureModifiers.Internal;
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
@@ -41,36 +78,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             return [_uriBuilderField, _pathBuilderField, _queryBuilderField];
         }
-
-        private PropertyProvider? _uriBuilderProperty;
-        private PropertyProvider UriBuilderProperty => _uriBuilderProperty ??= new(
-                modifiers: MethodSignatureModifiers.Private,
-                name: "UriBuilder",
-                type: typeof(UriBuilder),
-                body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _uriBuilderField, New.Instance(typeof(UriBuilder)))),
-                description: null,
-                enclosingType: this);
-
-        internal ValueExpression UriBuilderPath => new MemberExpression(UriBuilderProperty, "Path");
-        internal ValueExpression UriBuilderQuery => new MemberExpression(UriBuilderProperty, "Query");
-
-        private PropertyProvider? _pathBuilderProperty;
-        private PropertyProvider PathBuilderProperty => _pathBuilderProperty ??= new(
-                modifiers: MethodSignatureModifiers.Private,
-                name: "PathBuilder",
-                type: typeof(StringBuilder),
-                body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _pathBuilderField, New.Instance(typeof(StringBuilder), UriBuilderPath))),
-                description: null,
-                enclosingType: this);
-
-        private PropertyProvider? _queryBuilderProperty;
-        private PropertyProvider QueryBuilderProperty => _queryBuilderProperty ??= new(
-                modifiers: MethodSignatureModifiers.Private,
-                name: "QueryBuilder",
-                type: typeof(StringBuilder),
-                body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _queryBuilderField, New.Instance(typeof(StringBuilder), UriBuilderQuery))),
-                description: null,
-                enclosingType: this);
 
         protected override PropertyProvider[] BuildProperties()
         {
@@ -91,27 +98,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var methods = new List<MethodProvider>();
 
-            if (GetBaseType() is null)
-            {
-                methods.Add(BuildResetMethod());
-                methods.AddRange(BuildAppendPathMethods());
-                methods.AddRange(BuildAppendQueryMethods());
-                methods.Add(BuildToUriMethod());
-            }
-
+            methods.Add(BuildResetMethod());
+            methods.AddRange(BuildAppendPathMethods());
+            methods.AddRange(BuildAppendPathDelimitedMethods());
+            methods.AddRange(BuildAppendQueryMethods());
             methods.AddRange(BuildAppendQueryDelimitedMethods());
+            methods.Add(BuildToUriMethod());
 
             return methods.ToArray();
         }
 
-        protected override CSharpType? GetBaseType() => ClientModelPlugin.Instance.TypeFactory.ClientUriBuilderBaseType;
-
-        private const string _resetMethodName = "Reset";
         private MethodProvider BuildResetMethod()
         {
             var uriParameter = new ParameterProvider("uri", $"The uri.", typeof(Uri));
             var signature = new MethodSignature(
-                Name: _resetMethodName,
+                Name: ResetMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: new[]
                 {
@@ -130,13 +131,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return new(signature, body, this);
         }
 
-        private const string _appendPathMethodName = "AppendPath";
         private MethodProvider[] BuildAppendPathMethods()
         {
             var valueParameter = new ParameterProvider("value", $"The value.", typeof(string));
             var escapeParameter = new ParameterProvider("escape", $"The escape", typeof(bool));
             var signature = new MethodSignature(
-                Name: _appendPathMethodName,
+                Name: AppendPathMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: [valueParameter, escapeParameter],
                 ReturnType: null,
@@ -168,7 +168,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 BuildAppendPathMethod(typeof(double), true, false),
                 BuildAppendPathMethod(typeof(int), true, false),
                 BuildAppendPathMethod(typeof(byte[]), true, true),
-                BuildAppendPathMethod(typeof(IEnumerable<string>), true, false),
                 BuildAppendPathMethod(typeof(DateTimeOffset), true, true),
                 BuildAppendPathMethod(typeof(TimeSpan), true, true),
                 BuildAppendPathMethod(typeof(Guid), true, false),
@@ -186,18 +185,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 : new[] { valueParameter, escapeParameter };
 
             var signature = new MethodSignature(
-                Name: _appendPathMethodName,
+                Name: AppendPathMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: parameters,
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeMethodExpression(null, _appendPathMethodName, [convertToStringExpression, escapeParameter]);
+            var body = new InvokeMethodExpression(null, AppendPathMethodName, [convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this);
         }
 
-        private const string _appendQueryMethodName = "AppendQuery";
         private MethodProvider[] BuildAppendQueryMethods()
         {
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
@@ -205,7 +203,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool));
 
             var signature = new MethodSignature(
-                Name: _appendQueryMethodName,
+                Name: AppendQueryMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: [nameParameter, valueParameter, escapeParameter],
                 ReturnType: null,
@@ -258,38 +256,50 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 : new[] { nameParameter, valueParameter, escapeParameter };
 
             var signature = new MethodSignature(
-                Name: _appendQueryMethodName,
+                Name: AppendQueryMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: parameters,
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
             var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
-            var body = new InvokeMethodExpression(null, _appendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter]);
+            var body = new InvokeMethodExpression(null, AppendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this);
         }
 
         private MethodProvider[] BuildAppendQueryDelimitedMethods()
         {
-            return [ BuildAppendQueryDelimitedMethod(false), BuildAppendQueryDelimitedMethod(true)];
+            return
+            [
+                BuildAppendDelimitedMethod(AppendQueryDelimitedMethodName, AppendQueryMethodName)
+            ];
+        }
+
+        private MethodProvider[] BuildAppendPathDelimitedMethods()
+        {
+            return
+            [
+                BuildAppendDelimitedMethod(AppendPathDelimitedMethodName, AppendPathMethodName, false),
+            ];
         }
 
         private readonly CSharpType _t = typeof(IEnumerable<>).GetGenericArguments()[0];
 
-        private const string _appendQueryDelimitedMethodName = "AppendQueryDelimited";
-        private MethodProvider BuildAppendQueryDelimitedMethod(bool hasFormat)
+        private MethodProvider BuildAppendDelimitedMethod(string appendDelimitedMethodName, string appendMethodName, bool hasName = true)
         {
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
-            var valueParameter = new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
+            var valueParameter =
+                new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
             var delimiterParameter = new ParameterProvider("delimiter", $"The delimiter.", typeof(string));
-            var formatParameter = new ParameterProvider("format", $"The format.", typeof(string));
+            var formatParameter = new ParameterProvider("format", $"The format.", typeof(string), Literal(null));
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(true));
 
-            var parameters = hasFormat
+            var parameters = hasName
                 ? new[] { nameParameter, valueParameter, delimiterParameter, formatParameter, escapeParameter }
-                : new[] { nameParameter, valueParameter, delimiterParameter, escapeParameter };
+                : new[] { valueParameter, delimiterParameter, formatParameter, escapeParameter };
+
             var signature = new MethodSignature(
-                Name: _appendQueryDelimitedMethodName,
+                Name: appendDelimitedMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: parameters,
                 ReturnType: null,
@@ -299,22 +309,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var value = valueParameter.As(_t);
 
             var v = new VariableExpression(_t, "v");
-            var convertToStringExpression = TypeFormattersSnippets.ConvertToString(v, hasFormat ? formatParameter : (ValueExpression?)null);
+            var convertToStringExpression = v.ConvertToString(formatParameter);
             var selector = new FuncExpression([v.Declaration], convertToStringExpression).As<string>();
             var body = new[]
             {
+                delimiterParameter.Assign(Literal(","), true).Terminate(),
                 Declare("stringValues", value.Select(selector), out var stringValues),
-               new InvokeMethodExpression(null, _appendQueryMethodName, [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter]).Terminate()
-        };
-
+                hasName ? new InvokeMethodExpression(
+                            null, appendMethodName,
+                        [nameParameter, StringSnippets.Join(delimiterParameter, stringValues), escapeParameter])
+                        .Terminate()
+                    : new InvokeMethodExpression(null, appendMethodName, [StringSnippets.Join(delimiterParameter, stringValues), escapeParameter])
+                    .Terminate()
+            };
             return new(signature, body, this);
         }
 
-        private const string _toUriMethodName = "ToUri";
         private MethodProvider BuildToUriMethod()
         {
             var signature = new MethodSignature(
-                Name: _toUriMethodName,
+                Name: ToUriMethodName,
                 Modifiers: MethodSignatureModifiers.Public,
                 Parameters: Array.Empty<ParameterProvider>(),
                 ReturnType: typeof(Uri),

@@ -1,5 +1,5 @@
 import { type Namespace, type Type } from "../../../core/types.js";
-import { $, defineKit } from "../define-kit.js";
+import { defineKit, Typekit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 
 /**  @experimental */
@@ -23,7 +23,7 @@ interface BaseTypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends BaseTypeKit {}
+  interface Typekit extends BaseTypeKit {}
 }
 
 defineKit<BaseTypeKit>({
@@ -76,27 +76,41 @@ defineKit<BaseTypeKit>({
             projections: [...type.projections],
           });
           const clonedNamespace = clone as Namespace;
-          clonedNamespace.decoratorDeclarations = cloneTypeCollection(type.decoratorDeclarations, {
+          clonedNamespace.decoratorDeclarations = cloneTypeCollection(
+            this,
+            type.decoratorDeclarations,
+            {
+              namespace: clonedNamespace,
+            },
+          );
+          clonedNamespace.models = cloneTypeCollection(this, type.models, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.models = cloneTypeCollection(type.models, { namespace: clonedNamespace });
-          clonedNamespace.enums = cloneTypeCollection(type.enums, { namespace: clonedNamespace });
-          clonedNamespace.functionDeclarations = cloneTypeCollection(type.functionDeclarations, {
+          clonedNamespace.enums = cloneTypeCollection(this, type.enums, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.interfaces = cloneTypeCollection(type.interfaces, {
+          clonedNamespace.functionDeclarations = cloneTypeCollection(
+            this,
+            type.functionDeclarations,
+            {
+              namespace: clonedNamespace,
+            },
+          );
+          clonedNamespace.interfaces = cloneTypeCollection(this, type.interfaces, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.namespaces = cloneTypeCollection(type.namespaces, {
+          clonedNamespace.namespaces = cloneTypeCollection(this, type.namespaces, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.operations = cloneTypeCollection(type.operations, {
+          clonedNamespace.operations = cloneTypeCollection(this, type.operations, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.scalars = cloneTypeCollection(type.scalars, {
+          clonedNamespace.scalars = cloneTypeCollection(this, type.scalars, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.unions = cloneTypeCollection(type.unions, { namespace: clonedNamespace });
+          clonedNamespace.unions = cloneTypeCollection(this, type.unions, {
+            namespace: clonedNamespace,
+          });
           break;
         default:
           clone = this.program.checker.createType({
@@ -105,19 +119,20 @@ defineKit<BaseTypeKit>({
           });
           break;
       }
-      this.realm.get().addType(clone);
+      this.realm.addType(clone);
       return clone;
     },
   },
 });
 
 function cloneTypeCollection<T extends Type>(
+  kit: Typekit,
   collection: Map<string, T>,
   options: { namespace?: Namespace } = {},
 ): Map<string, T> {
   const cloneCollection = new Map<string, T>();
   for (const [key, type] of collection) {
-    const clone = $.type.clone(type);
+    const clone = kit.type.clone(type);
     if ("namespace" in clone && options.namespace) {
       clone.namespace = options.namespace;
     }

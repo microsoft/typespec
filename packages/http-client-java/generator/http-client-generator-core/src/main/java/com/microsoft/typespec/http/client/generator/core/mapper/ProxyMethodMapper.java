@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -500,7 +501,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         // Initialize the merged map with the Swagger defined configurations so that the settings configurations
         // overrides it.
         Map<Integer, ClassType> mergedExceptionTypeMapping
-            = new HashMap<>(swaggerExceptionDefinitions.exceptionTypeMapping);
+            = new TreeMap<>(swaggerExceptionDefinitions.exceptionTypeMapping);
         mergedExceptionTypeMapping.putAll(settingsExceptionTypeMap);
 
         // remove expected status codes
@@ -532,7 +533,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         ClassType swaggerDefaultExceptionType = null;
         Map<Integer, ClassType> swaggerExceptionTypeMap = new HashMap<>();
 
-        if (settings.isDataPlaneClient()) {
+        if (settings.isDataPlaneClient() && settings.isBranded()) {
             // LLC does not use model, hence exception from swagger
             swaggerDefaultExceptionType = ClassType.HTTP_RESPONSE_EXCEPTION;
             exceptionDefinitions.defaultExceptionType = swaggerDefaultExceptionType;
@@ -559,7 +560,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                             ClassType exceptionType = getExceptionType(exception, settings);
                             statusCodes.stream()
                                 .map(Integer::parseInt)
-                                .forEach(status -> swaggerExceptionTypeMap.put(status, exceptionType));
+                                .forEach(status -> swaggerExceptionTypeMap.putIfAbsent(status, exceptionType));
 
                             isDefaultError = false;
                         } catch (NumberFormatException ex) {
@@ -574,8 +575,10 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
                     }
                 }
 
-                if (swaggerDefaultExceptionType == null && !CoreUtils.isNullOrEmpty(operation.getExceptions())
                 // m4 could return Response without schema, when the Swagger uses e.g. "produces: [ application/x-rdp ]"
+                if (swaggerDefaultExceptionType == null
+                    && settings.isBranded()
+                    && !CoreUtils.isNullOrEmpty(operation.getExceptions())
                     && operation.getExceptions().get(0).getSchema() != null) {
                     // no default error, use the 1st to keep backward compatibility
                     swaggerDefaultExceptionType = processExceptionClassType(

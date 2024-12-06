@@ -59,6 +59,10 @@ export const AreaLabels = defineLabels({
     color: "e1b300",
     description: "Issue for the Python client emitter: @typespec/http-client-python",
   },
+  "emitter:graphql": {
+    color: "957300",
+    description: "Issues for @typespec/graphql emitter",
+  },
   "emitter:json-schema": {
     color: "957300",
     description: "",
@@ -167,6 +171,10 @@ export const CommonLabels = {
         description:
           "Mark an issue that needs reply from the author or it will be closed automatically",
       },
+      stale: {
+        color: "ffffff",
+        description: "Mark a PR that hasn't been recently updated and will be closed.",
+      },
       "triaged:core": {
         color: "5319e7",
         description: "",
@@ -193,6 +201,10 @@ export default defineConfig({
         "good first issue": {
           color: "7057ff",
           description: "Good for newcomers",
+        },
+        mq: {
+          color: "0969da",
+          description: "Good candidate for MQ",
         },
       },
     },
