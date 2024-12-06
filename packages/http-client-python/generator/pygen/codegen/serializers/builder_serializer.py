@@ -1138,18 +1138,18 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return retval
 
     def _need_specific_error_map(self, code: int, builder: OperationType) -> bool:
-      for non_default_error in builder.non_default_errors:
-        # single status code
-        if code in non_default_error.status_codes:
-          return False
-        # ranged status code
-        if isinstance(non_default_error.status_codes[0], list) and non_default_error.status_codes[0][0] <= code <= non_default_error.status_codes[0][1]:
-          return False
-      return True
+        for non_default_error in builder.non_default_errors:
+            # single status code
+            if code in non_default_error.status_codes:
+                return False
+            # ranged status code
+            if isinstance(non_default_error.status_codes[0], list) and non_default_error.status_codes[0][0] <= code <= non_default_error.status_codes[0][1]:
+                return False
+        return True
     
     def error_map(self, builder: OperationType) -> List[str]:
         retval = ["error_map: MutableMapping = {"]
-        if builder.non_default_errors:
+        if builder.non_default_errors and self.code_model.options["models_mode"]:
             # TODO: we should decide whether to add the build-in error map when there is a customized default error type
             if self._need_specific_error_map(401, builder):
                 retval.append("    401: ClientAuthenticationError,")
