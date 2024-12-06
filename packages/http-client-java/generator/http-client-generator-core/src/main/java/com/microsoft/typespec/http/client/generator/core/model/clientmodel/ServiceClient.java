@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.azure.core.http.policy.UserAgentPolicy;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import java.util.Collections;
@@ -361,9 +362,9 @@ public class ServiceClient {
     }
 
     protected void addHttpPolicyImports(Set<String> imports) {
+        ClassType.RETRY_POLICY.addImportsTo(imports, false);
         if (JavaSettings.getInstance().isBranded()) {
-            imports.add("com.azure.core.http.policy.RetryPolicy");
-            imports.add("com.azure.core.http.policy.UserAgentPolicy");
+            imports.add(UserAgentPolicy.class.getName());
         }
     }
 
