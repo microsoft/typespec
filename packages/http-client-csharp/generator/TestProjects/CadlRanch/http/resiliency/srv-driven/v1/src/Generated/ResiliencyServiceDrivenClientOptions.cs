@@ -4,7 +4,7 @@
 
 using System.ClientModel.Primitives;
 
-namespace Resiliency.ServiceDriven.V1
+namespace Resiliency.SrvDriven.V1
 {
     public partial class ResiliencyServiceDrivenClientOptions : ClientPipelineOptions
     {
