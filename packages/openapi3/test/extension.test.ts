@@ -3,20 +3,20 @@ import { describe, expect, it } from "vitest";
 
 import { oapiForModel, openApiFor } from "./test-host.js";
 
-const extensionKeys: [string, any][] = [
-  ["minProperties", 1],
-  ["maxProperties", 1],
-  ["uniqueItems", true],
-  ["multipleOf", 1],
+const extensionKeysForObject: string[] = ["minProperties", "maxProperties"];
+
+const extensionKeysForModelProperties: [string, any, string][] = [
+  ["uniqueItems", true, "string[]"],
+  ["multipleOf", 1, "integer"],
 ];
 describe("inline adds an extension to a parameter", () => {
-  it.each(extensionKeys)("%s", async (key, value) => {
+  it.each(extensionKeysForModelProperties)("%s", async (key, value, targetType) => {
     const oapi = await openApiFor(
       `
       op get(
         @path
         @extension("${key}", ${value})
-        petId: string[];
+        petId: ${targetType};
       ): void;
       `,
     );
@@ -26,7 +26,7 @@ describe("inline adds an extension to a parameter", () => {
 });
 
 describe("adds an extension to a parameter", () => {
-  it.each(extensionKeys)("%s", async (key, value) => {
+  it.each(extensionKeysForModelProperties)("%s", async (key, value, targetType) => {
     const oapi = await openApiFor(
       `
       model Pet {
@@ -35,7 +35,7 @@ describe("adds an extension to a parameter", () => {
       model PetId {
         @path
         @extension("${key}", ${value})
-        petId: string[];
+        petId: ${targetType};
       }
       @route("/Pets")
       @get()
@@ -53,13 +53,13 @@ describe("adds an extension to a parameter", () => {
   });
 });
 
-describe("adds an extension to a model", () => {
-  it.each(extensionKeys)("%s", async (key, value) => {
+describe("adds an extension", () => {
+  it.each(extensionKeysForModelProperties)("%s to a model prop", async (key, value, targetType) => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
         @extension("${key}", ${value})
-        x: int32[];
+        x: ${targetType};
       };`,
     );
 
@@ -68,6 +68,35 @@ describe("adds an extension to a model", () => {
       properties: {
         x: { [key]: value },
       },
+    });
+  });
+
+  it.each(extensionKeysForObject)("%s to a model", async (key) => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @extension("${key}", 1)
+      model Foo {        
+        x: string;
+      };`,
+    );
+
+    expect(res.schemas.Foo).toMatchObject({
+      required: ["x"],
+      [key]: 1,
+    });
+  });
+
+  it("apply multipleOf extension on scalar", async () => {
+    const res = await oapiForModel(
+      "a",
+      `
+        @extension("multipleOf", 1)
+        scalar a extends integer;`,
+    );
+
+    expect(res.schemas.a).toMatchObject({
+      multipleOf: 1,
     });
   });
 });
