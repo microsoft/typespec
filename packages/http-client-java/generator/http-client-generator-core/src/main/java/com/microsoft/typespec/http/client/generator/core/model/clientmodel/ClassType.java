@@ -22,6 +22,7 @@ import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.HttpRequest;
+import com.azure.core.http.HttpResponse;
 import com.azure.core.http.MatchConditions;
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.RequestConditions;
@@ -126,6 +127,8 @@ public class ClassType implements IType {
             put(HttpHeaderName.class,
                 new ClassDetails(HttpHeaderName.class, "io.clientcore.core.http.models.HttpHeaderName"));
             put(HttpRequest.class, new ClassDetails(HttpRequest.class, "io.clientcore.core.http.models.HttpRequest"));
+            put(HttpResponse.class,
+                new ClassDetails(HttpResponse.class, "io.clientcore.core.http.models.HttpResponse"));
             put(RequestOptions.class,
                 new ClassDetails(RequestOptions.class, "io.clientcore.core.http.models.RequestOptions"));
             put(BinaryData.class, new ClassDetails(BinaryData.class, "io.clientcore.core.util.binarydata.BinaryData"));
@@ -516,6 +519,7 @@ public class ClassType implements IType {
     public static final ClassType HTTP_REQUEST = getClassTypeBuilder(HttpRequest.class).build();
     public static final ClassType HTTP_HEADERS = getClassTypeBuilder(HttpHeaders.class).build();
     public static final ClassType HTTP_HEADER_NAME = getClassTypeBuilder(HttpHeaderName.class).build();
+    public static final ClassType HTTP_RESPONSE = getClassTypeBuilder(HttpResponse.class).build();
 
     // Java exception types
     public static final ClassType HTTP_RESPONSE_EXCEPTION = getClassTypeBuilder(HttpResponseException.class).build();
