@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Versioning.RenamedFrom.V1",
+  "library-name": "Versioning.RenamedFrom.V1",
+  "use-model-reader-writer": true
+}
