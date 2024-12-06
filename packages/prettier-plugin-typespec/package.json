@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rollup --config 2>&1 && npm run generate-third-party-notices",
+    "build": "rollup --config 2>&1 && pnpm run generate-third-party-notices",
     "test": "vitest run",
     "test:ci": "vitest run",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices"

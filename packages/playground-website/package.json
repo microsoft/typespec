@@ -35,9 +35,9 @@
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./samples/dist",
     "build-samples": "node ./samples/build.js",
-    "build": "npm run build-samples && pnpm build:lib && vite build 2>&1",
+    "build": "pnpm run build-samples && pnpm build:lib && vite build 2>&1",
     "build:lib": "vite build --config vite.lib.config.ts",
-    "preview": "npm run build && vite preview",
+    "preview": "pnpm run build && vite preview",
     "start": "vite",
     "test": "vitest run",
     "test:watch": "vitest -w",

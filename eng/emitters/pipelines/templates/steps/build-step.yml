@@ -61,6 +61,11 @@ steps:
     inputs:
       versionSpec: ${{ parameters.NodeVersion }}
 
+  - script: |
+      corepack enable
+      corepack prepare pnpm --activate
+    displayName: Install pnpm
+
   - ${{ parameters.AdditionalInitializeSteps }}
 
   - task: PowerShell@2

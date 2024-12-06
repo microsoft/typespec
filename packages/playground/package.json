@@ -59,7 +59,7 @@
     "watch": "vite build --watch",
     "storybook": "sb dev",
     "build: storybook": "sb build",
-    "preview": "npm run build && vite preview",
+    "preview": "pnpm run build && vite preview",
     "start": "vite",
     "test": "echo 'no tests'",
     "test:ci": "echo 'no tests'",
