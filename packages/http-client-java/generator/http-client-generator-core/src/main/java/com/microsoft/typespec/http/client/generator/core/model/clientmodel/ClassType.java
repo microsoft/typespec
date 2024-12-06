@@ -27,6 +27,7 @@ import com.azure.core.http.MatchConditions;
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.RequestConditions;
 import com.azure.core.http.policy.HttpLogOptions;
+import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.http.policy.KeyCredentialPolicy;
 import com.azure.core.http.policy.RedirectPolicy;
@@ -121,6 +122,8 @@ public class ClassType implements IType {
                 new ClassDetails(RetryPolicy.class, "io.clientcore.core.http.pipeline.HttpRetryPolicy"));
             put(RedirectPolicy.class,
                 new ClassDetails(RedirectPolicy.class, "io.clientcore.core.http.pipeline.HttpRedirectPolicy"));
+            put(HttpLoggingPolicy.class,
+                new ClassDetails(HttpLoggingPolicy.class, "io.clientcore.core.http.pipeline.HttpLoggingPolicy"));
             put(Configuration.class,
                 new ClassDetails(Configuration.class, "io.clientcore.core.util.configuration.Configuration"));
             put(HttpHeaders.class, new ClassDetails(HttpHeaders.class, "io.clientcore.core.models.Headers"));
@@ -486,6 +489,7 @@ public class ClassType implements IType {
 
     public static final ClassType RETRY_POLICY = getClassTypeBuilder(RetryPolicy.class).build();
     public static final ClassType REDIRECT_POLICY = getClassTypeBuilder(RedirectPolicy.class).build();
+    public static final ClassType HTTP_LOGGING_POLICY = getClassTypeBuilder(HttpLoggingPolicy.class).build();
 
     public static final ClassType RETRY_OPTIONS = getClassTypeBuilder(RetryOptions.class).build();
 
