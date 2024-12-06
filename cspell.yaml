@@ -47,6 +47,7 @@ words:
   - debugpy
   - Declipse
   - Dedupes
+  - deps
   - destructures
   - devdiv
   - Diagnoser
@@ -131,6 +132,7 @@ words:
   - nanos
   - nexted
   - nihao
+  - NODEFS
   - noformat
   - noopener
   - noreferrer
@@ -163,12 +165,15 @@ words:
   - pwsh
   - pyexpat
   - pygen
+  - pyimport
   - pylint
   - pylintrc
+  - pyodide
   - pyproject
   - pyright
   - pyrightconfig
   - pytest
+  - pyyaml
   - rcfile
   - reactivex
   - recase

@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.4.0
+
+### Features
+
+- Add support for generation using `pyodide` instead of a local python environment
+
 ## 0.3.12
 
 ### Other Changes
