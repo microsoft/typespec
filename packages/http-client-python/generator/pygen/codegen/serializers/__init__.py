@@ -129,8 +129,8 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.code_model.options["show_operations"] and self.code_model.has_operations:
                     if self.code_model.options["generate_sample"]:
                         self._serialize_and_write_sample(env, namespace=client_namespace)
-                    # if self.code_model.options["generate_test"]:
-                    #     self._serialize_and_write_test(env, namespace=client_namespace)
+                    if self.code_model.options["generate_test"]:
+                        self._serialize_and_write_test(env, namespace=client_namespace)
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
                 self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
