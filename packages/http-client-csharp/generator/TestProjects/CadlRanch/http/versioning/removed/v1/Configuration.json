@@ -1,0 +1,6 @@
+{
+  "output-folder": ".",
+  "namespace": "Versioning.Removed.V1",
+  "library-name": "Versioning.Removed.V1",
+  "use-model-reader-writer": true
+}

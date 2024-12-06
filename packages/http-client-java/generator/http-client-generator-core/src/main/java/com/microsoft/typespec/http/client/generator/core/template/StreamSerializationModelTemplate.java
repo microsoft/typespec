@@ -247,7 +247,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
         // If the model is polymorphic and all the models in the polymorphic hierarchy are in the same package we don't
         // need to shade parent properties.
-        if (canUseFromJsonShared(propertiesManager)) {
+        if (propertiesManager.getModel().isAllPolymorphicModelsInSamePackage()) {
             return fieldProperties;
         }
 
@@ -1893,8 +1893,10 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             // If the property is defined in a super class use the setter as this will be able to set the value in the
             // super class.
             if (fromSuper
-                // If the property is flattened or read-only from parent, it will be shadowed in child class.
-                && (!ClientModelUtil.readOnlyNotInCtor(model, property, settings) && !property.getClientFlatten())) {
+                // If the property is flattened or read-only from parent, and not all polymorphic models are in the same
+                // package, it will be shadowed in child class.
+                && (!ClientModelUtil.readOnlyNotInCtor(model, property, settings) && !property.getClientFlatten()
+                    || model.isAllPolymorphicModelsInSamePackage())) {
                 if (model.isPolymorphic() && isJsonMergePatchModel) {
                     // Polymorphic JSON merge patch needs special handling as the setter methods are used to track
                     // whether
