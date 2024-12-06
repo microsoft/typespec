@@ -126,8 +126,8 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   }
   commandArgs["from-typespec"] = "true";
   if (!program.compilerOptions.noEmit && !program.hasError()) {
-    if (resolvedOptions["use-pyodide"]) {
-      // here we run with pyodide
+    if (resolvedOptions["use-pyodide"] || !fs.existsSync(venvPath)) {
+      // here we run with pyodide, if there's no venv or if the user specifies to use pyodide
       const outputFolder = path.relative(root, outputDir);
       const pyodide = await setupPyodideCall(root, outputFolder);
       const yamlRelativePath = path.relative(root, yamlPath);
