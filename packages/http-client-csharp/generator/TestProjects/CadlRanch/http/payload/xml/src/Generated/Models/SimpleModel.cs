@@ -6,8 +6,18 @@ namespace Payload.Xml.Models
 {
     public partial class SimpleModel
     {
-        public string Name => throw null;
+        public SimpleModel(string name, int age) => throw null;
 
-        public int Age => throw null;
+        public string Name
+        {
+            get => throw null;
+            set => throw null;
+        }
+
+        public int Age
+        {
+            get => throw null;
+            set => throw null;
+        }
     }
 }

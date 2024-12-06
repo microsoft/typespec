@@ -8,6 +8,8 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithUnwrappedArray
     {
+        public ModelWithUnwrappedArray(IEnumerable<string> colors, IEnumerable<int> counts) => throw null;
+
         public IList<string> Colors => throw null;
 
         public IList<int> Counts => throw null;

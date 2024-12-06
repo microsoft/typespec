@@ -6,8 +6,18 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithText
     {
-        public string Language => throw null;
+        public ModelWithText(string language, string content) => throw null;
 
-        public string Content => throw null;
+        public string Language
+        {
+            get => throw null;
+            set => throw null;
+        }
+
+        public string Content
+        {
+            get => throw null;
+            set => throw null;
+        }
     }
 }

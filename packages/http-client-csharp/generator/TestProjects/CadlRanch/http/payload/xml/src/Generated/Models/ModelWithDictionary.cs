@@ -8,6 +8,8 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithDictionary
     {
+        public ModelWithDictionary(IDictionary<string, string> metadata) => throw null;
+
         public IDictionary<string, string> Metadata => throw null;
     }
 }
