@@ -278,6 +278,14 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
     ) {
       continue;
     }
+    // filter out models only used for polling and or envelope result
+    if (
+      model.usage === UsageFlags.LroPolling ||
+      model.usage === UsageFlags.LroFinalEnvelope ||
+      model.usage === (UsageFlags.LroPolling | UsageFlags.LroFinalEnvelope)
+    ) {
+      continue;
+    }
     // filter out specific models not used in python, e.g., pageable models
     if (disableGenerationMap.has(model)) {
       continue;
