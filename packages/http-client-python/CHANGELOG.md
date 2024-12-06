@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.3.12
+
+### Other Changes
+
+- Fix `useless-object-inheritance` pylint errors
+
 ## 0.3.11
 
 ### Other Changes
