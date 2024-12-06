@@ -9,7 +9,7 @@
    "kind": "model",
    "name": "InvalidAuth",
    "crossLanguageDefinitionId": "Authentication.OAuth2.InvalidAuth",
-   "usage": "Output,Error,Json",
+   "usage": "Error,Json,Exception",
    "decorators": [],
    "properties": [
     {
