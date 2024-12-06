@@ -193,7 +193,7 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
   return templateName;
 }
 
-type ValidationResult = {
+export type ValidationResult = {
   valid: boolean;
   diagnostics: readonly Diagnostic[];
 };
@@ -278,9 +278,9 @@ export class InitTemplateError extends Error {
   }
 }
 
-function validateTemplateDefinitions(
+export function validateTemplateDefinitions(
   template: unknown,
-  templateName: SourceFile,
+  templateName: SourceFile | typeof NoTarget,
   strictValidation: boolean,
 ): ValidationResult {
   const validator = createJSONSchemaValidator(InitTemplateSchema, {

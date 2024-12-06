@@ -1,8 +1,8 @@
 import { dirname, isAbsolute, join } from "path";
 import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
-import { SettingName } from "./const.js";
 import logger from "./log/logger.js";
+import { SettingName } from "./types.js";
 import { isFile, loadModule, useShellInExec } from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
