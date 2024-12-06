@@ -867,12 +867,15 @@ public class ClientModelUtil {
     }
 
     public static boolean readOnlyNotInCtor(ClientModel model, ClientModelProperty property, JavaSettings settings) {
-        return  // not required and in constructor
-        !(property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) && (
+        return
         // must be read-only and not appear in constructor
-        (property.isReadOnly() && !settings.isIncludeReadOnlyInConstructorArgs())
-            // immutable output model only has package-private setters, making its properties read-only
-            || isImmutableOutputModel(getDefiningModel(model, property), settings));
+        ((property.isReadOnly() && !settings.isIncludeReadOnlyInConstructorArgs())
+            // immutable output model only has package-private setters, making its properties effectively read-only
+            || (isImmutableOutputModel(getDefiningModel(model, property), settings))
+                // if property.isReadOnly(), whether it's required or not will not affect it being in constructor or not
+                // , thus only check when !property.isReadOnly() and the model is immutable output(effectively
+                // read-only)
+                && !(property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()));
     }
 
     /**
