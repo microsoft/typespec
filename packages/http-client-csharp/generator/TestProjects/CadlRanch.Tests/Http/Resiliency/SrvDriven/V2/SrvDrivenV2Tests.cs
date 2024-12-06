@@ -3,13 +3,12 @@
 
 using NUnit.Framework;
 using System.Threading.Tasks;
-using Resiliency.ServiceDriven;
+using Resiliency.SrvDriven.V2;
 
-namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven
+namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven.V2
 {
-    public partial class SrvDrivenTests : CadlRanchTestBase
+    public partial class SrvDrivenV2Tests : CadlRanchTestBase
     {
-        private const string ServiceDeploymentV1 = "v1";
         private const string ServiceDeploymentV2 = "v2";
 
         [CadlRanchTest]

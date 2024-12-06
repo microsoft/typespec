@@ -91,14 +91,27 @@ function Generate-Srv-Driven {
       [bool]$createOutputDirIfNotExist = $true
     )
 
-    $specFilePath = $(Join-Path $specFilePath "old.tsp")
-    $outputDir = $(Join-Path $outputDir "v1")
-    if ($createOutputDirIfNotExist -and -not (Test-Path $outputDir)) {
-        New-Item -ItemType Directory -Path $outputDir | Out-Null
+    $v1Dir = $(Join-Path $outputDir "v1")
+    if ($createOutputDirIfNotExist -and -not (Test-Path $v1Dir)) {
+        New-Item -ItemType Directory -Path $v1Dir | Out-Null
     }
 
-    Write-Host "Generating http\resiliency\srv-driven\v1" -ForegroundColor Cyan
-    Invoke (Get-TspCommand $specFilePath $outputDir -generateStub $generateStub -namespaceOverride "Resiliency.ServiceDriven.V1")
+    $v2Dir = $(Join-Path $outputDir "v2")
+    if ($createOutputDirIfNotExist -and -not (Test-Path $v2Dir)) {
+        New-Item -ItemType Directory -Path $v2Dir | Out-Null
+    }
+
+    ## get the last two directories of the output directory and add V1/V2 to disambiguate the namespaces
+    $namespaceRoot = $(($outputDir.Split([System.IO.Path]::DirectorySeparatorChar)[-2..-1] | `
+        ForEach-Object { $_.Substring(0,1).ToUpper() + $_.Substring(1) }) -replace '-(\p{L})', { $_.Groups[1].Value.ToUpper() } -replace '\W', '' -join ".")
+    $v1NamespaceOverride = $namespaceRoot + ".V1" 
+    $v2NamespaceOverride = $namespaceRoot + ".V2"
+
+    $v1SpecFilePath = $(Join-Path $specFilePath "old.tsp")
+    $v2SpecFilePath = $(Join-Path $specFilePath "main.tsp")
+
+    Invoke (Get-TspCommand $v1SpecFilePath $v1Dir -generateStub $generateStub -namespaceOverride $v1NamespaceOverride)
+    Invoke (Get-TspCommand $v2SpecFilePath $v2Dir -generateStub $generateStub -namespaceOverride $v2NamespaceOverride)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
