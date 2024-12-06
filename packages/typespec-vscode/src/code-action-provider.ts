@@ -35,20 +35,34 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
         diagnostic.source === "TypeSpec" &&
         diagnostic.code &&
         typeof diagnostic.code === "object" &&
-        "target" in diagnostic.code
+        "target" in diagnostic.code &&
+        "value" in diagnostic.code
       ) {
-        actions.push(this.createOpenUrlCodeAction(diagnostic, diagnostic.code.target.toString()));
+        actions.push(
+          this.createOpenUrlCodeAction(
+            diagnostic,
+            diagnostic.code.target.toString(),
+            diagnostic.code.value.toString(),
+          ),
+        );
       }
     });
     return actions;
   }
 
-  private createOpenUrlCodeAction(diagnostic: vscode.Diagnostic, url: string): vscode.CodeAction {
+  private createOpenUrlCodeAction(
+    diagnostic: vscode.Diagnostic,
+    url: string,
+    codeActionTitle: string,
+  ): vscode.CodeAction {
     // 'vscode.CodeActionKind.Empty' does not generate a Code Action menu, You must use 'vscode.CodeActionKind.QuickFix'
-    const action = new vscode.CodeAction("Open Document", vscode.CodeActionKind.QuickFix);
+    const action = new vscode.CodeAction(
+      `See documentation for "${codeActionTitle}"`,
+      vscode.CodeActionKind.QuickFix,
+    );
     action.command = {
       command: OPEN_URL_COMMAND,
-      title: "Learn more about details",
+      title: diagnostic.message,
       arguments: [url],
     };
     action.diagnostics = [diagnostic];

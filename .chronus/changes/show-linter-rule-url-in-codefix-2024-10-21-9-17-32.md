@@ -5,4 +5,4 @@ packages:
   - typespec-vscode
 ---
 
-[typespec] expose linter rule documentation url in codefixes
+Support 'See Document' quick action to view the details of linter rules
