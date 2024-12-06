@@ -8,6 +8,8 @@ namespace Payload.Xml.Models
 {
     public partial class ModelWithArrayOfModel
     {
+        public ModelWithArrayOfModel(IEnumerable<SimpleModel> items) => throw null;
+
         public IList<SimpleModel> Items => throw null;
     }
 }
