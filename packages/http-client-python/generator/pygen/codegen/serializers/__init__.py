@@ -310,12 +310,13 @@ class JinjaSerializer(ReaderAndWriter):
         namespace: str,
         general_serializer: GeneralSerializer,
     ):
+        exec_path = self.exec_path(namespace)
         def _read_version_file(original_version_file_name: str) -> str:
-            return self.read_file(self.exec_path(namespace) / original_version_file_name)
+            return self.read_file(exec_path / original_version_file_name)
 
         def _write_version_file(original_version_file_name: str) -> None:
             self.write_file(
-                self.exec_path(namespace) / Path("_version.py"),
+                exec_path / Path("_version.py"),
                 _read_version_file(original_version_file_name),
             )
 
@@ -326,7 +327,7 @@ class JinjaSerializer(ReaderAndWriter):
             _write_version_file(original_version_file_name="version.py")
         elif self.code_model.options["package_version"]:
             self.write_file(
-                self.exec_path(namespace) / Path("_version.py"),
+                exec_path / Path("_version.py"),
                 general_serializer.serialize_version_file(),
             )
 

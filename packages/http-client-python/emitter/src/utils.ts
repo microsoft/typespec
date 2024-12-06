@@ -204,16 +204,17 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   context: PythonSdkContext<TServiceOperation>,
   clientNamespace: string,
 ) {
+  const rootNamespace = removeUnderscoresFromNamespace(context.sdkPackage.rootNamespace).toLowerCase();
   const options = context.emitContext.options;
   if ([undefined, false].includes(options["enable-typespec-namespace"])) {
-    return context.sdkPackage.rootNamespace.toLowerCase();
+    return rootNamespace;
   }
   if (
     ["azure.core", "azure.resourcemanager"].some((item) =>
       clientNamespace.toLowerCase().startsWith(item),
     )
   ) {
-    return context.sdkPackage.rootNamespace.toLowerCase();
+    return rootNamespace;
   }
-  return clientNamespace.toLowerCase();
+  return removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
 }
