@@ -82,7 +82,13 @@ public final class OlympicRecordModel implements ExpandableEnum<Double> {
     @Generated
     @Override
     public boolean equals(Object obj) {
-        return Objects.equals(this.value, obj);
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof OlympicRecordModel)) {
+            return false;
+        }
+        return Objects.equals(this.value, ((OlympicRecordModel) obj).value);
     }
 
     @Generated
