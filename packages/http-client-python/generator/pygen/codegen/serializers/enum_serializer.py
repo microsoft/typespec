@@ -10,7 +10,7 @@ from ..models import FileImport, CodeModel, EnumType
 
 
 class EnumSerializer(BaseSerializer):
-    
+
     def __init__(
         self,
         code_model: CodeModel,

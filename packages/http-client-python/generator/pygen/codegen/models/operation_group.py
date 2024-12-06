@@ -122,13 +122,26 @@ class OperationGroup(BaseModel):
             and self.code_model.options["models_mode"] == "msrest"
             and not self.is_mixin
         ):
-            file_import.add_submodule_import(self.code_model.get_relative_import_path(serialize_namespace), "models", ImportType.LOCAL, alias="_models")
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(serialize_namespace),
+                "models",
+                ImportType.LOCAL,
+                alias="_models",
+            )
         if self.is_mixin:
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, self.code_model.namespace, module_name="_vendor", async_mode=async_mode), f"{self.client.name}MixinABC", ImportType.LOCAL
+                self.code_model.get_relative_import_path(
+                    serialize_namespace, self.code_model.namespace, module_name="_vendor", async_mode=async_mode
+                ),
+                f"{self.client.name}MixinABC",
+                ImportType.LOCAL,
             )
         if self.has_abstract_operations:
-            file_import.add_submodule_import(self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"), "raise_if_not_implemented", ImportType.LOCAL)
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"),
+                "raise_if_not_implemented",
+                ImportType.LOCAL,
+            )
         if all(o.abstract for o in self.operations):
             return file_import
         file_import.add_submodule_import("typing", "TypeVar", ImportType.STDLIB, TypingSection.CONDITIONAL)

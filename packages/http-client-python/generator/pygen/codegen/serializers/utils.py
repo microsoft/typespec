@@ -8,7 +8,6 @@ from typing import Optional, Any
 from pathlib import Path
 
 
-
 def method_signature_and_response_type_annotation_template(
     *,
     method_signature: str,
@@ -32,7 +31,6 @@ def get_namespace_config(namespace: str, multiapi: bool) -> str:
 
 def get_namespace_from_package_name(package_name: Optional[str]) -> str:
     return (package_name or "").replace("-", ".")
-
 
 
 def _improve_json_string(template_representation: str) -> Any:

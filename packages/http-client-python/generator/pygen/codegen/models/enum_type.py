@@ -78,7 +78,12 @@ class EnumValue(BaseType):
         file_import.add_submodule_import("typing", "Literal", ImportType.STDLIB, TypingSection.REGULAR)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         file_import.add_submodule_import(
-            self.code_model.get_relative_import_path(serialize_namespace, self.enum_type.client_namespace, namespace_type=NamespaceType.MODEL, module_name=self.code_model.enums_filename),
+            self.code_model.get_relative_import_path(
+                serialize_namespace,
+                self.enum_type.client_namespace,
+                namespace_type=NamespaceType.MODEL,
+                module_name=self.code_model.enums_filename,
+            ),
             self.enum_type.name,
             ImportType.LOCAL,
             TypingSection.REGULAR,
@@ -225,27 +230,27 @@ class EnumType(BaseType):
         file_import.merge(self.value_type.imports(**kwargs))
         if self.code_model.options["models_mode"]:
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
-            
+
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
             alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
             namespace_type = kwargs.get("namespace_type")
             if namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
-              file_import.add_submodule_import(
-                  relative_path,
-                  "models",
-                  ImportType.LOCAL,
-                  alias=alias,
-                  typing_section=TypingSection.REGULAR,
-              )
+                file_import.add_submodule_import(
+                    relative_path,
+                    "models",
+                    ImportType.LOCAL,
+                    alias=alias,
+                    typing_section=TypingSection.REGULAR,
+                )
             elif namespace_type == NamespaceType.MODEL:
-              file_import.add_submodule_import(
-                  relative_path,
-                  "models",
-                  ImportType.LOCAL,
-                  alias=alias,
-                  typing_section=TypingSection.TYPING,
-              )
+                file_import.add_submodule_import(
+                    relative_path,
+                    "models",
+                    ImportType.LOCAL,
+                    alias=alias,
+                    typing_section=TypingSection.TYPING,
+                )
 
         file_import.merge(self.value_type.imports(**kwargs))
         return file_import

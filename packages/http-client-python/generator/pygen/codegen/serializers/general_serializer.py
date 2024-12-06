@@ -69,7 +69,11 @@ class GeneralSerializer(BaseSerializer):
 
         imports = FileImport(self.code_model)
         for client in clients:
-            imports.merge(client.imports(self.async_mode, serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.CLIENT))
+            imports.merge(
+                client.imports(
+                    self.async_mode, serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.CLIENT
+                )
+            )
 
         return template.render(
             code_model=self.code_model,
@@ -150,7 +154,11 @@ class GeneralSerializer(BaseSerializer):
         template = self.env.get_template("config_container.py.jinja2")
         imports = FileImport(self.code_model)
         for client in self.code_model.clients:
-            imports.merge(client.config.imports(self.async_mode, serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.CLIENT))
+            imports.merge(
+                client.config.imports(
+                    self.async_mode, serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.CLIENT
+                )
+            )
         return template.render(
             code_model=self.code_model,
             async_mode=self.async_mode,

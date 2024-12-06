@@ -23,7 +23,9 @@ def _documentation_string(prop: Property, description_keyword: str, docstring_ty
 
 
 class _ModelSerializer(BaseSerializer, ABC):
-    def __init__(self, code_model, env, async_mode = False, *, models: List[ModelType], client_namespace: Optional[str] = None):
+    def __init__(
+        self, code_model, env, async_mode=False, *, models: List[ModelType], client_namespace: Optional[str] = None
+    ):
         super().__init__(code_model, env, async_mode, client_namespace=client_namespace)
         self.models = models
 
@@ -231,7 +233,9 @@ class DpgModelSerializer(_ModelSerializer):
                 continue
             file_import.merge(model.imports(is_operation_file=False, serialize_namespace=self.serialize_namespace))
             for prop in model.properties:
-                file_import.merge(prop.imports(serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.MODEL))
+                file_import.merge(
+                    prop.imports(serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.MODEL)
+                )
             if model.is_polymorphic:
                 file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             if not model.internal and self.init_line(model):

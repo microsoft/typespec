@@ -204,7 +204,9 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   context: PythonSdkContext<TServiceOperation>,
   clientNamespace: string,
 ) {
-  const rootNamespace = removeUnderscoresFromNamespace(context.sdkPackage.rootNamespace).toLowerCase();
+  const rootNamespace = removeUnderscoresFromNamespace(
+    context.sdkPackage.rootNamespace,
+  ).toLowerCase();
   const options = context.emitContext.options;
   if ([undefined, false].includes(options["enable-typespec-namespace"])) {
     return rootNamespace;

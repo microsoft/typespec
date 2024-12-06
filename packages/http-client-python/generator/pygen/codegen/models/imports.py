@@ -278,13 +278,16 @@ class FileImport:
                 # for multiapi, the namespace is azure.mgmt.xxx.v20XX_XX_XX while _serialization.py is in azure.mgmt.xxx
                 imported_namespace = get_parent_namespace(imported_namespace)
             if msrest_import_type == MsrestImportType.Module:
-                self.add_submodule_import(self.code_model.get_relative_import_path(serialize_namespace, imported_namespace), "_serialization", ImportType.LOCAL, typing_section)
-            else:
-                relative_path = self.code_model.get_relative_import_path(serialize_namespace, imported_namespace, module_name="_serialization")
                 self.add_submodule_import(
-                    relative_path, "Serializer", ImportType.LOCAL, typing_section
+                    self.code_model.get_relative_import_path(serialize_namespace, imported_namespace),
+                    "_serialization",
+                    ImportType.LOCAL,
+                    typing_section,
                 )
+            else:
+                relative_path = self.code_model.get_relative_import_path(
+                    serialize_namespace, imported_namespace, module_name="_serialization"
+                )
+                self.add_submodule_import(relative_path, "Serializer", ImportType.LOCAL, typing_section)
                 if msrest_import_type == MsrestImportType.SerializerDeserializer:
-                    self.add_submodule_import(
-                        relative_path, "Deserializer", ImportType.LOCAL, typing_section
-                    )
+                    self.add_submodule_import(relative_path, "Deserializer", ImportType.LOCAL, typing_section)

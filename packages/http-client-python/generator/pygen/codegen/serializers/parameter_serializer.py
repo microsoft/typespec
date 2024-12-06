@@ -109,7 +109,8 @@ class ParameterSerializer:
             return f"[{serialize_line} if q is not None else '' for q in {origin_name}]"
         return serialize_line
 
-    def serialize_path(self,
+    def serialize_path(
+        self,
         parameters: Union[
             List[Parameter],
             List[RequestBuilderParameter],

@@ -18,6 +18,7 @@ from .utils import NamespaceType
 def _is_legacy(options) -> bool:
     return not (options.get("version_tolerant") or options.get("low_level_client"))
 
+
 def get_all_operation_groups_recursively(clients: List[Client]) -> List[OperationGroup]:
     operation_groups = []
     queue = []
@@ -28,6 +29,7 @@ def get_all_operation_groups_recursively(clients: List[Client]) -> List[Operatio
         if operation_groups[-1].operation_groups:
             queue.extend(operation_groups[-1].operation_groups)
     return operation_groups
+
 
 class ClientNamespaceType:
     def __init__(
@@ -124,31 +126,34 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             else:
                 module_namespace = ""
             imported_namespace = imported_namespace + async_namespace + module_namespace
-        
+
         key = f"{serialize_namespace}-{imported_namespace}"
         if key not in self._relative_import_path:
-          idx = 0
-          serialize_namespace_split = serialize_namespace.split(".")
-          imported_namespace_split = imported_namespace.split(".")
-          while idx < min(len(serialize_namespace_split), len(imported_namespace_split)):
-              if serialize_namespace_split[idx] != imported_namespace_split[idx]:
-                  break
-              idx += 1
-          self._relative_import_path[key] = "." * (len(serialize_namespace_split[idx:]) + 1) + ".".join(imported_namespace_split[idx:])
+            idx = 0
+            serialize_namespace_split = serialize_namespace.split(".")
+            imported_namespace_split = imported_namespace.split(".")
+            while idx < min(len(serialize_namespace_split), len(imported_namespace_split)):
+                if serialize_namespace_split[idx] != imported_namespace_split[idx]:
+                    break
+                idx += 1
+            self._relative_import_path[key] = "." * (len(serialize_namespace_split[idx:]) + 1) + ".".join(
+                imported_namespace_split[idx:]
+            )
         result = self._relative_import_path[key]
         if module_name is None:
-          return result
+            return result
         return f"{result}{module_name}" if result.endswith(".") else f"{result}.{module_name}"
-        
 
     @property
     def need_unique_model_alias(self) -> bool:
         return self.has_subnamespace and self.options["enable_typespec_namespace"]
-    
+
     def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
         if not self.need_unique_model_alias:
             return "_models"
-        relative_path = self.get_relative_import_path(serialize_namespace, imported_namespace, namespace_type=NamespaceType.MODEL)
+        relative_path = self.get_relative_import_path(
+            serialize_namespace, imported_namespace, namespace_type=NamespaceType.MODEL
+        )
         dot_num = max(relative_path.count(".") - 1, 0)
         parts = [""] + [p for p in relative_path.split(".") if p]
         return "_".join(parts) + str(dot_num)

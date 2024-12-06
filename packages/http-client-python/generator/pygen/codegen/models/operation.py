@@ -308,7 +308,12 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                 )
         if self.code_model.options["builders_visibility"] == "embedded" and async_mode:
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace, namespace_type=NamespaceType.OPERATION, module_name=self.filename),
+                self.code_model.get_relative_import_path(
+                    serialize_namespace,
+                    self.client_namespace,
+                    namespace_type=NamespaceType.OPERATION,
+                    module_name=self.filename,
+                ),
                 request_builder.name,
                 import_type=ImportType.LOCAL,
             )
@@ -341,7 +346,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
         if self.parameters.has_body and self.parameters.body_parameter.flattened:
             file_import.merge(
-                self.parameters.body_parameter.type.imports(need_import_iobase=self.need_import_iobase,**kwargs)
+                self.parameters.body_parameter.type.imports(need_import_iobase=self.need_import_iobase, **kwargs)
             )
         if not async_mode:
             for param in self.parameters.headers:
@@ -447,7 +452,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, module_name="_model_base")
             if self.parameters.has_body:
                 if self.has_form_data_body:
-                    file_import.add_submodule_import(self.code_model.get_relative_import_path(serialize_namespace), "_model_base", ImportType.LOCAL)
+                    file_import.add_submodule_import(
+                        self.code_model.get_relative_import_path(serialize_namespace), "_model_base", ImportType.LOCAL
+                    )
                 elif xml_serializable(self.parameters.body_parameter.default_content_type):
                     file_import.add_submodule_import(
                         relative_path,

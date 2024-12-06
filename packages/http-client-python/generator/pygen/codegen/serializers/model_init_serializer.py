@@ -9,7 +9,9 @@ from ..models import CodeModel, ModelType, EnumType
 
 
 class ModelInitSerializer:
-    def __init__(self, code_model: CodeModel, env: Environment, *, models: List[ModelType], enums: List[EnumType]) -> None:
+    def __init__(
+        self, code_model: CodeModel, env: Environment, *, models: List[ModelType], enums: List[EnumType]
+    ) -> None:
         self.code_model = code_model
         self.env = env
         self.models = models

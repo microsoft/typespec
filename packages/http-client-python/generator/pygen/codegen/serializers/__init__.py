@@ -57,6 +57,7 @@ _PACKAGE_FILES = [
 _REGENERATE_FILES = {"setup.py", "MANIFEST.in"}
 AsyncInfo = namedtuple("AsyncInfo", ["async_mode", "async_path"])
 
+
 # extract sub folders. For example, source_file_path is like:
 # "xxx/resource-manager/Microsoft.XX/stable/2023-04-01/examples/Compute/createOrUpdate/AKSCompute.json",
 # and we want to extract the sub folders after "examples/", which is "compute/create_or_update"
@@ -113,7 +114,8 @@ class JinjaSerializer(ReaderAndWriter):
                     )
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
-                self._serialize_and_write_package_files(client_namespace)
+                if self.code_model.options["package_mode"]:
+                    self._serialize_and_write_package_files(client_namespace)
 
                 # add generated samples and generated tests
                 # TODO
@@ -124,9 +126,7 @@ class JinjaSerializer(ReaderAndWriter):
                 #         self._serialize_and_write_test(env, namespace=client_namespace)
             elif client_namespace_type.clients:
                 # add clients folder if there are clients in this namespace
-                self._serialize_client_and_config_files(
-                    client_namespace, client_namespace_type.clients, env
-                )
+                self._serialize_client_and_config_files(client_namespace, client_namespace_type.clients, env)
             else:
                 # add pkgutil init file if no clients in this namespace
                 self.write_file(
@@ -215,7 +215,9 @@ class JinjaSerializer(ReaderAndWriter):
         if enums:
             self.write_file(
                 models_path / Path(f"{self.code_model.enums_filename}.py"),
-                EnumSerializer(code_model=self.code_model, env=env, client_namespace=namespace, enums=enums).serialize(),
+                EnumSerializer(
+                    code_model=self.code_model, env=env, client_namespace=namespace, enums=enums
+                ).serialize(),
             )
         self.write_file(
             models_path / Path("__init__.py"),
@@ -297,13 +299,12 @@ class JinjaSerializer(ReaderAndWriter):
                     async_mode=async_mode,
                 )
                 self.write_file(
-                  exec_path / Path(f"{prefix_path}/{filename}.py"),
-                  operation_group_serializer.serialize(),
+                    exec_path / Path(f"{prefix_path}/{filename}.py"),
+                    operation_group_serializer.serialize(),
                 )
 
             # if there was a patch file before, we keep it
             self._keep_patch_file(exec_path / Path(f"{prefix_path}/_patch.py"), env)
-
 
     def _serialize_and_write_version_file(
         self,
@@ -311,6 +312,7 @@ class JinjaSerializer(ReaderAndWriter):
         general_serializer: GeneralSerializer,
     ):
         exec_path = self.exec_path(namespace)
+
         def _read_version_file(original_version_file_name: str) -> str:
             return self.read_file(exec_path / original_version_file_name)
 
@@ -339,7 +341,9 @@ class JinjaSerializer(ReaderAndWriter):
     ) -> None:
         exec_path = self.exec_path(namespace)
         for async_mode, async_path in self.serialize_loop:
-            general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace)
+            general_serializer = GeneralSerializer(
+                code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace
+            )
             # when there is client.py, there must be __init__.py
             self.write_file(
                 exec_path / Path(f"{async_path}__init__.py"),
@@ -352,7 +356,7 @@ class JinjaSerializer(ReaderAndWriter):
                 general_serializer.serialize_service_client_file(clients),
             )
 
-            #write config file
+            # write config file
             self.write_file(
                 exec_path / Path(f"{async_path}_configuration.py"),
                 general_serializer.serialize_config_file(clients),
@@ -360,9 +364,6 @@ class JinjaSerializer(ReaderAndWriter):
 
             # if there was a patch file before, we keep it
             self._keep_patch_file(exec_path / Path(f"{async_path}_patch.py"), env)
-
-
-
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
@@ -373,7 +374,7 @@ class JinjaSerializer(ReaderAndWriter):
                     exec_path / Path(f"{async_path}_vendor.py"),
                     GeneralSerializer(code_model=self.code_model, env=env, async_mode=async_mode).serialize_vendor_file(
                         self.code_model.clients
-                    )
+                    ),
                 )
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)

@@ -307,7 +307,12 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         for og in self.operation_groups:
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, og.client_namespace, async_mode=async_mode, namespace_type=NamespaceType.OPERATION),
+                self.code_model.get_relative_import_path(
+                    serialize_namespace,
+                    og.client_namespace,
+                    async_mode=async_mode,
+                    namespace_type=NamespaceType.OPERATION,
+                ),
                 og.class_name,
                 ImportType.LOCAL,
             )
@@ -393,7 +398,9 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
         if self.code_model.options["package_version"]:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, module_name="_version"), "VERSION", ImportType.LOCAL
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_version"),
+                "VERSION",
+                ImportType.LOCAL,
             )
         if self.code_model.options["azure_arm"]:
             policy = "AsyncARMChallengeAuthenticationPolicy" if async_mode else "ARMChallengeAuthenticationPolicy"
