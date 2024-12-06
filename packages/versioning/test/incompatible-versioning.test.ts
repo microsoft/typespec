@@ -400,14 +400,14 @@ describe("versioning: validate incompatible references", () => {
         @test
         model Test {
           @typeChangedFrom(Versions.v2, Original[])
-          prop: Updated;
+          prop: Updated[];
         }
         `);
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         severity: "error",
         message:
-          "'TestService.Test.prop' was added in version 'v1' but referencing type 'TestService.Original' added in version 'v2'.",
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
       });
     });
 
@@ -424,14 +424,14 @@ describe("versioning: validate incompatible references", () => {
         @test
         model Test {
           @typeChangedFrom(Versions.v2, Record<Original>)
-          prop: Updated;
+          prop: Record<Updated>;
         }
         `);
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         severity: "error",
         message:
-          "'TestService.Test.prop' was added in version 'v1' but referencing type 'TestService.Original' added in version 'v2'.",
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
       });
     });
 
@@ -455,7 +455,61 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         severity: "error",
         message:
-          "'TestService.Test.prop' was added in version 'v1' but referencing type 'TestService.Original' added in version 'v2'.",
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
+      });
+    });
+
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist in named unions", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        union InvalidUnion {
+          string,
+          Updated,
+        }
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v2, InvalidUnion)
+          prop: string;
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Updated' is referencing versioned type 'TestService.Updated' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist in tuples", async () => {
+      const diagnostics = await runner.diagnose(`        
+        @test
+        @added(Versions.v2)
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        model Test {
+          @typeChangedFrom(Versions.v2, [Original, string])
+          prop: [Updated, string];
+        }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        severity: "error",
+        message:
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
       });
     });
 
@@ -476,14 +530,14 @@ describe("versioning: validate incompatible references", () => {
         @test
         model Test {
           @typeChangedFrom(Versions.v2, Template<Original>)
-          prop: Updated;
+          prop: Template<Updated>;
         }
         `);
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         severity: "error",
         message:
-          "'TestService.Test.prop' was added in version 'v1' but referencing type 'TestService.Original' added in version 'v2'.",
+          "'TestService.Test.prop' is referencing type 'TestService.Original' which does not exist in version 'v1'.",
       });
     });
 

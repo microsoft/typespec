@@ -414,6 +414,14 @@ export const $pattern: PatternDecorator = (
     return;
   }
 
+  try {
+    new RegExp(pattern);
+  } catch (e) {
+    reportDiagnostic(context.program, {
+      code: "invalid-pattern-regex",
+      target: target,
+    });
+  }
   const patternData: PatternData = {
     pattern,
     validationMessage,
