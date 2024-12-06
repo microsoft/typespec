@@ -151,7 +151,7 @@ class MsrestModelSerializer(_ModelSerializer):
         for model in self.models:
             file_import.merge(model.imports(is_operation_file=False))
             for param in self._init_line_parameters(model):
-                file_import.merge(param.imports())
+                file_import.merge(param.imports(serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.MODEL))
 
         return file_import
 

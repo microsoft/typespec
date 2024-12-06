@@ -106,16 +106,24 @@ class JinjaSerializer(ReaderAndWriter):
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
         for client_namespace, client_namespace_type in self.code_model.client_namespace_types.items():
+            exec_path = self.exec_path(client_namespace)
             if client_namespace == "":
                 # Write the setup file
                 if self.code_model.options["basic_setup_py"]:
                     self.write_file(
-                        self.exec_path(client_namespace) / Path("setup.py"), general_serializer.serialize_setup_file()
+                        exec_path / Path("setup.py"), general_serializer.serialize_setup_file()
                     )
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
                 if self.code_model.options["package_mode"]:
                     self._serialize_and_write_package_files(client_namespace)
+
+                # write apiview_mapping_python.json
+                if self.code_model.options.get("emit_cross_language_definition_file"):
+                    self.write_file(
+                        exec_path / Path("apiview_mapping_python.json"),
+                        general_serializer.serialize_cross_language_definition_file(),
+                    )
 
                 # add generated samples and generated tests
                 # TODO
@@ -130,7 +138,7 @@ class JinjaSerializer(ReaderAndWriter):
             else:
                 # add pkgutil init file if no clients in this namespace
                 self.write_file(
-                    self.exec_path(client_namespace) / Path("__init__.py"),
+                    exec_path / Path("__init__.py"),
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
@@ -149,7 +157,7 @@ class JinjaSerializer(ReaderAndWriter):
 
             if not self.code_model.options["models_mode"]:
                 # keep models file if users ended up just writing a models file
-                model_path = self.exec_path(client_namespace) / Path("models.py")
+                model_path = exec_path / Path("models.py")
                 if self.read_file(model_path):
                     self.write_file(model_path, self.read_file(model_path))
 
@@ -404,13 +412,6 @@ class JinjaSerializer(ReaderAndWriter):
             self.write_file(
                 exec_path / Path("_validation.py"),
                 general_serializer.serialize_validation_file(),
-            )
-
-        # write apiview_mapping_python.json
-        if self.code_model.options.get("emit_cross_language_definition_file"):
-            self.write_file(
-                exec_path / Path("apiview_mapping_python.json"),
-                general_serializer.serialize_cross_language_definition_file(),
             )
 
         # write _types.py
