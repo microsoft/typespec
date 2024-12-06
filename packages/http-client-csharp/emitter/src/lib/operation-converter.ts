@@ -185,6 +185,17 @@ function fromSdkHttpOperationParameter(
   const parameterType = fromSdkType(p.type, sdkContext, typeMap);
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
+  let explode = false;
+
+  // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the style for
+  // any path expansion to ensure the parameter values are delimited correctly during serialization.
+  if (parameterType.kind === "array" || parameterType.kind === "dict") {
+    if (format === "multi") {
+      explode = true;
+    } else if (isExplodedSdkQueryParameter(p) || isExplodedSdkPathParameter(p)) {
+      explode = true;
+    }
+  }
 
   return {
     Name: p.name,
@@ -196,7 +207,7 @@ function fromSdkHttpOperationParameter(
       p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version",
     IsContentType: isContentType,
     IsEndpoint: false,
-    Explode: parameterType.kind === "array" && format === "multi" ? true : false,
+    Explode: explode,
     ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
     IsRequired: !p.optional,
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
@@ -417,4 +428,12 @@ function normalizeHeaderName(name: string): string {
     default:
       return name;
   }
+}
+
+function isExplodedSdkQueryParameter(p: any): p is SdkQueryParameter {
+  return (p as SdkQueryParameter).explode === true && (p as SdkQueryParameter).kind === "query";
+}
+
+function isExplodedSdkPathParameter(p: any): p is SdkPathParameter {
+  return (p as SdkPathParameter).explode === true && (p as SdkPathParameter).kind === "path";
 }
