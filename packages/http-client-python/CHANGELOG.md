@@ -1,5 +1,15 @@
 # Change Log - @typespec/http-client-python
 
+## 0.4.0
+
+### Features
+
+- Refine exception handling logic and support exception with ranged status code (#5270)
+
+### Bug Fixes
+
+- Filter out credential that python does not support for now (#5282)
+
 ## 0.3.12
 
 ### Other Changes
