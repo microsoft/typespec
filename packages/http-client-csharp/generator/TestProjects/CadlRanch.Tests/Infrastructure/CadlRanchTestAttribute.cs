@@ -24,6 +24,12 @@ namespace TestProjects.CadlRanch.Tests
         {
             string clientCodeDirectory = GetGeneratedDirectory(test);
 
+            if (!Directory.Exists(clientCodeDirectory))
+            {
+                // Not all cadl-ranch scenarios use kebab-case directories, so try again without kebab-case.
+                clientCodeDirectory = GetGeneratedDirectory(test, false);
+            }
+
             var clientCsFile = GetClientCsFile(clientCodeDirectory);
 
             TestContext.Progress.WriteLine($"Checking if '{clientCsFile}' is a stubbed implementation.");
@@ -69,14 +75,14 @@ namespace TestProjects.CadlRanch.Tests
                 .FirstOrDefault();
         }
 
-        private static string GetGeneratedDirectory(Test test)
+        private static string GetGeneratedDirectory(Test test, bool kebabCaseDirectories = true)
         {
             var namespaceParts = test.FullName.Split('.').Skip(3);
             namespaceParts = namespaceParts.Take(namespaceParts.Count() - 2);
             var clientCodeDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "..", "..", "..", "TestProjects", "CadlRanch");
             foreach (var part in namespaceParts)
             {
-                clientCodeDirectory = Path.Combine(clientCodeDirectory, FixName(part));
+                clientCodeDirectory = Path.Combine(clientCodeDirectory, kebabCaseDirectories ? FixName(part) : part);
             }
             return Path.Combine(clientCodeDirectory, "src", "Generated");
         }
