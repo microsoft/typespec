@@ -10,7 +10,7 @@
    "name": "ModelWithEncodedNames",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithEncodedNames",
    "usage": "Input,Output,Xml",
-   "description": "Uses encodedName instead of Xml.Name which is functionally equivalent.",
+   "doc": "Uses encodedName instead of Xml.Name which is functionally equivalent.",
    "decorators": [],
    "properties": [
     {
@@ -24,7 +24,7 @@
       "name": "SimpleModel",
       "crossLanguageDefinitionId": "Payload.Xml.SimpleModel",
       "usage": "Input,Output,Xml",
-      "description": "Contains fields of primitive types.",
+      "doc": "Contains fields of primitive types.",
       "decorators": [],
       "properties": [
        {
@@ -111,7 +111,7 @@
    "name": "ModelWithDictionary",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithDictionary",
    "usage": "Input,Output,Xml",
-   "description": "Contains a dictionary of key value pairs.",
+   "doc": "Contains a dictionary of key value pairs.",
    "decorators": [],
    "properties": [
     {
@@ -153,7 +153,7 @@
    "name": "ModelWithText",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithText",
    "usage": "Input,Output,Xml",
-   "description": "Contains an attribute and text.",
+   "doc": "Contains an attribute and text.",
    "decorators": [],
    "properties": [
     {
@@ -218,7 +218,7 @@
    "name": "ModelWithEmptyArray",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithEmptyArray",
    "usage": "Input,Output,Xml",
-   "description": "Contains an array of models that's supposed to be sent/received as an empty XML element.",
+   "doc": "Contains an array of models that's supposed to be sent/received as an empty XML element.",
    "decorators": [],
    "properties": [
     {
@@ -251,7 +251,7 @@
    "name": "ModelWithRenamedFields",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedFields",
    "usage": "Input,Output,Xml",
-   "description": "Contains fields of the same type that have different XML representation.",
+   "doc": "Contains fields of the same type that have different XML representation.",
    "decorators": [
     {
      "$id": "30",
@@ -319,7 +319,7 @@
    "name": "ModelWithRenamedArrays",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithRenamedArrays",
    "usage": "Input,Output,Xml",
-   "description": "Contains fields of wrapped and unwrapped arrays of primitive types that have different XML representations.",
+   "doc": "Contains fields of wrapped and unwrapped arrays of primitive types that have different XML representations.",
    "decorators": [],
    "properties": [
     {
@@ -407,7 +407,7 @@
    "name": "ModelWithUnwrappedArray",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithUnwrappedArray",
    "usage": "Input,Output,Xml",
-   "description": "Contains fields of wrapped and unwrapped arrays of primitive types.",
+   "doc": "Contains fields of wrapped and unwrapped arrays of primitive types.",
    "decorators": [],
    "properties": [
     {
@@ -478,7 +478,7 @@
    "name": "ModelWithAttributes",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithAttributes",
    "usage": "Input,Output,Xml",
-   "description": "Contains fields that are XML attributes.",
+   "doc": "Contains fields that are XML attributes.",
    "decorators": [],
    "properties": [
     {
@@ -562,7 +562,7 @@
    "name": "ModelWithOptionalField",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithOptionalField",
    "usage": "Input,Output,Xml",
-   "description": "Contains an optional field.",
+   "doc": "Contains an optional field.",
    "decorators": [],
    "properties": [
     {
@@ -611,7 +611,7 @@
    "name": "ModelWithArrayOfModel",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithArrayOfModel",
    "usage": "Input,Output,Xml",
-   "description": "Contains an array of models.",
+   "doc": "Contains an array of models.",
    "decorators": [],
    "properties": [
     {
@@ -644,7 +644,7 @@
    "name": "ModelWithSimpleArrays",
    "crossLanguageDefinitionId": "Payload.Xml.ModelWithSimpleArrays",
    "usage": "Input,Output,Xml",
-   "description": "Contains fields of arrays of primitive types.",
+   "doc": "Contains fields of arrays of primitive types.",
    "decorators": [],
    "properties": [
     {
@@ -706,7 +706,7 @@
   {
    "$id": "86",
    "Name": "XmlClient",
-   "Description": "Sends and receives bodies in XML format.",
+   "Doc": "Sends and receives bodies in XML format.",
    "Operations": [],
    "Protocol": {
     "$id": "87"
@@ -716,7 +716,7 @@
      "$id": "88",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "89",
       "kind": "url",
@@ -749,7 +749,7 @@
   {
    "$id": "92",
    "Name": "SimpleModelValue",
-   "Description": "Operations for the SimpleModel type.",
+   "Doc": "Operations for the SimpleModel type.",
    "Operations": [
     {
      "$id": "93",
@@ -916,7 +916,7 @@
      "$id": "108",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "109",
       "kind": "url",
@@ -949,7 +949,7 @@
   {
    "$id": "112",
    "Name": "ModelWithSimpleArraysValue",
-   "Description": "Operations for the ModelWithSimpleArrays type.",
+   "Doc": "Operations for the ModelWithSimpleArrays type.",
    "Operations": [
     {
      "$id": "113",
@@ -1116,7 +1116,7 @@
      "$id": "128",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "129",
       "kind": "url",
@@ -1149,7 +1149,7 @@
   {
    "$id": "132",
    "Name": "ModelWithArrayOfModelValue",
-   "Description": "Operations for the ModelWithArrayOfModel type.",
+   "Doc": "Operations for the ModelWithArrayOfModel type.",
    "Operations": [
     {
      "$id": "133",
@@ -1316,7 +1316,7 @@
      "$id": "148",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "149",
       "kind": "url",
@@ -1349,7 +1349,7 @@
   {
    "$id": "152",
    "Name": "ModelWithOptionalFieldValue",
-   "Description": "Operations for the ModelWithOptionalField type.",
+   "Doc": "Operations for the ModelWithOptionalField type.",
    "Operations": [
     {
      "$id": "153",
@@ -1516,7 +1516,7 @@
      "$id": "168",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "169",
       "kind": "url",
@@ -1549,7 +1549,7 @@
   {
    "$id": "172",
    "Name": "ModelWithAttributesValue",
-   "Description": "Operations for the ModelWithAttributes type.",
+   "Doc": "Operations for the ModelWithAttributes type.",
    "Operations": [
     {
      "$id": "173",
@@ -1716,7 +1716,7 @@
      "$id": "188",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "189",
       "kind": "url",
@@ -1749,7 +1749,7 @@
   {
    "$id": "192",
    "Name": "ModelWithUnwrappedArrayValue",
-   "Description": "Operations for the ModelWithUnwrappedArray type.",
+   "Doc": "Operations for the ModelWithUnwrappedArray type.",
    "Operations": [
     {
      "$id": "193",
@@ -1916,7 +1916,7 @@
      "$id": "208",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "209",
       "kind": "url",
@@ -1949,7 +1949,7 @@
   {
    "$id": "212",
    "Name": "ModelWithRenamedArraysValue",
-   "Description": "Operations for the ModelWithRenamedArrays type.",
+   "Doc": "Operations for the ModelWithRenamedArrays type.",
    "Operations": [
     {
      "$id": "213",
@@ -2116,7 +2116,7 @@
      "$id": "228",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "229",
       "kind": "url",
@@ -2149,7 +2149,7 @@
   {
    "$id": "232",
    "Name": "ModelWithRenamedFieldsValue",
-   "Description": "Operations for the ModelWithRenamedFields type.",
+   "Doc": "Operations for the ModelWithRenamedFields type.",
    "Operations": [
     {
      "$id": "233",
@@ -2316,7 +2316,7 @@
      "$id": "248",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "249",
       "kind": "url",
@@ -2349,7 +2349,7 @@
   {
    "$id": "252",
    "Name": "ModelWithEmptyArrayValue",
-   "Description": "Operations for the ModelWithEmptyArray type.",
+   "Doc": "Operations for the ModelWithEmptyArray type.",
    "Operations": [
     {
      "$id": "253",
@@ -2516,7 +2516,7 @@
      "$id": "268",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "269",
       "kind": "url",
@@ -2549,7 +2549,7 @@
   {
    "$id": "272",
    "Name": "ModelWithTextValue",
-   "Description": "Operations for the ModelWithText type.",
+   "Doc": "Operations for the ModelWithText type.",
    "Operations": [
     {
      "$id": "273",
@@ -2716,7 +2716,7 @@
      "$id": "288",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "289",
       "kind": "url",
@@ -2749,7 +2749,7 @@
   {
    "$id": "292",
    "Name": "ModelWithDictionaryValue",
-   "Description": "Operations for the ModelWithDictionary type.",
+   "Doc": "Operations for the ModelWithDictionary type.",
    "Operations": [
     {
      "$id": "293",
@@ -2916,7 +2916,7 @@
      "$id": "308",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "309",
       "kind": "url",
@@ -2949,7 +2949,7 @@
   {
    "$id": "312",
    "Name": "ModelWithEncodedNamesValue",
-   "Description": "Operations for the ModelWithEncodedNames type.",
+   "Doc": "Operations for the ModelWithEncodedNames type.",
    "Operations": [
     {
      "$id": "313",
@@ -3116,7 +3116,7 @@
      "$id": "328",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "329",
       "kind": "url",

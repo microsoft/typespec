@@ -8,13 +8,13 @@
   {
    "$id": "2",
    "Name": "UnionClient",
-   "Description": "Illustrates clients generated with ApiKey and OAuth2 authentication.",
+   "Doc": "Illustrates clients generated with ApiKey and OAuth2 authentication.",
    "Operations": [
     {
      "$id": "3",
      "Name": "validKey",
      "ResourceName": "Union",
-     "Description": "Check whether client is authenticated",
+     "Doc": "Check whether client is authenticated",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -42,7 +42,7 @@
      "$id": "5",
      "Name": "validToken",
      "ResourceName": "Union",
-     "Description": "Check whether client is authenticated",
+     "Doc": "Check whether client is authenticated",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -75,7 +75,7 @@
      "$id": "8",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "9",
       "kind": "url",

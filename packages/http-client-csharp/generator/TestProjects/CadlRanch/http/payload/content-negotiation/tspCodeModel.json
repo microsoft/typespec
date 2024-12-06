@@ -39,7 +39,7 @@
   {
    "$id": "5",
    "Name": "ContentNegotiationClient",
-   "Description": "Test describing optionality of the request body.",
+   "Doc": "Test describing optionality of the request body.",
    "Operations": [],
    "Protocol": {
     "$id": "6"
@@ -49,7 +49,7 @@
      "$id": "7",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "8",
       "kind": "url",
@@ -261,7 +261,7 @@
      "$id": "31",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "32",
       "kind": "url",
@@ -469,7 +469,7 @@
      "$id": "54",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "55",
       "kind": "url",

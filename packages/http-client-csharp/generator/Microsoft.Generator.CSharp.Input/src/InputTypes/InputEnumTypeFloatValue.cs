@@ -5,7 +5,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     internal class InputEnumTypeFloatValue : InputEnumTypeValue
     {
-        public InputEnumTypeFloatValue(string name, float floatValue, InputPrimitiveType valueType, string? description) : base(name, floatValue, valueType, description)
+        public InputEnumTypeFloatValue(string name, float floatValue, InputPrimitiveType valueType, string? summary, string? doc) : base(name, floatValue, valueType, summary, doc)
         {
             FloatValue = floatValue;
         }

@@ -179,7 +179,7 @@
      "kind": "enumvalue",
      "name": "1.25",
      "value": 1.25,
-     "description": "1.25",
+     "doc": "1.25",
      "valueType": {
       "$ref": "21"
      },
@@ -189,7 +189,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The FloatLiteralProperty_property",
+   "doc": "The FloatLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -212,7 +212,7 @@
      "kind": "enumvalue",
      "name": "1",
      "value": 1,
-     "description": "1",
+     "doc": "1",
      "valueType": {
       "$ref": "24"
      },
@@ -222,7 +222,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The IntLiteralProperty_property",
+   "doc": "The IntLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -245,7 +245,7 @@
      "kind": "enumvalue",
      "name": "hello",
      "value": "hello",
-     "description": "hello",
+     "doc": "hello",
      "valueType": {
       "$ref": "27"
      },
@@ -255,7 +255,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The StringLiteralProperty_property",
+   "doc": "The StringLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -269,7 +269,7 @@
    "name": "RequiredAndOptionalProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.RequiredAndOptionalProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with required and optional properties",
+   "doc": "Model with required and optional properties",
    "decorators": [],
    "properties": [
     {
@@ -277,7 +277,7 @@
      "kind": "property",
      "name": "optionalProperty",
      "serializedName": "optionalProperty",
-     "description": "optional string property",
+     "doc": "optional string property",
      "type": {
       "$id": "31",
       "kind": "string",
@@ -297,7 +297,7 @@
      "kind": "property",
      "name": "requiredProperty",
      "serializedName": "requiredProperty",
-     "description": "required int property",
+     "doc": "required int property",
      "type": {
       "$id": "33",
       "kind": "int32",
@@ -320,7 +320,7 @@
    "name": "UnionFloatLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with union of float literal property",
+   "doc": "Model with union of float literal property",
    "decorators": [],
    "properties": [
     {
@@ -328,7 +328,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "2"
      },
@@ -347,7 +347,7 @@
    "name": "UnionIntLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with union of int literal property",
+   "doc": "Model with union of int literal property",
    "decorators": [],
    "properties": [
     {
@@ -355,7 +355,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "8"
      },
@@ -374,7 +374,7 @@
    "name": "UnionStringLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with union of string literal property",
+   "doc": "Model with union of string literal property",
    "decorators": [],
    "properties": [
     {
@@ -382,7 +382,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$ref": "14"
      },
@@ -401,7 +401,7 @@
    "name": "BooleanLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.BooleanLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with boolean literal property",
+   "doc": "Model with boolean literal property",
    "decorators": [],
    "properties": [
     {
@@ -409,7 +409,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "42",
       "kind": "constant",
@@ -438,7 +438,7 @@
    "name": "FloatLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.FloatLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with float literal property",
+   "doc": "Model with float literal property",
    "decorators": [],
    "properties": [
     {
@@ -446,7 +446,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "46",
       "kind": "constant",
@@ -471,7 +471,7 @@
    "name": "IntLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.IntLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with int literal property",
+   "doc": "Model with int literal property",
    "decorators": [],
    "properties": [
     {
@@ -479,7 +479,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "49",
       "kind": "constant",
@@ -504,7 +504,7 @@
    "name": "StringLiteralProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.StringLiteralProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with string literal property",
+   "doc": "Model with string literal property",
    "decorators": [],
    "properties": [
     {
@@ -512,7 +512,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "52",
       "kind": "constant",
@@ -537,7 +537,7 @@
    "name": "CollectionsModelProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsModelProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with collection models properties",
+   "doc": "Model with collection models properties",
    "decorators": [],
    "properties": [
     {
@@ -545,7 +545,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "55",
       "kind": "array",
@@ -556,7 +556,7 @@
        "name": "StringProperty",
        "crossLanguageDefinitionId": "Type.Property.Optional.StringProperty",
        "usage": "Input,Output,Json",
-       "description": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
+       "doc": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
        "decorators": [],
        "properties": [
         {
@@ -564,7 +564,7 @@
          "kind": "property",
          "name": "property",
          "serializedName": "property",
-         "description": "Property",
+         "doc": "Property",
          "type": {
           "$id": "58",
           "kind": "string",
@@ -602,7 +602,7 @@
    "name": "CollectionsByteProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.CollectionsByteProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with collection bytes properties",
+   "doc": "Model with collection bytes properties",
    "decorators": [],
    "properties": [
     {
@@ -610,7 +610,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "61",
       "kind": "array",
@@ -641,7 +641,7 @@
    "name": "PlainTimeProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.PlainTimeProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a plainTime property",
+   "doc": "Model with a plainTime property",
    "decorators": [],
    "properties": [
     {
@@ -649,7 +649,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "65",
       "kind": "plainTime",
@@ -672,7 +672,7 @@
    "name": "PlainDateProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.PlainDateProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a plainDate property",
+   "doc": "Model with a plainDate property",
    "decorators": [],
    "properties": [
     {
@@ -680,7 +680,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "68",
       "kind": "plainDate",
@@ -703,7 +703,7 @@
    "name": "DurationProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.DurationProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a duration property",
+   "doc": "Model with a duration property",
    "decorators": [],
    "properties": [
     {
@@ -711,7 +711,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "71",
       "kind": "duration",
@@ -742,7 +742,7 @@
    "name": "DatetimeProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.DatetimeProperty",
    "usage": "Input,Output,Json",
-   "description": "Model with a datetime property",
+   "doc": "Model with a datetime property",
    "decorators": [],
    "properties": [
     {
@@ -750,7 +750,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "75",
       "kind": "utcDateTime",
@@ -781,7 +781,7 @@
    "name": "BytesProperty",
    "crossLanguageDefinitionId": "Type.Property.Optional.BytesProperty",
    "usage": "Input,Output,Json",
-   "description": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
+   "doc": "Template type for testing models with optional property. Pass in the type of the property you are looking for",
    "decorators": [],
    "properties": [
     {
@@ -789,7 +789,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Property",
+     "doc": "Property",
      "type": {
       "$id": "79",
       "kind": "bytes",
@@ -812,7 +812,7 @@
   {
    "$id": "80",
    "Name": "OptionalClient",
-   "Description": "Illustrates models with optional properties.",
+   "Doc": "Illustrates models with optional properties.",
    "Operations": [],
    "Protocol": {
     "$id": "81"
@@ -822,7 +822,7 @@
      "$id": "82",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "83",
       "kind": "url",
@@ -860,7 +860,7 @@
      "$id": "87",
      "Name": "getAll",
      "ResourceName": "String",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -922,7 +922,7 @@
      "$id": "92",
      "Name": "getDefault",
      "ResourceName": "String",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -984,14 +984,14 @@
      "$id": "97",
      "Name": "putAll",
      "ResourceName": "String",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "98",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "99",
         "kind": "constant",
@@ -1061,14 +1061,14 @@
      "$id": "103",
      "Name": "putDefault",
      "ResourceName": "String",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "104",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "105",
         "kind": "constant",
@@ -1144,7 +1144,7 @@
      "$id": "110",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "111",
       "kind": "url",
@@ -1182,7 +1182,7 @@
      "$id": "115",
      "Name": "getAll",
      "ResourceName": "Bytes",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1244,7 +1244,7 @@
      "$id": "120",
      "Name": "getDefault",
      "ResourceName": "Bytes",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1306,14 +1306,14 @@
      "$id": "125",
      "Name": "putAll",
      "ResourceName": "Bytes",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "126",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "127",
         "kind": "constant",
@@ -1383,14 +1383,14 @@
      "$id": "131",
      "Name": "putDefault",
      "ResourceName": "Bytes",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "132",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "133",
         "kind": "constant",
@@ -1466,7 +1466,7 @@
      "$id": "138",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "139",
       "kind": "url",
@@ -1504,7 +1504,7 @@
      "$id": "143",
      "Name": "getAll",
      "ResourceName": "Datetime",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1566,7 +1566,7 @@
      "$id": "148",
      "Name": "getDefault",
      "ResourceName": "Datetime",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1628,14 +1628,14 @@
      "$id": "153",
      "Name": "putAll",
      "ResourceName": "Datetime",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "154",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "155",
         "kind": "constant",
@@ -1705,14 +1705,14 @@
      "$id": "159",
      "Name": "putDefault",
      "ResourceName": "Datetime",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "160",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "161",
         "kind": "constant",
@@ -1788,7 +1788,7 @@
      "$id": "166",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "167",
       "kind": "url",
@@ -1826,7 +1826,7 @@
      "$id": "171",
      "Name": "getAll",
      "ResourceName": "Duration",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1888,7 +1888,7 @@
      "$id": "176",
      "Name": "getDefault",
      "ResourceName": "Duration",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1950,14 +1950,14 @@
      "$id": "181",
      "Name": "putAll",
      "ResourceName": "Duration",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "182",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "183",
         "kind": "constant",
@@ -2027,14 +2027,14 @@
      "$id": "187",
      "Name": "putDefault",
      "ResourceName": "Duration",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "188",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "189",
         "kind": "constant",
@@ -2110,7 +2110,7 @@
      "$id": "194",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "195",
       "kind": "url",
@@ -2148,7 +2148,7 @@
      "$id": "199",
      "Name": "getAll",
      "ResourceName": "PlainDate",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2210,7 +2210,7 @@
      "$id": "204",
      "Name": "getDefault",
      "ResourceName": "PlainDate",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2272,14 +2272,14 @@
      "$id": "209",
      "Name": "putAll",
      "ResourceName": "PlainDate",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "210",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "211",
         "kind": "constant",
@@ -2349,14 +2349,14 @@
      "$id": "215",
      "Name": "putDefault",
      "ResourceName": "PlainDate",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "216",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "217",
         "kind": "constant",
@@ -2432,7 +2432,7 @@
      "$id": "222",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "223",
       "kind": "url",
@@ -2470,7 +2470,7 @@
      "$id": "227",
      "Name": "getAll",
      "ResourceName": "PlainTime",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2532,7 +2532,7 @@
      "$id": "232",
      "Name": "getDefault",
      "ResourceName": "PlainTime",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2594,14 +2594,14 @@
      "$id": "237",
      "Name": "putAll",
      "ResourceName": "PlainTime",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "238",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "239",
         "kind": "constant",
@@ -2671,14 +2671,14 @@
      "$id": "243",
      "Name": "putDefault",
      "ResourceName": "PlainTime",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "244",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "245",
         "kind": "constant",
@@ -2754,7 +2754,7 @@
      "$id": "250",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "251",
       "kind": "url",
@@ -2792,7 +2792,7 @@
      "$id": "255",
      "Name": "getAll",
      "ResourceName": "CollectionsByte",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2854,7 +2854,7 @@
      "$id": "260",
      "Name": "getDefault",
      "ResourceName": "CollectionsByte",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2916,14 +2916,14 @@
      "$id": "265",
      "Name": "putAll",
      "ResourceName": "CollectionsByte",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "266",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "267",
         "kind": "constant",
@@ -2993,14 +2993,14 @@
      "$id": "271",
      "Name": "putDefault",
      "ResourceName": "CollectionsByte",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "272",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "273",
         "kind": "constant",
@@ -3076,7 +3076,7 @@
      "$id": "278",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "279",
       "kind": "url",
@@ -3114,7 +3114,7 @@
      "$id": "283",
      "Name": "getAll",
      "ResourceName": "CollectionsModel",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3176,7 +3176,7 @@
      "$id": "288",
      "Name": "getDefault",
      "ResourceName": "CollectionsModel",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3238,14 +3238,14 @@
      "$id": "293",
      "Name": "putAll",
      "ResourceName": "CollectionsModel",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "294",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "295",
         "kind": "constant",
@@ -3315,14 +3315,14 @@
      "$id": "299",
      "Name": "putDefault",
      "ResourceName": "CollectionsModel",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "300",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "301",
         "kind": "constant",
@@ -3398,7 +3398,7 @@
      "$id": "306",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "307",
       "kind": "url",
@@ -3436,7 +3436,7 @@
      "$id": "311",
      "Name": "getAll",
      "ResourceName": "StringLiteral",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3498,7 +3498,7 @@
      "$id": "316",
      "Name": "getDefault",
      "ResourceName": "StringLiteral",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3560,14 +3560,14 @@
      "$id": "321",
      "Name": "putAll",
      "ResourceName": "StringLiteral",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "322",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "323",
         "kind": "constant",
@@ -3637,14 +3637,14 @@
      "$id": "327",
      "Name": "putDefault",
      "ResourceName": "StringLiteral",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "328",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "329",
         "kind": "constant",
@@ -3720,7 +3720,7 @@
      "$id": "334",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "335",
       "kind": "url",
@@ -3758,7 +3758,7 @@
      "$id": "339",
      "Name": "getAll",
      "ResourceName": "IntLiteral",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3820,7 +3820,7 @@
      "$id": "344",
      "Name": "getDefault",
      "ResourceName": "IntLiteral",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3882,14 +3882,14 @@
      "$id": "349",
      "Name": "putAll",
      "ResourceName": "IntLiteral",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "350",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "351",
         "kind": "constant",
@@ -3959,14 +3959,14 @@
      "$id": "355",
      "Name": "putDefault",
      "ResourceName": "IntLiteral",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "356",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "357",
         "kind": "constant",
@@ -4042,7 +4042,7 @@
      "$id": "362",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "363",
       "kind": "url",
@@ -4080,7 +4080,7 @@
      "$id": "367",
      "Name": "getAll",
      "ResourceName": "FloatLiteral",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4142,7 +4142,7 @@
      "$id": "372",
      "Name": "getDefault",
      "ResourceName": "FloatLiteral",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4204,14 +4204,14 @@
      "$id": "377",
      "Name": "putAll",
      "ResourceName": "FloatLiteral",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "378",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "379",
         "kind": "constant",
@@ -4281,14 +4281,14 @@
      "$id": "383",
      "Name": "putDefault",
      "ResourceName": "FloatLiteral",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "384",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "385",
         "kind": "constant",
@@ -4364,7 +4364,7 @@
      "$id": "390",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "391",
       "kind": "url",
@@ -4402,7 +4402,7 @@
      "$id": "395",
      "Name": "getAll",
      "ResourceName": "BooleanLiteral",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4464,7 +4464,7 @@
      "$id": "400",
      "Name": "getDefault",
      "ResourceName": "BooleanLiteral",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4526,14 +4526,14 @@
      "$id": "405",
      "Name": "putAll",
      "ResourceName": "BooleanLiteral",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "406",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "407",
         "kind": "constant",
@@ -4603,14 +4603,14 @@
      "$id": "411",
      "Name": "putDefault",
      "ResourceName": "BooleanLiteral",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "412",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "413",
         "kind": "constant",
@@ -4686,7 +4686,7 @@
      "$id": "418",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "419",
       "kind": "url",
@@ -4724,7 +4724,7 @@
      "$id": "423",
      "Name": "getAll",
      "ResourceName": "UnionStringLiteral",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4786,7 +4786,7 @@
      "$id": "428",
      "Name": "getDefault",
      "ResourceName": "UnionStringLiteral",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4848,14 +4848,14 @@
      "$id": "433",
      "Name": "putAll",
      "ResourceName": "UnionStringLiteral",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "434",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "435",
         "kind": "constant",
@@ -4925,14 +4925,14 @@
      "$id": "439",
      "Name": "putDefault",
      "ResourceName": "UnionStringLiteral",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "440",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "441",
         "kind": "constant",
@@ -5008,7 +5008,7 @@
      "$id": "446",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "447",
       "kind": "url",
@@ -5046,7 +5046,7 @@
      "$id": "451",
      "Name": "getAll",
      "ResourceName": "UnionIntLiteral",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5108,7 +5108,7 @@
      "$id": "456",
      "Name": "getDefault",
      "ResourceName": "UnionIntLiteral",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5170,14 +5170,14 @@
      "$id": "461",
      "Name": "putAll",
      "ResourceName": "UnionIntLiteral",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "462",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "463",
         "kind": "constant",
@@ -5247,14 +5247,14 @@
      "$id": "467",
      "Name": "putDefault",
      "ResourceName": "UnionIntLiteral",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "468",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "469",
         "kind": "constant",
@@ -5330,7 +5330,7 @@
      "$id": "474",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "475",
       "kind": "url",
@@ -5368,7 +5368,7 @@
      "$id": "479",
      "Name": "getAll",
      "ResourceName": "UnionFloatLiteral",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5430,7 +5430,7 @@
      "$id": "484",
      "Name": "getDefault",
      "ResourceName": "UnionFloatLiteral",
-     "Description": "Get models that will return the default object",
+     "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5492,14 +5492,14 @@
      "$id": "489",
      "Name": "putAll",
      "ResourceName": "UnionFloatLiteral",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "490",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "491",
         "kind": "constant",
@@ -5569,14 +5569,14 @@
      "$id": "495",
      "Name": "putDefault",
      "ResourceName": "UnionFloatLiteral",
-     "Description": "Put a body with default properties.",
+     "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "496",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "497",
         "kind": "constant",
@@ -5652,7 +5652,7 @@
      "$id": "502",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "503",
       "kind": "url",
@@ -5685,13 +5685,13 @@
   {
    "$id": "506",
    "Name": "RequiredAndOptional",
-   "Description": "Test optional and required properties",
+   "Doc": "Test optional and required properties",
    "Operations": [
     {
      "$id": "507",
      "Name": "getAll",
      "ResourceName": "RequiredAndOptional",
-     "Description": "Get models that will return all properties in the model",
+     "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5753,7 +5753,7 @@
      "$id": "512",
      "Name": "getRequiredOnly",
      "ResourceName": "RequiredAndOptional",
-     "Description": "Get models that will return only the required properties",
+     "Doc": "Get models that will return only the required properties",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5815,14 +5815,14 @@
      "$id": "517",
      "Name": "putAll",
      "ResourceName": "RequiredAndOptional",
-     "Description": "Put a body with all properties present.",
+     "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "518",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "519",
         "kind": "constant",
@@ -5892,14 +5892,14 @@
      "$id": "523",
      "Name": "putRequiredOnly",
      "ResourceName": "RequiredAndOptional",
-     "Description": "Put a body with only required properties.",
+     "Doc": "Put a body with only required properties.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "524",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "525",
         "kind": "constant",
@@ -5975,7 +5975,7 @@
      "$id": "530",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "531",
       "kind": "url",

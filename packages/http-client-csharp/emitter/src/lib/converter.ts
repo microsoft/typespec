@@ -122,7 +122,8 @@ export function fromSdkModelType(
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the modelType.access */,
       usage: modelType.usage,
       deprecation: modelType.deprecation,
-      description: modelType.summary ?? modelType.doc,
+      doc: modelType.doc,
+      summary: modelType.summary,
       discriminatorValue: modelType.discriminatorValue,
       decorators: modelType.decorators,
     } as InputModelType;
@@ -185,7 +186,8 @@ export function fromSdkModelType(
       kind: property.kind,
       name: property.name,
       serializedName: serializedName,
-      description: property.summary ?? property.doc,
+      summary: property.summary,
+      doc: property.doc,
       type: fromSdkType(
         targetType,
         context,
@@ -225,7 +227,8 @@ export function fromSdkEnumType(
         enumType.__raw as any,
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the enumType.access,*/,
       deprecation: enumType.deprecation,
-      description: enumType.summary ?? enumType.doc,
+      summary: enumType.summary,
+      doc: enumType.doc,
       isFixed: enumType.isFixed,
       isFlags: enumType.isFlags,
       usage: enumType.usage,
@@ -337,7 +340,7 @@ function fromSdkConstantType(
       values: values,
       crossLanguageDefinitionId: "",
       access: undefined,
-      description: `The ${enumName}`, // TODO -- what should we put here?
+      doc: `The ${enumName}`, // TODO -- what should we put here?
       isFixed: false,
       isFlags: false,
       usage: literalTypeContext.Usage,
@@ -350,7 +353,7 @@ function fromSdkConstantType(
       kind: "enumvalue",
       name: enumValueName,
       value: constantType.value as string | number,
-      description: enumValueName,
+      doc: enumValueName,
       valueType: enumType.valueType,
       enumType: enumType,
     });
@@ -386,7 +389,8 @@ function fromSdkEnumValueType(
     value: enumValueType.value,
     valueType: fromSdkBuiltInType(enumValueType.valueType),
     enumType: fromSdkEnumType(enumValueType.enumType, context, typeMap),
-    description: enumValueType.summary ?? enumValueType.doc,
+    summary: enumValueType.summary,
+    doc: enumValueType.doc,
     decorators: enumValueType.decorators,
   };
 }

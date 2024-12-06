@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "CollectionFormatClient",
-   "Description": "Test for collectionFormat.",
+   "Doc": "Test for collectionFormat.",
    "Operations": [],
    "Protocol": {
     "$id": "3"
@@ -18,7 +18,7 @@
      "$id": "4",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "5",
       "kind": "url",
@@ -62,7 +62,7 @@
        "$id": "10",
        "Name": "colors",
        "NameInRequest": "colors",
-       "Description": "Possible values for colors are [blue,red,green]",
+       "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
         "$id": "11",
         "kind": "array",
@@ -119,7 +119,7 @@
        "$id": "15",
        "Name": "colors",
        "NameInRequest": "colors",
-       "Description": "Possible values for colors are [blue,red,green]",
+       "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
         "$id": "16",
         "kind": "array",
@@ -177,7 +177,7 @@
        "$id": "20",
        "Name": "colors",
        "NameInRequest": "colors",
-       "Description": "Possible values for colors are [blue,red,green]",
+       "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
         "$id": "21",
         "kind": "array",
@@ -235,7 +235,7 @@
        "$id": "25",
        "Name": "colors",
        "NameInRequest": "colors",
-       "Description": "Possible values for colors are [blue,red,green]",
+       "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
         "$id": "26",
         "kind": "array",
@@ -293,7 +293,7 @@
        "$id": "30",
        "Name": "colors",
        "NameInRequest": "colors",
-       "Description": "Possible values for colors are [blue,red,green]",
+       "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
         "$id": "31",
         "kind": "array",
@@ -351,7 +351,7 @@
      "$id": "35",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "36",
       "kind": "url",
@@ -395,7 +395,7 @@
        "$id": "41",
        "Name": "colors",
        "NameInRequest": "colors",
-       "Description": "Possible values for colors are [blue,red,green]",
+       "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
         "$id": "42",
         "kind": "array",
@@ -453,7 +453,7 @@
      "$id": "46",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "47",
       "kind": "url",

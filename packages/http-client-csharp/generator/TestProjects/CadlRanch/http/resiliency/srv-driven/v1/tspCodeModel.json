@@ -33,11 +33,11 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Version 1",
+     "doc": "Version 1",
      "decorators": []
     }
    ],
-   "description": "Service versions.",
+   "doc": "Service versions.",
    "isFixed": true,
    "isFlags": false,
    "usage": "ApiVersionEnum",
@@ -49,13 +49,13 @@
   {
    "$id": "6",
    "Name": "ResiliencyServiceDrivenClient",
-   "Description": "Test that we can grow up a service spec and service deployment into a multi-versioned service with full client support.",
+   "Doc": "Test that we can grow up a service spec and service deployment into a multi-versioned service with full client support.",
    "Operations": [
     {
      "$id": "7",
      "Name": "fromNone",
      "ResourceName": "AddOptionalParam",
-     "Description": "Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well",
+     "Doc": "Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -83,14 +83,14 @@
      "$id": "9",
      "Name": "fromOneRequired",
      "ResourceName": "AddOptionalParam",
-     "Description": "Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well",
+     "Doc": "Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "10",
        "Name": "parameter",
        "NameInRequest": "parameter",
-       "Description": "I am a required parameter",
+       "Doc": "I am a required parameter",
        "Type": {
         "$id": "11",
         "kind": "string",
@@ -134,14 +134,14 @@
      "$id": "13",
      "Name": "fromOneOptional",
      "ResourceName": "AddOptionalParam",
-     "Description": "Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well",
+     "Doc": "Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "14",
        "Name": "parameter",
        "NameInRequest": "parameter",
-       "Description": "I am an optional parameter",
+       "Doc": "I am an optional parameter",
        "Type": {
         "$id": "15",
         "kind": "string",
@@ -190,7 +190,7 @@
      "$id": "18",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "19",
       "kind": "url",
@@ -211,7 +211,7 @@
      "$id": "20",
      "Name": "serviceDeploymentVersion",
      "NameInRequest": "serviceDeploymentVersion",
-     "Description": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
+     "Doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
      "Type": {
       "$id": "21",
       "kind": "string",
@@ -233,7 +233,7 @@
      "$id": "22",
      "Name": "apiVersion",
      "NameInRequest": "apiVersion",
-     "Description": "Pass in 'v1'. This represents the API version of the service. Will grow up in the next deployment to be both 'v1' and 'v2'",
+     "Doc": "Pass in 'v1'. This represents the API version of the service. Will grow up in the next deployment to be both 'v1' and 'v2'",
      "Type": {
       "$id": "23",
       "kind": "string",

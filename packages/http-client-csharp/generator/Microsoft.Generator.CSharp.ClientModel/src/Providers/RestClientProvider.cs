@@ -442,7 +442,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 var inputParameter = new InputParameter(
                     property.Name,
                     property.SerializedName,
-                    property.Description,
+                    property.Summary,
+                    property.Doc,
                     property.Type,
                     RequestLocation.Body,
                     null,
