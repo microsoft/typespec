@@ -91,10 +91,10 @@ namespace TestProjects.CadlRanch.Tests
         {
             if (kebabCaseDirectories)
             {
-                return ToKebabCase().Replace(part.StartsWith("_", StringComparison.Ordinal) ? part.Substring(1) : part, "-$1").ToLower();
+                return ToKebabCase().Replace(part.StartsWith("_", StringComparison.Ordinal) ? part.Substring(1) : part, "-$1").ToLowerInvariant();
             }
             // Use camelCase
-            return part[0].ToString().ToLower() + part[1..];
+            return char.ToLowerInvariant(part[0]) + part[1..];
         }
     }
 }
