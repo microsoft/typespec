@@ -421,7 +421,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
     def _serialize_and_write_metadata(self, env: Environment, namespace: str) -> None:
-        metadata_serializer = MetadataSerializer(self.code_model, env)
+        metadata_serializer = MetadataSerializer(self.code_model, env, client_namespace=namespace)
         self.write_file(self.exec_path(namespace) / Path("_metadata.json"), metadata_serializer.serialize())
 
     @property

@@ -111,7 +111,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         serialize_namespace: str,
         imported_namespace: Optional[str] = None,
         *,
-        namespace_type: NamespaceType = NamespaceType.NONE,
+        namespace_type: NamespaceType = NamespaceType.CLIENT,
         async_mode: bool = False,
         module_name: Optional[str] = None,
     ) -> str:
@@ -256,9 +256,9 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return self._operations_folder_name[client_namespace]
 
     def get_serialize_namespace(
-        self, client_namespace: str, async_mode: bool = False, namespace_type: NamespaceType = NamespaceType.NONE
+        self, client_namespace: str, async_mode: bool = False, namespace_type: NamespaceType = NamespaceType.CLIENT
     ) -> str:
-        if namespace_type == NamespaceType.NONE:
+        if namespace_type == NamespaceType.CLIENT:
             return client_namespace + (".aio" if async_mode else "")
         if namespace_type == NamespaceType.MODEL:
             return client_namespace + ".models"

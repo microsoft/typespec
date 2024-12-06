@@ -26,7 +26,6 @@ def add_to_pylint_disable(curr_str: str, entry: str) -> str:
 class NamespaceType(str, Enum):
     """Special signal for impports"""
 
-    NONE = "none"
     MODEL = "model"
     OPERATION = "operation"
     CLIENT = "client"
