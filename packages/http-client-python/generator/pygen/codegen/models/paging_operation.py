@@ -137,7 +137,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 ImportType.SDKCORE,
             )
         if self.next_request_builder:
-            file_import.merge(self.get_request_builder_import(self.next_request_builder, async_mode, serialize_namespace))
+            file_import.merge(
+                self.get_request_builder_import(self.next_request_builder, async_mode, serialize_namespace)
+            )
         elif any(p.is_api_version for p in self.client.parameters):
             file_import.add_import("urllib.parse", ImportType.STDLIB)
             file_import.add_submodule_import(
