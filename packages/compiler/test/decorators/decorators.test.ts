@@ -261,6 +261,19 @@ describe("compiler: built-in decorators", () => {
       });
     });
 
+    it("emit diagnostic if pattern is not a valid RegEx", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          @pattern("[a-z")
+          prop: string;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-pattern-regex",
+      });
+    });
+
     it("optionally allows specifying a pattern validation message", async () => {
       const { A, B } = (await runner.compile(
         `

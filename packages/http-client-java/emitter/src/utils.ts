@@ -1,5 +1,15 @@
 import { NoTarget, Program, Type } from "@typespec/compiler";
 
+export function logError(program: Program, msg: string) {
+  trace(program, msg);
+  program.reportDiagnostic({
+    code: "http-client-java",
+    severity: "error",
+    message: msg,
+    target: NoTarget,
+  });
+}
+
 export function logWarning(program: Program, msg: string) {
   trace(program, msg);
   program.reportDiagnostic({
@@ -25,7 +35,8 @@ export function pascalCase(name: string): string {
 export function getNamespace(type: Type | undefined): string | undefined {
   if (
     type &&
-    (type.kind === "Model" ||
+    (type.kind === "Interface" ||
+      type.kind === "Model" ||
       type.kind === "Enum" ||
       type.kind === "Union" ||
       type.kind === "Operation")

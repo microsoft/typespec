@@ -3,9 +3,9 @@
 
 package client.structure;
 
-import client.structure.service.GroupClient;
-import client.structure.service.RenamedOperationClient;
-import client.structure.service.RenamedOperationClientBuilder;
+import client.structure.renamedoperation.GroupClient;
+import client.structure.renamedoperation.RenamedOperationClient;
+import client.structure.renamedoperation.RenamedOperationClientBuilder;
 import client.structure.service.models.ClientType;
 import org.junit.jupiter.api.Test;
 

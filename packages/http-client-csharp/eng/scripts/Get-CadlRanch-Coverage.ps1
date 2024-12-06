@@ -37,17 +37,28 @@ foreach ($directory in $directories) {
     if (-not (Test-Path $specFile)) {
         $specFile = Join-Path $specsDirectory $subPath "main.tsp"
     }
+    
+    if ($subPath.Contains("versioning")) {
+        if ($subPath.Contains("v1")) {
+            # this will generate v1 and v2 so we only need to call it once for one of the versions
+            Generate-Versioning ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
+        continue
+    }
+
+    if ($subPath.Contains("srv-driven")) {
+        if ($subPath.Contains("v1")) {
+            # this will generate v1 and v2 so we only need to call it once for one of the versions
+            Generate-Srv-Driven ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
+        continue
+    }
 
     $command = Get-TspCommand $specFile $outputDir
     Invoke $command
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
-    }
-
-    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
-    if ($subPath.Contains('srv-driven')) {
-        Generate-Srv-Driven $(Join-Path $specsDirectory $subPath) $outputDir -createOutputDirIfNotExist $false
     }
 }
 
