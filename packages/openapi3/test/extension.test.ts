@@ -1,8 +1,8 @@
 import { ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 
-import { oapiForModel, openApiFor } from "./test-host.js";
-
+import { expectDiagnostics } from "@typespec/compiler/testing";
+import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 const extensionKeysForObject: string[] = ["minProperties", "maxProperties"];
 
 const extensionKeysForModelProperties: [string, any, string][] = [
@@ -50,6 +50,24 @@ describe("adds an extension to a parameter", () => {
     strictEqual(oapi.components.parameters.PetId.name, "petId");
     strictEqual(oapi.components.parameters.PetId.schema[key], value);
     strictEqual(oapi.components.parameters.PetId[key], undefined);
+  });
+
+  it.each(extensionKeysForObject)("%s", async (key) => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @extension("minProperties", 1)
+      model Pet {
+        @path
+        path: string;
+      }
+      op get(...Pet): void;
+      `,
+    );
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/openapi3/minmaxProperties-invalid-model",
+      },
+    ]);
   });
 });
 

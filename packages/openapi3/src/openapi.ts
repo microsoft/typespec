@@ -1570,6 +1570,22 @@ function createOAPIEmitter(
         typeNameOptions,
       );
       validateComponentFixedFieldKey(property, key);
+      const parent = property.model!;
+      const schemaextensions = getSchemaExtensions(program, parent);
+      if (schemaextensions) {
+        for (const key of schemaextensions.keys()) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "minmaxProperties-invalid-model",
+              format: {
+                key: key,
+                value: schemaextensions.get(key),
+              },
+              target: parent,
+            }),
+          );
+        }
+      }
 
       root.components!.parameters![key] = { ...param };
       for (const key of Object.keys(param)) {
