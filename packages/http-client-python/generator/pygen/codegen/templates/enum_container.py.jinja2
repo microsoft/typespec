@@ -5,6 +5,6 @@
 from enum import Enum
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 
-{% for enum in code_model.enums | sort %}
+{% for enum in enums | sort %}
 {% include "enum.py.jinja2" %}
 {% endfor %}

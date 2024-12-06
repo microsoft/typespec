@@ -76,9 +76,8 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
     def is_input(self):
         return not (self.constant or self.readonly or self.is_discriminator)
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type.serialization_type(**kwargs)
 
     @property
     def msrest_deserialization_key(self) -> str:
@@ -144,12 +143,13 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         file_import = FileImport(self.code_model)
         if self.is_discriminator and isinstance(self.type, EnumType):
             return file_import
-        file_import.merge(self.type.imports(**kwargs, relative_path="..", model_typing=True))
+        file_import.merge(self.type.imports(**kwargs))
         if self.optional and self.client_default_value is None:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models_mode"] == "dpg":
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                ".._model_base",
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_model_base"),
                 "rest_discriminator" if self.is_discriminator else "rest_field",
                 ImportType.LOCAL,
             )

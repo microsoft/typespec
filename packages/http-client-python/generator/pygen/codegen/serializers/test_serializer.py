@@ -137,8 +137,14 @@ class Test(TestName):
 
 
 class TestGeneralSerializer(BaseSerializer):
-    def __init__(self, code_model: CodeModel, env: Environment, *, is_async: bool = False) -> None:
-        super().__init__(code_model, env)
+    def __init__(
+        self,
+        code_model: CodeModel,
+        env: Environment,
+        *,
+        is_async: bool = False,
+    ) -> None:
+        super().__init__(code_model, env, is_async)
         self.is_async = is_async
 
     @property
@@ -150,9 +156,8 @@ class TestGeneralSerializer(BaseSerializer):
         return [TestName(self.code_model, c.name, is_async=self.is_async) for c in self.code_model.clients]
 
     def add_import_client(self, imports: FileImport) -> None:
-        namespace = get_namespace_from_package_name(self.code_model.options["package_name"])
         for client in self.code_model.clients:
-            imports.add_submodule_import(namespace + self.aio_str, client.name, ImportType.STDLIB)
+            imports.add_submodule_import(client.client_namespace + self.aio_str, client.name, ImportType.STDLIB)
 
     @property
     def import_clients(self) -> FileImportSerializer:

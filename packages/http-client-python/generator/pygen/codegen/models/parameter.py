@@ -155,23 +155,23 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     def docstring_type(self, **kwargs: Any) -> str:
         return self.type.docstring_type(**kwargs)
 
-    @property
-    def serialization_type(self) -> str:
-        return self.type.serialization_type
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.type.serialization_type(**kwargs)
 
-    def _imports_shared(self, async_mode: bool, **_: Any) -> FileImport:
+    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         if self.optional and self.client_default_value is None:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.added_on and self.implementation != "Client":
             file_import.add_submodule_import(
-                f"{'.' if async_mode else ''}.._validation",
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_validation"),
                 "api_version_validation",
                 ImportType.LOCAL,
             )
         if isinstance(self.type, CombinedType) and self.type.name:
             file_import.add_submodule_import(
-                "..." if async_mode else "..",
+                self.code_model.get_relative_import_path(serialize_namespace),
                 "_types",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
@@ -272,9 +272,9 @@ class BodyParameter(_ParameterBase):
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = super().imports(async_mode, **kwargs)
         if self.is_form_data:
-            relative_path = "..." if async_mode else ".."
+            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
-                f"{relative_path}_vendor",
+                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor"),
                 "prepare_multipart_form_data",
                 ImportType.LOCAL,
             )

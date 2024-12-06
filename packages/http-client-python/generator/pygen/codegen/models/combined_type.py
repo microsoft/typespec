@@ -30,9 +30,9 @@ class CombinedType(BaseType):
         self.types = types  # the types that this type is combining
         self.name = yaml_data.get("name")
         self._is_union_of_literals = all(i.type == "constant" for i in self.types)
+        self.client_namespace: str = self.yaml_data.get("clientNamespace", code_model.namespace)
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         """The tag recognized by 'msrest' as a serialization/deserialization.
 
         'str', 'int', 'float', 'bool' or
@@ -45,7 +45,7 @@ class CombinedType(BaseType):
         """
         if not all(t for t in self.types if t.type == "constant"):
             raise ValueError("Shouldn't get serialization type of a combinedtype")
-        return self.types[0].serialization_type
+        return self.types[0].serialization_type(**kwargs)
 
     @property
     def client_default_value(self) -> Any:
@@ -112,9 +112,10 @@ class CombinedType(BaseType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.name and not kwargs.get("is_types_file"):
             file_import.add_submodule_import(
-                kwargs.pop("relative_path"),
+                self.code_model.get_relative_import_path(serialize_namespace),
                 "_types",
                 ImportType.LOCAL,
                 TypingSection.TYPING,
