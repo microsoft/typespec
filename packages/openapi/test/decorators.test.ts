@@ -47,34 +47,101 @@ describe("openapi: decorators", () => {
   });
 
   describe("@extension", () => {
+    const scalarNumberTypes = [
+      "integer",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "safeint",
+      "uint8",
+      "uint16",
+      "uint32",
+      "uint64",
+      "float",
+      "float32",
+      "float64",
+      "decimal",
+      "decimal128",
+    ];
     it.each([
       ["minProperties", 1],
       ["maxProperties", 1],
-      ["uniqueItems", true],
-      ["multipleOf", 1],
-    ])("apply extension on model prop with %s", async (key, value) => {
-      const { prop } = await runner.compile(`      
+    ])("apply extension on model with %s", async (key, value) => {
+      const { Foo } = await runner.compile(`
+          @extension("${key}", ${value})
+          @test  
           model Foo {
-            @extension("${key}", ${value})
-            @test
-            prop: string[]
+            prop: integer
           }
         `);
 
-      deepStrictEqual(Object.fromEntries(getSchemaExtensions(runner.program, prop)), {
+      deepStrictEqual(Object.fromEntries(getSchemaExtensions(runner.program, Foo)), {
         [key]: value,
       });
-      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, prop)), {});
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {});
     });
 
-    it.each(["minProperties", "maxProperties", "uniqueItems", "multipleOf"])(
+    // multipleOf
+    it.each(scalarNumberTypes)(
+      "apply multipleOf extension on scalar, type is %s",
+      async (targetType) => {
+        const { a } = await runner.compile(`
+          @extension("multipleOf", 1)
+          @test  
+          scalar a extends ${targetType};
+        `);
+
+        deepStrictEqual(Object.fromEntries(getSchemaExtensions(runner.program, a)), {
+          multipleOf: 1,
+        });
+        deepStrictEqual(Object.fromEntries(getExtensions(runner.program, a)), {});
+      },
+    );
+
+    it.each(scalarNumberTypes)(
+      "apply multipleOf extension on model prop, type is %s",
+      async (targetType) => {
+        const { prop } = await runner.compile(`
+         model Foo {
+            @extension("multipleOf", 1)
+            @test
+            prop: ${targetType}
+          }
+        `);
+
+        deepStrictEqual(Object.fromEntries(getSchemaExtensions(runner.program, prop)), {
+          multipleOf: 1,
+        });
+        deepStrictEqual(Object.fromEntries(getExtensions(runner.program, prop)), {});
+      },
+    );
+
+    it.each(["numeric[]", "string[]"])(
+      "apply uniqueItems extension on model prop with %s",
+      async (targetType) => {
+        const { prop } = await runner.compile(`      
+          model Foo {
+            @extension("uniqueItems", true)
+            @test
+            prop: ${targetType}
+          }
+        `);
+
+        deepStrictEqual(Object.fromEntries(getSchemaExtensions(runner.program, prop)), {
+          uniqueItems: true,
+        });
+        deepStrictEqual(Object.fromEntries(getExtensions(runner.program, prop)), {});
+      },
+    );
+
+    it.each(["minProperties", "maxProperties"])(
       "%s, emit diagnostics when passing invalid extension value",
       async (key) => {
-        const diagnostics = await runner.diagnose(`        
-        model Foo {
-          @extension("${key}", "string")
-          @test
-          prop: string[]
+        const diagnostics = await runner.diagnose(`
+        @extension("${key}", "string")   
+        model Foo {         
+          prop: string
         }
       `);
 
@@ -84,15 +151,47 @@ describe("openapi: decorators", () => {
       },
     );
 
-    it.each(["minProperties", "maxProperties", "uniqueItems", "multipleOf"])(
-      "%s, emit diagnostics when passing invalid target",
+    it.each([
+      ["uniqueItems", 1, "string[]"],
+      ["multipleOf", "string", "integer"],
+    ])(
+      "%s, emit diagnostics when passing invalid extension value",
+      async (key, value, targetType) => {
+        const diagnostics = await runner.diagnose(`        
+        model Foo {
+          @extension("${key}", ${value})
+          prop: ${targetType}
+        }
+      `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-value",
+        });
+      },
+    );
+
+    it.each(["minProperties", "maxProperties"])(
+      "%s, emit diagnostics when passing invalid target - Model Prop",
       async (key) => {
         const diagnostics = await runner.diagnose(`
-        @extension("${key}", "string")
-        @test
         model Foo {
-          prop: string[]
+          @extension("${key}", 1)
+          prop: string
         }
+      `);
+
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/openapi/invalid-extension-target",
+        });
+      },
+    );
+
+    it.each(["minProperties", "maxProperties"])(
+      "%s, emit diagnostics when passing invalid target - Scalar",
+      async (key) => {
+        const diagnostics = await runner.diagnose(`
+          @extension("${key}", 1)
+          scalar Foo extends string;
       `);
 
         expectDiagnostics(diagnostics, {
@@ -105,6 +204,20 @@ describe("openapi: decorators", () => {
       const diagnostics = await runner.diagnose(`        
         model Foo {
           @extension("uniqueItems", true)
+          @test
+          prop: string
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/openapi/invalid-extension-target",
+      });
+    });
+
+    it("multipleOf can only apply to number", async () => {
+      const diagnostics = await runner.diagnose(`        
+        model Foo {
+          @extension("multipleOf", 1)
           @test
           prop: string
         }

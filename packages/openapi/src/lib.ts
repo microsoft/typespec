@@ -20,8 +20,9 @@ export const $lib = createTypeSpecLibrary({
     "invalid-extension-target": {
       severity: "error",
       messages: {
-        default: paramMessage`'minProperties/maxProperties/multipleOf' can only apply to property, but ${"paramName"} is not`,
+        default: paramMessage`'minProperties/maxProperties' can only apply to model, but ${"paramName"} is not`,
         uniqueItems: paramMessage`'uniqueItems' can only be apply to properties that are arrays, but ${"paramName"} is not`,
+        multipleOf: paramMessage`'multipleOf' can only be apply to properties that are number, but ${"paramName"} is not`,
       },
     },
     "duplicate-type-name": {

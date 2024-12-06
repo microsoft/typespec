@@ -63,6 +63,8 @@ export const $extension: ExtensionDecorator = (
   // Convert the TypeSpec value to JSON and collect any diagnostics
   const [data, diagnostics] = typespecTypeToJson(value, entity);
   const isModelProperty = entity.kind === "ModelProperty";
+  const isMode = entity.kind === "Model";
+  const isScalar = entity.kind === "Scalar";
 
   // Handle the "uniqueItems" extension
   if (extensionName === "uniqueItems") {
@@ -101,15 +103,34 @@ export const $extension: ExtensionDecorator = (
 
   // Handle other schema extensions
   if (schemaExtensions.includes(extensionName) && extensionName !== "uniqueItems") {
-    // Check invalid target, Report diagnostic if the target is invalid for the schema extension
-    if (!isModelProperty) {
-      reportDiagnostic(context.program, {
-        code: "invalid-extension-target",
-        format: { paramName: entity.kind },
-        target: entity,
-      });
-      return;
+    // Handle the "multipleOf" extension
+    const isNumber = (name: string) => name !== "string" && name !== "boolean";
+    if (extensionName === "multipleOf") {
+      if (
+        isMode ||
+        (isScalar && !isNumber(entity.name)) ||
+        (isModelProperty && !(entity.type.kind === "Scalar" && isNumber(entity.type.name)))
+      ) {
+        reportDiagnostic(context.program, {
+          code: "invalid-extension-target",
+          messageId: "multipleOf",
+          format: { paramName: entity.kind },
+          target: entity,
+        });
+        return;
+      }
+    } else {
+      // Handle the "minProperties/maxProperties" extension
+      if (!isMode) {
+        reportDiagnostic(context.program, {
+          code: "invalid-extension-target",
+          format: { paramName: entity.kind },
+          target: entity,
+        });
+        return;
+      }
     }
+
     // Check invalid data, Report diagnostic if the extension value is not a number
     if (isNaN(Number(data))) {
       reportDiagnostic(context.program, {
