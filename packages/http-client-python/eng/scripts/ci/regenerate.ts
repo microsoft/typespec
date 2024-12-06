@@ -16,6 +16,7 @@ const argv = parseArgs({
     pluginDir: { type: "string" },
     emitterName: { type: "string" },
     generatedFolder: { type: "string" },
+    usePyodide: { type: "boolean" },
   },
 });
 
@@ -158,12 +159,14 @@ interface RegenerateFlagsInput {
   flavor?: string;
   debug?: boolean;
   name?: string;
+  pyodide?: boolean;
 }
 
 interface RegenerateFlags {
   flavor: string;
   debug: boolean;
   name?: string;
+  pyodide?: boolean;
 }
 
 const SpecialFlags: Record<string, Record<string, any>> = {
@@ -242,6 +245,9 @@ function addOptions(
   const emitterConfigs: EmitterConfig[] = [];
   for (const config of getEmitterOption(spec)) {
     const options: Record<string, string> = { ...config };
+    if (flags.pyodide) {
+      options["use-pyodide"] = "true";
+    }
     options["flavor"] = flags.flavor;
     for (const [k, v] of Object.entries(SpecialFlags[flags.flavor] ?? {})) {
       options[k] = v;
