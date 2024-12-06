@@ -1,12 +1,11 @@
 import path, { dirname } from "path";
-import vscode from "vscode";
+import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "../log/logger.js";
 import { InstallationAction, NpmUtil } from "../npm-utils.js";
 import { ExecOutput, executeCommand, isFile, resolveTypeSpecCli } from "../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
-import { recommendedEmitters } from "./emitters.js";
-
+import { clientEmitters, Emitter } from "./emitter.js";
 export async function doEmit(
   context: vscode.ExtensionContext,
   uri: vscode.Uri,
@@ -15,7 +14,7 @@ export async function doEmit(
   let tspProjectFolder: string = "";
   if (!uri) {
     //   const inputText = await vscode.window
-    //     .showInputBox({ prompt: "Choose the tsp project folder or tsp file." })
+    //     .showInputBox({ prompt: "Choose the TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp)." , ignoreFocusOut: true, buttons: { iconPath: Uri.file(context.asAbsolutePath("resources/dark/add.svg")), tooltip: "Select Folder" } })
     //     .then(async (inputText) => {
     //       if (inputText !== undefined) {
     //         const options = {
@@ -38,15 +37,60 @@ export async function doEmit(
     //     });
     //   tspProjectFolder = inputText ?? "";
     // }
-    const options = {
-      canSelectMany: false,
-      openLabel: "Choose tsp project Directory",
-      canSelectFolders: true,
-      canSelectFiles: false,
-    };
-    await await vscode.window.showOpenDialog(options).then((uris) => {
-      tspProjectFolder = uris ? uris[0].fsPath : "";
+    class MyButton implements QuickInputButton {
+      constructor(
+        public iconPath: { light: Uri; dark: Uri },
+        public tooltip: string,
+      ) {}
+    }
+    const openDiaglogButton = new MyButton(
+      {
+        dark: Uri.file(context.asAbsolutePath("./icons/openfolder.svg")),
+        light: Uri.file(context.asAbsolutePath("./icons/openfolder.svg")),
+      },
+      "Browse...",
+    );
+    await new Promise((resolve) => {
+      const inputBox = vscode.window.createInputBox();
+      inputBox.title = "Choose TypeSpec Project Directory";
+      inputBox.prompt = "Choose the TypeSpec project.";
+      inputBox.placeholder = vscode.workspace.workspaceFolders
+        ? vscode.workspace.workspaceFolders[0].uri.fsPath
+        : "TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp).";
+      inputBox.buttons = [openDiaglogButton];
+
+      inputBox.onDidTriggerButton(async () => {
+        const options = {
+          canSelectMany: false,
+          openLabel: "Choose TypeSpec Project Directory",
+          canSelectFolders: true,
+          canSelectFiles: false,
+        };
+        await vscode.window.showOpenDialog(options).then((uris) => {
+          tspProjectFolder = uris ? uris[0].fsPath : "";
+          inputBox.value = tspProjectFolder;
+        });
+      });
+
+      inputBox.onDidAccept(() => {
+        const userInput = inputBox.value;
+        vscode.window.showInformationMessage(`You entered: ${userInput}`);
+        inputBox.hide();
+        resolve(userInput);
+      });
+      inputBox.ignoreFocusOut = true;
+      inputBox.show();
     });
+
+    // const options = {
+    //   canSelectMany: false,
+    //   openLabel: "Choose TypeSpec Project Directory",
+    //   canSelectFolders: true,
+    //   canSelectFiles: false,
+    // };
+    // await vscode.window.showOpenDialog(options).then((uris) => {
+    //   tspProjectFolder = uris ? uris[0].fsPath : "";
+    // });
   } else {
     tspProjectFolder = uri.fsPath;
   }
@@ -58,58 +102,31 @@ export async function doEmit(
   });
   const baseDir = (await isFile(tspProjectFolder)) ? dirname(tspProjectFolder) : tspProjectFolder;
   /*TODO: check the main.tsp file if it is a project folder. */
-  logger.info("Collecting emitters...", [], {
+  logger.info("select language...", [], {
     showOutput: false,
     showPopup: false,
     progress: overallProgress,
   });
-  const recommended: EmitQuickPickItem[] = [...recommendedEmitters];
-  const toQuickPickItem = (
-    language: string,
-    packageName: string,
-    picked: boolean,
-    fromConfig: boolean,
-  ): EmitQuickPickItem => {
-    const found = recommended.findIndex((ke) => ke.package === packageName);
-    if (found >= 0) {
-      const deleted = recommended.splice(found, 1);
-      deleted[0].picked = picked;
-      return { ...deleted[0], ...{ picked, fromConfig } };
-    } else {
-      return { language: language, package: packageName, label: packageName, picked, fromConfig };
-    }
+
+  const toQuickPickItem = (e: Emitter): EmitQuickPickItem => {
+    return {
+      language: e.language,
+      package: e.package,
+      label: e.language,
+      detail: `Create ${e.language} sdk from ${e.package}`,
+      picked: false,
+      fromConfig: false,
+      iconPath: Uri.file(context.asAbsolutePath(`./icons/${e.language.toLowerCase()}.svg`)),
+    };
   };
 
-  /* pre-compile. */
-  /*
-  const emitOnlyInOptions = Object.keys(config.options ?? {})
-    .filter((key) => !config.emit?.includes(key))
-    .map((e) => toQuickPickItem(e, false, true));
-  const emitInEmit = (config.emit ?? []).map((e: any) => toQuickPickItem(e.toString(), true, true));
-
-  const all = [...emitInEmit, ...emitOnlyInOptions];
-
-  if (recommended.length > 0) {
-    all.push({
-      package: "",
-      label: "Recommended Emitters",
-      kind: QuickPickItemKind.Separator,
-      fromConfig: false,
-    });
-  }
-  recommended.forEach((e) => {
-    all.push(e);
-  });
-  */
-
-  const all = [...recommendedEmitters].map((e) =>
-    toQuickPickItem(e.language, e.package, true, false),
-  );
+  const all = [...clientEmitters].map((e) => toQuickPickItem(e));
 
   const selectedEmitter = await vscode.window.showQuickPick<EmitQuickPickItem>(all, {
-    title: "Select a Language",
+    title: "Select the Language of the SDK",
     canPickMany: false,
     placeHolder: "Pick a Language",
+    ignoreFocusOut: true,
   });
 
   if (!selectedEmitter) {
@@ -123,7 +140,7 @@ export async function doEmit(
 
   /* TODO: verify the sdk runtime installation. */
   /* inform to install needed runtime. */
-  const { valid, required } = await check();
+  const { valid, required } = await check(`${baseDir}/main.tsp`);
   if (!valid) {
     const toInstall = required.map((e) => e.name).join(", ");
     await vscode.window
@@ -143,20 +160,116 @@ export async function doEmit(
     return;
   }
 
+  const configFile = path.resolve(baseDir, "tspconfig.yaml");
+  if (!(await isFile(configFile))) {
+    await vscode.window
+      .showQuickPick(["Yes", "No"], {
+        title: "No tspconfig.yaml found in the project directory. Do you want to create one?",
+        canPickMany: false,
+        placeHolder: "Pick a option",
+        ignoreFocusOut: true,
+      })
+      .then(async (selection) => {
+        if (selection === "Yes") {
+          /* create tspconfig.yaml */
+          const yaml = `emitters:\n  - language: ${selectedEmitter.language}\n    package: ${selectedEmitter.package}\n    outputDir: client/${selectedEmitter.language}`;
+          await vscode.workspace.fs.writeFile(
+            vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
+            Buffer.from(yaml),
+          );
+          const document = await vscode.workspace.openTextDocument(
+            vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
+          );
+          vscode.window.showTextDocument(document, {
+            preview: false,
+            viewColumn: vscode.ViewColumn.Two,
+          });
+        }
+      });
+    // await vscode.window
+    //   .showInformationMessage(
+    //     `No tspconfig.yaml found in the project directory. Do you want to create one?`,
+    //     "Yes",
+    //     "No",
+    //   )
+    //   .then(async (selection) => {
+    //     if (selection === "Yes") {
+    //       /* create tspconfig.yaml */
+    //       const yaml = `emitters:\n  - language: ${selectedEmitter.language}\n    package: ${selectedEmitter.package}\n    outputDir: client/${selectedEmitter.language}`;
+    //       await vscode.workspace.fs.writeFile(
+    //         vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
+    //         Buffer.from(yaml),
+    //       );
+    //       const document = await vscode.workspace.openTextDocument(
+    //         vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
+    //       );
+    //       vscode.window.showTextDocument(document, {
+    //         preview: false,
+    //         viewColumn: vscode.ViewColumn.Two,
+    //       });
+    //     }
+    //   });
+  } else {
+    /* check the emitter in the tspConfig.yaml */
+    const document = await vscode.workspace.openTextDocument(configFile);
+    document.getText();
+  }
+
   /* config the output dir. */
   const outputDirInput = await vscode.window.showInputBox({
+    title: `Configure output directory for ${selectedEmitter.language}`,
     placeHolder: `client/${selectedEmitter.language}`,
     value: `client/${selectedEmitter.language}`,
     prompt: `Please provide the output directory for ${selectedEmitter.language} SDK`,
     validateInput: (text: string) => {
       return text.trim() === "" ? "Input cannot be empty" : null;
     },
+    ignoreFocusOut: true,
   });
   selectedEmitter.outputDir = outputDirInput;
 
-  /* config the emitter. */
+  // /* config the emitter. */
+  // class MyButton implements QuickInputButton {
+  //   constructor(
+  //     public iconPath: { light: Uri; dark: Uri },
+  //     public tooltip: string,
+  //   ) {}
+  // }
+  // const createResourceGroupButton = new MyButton(
+  //   {
+  //     dark: Uri.file(context.asAbsolutePath("resources/dark/add.svg")),
+  //     light: Uri.file(context.asAbsolutePath("resources/light/add.svg")),
+  //   },
+  //   "Create Resource Group",
+  // );
+
+  // await new Promise((resolve) => {
+  //   const inputBox = vscode.window.createInputBox();
+  //   inputBox.prompt = "Enter your input";
+  //   inputBox.buttons = [vscode.QuickInputButtons.Back, createResourceGroupButton];
+
+  //   inputBox.onDidTriggerButton(() => {
+  //     vscode.window.showInformationMessage("Button clicked!");
+  //     inputBox.hide();
+  //   });
+
+  //   inputBox.onDidAccept(() => {
+  //     const userInput = inputBox.value;
+  //     vscode.window.showInformationMessage(`You entered: ${userInput}`);
+  //     inputBox.hide();
+  //     resolve(userInput);
+  //   });
+  //   inputBox.ignoreFocusOut = true;
+  //   inputBox.show();
+  // });
+
   await vscode.window
-    .showInformationMessage("configure the emitters in the tspConfig.yaml", "Yes", "No")
+    .showQuickPick(["Yes", "No"], {
+      title: "configure the emitters in the tspConfig.yaml?",
+      canPickMany: false,
+      placeHolder: "Pick a option",
+      ignoreFocusOut: true,
+    })
     .then(async (selection) => {
       if (selection === "Yes") {
         const document = await vscode.workspace.openTextDocument(
@@ -167,28 +280,46 @@ export async function doEmit(
           viewColumn: vscode.ViewColumn.Two,
         });
         await vscode.window
-          .showInformationMessage("configure emitter.", "Completed")
+          .showQuickPick(["Completed"], {
+            title: "Is emitter configuration completed?",
+            canPickMany: false,
+            placeHolder: "Pick a option",
+            ignoreFocusOut: true,
+          })
           .then((selection) => {
             if (selection === "Completed") {
               vscode.commands.executeCommand("workbench.action.closeActiveEditor");
             }
           });
-      } else if (selection === "No") {
+        // await vscode.window.showInformationMessage("configure emitter.", "Completed").then((selection) => {
+        //   if (selection === "Completed") {
+        //     vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+        //   }
+        // });
       }
     });
 
-  /* config the output dir one by one. */
-  // for (const e of selectedEmitters) {
-  //   const outputDirInput = await vscode.window.showInputBox({
-  //     placeHolder: `client/${e.language}`,
-  //     value: `client/${e.language}`,
-  //     prompt: `Please provide the output directory for ${e.language} SDK`,
-  //     validateInput: (text: string) => {
-  //       return text.trim() === "" ? "Input cannot be empty" : null;
-  //     },
+  // await vscode.window
+  //   .showInformationMessage("configure the emitters in the tspConfig.yaml", "Yes", "No")
+  //   .then(async (selection) => {
+  //     if (selection === "Yes") {
+  //       const document = await vscode.workspace.openTextDocument(
+  //         path.resolve(baseDir, "tspconfig.yaml"),
+  //       );
+  //       vscode.window.showTextDocument(document, {
+  //         preview: false,
+  //         viewColumn: vscode.ViewColumn.Two,
+  //       });
+  //       await vscode.window
+  //         .showInformationMessage("configure emitter.", "Completed")
+  //         .then((selection) => {
+  //           if (selection === "Completed") {
+  //             vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+  //           }
+  //         });
+  //     } else if (selection === "No") {
+  //     }
   //   });
-  //   e.outputDir = outputDirInput;
-  // }
 
   /* TODO: verify packages to install. */
 
@@ -306,13 +437,17 @@ export async function doEmit(
       `Failed to generate Client SDK for ${selectedEmitter.language}. error: ${compileResult.error}`,
       [],
       {
-        showOutput: false,
+        showOutput: true,
         showPopup: true,
         progress: overallProgress,
       },
     );
   }
-  logger.info(`complete generating ${selectedEmitter.language} SDK.`);
+  logger.info(`complete generating ${selectedEmitter.language} SDK.`, [], {
+    showOutput: true,
+    showPopup: true,
+    progress: overallProgress,
+  });
 
   /*TODO: build sdk. */
 }
@@ -339,9 +474,25 @@ export async function compile(
   });
 }
 
-export async function check(): Promise<{
+export async function check(startFile: string): Promise<{
   valid: boolean;
   required: { name: string; version: string }[];
 }> {
+  // await new Promise((resolve) => {
+  //   setTimeout(resolve, 180000);
+  //   logger.info(`complete runtime check.`);
+  // });
+  const cli = await resolveTypeSpecCli(dirname(startFile));
+  if (!cli) {
+    return { valid: true, required: [] };
+  }
+  const args: string[] = cli.args ?? [];
+  args.push("compile");
+  args.push(startFile);
+  args.push("--no-emit");
+  await executeCommand(cli.command, args, {
+    cwd: dirname(startFile),
+  });
+  logger.info(`complete runtime check.`);
   return { valid: true, required: [] };
 }

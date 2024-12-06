@@ -10,8 +10,8 @@ function getEmitterPickItem(language: string): EmitQuickPickItem {
   return {
     language: language,
     package: packageName,
-    label: `Generate ${language} client sdk`,
-    description: `from emitter ${packageName}`,
+    label: `${language}`,
+    detail: `Create ${language} sdk from ${packageName}`,
     fromConfig: false,
   };
 }

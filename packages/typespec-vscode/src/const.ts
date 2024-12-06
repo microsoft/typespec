@@ -7,8 +7,8 @@ export const enum SettingName {
 }
 
 export const languageEmitterSettingNames: Record<string, string> = {
-  net: SettingName.NetEmitter,
-  jave: SettingName.JavaEmitter,
-  python: SettingName.PythonEmitter,
-  js: SettingName.JsEmitter,
+  DotNet: SettingName.NetEmitter,
+  Java: SettingName.JavaEmitter,
+  Python: SettingName.PythonEmitter,
+  JavaScript: SettingName.JsEmitter,
 };
