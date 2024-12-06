@@ -14,6 +14,11 @@ import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<Client> {
   /**
+   * Flatten a client into a list of clients. This will include the client and all its sub clients recursively.
+   * @param client The client to flatten
+   */
+  flat(client: Client): Client[];
+  /**
    * Get a client from a single namespace / interface
    */
   getClient(namespace: Namespace | Interface): Client;
@@ -56,15 +61,36 @@ function getClientName(name: string): string {
   return name.endsWith("Client") ? name : `${name}Client`;
 }
 
+const clientCache = new Map<Namespace | Interface, Client>();
+
 defineKit<TypeKit>({
   client: {
+    flat(client) {
+      const clientStack = [client];
+      const clients: Client[] = [];
+      while (clientStack.length > 0) {
+        const currentClient = clientStack.pop();
+        if (currentClient) {
+          clients.push(currentClient);
+          clientStack.push(...$.clientLibrary.listClients(currentClient));
+        }
+      }
+      return clients;
+    },
     getClient(namespace) {
-      return {
+      if (clientCache.has(namespace)) {
+        return clientCache.get(namespace)!;
+      }
+
+      const client = {
         kind: "Client",
         name: getClientName(namespace.name),
         service: namespace,
         type: namespace,
       } as Client;
+
+      clientCache.set(namespace, client);
+      return client;
     },
     getConstructor(client) {
       const constructors = getConstructors(client);
