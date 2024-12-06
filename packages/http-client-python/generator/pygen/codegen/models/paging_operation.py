@@ -129,6 +129,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             return FileImport(self.code_model)
         file_import = self._imports_shared(async_mode, **kwargs)
         file_import.merge(super().imports(async_mode, **kwargs))
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.code_model.options["tracing"] and self.want_tracing:
             file_import.add_submodule_import(
                 "azure.core.tracing.decorator",
@@ -136,7 +137,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 ImportType.SDKCORE,
             )
         if self.next_request_builder:
-            file_import.merge(self.get_request_builder_import(self.next_request_builder, async_mode))
+            file_import.merge(self.get_request_builder_import(self.next_request_builder, async_mode, serialize_namespace))
         elif any(p.is_api_version for p in self.client.parameters):
             file_import.add_import("urllib.parse", ImportType.STDLIB)
             file_import.add_submodule_import(
@@ -145,7 +146,6 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 ImportType.SDKCORE,
             )
         if self.code_model.options["models_mode"] == "dpg":
-            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, module_name="_model_base")
             file_import.merge(self.item_type.imports(**kwargs))
             if self.default_error_deserialization or any(r.type for r in self.responses):
