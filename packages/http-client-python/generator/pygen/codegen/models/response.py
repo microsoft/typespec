@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Dict, Optional, List, Any, TYPE_CHECKING, Union, Tuple
+from typing import Dict, Optional, List, Any, TYPE_CHECKING, Union
 
 from .base import BaseModel
 from .base import BaseType
@@ -54,7 +54,7 @@ class Response(BaseModel):
         type: Optional[BaseType] = None,
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
-        self.status_codes: List[Union[int, str, Tuple[int, int]]] = yaml_data["statusCodes"]
+        self.status_codes: List[Union[int, str, List[int]]] = yaml_data["statusCodes"]
         self.headers = headers or []
         self.type = type
         self.nullable = yaml_data.get("nullable")

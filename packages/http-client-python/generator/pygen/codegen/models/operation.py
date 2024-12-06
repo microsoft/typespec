@@ -202,17 +202,11 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         exception_schema = default_exceptions[0].type
         if isinstance(exception_schema, ModelType):
             return exception_schema.type_annotation(skip_quote=True)
-        # in this case, it's just an AnyType
-        return "'object'"
+        return None
 
     @property
     def non_default_errors(self) -> List[Response]:
-        return [e for e in self.exceptions if "default" not in e.status_codes and e.type]
-
-    @property
-    def non_default_error_status_codes(self) -> List[Union[str, int, Tuple[int, int]]]:
-        """Actually returns all of the status codes from exceptions (besides default)"""
-        return list(chain.from_iterable([error.status_codes for error in self.non_default_errors]))
+        return [e for e in self.exceptions if "default" not in e.status_codes and e.type and isinstance(e.type, ModelType)]
 
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:  # pylint: disable=unused-argument
         file_import = FileImport(self.code_model)
