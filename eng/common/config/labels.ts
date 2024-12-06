@@ -186,6 +186,10 @@ export default defineConfig({
     misc: {
       description: "Misc labels",
       labels: {
+        "1_0_E2E": {
+          color: "5319E7",
+          description: "",
+        },
         "Client Emitter Migration": {
           color: "FD92F0",
           description: "",
