@@ -43,7 +43,7 @@ class BlackScriptPlugin(Plugin):
                         "venv",
                         "env",
                     )
-                    and not Path(f).parts[0].startswith(".")
+                    and (not Path(f).parts[0].startswith(".") or Path(f).parts[0].startswith(".."))
                     and Path(f).suffix == ".py"
                 ],
             )
