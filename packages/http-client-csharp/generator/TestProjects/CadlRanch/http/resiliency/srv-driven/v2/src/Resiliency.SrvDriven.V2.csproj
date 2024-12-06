@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>This is the Resiliency.ServiceDriven client library for developing .NET applications with rich experience.</Description>
-    <AssemblyTitle>SDK Code Generation Resiliency.ServiceDriven</AssemblyTitle>
+    <Description>This is the Resiliency.SrvDriven.V2 client library for developing .NET applications with rich experience.</Description>
+    <AssemblyTitle>SDK Code Generation Resiliency.SrvDriven.V2</AssemblyTitle>
     <Version>1.0.0-beta.1</Version>
-    <PackageTags>Resiliency.ServiceDriven</PackageTags>
+    <PackageTags>Resiliency.SrvDriven.V2</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
