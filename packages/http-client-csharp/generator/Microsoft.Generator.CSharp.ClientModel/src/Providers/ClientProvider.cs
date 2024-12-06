@@ -22,6 +22,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private const string AuthorizationHeaderConstName = "AuthorizationHeader";
         private const string AuthorizationApiKeyPrefixConstName = "AuthorizationApiKeyPrefix";
         private const string ApiKeyCredentialFieldName = "_keyCredential";
+        private const string TokenCredentialScopesFieldName = "AuthorizationScopes";
+        private const string TokenCredentialFieldName = "_tokenCredential";
         private const string EndpointFieldName = "_endpoint";
         private const string ClientSuffix = "Client";
         private readonly FormattableString _publicCtorDescription;
@@ -29,11 +31,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
         private readonly FieldProvider? _clientCachingField;
+
+        #region credential fields
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
+        private readonly FieldProvider? _tokenCredentialField;
+        private readonly FieldProvider? _tokenCredentialScopesField;
+        #endregion
         private FieldProvider? _apiVersionField;
-        private readonly List<ParameterProvider> _subClientInternalConstructorParams;
+        private readonly Lazy<IReadOnlyList<ParameterProvider>> _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
         private ParameterProvider? _clientOptionsParameter;
         private ClientOptionsProvider? _clientOptions;
@@ -61,24 +68,55 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
 
             var apiKey = _inputAuth?.ApiKey;
-            _apiKeyAuthField = apiKey != null ? new FieldProvider(
-                FieldModifiers.Private | FieldModifiers.ReadOnly,
-                ClientModelPlugin.Instance.TypeFactory.KeyCredentialType,
-                ApiKeyCredentialFieldName,
-                this,
-                description: $"A credential used to authenticate to the service.") : null;
-            _authorizationHeaderConstant = apiKey?.Name != null ? new(
-                FieldModifiers.Private | FieldModifiers.Const,
-                typeof(string),
-                AuthorizationHeaderConstName,
-                this,
-                initializationValue: Literal(apiKey.Name)) : null;
-            _authorizationApiKeyPrefixConstant = apiKey?.Prefix != null ? new(
-                FieldModifiers.Private | FieldModifiers.Const,
-                typeof(string),
-                AuthorizationApiKeyPrefixConstName,
-                this,
-                initializationValue: Literal(apiKey.Prefix)) : null;
+            var keyCredentialType = ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
+            if (apiKey != null && keyCredentialType != null)
+            {
+                _apiKeyAuthField = new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    keyCredentialType,
+                    ApiKeyCredentialFieldName,
+                    this,
+                    description: $"A credential used to authenticate to the service.");
+                if (apiKey.Name != null)
+                {
+                    _authorizationHeaderConstant = new FieldProvider(
+                        FieldModifiers.Private | FieldModifiers.Const,
+                        typeof(string),
+                        AuthorizationHeaderConstName,
+                        this,
+                        initializationValue: Literal(apiKey.Name));
+                }
+                if (apiKey.Prefix != null)
+                {
+                    _authorizationApiKeyPrefixConstant = new FieldProvider(
+                        FieldModifiers.Private | FieldModifiers.Const,
+                        typeof(string),
+                        AuthorizationApiKeyPrefixConstName,
+                        this,
+                        initializationValue: Literal(apiKey.Prefix));
+                }
+            }
+            // in this plugin, the type of TokenCredential is null therefore these code will never be executed, but it should be invoked in other plugins that could support it.
+            var tokenAuth = _inputAuth?.OAuth2;
+            var tokenCredentialType = ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.TokenCredentialType;
+            if (tokenAuth != null && tokenCredentialType != null)
+            {
+                _tokenCredentialField = new FieldProvider(
+                    FieldModifiers.Private | FieldModifiers.ReadOnly,
+                    tokenCredentialType,
+                    TokenCredentialFieldName,
+                    this,
+                    description: $"A credential used to authenticate to the service.");
+                if (tokenAuth.Scopes != null)
+                {
+                    _tokenCredentialScopesField = new FieldProvider(
+                        FieldModifiers.Private | FieldModifiers.Const,
+                        typeof(string[]),
+                        TokenCredentialScopesFieldName,
+                        this,
+                        initializationValue: New.Array(typeof(string), tokenAuth.Scopes.Select(s => Literal(s)).ToArray()));
+                }
+            }
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
                 typeof(Uri),
@@ -92,10 +130,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 body: new AutoPropertyBody(false),
                 enclosingType: this);
 
-            _subClientInternalConstructorParams = _apiKeyAuthField != null
-                ? [PipelineProperty.AsParameter, _apiKeyAuthField.AsParameter, _endpointParameter]
-                : [PipelineProperty.AsParameter, _endpointParameter];
-
             if (_inputClient.Parent != null)
             {
                 // _clientCachingField will only have subClients (children)
@@ -108,23 +142,43 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             _endpointParameterName = new(GetEndpointParameterName);
-            _additionalClientFields = new Lazy<List<FieldProvider>>(() => BuildAdditionalClientFields());
+            _additionalClientFields = new(BuildAdditionalClientFields);
             _allClientParameters = _inputClient.Parameters.Concat(_inputClient.Operations.SelectMany(op => op.Parameters).Where(p => p.Kind == InputOperationParameterKind.Client)).DistinctBy(p => p.Name).ToArray();
-
-            foreach (var field in _additionalClientFields.Value)
-            {
-                _subClientInternalConstructorParams.Add(field.AsParameter);
-            }
+            _subClientInternalConstructorParams = new(GetSubClientInternalConstructorParameters);
+            _clientParameters = new(GetClientParameters);
         }
 
-        private List<ParameterProvider>? _clientParameters;
-        internal IReadOnlyList<ParameterProvider> GetClientParameters()
+        private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()
         {
-            if (_clientParameters is null)
+            var subClientParameters = new List<ParameterProvider>
             {
-                _ = Constructors;
+                PipelineProperty.AsParameter
+            };
+
+            if (_apiKeyAuthField != null)
+            {
+                subClientParameters.Add(_apiKeyAuthField.AsParameter);
             }
-            return _clientParameters ?? [];
+            if (_tokenCredentialField != null)
+            {
+                subClientParameters.Add(_tokenCredentialField.AsParameter);
+            }
+            subClientParameters.Add(_endpointParameter);
+            subClientParameters.AddRange(ClientParameters);
+
+            return subClientParameters;
+        }
+
+        private Lazy<IReadOnlyList<ParameterProvider>> _clientParameters;
+        internal IReadOnlyList<ParameterProvider> ClientParameters => _clientParameters.Value;
+        private IReadOnlyList<ParameterProvider> GetClientParameters()
+        {
+            var parameters = new List<ParameterProvider>(_additionalClientFields.Value.Count);
+            foreach (var field in _additionalClientFields.Value)
+            {
+                parameters.Add(field.AsParameter);
+            }
+            return parameters;
         }
 
         private Lazy<string?> _endpointParameterName;
@@ -168,6 +222,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 {
                     fields.Add(_authorizationApiKeyPrefixConstant);
                 }
+            }
+
+            if (_tokenCredentialField != null)
+            {
+                fields.Add(_tokenCredentialField);
+            }
+            if (_tokenCredentialScopesField != null)
+            {
+                fields.Add(_tokenCredentialScopesField);
             }
 
             fields.AddRange(_additionalClientFields.Value);
@@ -225,46 +288,71 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // handle sub-client constructors
             if (ClientOptionsParameter is null)
             {
-                _clientParameters = _subClientInternalConstructorParams;
-                List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
-                foreach (var p in _subClientInternalConstructorParams)
-                {
-                    var assignment = p.Field?.Assign(p).Terminate() ?? p.Property?.Assign(p).Terminate();
-                    if (assignment != null)
+                    List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
+                    foreach (var p in _subClientInternalConstructorParams.Value)
                     {
-                        body.Add(assignment);
+                        var assignment = p.Field?.Assign(p).Terminate() ?? p.Property?.Assign(p).Terminate();
+                        if (assignment != null)
+                        {
+                            body.Add(assignment);
+                        }
                     }
-                }
-                var subClientConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams),
-                    body,
-                    this);
+                    var subClientConstructor = new ConstructorProvider(
+                        new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
+                        body,
+                        this);
 
                 return [mockingConstructor, subClientConstructor];
             }
 
-            var requiredParameters = GetRequiredParameters();
-            ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter];
-            var primaryConstructor = new ConstructorProvider(
-                new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
-                BuildPrimaryConstructorBody(primaryConstructorParameters),
-                this);
+            // we need to construct two sets of constructors for both auth we supported if any.
+            var primaryConstructors = new List<ConstructorProvider>();
+            var secondaryConstructors = new List<ConstructorProvider>();
 
-            // If the endpoint parameter contains an initialization value, it is not required.
-            ParameterProvider[] secondaryConstructorParameters = _endpointParameter.InitializationValue is null
-                ? [_endpointParameter, .. requiredParameters]
-                : [.. requiredParameters];
-            var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters);
-            var shouldIncludeMockingConstructor = secondaryConstructorParameters.Length > 0 || _apiKeyAuthField != null;
+            // if there is key auth
+            if (_apiKeyAuthField != null)
+            {
+                AppendConstructors(_apiKeyAuthField, primaryConstructors, secondaryConstructors);
+            }
+            // if there is oauth2 auth
+            if (_tokenCredentialField != null)
+            {
+                AppendConstructors(_tokenCredentialField, primaryConstructors, secondaryConstructors);
+            }
+            // if there is no auth
+            if (_apiKeyAuthField == null && _tokenCredentialField == null)
+            {
+                AppendConstructors(null, primaryConstructors, secondaryConstructors);
+            }
+            var shouldIncludeMockingConstructor = secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
             return shouldIncludeMockingConstructor
-                ? [ConstructorProviderHelper.BuildMockingConstructor(this), secondaryConstructor, primaryConstructor]
-                : [secondaryConstructor, primaryConstructor];
+                ? [ConstructorProviderHelper.BuildMockingConstructor(this), .. secondaryConstructors, .. primaryConstructors]
+                : [.. secondaryConstructors, .. primaryConstructors];
+
+            void AppendConstructors(FieldProvider? authField, List<ConstructorProvider> primaryConstructors, List<ConstructorProvider> secondaryConstructors)
+            {
+                var requiredParameters = GetRequiredParameters(authField);
+                ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter];
+                var primaryConstructor = new ConstructorProvider(
+                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
+                    BuildPrimaryConstructorBody(primaryConstructorParameters),
+                    this);
+
+                primaryConstructors.Add(primaryConstructor);
+
+                // If the endpoint parameter contains an initialization value, it is not required.
+                ParameterProvider[] secondaryConstructorParameters = _endpointParameter.InitializationValue is null
+                    ? [_endpointParameter, .. requiredParameters]
+                    : [.. requiredParameters];
+                var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters);
+
+                secondaryConstructors.Add(secondaryConstructor);
+            }
         }
 
-        private IReadOnlyList<ParameterProvider> GetRequiredParameters()
+        private IReadOnlyList<ParameterProvider> GetRequiredParameters(FieldProvider? authField)
         {
             List<ParameterProvider> requiredParameters = [];
-            _clientParameters = [];
 
             ParameterProvider? currentParam = null;
             foreach (var parameter in _allClientParameters)
@@ -275,11 +363,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     currentParam = CreateParameter(parameter);
                     requiredParameters.Add(currentParam);
                 }
-                _clientParameters.Add(currentParam ?? CreateParameter(parameter));
             }
 
-            if (_apiKeyAuthField is not null)
-                requiredParameters.Add(_apiKeyAuthField.AsParameter);
+            if (authField is not null)
+                requiredParameters.Add(authField.AsParameter);
 
             return requiredParameters;
         }
@@ -318,10 +405,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             if (_authorizationHeaderConstant != null && _apiKeyAuthField != null)
             {
                 // new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }
-                ValueExpression[] authorizationPolicyArgs = _authorizationApiKeyPrefixConstant != null
-                    ? [_apiKeyAuthField, _authorizationHeaderConstant, _authorizationApiKeyPrefixConstant]
-                    : [_apiKeyAuthField, _authorizationHeaderConstant];
-                perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().AuthorizationPolicy(authorizationPolicyArgs));
+                ValueExpression? keyPrefix = _authorizationApiKeyPrefixConstant != null ? (ValueExpression)_authorizationApiKeyPrefixConstant : null;
+                perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().ConsumeKeyAuth(_apiKeyAuthField, _authorizationHeaderConstant, keyPrefix));
             }
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter, perRetryPolicies)).Terminate());
@@ -410,7 +495,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 List<ValueExpression> subClientConstructorArgs = new(3);
 
                 // Populate constructor arguments
-                foreach (var param in subClientInstance._subClientInternalConstructorParams)
+                foreach (var param in subClientInstance._subClientInternalConstructorParams.Value)
                 {
                     if (parentClientProperties.TryGetValue(param.Name, out var parentProperty))
                     {
