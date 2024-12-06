@@ -13,30 +13,6 @@ export async function doEmit(
 ) {
   let tspProjectFolder: string = "";
   if (!uri) {
-    //   const inputText = await vscode.window
-    //     .showInputBox({ prompt: "Choose the TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp)." , ignoreFocusOut: true, buttons: { iconPath: Uri.file(context.asAbsolutePath("resources/dark/add.svg")), tooltip: "Select Folder" } })
-    //     .then(async (inputText) => {
-    //       if (inputText !== undefined) {
-    //         const options = {
-    //           canSelectMany: false,
-    //           openLabel: "Select Folder",
-    //           canSelectFolders: true,
-    //           canSelectFiles: false,
-    //         };
-
-    //         await vscode.window.showOpenDialog(options).then((folderUris) => {
-    //           inputText = folderUris ? folderUris[0].fsPath : "";
-    //         });
-
-    //         // vscode.window.showOpenDialog(options).then(folderUri => {
-    //         //     if (folderUri && folderUri) {
-    //         //         vscode.window.showInformationMessage(`You entered: ${inputText} and selected folder: ${folderUri.fsPath}`);
-    //         //     }
-    //         // });
-    //       }
-    //     });
-    //   tspProjectFolder = inputText ?? "";
-    // }
     class MyButton implements QuickInputButton {
       constructor(
         public iconPath: { light: Uri; dark: Uri },
@@ -81,16 +57,6 @@ export async function doEmit(
       inputBox.ignoreFocusOut = true;
       inputBox.show();
     });
-
-    // const options = {
-    //   canSelectMany: false,
-    //   openLabel: "Choose TypeSpec Project Directory",
-    //   canSelectFolders: true,
-    //   canSelectFiles: false,
-    // };
-    // await vscode.window.showOpenDialog(options).then((uris) => {
-    //   tspProjectFolder = uris ? uris[0].fsPath : "";
-    // });
   } else {
     tspProjectFolder = uri.fsPath;
   }
@@ -186,29 +152,6 @@ export async function doEmit(
           });
         }
       });
-    // await vscode.window
-    //   .showInformationMessage(
-    //     `No tspconfig.yaml found in the project directory. Do you want to create one?`,
-    //     "Yes",
-    //     "No",
-    //   )
-    //   .then(async (selection) => {
-    //     if (selection === "Yes") {
-    //       /* create tspconfig.yaml */
-    //       const yaml = `emitters:\n  - language: ${selectedEmitter.language}\n    package: ${selectedEmitter.package}\n    outputDir: client/${selectedEmitter.language}`;
-    //       await vscode.workspace.fs.writeFile(
-    //         vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
-    //         Buffer.from(yaml),
-    //       );
-    //       const document = await vscode.workspace.openTextDocument(
-    //         vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
-    //       );
-    //       vscode.window.showTextDocument(document, {
-    //         preview: false,
-    //         viewColumn: vscode.ViewColumn.Two,
-    //       });
-    //     }
-    //   });
   } else {
     /* check the emitter in the tspConfig.yaml */
     const document = await vscode.workspace.openTextDocument(configFile);
@@ -228,41 +171,7 @@ export async function doEmit(
   });
   selectedEmitter.outputDir = outputDirInput;
 
-  // /* config the emitter. */
-  // class MyButton implements QuickInputButton {
-  //   constructor(
-  //     public iconPath: { light: Uri; dark: Uri },
-  //     public tooltip: string,
-  //   ) {}
-  // }
-  // const createResourceGroupButton = new MyButton(
-  //   {
-  //     dark: Uri.file(context.asAbsolutePath("resources/dark/add.svg")),
-  //     light: Uri.file(context.asAbsolutePath("resources/light/add.svg")),
-  //   },
-  //   "Create Resource Group",
-  // );
-
-  // await new Promise((resolve) => {
-  //   const inputBox = vscode.window.createInputBox();
-  //   inputBox.prompt = "Enter your input";
-  //   inputBox.buttons = [vscode.QuickInputButtons.Back, createResourceGroupButton];
-
-  //   inputBox.onDidTriggerButton(() => {
-  //     vscode.window.showInformationMessage("Button clicked!");
-  //     inputBox.hide();
-  //   });
-
-  //   inputBox.onDidAccept(() => {
-  //     const userInput = inputBox.value;
-  //     vscode.window.showInformationMessage(`You entered: ${userInput}`);
-  //     inputBox.hide();
-  //     resolve(userInput);
-  //   });
-  //   inputBox.ignoreFocusOut = true;
-  //   inputBox.show();
-  // });
-
+  /* config the emitter in the tspConfig.yaml */
   await vscode.window
     .showQuickPick(["Yes", "No"], {
       title: "configure the emitters in the tspConfig.yaml?",
@@ -291,35 +200,8 @@ export async function doEmit(
               vscode.commands.executeCommand("workbench.action.closeActiveEditor");
             }
           });
-        // await vscode.window.showInformationMessage("configure emitter.", "Completed").then((selection) => {
-        //   if (selection === "Completed") {
-        //     vscode.commands.executeCommand("workbench.action.closeActiveEditor");
-        //   }
-        // });
       }
     });
-
-  // await vscode.window
-  //   .showInformationMessage("configure the emitters in the tspConfig.yaml", "Yes", "No")
-  //   .then(async (selection) => {
-  //     if (selection === "Yes") {
-  //       const document = await vscode.workspace.openTextDocument(
-  //         path.resolve(baseDir, "tspconfig.yaml"),
-  //       );
-  //       vscode.window.showTextDocument(document, {
-  //         preview: false,
-  //         viewColumn: vscode.ViewColumn.Two,
-  //       });
-  //       await vscode.window
-  //         .showInformationMessage("configure emitter.", "Completed")
-  //         .then((selection) => {
-  //           if (selection === "Completed") {
-  //             vscode.commands.executeCommand("workbench.action.closeActiveEditor");
-  //           }
-  //         });
-  //     } else if (selection === "No") {
-  //     }
-  //   });
 
   /* TODO: verify packages to install. */
 
@@ -357,11 +239,6 @@ export async function doEmit(
       packagesToInstall.push(`${selectedEmitter.package}@${version}`);
     }
   } else if (action === InstallationAction.Install) {
-    // logger.info(`Installing ${e.package} version ${version}`, [], {
-    //   showOutput: true,
-    //   showPopup: true,
-    //   progress: overallProgress,
-    // });
     let packageFullName = selectedEmitter.package;
     if (selectedEmitter.version) {
       packageFullName = `${selectedEmitter.package}@${selectedEmitter.version}`;
