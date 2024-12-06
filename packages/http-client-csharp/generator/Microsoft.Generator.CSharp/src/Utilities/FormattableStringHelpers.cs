@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
@@ -96,6 +97,85 @@ namespace Microsoft.Generator.CSharp
         {
             var position = text.LastIndexOf(oldValue, StringComparison.Ordinal);
             return position < 0 ? text : text.Substring(0, position) + newValue + text.Substring(position + oldValue.Length);
+        }
+
+        internal static IReadOnlyList<FormattableString> BreakLines(FormattableString fs)
+        {
+            StringBuilder formatBuilder = new StringBuilder();
+            var args = new List<object?>();
+            List<FormattableString> result = new List<FormattableString>();
+            Span<Range> destination = stackalloc Range[fs.Format.Length];
+
+            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetPathParts(fs.Format))
+            {
+                // if isLiteral - put in formatBuilder
+                if (isLiteral)
+                {
+                    var numSplits = span.Split(destination, "\n");
+                    for (int i = 0; i < numSplits; i++)
+                    {
+                        var part = span[destination[i]];
+                        formatBuilder.Append(part);
+                        if (i < numSplits - 1)
+                        {
+                            FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
+                            result.Add(formattableString);
+                            formatBuilder.Clear();
+                            args.Clear();
+                        }
+                    }
+                }
+                // if not Literal, is Args - recurse through Args and check if args has breaklines
+                else
+                {
+                    var arg = fs.GetArgument(index);
+                    // when span has a format specifier, go into else case
+                    // if span contains ':' we don't need to split arg and add it directly to FormatBuilder
+                    // TODO: The following logic of the FormatSpecifier handling is temporary until we have a case where FormatSpecifier and \n both exist in an argument.
+                    // TODO: https://github.com/microsoft/typespec/issues/5255
+                    if (!span.Contains(':') && arg is string str)
+                    {
+                        var splitNewLine = str.Split("\n");
+                        for (int i = 0; i < splitNewLine.Length; i++)
+                        {
+                            var argPart = splitNewLine[i];
+                            formatBuilder.Append('{');
+                            formatBuilder.Append(args.Count);
+                            formatBuilder.Append('}');
+                            args.Add(argPart);
+
+                            if (i < splitNewLine.Length - 1) // if not last part we know this part ends with \n, add to current result and clear
+                            {
+                                FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
+                                result.Add(formattableString);
+                                formatBuilder.Clear();
+                                args.Clear();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // if not a string or FormattableString, add to args because we cannot parse it
+                        // add to FormatBuilder to maintain equal count between args and formatBuilder
+                        formatBuilder.Append('{');
+                        formatBuilder.Append(args.Count);
+                        var indexOfFormatSpecifier = span.IndexOf(':');
+                        if (indexOfFormatSpecifier >= 0)
+                        {
+                            formatBuilder.Append(span[indexOfFormatSpecifier..]);
+                        }
+                        formatBuilder.Append('}');
+                        args.Add(arg);
+                    }
+                }
+            }
+            // if formatBuilder is not empty at end, add it to result
+            if (formatBuilder.Length > 0)
+            {
+                FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
+                result.Add(formattableString);
+            }
+            return result;
         }
     }
 }
