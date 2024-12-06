@@ -3,12 +3,12 @@
 
 package encode.duration;
 
-import encode.duration.models.DefaultDurationProperty;
-import encode.duration.models.Float64SecondsDurationProperty;
-import encode.duration.models.FloatSecondsDurationArrayProperty;
-import encode.duration.models.FloatSecondsDurationProperty;
-import encode.duration.models.ISO8601DurationProperty;
-import encode.duration.models.Int32SecondsDurationProperty;
+import encode.duration.property.models.DefaultDurationProperty;
+import encode.duration.property.models.Float64SecondsDurationProperty;
+import encode.duration.property.models.FloatSecondsDurationArrayProperty;
+import encode.duration.property.models.FloatSecondsDurationProperty;
+import encode.duration.property.models.ISO8601DurationProperty;
+import encode.duration.property.models.Int32SecondsDurationProperty;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;

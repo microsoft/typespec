@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import serialization.encodedname.json.implementation.PropertiesImpl;
-import serialization.encodedname.json.models.JsonEncodedNameModel;
+import serialization.encodedname.json.property.models.JsonEncodedNameModel;
 
 /**
  * Initializes a new instance of the synchronous JsonClient type.

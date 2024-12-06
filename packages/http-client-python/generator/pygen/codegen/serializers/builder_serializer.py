@@ -61,14 +61,6 @@ def _all_same(data: List[List[str]]) -> bool:
     return len(data) > 1 and all(sorted(data[0]) == sorted(data[i]) for i in range(1, len(data)))
 
 
-def _need_type_ignore(builder: OperationType) -> bool:
-    for e in builder.non_default_errors:
-        for status_code in e.status_codes:
-            if status_code in (401, 404, 409, 304):
-                return True
-    return False
-
-
 def _xml_config(send_xml: bool, content_types: List[str]) -> str:
     if not (send_xml and "xml" in str(content_types)):
         return ""
@@ -999,20 +991,80 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         elif isinstance(builder.stream_value, str):  # _stream is not sure, so we need to judge it
             retval.append("    if _stream:")
             retval.extend([f"    {l}" for l in response_read])
-        type_ignore = "  # type: ignore" if _need_type_ignore(builder) else ""
         retval.append(
-            f"    map_error(status_code=response.status_code, response=response, error_map=error_map){type_ignore}"
+            f"    map_error(status_code=response.status_code, response=response, error_map=error_map)"
         )
         error_model = ""
+        if builder.non_default_errors and self.code_model.options["models_mode"]:
+            error_model = ", model=error"
+            condition = "if"
+            retval.append("    error = None")
+            for e in builder.non_default_errors:
+                # single status code
+                if isinstance(e.status_codes[0], int):
+                    for status_code in e.status_codes:
+                        retval.append(f"    {condition} response.status_code == {status_code}:")
+                        if self.code_model.options["models_mode"] == "dpg":
+                            retval.append(f"        error = _failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)},  response.json())")
+                        else:
+                            retval.append(
+                                f"        error = self._deserialize.failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)}, "
+                                "pipeline_response)"
+                            )
+                        # add build-in error type
+                        # TODO: we should decide whether need to this wrapper for customized error type
+                        if status_code == 401:
+                            retval.append(
+                                "        raise ClientAuthenticationError(response=response{}{})".format(
+                                    error_model,
+                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
+                                )
+                            )
+                        elif status_code == 404:
+                            retval.append(
+                                "        raise ResourceNotFoundError(response=response{}{})".format(
+                                    error_model,
+                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
+                                )
+                            )
+                        elif status_code == 409:
+                            retval.append(
+                                "        raise ResourceExistsError(response=response{}{})".format(
+                                    error_model,
+                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
+                                )
+                            )
+                        elif status_code == 304:
+                            retval.append(
+                                "        raise ResourceNotModifiedError(response=response{}{})".format(
+                                    error_model,
+                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
+                                )
+                            )
+                # ranged status code only exist in typespec and will not have multiple status codes
+                else:
+                    retval.append(f"    {condition} {e.status_codes[0][0]} <= response.status_code <= {e.status_codes[0][1]}:")
+                    if self.code_model.options["models_mode"] == "dpg":
+                        retval.append(f"        error = _failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)},  response.json())")
+                    else:
+                        retval.append(
+                            f"        error = self._deserialize.failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)}, "
+                            "pipeline_response)"
+                        )
+                condition = "elif"
+        # default error handling
         if builder.default_error_deserialization and self.code_model.options["models_mode"]:
+            error_model = ", model=error"
+            indent = "        " if builder.non_default_errors else "    "
+            if builder.non_default_errors:
+                retval.append("    else:")
             if self.code_model.options["models_mode"] == "dpg":
-                retval.append(f"    error = _deserialize({builder.default_error_deserialization},  response.json())")
+                retval.append(f"{indent}error = _failsafe_deserialize({builder.default_error_deserialization},  response.json())")
             else:
                 retval.append(
-                    f"    error = self._deserialize.failsafe_deserialize({builder.default_error_deserialization}, "
+                    f"{indent}error = self._deserialize.failsafe_deserialize({builder.default_error_deserialization}, "
                     "pipeline_response)"
                 )
-            error_model = ", model=error"
         retval.append(
             "    raise HttpResponseError(response=response{}{})".format(
                 error_model,
@@ -1085,60 +1137,28 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append("return 200 <= response.status_code <= 299")
         return retval
 
+    def _need_specific_error_map(self, code: int, builder: OperationType) -> bool:
+        for non_default_error in builder.non_default_errors:
+            # single status code
+            if code in non_default_error.status_codes:
+                return False
+            # ranged status code
+            if isinstance(non_default_error.status_codes[0], list) and non_default_error.status_codes[0][0] <= code <= non_default_error.status_codes[0][1]:
+                return False
+        return True
+    
     def error_map(self, builder: OperationType) -> List[str]:
         retval = ["error_map: MutableMapping = {"]
-        if builder.non_default_errors:
-            if not 401 in builder.non_default_error_status_codes:
+        if builder.non_default_errors and self.code_model.options["models_mode"]:
+            # TODO: we should decide whether to add the build-in error map when there is a customized default error type
+            if self._need_specific_error_map(401, builder):
                 retval.append("    401: ClientAuthenticationError,")
-            if not 404 in builder.non_default_error_status_codes:
+            if self._need_specific_error_map(404, builder):
                 retval.append("    404: ResourceNotFoundError,")
-            if not 409 in builder.non_default_error_status_codes:
+            if self._need_specific_error_map(409, builder):
                 retval.append("    409: ResourceExistsError,")
-            if not 304 in builder.non_default_error_status_codes:
+            if self._need_specific_error_map(304, builder):
                 retval.append("    304: ResourceNotModifiedError,")
-            for e in builder.non_default_errors:
-                error_model_str = ""
-                if isinstance(e.type, ModelType):
-                    if self.code_model.options["models_mode"] == "msrest":
-                        error_model_str = (
-                            f", model=self._deserialize(" f"_models.{e.type.serialization_type}, response)"
-                        )
-                    elif self.code_model.options["models_mode"] == "dpg":
-                        error_model_str = f", model=_deserialize(_models.{e.type.name}, response.json())"
-                error_format_str = ", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""
-                for status_code in e.status_codes:
-                    if status_code == 401:
-                        retval.append(
-                            "    401:  cast(Type[HttpResponseError], "
-                            "lambda response: ClientAuthenticationError(response=response"
-                            f"{error_model_str}{error_format_str})),"
-                        )
-                    elif status_code == 404:
-                        retval.append(
-                            "    404:  cast(Type[HttpResponseError], "
-                            "lambda response: ResourceNotFoundError(response=response"
-                            f"{error_model_str}{error_format_str})),"
-                        )
-                    elif status_code == 409:
-                        retval.append(
-                            "    409:  cast(Type[HttpResponseError], "
-                            "lambda response: ResourceExistsError(response=response"
-                            f"{error_model_str}{error_format_str})),"
-                        )
-                    elif status_code == 304:
-                        retval.append(
-                            "    304:  cast(Type[HttpResponseError], "
-                            "lambda response: ResourceNotModifiedError(response=response"
-                            f"{error_model_str}{error_format_str})),"
-                        )
-                    elif not error_model_str and not error_format_str:
-                        retval.append(f"    {status_code}: HttpResponseError,")
-                    else:
-                        retval.append(
-                            f"    {status_code}: cast(Type[HttpResponseError], "
-                            "lambda response: HttpResponseError(response=response"
-                            f"{error_model_str}{error_format_str})),"
-                        )
         else:
             retval.append(
                 "    401: ClientAuthenticationError, 404: ResourceNotFoundError, 409: ResourceExistsError, "

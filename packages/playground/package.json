@@ -104,7 +104,7 @@
     "@storybook/test": "^8.3.5",
     "@storybook/types": "^8.3.5",
     "@types/debounce": "~1.2.4",
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@types/react": "~18.3.11",
     "@types/react-dom": "~18.3.0",
     "@types/swagger-ui-dist": "~3.30.5",
