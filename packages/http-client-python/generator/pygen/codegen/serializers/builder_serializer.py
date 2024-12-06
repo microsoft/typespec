@@ -1153,11 +1153,11 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             # TODO: we should decide whether to add the build-in error map when there is a customized default error type
             if self._need_specific_error_map(401, builder):
                 retval.append("    401: ClientAuthenticationError,")
-            elif self._need_specific_error_map(404, builder):
+            if self._need_specific_error_map(404, builder):
                 retval.append("    404: ResourceNotFoundError,")
-            elif self._need_specific_error_map(409, builder):
+            if self._need_specific_error_map(409, builder):
                 retval.append("    409: ResourceExistsError,")
-            elif self._need_specific_error_map(304, builder):
+            if self._need_specific_error_map(304, builder):
                 retval.append("    304: ResourceNotModifiedError,")
         else:
             retval.append(
