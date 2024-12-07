@@ -35,6 +35,18 @@ export interface YamlScalarTarget {
    * The siblings of the target node
    */
   siblings: string[];
+  /**
+   *  The input quotes (double quotes or single quotes)
+   */
+  sourceType: string;
+  /**
+   * The parameters of the config file
+   */
+  parameters: string[];
+  /**
+   * The environment variables of the config file
+   */
+  envs: string[];
 }
 
 interface YamlVisitScalarNode {
@@ -85,7 +97,10 @@ export function resolveYamlScalarTarget(
         path: [""],
         type: "key",
         source: "",
+        sourceType: "",
         siblings: rootProperties,
+        parameters: [],
+        envs: [],
       };
     }
     for (let i = position.line - 1; i >= 0; i--) {
@@ -131,7 +146,10 @@ export function resolveYamlScalarTarget(
             path: [...yp.path.slice(0, yp.path.length - 1), ""],
             type: "key",
             source: "",
+            sourceType: "",
             siblings: [...yp.siblings, yp.source],
+            parameters: yp.parameters,
+            envs: yp.envs,
           };
         }
         break;
@@ -172,9 +190,12 @@ export function resolveYamlScalarTarget(
             path: [...yp.path, ""],
             type: "key",
             source: "",
+            sourceType: "",
             siblings: isMap(last.value)
               ? (last.value?.items.map((item) => (item.key as any).source ?? "") ?? [])
               : [],
+            parameters: yp.parameters,
+            envs: yp.envs,
           };
         }
         break;
@@ -208,6 +229,35 @@ function createYamlPathFromVisitScalarNode(
     });
     return undefined;
   }
+
+  // fix params and environment variables if exists in the config file
+  const configParams: string[] = [];
+  const configEnvs: string[] = [];
+  for (let i = 0; i < nodePath.length; i++) {
+    const seg = nodePath[i];
+    if (isMap(seg)) {
+      const findItems = seg.items.filter(
+        (item) =>
+          (<any>item.key).source === "environment-variables" ||
+          (<any>item.key).source === "parameters",
+      );
+      findItems.forEach((item) => {
+        if (item.value !== null && isMap(item.value)) {
+          item.value.items.forEach((i) => {
+            if (isPair(i)) {
+              if ((item.key as any).source === "environment-variables") {
+                configEnvs.push((i.key as any).source ?? "");
+              } else if ((item.key as any).source === "parameters") {
+                configParams.push((i.key as any).source ?? "");
+              }
+            }
+          });
+        }
+      });
+      break;
+    }
+  }
+
   const path: string[] = [];
 
   for (let i = 0; i < nodePath.length; i++) {
@@ -236,7 +286,10 @@ function createYamlPathFromVisitScalarNode(
       path: [],
       type: key === null ? "key" : "value",
       source: n.source ?? "",
+      sourceType: n.type ?? "",
       siblings: [],
+      parameters: configParams,
+      envs: configEnvs,
     };
   } else if (isPair(last)) {
     if (nodePath.length < 2) {
@@ -251,22 +304,30 @@ function createYamlPathFromVisitScalarNode(
       // if the scalar node is marked as value but separated by newline from the key, it's more likely that the user is inputting the first property of an object
       // so build the target as an object key
       path.push(n.source ?? "");
+
       return {
         path,
         type: "key",
         source: n.source ?? "",
+        sourceType: n.type ?? "",
         siblings: [],
+        parameters: configParams,
+        envs: configEnvs,
       };
     } else {
-      const parent = nodePath[nodePath.length - 2];
+      const parent = nodePath.length >= 2 ? nodePath[nodePath.length - 2] : undefined;
       const targetSiblings = isMap(parent)
         ? parent.items.filter((item) => item !== last).map((item) => (item.key as any).source ?? "")
         : [];
+
       return {
         path: path,
         type: key === "key" ? "key" : "value",
         source: n.source ?? "",
         siblings: targetSiblings,
+        sourceType: n.type ?? "",
+        parameters: configParams,
+        envs: configEnvs,
       };
     }
   } else if (isSeq(last)) {
@@ -274,9 +335,12 @@ function createYamlPathFromVisitScalarNode(
       path: path,
       type: "arr-item",
       source: n.source ?? "",
+      sourceType: n.type ?? "",
       siblings: last.items
         .filter((i) => i !== n)
         .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
+      parameters: configParams,
+      envs: configEnvs,
     };
   } else {
     log({

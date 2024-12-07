@@ -1,10 +1,24 @@
+import * as fs from "fs";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CompletionItem, CompletionItemKind, Position } from "vscode-languageserver/node.js";
+import {
+  CompletionItem,
+  CompletionItemKind,
+  Position,
+  Range,
+  TextEdit,
+} from "vscode-languageserver/node.js";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
+import {
+  getAnyExtensionFromPath,
+  getBaseFileName,
+  getDirectoryPath,
+  getRelativePathFromDirectory,
+  joinPaths,
+} from "../../core/path-utils.js";
 import { JSONSchemaType, ServerLog } from "../../index.js";
 import { distinctArray } from "../../utils/misc.js";
-import { EmitterProvider } from "../emitter-provider.js";
 import { FileService } from "../file-service.js";
+import { LibraryProvider } from "../lib-provider.js";
 import { resolveYamlScalarTarget, YamlScalarTarget } from "../yaml-resolver.js";
 
 type ObjectJSONSchemaType = JSONSchemaType<object>;
@@ -14,24 +28,36 @@ export async function provideTspconfigCompletionItems(
   tspConfigPosition: Position,
   context: {
     fileService: FileService;
-    emitterProvider: EmitterProvider;
+    emitterProvider: LibraryProvider;
+    linterProvider: LibraryProvider;
     log: (log: ServerLog) => void;
   },
 ): Promise<CompletionItem[]> {
-  const { fileService, emitterProvider, log } = context;
+  const { fileService, emitterProvider, linterProvider, log } = context;
   const target = resolveYamlScalarTarget(tspConfigDoc, tspConfigPosition, log);
   if (target === undefined) {
     return [];
   }
-  const items = resolveTspConfigCompleteItems(await fileService.getPath(tspConfigDoc), target);
+  const items = resolveTspConfigCompleteItems(
+    await fileService.getPath(tspConfigDoc),
+    target,
+    tspConfigPosition,
+    log,
+  );
   return items;
 
   async function resolveTspConfigCompleteItems(
     tspConfigFile: string,
     target: YamlScalarTarget,
+    tspConfigPosition: Position,
+    log: (log: ServerLog) => void,
   ): Promise<CompletionItem[]> {
-    const { path: nodePath, type: targetType, siblings } = target;
+    const { path: nodePath, type: targetType, siblings, sourceType, source } = target;
     const CONFIG_PATH_LENGTH_FOR_EMITTER_LIST = 2;
+    const CONFIG_PATH_LENGTH_FOR_LINTER_LIST = 2;
+    const CONFIG_PATH_LENGTH_FOR_EXTENDS = 1;
+    const CONFIG_PATH_LENGTH_FOR_IMPORTS = 2;
+
     if (
       (nodePath.length === CONFIG_PATH_LENGTH_FOR_EMITTER_LIST &&
         nodePath[0] === "options" &&
@@ -40,15 +66,18 @@ export async function provideTspconfigCompletionItems(
         nodePath[0] === "emit" &&
         targetType === "arr-item")
     ) {
-      const emitters = await emitterProvider.listEmitters(tspConfigFile);
+      const libs = await emitterProvider.listLibraries(tspConfigFile);
       const items: CompletionItem[] = [];
-      for (const [name, pkg] of Object.entries(emitters)) {
+      for (const [name, pkg] of Object.entries(libs)) {
         if (!siblings.includes(name)) {
+          // Generate new text
+          const newText = getNewTextValue(sourceType, name);
+
           const item: CompletionItem = {
             label: name,
             kind: CompletionItemKind.Field,
             documentation: (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
-            insertText: `"${name}"`,
+            textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
           };
           items.push(item);
         }
@@ -56,14 +85,13 @@ export async function provideTspconfigCompletionItems(
       return items;
     } else if (nodePath.length > CONFIG_PATH_LENGTH_FOR_EMITTER_LIST && nodePath[0] === "options") {
       const emitterName = nodePath[CONFIG_PATH_LENGTH_FOR_EMITTER_LIST - 1];
-      const emitter = await emitterProvider.getEmitter(tspConfigFile, emitterName);
+      const emitter = await emitterProvider.getLibrary(tspConfigFile, emitterName);
       if (!emitter) {
         return [];
       }
+
       const exports = await emitter.getModuleExports();
-
       const builtInEmitterSchema = emitterOptionsSchema;
-
       const itemsFromBuiltIn = builtInEmitterSchema
         ? resolveCompleteItems(builtInEmitterSchema, {
             ...target,
@@ -80,6 +108,74 @@ export async function provideTspconfigCompletionItems(
         itemsFromEmitter.push(...more);
       }
       return [...itemsFromBuiltIn, ...itemsFromEmitter];
+    } else if (nodePath.length > CONFIG_PATH_LENGTH_FOR_LINTER_LIST && nodePath[0] === "linter") {
+      const linterName = nodePath[CONFIG_PATH_LENGTH_FOR_LINTER_LIST - 1];
+      const items: CompletionItem[] = [];
+      const linters = await linterProvider.listLibraries(tspConfigFile);
+
+      for (const [name, pkg] of Object.entries(linters)) {
+        if (linterName === "extends") {
+          // If a ruleSet exists for the linter, add it to the end of the library name.
+          const exports = await pkg.getModuleExports();
+          let additionalContent: string = "";
+          if (exports?.$linter?.ruleSets !== undefined) {
+            additionalContent = Object.keys(exports?.$linter?.ruleSets)[0];
+          }
+
+          const labelName = additionalContent.length === 0 ? name : `${name}/${additionalContent}`;
+          if (siblings.includes(labelName)) {
+            continue;
+          }
+
+          const newText = getNewTextValue(sourceType, labelName);
+          const item: CompletionItem = {
+            label: labelName,
+            kind: CompletionItemKind.Field,
+            documentation: (await pkg.getPackageJsonData())?.description ?? `Linters from ${name}`,
+            textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
+          };
+          items.push(item);
+        } else {
+          // enable/disable rules
+          const linter = await linterProvider.getLibrary(tspConfigFile, name);
+          if (!linter) {
+            return [];
+          }
+
+          const exports = await linter.getModuleExports();
+
+          if (exports?.$linter?.rules !== undefined) {
+            const more = resolveCompleteItems(
+              exports?.$linter?.rules,
+              {
+                ...target,
+                path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_LINTER_LIST),
+              },
+              name,
+            );
+            items.push(...more);
+          }
+        }
+      }
+      return items;
+    } else if (nodePath.length === CONFIG_PATH_LENGTH_FOR_EXTENDS && nodePath[0] === "extends") {
+      const currentFolder = getDirectoryPath(tspConfigFile);
+      const extName = getAnyExtensionFromPath(tspConfigFile);
+      const newFolderPath = joinPaths(currentFolder, source);
+      const configFile = getBaseFileName(tspConfigFile);
+
+      const relativeFiles = findFilesWithSameExtension(newFolderPath, extName, log, configFile);
+
+      const schema = TypeSpecConfigJsonSchema;
+      return schema ? resolveCompleteItems(schema, target, "", relativeFiles) : [];
+    } else if (nodePath.length >= CONFIG_PATH_LENGTH_FOR_IMPORTS && nodePath[0] === "imports") {
+      const currentFolder = getDirectoryPath(tspConfigFile);
+      const newFolderPath = joinPaths(currentFolder, source);
+
+      const relativeFiles = findFilesWithSameExtension(newFolderPath, ".tsp", log);
+
+      const schema = TypeSpecConfigJsonSchema;
+      return schema ? resolveCompleteItems(schema, target, "", relativeFiles) : [];
     } else {
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target) : [];
@@ -154,8 +250,10 @@ export async function provideTspconfigCompletionItems(
   function resolveCompleteItems(
     schema: ObjectJSONSchemaType,
     target: YamlScalarTarget,
+    libName: string = "",
+    relativeFiles: string[] = [],
   ): CompletionItem[] {
-    const { path: nodePath, type: targetType } = target;
+    const { path: nodePath, type: targetType, source, sourceType } = target;
     // if the target is a key which means it's pointing to an object property, we should remove the last element of the path to get it's parent object for its schema
     const path = targetType === "key" ? nodePath.slice(0, -1) : nodePath;
     const foundSchemas = findSchemaByPath(schema, path, 0);
@@ -174,11 +272,28 @@ export async function provideTspconfigCompletionItems(
                 const item: CompletionItem = {
                   label: key,
                   kind: CompletionItemKind.Field,
-                  documentation: cur.properties[key].description,
+                  documentation: cur.required?.includes(key)
+                    ? "[required]\n" + (cur.properties[key].description ?? "")
+                    : "[optional]\n" + (cur.properties[key].description ?? ""),
                 };
                 return item;
               });
             result.push(...props);
+          } else if (cur.type === undefined) {
+            // lint rule
+            if (libName !== "") {
+              for (const key of Object.keys(cur ?? {})) {
+                const labelName = `${libName}/${cur[key].name}`;
+                const newText = getNewTextValue(sourceType, labelName);
+                const item: CompletionItem = {
+                  label: labelName,
+                  kind: CompletionItemKind.Field,
+                  documentation: cur[key].description,
+                  textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
+                };
+                result.push(item);
+              }
+            }
           }
         }
         if (targetType === "value" || targetType === "arr-item") {
@@ -204,10 +319,153 @@ export async function provideTspconfigCompletionItems(
               return item;
             });
             result.push(...enums);
+          } else if (
+            cur.type === "string" &&
+            sourceType === "QUOTE_DOUBLE" &&
+            /{(env\.)?}|{[^{}]*}/g.test(source)
+          ) {
+            // Variable interpolation
+            // environment-variables
+            if (/{env\.}(?!\S)|{env\.}/g.test(source)) {
+              for (const env of target.envs) {
+                if (!nodePath.includes(env)) {
+                  result.push({
+                    label: env,
+                    kind: CompletionItemKind.Value,
+                    documentation: cur.description,
+                  });
+                }
+              }
+            } else {
+              // built-in variables
+              result.push(
+                ...["cwd", "project-root"].map((value) => {
+                  const item: CompletionItem = {
+                    label: value,
+                    kind: CompletionItemKind.Value,
+                    documentation: cur.description,
+                  };
+                  return item;
+                }),
+              );
+              // parameters
+              for (const param of target.parameters) {
+                if (!nodePath.includes(param)) {
+                  result.push({
+                    label: param,
+                    kind: CompletionItemKind.Value,
+                    documentation: cur.description,
+                  });
+                }
+              }
+            }
+          } else if (cur.type === "string") {
+            // extends
+            if (relativeFiles.length > 0) {
+              for (const file of relativeFiles) {
+                if (target.siblings.includes(file)) {
+                  continue;
+                }
+
+                const item: CompletionItem = {
+                  label: file,
+                  kind: CompletionItemKind.Field,
+                };
+                result.push(item);
+              }
+            }
           }
         }
       });
 
     return distinctArray(result, (t) => t.label);
   }
+}
+
+/**
+ * Get the new text value
+ * @param sourceType input quote type(single, double, none)
+ * @param formatText format text value
+ * @returns
+ */
+function getNewTextValue(sourceType: string, formatText: string): string {
+  let newText: string = "";
+  if (sourceType === "QUOTE_SINGLE") {
+    newText = `${formatText}'`;
+  } else if (sourceType === "QUOTE_DOUBLE") {
+    newText = `${formatText}"`;
+  } else {
+    newText = `"${formatText}"`;
+  }
+  return newText;
+}
+
+/**
+ * Get the position of the new text
+ * @param newText  the new text
+ * @param source source text
+ * @param tspConfigPosition original position
+ * @returns
+ */
+function getNewTextAndPosition(
+  newText: string,
+  source: string,
+  tspConfigPosition: Position,
+): TextEdit {
+  return TextEdit.replace(
+    Range.create(
+      Position.create(tspConfigPosition.line, tspConfigPosition.character - source.length),
+      Position.create(tspConfigPosition.line, tspConfigPosition.character + newText.length),
+    ),
+    newText,
+  );
+}
+
+/**
+ * Find a set of relative paths to files with the same suffix
+ * @param rootPath The root path of the current configuration file
+ * @param fileExtension  File extension
+ * @param log log function
+ * @param configFile Configuration file name
+ * @returns
+ */
+function findFilesWithSameExtension(
+  rootPath: string,
+  fileExtension: string,
+  log: (log: ServerLog) => void,
+  configFile: string = "",
+): string[] {
+  const exclude = ["node_modules", "tsp-output"];
+  if (fileExtension === ".tsp") {
+    exclude.push("main.tsp");
+  }
+
+  const files: string[] = [];
+  try {
+    // When reading the content under the path, an error may be reported if the path is incorrect.
+    const filesInDir = fs.readdirSync(rootPath);
+    for (const file of filesInDir) {
+      const ext = getAnyExtensionFromPath(file);
+      if (
+        (ext && ext.length > 0 && ext !== fileExtension) ||
+        exclude.includes(file) ||
+        (configFile !== "" && getBaseFileName(file) === configFile)
+      ) {
+        continue;
+      }
+
+      const filePath = joinPaths(rootPath, file);
+      const stat = fs.statSync(filePath);
+      if (stat.isDirectory() || (stat.isFile() && file.endsWith(fileExtension))) {
+        const relativePath = getRelativePathFromDirectory(rootPath, filePath, false);
+        files.push(relativePath);
+      }
+    }
+  } catch (error) {
+    log({
+      level: "error",
+      message: `input path error: ${(error as Error).message}`,
+    });
+  }
+  return files;
 }
