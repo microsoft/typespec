@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
   });
 
   config.build!.outDir = "dist/web";
+  config.build!.rollupOptions!.external = ["prompts", "fs/promises"];
 
   config.plugins!.push(
     visualizer({

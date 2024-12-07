@@ -1,4 +1,3 @@
-import { fileURLToPath } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
@@ -269,7 +268,7 @@ export function createServer(host: ServerHost): Server {
       validateInitProjectTemplate: true,
     };
     // the file path is expected to be .../@typespec/compiler/dist/src/server/serverlib.js
-    const curFile = normalizePath(fileURLToPath(import.meta.url));
+    const curFile = normalizePath(compilerHost.fileURLToPath(import.meta.url));
     const SERVERLIB_PATH_ENDWITH = "/dist/src/server/serverlib.js";
     let compilerRootFolder = undefined;
     if (!curFile.endsWith(SERVERLIB_PATH_ENDWITH)) {

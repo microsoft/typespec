@@ -105,6 +105,17 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         placeHolder:
           "Project Name (A folder with the same name will be created under the selected container folder)",
         ignoreFocusOut: true,
+        validateInput: (value) => {
+          if (isWhitespaceStringOrUndefined(value)) {
+            return "Project name cannot be empty.";
+          }
+          // we don't have a full rule for project name. Just have a simple check to avoid some strange name.
+          const regex = /^(?![./])(?!.*[./]{2})[a-zA-Z0-9-~_@./]*[a-zA-Z0-9-~_@]$/;
+          if (!regex.test(value)) {
+            return "Invalid project name. Only [a-zA-Z0-9-~_@./] are allowed and cannot start/end with [./] or consecutive [./]";
+          }
+          return undefined;
+        },
       });
       if (isWhitespaceStringOrUndefined(projectName)) {
         logger.info("Creating TypeSpec Project cancelled when input project name.", [], {
@@ -166,7 +177,13 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         return;
       }
 
-      await tspInstall(client, selectedFolder);
+      const packageJsonPath = joinPaths(selectedFolder, "package.json");
+      if (!(await isFile(packageJsonPath))) {
+        logger.warning("Skip tsp install since no package.json is found in the project folder.");
+      } else {
+        // just ignore the result from tsp install. We will open the project folder anyway.
+        await tspInstall(client, selectedFolder);
+      }
       vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(selectedFolder), {
         forceNewWindow: false,
         forceReuseWindow: true,
@@ -181,19 +198,6 @@ async function tspInstall(
   client: TspLanguageClient,
   directory: string,
 ): Promise<ExecOutput | undefined> {
-  const packageJsonPath = joinPaths(directory, "package.json");
-  if (!isFile(packageJsonPath)) {
-    // there is chance that the package.json file can't be read immediately after project creation,
-    // so let's try again after 1 second.
-    logger.warning(
-      "Can't read package.json file after project creating. Will retry after 1 second.",
-    );
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    if (!isFile(packageJsonPath)) {
-      logger.warning("Skip tsp install since no package.json is found in the project folder.");
-      return undefined;
-    }
-  }
   logger.info("Installing TypeSpec project dependencies by 'tsp install'...");
   return await vscode.window.withProgress(
     {
@@ -344,7 +348,7 @@ async function setInputs(info: InitTemplateInfo): Promise<Record<string, string>
       case "text":
         const textInput = await vscode.window.showInputBox({
           prompt: input.description,
-          placeHolder: input.initialValue,
+          value: input.initialValue,
           ignoreFocusOut: true,
         });
         if (textInput === undefined) {
