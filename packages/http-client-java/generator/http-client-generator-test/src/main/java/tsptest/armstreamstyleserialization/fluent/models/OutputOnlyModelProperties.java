@@ -11,6 +11,7 @@ import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
+import tsptest.armstreamstyleserialization.models.Dog;
 
 /**
  * The OutputOnlyModelProperties model.
@@ -21,6 +22,11 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
      * The title property.
      */
     private String title;
+
+    /*
+     * The dog property.
+     */
+    private Dog dog;
 
     /**
      * Creates an instance of OutputOnlyModelProperties class.
@@ -38,6 +44,15 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
     }
 
     /**
+     * Get the dog property: The dog property.
+     * 
+     * @return the dog value.
+     */
+    public Dog dog() {
+        return this.dog;
+    }
+
+    /**
      * Validates the instance.
      * 
      * @throws IllegalArgumentException thrown if the instance is not valid.
@@ -47,6 +62,12 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
             throw LOGGER.atError()
                 .log(
                     new IllegalArgumentException("Missing required property title in model OutputOnlyModelProperties"));
+        }
+        if (dog() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property dog in model OutputOnlyModelProperties"));
+        } else {
+            dog().validate();
         }
     }
 
@@ -59,6 +80,7 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
         jsonWriter.writeStringField("title", this.title);
+        jsonWriter.writeJsonField("dog", this.dog);
         return jsonWriter.writeEndObject();
     }
 
@@ -80,6 +102,8 @@ public final class OutputOnlyModelProperties implements JsonSerializable<OutputO
 
                 if ("title".equals(fieldName)) {
                     deserializedOutputOnlyModelProperties.title = reader.getString();
+                } else if ("dog".equals(fieldName)) {
+                    deserializedOutputOnlyModelProperties.dog = Dog.fromJson(reader);
                 } else {
                     reader.skipChildren();
                 }
