@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
@@ -70,6 +69,6 @@ public class ExceptionTemplate implements IJavaTemplate<ClientException, JavaFil
     }
 
     protected String getHttpResponseImport() {
-        return ClassType.HTTP_RESPONSE.getFullName();
+        return "com.azure.core.http.HttpResponse";
     }
 }

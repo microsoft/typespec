@@ -3,6 +3,7 @@ import {
   EmitContext,
   getNormalizedAbsolutePath,
   JSONSchemaType,
+  NoTarget,
   resolvePath,
 } from "@typespec/compiler";
 import { spawn } from "child_process";
@@ -11,7 +12,6 @@ import { dump } from "js-yaml";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
-import { logError } from "./utils.js";
 
 export interface EmitterOptions {
   namespace?: string;
@@ -136,8 +136,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
     await promises.mkdir(outputPath, { recursive: true }).catch((err) => {
       if (err.code !== "EISDIR" && err.code !== "EEXIST") {
-        logError(program, `Failed to create output directory: ${outputPath}`);
-        return;
+        throw err;
       }
     });
 
@@ -226,9 +225,17 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       // program.trace("http-client-java", output.stdout ? output.stdout : output.stderr);
     } catch (error: any) {
       if (error && "code" in error && error["code"] === "ENOENT") {
-        logError(program, "'java' is not on PATH. Please install JDK 11 or above.");
+        const msg = "'java' is not on PATH. Please install JDK 11 or above.";
+        program.trace("http-client-java", msg);
+        program.reportDiagnostic({
+          code: "http-client-java",
+          severity: "error",
+          message: msg,
+          target: NoTarget,
+        });
+        throw new Error(msg);
       } else {
-        logError(program, error.message);
+        throw error;
       }
     }
 

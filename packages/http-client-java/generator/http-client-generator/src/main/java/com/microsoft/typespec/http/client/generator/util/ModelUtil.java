@@ -17,13 +17,15 @@ public class ModelUtil {
     public static boolean isGeneratingModel(ClientModel model) {
         return model.getImplementationDetails() != null
             && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal())
+            && !(isModelUsedOnlyInException(model.getImplementationDetails()))
             && !(isExternalModel(model.getImplementationDetails()))
             && !(isPagedModel(model.getImplementationDetails()));
     }
 
     public static boolean isGeneratingModel(EnumType model) {
         return model.getImplementationDetails() != null
-            && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal());
+            && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal())
+            && !(isModelUsedOnlyInException(model.getImplementationDetails()));
     }
 
     public static boolean isGeneratingModel(ClientResponse response) {
@@ -42,7 +44,14 @@ public class ModelUtil {
     public static boolean isGeneratingModel(UnionModel model) {
         return model.getImplementationDetails() != null
             && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal())
+            && !(isModelUsedOnlyInException(model.getImplementationDetails()))
             && !(isExternalModel(model.getImplementationDetails()));
+    }
+
+    private static boolean isModelUsedOnlyInException(ImplementationDetails implementationDetails) {
+        return (implementationDetails.isException()
+            && !implementationDetails.isInput()
+            && !implementationDetails.isOutput());
     }
 
     private static boolean isPagedModel(ImplementationDetails implementationDetails) {

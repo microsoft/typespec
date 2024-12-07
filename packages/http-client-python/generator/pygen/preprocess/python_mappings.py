@@ -107,8 +107,6 @@ RESERVED_MODEL_PROPERTIES = [
     "setdefault",
     "pop",
     "get",
-    "copy",
-    "as_dict",
 ]
 
 RESERVED_WORDS = {

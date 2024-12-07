@@ -7,7 +7,6 @@ import com.azure.core.http.ContentType;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
@@ -15,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInterface;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
-import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +94,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                         }
                     }
 
-                    if (!settings.isDataPlaneClient() || !settings.isBranded() || isExceptionCustomized()) {
+                    if (!settings.isDataPlaneClient() || isExceptionCustomized()) {
                         // write @UnexpectedResponseExceptionType
 
                         if (restAPIMethod.getUnexpectedResponseExceptionTypes() != null) {
@@ -200,21 +198,11 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                     exception.getValue().stream().map(String::valueOf).collect(Collectors.joining(", "))));
             }
         } else {
-            if (JavaSettings.getInstance().isUseDefaultHttpStatusCodeToExceptionTypeMapping()) {
-                for (Map.Entry<ClassType, List<Integer>> exception : restAPIMethod.getUnexpectedResponseExceptionTypes()
-                    .entrySet()) {
-                    interfaceBlock.annotation("UnexpectedResponseExceptionDetail(exceptionTypeName = \""
-                        + restAPIMethod.getHttpExceptionType(exception.getKey()).toString() + "\", statusCode = {"
-                        + exception.getValue().stream().map(String::valueOf).collect(Collectors.joining(",")) + " })");
-                }
-            } else {
-                for (Map.Entry<ClassType, List<Integer>> exception : restAPIMethod.getUnexpectedResponseExceptionTypes()
-                    .entrySet()) {
-                    ClientModel errorModel = ClientModelUtil.getErrorModelFromException(exception.getKey());
-                    interfaceBlock.annotation("UnexpectedResponseExceptionDetail(statusCode = {"
-                        + exception.getValue().stream().map(String::valueOf).collect(Collectors.joining(","))
-                        + " }, exceptionBodyClass = " + errorModel.getName() + ".class)");
-                }
+            for (Map.Entry<ClassType, List<Integer>> exception : restAPIMethod.getUnexpectedResponseExceptionTypes()
+                .entrySet()) {
+                interfaceBlock.annotation("UnexpectedResponseExceptionDetail(exceptionTypeName = \""
+                    + restAPIMethod.getHttpExceptionType(exception.getKey()).toString() + "\", statusCode = {"
+                    + exception.getValue().stream().map(String::valueOf).collect(Collectors.joining(",")) + " })");
             }
         }
     }
@@ -224,18 +212,7 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             interfaceBlock.annotation(String.format("UnexpectedResponseExceptionType(%1$s.class)",
                 restAPIMethod.getUnexpectedResponseExceptionType()));
         } else {
-            if (JavaSettings.getInstance().isUseDefaultHttpStatusCodeToExceptionTypeMapping()) {
-                interfaceBlock.annotation("UnexpectedResponseExceptionDetail");
-            } else {
-                ClientModel errorModel
-                    = ClientModelUtil.getErrorModelFromException(restAPIMethod.getUnexpectedResponseExceptionType());
-                if (errorModel != null) {
-                    interfaceBlock.annotation(
-                        "UnexpectedResponseExceptionDetail(exceptionBodyClass = " + errorModel.getName() + ".class)");
-                } else {
-                    interfaceBlock.annotation("UnexpectedResponseExceptionDetail");
-                }
-            }
+            interfaceBlock.annotation("UnexpectedResponseExceptionDetail");
         }
     }
 

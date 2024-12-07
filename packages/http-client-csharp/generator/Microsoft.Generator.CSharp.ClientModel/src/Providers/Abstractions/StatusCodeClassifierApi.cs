@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
@@ -18,7 +17,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract CSharpType ResponseClassifierType { get; }
 
         public abstract ValueExpression Create(int code);
-        public abstract ValueExpression Create(IEnumerable<int> codes);
         public abstract StatusCodeClassifierApi FromExpression(ValueExpression original);
         public abstract StatusCodeClassifierApi ToExpression();
     }
