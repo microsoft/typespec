@@ -27,3 +27,6 @@ export * from "./versioning.js";
 
 /** @internal */
 export { $decorators } from "./tsp-index.js";
+
+// TODO: be explicit - for testing right now
+export * from "./mutator.js";
