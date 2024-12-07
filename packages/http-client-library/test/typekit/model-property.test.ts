@@ -12,6 +12,57 @@ beforeEach(async () => {
   runner = await createTypespecHttpClientLibraryTestRunner();
 });
 
+describe("getCredentialAuth", () => {
+  it("should return the correct http scheme", async () => {
+    const { DemoService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+
+    const client = $.client.getClient(DemoService);
+    const constructor = $.client.getConstructor(client);
+    const parameters = $.operation.getClientSignature(client, constructor);
+
+    const credential = parameters.find((p) => $.modelProperty.isCredential(p));
+    expect(credential).toBeDefined();
+
+    const auth = $.modelProperty.getCredentialAuth(credential!)!;
+    expect(auth).toBeDefined();
+    expect(auth).toHaveLength(1);
+    expect(auth[0].type).toEqual("apiKey");
+  });
+
+  it("should return the correct http schemes", async () => {
+    const { DemoService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key"> | OAuth2Auth<[{
+        type: OAuth2FlowType.implicit;
+        authorizationUrl: "https://login.microsoftonline.com/common/oauth2/authorize";
+        scopes: ["https://security.microsoft.com/.default"];
+      }]>)
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+
+    const client = $.client.getClient(DemoService);
+    const constructor = $.client.getConstructor(client);
+    const parameters = $.operation.getClientSignature(client, constructor);
+
+    const credential = parameters.find((p) => $.modelProperty.isCredential(p));
+    expect(credential).toBeDefined();
+
+    const auth = $.modelProperty.getCredentialAuth(credential!)!;
+    expect(auth).toBeDefined();
+    expect(auth).toHaveLength(2);
+    expect(auth[0].type).toEqual("apiKey");
+    expect(auth[1].type).toEqual("oauth2");
+  });
+});
+
 describe("isOnClient", () => {
   describe("endpoint", () => {
     it("no servers", async () => {
@@ -107,12 +158,12 @@ describe("isOnClient", () => {
         @test namespace DemoService;
         `)) as { DemoService: Namespace };
 
-      const client = $.clientLibrary.listClients(DemoService)[0];
+      const client = $.client.getClient(DemoService);
       const constructor = $.client.getConstructor(client);
       // no constructor overloads, should just be one
       const credential = $.operation
         .getClientSignature(client, constructor)
-        .find((p) => $.modelProperty.isCredential(client, p));
+        .find((p) => $.modelProperty.isCredential(p));
       ok(credential);
       expect($.modelProperty.isOnClient(client, credential)).toBe(true);
     });
@@ -135,7 +186,7 @@ describe("isOnClient", () => {
       expect($.operation.getOverloads(client, constructor)).toHaveLength(0);
       const credential = $.operation
         .getClientSignature(client, constructor)
-        .find((p) => $.modelProperty.isCredential(client, p));
+        .find((p) => $.modelProperty.isCredential(p));
       ok(credential);
       expect($.modelProperty.isOnClient(client, credential)).toBe(true);
     });
@@ -157,9 +208,9 @@ describe("isCredential", () => {
     // no constructor overloads, should just be one
     const credential = $.operation
       .getClientSignature(client, constructor)
-      .find((p) => $.modelProperty.isCredential(client, p));
+      .find((p) => $.modelProperty.isCredential(p));
     ok(credential);
-    expect($.modelProperty.isCredential(client, credential)).toBe(true);
+    expect($.modelProperty.isCredential(credential)).toBe(true);
   });
   it("bearer", async () => {
     const { DemoService } = (await runner.compile(`
@@ -180,8 +231,8 @@ describe("isCredential", () => {
     expect($.operation.getOverloads(client, constructor)).toHaveLength(0);
     const credential = $.operation
       .getClientSignature(client, constructor)
-      .find((p) => $.modelProperty.isCredential(client, p));
+      .find((p) => $.modelProperty.isCredential(p));
     ok(credential);
-    expect($.modelProperty.isCredential(client, credential)).toBe(true);
+    expect($.modelProperty.isCredential(credential)).toBe(true);
   });
 });
