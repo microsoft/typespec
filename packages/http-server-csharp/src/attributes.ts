@@ -419,45 +419,13 @@ export function getNumericConstraintAttribute(
 
 export function getSafeIntAttribute(type: Scalar): Attribute | undefined {
   if (type.name.toLowerCase() !== "safeint") return undefined;
-  const attr: Attribute = new Attribute(
+  return new Attribute(
     new AttributeType({
-      name: `NumericConstraint<long>`,
+      name: "SafeInt",
       namespace: HelperNamespace,
     }),
     [],
   );
-
-  attr.parameters.push(
-    new Parameter({
-      name: "MinValue",
-      value: new NumericValue(-9007199254740991),
-      optional: true,
-      type: new CSharpType({
-        name: "long",
-        namespace: "System",
-        isBuiltIn: true,
-        isValueType: true,
-        isNullable: false,
-      }),
-    }),
-  );
-
-  attr.parameters.push(
-    new Parameter({
-      name: "MaxValue",
-      value: new NumericValue(9007199254740991),
-      optional: true,
-      type: new CSharpType({
-        name: "long",
-        namespace: "System",
-        isBuiltIn: true,
-        isValueType: true,
-        isNullable: false,
-      }),
-    }),
-  );
-
-  return attr;
 }
 
 function getEnumAttribute(type: Enum, cSharpName?: string): Attribute {

@@ -76,7 +76,6 @@ public final class TemplateHelper {
                     + "\", keyCredential, " + prefixExpr + "));");
             });
         }
-        function.line("policies.add(new HttpLoggingPolicy(%s));", localHttpLogOptionsName);
         function.line("httpPipelineBuilder.policies(policies.toArray(new HttpPipelinePolicy[0]));");
         function.methodReturn("httpPipelineBuilder.build()");
     }

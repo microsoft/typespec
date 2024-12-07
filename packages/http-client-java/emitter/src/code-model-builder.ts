@@ -90,6 +90,7 @@ import {
   getNamespaceFullName,
   getOverloadedOperation,
   getSummary,
+  getVisibility,
   isArrayModelType,
   isRecordModelType,
   listServices,
@@ -104,7 +105,6 @@ import {
   getHeaderFieldName,
   getPathParamName,
   getQueryParamName,
-  isCookieParam,
   isHeader,
   isPathParam,
   isQueryParam,
@@ -155,7 +155,6 @@ import {
 } from "./type-utils.js";
 import {
   getNamespace,
-  logError,
   logWarning,
   pascalCase,
   removeClientSuffix,
@@ -168,8 +167,8 @@ export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
-  private baseJavaNamespace!: string;
-  private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
+  private baseJavaNamespace: string = ""; // it will be set at the start of "build" function
+  private legacyJavaNamespace: boolean = false; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
   private options: EmitterOptions;
   private codeModel: CodeModel;
@@ -202,7 +201,7 @@ export class CodeModelBuilder {
 
     const service = listServices(this.program)[0];
     if (!service) {
-      this.logError("TypeSpec for HTTP must define a service.");
+      throw Error("TypeSpec for HTTP must define a service.");
     }
     this.serviceNamespace = service.type;
 
@@ -340,16 +339,10 @@ export class CodeModelBuilder {
 
           case "apiKey":
             {
-              if (scheme.in === "header") {
-                const keyScheme = new KeySecurityScheme({
-                  name: scheme.name,
-                });
-                securitySchemes.push(keyScheme);
-              } else {
-                this.logWarning(
-                  `ApiKey auth is currently only supported for ApiKeyLocation.header.`,
-                );
-              }
+              const keyScheme = new KeySecurityScheme({
+                name: scheme.name,
+              });
+              securitySchemes.push(keyScheme);
             }
             break;
 
@@ -362,9 +355,7 @@ export class CodeModelBuilder {
 
                 if (this.isBranded()) {
                   // Azure would not allow BasicAuth or BearerAuth
-                  this.logWarning(
-                    `HTTP auth with ${scheme.scheme} scheme is not supported for Azure.`,
-                  );
+                  this.logWarning(`${scheme.scheme} auth method is currently not supported.`);
                   continue;
                 }
               }
@@ -387,7 +378,7 @@ export class CodeModelBuilder {
   }
 
   private isBranded(): boolean {
-    return this.options["flavor"]?.toLocaleLowerCase() === "azure";
+    return !this.options["flavor"] || this.options["flavor"].toLocaleLowerCase() === "azure";
   }
 
   private processModels() {
@@ -556,7 +547,7 @@ export class CodeModelBuilder {
       } else {
         this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
         if (!this.apiVersion) {
-          this.logError("Unrecognized api-version: " + this.sdkContext.apiVersion);
+          throw new Error("Unrecognized api-version: " + this.sdkContext.apiVersion);
         }
       }
 
@@ -588,7 +579,7 @@ export class CodeModelBuilder {
               }
             }
           } else if (initializationProperty.type.variantTypes.length > 2) {
-            this.logError("Multiple server url defined for one client is not supported yet.");
+            throw new Error("Multiple server url defined for one client is not supported yet.");
           }
         } else if (initializationProperty.type.kind === "endpoint") {
           sdkPathParameters = initializationProperty.type.templateArguments;
@@ -873,12 +864,6 @@ export class CodeModelBuilder {
     clientContext.hostParameters.forEach((it) => codeModelOperation.addParameter(it));
     // path/query/header parameters
     for (const param of httpOperation.parameters) {
-      // TODO, switch to TCGC param.kind=="cookie"
-      if (param.__raw && isCookieParam(this.program, param.__raw)) {
-        // ignore cookie parameter
-        continue;
-      }
-
       // if it's paged operation with request body, skip content-type header added by TCGC, as next link call should not have content type header
       if (
         (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") &&
@@ -958,11 +943,6 @@ export class CodeModelBuilder {
     responses: SdkHttpResponse[],
     sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
-    if (!this.isBranded()) {
-      // TODO: currently unbranded does not support paged operation
-      return;
-    }
-
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
       for (const response of responses) {
         const bodyType = response.type;
@@ -1764,12 +1744,6 @@ export class CodeModelBuilder {
 
       if (response instanceof SchemaResponse) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
-
-        if (trackConvenienceApi && !this.isBranded()) {
-          this.trackSchemaUsage(response.schema, {
-            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-          });
-        }
       }
     } else {
       op.addResponse(response);
@@ -1843,9 +1817,7 @@ export class CodeModelBuilder {
           }
       }
     }
-    const errorMsg = `Unrecognized type: '${type.kind}'.`;
-    this.logError(errorMsg);
-    throw new Error(errorMsg);
+    throw new Error(`Unrecognized type: '${type.kind}'.`);
   }
 
   private processBuiltInType(type: SdkBuiltInType, nameHint: string): Schema {
@@ -2272,7 +2244,7 @@ export class CodeModelBuilder {
 
   private processUnionSchema(type: SdkUnionType, name: string): Schema {
     if (!(type.__raw && type.__raw.kind === "Union")) {
-      this.logError(`Invalid type for union: '${type.kind}'.`);
+      throw new Error(`Invalid type for union: '${type.kind}'.`);
     }
     const rawUnionType: Union = type.__raw as Union;
     const namespace = getNamespace(rawUnionType);
@@ -2325,8 +2297,7 @@ export class CodeModelBuilder {
 
   private getUnionVariantName(type: Type | undefined, option: any): string {
     if (type === undefined) {
-      this.logError("type is undefined.");
-      return "UnionVariant";
+      throw new Error("type is undefined.");
     }
     switch (type.kind) {
       case "Scalar": {
@@ -2378,8 +2349,7 @@ export class CodeModelBuilder {
       case "UnionVariant":
         return (typeof type.name === "string" ? type.name : undefined) ?? "UnionVariant";
       default:
-        this.logError(`Unrecognized type for union variable: '${type.kind}'.`);
-        return "UnionVariant";
+        throw new Error(`Unrecognized type for union variable: '${type.kind}'.`);
     }
   }
 
@@ -2426,9 +2396,7 @@ export class CodeModelBuilder {
         },
       );
     } else {
-      const errorMsg = `Invalid type for multipart form data: '${property.type.kind}'.`;
-      this.logError(errorMsg);
-      throw new Error(errorMsg);
+      throw new Error(`Invalid type for multipart form data: '${property.type.kind}'.`);
     }
   }
 
@@ -2458,14 +2426,14 @@ export class CodeModelBuilder {
     if (segment) {
       return true;
     } else {
-      const visibility = target.kind === "property" ? target.visibility : undefined;
+      const visibility = target.__raw ? getVisibility(this.program, target.__raw) : undefined;
       if (visibility) {
         return (
-          !visibility.includes(Visibility.All) &&
-          !visibility.includes(Visibility.Create) &&
-          !visibility.includes(Visibility.Update) &&
-          !visibility.includes(Visibility.Delete) &&
-          !visibility.includes(Visibility.Query)
+          !visibility.includes("write") &&
+          !visibility.includes("create") &&
+          !visibility.includes("update") &&
+          !visibility.includes("delete") &&
+          !visibility.includes("query")
         );
       } else {
         return false;
@@ -2569,10 +2537,6 @@ export class CodeModelBuilder {
     } else {
       return clientNamespace.toLowerCase();
     }
-  }
-
-  private logError(msg: string) {
-    logError(this.program, msg);
   }
 
   private logWarning(msg: string) {

@@ -2,7 +2,6 @@ import {
   SdkBasicServiceMethod,
   SdkClientType,
   SdkCredentialParameter,
-  SdkCredentialType,
   SdkEndpointParameter,
   SdkEndpointType,
   SdkLroPagingServiceMethod,
@@ -11,7 +10,6 @@ import {
   SdkPagingServiceMethod,
   SdkServiceMethod,
   SdkServiceOperation,
-  SdkUnionType,
   UsageFlags,
   getCrossLanguagePackageId,
   isAzureCoreModel,
@@ -109,28 +107,6 @@ function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
       }
     } else {
       return emitEndpointType(context, parameter.type);
-    }
-  }
-  // filter out credential that python does not support for now
-  if (parameter.kind === "credential") {
-    const filteredCredentialType = [];
-    const originalCredentialType =
-      parameter.type.kind === "union" ? parameter.type.variantTypes : [parameter.type];
-    for (const credentialType of originalCredentialType) {
-      if (
-        credentialType.scheme.type === "oauth2" ||
-        credentialType.scheme.type === "http" ||
-        (credentialType.scheme.type === "apiKey" && credentialType.scheme.in === "header")
-      ) {
-        filteredCredentialType.push(credentialType);
-      }
-    }
-    if (filteredCredentialType.length === 0) {
-      return [];
-    } else if (filteredCredentialType.length === 1) {
-      parameter.type = filteredCredentialType[0];
-    } else {
-      (parameter.type as SdkUnionType<SdkCredentialType>).variantTypes = filteredCredentialType;
     }
   }
   const base = {

@@ -348,7 +348,7 @@ class DPGModelType(GeneratedModelType):
 
     @property
     def instance_check_template(self) -> str:
-        return "isinstance({}, " + f"_models.{self.name})"
+        return "isinstance({}, _model_base.Model)"
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)

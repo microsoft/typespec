@@ -742,19 +742,9 @@ export function differentiateModelTypes(
 
       branches.push({
         condition: {
-          kind: "binary-op",
-          left: {
-            kind: "binary-op",
-            left: { kind: "literal", value: renderPropertyName(property) },
-            operator: "in",
-            right: SUBJECT,
-          },
-          operator: "&&",
-          right: {
-            kind: "in-range",
-            expr: { kind: "model-property", property },
-            range,
-          },
+          kind: "in-range",
+          expr: { kind: "model-property", property },
+          range,
         },
         body: { kind: "result", type: model },
       });

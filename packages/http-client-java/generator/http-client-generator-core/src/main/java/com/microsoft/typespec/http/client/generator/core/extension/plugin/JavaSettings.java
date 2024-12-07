@@ -108,10 +108,7 @@ public class JavaSettings {
                 logger.debug("List of require : {}", autorestSettings.getRequire());
             }
 
-            final String fluent = getStringValue(host, "fluent");
-
-            final String flavor = getStringValue(host, "flavor", "azure");
-            final String defaultModelsSubPackageName = isBranded(flavor) ? "models" : "";
+            String fluent = getStringValue(host, "fluent");
 
             setHeader(getStringValue(host, "license-header"));
             instance = new JavaSettings(autorestSettings,
@@ -123,8 +120,8 @@ public class JavaSettings {
                 getBooleanValue(host, "generate-client-interfaces", false),
                 getBooleanValue(host, "generate-client-as-impl", false),
                 getStringValue(host, "implementation-subpackage", "implementation"),
-                getStringValue(host, "models-subpackage", defaultModelsSubPackageName),
-                getStringValue(host, "custom-types", ""), getStringValue(host, "custom-types-subpackage", ""),
+                getStringValue(host, "models-subpackage", "models"), getStringValue(host, "custom-types", ""),
+                getStringValue(host, "custom-types-subpackage", ""),
                 getStringValue(host, "fluent-subpackage", "fluent"),
                 getBooleanValue(host, "required-parameter-client-methods", false),
                 getBooleanValue(host, "generate-sync-async-clients", false),
@@ -142,7 +139,9 @@ public class JavaSettings {
                 getStringValue(host, "key-credential-header-name", ""),
                 getBooleanValue(host, "disable-client-builder", false),
                 host.getValueWithJsonReader("polling", jsonReader -> jsonReader.readMap(PollingDetails::fromJson)),
-                getBooleanValue(host, "generate-samples", false), getBooleanValue(host, "generate-tests", false), false,
+                getBooleanValue(host, "generate-samples", false), getBooleanValue(host, "generate-tests", false), false, // getBooleanValue(host,
+                                                                                                                         // "generate-send-request-method",
+                                                                                                                         // false),
                 getBooleanValue(host, "annotate-getters-and-setters-for-serialization", false),
                 getStringValue(host, "default-http-exception-type"),
                 getBooleanValue(host, "use-default-http-status-code-to-exception-type-mapping", false),
@@ -166,7 +165,7 @@ public class JavaSettings {
                 getBooleanValue(host, "disable-required-property-annotation", false),
                 getBooleanValue(host, "enable-page-size", false), getBooleanValue(host, "use-key-credential", false),
                 getBooleanValue(host, "null-byte-array-maps-to-empty-array", false),
-                getBooleanValue(host, "graal-vm-config", false), flavor,
+                getBooleanValue(host, "graal-vm-config", false), getStringValue(host, "flavor", "Azure"),
                 getBooleanValue(host, "disable-typed-headers-methods", false),
                 getBooleanValue(host, "share-jsonserializable-code", false),
                 getBooleanValue(host, "use-object-for-unknown", false), getBooleanValue(host, "android", false));
@@ -405,11 +404,7 @@ public class JavaSettings {
      * @return Whether to generate with Azure branding.
      */
     public boolean isBranded() {
-        return isBranded(this.flavor);
-    }
-
-    private static boolean isBranded(String flavor) {
-        return "azure".equalsIgnoreCase(flavor);
+        return "azure".equalsIgnoreCase(this.flavor);
     }
 
     private final String keyCredentialHeaderName;

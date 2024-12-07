@@ -11,15 +11,12 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 /**
  * Defines values for PriorityModel.
  */
 public final class PriorityModel implements ExpandableEnum<Integer> {
     private static final Map<Integer, PriorityModel> VALUES = new ConcurrentHashMap<>();
-
-    private static final Function<Integer, PriorityModel> NEW_INSTANCE = PriorityModel::new;
 
     /**
      * Static value 0 for PriorityModel.
@@ -46,7 +43,11 @@ public final class PriorityModel implements ExpandableEnum<Integer> {
     @JsonCreator
     public static PriorityModel fromValue(Integer value) {
         Objects.requireNonNull(value, "'value' cannot be null.");
-        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
+        PriorityModel member = VALUES.get(value);
+        if (member != null) {
+            return member;
+        }
+        return VALUES.computeIfAbsent(value, key -> new PriorityModel(key));
     }
 
     /**
@@ -75,7 +76,7 @@ public final class PriorityModel implements ExpandableEnum<Integer> {
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj;
+        return Objects.equals(this.value, obj);
     }
 
     @Override

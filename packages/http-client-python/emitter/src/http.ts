@@ -379,7 +379,7 @@ function emitHttpResponse(
     headers: response.headers.map((x) => emitHttpResponseHeader(context, x)),
     statusCodes:
       typeof statusCodes === "object"
-        ? [[(statusCodes as HttpStatusCodeRange).start, (statusCodes as HttpStatusCodeRange).end]]
+        ? [(statusCodes as HttpStatusCodeRange).start]
         : statusCodes === "*"
           ? ["default"]
           : [statusCodes],

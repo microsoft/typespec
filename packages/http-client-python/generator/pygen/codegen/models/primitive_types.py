@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .code_model import CodeModel
 
 
-class RawString:
+class RawString(object):
     def __init__(self, string: str) -> None:
         self.string = string
 

@@ -30,7 +30,6 @@ export async function uploadCoverageReport({
     credential: new AzureCliCredential(),
     containerName,
   });
-  await client.createIfNotExists();
   const generatorMetadata: GeneratorMetadata = {
     name: generatorName,
     version: generatorVersion,

@@ -842,7 +842,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (_additionalBinaryDataProperty != null)
             {
-                var binaryDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(
+                var binaryDataDeserializationValue = GetValueTypeDeserializationExpression(
                     _additionalBinaryDataProperty.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
@@ -850,7 +850,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                var rawDataDeserializationValue = GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -1267,11 +1267,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
+                    GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
+                    valueType.ToEnum(GetValueTypeDeserializationExpression(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
 
@@ -1585,7 +1585,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             ValueExpression value)
         {
             if (type.IsFrameworkType)
-                return ClientModelPlugin.Instance.TypeFactory.SerializeValueType(type, serializationFormat, value, type.FrameworkType, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet);
+                return SerializeValueType(type, serializationFormat, value, type.FrameworkType);
 
             if (!type.IsEnum)
                 return _utf8JsonWriterSnippet.WriteObjectValue(value.As(type), options: _mrwOptionsParameterSnippet);
@@ -1611,13 +1611,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        internal static MethodBodyStatement SerializeValueTypeCore(
+        private MethodBodyStatement SerializeValueType(
             CSharpType type,
             SerializationFormat serializationFormat,
             ValueExpression value,
-            Type valueType,
-            ScopedApi<Utf8JsonWriter> utf8JsonWriter,
-            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
+            Type valueType)
         {
             if (valueType == typeof(Nullable<>))
             {
@@ -1629,34 +1627,34 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return valueType switch
             {
                 var t when t == typeof(JsonElement) =>
-                    value.As<JsonElement>().WriteTo(utf8JsonWriter),
+                    value.As<JsonElement>().WriteTo(_utf8JsonWriterSnippet),
                 var t when ValueTypeIsInt(t) && serializationFormat == SerializationFormat.Int_String =>
-                    utf8JsonWriter.WriteStringValue(value.InvokeToString()),
+                    _utf8JsonWriterSnippet.WriteStringValue(value.InvokeToString()),
                 var t when ValueTypeIsNumber(t) =>
-                    utf8JsonWriter.WriteNumberValue(value),
+                    _utf8JsonWriterSnippet.WriteNumberValue(value),
                 var t when t == typeof(object) =>
-                    utf8JsonWriter.WriteObjectValue(value.As(valueType), mrwOptionsParameter),
+                    _utf8JsonWriterSnippet.WriteObjectValue(value.As(valueType), _mrwOptionsParameterSnippet),
                 var t when t == typeof(string) || t == typeof(char) || t == typeof(Guid) =>
-                    utf8JsonWriter.WriteStringValue(value),
+                    _utf8JsonWriterSnippet.WriteStringValue(value),
                 var t when t == typeof(bool) =>
-                    utf8JsonWriter.WriteBooleanValue(value),
+                    _utf8JsonWriterSnippet.WriteBooleanValue(value),
                 var t when t == typeof(byte[]) =>
-                    utf8JsonWriter.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier()),
+                    _utf8JsonWriterSnippet.WriteBase64StringValue(value, serializationFormat.ToFormatSpecifier()),
                 var t when t == typeof(DateTimeOffset) || t == typeof(DateTime) || t == typeof(TimeSpan) =>
-                    SerializeDateTimeRelatedTypes(valueType, serializationFormat, value, utf8JsonWriter, mrwOptionsParameter),
+                    SerializeDateTimeRelatedTypes(valueType, serializationFormat, value),
                 var t when t == typeof(IPAddress) =>
-                    utf8JsonWriter.WriteStringValue(value.InvokeToString()),
+                    _utf8JsonWriterSnippet.WriteStringValue(value.InvokeToString()),
                 var t when t == typeof(Uri) =>
-                    utf8JsonWriter.WriteStringValue(new MemberExpression(value, nameof(Uri.AbsoluteUri))),
+                    _utf8JsonWriterSnippet.WriteStringValue(new MemberExpression(value, nameof(Uri.AbsoluteUri))),
                 var t when t == typeof(BinaryData) =>
-                    SerializeBinaryData(valueType, serializationFormat, value, utf8JsonWriter),
+                    SerializeBinaryData(valueType, serializationFormat, value),
                 var t when t == typeof(Stream) =>
-                    utf8JsonWriter.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
+                    _utf8JsonWriterSnippet.WriteBinaryData(BinaryDataSnippets.FromStream(value, false)),
                 _ => throw new NotSupportedException($"Type {valueType} serialization is not supported.")
             };
         }
 
-        internal static ValueExpression GetValueTypeDeserializationExpressionCore(
+        public static ValueExpression GetValueTypeDeserializationExpression(
             Type valueType,
             ScopedApi<JsonElement> element,
             SerializationFormat format)
@@ -1740,25 +1738,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         };
 
-        private static MethodBodyStatement SerializeDateTimeRelatedTypes(Type valueType, SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter, ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
+        private MethodBodyStatement SerializeDateTimeRelatedTypes(Type valueType, SerializationFormat serializationFormat, ValueExpression value)
         {
             var format = serializationFormat.ToFormatSpecifier();
             return serializationFormat switch
             {
-                SerializationFormat.Duration_Seconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().InvokeToString(format))),
-                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToDouble(value.As<TimeSpan>().InvokeToString(format))),
-                SerializationFormat.DateTime_Unix => utf8JsonWriter.WriteNumberValue(value, format),
-                _ => format is not null ? utf8JsonWriter.WriteStringValue(value, format) : utf8JsonWriter.WriteStringValue(value)
+                SerializationFormat.Duration_Seconds => _utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().InvokeToString(format))),
+                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => _utf8JsonWriterSnippet.WriteNumberValue(ConvertSnippets.InvokeToDouble(value.As<TimeSpan>().InvokeToString(format))),
+                SerializationFormat.DateTime_Unix => _utf8JsonWriterSnippet.WriteNumberValue(value, format),
+                _ => format is not null ? _utf8JsonWriterSnippet.WriteStringValue(value, format) : _utf8JsonWriterSnippet.WriteStringValue(value)
             };
         }
 
-        private static MethodBodyStatement SerializeBinaryData(Type valueType, SerializationFormat serializationFormat, ValueExpression value, ScopedApi<Utf8JsonWriter> utf8JsonWriter)
+        private MethodBodyStatement SerializeBinaryData(Type valueType, SerializationFormat serializationFormat, ValueExpression value)
         {
             if (serializationFormat is SerializationFormat.Bytes_Base64 or SerializationFormat.Bytes_Base64Url)
             {
-                return utf8JsonWriter.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
+                return _utf8JsonWriterSnippet.WriteBase64StringValue(value.As<BinaryData>().ToArray(), serializationFormat.ToFormatSpecifier());
             }
-            return utf8JsonWriter.WriteBinaryData(value);
+            return _utf8JsonWriterSnippet.WriteBinaryData(value);
         }
 
         private static ScopedApi GetEnumerableExpression(ValueExpression expression, CSharpType enumerableType)
