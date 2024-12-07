@@ -1,12 +1,10 @@
 import "@typespec/http";
-import "@typespec/rest";
 import "@typespec/openapi3";
 
 @service({
   title: "Widget Service",
 })
 namespace DemoService;
-using TypeSpec.Rest;
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;
 

@@ -5,7 +5,7 @@ describe("compiler: semantic checks on source with parse errors", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("reports semantic errors in addition to parse errors", async () => {

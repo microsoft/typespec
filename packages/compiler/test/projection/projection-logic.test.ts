@@ -25,7 +25,7 @@ describe("compiler: projections: logic", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("projects nested namespaces", async () => {

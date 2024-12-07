@@ -11,7 +11,7 @@ import {
 let testHost: TestHost;
 
 beforeEach(async () => {
-  testHost = await createTestHost();
+  testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
 });
 
 it("run decorator without arguments", async () => {
@@ -337,10 +337,12 @@ describe("emit diagnostic", () => {
        model Foo {}
        @@notDefined(Foo, "A string Foo");
     `);
-    expectDiagnostics(diagnostics, {
-      code: "invalid-ref",
-      message: "Unknown decorator @notDefined",
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-ref",
+        message: "Unknown decorator @notDefined",
+      },
+    ]);
   });
 
   it("if target is invalid identifier", async () => {

@@ -17,7 +17,7 @@ describe("Codefixes", () => {
       fix: (context: CodeFixContext, file: SourceFile) => CodeFixEdit | CodeFixEdit[],
     ): Promise<string> {
       const fakeFile = createSourceFile(text, "test.ts");
-      const host = await createTestHost();
+      const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
       let result: string | undefined;
       await applyCodeFix(
         {

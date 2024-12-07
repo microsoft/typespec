@@ -28,7 +28,7 @@ interface RelatedTypeOptions {
 let runner: BasicTestRunner;
 let host: TestHost;
 beforeEach(async () => {
-  host = await createTestHost();
+  host = await createTestHost({ checkUnnecessaryDiagnostics: true });
   runner = createTestWrapper(host);
 });
 
@@ -47,7 +47,14 @@ describe("compiler: checker: type relations", () => {
     ${commonCode ?? ""}
     extern dec mock(target: unknown, source: ┆${source}, value: ${target});
    `);
-    await runner.compile(code);
+    const [_, diags] = await runner.compileAndDiagnose(code);
+    expectDiagnostics(diags, [
+      {
+        code: "unused-import",
+        message: `Unused import: import "./mock.js"`,
+        severity: "hint",
+      },
+    ]);
     const decDeclaration = runner.program
       .getGlobalNamespaceType()
       .decoratorDeclarations.get("mock");
