@@ -79,8 +79,8 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { TypeSpecCoreTemplates } from "../init/core-templates.js";
-import { validateTemplateDefinitions } from "../init/index.js";
+import { getTypeSpecCoreTemplates } from "../init/core-templates.js";
+import { validateTemplateDefinitions } from "../init/init-template-validate.js";
 import { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
@@ -298,7 +298,7 @@ export function createServer(host: ServerHost): Server {
 
   async function getInitProjectContext(): Promise<InitProjectContext> {
     return {
-      coreInitTemplates: TypeSpecCoreTemplates,
+      coreInitTemplates: await getTypeSpecCoreTemplates(host.compilerHost),
     };
   }
 
