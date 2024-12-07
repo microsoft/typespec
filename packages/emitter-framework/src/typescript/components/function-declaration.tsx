@@ -8,6 +8,7 @@ export interface FunctionDeclarationPropsWithType
   extends Omit<ts.FunctionDeclarationProps, "name"> {
   type: Operation;
   name?: string;
+  parametersMode?: "prepend" | "append" | "replace";
 }
 
 export type FunctionDeclarationProps =
@@ -34,6 +35,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
   const returnType = props.returnType ?? <TypeExpression type={getReturnType(props.type)} />;
   const allParameters = buildParameterDescriptors(props.type.parameters, {
     params: props.parameters,
+    mode: props.parametersMode,
   });
   return (
     <ts.FunctionDeclaration
