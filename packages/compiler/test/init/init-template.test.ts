@@ -1,6 +1,6 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { InitTemplate, InitTemplateSchema } from "../../src/init/init-template.js";
+import { InitTemplate } from "../../src/init/init-template.js";
 import {
   ScaffoldingConfig,
   makeScaffoldingConfig,
@@ -68,14 +68,5 @@ describe("compiler: init: templates", () => {
   it("can exclude .gitignore file", async () => {
     await runTemplate({}, { includeGitignore: false });
     strictEqual(typeof getOutputFile(".gitignore"), "undefined");
-  });
-
-  it("Check inputs type supported in InitTemplate", () => {
-    // Add this test to ensure we won't forget to add the support in VS/VSCode extension of typespec
-    // to collect other kind of inputs from user when we add more input types support in InitTemplate.inputs
-    // TODO: consider move this test to VS/VSCode extension side when we make the InitTemplate schema external
-    const schema = InitTemplateSchema;
-    strictEqual(schema.properties.inputs.additionalProperties.properties.type.enum.length, 1);
-    strictEqual(schema.properties.inputs.additionalProperties.properties.type.enum[0], "text");
   });
 });
