@@ -19,15 +19,46 @@ extern dec operationId(target: Operation, operationId: valueof string);
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param key Extension key. Must start with `x-`
+ * @param key minProperties/maxProperties/uniqueItems/multipleOf or Extension key. The extension key must start with `x-`
  * @param value Extension value.
  *
  * @example
- *
  * ```typespec
  * @extension("x-custom", "My value")
  * @extension("x-pageable", {nextLink: "x-next-link"})
  * op read(): string;
+ * ```
+ *
+ * @example A schema can ensure that each of the items in an array is unique.
+ * ```typespec
+ * model Foo {
+ *  @extension("uniqueItems", true)
+ *  x: unknown[];
+ * };
+ * ```
+ *
+ * @example Numbers can be restricted to a multiple of a given number, using the multipleOf keyword. It may be set to any positive number.
+ * ```typespec
+ * model Foo {
+ *  @extension("multipleOf", 1)
+ *  x: int32;
+ * };
+ * ```
+ *
+ * @example The number of properties on an object can be restricted using the maxProperties keyword.
+ * ```typespec
+ * model Foo {
+ *  @extension("maxProperties", 1)
+ *  x: int32;
+ * };
+ * ```
+ *
+ * @example The number of properties on an object can be restricted using the minProperties keyword.
+ * ```typespec
+ * model Foo {
+ *  @extension("minProperties", 1)
+ *  x: int32;
+ * };
  * ```
  */
 extern dec extension(target: unknown, key: valueof string, value: unknown);
