@@ -61,7 +61,7 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
       if (!client || client.state !== State.Running) {
         const r = await InstallCompilerAndRestartLSPClient();
         if (r === undefined) {
-          logger.info("Creating TypeSpec Project cancelled when installing Compiler/Cli");
+          logger.info("Creating TypeSpec Project cancelled when installing Compiler/CLI");
           return;
         } else {
           client = r;
@@ -183,10 +183,18 @@ async function tspInstall(
 ): Promise<ExecOutput | undefined> {
   const packageJsonPath = joinPaths(directory, "package.json");
   if (!isFile(packageJsonPath)) {
-    logger.warning("Skip tsp install since no package.json is found in the project folder.");
-    return undefined;
+    // there is chance that the package.json file can't be read immediately after project creation,
+    // so let's try again after 1 second.
+    logger.warning(
+      "Can't read package.json file after project creating. Will retry after 1 second.",
+    );
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (!isFile(packageJsonPath)) {
+      logger.warning("Skip tsp install since no package.json is found in the project folder.");
+      return undefined;
+    }
   }
-  // support cancel
+  logger.info("Installing TypeSpec project dependencies by 'tsp install'...");
   return await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -634,9 +642,9 @@ async function createProjectFolder(selectedFolder: string): Promise<boolean> {
 async function InstallCompilerAndRestartLSPClient(): Promise<TspLanguageClient | undefined> {
   const options: InstallGlobalCliCommandArgs = {
     confirm: true,
-    confirmTitle: "Checking TypeSpec Compiler/Cli...",
+    confirmTitle: "Checking TypeSpec Compiler/CLI...",
     confirmPlaceholder:
-      "No TypeSpec Compiler/Cli found which is needed to create TypeSpec project.",
+      "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
     forceRecreateLsp: false,
     popupRecreateLspError: true,
   };

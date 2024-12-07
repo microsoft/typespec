@@ -6,7 +6,11 @@ export const templatesDir = resolvePath(CompilerPackageRoot, "templates");
 
 const content = JSON.parse(await readFile(resolvePath(templatesDir, "scaffolding.json"), "utf-8"));
 
-export const TypeSpecCoreTemplates = {
+export interface LoadedCoreTemplates {
+  readonly baseUri: string;
+  readonly templates: Record<string, any>;
+}
+export const TypeSpecCoreTemplates: LoadedCoreTemplates = {
   baseUri: templatesDir,
   templates: content,
 };

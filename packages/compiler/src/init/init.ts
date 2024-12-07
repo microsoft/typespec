@@ -193,7 +193,7 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
   return templateName;
 }
 
-export type ValidationResult = {
+type ValidationResult = {
   valid: boolean;
   diagnostics: readonly Diagnostic[];
 };

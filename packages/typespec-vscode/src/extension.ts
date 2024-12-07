@@ -39,31 +39,30 @@ export async function activate(context: ExtensionContext) {
     commands.registerCommand(
       CommandName.InstallGlobalCompilerCli,
       async (args: InstallGlobalCliCommandArgs | undefined) => {
-        if (args?.confirm) {
+        if (args?.confirm !== false) {
           const yes: QuickPickItem = {
-            label: "Install TypeSpec Compiler/Cli globally",
+            label: "Install TypeSpec Compiler/CLI globally",
             detail: "Minimum Requirements: 'Node.js 20 LTS' && 'npm avaliable in command prompt'",
             description: " by 'npm install -g @typespec/compiler'",
           };
           const no: QuickPickItem = { label: "Cancel" };
-          const title =
-            args.confirmTitle ?? "Do you want to install TypeSpec Compiler/Cli globally?";
+          const title = args?.confirmTitle ?? "Please check the requirements and confirm...";
           const confirm = await vscode.window.showQuickPick<QuickPickItem>([yes, no], {
             title,
-            placeHolder: args.confirmPlaceholder ?? title,
+            placeHolder: args?.confirmPlaceholder ?? title,
           });
           if (confirm !== yes) {
-            logger.info("User cancelled the installation of TypeSpec Compiler/Cli");
+            logger.info("User cancelled the installation of TypeSpec Compiler/CLI");
             return undefined;
           } else {
-            logger.info("User confirmed the installation of TypeSpec Compiler/Cli");
+            logger.info("User confirmed the installation of TypeSpec Compiler/CLI");
           }
         } else {
-          logger.info("Installing TypeSpec Compiler/Cli...");
+          logger.info("Installing TypeSpec Compiler/CLI with confirmation disabled explicitly...");
         }
         return await vscode.window.withProgress<TspLanguageClient | undefined>(
           {
-            title: "Installing TypeSpec Compiler/Cli...",
+            title: "Installing TypeSpec Compiler/CLI...",
             location: vscode.ProgressLocation.Notification,
             cancellable: true,
           },
@@ -91,13 +90,13 @@ export async function activate(context: ExtensionContext) {
               }
             } catch (e) {
               if (e === "cancelled") {
-                logger.info("Installation of TypeSpec Compiler/Cli is cancelled by user");
+                logger.info("Installation of TypeSpec Compiler/CLI is cancelled by user");
                 return undefined;
               } else if (e === "timeout") {
-                logger.error(`Installation of TypeSpec Compiler/Cli is timeout after ${TIMEOUT}ms`);
+                logger.error(`Installation of TypeSpec Compiler/CLI is timeout after ${TIMEOUT}ms`);
                 return undefined;
               } else {
-                logger.error("Unexpected error when installing TypeSpec Compiler/Cli", [e]);
+                logger.error("Unexpected error when installing TypeSpec Compiler/CLI", [e]);
                 return undefined;
               }
             }

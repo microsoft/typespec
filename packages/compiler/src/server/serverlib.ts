@@ -297,7 +297,7 @@ export function createServer(host: ServerHost): Server {
     log({ level: "info", message: "Initialization complete." });
   }
 
-  function getInitProjectContext(): InitProjectContext {
+  async function getInitProjectContext(): Promise<InitProjectContext> {
     return {
       coreInitTemplates: TypeSpecCoreTemplates,
     };

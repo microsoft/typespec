@@ -38,6 +38,7 @@ import {
 } from "vscode-languageserver";
 import { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
 import type { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../core/index.js";
+import { LoadedCoreTemplates } from "../init/core-templates.js";
 import { InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
 import { ScaffoldingConfig } from "../init/scaffold.js";
 
@@ -92,12 +93,12 @@ export interface Server {
   executeCommand(params: ExecuteCommandParams): Promise<void>;
   log(log: ServerLog): void;
 
-  // Following custom capacities are added for supporting tsp init project from IDE (vscode for now) so that we are still depending on compiler
-  // to do the real job while collecting the necessary information accordingly from the user in IDE.
+  // Following custom capacities are added for supporting tsp init project from IDE (vscode for now) so that IDE can trigger compiler
+  // to do the real job while collecting the necessary information accordingly from the user.
   // We can't do the tsp init experience by simple cli interface because the experience needs to talk
   // with the compiler for multiple times in different steps (i.e. get core templates, validate the selected template, scaffold the project)
   // and it's not a good idea to expose these capacity in cli interface and call cli again and again.
-  getInitProjectContext(): InitProjectContext;
+  getInitProjectContext(): Promise<InitProjectContext>;
   validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean>;
   initProject(param: { config: InitProjectConfig }): Promise<boolean>;
 }
@@ -165,7 +166,7 @@ export interface ServerInitializeResult extends InitializeResult {
 
 export interface InitProjectContext {
   /** provide the default templates current compiler/cli supports */
-  coreInitTemplates: { baseUri: string; templates: Record<string, InitProjectTemplate> };
+  coreInitTemplates: LoadedCoreTemplates;
 }
 
 export type InitProjectConfig = ScaffoldingConfig;
