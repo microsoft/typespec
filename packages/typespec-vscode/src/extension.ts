@@ -35,19 +35,27 @@ export async function activate(context: ExtensionContext) {
     commands.registerCommand(
       CommandName.RestartServer,
       async (args: RestartServerCommandArgs | undefined): Promise<TspLanguageClient> => {
-        if (args?.forceRecreate === true) {
-          logger.info("Forcing to recreate TypeSpec LSP server...");
-          return await recreateLSPClient(context, args?.popupRecreateLspError);
-        }
-        if (client && client.state === State.Running) {
-          await client.restart();
-          return client;
-        } else {
-          logger.info(
-            "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
-          );
-          return await recreateLSPClient(context, args?.popupRecreateLspError);
-        }
+        return vscode.window.withProgress(
+          {
+            title: "Restarting TypeSpec language service...",
+            location: vscode.ProgressLocation.Notification,
+          },
+          async () => {
+            if (args?.forceRecreate === true) {
+              logger.info("Forcing to recreate TypeSpec LSP server...");
+              return await recreateLSPClient(context, args?.popupRecreateLspError);
+            }
+            if (client && client.state === State.Running) {
+              await client.restart();
+              return client;
+            } else {
+              logger.info(
+                "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
+              );
+              return await recreateLSPClient(context, args?.popupRecreateLspError);
+            }
+          },
+        );
       },
     ),
   );
