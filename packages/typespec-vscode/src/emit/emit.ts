@@ -1,3 +1,4 @@
+// import { TypeSpecConfig } from "@typespec/compiler";
 import path, { dirname } from "path";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
@@ -26,15 +27,20 @@ export async function doEmit(
       },
       "Browse...",
     );
-    await new Promise((resolve) => {
+    tspProjectFolder = await new Promise((resolve) => {
       const inputBox = vscode.window.createInputBox();
       inputBox.title = "Choose TypeSpec Project Directory";
       inputBox.prompt = "Choose the TypeSpec project.";
+      inputBox.value = vscode.workspace.workspaceFolders
+        ? vscode.workspace.workspaceFolders[0].uri.fsPath
+        : "";
       inputBox.placeholder = vscode.workspace.workspaceFolders
         ? vscode.workspace.workspaceFolders[0].uri.fsPath
         : "TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp).";
       inputBox.buttons = [openDiaglogButton];
-
+      const validateInput = (text: string) => {
+        return text.trim() === "" ? "Please choose Typespec folder" : null;
+      };
       inputBox.onDidTriggerButton(async () => {
         const options = {
           canSelectMany: false,
@@ -43,16 +49,34 @@ export async function doEmit(
           canSelectFiles: false,
         };
         await vscode.window.showOpenDialog(options).then((uris) => {
-          tspProjectFolder = uris ? uris[0].fsPath : "";
-          inputBox.value = tspProjectFolder;
+          // tspProjectFolder = uris ? uris[0].fsPath : "";
+          // inputBox.value = tspProjectFolder;
+          inputBox.value = uris ? uris[0].fsPath : "";
+          inputBox.validationMessage = undefined;
         });
+      });
+
+      inputBox.onDidChangeValue(async (text) => {
+        const validate = validateInput(text);
+        if (validate !== null) {
+          inputBox.validationMessage = validate;
+        } else {
+          inputBox.validationMessage = undefined;
+        }
       });
 
       inputBox.onDidAccept(() => {
         const userInput = inputBox.value;
-        vscode.window.showInformationMessage(`You entered: ${userInput}`);
-        inputBox.hide();
-        resolve(userInput);
+        const validate = validateInput(userInput);
+        if (validate === null) {
+          resolve(userInput);
+          vscode.window.showInformationMessage(`You entered: ${userInput}`);
+        } else {
+          inputBox.validationMessage = validate;
+        }
+        // vscode.window.showInformationMessage(`You entered: ${userInput}`);
+        // inputBox.hide();
+        // resolve(userInput);
       });
       inputBox.ignoreFocusOut = true;
       inputBox.show();
@@ -127,6 +151,7 @@ export async function doEmit(
   }
 
   const configFile = path.resolve(baseDir, "tspconfig.yaml");
+  // let typespecConfig = undefined;
   if (!(await isFile(configFile))) {
     await vscode.window
       .showQuickPick(["Yes", "No"], {
@@ -138,7 +163,7 @@ export async function doEmit(
       .then(async (selection) => {
         if (selection === "Yes") {
           /* create tspconfig.yaml */
-          const yaml = `emitters:\n  - language: ${selectedEmitter.language}\n    package: ${selectedEmitter.package}\n    outputDir: client/${selectedEmitter.language}`;
+          const yaml = `options:\n  "${selectedEmitter.package}":\n    emitter-output-dir: client/${selectedEmitter.language}`;
           await vscode.workspace.fs.writeFile(
             vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
             Buffer.from(yaml),
@@ -154,15 +179,23 @@ export async function doEmit(
       });
   } else {
     /* check the emitter in the tspConfig.yaml */
-    const document = await vscode.workspace.openTextDocument(configFile);
-    document.getText();
+    // const document = await vscode.workspace.openTextDocument(configFile);
+    // const doc = parseDocument(document.getText(), {
+    //   prettyErrors: false, // We are handling the error display ourself to be consistent in the style.
+    // });
+    // typespecConfig = doc.toJSON();
   }
 
   /* config the output dir. */
+  // const optionsInConfig = typespecConfig?.options
+  //   ? typespecConfig?.options[`${selectedEmitter.package}`]
+  //   : undefined;
+  // const outputDirInConfig = optionsInConfig ? optionsInConfig["emitter-output-dir"] : undefined;
+  const outputDirInConfig = undefined;
   const outputDirInput = await vscode.window.showInputBox({
     title: `Configure output directory for ${selectedEmitter.language}`,
     placeHolder: `client/${selectedEmitter.language}`,
-    value: `client/${selectedEmitter.language}`,
+    value: outputDirInConfig ?? `client/${selectedEmitter.language}`,
     prompt: `Please provide the output directory for ${selectedEmitter.language} SDK`,
     validateInput: (text: string) => {
       return text.trim() === "" ? "Input cannot be empty" : null;
@@ -170,6 +203,16 @@ export async function doEmit(
     ignoreFocusOut: true,
   });
   selectedEmitter.outputDir = outputDirInput;
+  // if (optionsInConfig) {
+  //   optionsInConfig["emitter-output-dir"] = outputDirInput;
+  //   typespecConfig!.options![`${selectedEmitter.package}`] = optionsInConfig;
+  // }
+
+  /* save emitter config */
+  // await vscode.workspace.fs.writeFile(
+  //   vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
+  //   Buffer.from(stringify(typespecConfig)),
+  // );
 
   /* config the emitter in the tspConfig.yaml */
   await vscode.window
