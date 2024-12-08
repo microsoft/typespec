@@ -512,7 +512,7 @@ async function IsCompilerSupport(client: TspLanguageClient): Promise<boolean> {
     client.initializeResult?.customCapacities?.initProject !== true
   ) {
     logger.error(
-      `Create project feature is not supported by the current TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "< 0.62.0"}). Please upgrade TypeSpec Compiler and try again.`,
+      `Create project feature is not supported by the current TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "<= 0.62.0"}). Please upgrade TypeSpec Compiler and try again.`,
       [],
       {
         showOutput: true,
