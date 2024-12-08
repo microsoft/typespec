@@ -8,10 +8,15 @@ import { mkdir, readdir } from "fs/promises";
 import * as semver from "semver";
 import vscode, { OpenDialogOptions, QuickPickItem } from "vscode";
 import { State } from "vscode-languageclient";
-import logger from "./log/logger.js";
-import { getBaseFileName, getDirectoryPath, joinPaths } from "./path-utils.js";
-import { TspLanguageClient } from "./tsp-language-client.js";
-import { CommandName, InstallGlobalCliCommandArgs, SettingName } from "./types.js";
+import logger from "../log/logger.js";
+import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
+import { TspLanguageClient } from "../tsp-language-client.js";
+import {
+  CommandName,
+  InstallGlobalCliCommandArgs,
+  RestartServerCommandArgs,
+  SettingName,
+} from "../types.js";
 import {
   createPromiseWithCancelAndTimeout,
   ExecOutput,
@@ -19,7 +24,7 @@ import {
   isWhitespaceStringOrUndefined,
   tryParseJson,
   tryReadFileOrUrl,
-} from "./utils.js";
+} from "../utils.js";
 
 type InitTemplatesUrlSetting = {
   name: string;
@@ -644,17 +649,27 @@ async function createProjectFolder(selectedFolder: string): Promise<boolean> {
 }
 
 async function InstallCompilerAndRestartLSPClient(): Promise<TspLanguageClient | undefined> {
-  const options: InstallGlobalCliCommandArgs = {
+  const igcArgs: InstallGlobalCliCommandArgs = {
     confirm: true,
     confirmTitle: "Checking TypeSpec Compiler/CLI...",
     confirmPlaceholder:
       "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
-    forceRecreateLsp: false,
+  };
+  const result = await vscode.commands.executeCommand<boolean>(
+    CommandName.InstallGlobalCompilerCli,
+    igcArgs,
+  );
+  if (!result) {
+    return undefined;
+  }
+  logger.info("Try to restart lsp client after installing compiler.");
+  const rsArgs: RestartServerCommandArgs = {
+    forceRecreate: false,
     popupRecreateLspError: true,
   };
-  const client = await vscode.commands.executeCommand<TspLanguageClient | undefined>(
-    CommandName.InstallGlobalCompilerCli,
-    options,
+  const newClient = await vscode.commands.executeCommand<TspLanguageClient>(
+    CommandName.RestartServer,
+    rsArgs,
   );
-  return client;
+  return newClient;
 }

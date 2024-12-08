@@ -18,10 +18,12 @@ export interface InstallGlobalCliCommandArgs {
   confirm: boolean;
   confirmTitle?: string;
   confirmPlaceholder?: string;
+}
+
+export interface RestartServerCommandArgs {
   /**
-   * whether to recreate TspLanguageClient after installation succeeds anyway
-   * default: false, which means recreate only when TspLanguageClient is not running
+   * whether to recreate TspLanguageClient instead of just restarting it
    */
-  forceRecreateLsp: boolean;
+  forceRecreate: boolean;
   popupRecreateLspError: boolean;
 }
