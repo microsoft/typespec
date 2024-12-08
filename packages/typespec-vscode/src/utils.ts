@@ -129,12 +129,10 @@ export async function executeCommand(
       logger.error(`Error: ${error.message}`);
       errMessage += error.message;
       retcode = error.code ?? 0;
-      return;
     }
     if (stderr) {
       logger.error(`Stderr: ${stderr}`);
       errMessage += stderr;
-      return;
     }
     stdoutstr += stdout;
     logger.info(`Stdout: ${stdout}`);
