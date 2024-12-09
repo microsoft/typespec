@@ -1,7 +1,7 @@
 param (
   [Parameter(mandatory = $true)]
   $ArtifactPath,
-  $NpmDevopsFeedRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js@local/npm/registry/"
+  $NpmDevopsFeedRegistry = "https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js@Local/npm/registry/"
 )
 
 Set-StrictMode -Version 3
