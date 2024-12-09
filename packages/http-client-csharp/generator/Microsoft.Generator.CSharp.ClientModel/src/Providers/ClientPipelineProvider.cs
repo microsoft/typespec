@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
-using System.ClientModel;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -49,7 +50,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             // Scm library does not support token credentials yet. The throw here is intentional.
             // For a plugin that supports token credentials, they could override this implementation as well as the above TokenCredentialType property.
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public override ClientPipelineApi ToExpression() => this;
