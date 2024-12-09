@@ -83,7 +83,7 @@ namespace Microsoft.Generator.CSharp
         [return: NotNullIfNotNull(nameof(name))]
         public static string ToVariableName(this string name) => ToCleanName(name, isCamelCase: false);
 
-        public static GetPathPartsEnumerator GetPathParts(string? path) => new GetPathPartsEnumerator(path);
+        public static GetPathPartsEnumerator GetFormattableStringFormatParts(string? format) => new GetPathPartsEnumerator(format);
 
         public ref struct GetPathPartsEnumerator
         {
@@ -98,6 +98,34 @@ namespace Microsoft.Generator.CSharp
 
             public readonly GetPathPartsEnumerator GetEnumerator() => this;
 
+            private static int GetSeparatorIndex(ref ReadOnlySpan<char> span)
+            {
+                var separatorIndex = span.IndexOfAny('{', '}');
+                // when there is no separator
+                if (separatorIndex == -1)
+                {
+                    return -1;
+                }
+
+                //var separator = span[separatorIndex];
+                // we check if this separator is escaped
+                while (separatorIndex + 1 < span.Length && span[separatorIndex + 1] == span[separatorIndex])
+                {
+                    // we should skip this separator and get next
+                    // here +2 is skipping the current char on separatorIndex, and the char on separatorIndex + 1
+                    var nextSpan = span[(separatorIndex + 2)..];
+                    var nextIndex = nextSpan.IndexOfAny('{', '}');
+                    if (nextIndex == -1)
+                    {
+                        // we did not find the next separator
+                        return -1;
+                    }
+                    separatorIndex += nextIndex + 2;
+                }
+
+                return separatorIndex;
+            }
+
             public bool MoveNext()
             {
                 var span = _path;
@@ -106,7 +134,7 @@ namespace Microsoft.Generator.CSharp
                     return false;
                 }
 
-                var separatorIndex = span.IndexOfAny('{', '}');
+                var separatorIndex = GetSeparatorIndex(ref span);
 
                 if (separatorIndex == -1)
                 {
@@ -116,13 +144,6 @@ namespace Microsoft.Generator.CSharp
                 }
 
                 var separator = span[separatorIndex];
-                // Handle {{ and }} escape sequences
-                if (separatorIndex + 1 < span.Length && span[separatorIndex + 1] == separator)
-                {
-                    Current = new Part(span.Slice(0, separatorIndex + 1), true);
-                    _path = span.Slice(separatorIndex + 2);
-                    return true;
-                }
 
                 var isLiteral = separator == '{';
 

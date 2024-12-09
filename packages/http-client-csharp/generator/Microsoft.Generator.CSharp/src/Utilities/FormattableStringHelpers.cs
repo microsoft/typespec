@@ -106,7 +106,7 @@ namespace Microsoft.Generator.CSharp
             List<FormattableString> result = new List<FormattableString>();
             Span<Range> destination = stackalloc Range[fs.Format.Length];
 
-            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetPathParts(fs.Format))
+            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(fs.Format))
             {
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)

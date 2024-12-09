@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.Generator.CSharp.Input;
 using Moq;
 using NUnit.Framework;
@@ -128,6 +131,90 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
         {
             var name = apiVersion.ToApiVersionMemberName();
             Assert.AreEqual(expectedApiVersion, name);
+        }
+
+        [TestCaseSource(nameof(BuildFormattableStringFormatParts))]
+        public void ValidateGetFormattableStringFormatParts(string format, IReadOnlyList<Part> parts)
+        {
+            var i = 0;
+            foreach (var (span, isLiteral, index) in StringExtensions.GetFormattableStringFormatParts(format))
+            {
+                Assert.AreEqual(parts[i].Value, span.ToString());
+                Assert.AreEqual(parts[i].IsLiteral, isLiteral);
+                Assert.AreEqual(parts[i].ArgumentIndex, index);
+                i++;
+            }
+        }
+
+        public record Part(string Value, bool IsLiteral, int ArgumentIndex);
+
+        public static IEnumerable<TestCaseData> BuildFormattableStringFormatParts
+        {
+            get
+            {
+                // simple case with only arguments
+                yield return new TestCaseData("{0}{1}", new Part[]
+                {
+                    new Part("0", false, 0),
+                    new Part("1", false, 1)
+                });
+                // simple case with only literals
+                yield return new TestCaseData("something", new Part[]
+                {
+                    new Part("something", true, -1) // literals do not have an argument index
+                });
+                // mixed case with both arguments and literals
+                yield return new TestCaseData("something{0}else{1}", new Part[]
+                {
+                    new Part("something", true, -1),
+                    new Part("0", false, 0),
+                    new Part("else", true, -1),
+                    new Part("1", false, 1)
+                });
+                // when the format contains a { or } literal at its end
+                FormattableString fs = $"This {"fs"} has literal {{";
+                yield return new TestCaseData(fs.Format, new Part[]
+                {
+                    new Part("This ", true, -1),
+                    new Part("0", false, 0),
+                    new Part(" has literal {{", true, -1)
+                });
+                // when the format contains a { or } literal at its end
+                fs = $"This {"fs"} has literal }}";
+                yield return new TestCaseData(fs.Format, new Part[]
+                {
+                    new Part("This ", true, -1),
+                    new Part("0", false, 0),
+                    new Part(" has literal }}", true, -1)
+                });
+                // when the format contains a { or } literal in its middle
+                fs = $"This {"fs"} has literal }} and {"fs"}";
+                yield return new TestCaseData(fs.Format, new Part[]
+                {
+                    new Part("This ", true, -1),
+                    new Part("0", false, 0),
+                    new Part(" has literal }} and ", true, -1),
+                    new Part("1", false, 1)
+                });
+                // when the format contains both literal { and } in its middle
+                fs = $"This {"fs"} has literal {{ and }} in the middle";
+                yield return new TestCaseData(fs.Format, new Part[]
+                {
+                    new Part("This ", true, -1),
+                    new Part("0", false, 0),
+                    new Part(" has literal {{ and }} in the middle", true, -1)
+                });
+                // when the format contains both literal { and } in its middle but separated by an argument
+                fs = $"This {"fs"} has literal {{, {"fs"} and }} in the middle";
+                yield return new TestCaseData(fs.Format, new Part[]
+                {
+                    new Part("This ", true, -1),
+                    new Part("0", false, 0),
+                    new Part(" has literal {{, ", true, -1),
+                    new Part("1", false, 1),
+                    new Part(" and }} in the middle", true, -1)
+                });
+            }
         }
     }
 }
