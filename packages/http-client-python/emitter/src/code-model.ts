@@ -33,6 +33,7 @@ import {
   typesMap,
 } from "./types.js";
 import { emitParamBase, getImplementation, removeUnderscoresFromNamespace } from "./utils.js";
+import { on } from "events";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
@@ -250,6 +251,14 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   };
 }
 
+function onlyUsedByPolling(usage: UsageFlags): boolean {
+  return ((usage & UsageFlags.LroInitial) > 0 ||
+  (usage & UsageFlags.LroFinalEnvelope) > 0 ||
+  (usage & UsageFlags.LroPolling) > 0) &&
+(usage & UsageFlags.Input) === 0 &&
+(usage & UsageFlags.Output) === 0;
+}
+
 export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   sdkContext: PythonSdkContext<TServiceOperation>,
 ) {
@@ -269,9 +278,6 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   }
   // loop through models and enums since there may be some orphaned models needs to be generated
   for (const model of sdkPackage.models) {
-    if (isAzureCoreModel(model)) {
-      continue;
-    }
     // filter out spread models
     if (
       model.name === "" ||
@@ -283,11 +289,7 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
     }
     // filter out models only used for polling and or envelope result
     if (
-      ((model.usage & UsageFlags.LroInitial) > 0 ||
-        (model.usage & UsageFlags.LroFinalEnvelope) > 0 ||
-        (model.usage & UsageFlags.LroPolling) > 0) &&
-      (model.usage & UsageFlags.Input) === 0 &&
-      (model.usage & UsageFlags.Output) === 0
+      onlyUsedByPolling(model.usage)
     ) {
       continue;
     }
@@ -302,11 +304,11 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
     getType(sdkContext, model);
   }
   for (const sdkEnum of sdkPackage.enums) {
-    if (isAzureCoreModel(sdkEnum)) {
-      continue;
-    }
     // filter out api version enum since python do not generate it
     if (sdkEnum.usage === UsageFlags.ApiVersionEnum) {
+      continue;
+    }
+    if (onlyUsedByPolling(sdkEnum.usage)) {
       continue;
     }
     // filter out core enums
