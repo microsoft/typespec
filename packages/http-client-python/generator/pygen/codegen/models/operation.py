@@ -148,10 +148,10 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             retval = add_to_pylint_disable(retval, "name-too-long")
         return retval
 
-    def cls_type_annotation(self, *, async_mode: bool) -> str:
+    def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
         if self.request_builder.method.lower() == "head" and self.code_model.options["head_as_boolean"]:
             return "ClsType[None]"
-        return f"ClsType[{self.response_type_annotation(async_mode=async_mode)}]"
+        return f"ClsType[{self.response_type_annotation(async_mode=async_mode, **kwargs)}]"
 
     def _response_docstring_helper(self, attr_name: str, **kwargs: Any) -> str:
         responses_with_body = [r for r in self.responses if r.type]
@@ -213,7 +213,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
 
-        response_types = [r.type_annotation(async_mode=async_mode) for r in self.responses if r.type]
+        response_types = [r.type_annotation(async_mode=async_mode, **kwargs) for r in self.responses if r.type]
         if len(set(response_types)) > 1:
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
         if self.added_on:

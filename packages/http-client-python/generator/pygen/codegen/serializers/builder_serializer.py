@@ -238,7 +238,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
     def method_signature_and_response_type_annotation(
         self, builder: BuilderType, *, want_decorators: Optional[bool] = True
     ) -> str:
-        response_type_annotation = builder.response_type_annotation(async_mode=self.async_mode)
+        response_type_annotation = builder.response_type_annotation(async_mode=self.async_mode, serialize_namespace=self.serialize_namespace)
         method_signature = self._method_signature(builder)
         decorators = self.decorators(builder)
         decorators_str = ""
@@ -617,13 +617,13 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         for p in builder.parameters.parameters:
             if p.hide_in_operation_signature:
                 kwargs.append(f'{p.client_name} = kwargs.pop("{p.client_name}", None)')
-        cls_annotation = builder.cls_type_annotation(async_mode=self.async_mode)
+        cls_annotation = builder.cls_type_annotation(async_mode=self.async_mode, serialize_namespace=self.serialize_namespace)
         kwargs.append(f"cls: {cls_annotation} = kwargs.pop(\n    'cls', None\n)")
         return kwargs
 
     def response_docstring(self, builder: OperationType) -> List[str]:
         response_str = f":return: {builder.response_docstring_text(async_mode=self.async_mode)}"
-        rtype_str = f":rtype: {builder.response_docstring_type(async_mode=self.async_mode)}"
+        rtype_str = f":rtype: {builder.response_docstring_type(async_mode=self.async_mode, serialize_namespace=self.serialize_namespace)}"
         return [
             response_str,
             rtype_str,
@@ -959,7 +959,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         deserialize_func = "_deserialize_xml"
                     deserialize_code.append(f"deserialized = {deserialize_func}(")
                     deserialize_code.append(
-                        f"    {response.type.type_annotation(is_operation_file=True)},{pylint_disable}"
+                        f"    {response.type.type_annotation(is_operation_file=True, serialize_namespace=self.serialize_namespace)},{pylint_disable}"
                     )
                     deserialize_code.append(f"    response.{response_attr}(){response.result_property}{format_filed}")
                     deserialize_code.append(")")

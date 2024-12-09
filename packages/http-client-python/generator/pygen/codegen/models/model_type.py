@@ -290,7 +290,7 @@ class GeneratedModelType(ModelType):
         return retval if is_operation_file or skip_quote else f'"{retval}"'
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.namespace}.models.{self.type_annotation(need_model_alias=False, skip_quote=True)}"
+        return f"~{self.code_model.namespace}.models.{self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return self.name

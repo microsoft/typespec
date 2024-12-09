@@ -71,12 +71,11 @@ class _ModelSerializer(BaseSerializer, ABC):
             typing = "str"
         return f"self.{prop.client_name}: {typing}  = {discriminator_value}"
 
-    @staticmethod
-    def initialize_standard_property(prop: Property):
+    def initialize_standard_property(self, prop: Property):
         if not (prop.optional or prop.client_default_value is not None):
-            return f"{prop.client_name}: {prop.type_annotation()},{prop.pylint_disable()}"
+            return f"{prop.client_name}: {prop.type_annotation(serialize_namespace=self.serialize_namespace)},{prop.pylint_disable()}"
         return (
-            f"{prop.client_name}: {prop.type_annotation()} = "
+            f"{prop.client_name}: {prop.type_annotation(serialize_namespace=self.serialize_namespace)} = "
             f"{prop.client_default_value_declaration},{prop.pylint_disable()}"
         )
 
@@ -272,8 +271,7 @@ class DpgModelSerializer(_ModelSerializer):
             raise ValueError("We do not generate anonymous properties")
         return properties_to_declare
 
-    @staticmethod
-    def declare_property(prop: Property) -> str:
+    def declare_property(self, prop: Property) -> str:
         args = []
         if prop.client_name != prop.wire_name or prop.is_discriminator:
             args.append(f'name="{prop.wire_name}"')
@@ -297,7 +295,7 @@ class DpgModelSerializer(_ModelSerializer):
             if prop.is_discriminator and isinstance(prop.type, (ConstantType, EnumValue)) and prop.type.value
             else ""
         )
-        generated_code = f'{prop.client_name}: {prop.type_annotation()} = {field}({", ".join(args)})'
+        generated_code = f'{prop.client_name}: {prop.type_annotation(serialize_namespace=self.serialize_namespace)} = {field}({", ".join(args)})'
         # there is 4 spaces indentation so original line length limit 120 - 4 = 116
         pylint_disable = (
             " # pylint: disable=line-too-long"

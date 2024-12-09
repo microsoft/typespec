@@ -397,6 +397,7 @@ class Config(_ClientConfigBase[ConfigGlobalParameterList]):
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
         if self.code_model.options["package_version"]:
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+            x = self.code_model.get_relative_import_path(serialize_namespace, module_name="_version")
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace, module_name="_version"),
                 "VERSION",

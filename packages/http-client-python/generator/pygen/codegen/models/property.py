@@ -98,10 +98,10 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
     def xml_metadata(self) -> Optional[Dict[str, Union[str, bool]]]:
         return self.yaml_data.get("xmlMetadata")
 
-    def type_annotation(self, *, is_operation_file: bool = False) -> str:
+    def type_annotation(self, *, is_operation_file: bool = False, **kwargs: Any) -> str:
         if self.is_base_discriminator:
             return "str"
-        types_type_annotation = self.type.type_annotation(is_operation_file=is_operation_file)
+        types_type_annotation = self.type.type_annotation(is_operation_file=is_operation_file, **kwargs)
         if self.optional and self.client_default_value is None:
             return f"Optional[{types_type_annotation}]"
         return types_type_annotation

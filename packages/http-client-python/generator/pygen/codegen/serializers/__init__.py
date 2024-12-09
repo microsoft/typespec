@@ -304,6 +304,7 @@ class JinjaSerializer(ReaderAndWriter):
                     operation_groups=ogs,
                     env=env,
                     async_mode=async_mode,
+                    client_namespace=namespace,
                 )
                 self.write_file(
                     exec_path / Path(f"{prefix_path}/{filename}.py"),

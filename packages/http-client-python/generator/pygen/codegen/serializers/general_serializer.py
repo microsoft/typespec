@@ -62,6 +62,7 @@ class GeneralSerializer(BaseSerializer):
             code_model=self.code_model,
             clients=clients,
             async_mode=self.async_mode,
+            serialize_namespace=self.serialize_namespace,
         )
 
     def serialize_service_client_file(self, clients: List[Client]) -> str:
@@ -109,7 +110,7 @@ class GeneralSerializer(BaseSerializer):
             for client in clients:
                 if client.has_mixin:
                     file_import.add_submodule_import(
-                        "._configuration",
+                        self.code_model.get_relative_import_path(self.serialize_namespace, client.client_namespace, async_mode=self.async_mode, module_name="_configuration"),
                         f"{client.name}Configuration",
                         ImportType.LOCAL,
                     )
