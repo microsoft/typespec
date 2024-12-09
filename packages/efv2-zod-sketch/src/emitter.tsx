@@ -311,22 +311,22 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
 
 function ZodNumericConstraints(
   props: ZodTypeProps,
-  minOverride: number | undefined,
-  maxOverride: number | undefined,
+  minBasic: number | undefined,
+  maxBasic: number | undefined,
 ): string {
   const minValue = props.constrains.find((c) => c.kind === "MinValue")?.value;
   const maxValue = props.constrains.find((c) => c.kind === "MaxValue")?.value;
   const min: string =
-    minOverride !== undefined
-      ? `.min(${minOverride})`
-      : minValue !== undefined
-        ? `.min(${minValue})`
+    minValue !== undefined
+      ? `.min(${minValue})`
+      : minBasic !== undefined
+        ? `.min(${minBasic})`
         : "";
   const max: string =
-    maxOverride !== undefined
-      ? `.max(${maxOverride})`
-      : maxValue !== undefined
-        ? `.max(${maxValue})`
+    maxValue !== undefined
+      ? `.max(${maxValue})`
+      : maxBasic !== undefined
+        ? `.max(${maxBasic})`
         : "";
   const minmax = min + max;
   return minmax;
@@ -334,22 +334,22 @@ function ZodNumericConstraints(
 
 function ZodBigIntConstraints(
   props: ZodTypeProps,
-  minOverride: bigint | undefined,
-  maxOverride: bigint | undefined,
+  minBasic: bigint | undefined,
+  maxBasic: bigint | undefined,
 ): string {
   const minValue = props.constrains.find((c) => c.kind === "MinValue")?.value;
   const maxValue = props.constrains.find((c) => c.kind === "MaxValue")?.value;
   const min: string =
-    minOverride !== undefined
-      ? `.gte(${minOverride}n)`
-      : minValue !== undefined
-        ? `.gte(${minValue}n)`
+    minValue !== undefined
+      ? `.gte(${minValue}n)`
+      : minBasic !== undefined
+        ? `.gte(${minBasic}n)`
         : "";
   const max: string =
-    maxOverride !== undefined
-      ? `.lte(${maxOverride}n)`
-      : maxValue !== undefined
-        ? `.lte(${maxValue}n)`
+    maxValue !== undefined
+      ? `.lte(${maxValue}n)`
+      : maxBasic !== undefined
+        ? `.lte(${maxBasic}n)`
         : "";
   const minmax = min + max;
   return minmax;

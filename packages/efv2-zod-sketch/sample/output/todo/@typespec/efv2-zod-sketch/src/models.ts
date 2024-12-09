@@ -31,7 +31,7 @@ url1: z.string().url(),
 utcDateTime1: z.string().datetime(),
 numeric1: z.number(),
 string1: z.string(),
-int16_1: z.number().min(-32768).max(32767).min(-32768).max(32767),
+int16_1: z.number().min(-32768).max(32767).min(5).max(10),
 uint_1: z.number().nonnegative().min(42).max(255),
 float_1: z.number().max(10),
 validated: z.boolean()
@@ -85,13 +85,13 @@ message: z.string()
 
 export const standard4XxResponse = z.object(
 {
-statusCode: z.number().min(-2147483648).max(2147483647)
+statusCode: z.number().min(400).max(499)
 }
 );
 
 export const standard5XxResponse = z.object(
 {
-statusCode: z.number().min(-2147483648).max(2147483647)
+statusCode: z.number().min(500).max(599)
 }
 );
 
@@ -126,7 +126,7 @@ url1: z.string().url(),
 utcDateTime1: z.string().datetime(),
 numeric1: z.number(),
 string1: z.string(),
-int16_1: z.number().min(-32768).max(32767).min(-32768).max(32767),
+int16_1: z.number().min(-32768).max(32767).min(5).max(10),
 uint_1: z.number().nonnegative().min(42).max(255),
 float_1: z.number().max(10),
 validated: z.boolean(),
