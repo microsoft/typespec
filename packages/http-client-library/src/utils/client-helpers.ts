@@ -2,6 +2,7 @@ import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compile
 import { $ } from "@typespec/compiler/typekit";
 import { getAuthentication, getServers } from "@typespec/http";
 import { Client } from "../interfaces.js";
+import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
 /**
@@ -59,7 +60,9 @@ export function getCredentalParameter(client: Client): ModelProperty | undefined
   const schemes = getAuthentication($.program, client.service)?.options.flatMap((o) => o.schemes);
   if (!schemes) return;
   const credTypes: StringLiteral[] = schemes.map((scheme) => {
-    return $.literal.createString(scheme.type);
+    const schemeLiteral = $.literal.createString(scheme.type);
+    schemeLiteral[authSchemeSymbol] = scheme;
+    return schemeLiteral;
   });
   let credType: Type;
   if (credTypes.length === 1) {
@@ -68,10 +71,14 @@ export function getCredentalParameter(client: Client): ModelProperty | undefined
     const variants = credTypes.map((v) => $.unionVariant.create({ name: v.value, type: v }));
     credType = $.union.create({ variants });
   }
-  return $.modelProperty.create({
+  const credentialParameter = $.modelProperty.create({
     name: "credential",
     type: credType,
   });
+
+  credentialParameter[credentialSymbol] = true;
+
+  return credentialParameter;
 }
 
 export function getConstructors(client: Client): Operation[] {

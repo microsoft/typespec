@@ -1,4 +1,4 @@
-import { Namespace } from "@typespec/compiler";
+import { Interface, Namespace } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { ok } from "assert";
@@ -10,6 +10,60 @@ let runner: BasicTestRunner;
 
 beforeEach(async () => {
   runner = await createTypespecHttpClientLibraryTestRunner();
+});
+
+describe("getClient", () => {
+  it("should get the client", async () => {
+    const { DemoService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+
+    const client = $.client.getClient(DemoService);
+
+    expect(client.name).toEqual("DemoServiceClient");
+    expect(client.service).toEqual(DemoService);
+    expect(client.type).toEqual(DemoService);
+  });
+
+  it("should preserve client object identity", async () => {
+    const { DemoService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+
+    const client1 = $.client.getClient(DemoService);
+    const client2 = $.client.getClient(DemoService);
+    expect(client1).toBe(client2);
+  });
+
+  it("should get a flattened list of clients", async () => {
+    const { DemoService, BarBaz } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService {
+        @test namespace Foo {
+           @test namespace FooBaz {}
+        }
+
+        @test namespace Bar {
+           @test interface BarBaz {}
+        }
+      }
+      `)) as { DemoService: Namespace; BarBaz: Interface };
+
+    const client = $.client.getClient(DemoService);
+    const flatClients = $.client.flat(client);
+    const barBaz = $.client.getClient(BarBaz);
+    expect(flatClients).toHaveLength(5);
+    const barBazClient = flatClients.find((c) => c.type === barBaz.type);
+    expect(barBazClient).toBeDefined();
+  });
 });
 
 describe("getConstructor", () => {
@@ -53,6 +107,7 @@ describe("getConstructor", () => {
       ok($.literal.isString(credParam.type));
       expect(credParam.type.value).toEqual("apiKey");
     });
+
     it("bearer", async () => {
       const { DemoService } = (await runner.compile(`
         @service({

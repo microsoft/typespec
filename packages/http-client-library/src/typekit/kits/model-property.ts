@@ -1,7 +1,8 @@
 import { BaseType, ModelProperty, Value } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
-import { getAuthentication, HttpAuth } from "@typespec/http";
+import { HttpAuth } from "@typespec/http";
 import { Client } from "../../interfaces.js";
+import { authSchemeSymbol, credentialSymbol } from "../../types/credential-symbol.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
 
 export interface SdkCredential extends BaseType {
@@ -13,7 +14,7 @@ export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<M
   /**
    * Get credential information from the model property. Returns undefined if the credential parameter
    */
-  getCredentialAuth(client: Client, type: ModelProperty): HttpAuth[] | undefined;
+  getCredentialAuth(type: ModelProperty): HttpAuth[] | undefined;
 
   /**
    * Returns whether the property is a discriminator on the model it's on.
@@ -24,7 +25,7 @@ export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<M
    *
    * @param type: model property we are checking to see if is a credential parameter
    */
-  isCredential(client: Client, modelProperty: ModelProperty): boolean;
+  isCredential(modelProperty: ModelProperty): boolean;
 
   /**
    * Returns whether the model property is part of the client's initialization or not.
@@ -53,10 +54,8 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<TypeKit>({
   modelProperty: {
-    isCredential(client, modelProperty) {
-      return (
-        $.modelProperty.isOnClient(client, modelProperty) && modelProperty.name === "credential"
-      );
+    isCredential(modelProperty) {
+      return credentialSymbol in modelProperty && modelProperty[credentialSymbol] === true;
     },
     isOnClient(client, modelProperty) {
       const clientParams = $.operation.getClientSignature(client, $.client.getConstructor(client));
@@ -67,13 +66,28 @@ defineKit<TypeKit>({
       if (!$.modelProperty.isOnClient(client, modelProperty)) return undefined;
       return modelProperty.defaultValue;
     },
-    getCredentialAuth(client, type) {
-      if (!$.modelProperty.isCredential(client, type) || type.type.kind !== "String")
+    getCredentialAuth(type) {
+      if (!$.modelProperty.isCredential(type)) {
         return undefined;
-      const scheme = type.type.value;
-      return getAuthentication($.program, client.service)
-        ?.options.flatMap((o) => o.schemes)
-        .filter((s) => s.type === scheme);
+      }
+
+      if (type.type.kind === "Union") {
+        const schemes: HttpAuth[] = [];
+        for (const variant of type.type.variants.values()) {
+          if (authSchemeSymbol in variant.type && variant.type[authSchemeSymbol] !== undefined) {
+            const httpAuth = variant.type[authSchemeSymbol];
+            schemes.push(httpAuth);
+          }
+        }
+
+        return schemes;
+      }
+
+      if (authSchemeSymbol in type.type && type.type[authSchemeSymbol] !== undefined) {
+        return [type.type[authSchemeSymbol]];
+      }
+
+      return [];
     },
     isDiscriminator(type) {
       const sourceModel = type.model;

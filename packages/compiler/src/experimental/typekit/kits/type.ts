@@ -1,8 +1,13 @@
 import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils.js";
-import { Discriminator, getDiscriminator } from "../../../core/intrinsic-type-state.js";
+import {
+  Discriminator,
+  getDiscriminator,
+  getMaxValue,
+  getMinValue,
+} from "../../../core/intrinsic-type-state.js";
 import { isErrorType } from "../../../core/type-utils.js";
 import { Enum, Model, Scalar, Union, type Namespace, type Type } from "../../../core/types.js";
-import { getSummary, getDoc } from "../../../lib/decorators.js";
+import { getDoc, getSummary } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
 import { $, defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
@@ -60,6 +65,16 @@ export interface TypeKit {
    * @param type
    */
   getDiscriminator(type: Model | Union): Discriminator | undefined;
+  /**
+   * Gets the maximum value for a numeric or model property type.
+   * @param type type to get the maximum value for
+   */
+  maxValue(type: Type): number | undefined;
+  /**
+   * Gets the minimum value for a numeric or model property type.
+   * @param type type to get the minimum value for
+   */
+  minValue(type: Type): number | undefined;
 }
 
 interface BaseTypeKit {
@@ -188,6 +203,12 @@ defineKit<BaseTypeKit>({
         name: union.propertyName,
         variants,
       });
+    },
+    maxValue(type) {
+      return getMaxValue(this.program, type);
+    },
+    minValue(type) {
+      return getMinValue(this.program, type);
     },
   },
 });

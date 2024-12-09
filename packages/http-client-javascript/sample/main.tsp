@@ -198,8 +198,31 @@ namespace TodoItems {
     @query offset?: int32 = 0;
   }
 
+  model AttachmentPage {
+    /** The items in the page */
+    @pageItems
+    items: TodoAttachment[];
+
+    pagination: {
+      /** The number of items returned in this page */
+      pageSize: int32;
+
+      /** The total number of items */
+      totalSize: int32;
+
+      ...PaginationControls;
+
+      /** A link to the previous page, if it exists */
+      prevLink?: url;
+
+      /** A link to the next page, if it exists */
+      nextLink?: url;
+    };
+  }
+
   model TodoPage {
     /** The items in the page */
+    @pageItems
     items: TodoItem[];
 
     pagination: {
@@ -259,9 +282,7 @@ namespace TodoItems {
 
   @route("{itemId}/attachments")
   namespace Attachments {
-    @list op list(
-      @path itemId: TodoItem.id,
-    ): WithStandardErrors<TodoAttachment[] | NotFoundResponse>;
+    @list op list(@path itemId: TodoItem.id): WithStandardErrors<AttachmentPage | NotFoundResponse>;
 
     @sharedRoute
     @post
