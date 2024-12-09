@@ -35,6 +35,6 @@ installPythonDeps()
   .then(() => console.log("Successfully installed all required Python packages")) // eslint-disable-line no-console
   .catch((error) => console.error(`Installation failed: ${error.message}`)); // eslint-disable-line no-console
 
-installPyodideDeps()
-  .then(() => console.log("Successfully installed all required Python packages in Pyodide")) // eslint-disable-line no-console
-  .catch((error) => console.error(`Installation in Pyodide failed: ${error.message}`)); // eslint-disable-line no-console
+// installPyodideDeps()
+//   .then(() => console.log("Successfully installed all required Python packages in Pyodide")) // eslint-disable-line no-console
+//   .catch((error) => console.error(`Installation in Pyodide failed: ${error.message}`)); // eslint-disable-line no-console
