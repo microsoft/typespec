@@ -98,7 +98,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     throw new Error("Virtual environment doesn't exist.");
   }
   const resolvedOptions = sdkContext.emitContext.options;
-  const commandArgs: Record<string, string> = {}
+  const commandArgs: Record<string, string> = {};
   if (resolvedOptions["packaging-files-config"]) {
     const keyValuePairs = Object.entries(resolvedOptions["packaging-files-config"]).map(
       ([key, value]) => {
@@ -144,7 +144,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
           black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
     
         await main()`;
-        await pyodide.runPythonAsync(pythonCode, { globals });
+      await pyodide.runPythonAsync(pythonCode, { globals });
     } else {
       let venvPath = path.join(root, "venv");
       if (!fs.existsSync(venvPath)) {
@@ -160,25 +160,26 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       }
       commandArgs["output-folder"] = outputDir;
       commandArgs["cadl-file"] = yamlPath;
-      await exec(Object.entries(commandArgs).map(([key, value]) => `--${key} ${value}`).join(" "));
+      await exec(
+        Object.entries(commandArgs)
+          .map(([key, value]) => `--${key} ${value}`)
+          .join(" "),
+      );
     }
   }
 }
 
 async function setupPyodideCall(root: string, outputFolder: string) {
-  
   if (!fs.existsSync(outputFolder)) {
     fs.mkdirSync(outputFolder, { recursive: true });
   }
   const pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
   pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "." }, ".");
   await pyodide.loadPackage("setuptools");
-      await pyodide.loadPackage("tomli");
-      await pyodide.loadPackage("docutils");
-      await pyodide.loadPackage("micropip");
-      const micropip = pyodide.pyimport("micropip");
-      await micropip.install("emfs:generator/dist/pygen-0.1.0-py3-none-any.whl");
+  await pyodide.loadPackage("tomli");
+  await pyodide.loadPackage("docutils");
+  await pyodide.loadPackage("micropip");
+  const micropip = pyodide.pyimport("micropip");
+  await micropip.install("emfs:generator/dist/pygen-0.1.0-py3-none-any.whl");
   return pyodide;
-      
 }
-
