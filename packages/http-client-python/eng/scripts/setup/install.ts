@@ -3,8 +3,16 @@ import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { runPython3 } from "./run-python3.js";
 
-async function installPythonDeps() {
-  await runPython3("./eng/scripts/setup/install.py");
+async function main() {
+  try {
+    await runPython3("./eng/scripts/setup/install.py");
+    console.log("Found Python on your local environment and created a venv with all requirements."); // eslint-disable-line no-console
+  } catch (error) {
+    console.log("No Python found on your local environment. We will use Pyodide instead."); // eslint-disable-line no-console
+  } finally {
+    await installPyodideDeps();
+    console.log("Successfully installed all required Python packages in Pyodide"); // eslint-disable-line no-console
+  }
 }
 
 async function installPyodideDeps() {
@@ -27,10 +35,4 @@ async function installPyodideDeps() {
   ]);
 }
 
-installPythonDeps()
-  .then(() => console.log("Successfully installed all required Python packages")) // eslint-disable-line no-console
-  .catch((error) => console.log("No Python installation found. Skipping Python dependencies installation."));  // eslint-disable-line no-console
-
-installPyodideDeps()
-  .then(() => console.log("Successfully installed all required Python packages in Pyodide")) // eslint-disable-line no-console
-  .catch((error) => console.error(`Installation in Pyodide failed: ${error.message}`)); // eslint-disable-line no-console
+main();

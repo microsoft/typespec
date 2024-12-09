@@ -18,8 +18,3 @@ export async function runPython3(...args: string[]) {
     stdio: [0, 1, 2],
   });
 }
-
-runPython3(...process.argv.slice(2)).catch((err) => {
-  console.error(err.toString()); // eslint-disable-line no-console
-  process.exit(1);
-});
