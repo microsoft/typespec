@@ -4,6 +4,7 @@ import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "../log/logger.js";
 import { InstallationAction, NpmUtil } from "../npm-utils.js";
+import { toError, toOutput } from "../typespec-utils.js";
 import { ExecOutput, executeCommand, isFile, resolveTypeSpecCli } from "../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import { clientEmitters, Emitter } from "./emitter.js";
@@ -298,7 +299,10 @@ export async function doEmit(
       progress: overallProgress,
     });
     try {
-      const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall);
+      const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall, undefined, {
+        onStdioOut: toOutput,
+        onStdioError: toError,
+      });
       logger.info("completed install...");
       if (npmInstallResult.exitCode !== 0) {
         logger.error(`Error occurred when installing packages: ${npmInstallResult.stderr}`, [], {
@@ -309,7 +313,7 @@ export async function doEmit(
         return;
       }
     } catch (err) {
-      logger.error(`Error occurred when installing packages: ${err}`, [], {
+      logger.error(`Exception occurred when installing packages: ${err}`, [], {
         showOutput: true,
         showPopup: true,
         progress: overallProgress,
@@ -363,6 +367,13 @@ export async function doEmit(
       },
     );
   }
+
+  logger.info(`${compileResult.stdout}.`, [], {
+    showOutput: true,
+    showPopup: false,
+    progress: overallProgress,
+  });
+
   logger.info(`complete generating ${selectedEmitter.language} SDK.`, [], {
     showOutput: true,
     showPopup: true,

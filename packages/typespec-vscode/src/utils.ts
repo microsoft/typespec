@@ -2,7 +2,6 @@ import type { ModuleResolutionResult, ResolveModuleHost } from "@typespec/compil
 import { exec, spawn, SpawnOptions } from "child_process";
 import { readFile, realpath, stat } from "fs/promises";
 import path, { dirname, normalize, resolve } from "path";
-import { promisify } from "util";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 
@@ -113,10 +112,18 @@ export interface ExecOutput {
   spawnOptions: SpawnOptions;
 }
 
+export interface executionEvents {
+  onStdioOut?: (data: string) => void;
+  onStdioError?: (error: string) => void;
+  onError?: (error: any, stdout: string, stderr: string) => void;
+  onExit?: (code: number | null, stdout: string, stderror: string) => void;
+}
+
 export async function executeCommand(
   command: string,
   args: string[],
   options: any,
+  on?: executionEvents,
 ): Promise<ExecOutput> {
   let stdoutstr: string = "";
   let errMessage: string = "";
@@ -124,18 +131,58 @@ export async function executeCommand(
   if (args.length > 0) {
     command = `${command} ${args.join(" ")}`;
   }
-  exec(command, options, (error, stdout, stderr) => {
-    if (error) {
-      logger.error(`Error: ${error.message}`);
-      errMessage += error.message;
-      retcode = error.code ?? 0;
-    }
-    if (stderr) {
-      logger.error(`Stderr: ${stderr}`);
-      errMessage += stderr;
-    }
-    stdoutstr += stdout;
-    logger.info(`Stdout: ${stdout}`);
+  // exec(command, options, (error, stdout, stderr) => {
+  //   if (error) {
+  //     // logger.error(`Error: ${error.message}`);
+  //     errMessage += error.message;
+  //     retcode = error.code ?? 0;
+  //     if (on && on.onError) {
+  //       on.onError(error, stdout.toString(), stderr.toString());
+  //     }
+  //   }
+  //   if (stderr) {
+  //     // logger.error(`Stderr: ${stderr}`);
+  //     errMessage += stderr;
+  //     if (on && on.onStdioError) {
+  //       on.onStdioError(stderr.toString());
+  //     }
+  //   }
+  //   stdoutstr += stdout;
+  //   on?.onStdioOut?.(stdout.toString());
+  //   // logger.info(`Stdout: ${stdout}`);
+  // });
+
+  const child = exec(command, options);
+  child.stdout?.on("data", (data) => {
+    // logger.info(`Stdout: ${data}`);
+    stdoutstr += data.toString();
+    on?.onStdioOut?.(data.toString());
+  });
+
+  child.stderr?.on("data", (data) => {
+    errMessage += data.toString();
+    on?.onStdioError?.(data.toString());
+  });
+
+  if (on && on.onError) {
+    child.on("error", (error: any) => {
+      on.onError!(error, stdoutstr, errMessage);
+    });
+  }
+  if (on && on.onExit) {
+    child.on("exit", (code) => {
+      on.onExit!(code, stdoutstr, errMessage);
+    });
+  }
+
+  child.on("close", (code) => {
+    // logger.info(`Child process exited with code ${code}`);
+    retcode = code ?? 0;
+  });
+
+  child.on("exit", (code) => {
+    // logger.info(`Child process exited with code ${code}`);
+    retcode = code ?? 0;
   });
 
   return {
@@ -151,36 +198,84 @@ export async function promisifyExec(
   command: string,
   args: string[],
   options: any,
+  on?: executionEvents,
 ): Promise<ExecOutput> {
-  let stdoutstr: string = "";
-  let errMessage: string = "";
+  // let stdoutstr: string = "";
+  // let errMessage: string = "";
+  // let retcode = 0;
+  // if (args.length > 0) {
+  //   command = `${command} ${args.join(" ")}`;
+  // }
+
+  // const execPromise = promisify(exec);
+
+  // const { stdout, stderr } = await execPromise(command, options);
+  // if (stdout) {
+  //   stdoutstr += stdout;
+  //   on?.onStdioOut?.(stdout.toString());
+  // }
+  // if (stderr) {
+  //   errMessage += stderr;
+  //   // retcode = 1;
+  //   on?.onStdioError?.(stderr.toString());
+  // }
+  // logger.info(`Stdout: ${stdout}`);
+  // return {
+  //   stdout: stdoutstr,
+  //   stderr: errMessage,
+  //   exitCode: retcode,
+  //   error: errMessage,
+  //   spawnOptions: options,
+  // };
+
+  let stdout: string = "";
+  let stderr: string = "";
   let retcode = 0;
   if (args.length > 0) {
     command = `${command} ${args.join(" ")}`;
   }
-
-  const execPromise = promisify(exec);
-
-  const { stdout, stderr } = await execPromise(command, options);
-  if (stdout) stdoutstr += stdout;
-  if (stderr) {
-    errMessage += stderr;
-    retcode = 1;
-  }
-
-  return {
-    stdout: stdoutstr,
-    stderr: errMessage,
-    exitCode: retcode,
-    error: errMessage,
-    spawnOptions: options,
-  };
+  return await new Promise((resolve, reject) => {
+    const child = exec(command, options);
+    child.stdout?.on("data", (data) => {
+      // logger.info(`Stdout: ${data}`);
+      stdout += data.toString();
+      on?.onStdioOut?.(data.toString());
+    });
+    child.on("error", (error) => {
+      stderr += error.message;
+    });
+    child.stderr?.on("data", (data) => {
+      stderr += data.toString();
+      on?.onStdioError?.(data.toString());
+    });
+    child.on("close", (code) => {
+      retcode = code ?? 0;
+      resolve({
+        stdout: stdout,
+        stderr: stderr,
+        exitCode: retcode,
+        error: stderr,
+        spawnOptions: options,
+      });
+    });
+    child.on("exit", (code) => {
+      retcode = code ?? 0;
+      resolve({
+        stdout: stdout,
+        stderr: stderr,
+        exitCode: retcode,
+        error: stderr,
+        spawnOptions: options,
+      });
+    });
+  });
 }
 
 export async function spawnExecution(
   command: string,
   args: string[],
   options: any,
+  on?: executionEvents,
 ): Promise<ExecOutput> {
   let stdout = "";
   let stderr = "";
@@ -191,13 +286,31 @@ export async function spawnExecution(
   child.stdout.on("data", (data) => {
     // logger.info(`Stdout: ${data}`);
     stdout += data.toString();
+    on?.onStdioOut?.(data.toString());
   });
 
   child.stderr.on("data", (data) => {
     stderr += data.toString();
+    on?.onStdioError?.(data.toString());
   });
 
+  if (on && on.onError) {
+    child.on("error", (error: any) => {
+      on.onError!(error, stdout, stderr);
+    });
+  }
+  if (on && on.onExit) {
+    child.on("exit", (code) => {
+      on.onExit!(code, stdout, stderr);
+    });
+  }
+
   child.on("close", (code) => {
+    // logger.info(`Child process exited with code ${code}`);
+    retcode = code ?? 0;
+  });
+
+  child.on("exit", (code) => {
     // logger.info(`Child process exited with code ${code}`);
     retcode = code ?? 0;
   });
