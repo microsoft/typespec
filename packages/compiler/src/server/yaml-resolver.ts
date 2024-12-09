@@ -39,20 +39,31 @@ export interface YamlScalarTarget {
    *  The input quotes (double quotes or single quotes)
    */
   sourceType: string;
-  /**
-   * The parameters of the config file
-   */
-  parameters: string[];
-  /**
-   * The environment variables of the config file
-   */
-  envs: string[];
 }
 
-interface YamlVisitScalarNode {
+export interface YamlVisitScalarNode {
   key: number | "key" | "value" | null;
   n: Scalar<unknown>;
   path: readonly YamlNodePathSegment[];
+}
+
+export function getYamlDocScalarNode(document: TextDocument): YamlVisitScalarNode | undefined {
+  const content = document.getText();
+  const yamlDoc = parseDocument(content, {
+    keepSourceTokens: true,
+  });
+
+  let found = undefined;
+  visit(yamlDoc, {
+    Node: (key, n, path) => {
+      if (isScalar(n)) {
+        found = { key, n, path };
+        return visit.BREAK;
+      }
+      return undefined;
+    },
+  });
+  return found;
 }
 
 export function resolveYamlScalarTarget(
@@ -99,8 +110,6 @@ export function resolveYamlScalarTarget(
         source: "",
         sourceType: "",
         siblings: rootProperties,
-        parameters: [],
-        envs: [],
       };
     }
     for (let i = position.line - 1; i >= 0; i--) {
@@ -148,8 +157,6 @@ export function resolveYamlScalarTarget(
             source: "",
             sourceType: "",
             siblings: [...yp.siblings, yp.source],
-            parameters: yp.parameters,
-            envs: yp.envs,
           };
         }
         break;
@@ -194,8 +201,6 @@ export function resolveYamlScalarTarget(
             siblings: isMap(last.value)
               ? (last.value?.items.map((item) => (item.key as any).source ?? "") ?? [])
               : [],
-            parameters: yp.parameters,
-            envs: yp.envs,
           };
         }
         break;
@@ -230,34 +235,6 @@ function createYamlPathFromVisitScalarNode(
     return undefined;
   }
 
-  // fix params and environment variables if exists in the config file
-  const configParams: string[] = [];
-  const configEnvs: string[] = [];
-  for (let i = 0; i < nodePath.length; i++) {
-    const seg = nodePath[i];
-    if (isMap(seg)) {
-      const findItems = seg.items.filter(
-        (item) =>
-          (<any>item.key).source === "environment-variables" ||
-          (<any>item.key).source === "parameters",
-      );
-      findItems.forEach((item) => {
-        if (item.value !== null && isMap(item.value)) {
-          item.value.items.forEach((i) => {
-            if (isPair(i)) {
-              if ((item.key as any).source === "environment-variables") {
-                configEnvs.push((i.key as any).source ?? "");
-              } else if ((item.key as any).source === "parameters") {
-                configParams.push((i.key as any).source ?? "");
-              }
-            }
-          });
-        }
-      });
-      break;
-    }
-  }
-
   const path: string[] = [];
 
   for (let i = 0; i < nodePath.length; i++) {
@@ -288,8 +265,6 @@ function createYamlPathFromVisitScalarNode(
       source: n.source ?? "",
       sourceType: n.type ?? "",
       siblings: [],
-      parameters: configParams,
-      envs: configEnvs,
     };
   } else if (isPair(last)) {
     if (nodePath.length < 2) {
@@ -311,8 +286,6 @@ function createYamlPathFromVisitScalarNode(
         source: n.source ?? "",
         sourceType: n.type ?? "",
         siblings: [],
-        parameters: configParams,
-        envs: configEnvs,
       };
     } else {
       const parent = nodePath.length >= 2 ? nodePath[nodePath.length - 2] : undefined;
@@ -326,8 +299,6 @@ function createYamlPathFromVisitScalarNode(
         source: n.source ?? "",
         siblings: targetSiblings,
         sourceType: n.type ?? "",
-        parameters: configParams,
-        envs: configEnvs,
       };
     }
   } else if (isSeq(last)) {
@@ -339,8 +310,6 @@ function createYamlPathFromVisitScalarNode(
       siblings: last.items
         .filter((i) => i !== n)
         .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
-      parameters: configParams,
-      envs: configEnvs,
     };
   } else {
     log({

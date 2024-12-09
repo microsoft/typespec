@@ -7,6 +7,7 @@ import {
   Range,
   TextEdit,
 } from "vscode-languageserver/node.js";
+import { isMap, isPair } from "yaml";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
 import {
   getAnyExtensionFromPath,
@@ -24,7 +25,12 @@ import {
 import { distinctArray } from "../../utils/misc.js";
 import { FileService } from "../file-service.js";
 import { LibraryProvider } from "../lib-provider.js";
-import { resolveYamlScalarTarget, YamlScalarTarget } from "../yaml-resolver.js";
+import {
+  getYamlDocScalarNode,
+  resolveYamlScalarTarget,
+  YamlScalarTarget,
+  YamlVisitScalarNode,
+} from "../yaml-resolver.js";
 
 type ObjectJSONSchemaType = JSONSchemaType<object>;
 
@@ -43,6 +49,34 @@ export async function provideTspconfigCompletionItems(
   if (target === undefined) {
     return [];
   }
+
+  // Variable interpolation
+  const yamlDocNodes = getYamlDocScalarNode(tspConfigDoc);
+  if (yamlDocNodes === undefined) {
+    return [];
+  }
+
+  if (target.sourceType === "QUOTE_DOUBLE" && /{(env\.)?}|{[^{}]*}/g.test(target.source)) {
+    // environment-variables
+    if (/{env\.}(?!\S)|{env\.}/g.test(target.source)) {
+      // environment-variables
+      return getEnvsCompletionItem(yamlDocNodes);
+    } else {
+      // parameters and built-in variables
+      return [
+        ...getParametersCompletionItems(yamlDocNodes),
+        ...["cwd", "project-root"].map((value) => {
+          const item: CompletionItem = {
+            label: value,
+            kind: CompletionItemKind.Value,
+            documentation: "Built-in variables",
+          };
+          return item;
+        }),
+      ];
+    }
+  }
+
   const items = resolveTspConfigCompleteItems(
     await fileService.getPath(tspConfigDoc),
     target,
@@ -270,7 +304,7 @@ export async function provideTspconfigCompletionItems(
     schema: ObjectJSONSchemaType,
     target: YamlScalarTarget,
   ): CompletionItem[] {
-    const { path: nodePath, type: targetType, source, sourceType } = target;
+    const { path: nodePath, type: targetType } = target;
     // if the target is a key which means it's pointing to an object property, we should remove the last element of the path to get it's parent object for its schema
     const path = targetType === "key" ? nodePath.slice(0, -1) : nodePath;
     const foundSchemas = findSchemaByPath(schema, path, 0);
@@ -321,46 +355,6 @@ export async function provideTspconfigCompletionItems(
               return item;
             });
             result.push(...enums);
-          } else if (
-            cur.type === "string" &&
-            sourceType === "QUOTE_DOUBLE" &&
-            /{(env\.)?}|{[^{}]*}/g.test(source)
-          ) {
-            // Variable interpolation
-            // environment-variables
-            if (/{env\.}(?!\S)|{env\.}/g.test(source)) {
-              for (const env of target.envs) {
-                if (!nodePath.includes(env)) {
-                  result.push({
-                    label: env,
-                    kind: CompletionItemKind.Value,
-                    documentation: cur.description,
-                  });
-                }
-              }
-            } else {
-              // built-in variables
-              result.push(
-                ...["cwd", "project-root"].map((value) => {
-                  const item: CompletionItem = {
-                    label: value,
-                    kind: CompletionItemKind.Value,
-                    documentation: cur.description,
-                  };
-                  return item;
-                }),
-              );
-              // parameters
-              for (const param of target.parameters) {
-                if (!nodePath.includes(param)) {
-                  result.push({
-                    label: param,
-                    kind: CompletionItemKind.Value,
-                    documentation: cur.description,
-                  });
-                }
-              }
-            }
           }
         }
       });
@@ -500,4 +494,77 @@ function getCommonCompetionItem(
     documentation: description,
     textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
   };
+}
+
+/**
+ * Get the CompletionItem array of custom variables
+ * @param yamlDocNodes The contents of the YAML configuration file
+ * @returns  CompletionItem array of custom variables
+ */
+function getParametersCompletionItems(yamlDocNodes: YamlVisitScalarNode): CompletionItem[] {
+  const { path: yamlNode } = yamlDocNodes;
+  const configParams: string[] = [];
+  for (let i = 0; i < yamlNode.length; i++) {
+    const seg = yamlNode[i];
+    if (isMap(seg)) {
+      seg.items
+        .filter((item) => (<any>item.key).source === "parameters")
+        .map((item) => {
+          if (item.value !== null && isMap(item.value)) {
+            item.value.items.forEach((i) => {
+              if (isPair(i) && (item.key as any).source === "parameters") {
+                configParams.push((i.key as any).source ?? "");
+              }
+            });
+          }
+        });
+      break;
+    }
+  }
+  const result: CompletionItem[] = [];
+  configParams.map((param) => {
+    result.push({
+      label: param,
+      kind: CompletionItemKind.Value,
+      documentation: "Custom paramters variables",
+    });
+  });
+  return result;
+}
+
+/**
+ * Get the CompletionItem array of custom environment variables
+ * @param yamlDocNodes The contents of the YAML configuration file
+ * @returns  CompletionItem array of custom environment variables
+ */
+function getEnvsCompletionItem(yamlDocNodes: YamlVisitScalarNode): CompletionItem[] {
+  const { path: yamlNode } = yamlDocNodes;
+  const configEnvs: string[] = [];
+  for (let i = 0; i < yamlNode.length; i++) {
+    const seg = yamlNode[i];
+    if (isMap(seg)) {
+      seg.items
+        .filter((item) => (<any>item.key).source === "environment-variables")
+        .map((item) => {
+          if (item.value !== null && isMap(item.value)) {
+            item.value.items.forEach((i) => {
+              if (isPair(i) && (item.key as any).source === "environment-variables") {
+                configEnvs.push((i.key as any).source ?? "");
+              }
+            });
+          }
+        });
+      break;
+    }
+  }
+
+  const result: CompletionItem[] = [];
+  configEnvs.map((envLabel) => {
+    result.push({
+      label: envLabel,
+      kind: CompletionItemKind.Value,
+      documentation: "Custom environment variables",
+    });
+  });
+  return result;
 }
