@@ -122,7 +122,7 @@ public class EclipseLanguageServerFacade {
 
         if (!Files.exists(languageServer) || forceReDownload) {
             Files.createDirectories(languageServer);
-            Path zipPath = languageServer.getParent().resolve("jdt-language-server.tar.gz");
+            Path zipPath = languageServerPath.resolve("jdt-language-server.tar.gz");
             Files.deleteIfExists(zipPath);
 
             logger.info("Downloading Eclipse JDT language server from {} to {}", downloadUrl, zipPath);
