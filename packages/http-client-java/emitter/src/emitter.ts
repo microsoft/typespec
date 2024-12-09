@@ -3,7 +3,6 @@ import {
   EmitContext,
   getNormalizedAbsolutePath,
   JSONSchemaType,
-  NoTarget,
   resolvePath,
 } from "@typespec/compiler";
 import { spawn } from "child_process";
@@ -227,15 +226,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       // program.trace("http-client-java", output.stdout ? output.stdout : output.stderr);
     } catch (error: any) {
       if (error && "code" in error && error["code"] === "ENOENT") {
-        const msg = "'java' is not on PATH. Please install JDK 11 or above.";
-        program.trace("http-client-java", msg);
-        program.reportDiagnostic({
-          code: "http-client-java",
-          severity: "error",
-          message: msg,
-          target: NoTarget,
-        });
-        logError(program, msg);
+        logError(program, "'java' is not on PATH. Please install JDK 11 or above.");
       } else {
         logError(program, error.message);
       }
