@@ -20,17 +20,20 @@ export class CSharpType implements CSharpTypeMetadata {
   namespace: string;
   isBuiltIn: boolean;
   isValueType: boolean;
+  isNullable: boolean;
 
   public constructor(input: {
     name: string;
     namespace: string;
     isBuiltIn?: boolean;
     isValueType?: boolean;
+    isNullable?: boolean;
   }) {
     this.name = input.name;
     this.namespace = input.namespace;
     this.isBuiltIn = input.isBuiltIn !== undefined ? input.isBuiltIn : input.namespace === "System";
     this.isValueType = input.isValueType !== undefined ? input.isValueType : false;
+    this.isNullable = input.isNullable !== undefined ? input.isNullable : false;
   }
 
   isNamespaceInScope(scope?: Scope<string>, visited?: Set<Scope<string>>): boolean {

@@ -32,10 +32,6 @@ foreach ($directory in $directories) {
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
-
-    if ($subPath.Contains($(Join-Path 'srv-driven' 'v1'))) {
-        continue
-    }
     
     $testPath = "$cadlRanchRoot.Tests"
     $testFilter = "TestProjects.CadlRanch.Tests"
@@ -67,19 +63,19 @@ foreach ($directory in $directories) {
             Generate-Versioning ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
         }
     }
+    elseif ($subPath.Contains("srv-driven")) {
+        if ($subPath.Contains("v1")) {
+            Generate-Srv-Driven ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
+    }
     else {
         $command = Get-TspCommand $specFile $outputDir
         Invoke $command
     }
-    
+
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
-    }
-
-    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
-    if ($subPath.Contains("srv-driven")) {
-        Generate-Srv-Driven $(Join-Path $specsDirectory $subPath) $outputDir -createOutputDirIfNotExist $false
     }
 
     Write-Host "Testing $subPath" -ForegroundColor Cyan
