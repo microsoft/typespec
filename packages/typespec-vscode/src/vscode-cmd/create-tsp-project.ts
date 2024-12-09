@@ -4,7 +4,7 @@ import type {
   InitProjectTemplateLibrarySpec,
 } from "@typespec/compiler";
 import { TIMEOUT } from "dns";
-import { mkdir, readdir } from "fs/promises";
+import { readdir } from "fs/promises";
 import * as semver from "semver";
 import vscode, { OpenDialogOptions, QuickPickItem } from "vscode";
 import { State } from "vscode-languageclient";
@@ -57,11 +57,18 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
       title: "Creating TypeSpec Project...",
     },
     async () => {
-      const selectedContainerFolder = await selectProjectContainerFolder();
-      if (!selectedContainerFolder) {
-        logger.info("Creating TypeSpec Project cancelled when selecting project folder.");
+      const selectedRootFolder = await selectProjectRootFolder();
+      if (!selectedRootFolder) {
+        logger.info("Creating TypeSpec Project cancelled when selecting project root folder.");
         return;
       }
+      if (!(await checkProjectRootFolderEmpty(selectedRootFolder))) {
+        logger.info(
+          "Creating TypeSpec Project cancelled when checking whether the project root folder is empty.",
+        );
+        return;
+      }
+      const folderName = getBaseFileName(selectedRootFolder);
 
       if (!client || client.state !== State.Running) {
         const r = await InstallCompilerAndRestartLSPClient();
@@ -107,8 +114,7 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
 
       const projectName = await vscode.window.showInputBox({
         prompt: "Please input the project name",
-        placeHolder:
-          "Project Name (A folder with the same name will be created under the selected container folder)",
+        value: folderName,
         ignoreFocusOut: true,
         validateInput: (value) => {
           if (isWhitespaceStringOrUndefined(value)) {
@@ -130,17 +136,10 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         return;
       }
 
-      const selectedFolder = joinPaths(selectedContainerFolder, projectName);
-      if (!(await createProjectFolder(selectedFolder))) {
-        logger.info("Creating TypeSpec Project cancelled when creating project folder.");
-        return;
-      }
-      const folderName = getBaseFileName(selectedFolder);
-
       const includeGitignoreResult = await vscode.window.showQuickPick(["Yes", "No"], {
-        title: "Include .gitignore file?",
+        title: "Do you want to generate a .gitignore file",
         canPickMany: false,
-        placeHolder: "Include .gitignore file?",
+        placeHolder: "Do you want to generate a .gitignore file",
         ignoreFocusOut: true,
       });
       if (includeGitignoreResult === undefined) {
@@ -165,7 +164,7 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
 
       const initTemplateConfig: InitProjectConfig = {
         template: info.template!,
-        directory: selectedFolder,
+        directory: selectedRootFolder,
         folderName: folderName,
         baseUri: info.baseUrl,
         name: projectName!,
@@ -182,14 +181,14 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         return;
       }
 
-      const packageJsonPath = joinPaths(selectedFolder, "package.json");
+      const packageJsonPath = joinPaths(selectedRootFolder, "package.json");
       if (!(await isFile(packageJsonPath))) {
         logger.warning("Skip tsp install since no package.json is found in the project folder.");
       } else {
         // just ignore the result from tsp install. We will open the project folder anyway.
-        await tspInstall(client, selectedFolder);
+        await tspInstall(client, selectedRootFolder);
       }
-      vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(selectedFolder), {
+      vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(selectedRootFolder), {
         forceNewWindow: false,
         forceReuseWindow: true,
         noRecentEntry: false,
@@ -471,8 +470,8 @@ async function selectTemplate(
   quickPickup.items = templatePickupItems;
   quickPickup.canSelectMany = false;
   quickPickup.ignoreFocusOut = true;
-  quickPickup.title = "Please select a template to create project";
-  quickPickup.placeholder = "Please select a template to create project";
+  quickPickup.title = "Please select a template";
+  quickPickup.placeholder = "Please select a template";
   const gotoConfigSettings = () => {
     logger.info("User select to open settings to configure TypeSpec Project Templates");
     quickPickup.hide();
@@ -594,14 +593,14 @@ async function loadInitTemplates(
   return templateInfoMap;
 }
 
-async function selectProjectContainerFolder(): Promise<string | undefined> {
-  logger.info("Selecting project container folder...");
+async function selectProjectRootFolder(): Promise<string | undefined> {
+  logger.info("Selecting project root folder...");
   const folderOptions: OpenDialogOptions = {
     canSelectMany: false,
     openLabel: "Select Folder",
     canSelectFolders: true,
     canSelectFiles: false,
-    title: "Select project container folder",
+    title: "Select project root folder",
   };
 
   const folderUri = await vscode.window.showOpenDialog(folderOptions);
@@ -609,21 +608,11 @@ async function selectProjectContainerFolder(): Promise<string | undefined> {
     return undefined;
   }
   const selectedFolder = folderUri[0].fsPath;
-  logger.info(`Selected container folder: ${selectedFolder}`);
+  logger.info(`Selected root folder: ${selectedFolder}`);
   return selectedFolder;
 }
 
-async function createProjectFolder(selectedFolder: string): Promise<boolean> {
-  try {
-    await mkdir(selectedFolder, { recursive: true });
-  } catch (e) {
-    // use try-catch just in case, no exception is expected because mkdir with recursive is used
-    logger.error(`Error when creating project folder: ${selectedFolder}`, [e], {
-      showOutput: true,
-      showPopup: true,
-    });
-    return false;
-  }
+async function checkProjectRootFolderEmpty(selectedFolder: string): Promise<boolean> {
   try {
     const files = await readdir(selectedFolder);
     if (files.length > 0) {
@@ -631,7 +620,7 @@ async function createProjectFolder(selectedFolder: string): Promise<boolean> {
         canPickMany: false,
         placeHolder: "The folder to create project is not empty. Do you want to continue?",
         ignoreFocusOut: true,
-        title: "Project folder is not empty",
+        title: "Project root folder is not empty",
       });
       if (cont !== "Yes") {
         logger.info("Selected folder is not empty and user confirmed not to continue.");

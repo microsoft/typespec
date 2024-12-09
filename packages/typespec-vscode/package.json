@@ -40,7 +40,7 @@
     "viewsWelcome": [
       {
         "view": "explorer",
-        "contents": "You may [open a folder](command:vscode.openFolder) of existing TypeSpec project; or create a new TypeSpec project in VS Code.\n[Create TypeSpec Project](command:typespec.createProject)\n[Guide](https://typespec.io/docs/) to install TypeSpec.",
+        "contents": "You may [open a folder](command:vscode.openFolder) of an existing TypeSpec project; or create a new TypeSpec project in VS Code.\n[Create TypeSpec Project](command:typespec.createProject)\nTo manually create a  TypeSpec project, follow [this guide](https://typespec.io/docs/).",
         "when": "!workspaceFolderCount"
       }
     ],
