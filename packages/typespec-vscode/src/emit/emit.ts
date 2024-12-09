@@ -5,7 +5,7 @@ import { Executable } from "vscode-languageclient/node.js";
 import logger from "../log/logger.js";
 import { InstallationAction, NpmUtil } from "../npm-utils.js";
 import { getMainTspFile, resolveTypeSpecCli, toError, toOutput } from "../typespec-utils.js";
-import { ExecOutput, executeCommand, isFile, promisifyExec } from "../utils.js";
+import { ExecOutput, isFile, promisifySpawn } from "../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import { clientEmitters, Emitter } from "./emitter.js";
 export async function doEmit(
@@ -403,7 +403,7 @@ export async function compile(
     args.push("--option", `${emitter}.${key}=${value}`);
   }
 
-  return await promisifyExec(
+  return await promisifySpawn(
     cli.command,
     args,
     {
@@ -429,7 +429,7 @@ export async function check(startFile: string): Promise<{
   args.push("compile");
   args.push(startFile);
   args.push("--no-emit");
-  await executeCommand(cli.command, args, {
+  await promisifySpawn(cli.command, args, {
     cwd: dirname(startFile),
   });
   logger.info(`complete runtime check.`);
