@@ -11,7 +11,7 @@
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
     "test": "vitest run",
-    "build-todo": "tsp compile sample/main.tsp --emit @typespec/efv2-zod-sketch --output-dir sample/output/todo && babel sample/output/todo -d dist/sample/output/todo --extensions '.ts,.tsx' && npx prettier sample/output --write",
+    "build-todo": "tsp compile sample/main.tsp --emit @typespec/efv2-zod-sketch --output-dir sample/output/todo && babel sample/output/todo -d dist/sample/output/todo --extensions '.ts,.tsx' && npx prettier sample/output --write && npm install --prefix sample/output/todo/@typespec/efv2-zod-sketch",
     "build-petstore": "tsp compile ../samples/specs/petstore/petstore.tsp --emit @typespec/efv2-zod-sketch --output-dir sample/output/petstore && babel sample/output/petstore -d dist/sample/output/petstore --extensions '.ts,.tsx' && npx prettier sample/output --write",
     "format": "prettier . --write"
   },

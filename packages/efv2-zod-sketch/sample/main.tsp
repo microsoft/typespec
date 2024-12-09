@@ -36,6 +36,12 @@ model User {
   @visibility("create")
   password: string;
 
+  /** The user's account created date */
+  accountCreated: utcDateTime;
+
+  /** test this */
+  floaty: float32;
+
   /** Whether the user is validated. Never visible to the API. */
   @visibility("none") validated: boolean;
 }
