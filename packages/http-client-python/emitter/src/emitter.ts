@@ -10,11 +10,11 @@ import fs from "fs";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
+import { runPython3 } from "../../eng/scripts/setup/run-python3.js";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
-import { runPython3 } from "../../eng/scripts/setup/run-python3.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
