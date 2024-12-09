@@ -3,5 +3,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../eng/scripts/setup/*"]
 }
