@@ -9,7 +9,7 @@
 import cp from "child_process";
 import { patchPythonPath } from "./system-requirements.js";
 
-async function runPython3(...args: string[]) {
+export async function runPython3(...args: string[]) {
   const command = await patchPythonPath(["python", ...args], {
     version: ">=3.8",
     environmentVariable: "AUTOREST_PYTHON_EXE",
