@@ -75,7 +75,8 @@ public class EclipseLanguageServerFacade {
             Process server = startServer(command, languageServerPath, logger);
             server.waitFor(1, TimeUnit.SECONDS);
             if (!server.isAlive() && pathToLanguageServerPlugin == null) {
-                logger.warn("Eclipse language server did not start correctly. The folder may be corrupted. Try re-download.");
+                logger.warn(
+                    "Eclipse language server did not start correctly. The folder may be corrupted. Try re-download.");
                 server = startServer(command, getLanguageServerDirectory(javaVersion, logger, true), logger);
             }
             this.server = server;
