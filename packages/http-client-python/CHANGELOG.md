@@ -1,6 +1,6 @@
 # Change Log - @typespec/http-client-python
 
-## 0.3.13
+## 0.3.XX
 
 ### Bug Fixes
 
