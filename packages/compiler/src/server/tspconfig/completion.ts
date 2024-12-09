@@ -15,7 +15,12 @@ import {
   getRelativePathFromDirectory,
   joinPaths,
 } from "../../core/path-utils.js";
-import { JSONSchemaType, ServerLog } from "../../index.js";
+import {
+  DiagnosticMessages,
+  JSONSchemaType,
+  LinterRuleDefinition,
+  ServerLog,
+} from "../../index.js";
 import { distinctArray } from "../../utils/misc.js";
 import { FileService } from "../file-service.js";
 import { LibraryProvider } from "../lib-provider.js";
@@ -66,20 +71,19 @@ export async function provideTspconfigCompletionItems(
         nodePath[0] === "emit" &&
         targetType === "arr-item")
     ) {
-      const libs = await emitterProvider.listLibraries(tspConfigFile);
+      const emitters = await emitterProvider.listLibraries(tspConfigFile);
       const items: CompletionItem[] = [];
-      for (const [name, pkg] of Object.entries(libs)) {
+      for (const [name, pkg] of Object.entries(emitters)) {
         if (!siblings.includes(name)) {
-          // Generate new text
-          const newText = getNewTextValue(sourceType, name);
-
-          const item: CompletionItem = {
-            label: name,
-            kind: CompletionItemKind.Field,
-            documentation: (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
-            textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
-          };
-          items.push(item);
+          items.push(
+            getCommonCompetionItem(
+              name,
+              sourceType,
+              source,
+              (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
+              tspConfigPosition,
+            ),
+          );
         }
       }
       return items;
@@ -109,51 +113,70 @@ export async function provideTspconfigCompletionItems(
       }
       return [...itemsFromBuiltIn, ...itemsFromEmitter];
     } else if (nodePath.length > CONFIG_PATH_LENGTH_FOR_LINTER_LIST && nodePath[0] === "linter") {
-      const linterName = nodePath[CONFIG_PATH_LENGTH_FOR_LINTER_LIST - 1];
+      const extendKeyWord = nodePath[CONFIG_PATH_LENGTH_FOR_LINTER_LIST - 1];
       const items: CompletionItem[] = [];
       const linters = await linterProvider.listLibraries(tspConfigFile);
 
-      for (const [name, pkg] of Object.entries(linters)) {
-        if (linterName === "extends") {
+      if (extendKeyWord === "extends") {
+        for (const [name, pkg] of Object.entries(linters)) {
           // If a ruleSet exists for the linter, add it to the end of the library name.
           const exports = await pkg.getModuleExports();
-          let additionalContent: string = "";
           if (exports?.$linter?.ruleSets !== undefined) {
-            additionalContent = Object.keys(exports?.$linter?.ruleSets)[0];
-          }
+            // Below ruleSets are objects rather than arrays
+            for (const [ruleSet] of Object.entries(exports?.$linter?.ruleSets)) {
+              const labelName = `${name}/${ruleSet}`;
+              if (siblings.includes(labelName)) {
+                continue;
+              }
 
-          const labelName = additionalContent.length === 0 ? name : `${name}/${additionalContent}`;
-          if (siblings.includes(labelName)) {
+              items.push(
+                getCommonCompetionItem(
+                  labelName,
+                  sourceType,
+                  source,
+                  (await pkg.getPackageJsonData())?.description ?? `Linters from ${labelName}`,
+                  tspConfigPosition,
+                ),
+              );
+            }
             continue;
           }
 
-          const newText = getNewTextValue(sourceType, labelName);
-          const item: CompletionItem = {
-            label: labelName,
-            kind: CompletionItemKind.Field,
-            documentation: (await pkg.getPackageJsonData())?.description ?? `Linters from ${name}`,
-            textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
-          };
-          items.push(item);
-        } else {
-          // enable/disable rules
-          const linter = await linterProvider.getLibrary(tspConfigFile, name);
-          if (!linter) {
-            return [];
+          // If there is no corresponding ruleSet in the library, add the library name directly.
+          if (siblings.includes(name)) {
+            continue;
           }
 
-          const exports = await linter.getModuleExports();
+          items.push(
+            getCommonCompetionItem(
+              name,
+              sourceType,
+              source,
+              (await pkg.getPackageJsonData())?.description ?? `Linters from ${name}`,
+              tspConfigPosition,
+            ),
+          );
+        }
+      } else {
+        // enable/disable rules
+        for (const [name, pkg] of Object.entries(linters)) {
+          const exports = await pkg.getModuleExports();
 
           if (exports?.$linter?.rules !== undefined) {
-            const more = resolveCompleteItems(
+            for (const [, rule] of Object.entries<LinterRuleDefinition<string, DiagnosticMessages>>(
               exports?.$linter?.rules,
-              {
-                ...target,
-                path: nodePath.slice(CONFIG_PATH_LENGTH_FOR_LINTER_LIST),
-              },
-              name,
-            );
-            items.push(...more);
+            )) {
+              const labelName = `${name}/${rule.name}`;
+              items.push(
+                getCommonCompetionItem(
+                  labelName,
+                  sourceType,
+                  source,
+                  rule.description,
+                  tspConfigPosition,
+                ),
+              );
+            }
           }
         }
       }
@@ -165,17 +188,13 @@ export async function provideTspconfigCompletionItems(
       const configFile = getBaseFileName(tspConfigFile);
 
       const relativeFiles = findFilesWithSameExtension(newFolderPath, extName, log, configFile);
-
-      const schema = TypeSpecConfigJsonSchema;
-      return schema ? resolveCompleteItems(schema, target, "", relativeFiles) : [];
+      return getFilePathCompletionItems(relativeFiles, siblings);
     } else if (nodePath.length >= CONFIG_PATH_LENGTH_FOR_IMPORTS && nodePath[0] === "imports") {
       const currentFolder = getDirectoryPath(tspConfigFile);
       const newFolderPath = joinPaths(currentFolder, source);
 
       const relativeFiles = findFilesWithSameExtension(newFolderPath, ".tsp", log);
-
-      const schema = TypeSpecConfigJsonSchema;
-      return schema ? resolveCompleteItems(schema, target, "", relativeFiles) : [];
+      return getFilePathCompletionItems(relativeFiles, siblings);
     } else {
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target) : [];
@@ -250,8 +269,6 @@ export async function provideTspconfigCompletionItems(
   function resolveCompleteItems(
     schema: ObjectJSONSchemaType,
     target: YamlScalarTarget,
-    libName: string = "",
-    relativeFiles: string[] = [],
   ): CompletionItem[] {
     const { path: nodePath, type: targetType, source, sourceType } = target;
     // if the target is a key which means it's pointing to an object property, we should remove the last element of the path to get it's parent object for its schema
@@ -279,21 +296,6 @@ export async function provideTspconfigCompletionItems(
                 return item;
               });
             result.push(...props);
-          } else if (cur.type === undefined) {
-            // lint rule
-            if (libName !== "") {
-              for (const key of Object.keys(cur ?? {})) {
-                const labelName = `${libName}/${cur[key].name}`;
-                const newText = getNewTextValue(sourceType, labelName);
-                const item: CompletionItem = {
-                  label: labelName,
-                  kind: CompletionItemKind.Field,
-                  documentation: cur[key].description,
-                  textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
-                };
-                result.push(item);
-              }
-            }
           }
         }
         if (targetType === "value" || targetType === "arr-item") {
@@ -359,21 +361,6 @@ export async function provideTspconfigCompletionItems(
                 }
               }
             }
-          } else if (cur.type === "string") {
-            // extends
-            if (relativeFiles.length > 0) {
-              for (const file of relativeFiles) {
-                if (target.siblings.includes(file)) {
-                  continue;
-                }
-
-                const item: CompletionItem = {
-                  label: file,
-                  kind: CompletionItemKind.Field,
-                };
-                result.push(item);
-              }
-            }
           }
         }
       });
@@ -384,15 +371,15 @@ export async function provideTspconfigCompletionItems(
 
 /**
  * Get the new text value
- * @param sourceType input quote type(single, double, none)
+ * @param sourceQuoteType input quote type(single, double, none)
  * @param formatText format text value
- * @returns
+ * @returns new text value
  */
-function getNewTextValue(sourceType: string, formatText: string): string {
+function getCompletionItemInsertedValue(sourceQuoteType: string, formatText: string): string {
   let newText: string = "";
-  if (sourceType === "QUOTE_SINGLE") {
+  if (sourceQuoteType === "QUOTE_SINGLE") {
     newText = `${formatText}'`;
-  } else if (sourceType === "QUOTE_DOUBLE") {
+  } else if (sourceQuoteType === "QUOTE_DOUBLE") {
     newText = `${formatText}"`;
   } else {
     newText = `"${formatText}"`;
@@ -404,8 +391,8 @@ function getNewTextValue(sourceType: string, formatText: string): string {
  * Get the position of the new text
  * @param newText  the new text
  * @param source source text
- * @param tspConfigPosition original position
- * @returns
+ * @param tspConfigPosition original position, see {@link Position}
+ * @returns TextEdit object
  */
 function getNewTextAndPosition(
   newText: string,
@@ -427,7 +414,7 @@ function getNewTextAndPosition(
  * @param fileExtension  File extension
  * @param log log function
  * @param configFile Configuration file name
- * @returns
+ * @returns Relative path array
  */
 function findFilesWithSameExtension(
   rootPath: string,
@@ -435,7 +422,7 @@ function findFilesWithSameExtension(
   log: (log: ServerLog) => void,
   configFile: string = "",
 ): string[] {
-  const exclude = ["node_modules", "tsp-output"];
+  const exclude = ["node_modules", "tsp-output", ".vs", ".vscode"];
   if (fileExtension === ".tsp") {
     exclude.push("main.tsp");
   }
@@ -443,24 +430,18 @@ function findFilesWithSameExtension(
   const files: string[] = [];
   try {
     // When reading the content under the path, an error may be reported if the path is incorrect.
-    const filesInDir = fs.readdirSync(rootPath);
-    for (const file of filesInDir) {
-      const ext = getAnyExtensionFromPath(file);
-      if (
-        (ext && ext.length > 0 && ext !== fileExtension) ||
-        exclude.includes(file) ||
-        (configFile !== "" && getBaseFileName(file) === configFile)
-      ) {
-        continue;
-      }
-
-      const filePath = joinPaths(rootPath, file);
-      const stat = fs.statSync(filePath);
-      if (stat.isDirectory() || (stat.isFile() && file.endsWith(fileExtension))) {
+    fs.readdirSync(rootPath, { withFileTypes: true })
+      .filter(
+        (d) =>
+          (d.isDirectory() || (d.isFile() && d.name.endsWith(fileExtension))) &&
+          !exclude.includes(d.name) &&
+          getBaseFileName(d.name) !== configFile,
+      )
+      .map((d) => {
+        const filePath = joinPaths(rootPath, d.name);
         const relativePath = getRelativePathFromDirectory(rootPath, filePath, false);
         files.push(relativePath);
-      }
-    }
+      });
   } catch (error) {
     log({
       level: "error",
@@ -468,4 +449,55 @@ function findFilesWithSameExtension(
     });
   }
   return files;
+}
+
+/**
+ * Get the CompletionItem object array of the relative path of the file
+ * @param relativeFiles File relative path array
+ * @param siblings Sibling node array
+ * @returns CompletionItem object array
+ */
+function getFilePathCompletionItems(relativeFiles: string[], siblings: string[]): CompletionItem[] {
+  const items: CompletionItem[] = [];
+  if (relativeFiles.length > 0) {
+    for (const file of relativeFiles) {
+      if (siblings.includes(file)) {
+        continue;
+      }
+
+      const item: CompletionItem = {
+        label: file,
+        kind: CompletionItemKind.File,
+      };
+      items.push(item);
+    }
+  }
+  return items;
+}
+
+/**
+ * Get the common CompletionItem object
+ * @param labelName The value of the label attribute of the CompletionItem object
+ * @param sourceType Input quote type
+ * @param source Entered text
+ * @param description The value of the documentation attribute of the CompletionItem object
+ * @param tspConfigPosition Input location object, see {@link Position}
+ * @returns CompletionItem object
+ */
+function getCommonCompetionItem(
+  labelName: string,
+  sourceType: string,
+  source: string,
+  description: string,
+  tspConfigPosition: Position,
+): CompletionItem {
+  // Generate new text
+  const newText = getCompletionItemInsertedValue(sourceType, labelName);
+
+  return {
+    label: labelName,
+    kind: CompletionItemKind.Field,
+    documentation: description,
+    textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
+  };
 }

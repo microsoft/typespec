@@ -4,20 +4,21 @@ import { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
 export class LibraryProvider {
   private isLibPackageCache = new Map<string, boolean>();
   constructor(
-    private npmPackageProvider: NpmPackageProvider,
+    private libPackageFilterResultCache: NpmPackageProvider,
     private filter: (obj: Record<string, any>) => boolean,
   ) {}
 
   /**
    *
-   * @param startFolder folder starts to search for package.json with emitters/linters defined as dependencies
+   * @param startFolder folder starts to search for package.json with library defined as dependencies
    * @returns
    */
   async listLibraries(startFolder: string): Promise<Record<string, NpmPackage>> {
-    const packageJsonFolder = await this.npmPackageProvider.getPackageJsonFolder(startFolder);
+    const packageJsonFolder =
+      await this.libPackageFilterResultCache.getPackageJsonFolder(startFolder);
     if (!packageJsonFolder) return {};
 
-    const pkg = await this.npmPackageProvider.get(packageJsonFolder);
+    const pkg = await this.libPackageFilterResultCache.get(packageJsonFolder);
     const data = await pkg?.getPackageJsonData();
     if (!data) return {};
 
@@ -37,19 +38,20 @@ export class LibraryProvider {
 
   /**
    *
-   * @param startFolder folder starts to search for package.json with emitters/linter defined as dependencies
-   * @param depName
+   * @param startFolder folder starts to search for package.json with library defined as dependencies
+   * @param libName
    * @returns
    */
-  async getLibrary(startFolder: string, depName: string): Promise<NpmPackage | undefined> {
-    const packageJsonFolder = await this.npmPackageProvider.getPackageJsonFolder(startFolder);
+  async getLibrary(startFolder: string, libName: string): Promise<NpmPackage | undefined> {
+    const packageJsonFolder =
+      await this.libPackageFilterResultCache.getPackageJsonFolder(startFolder);
     if (!packageJsonFolder) {
       return undefined;
     }
-    return this.getLibraryFromDep(packageJsonFolder, depName);
+    return this.getLibraryFromDep(packageJsonFolder, libName);
   }
 
-  private async isSpecifyLibType(depName: string, pkg: NpmPackage) {
+  private async getLibFilterResult(depName: string, pkg: NpmPackage) {
     if (this.isLibPackageCache.has(depName)) {
       return this.isLibPackageCache.get(depName);
     }
@@ -76,8 +78,8 @@ export class LibraryProvider {
 
   private async getLibraryFromDep(packageJsonFolder: string, depName: string) {
     const depFolder = joinPaths(packageJsonFolder, "node_modules", depName);
-    const depPkg = await this.npmPackageProvider.get(depFolder);
-    if (depPkg && (await this.isSpecifyLibType(depName, depPkg))) {
+    const depPkg = await this.libPackageFilterResultCache.get(depFolder);
+    if (depPkg && (await this.getLibFilterResult(depName, depPkg))) {
       return depPkg;
     }
     return undefined;
