@@ -72,3 +72,41 @@ describe("getPlausibleName", () => {
     expect($.type.getPlausibleName(Foo2)).toBe("Qux_BazFoo");
   });
 });
+
+describe("minValue and maxValue", () => {
+  it("can get the min and max values from number", async () => {
+    const { myNumber } = await getTypes(
+      `
+    @minValue(1)
+    @maxValue(10)
+    scalar myNumber extends numeric;
+    `,
+      ["myNumber"],
+    );
+
+    const max = $.type.maxValue(myNumber);
+    const min = $.type.minValue(myNumber);
+
+    expect(max).toBe(10);
+    expect(min).toBe(1);
+  });
+
+  it("can get the min and max values from modelProperty", async () => {
+    const { A } = await getTypes(
+      `
+    model A {
+      @minValue(15)
+      @maxValue(55)
+      foo: int32;
+    }
+    `,
+      ["A"],
+    );
+
+    const max = $.type.maxValue((A as Model).properties.get("foo")!);
+    const min = $.type.minValue((A as Model).properties.get("foo")!);
+
+    expect(max).toBe(55);
+    expect(min).toBe(15);
+  });
+});
