@@ -4,11 +4,7 @@ import { fileURLToPath } from "url";
 import { runPython3 } from "./run-python3.js";
 
 async function installPythonDeps() {
-  try {
-    await runPython3("./eng/scripts/setup/install.py");
-  } catch (error) {
-    console.log("No Python installation found. Skipping Python dependencies installation."); // eslint-disable-line no-console
-  }
+  await runPython3("./eng/scripts/setup/install.py");
 }
 
 async function installPyodideDeps() {
@@ -33,7 +29,7 @@ async function installPyodideDeps() {
 
 installPythonDeps()
   .then(() => console.log("Successfully installed all required Python packages")) // eslint-disable-line no-console
-  .catch((error) => console.error(`Installation failed: ${error.message}`)); // eslint-disable-line no-console
+  .catch((error) => console.log("No Python installation found. Skipping Python dependencies installation."));  // eslint-disable-line no-console
 
 installPyodideDeps()
   .then(() => console.log("Successfully installed all required Python packages in Pyodide")) // eslint-disable-line no-console
