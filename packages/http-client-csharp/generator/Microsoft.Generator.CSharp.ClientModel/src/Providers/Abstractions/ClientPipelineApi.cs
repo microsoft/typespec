@@ -28,8 +28,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 
-        public abstract ValueExpression ConsumeKeyAuth(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null);
-        public abstract ValueExpression ConsumeOAuth2Auth(ValueExpression credential, ValueExpression scopes);
+        public abstract ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null);
+        public abstract ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes);
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }

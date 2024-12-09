@@ -68,10 +68,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
 
-            public override ValueExpression ConsumeKeyAuth(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
+            public override ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
                 => Original.Invoke("GetFakeAuthorizationPolicy", keyPrefix == null ? [credential, headerName] : [credential, headerName, keyPrefix]);
 
-            public override ValueExpression ConsumeOAuth2Auth(ValueExpression credential, ValueExpression scopes)
+            public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
                 => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
 
             public override ClientPipelineApi ToExpression() => this;

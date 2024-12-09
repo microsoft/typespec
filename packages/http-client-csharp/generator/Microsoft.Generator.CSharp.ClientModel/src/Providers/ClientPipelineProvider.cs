@@ -39,13 +39,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ClientPipelineApi FromExpression(ValueExpression expression)
             => new ClientPipelineProvider(expression);
 
-        public override ValueExpression ConsumeKeyAuth(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
+        public override ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
         {
             ValueExpression[] arguments = keyPrefix == null ? [credential, headerName] : [credential, headerName, keyPrefix];
             return Static<ApiKeyAuthenticationPolicy>().Invoke(nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), arguments).As<ApiKeyAuthenticationPolicy>();
         }
 
-        public override ValueExpression ConsumeOAuth2Auth(ValueExpression credential, ValueExpression scopes)
+        public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
         {
             // Scm library does not support token credentials yet. The throw here is intentional.
             // For a plugin that supports token credentials, they could override this implementation as well as the above TokenCredentialType property.

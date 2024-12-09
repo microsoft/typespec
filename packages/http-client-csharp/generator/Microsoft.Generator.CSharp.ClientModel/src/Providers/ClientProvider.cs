@@ -32,13 +32,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly ParameterProvider _endpointParameter;
         private readonly FieldProvider? _clientCachingField;
 
-        #region credential fields
         private readonly FieldProvider? _apiKeyAuthField;
         private readonly FieldProvider? _authorizationHeaderConstant;
         private readonly FieldProvider? _authorizationApiKeyPrefixConstant;
         private readonly FieldProvider? _tokenCredentialField;
         private readonly FieldProvider? _tokenCredentialScopesField;
-        #endregion
+
         private FieldProvider? _apiVersionField;
         private readonly Lazy<IReadOnlyList<ParameterProvider>> _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
@@ -288,19 +287,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // handle sub-client constructors
             if (ClientOptionsParameter is null)
             {
-                    List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
-                    foreach (var p in _subClientInternalConstructorParams.Value)
+                List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
+                foreach (var p in _subClientInternalConstructorParams.Value)
+                {
+                    var assignment = p.Field?.Assign(p).Terminate() ?? p.Property?.Assign(p).Terminate();
+                    if (assignment != null)
                     {
-                        var assignment = p.Field?.Assign(p).Terminate() ?? p.Property?.Assign(p).Terminate();
-                        if (assignment != null)
-                        {
-                            body.Add(assignment);
-                        }
+                        body.Add(assignment);
                     }
-                    var subClientConstructor = new ConstructorProvider(
-                        new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
-                        body,
-                        this);
+                }
+                var subClientConstructor = new ConstructorProvider(
+                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
+                    body,
+                    this);
 
                 return [mockingConstructor, subClientConstructor];
             }
@@ -406,7 +405,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             {
                 // new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }
                 ValueExpression? keyPrefix = _authorizationApiKeyPrefixConstant != null ? (ValueExpression)_authorizationApiKeyPrefixConstant : null;
-                perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().ConsumeKeyAuth(_apiKeyAuthField, _authorizationHeaderConstant, keyPrefix));
+                perRetryPolicies = New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(_apiKeyAuthField, _authorizationHeaderConstant, keyPrefix));
             }
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter, perRetryPolicies)).Terminate());
