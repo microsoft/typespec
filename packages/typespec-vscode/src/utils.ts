@@ -1,7 +1,7 @@
 import type { ModuleResolutionResult, ResolveModuleHost } from "@typespec/compiler";
 import { exec, spawn, SpawnOptions } from "child_process";
 import { readFile, realpath, stat } from "fs/promises";
-import path, { dirname, normalize, resolve } from "path";
+import { dirname, normalize, resolve } from "path";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 
@@ -125,37 +125,16 @@ export async function executeCommand(
   options: any,
   on?: executionEvents,
 ): Promise<ExecOutput> {
-  let stdoutstr: string = "";
+  let stdout: string = "";
   let errMessage: string = "";
-  let retcode = 0;
+  let retCode = 0;
   if (args.length > 0) {
     command = `${command} ${args.join(" ")}`;
   }
-  // exec(command, options, (error, stdout, stderr) => {
-  //   if (error) {
-  //     // logger.error(`Error: ${error.message}`);
-  //     errMessage += error.message;
-  //     retcode = error.code ?? 0;
-  //     if (on && on.onError) {
-  //       on.onError(error, stdout.toString(), stderr.toString());
-  //     }
-  //   }
-  //   if (stderr) {
-  //     // logger.error(`Stderr: ${stderr}`);
-  //     errMessage += stderr;
-  //     if (on && on.onStdioError) {
-  //       on.onStdioError(stderr.toString());
-  //     }
-  //   }
-  //   stdoutstr += stdout;
-  //   on?.onStdioOut?.(stdout.toString());
-  //   // logger.info(`Stdout: ${stdout}`);
-  // });
 
   const child = exec(command, options);
   child.stdout?.on("data", (data) => {
-    // logger.info(`Stdout: ${data}`);
-    stdoutstr += data.toString();
+    stdout += data.toString();
     on?.onStdioOut?.(data.toString());
   });
 
@@ -166,29 +145,27 @@ export async function executeCommand(
 
   if (on && on.onError) {
     child.on("error", (error: any) => {
-      on.onError!(error, stdoutstr, errMessage);
+      on.onError!(error, stdout, errMessage);
     });
   }
   if (on && on.onExit) {
     child.on("exit", (code) => {
-      on.onExit!(code, stdoutstr, errMessage);
+      on.onExit!(code, stdout, errMessage);
     });
   }
 
   child.on("close", (code) => {
-    // logger.info(`Child process exited with code ${code}`);
-    retcode = code ?? 0;
+    retCode = code ?? 0;
   });
 
   child.on("exit", (code) => {
-    // logger.info(`Child process exited with code ${code}`);
-    retcode = code ?? 0;
+    retCode = code ?? 0;
   });
 
   return {
-    stdout: stdoutstr,
+    stdout: stdout,
     stderr: errMessage,
-    exitCode: retcode,
+    exitCode: retCode,
     error: errMessage,
     spawnOptions: options,
   };
@@ -200,44 +177,15 @@ export async function promisifyExec(
   options: any,
   on?: executionEvents,
 ): Promise<ExecOutput> {
-  // let stdoutstr: string = "";
-  // let errMessage: string = "";
-  // let retcode = 0;
-  // if (args.length > 0) {
-  //   command = `${command} ${args.join(" ")}`;
-  // }
-
-  // const execPromise = promisify(exec);
-
-  // const { stdout, stderr } = await execPromise(command, options);
-  // if (stdout) {
-  //   stdoutstr += stdout;
-  //   on?.onStdioOut?.(stdout.toString());
-  // }
-  // if (stderr) {
-  //   errMessage += stderr;
-  //   // retcode = 1;
-  //   on?.onStdioError?.(stderr.toString());
-  // }
-  // logger.info(`Stdout: ${stdout}`);
-  // return {
-  //   stdout: stdoutstr,
-  //   stderr: errMessage,
-  //   exitCode: retcode,
-  //   error: errMessage,
-  //   spawnOptions: options,
-  // };
-
   let stdout: string = "";
   let stderr: string = "";
-  let retcode = 0;
+  let retCode = 0;
   if (args.length > 0) {
     command = `${command} ${args.join(" ")}`;
   }
   return await new Promise((resolve, reject) => {
     const child = exec(command, options);
     child.stdout?.on("data", (data) => {
-      // logger.info(`Stdout: ${data}`);
       stdout += data.toString();
       on?.onStdioOut?.(data.toString());
     });
@@ -249,21 +197,21 @@ export async function promisifyExec(
       on?.onStdioError?.(data.toString());
     });
     child.on("close", (code) => {
-      retcode = code ?? 0;
+      retCode = code ?? 0;
       resolve({
         stdout: stdout,
         stderr: stderr,
-        exitCode: retcode,
+        exitCode: retCode,
         error: stderr,
         spawnOptions: options,
       });
     });
     child.on("exit", (code) => {
-      retcode = code ?? 0;
+      retCode = code ?? 0;
       resolve({
         stdout: stdout,
         stderr: stderr,
-        exitCode: retcode,
+        exitCode: retCode,
         error: stderr,
         spawnOptions: options,
       });
@@ -279,12 +227,11 @@ export async function spawnExecution(
 ): Promise<ExecOutput> {
   let stdout = "";
   let stderr = "";
-  let retcode = 0;
+  let retCode = 0;
 
   const child = spawn(command, args, options);
 
   child.stdout.on("data", (data) => {
-    // logger.info(`Stdout: ${data}`);
     stdout += data.toString();
     on?.onStdioOut?.(data.toString());
   });
@@ -306,36 +253,18 @@ export async function spawnExecution(
   }
 
   child.on("close", (code) => {
-    // logger.info(`Child process exited with code ${code}`);
-    retcode = code ?? 0;
+    retCode = code ?? 0;
   });
 
   child.on("exit", (code) => {
-    // logger.info(`Child process exited with code ${code}`);
-    retcode = code ?? 0;
+    retCode = code ?? 0;
   });
 
   return {
     stdout: stdout,
     stderr: stderr,
-    exitCode: retcode,
+    exitCode: retCode,
     error: stderr,
     spawnOptions: options,
   };
-}
-
-export async function resolveTypeSpecCli(absolutePath: string): Promise<Executable | undefined> {
-  if (!path.isAbsolute(absolutePath) || (await isFile(absolutePath))) {
-    return undefined;
-  }
-  const modelInfo = await loadModule(absolutePath, "@typespec/compiler");
-  if (modelInfo) {
-    //const cli = modelInfo.executables.find((exe) => exe.name === "tsp");
-    const cmdPath = path.resolve(modelInfo.path, "cmd/tsp.js");
-    return {
-      command: "node",
-      args: [cmdPath],
-    };
-  }
-  return undefined;
 }

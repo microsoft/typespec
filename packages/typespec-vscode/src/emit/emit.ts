@@ -4,8 +4,8 @@ import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "../log/logger.js";
 import { InstallationAction, NpmUtil } from "../npm-utils.js";
-import { toError, toOutput } from "../typespec-utils.js";
-import { ExecOutput, executeCommand, isFile, resolveTypeSpecCli } from "../utils.js";
+import { getMainTspFile, resolveTypeSpecCli, toError, toOutput } from "../typespec-utils.js";
+import { ExecOutput, executeCommand, isFile, promisifyExec } from "../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import { clientEmitters, Emitter } from "./emitter.js";
 export async function doEmit(
@@ -39,8 +39,15 @@ export async function doEmit(
         ? vscode.workspace.workspaceFolders[0].uri.fsPath
         : "TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp).";
       inputBox.buttons = [openDiaglogButton];
-      const validateInput = (text: string) => {
-        return text.trim() === "" ? "Please choose Typespec folder" : null;
+      const validateInput = async (text: string) => {
+        if (text.trim() === "") {
+          return "Please choose Typespec folder";
+        }
+        const start = await getMainTspFile(text);
+        if (!start) {
+          return "Cannot find main tsp file in the project. Please select a valid TypeSpec project folder.";
+        }
+        return null;
       };
       inputBox.onDidTriggerButton(async () => {
         const options = {
@@ -58,7 +65,7 @@ export async function doEmit(
       });
 
       inputBox.onDidChangeValue(async (text) => {
-        const validate = validateInput(text);
+        const validate = await validateInput(text);
         if (validate !== null) {
           inputBox.validationMessage = validate;
         } else {
@@ -66,18 +73,14 @@ export async function doEmit(
         }
       });
 
-      inputBox.onDidAccept(() => {
+      inputBox.onDidAccept(async () => {
         const userInput = inputBox.value;
-        const validate = validateInput(userInput);
+        const validate = await validateInput(userInput);
         if (validate === null) {
           resolve(userInput);
-          vscode.window.showInformationMessage(`You entered: ${userInput}`);
         } else {
           inputBox.validationMessage = validate;
         }
-        // vscode.window.showInformationMessage(`You entered: ${userInput}`);
-        // inputBox.hide();
-        // resolve(userInput);
       });
       inputBox.ignoreFocusOut = true;
       inputBox.show();
@@ -98,6 +101,17 @@ export async function doEmit(
     showPopup: false,
     progress: overallProgress,
   });
+
+  const startFile = await getMainTspFile(tspProjectFolder);
+
+  if (!startFile) {
+    logger.info(
+      "Invalid typespec project. There is no main tsp file in the project. Emit canceled.",
+      [],
+      { showOutput: false, showPopup: true, progress: overallProgress },
+    );
+    return;
+  }
 
   const toQuickPickItem = (e: Emitter): EmitQuickPickItem => {
     return {
@@ -328,8 +342,7 @@ export async function doEmit(
     showPopup: false,
     progress: overallProgress,
   });
-  /*TODO: resolve the start file. */
-  const startFile = `${baseDir}/main.tsp`;
+
   const cli = await resolveTypeSpecCli(baseDir);
   if (!cli) {
     logger.error("Cannot find TypeSpec CLI. Please install @typespec/compiler. Cancel emit.", [], {
@@ -357,22 +370,12 @@ export async function doEmit(
   });
   const compileResult = await compile(cli, startFile, selectedEmitter.package, options);
   if (compileResult.exitCode !== 0) {
-    logger.error(
-      `Failed to generate Client SDK for ${selectedEmitter.language}. error: ${compileResult.error}`,
-      [],
-      {
-        showOutput: true,
-        showPopup: true,
-        progress: overallProgress,
-      },
-    );
+    logger.error(`Failed to generate Client SDK for ${selectedEmitter.language}.`, [], {
+      showOutput: true,
+      showPopup: true,
+      progress: overallProgress,
+    });
   }
-
-  logger.info(`${compileResult.stdout}.`, [], {
-    showOutput: true,
-    showPopup: false,
-    progress: overallProgress,
-  });
 
   logger.info(`complete generating ${selectedEmitter.language} SDK.`, [], {
     showOutput: true,
@@ -400,9 +403,14 @@ export async function compile(
     args.push("--option", `${emitter}.${key}=${value}`);
   }
 
-  return await executeCommand(cli.command, args, {
-    cwd: dirname(startFile),
-  });
+  return await promisifyExec(
+    cli.command,
+    args,
+    {
+      cwd: dirname(startFile),
+    },
+    { onStdioOut: toOutput, onStdioError: toError },
+  );
 }
 
 export async function check(startFile: string): Promise<{
