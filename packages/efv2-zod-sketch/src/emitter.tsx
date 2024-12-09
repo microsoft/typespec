@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, Model, navigateType, Type } from "@typespec/compiler";
+import { EmitContext, Model, ModelProperty, navigateType, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { zod } from "./external-packages/zod.js";
 
@@ -33,6 +33,23 @@ interface ModelProps {
   model: Model;
 }
 
+interface MinValueConstrain {
+  kind: "MinValue";
+  value: number;
+}
+
+interface MaxValueConstrain {
+  kind: "MaxValue";
+  value: number;
+}
+
+interface OptionalConstrain {
+  kind: "Optional";
+  value: boolean;
+}
+
+type Constrain = MinValueConstrain | MaxValueConstrain | OptionalConstrain;
+
 /**
  * Component that represents a Zod Model
  */
@@ -64,9 +81,10 @@ function ZodModelProperties(props: ZodModelPropertiesProps) {
     props.model.properties,
     (name, prop) => {
       const propName = namePolicy.getName(name, "object-member-data");
+      const propConstrains = getModelPropertyConstrains(prop);
       return (
         <>
-          {propName}: <ZodType type={prop.type} />
+          {propName}: <ZodType type={prop.type} constrains={propConstrains} />
         </>
       );
     },
@@ -74,8 +92,28 @@ function ZodModelProperties(props: ZodModelPropertiesProps) {
   );
 }
 
+function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
+  const constrains: Constrain[] = [];
+  if (modelProperty.optional) {
+    constrains.push({ kind: "Optional", value: true });
+  }
+
+  if (modelProperty.type.kind === "Scalar") {
+    const minValue = $.type.minValue(modelProperty);
+    const maxValue = $.type.maxValue(modelProperty);
+    if (minValue !== undefined) {
+      constrains.push({ kind: "MinValue", value: minValue });
+    }
+    if (maxValue !== undefined) {
+      constrains.push({ kind: "MaxValue", value: maxValue });
+    }
+  }
+  return constrains;
+}
+
 interface ZodTypeProps {
   type: Type;
+  constrains: Constrain[];
 }
 
 /**
@@ -99,6 +137,11 @@ function ZodType(props: ZodTypeProps) {
 }
 
 function getScalarIntrinsicZodType(props: ZodTypeProps): string {
+// Note: the Prettier extension for VS Code is not formatting the fragments correctly.
+// If you turn it on and save your file, it will insert newlines within the fragments, which results in
+// incorrect Zod code being emitted.  You can turn off the Prettier extension for this file by adding  "files.exclude": { "**/efv2-zod-sketch/src/emitter.tsx": true } to your .vscode/settings.json file. 
+// You can also turn off the Prettier extension for all files by adding "editor.formatOnSave": false to your  .vscode/settings.json file.
+
   if ($.scalar.is(props.type)) {
     // Types with parity in Zod
     if ($.scalar.isBoolean(props.type)) {
@@ -113,8 +156,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     if ($.scalar.isDecimal(props.type)) {
       return (
         <>
-          {zod.z}.number()
-          <ZodConstraints type={props.type} />
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
         </>
       );
     }
@@ -127,8 +169,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     if ($.scalar.isDecimal128(props.type)) {
       return (
         <>
-          {zod.z}.number()
-          <ZodConstraints type={props.type} />
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
         </>
       );
     }
@@ -140,24 +181,21 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     if ($.scalar.isFloat(props.type)) {
       return (
         <>
-          {zod.z}.number()
-          <ZodConstraints type={props.type} />
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
         </>
       );
     }
     if ($.scalar.isFloat32(props.type)) {
       return (
         <>
-          {zod.z}.number()
-          <ZodConstraints type={props.type} />
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
         </>
       );
     }
     if ($.scalar.isFloat64(props.type)) {
       return (
         <>
-          {zod.z}.number()
-          <ZodConstraints type={props.type} />
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
         </>
       );
     }
@@ -166,80 +204,70 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     if ($.scalar.isInteger(props.type)) {
       return (
         <>
-          {zod.z}.number()
-          <ZodConstraints type={props.type} />
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
         </>
       );
     }
     if ($.scalar.isInt8(props.type)) {
       return (
         <>
-          {zod.z}.number().min(-128).max(127)
-          <ZodConstraints type={props.type} />
+          {zod.z}.number(){ZodNumericConstraints(props, -128, 127)}
         </>
       );
     }
     if ($.scalar.isInt16(props.type)) {
       return (
         <>
-          {zod.z}.number().min(-32768).max(32767)
-          <ZodConstraints type={props.type} />
+          {zod.z}.number().min(-32768).max(32767){ZodNumericConstraints(props, -32768, 32767)}
         </>
       );
     }
     if ($.scalar.isInt32(props.type)) {
       return (
         <>
-          {zod.z}.number().min(-2,147,483,648).max(2,147,483,647)
-          <ZodConstraints type={props.type} />
+          {zod.z}.number(){ZodNumericConstraints(props, -2147483648, 2147483647)}
         </>
       );
     }
     if ($.scalar.isInt64(props.type)) {
       return (
         <>
-          {zod.z}.number().bigint().min(-9,223,372,036,854,775,808).max(9,223,372,036,854,775,807)
-          <ZodConstraints type={props.type} />
+          {zod.z}.bigint(){ZodBigIntConstraints(props, -9223372036854775808n, 9223372036854775807n)}
         </>
       );
     }
     if ($.scalar.isSafeint(props.type)) {
       return (
         <>
-          {zod.z}.number().safe()
-          <ZodConstraints type={props.type} />
+          {zod.z}.number().safe(){ZodNumericConstraints(props, undefined, undefined)}
         </>
       );
     }
     if ($.scalar.isUint8(props.type)) {
       return (
         <>
-          {zod.z}.number().nonnegative().max(255)
-          <ZodConstraints type={props.type} />
+          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 255)}
         </>
       );
     }
     if ($.scalar.isUint16(props.type)) {
       return (
         <>
-          {zod.z}.number().nonnegative().max(65535)
-          <ZodConstraints type={props.type} />
+          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 65535)}
         </>
       );
     }
     if ($.scalar.isUint32(props.type)) {
       return (
         <>
-          {zod.z}.number().nonnegative().nonnegative.max(4,294,967,295)
-          <ZodConstraints type={props.type} />
+          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 4294967295)}
         </>
       );
     }
     if ($.scalar.isUint64(props.type)) {
       return (
         <>
-          {zod.z}.number().bigint().nonnegative().max(18,446,744,073,709,551,615)
-          <ZodConstraints type={props.type} />
+          {zod.z}.bigint().nonnegative(){ZodBigIntConstraints(props, undefined, 18446744073709551615n)}
         </>
       );
     }
@@ -250,8 +278,15 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     if ($.scalar.isUrl(props.type)) {
       return <>{zod.z}.string().url()</>;
     }
+
     if ($.scalar.isNumeric(props.type)) {
-      return <>{zod.z}.number()</>;
+      if ($.scalar.extendsNumeric(props.type)) {
+        return (
+          <>
+            {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
+          </>
+        );
+      }
     }
 
     //Dates and times
@@ -262,32 +297,62 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       return <>{zod.z}.string().datetime( &#123;offset: true&#125;)</>;
     }
     if ($.scalar.isDuration(props.type)) {
-      return <>{zod.z}.duration()</>;
+      return <>{zod.z}.string().duration()</>;
     }
     if ($.scalar.isPlainDate(props.type)) {
-      return <>{zod.z}.date()</>;
+      return <>{zod.z}.string().date()</>;
     }
     if ($.scalar.isPlainTime(props.type)) {
-      return <>{zod.z}.time()</>;
+      return <>{zod.z}.string().time()</>;
     }
-
-    // Types without parity in Zod -- consider throwing an error instead
   }
   return <>{zod.z}.string()</>;
 }
 
-function ZodConstraints(props: ZodTypeProps) {
-  if ($.scalar.extendsNumeric(props.type)) {
-    const min = $.scalar.getMin(props.type);
-    const max = $.scalar.getMax(props.type);
+function ZodNumericConstraints(
+  props: ZodTypeProps,
+  minOverride: number | undefined,
+  maxOverride: number | undefined,
+): string {
+  const minValue = props.constrains.find((c) => c.kind === "MinValue")?.value;
+  const maxValue = props.constrains.find((c) => c.kind === "MaxValue")?.value;
+  const min: string =
+    minOverride !== undefined
+      ? `.min(${minOverride})`
+      : minValue !== undefined
+        ? `.min(${minValue})`
+        : "";
+  const max: string =
+    maxOverride !== undefined
+      ? `.max(${maxOverride})`
+      : maxValue !== undefined
+        ? `.max(${maxValue})`
+        : "";
+  const minmax = min + max;
+  return minmax;
+}
 
-    return (
-      <>
-        {min !== undefined ? <>.min({min})</> : null}
-        {max !== undefined ? <>.max({max})</> : null}
-      </>
-    );
-  }
+function ZodBigIntConstraints(
+  props: ZodTypeProps,
+  minOverride: bigint | undefined,
+  maxOverride: bigint | undefined,
+): string {
+  const minValue = props.constrains.find((c) => c.kind === "MinValue")?.value;
+  const maxValue = props.constrains.find((c) => c.kind === "MaxValue")?.value;
+  const min: string =
+    minOverride !== undefined
+      ? `.gte(${minOverride}n)`
+      : minValue !== undefined
+        ? `.gte(${minValue}n)`
+        : "";
+  const max: string =
+    maxOverride !== undefined
+      ? `.lte(${maxOverride}n)`
+      : maxValue !== undefined
+        ? `.lte(${maxValue}n)`
+        : "";
+  const minmax = min + max;
+  return minmax;
 }
 
 /**
