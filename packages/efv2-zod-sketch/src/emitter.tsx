@@ -1,20 +1,30 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, Model, ModelProperty, navigateType, Type } from "@typespec/compiler";
+import { EmitContext, Model, ModelProperty, Enum, EnumValue, EnumMember, navigateType, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { zod } from "./external-packages/zod.js";
 
 export async function $onEmit(context: EmitContext) {
   // Get all models
   const models = getModels();
+  const enums = getEnums();
   const tsNamePolicy = ts.createTSNamePolicy();
 
-  // Emit all models
+
+  // Emit all enums and models
   return (
     <ay.Output namePolicy={tsNamePolicy} externals={[zod]}>
       <ts.PackageDirectory name="test-package" version="0.0.1" path=".">
         <ay.SourceDirectory path="src">
           <ts.SourceFile path="models.ts">
+            {ay.mapJoin(
+              enums,
+              (enumInstance) => {
+                return <ZodEnum enum={enumInstance} />;
+              },
+              { joiner: "\n\n" },
+            )}
+                  
             {ay.mapJoin(
               models,
               (model) => {
@@ -29,8 +39,14 @@ export async function $onEmit(context: EmitContext) {
   );
 }
 
+/** Model support */
+
 interface ModelProps {
   model: Model;
+}
+
+interface EnumProps {
+  enum: Enum;
 }
 
 interface MinValueConstrain {
@@ -59,27 +75,6 @@ interface MinLengthConstrain {
 }
 
 type Constrain = MinValueConstrain | MaxValueConstrain | OptionalConstrain | MaxLengthConstrain | MinLengthConstrain;
-
-/**
- * Component that represents a Zod Model
- */
-function ZodModel(props: ModelProps) {
-  const namePolicy = ts.useTSNamePolicy();
-  const modelName = namePolicy.getName(props.model.name, "variable");
-  return (
-    <ts.VarDeclaration export name={modelName}>
-      {zod.z}.object(
-      {ay.code`{
-         ${(<ZodModelProperties model={props.model} />)}
-      }`}
-      )
-    </ts.VarDeclaration>
-  );
-}
-
-interface ZodModelPropertiesProps {
-  model: Model;
-}
 
 /**
  * Component that represents a collection of Zod Model properties
@@ -142,7 +137,6 @@ function ZodType(props: ZodTypeProps) {
   switch (props.type.kind) {
     case "Scalar":
     case "Intrinsic":
-      // TODO: Handle Scalar intrinsic types. See packages/emitter-framework/src/typescript/components/type-expression.tsx
       return getScalarIntrinsicZodType(props);
     case "Boolean":
       return <>{zod.z}.boolean()</>;
@@ -420,3 +414,103 @@ function getModels() {
 
   return [...globalModels, ...models];
 }
+
+/**
+ * Component that represents a Zod Model
+ */
+function ZodModel(props: ModelProps) {
+  const namePolicy = ts.useTSNamePolicy();
+  const modelName = namePolicy.getName(props.model.name, "variable");
+  return (
+    <ts.VarDeclaration export name={modelName}>
+      {zod.z}.object(
+      {ay.code`{
+         ${(<ZodModelProperties model={props.model} />)}
+      }`}
+      )
+    </ts.VarDeclaration>
+  );
+}
+
+interface ZodModelPropertiesProps {
+  model: Model;
+}
+
+/** Enums */
+/** Note that we will emit all enums as typescript native enums, because
+ * they are a superset of Zod enums.  Zod actually recommends that you use
+ * Zod enums whenever possible, but they only support strings and since there's
+ * a very good change that the enum will be a number, we need to be more
+ * inclusive.
+ * 
+ * When using a native typescript enum, the Zod code will need to use "z.nativeEnum()"
+ * and then infer the enum into a type.
+ * For example, the enum:
+ *   export const enum todoStatus
+      {
+      notStarted,
+      inProgress,
+      completed
+      };
+ * would be accessed & used in Zod as:
+    const TodoStatusEnum = z.nativeEnum(todoStatus);
+    type TodoStatusEnum = z.infer<typeof TodoStatusEnum>;
+    TodoStatusEnum.parse("notStarted"); // Passes
+    TodoStatusEnum.parse("chipmunks"); // Fails
+    */
+
+function ZodEnum(props: EnumProps) {
+  const namePolicy = ts.useTSNamePolicy();
+  const enumName = namePolicy.getName(props.enum.name, "variable");
+  const enumCall = "export const enum " + enumName + "\n";
+  const enumMembers = ZodEnumMembers(props);
+  const enumBody = enumCall + "{\n" + enumMembers + "\n};\n";
+  return (enumBody);
+}
+
+interface ZodEnumMembersProps {
+  enum: Enum;
+}
+
+function ZodEnumMembers(props: ZodEnumMembersProps) {
+  const namePolicy = ts.useTSNamePolicy();
+  const array: string[] = [];
+  props.enum.members.forEach((value: EnumMember) => {
+    const memberName = namePolicy.getName(value.name, "variable");
+    if (value.value !== undefined) {
+      array.push(memberName +  "= " + value.value);
+    } else {
+      array.push(memberName);
+    }
+  });
+  return array.join(",\n");
+}
+
+/**
+ * Collects all the enums defined in the spec
+ * @returns A collection of all defined enums in the spec
+ */
+function getEnums() {
+  const enums = new Set<Enum>();
+  const globalNs = $.program.getGlobalNamespaceType();
+  const globalEnums = Array.from(globalNs.enums.values());
+  const specNamespaces = Array.from(globalNs.namespaces.values()).filter(
+    (ns) => !ns.name.startsWith("TypeSpec"),
+  );
+
+  for (const ns of specNamespaces) {
+    navigateType(
+      ns,
+      {
+        enum(enumType) {
+          enums.add(enumType);
+        },
+      },
+      { includeTemplateDeclaration: false },
+    );
+  }
+
+  return [...globalEnums, ...enums];
+}
+
+
