@@ -47,19 +47,15 @@ describe("HttpRequest", () => {
     const actualContent = testFile.contents;
     const expectedContent = d`
     import { parse } from "uri-template";
-    import { httpFetch } from "./http-fetch.js";
 
     const path = parse("/widgets").expand({});
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
-
     const httpRequestOptions = {
-      method: "get",
       headers: {},
       
     };
 
-    const response = await httpFetch(url, httpRequestOptions);
+    const response = await client.path(path).get(httpRequestOptions);
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -102,27 +98,23 @@ describe("HttpRequest", () => {
     const actualContent = testFile.contents;
     const expectedContent = d`
     import { parse } from "uri-template";
-    import { httpFetch } from "./http-fetch.js";
 
     const path = parse("/widgets/{id}{?foo}").expand({
       "id": id,
       "foo": foo
     });
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
-
     const httpRequestOptions = {
-      method: "post",
       headers: {
         "Content-Type": "application/json",
         "etag": etag
       },
-      body: JSON.stringify({
+      body: {
         "name": name
-      }),
+      },
     };
 
-    const response = await httpFetch(url, httpRequestOptions);
+    const response = await client.path(path).post(httpRequestOptions);
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -156,22 +148,18 @@ describe("HttpRequest", () => {
     const actualContent = testFile.contents;
     const expectedContent = d`
     import { parse } from "uri-template";
-    import { httpFetch } from "./http-fetch.js";
 
     const path = parse("/widgets").expand({});
 
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
-
     const httpRequestOptions = {
-      method: "get",
       headers: {
         "Content-Type": "application/json",
         
       },
-      body: JSON.stringify(count),
+      body: count,
     };
 
-    const response = await httpFetch(url, httpRequestOptions);
+    const response = await client.path(path).get(httpRequestOptions);
     `;
     expect(actualContent).toEqual(expectedContent);
   });

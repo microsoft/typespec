@@ -236,7 +236,7 @@ describe("HttpRequestBody", () => {
     assert(testFile, "test.ts file not rendered");
     const actualContent = testFile.contents;
     const expectedContent = d`
-    body: JSON.stringify(count),
+    body: count,
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -278,9 +278,9 @@ describe("HttpRequestBody", () => {
     const actualContent = testFile.contents;
     const expectedContent = d`
     const widget = {};
-    body: JSON.stringify({
+    body: {
       "name": name
-    }),
+    },
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -321,7 +321,7 @@ describe("HttpRequestBody", () => {
     const expectedContent = d`
     import { widgetToTransport } from "./serializers.js";
 
-    body: JSON.stringify(widgetToTransport(widget)),
+    body: widgetToTransport(widget),
     `;
     expect(actualContent).toEqual(expectedContent);
   });

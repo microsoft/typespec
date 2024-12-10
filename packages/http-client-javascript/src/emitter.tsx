@@ -7,7 +7,7 @@ import { ClientOperations } from "./components/client-operation.jsx";
 import { Client } from "./components/client.jsx";
 import { httpRuntimeTemplateLib } from "./components/external-packages/ts-http-runtime.js";
 import { uriTemplateLib } from "./components/external-packages/uri-template.js";
-import { Models } from "./components/models.jsx";
+import { Models } from "./components/models.js";
 import { ModelSerializers } from "./components/serializers.js";
 
 export async function $onEmit() {

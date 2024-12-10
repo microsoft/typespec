@@ -50,7 +50,7 @@ export function HttpResponses(props: HttpResponsesProps) {
 
       if ($.httpResponse.statusCode.isSingle(statusCode)) {
         return code`
-      if (+response.status === ${statusCode} ${contentTypeCheck}) {
+      if (+response.status === ${statusCode}${contentTypeCheck}) {
         ${expression}
       }
       `;

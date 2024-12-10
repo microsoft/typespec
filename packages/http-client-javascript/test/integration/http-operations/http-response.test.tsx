@@ -46,7 +46,7 @@ describe("HttpResponse", () => {
     assert(testFile, "test.ts file not rendered");
     const actualContent = testFile.contents;
     const expectedContent = d`
-    if (response.status === 204 && !response.body) {
+    if (+response.status === 204 && !response.body) {
       return;
     }
     
@@ -92,9 +92,8 @@ describe("HttpResponse", () => {
     const expectedContent = d`
     import { widgetToApplication } from "./serializers.js";
 
-    if (response.status === 200) {
-      const bodyJson = await response.json();
-      return widgetToApplication(bodyJson);
+    if (+response.status === 200) {
+      return widgetToApplication(response.body);
     }
     
     throw new Error("Unhandled response");
@@ -139,12 +138,11 @@ describe("HttpResponse", () => {
     const expectedContent = d`
     import { widgetToApplication } from "./serializers.js";
     
-    if (response.status === 200) {
-      const bodyJson = await response.json();
-      return widgetToApplication(bodyJson);
+    if (+response.status === 200) {
+      return widgetToApplication(response.body);
     }
 
-    if (response.status === 204 && !response.body) {
+    if (+response.status === 204 && !response.body) {
       return;
     }
 
@@ -190,20 +188,18 @@ describe("HttpResponse", () => {
     const expectedContent = d`
     import { widgetToApplication } from "./serializers.js";
     
-    if (response.status === 200 && response.headers.get("content-type") === "application/json+something") {
-      const bodyJson = await response.json();
+    if (+response.status === 200 && response.headers.get("content-type") === "application/json+something") {
       return {
-        "name": bodyJson.name,
-        "age": bodyJson.age
+        "name": response.body.name,
+        "age": response.body.age
       };
     }
 
-    if (response.status === 200) {
-      const bodyJson = await response.json();
-      return widgetToApplication(bodyJson);
+    if (+response.status === 200) {
+      return widgetToApplication(response.body);
     }
 
-    if (response.status === 204 && !response.body) {
+    if (+response.status === 204 && !response.body) {
       return;
     }
 

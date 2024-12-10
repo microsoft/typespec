@@ -47,8 +47,6 @@ describe("HttpRequest.Url", () => {
     import { parse } from "uri-template";
 
     const path = parse("/widgets").expand({});
-
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -86,8 +84,6 @@ describe("HttpRequest.Url", () => {
     const path = parse("/widgets/{id}").expand({
       "id": id
     });
-
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -129,8 +125,6 @@ describe("HttpRequest.Url", () => {
     const path = parse("/widgets/{id}").expand({
       "id": id
     });
-
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -168,8 +162,6 @@ describe("HttpRequest.Url", () => {
     const path = parse("/widgets/{my_id}").expand({
       "my_id": myId
     });
-
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -207,8 +199,6 @@ describe("HttpRequest.Url", () => {
     const path = parse("/widgets{?id}").expand({
       "id": id
     });
-
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -246,8 +236,6 @@ describe("HttpRequest.Url", () => {
     const path = parse("/widgets{?id}").expand({
       "id": options?.id
     });
-
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });
@@ -289,8 +277,6 @@ describe("HttpRequest.Url", () => {
     const path = parse("/widgets{?id}").expand({
       "id": options?.id
     });
-
-    const url = \`\${client.endpoint.replace(/\\/+$/, '')}/\${path.replace(/^\\/+/, '')}\`;
     `;
     expect(actualContent).toEqual(expectedContent);
   });

@@ -24,8 +24,7 @@ export function HttpRequest(props: HttpRequestProps) {
 
     <ts.VarDeclaration name="response" refkey={httpResponseRefkey}>
       {code`
-      await client.path(${<Reference refkey={operationUrlRefkey}/>}).
-              ${verb}(${<Reference refkey={requestOptionsRefkey}/>});`}
+      await client.path(${<Reference refkey={operationUrlRefkey}/>}).${verb}(${<Reference refkey={requestOptionsRefkey}/>})`}
     </ts.VarDeclaration>
   </>;
 }
