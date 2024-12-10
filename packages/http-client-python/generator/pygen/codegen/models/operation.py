@@ -202,7 +202,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         exception_schema = default_exceptions[0].type
         if isinstance(exception_schema, ModelType):
             return exception_schema.type_annotation(skip_quote=True)
-        return None
+        return None if self.code_model.options["models_mode"] == "dpg" else "'object'"
 
     @property
     def non_default_errors(self) -> List[Response]:
