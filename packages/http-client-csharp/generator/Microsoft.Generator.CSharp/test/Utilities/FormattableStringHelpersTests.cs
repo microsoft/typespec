@@ -110,26 +110,30 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                 yield return new TestCaseData(
                     (FormattableString)$"first{{\n}}",
                     new List<FormattableString> {
-                        $"first{{", $"}}"
+                        $"first{{",
+                        $"}}"
                     }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaks");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{T\n}}",
                     new List<FormattableString> {
-                        $"first{{T", $"}}"
+                        $"first{{T",
+                        $"}}"
                     }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndT");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{T{"name"}\n}}",
                     new List<FormattableString> {
-                        $"first{{T{"name"}", $"}}"
+                        $"first{{T{"name"}",
+                        $"}}"
                     }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndArgs");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{T{"last\nname"}\n}}",
                     new List<FormattableString> {
                         $"first{{T{"last"}",
-                        $"{"name"}", $"}}"
+                        $"{"name"}",
+                        $"}}"
                     }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndArgsContainingLineBreaks");
 
                 FormattableString inner = $"{"x"}\n{"y"}";
