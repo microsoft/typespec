@@ -6,7 +6,7 @@ describe("compiler: duplicate declarations", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("reports duplicate template parameters", async () => {
@@ -72,6 +72,7 @@ describe("compiler: duplicate declarations", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
+      alias A = N.A;
       `,
     );
     testHost.addTypeSpecFile(
@@ -131,7 +132,7 @@ describe("compiler: duplicate declarations", () => {
           "main.tsp",
           `
           import "./a.tsp";
-          import "./b.tsp";
+          import "./b.tsp";   
           `,
         );
         testHost.addTypeSpecFile("a.tsp", "namespace N {}");

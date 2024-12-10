@@ -8,7 +8,7 @@ describe("compiler: tag decorator", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("applies @tag decorator to namespaces, interfaces, and operations", async (): Promise<void> => {

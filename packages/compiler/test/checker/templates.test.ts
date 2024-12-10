@@ -18,7 +18,7 @@ describe("compiler: templates", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   function getLineAndCharOfDiagnostic(diagnostic: Diagnostic) {

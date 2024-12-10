@@ -8,7 +8,7 @@ describe("compiler: enums", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("can be valueless", async () => {

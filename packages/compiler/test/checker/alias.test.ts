@@ -12,7 +12,7 @@ describe("compiler: aliases", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   function getOptionAtIndex(union: Union, index: number): Type {

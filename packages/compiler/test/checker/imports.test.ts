@@ -7,6 +7,7 @@ import {
   ProjectLocationContext,
 } from "../../src/core/index.js";
 import {
+  DiagnosticMatch,
   TestHost,
   createTestHost,
   expectDiagnostics,
@@ -18,7 +19,7 @@ describe("compiler: imports", () => {
   let host: TestHost;
 
   beforeEach(async () => {
-    host = await createTestHost();
+    host = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   function expectFileLoaded(files: { typespec?: string[]; js?: string[] }) {
@@ -222,18 +223,35 @@ describe("compiler: imports", () => {
     function givenStructure<T extends Structure>(config: ScopeTest<T>): ScopeExpectation<T> {
       return {
         expectScopes: async (scopes: Record<keyof T, LocationContext>) => {
+          const unnecessaryImportDiags: DiagnosticMatch[] = [];
           for (const [filename, fileConfig] of Object.entries(config.structure)) {
             if (filename.endsWith(".tsp")) {
               host.addTypeSpecFile(
                 filename,
                 (fileConfig as string[]).map((x) => `import "${x}";`).join("\n"),
               );
+              if (!filename.includes("my-lib")) {
+                (fileConfig as string[]).forEach((x) => {
+                  unnecessaryImportDiags.push({
+                    code: "unused-import",
+                    message: `Unused import: import "${x}"`,
+                    severity: "hint",
+                  });
+                });
+              }
             } else {
               host.addTypeSpecFile(filename, JSON.stringify(fileConfig, null, 2));
             }
           }
 
-          await host.compile(config.entrypoint);
+          if (unnecessaryImportDiags.length === 0) {
+            await host.compile(config.entrypoint);
+          } else {
+            const [_, diags] = await host.compileAndDiagnose(config.entrypoint);
+            const cmpFunc = (a: { message?: string | RegExp }, b: { message?: string | RegExp }) =>
+              (a.message ?? "") < (b.message ?? "") ? -1 : 1;
+            expectDiagnostics([...diags].sort(cmpFunc), unnecessaryImportDiags.sort(cmpFunc));
+          }
           for (const [filename, expectedScope] of Object.entries(scopes)) {
             const file = host.program.sourceFiles.get(resolveVirtualPath(filename));
             ok(file, `Expected to have file "${filename}"`);

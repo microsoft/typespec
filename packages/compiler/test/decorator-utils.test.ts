@@ -19,7 +19,7 @@ import {
 describe("compiler: decorator utils", () => {
   describe("typespecTypeToJson", () => {
     async function convertDecoratorDataToJson(code: string) {
-      const host = await createTestHost();
+      const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
       let result: any;
 
       // add test decorators
@@ -141,7 +141,7 @@ describe("compiler: decorator utils", () => {
   describe("validateDecoratorUniqueOnNode", () => {
     let runner: BasicTestRunner;
     beforeEach(async () => {
-      const host = await createTestHost();
+      const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
       runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
 
       function $bar(context: DecoratorContext, target: Type) {
@@ -208,7 +208,7 @@ describe("compiler: decorator utils", () => {
     let runner: BasicTestRunner;
 
     beforeEach(async () => {
-      const host = await createTestHost();
+      const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
       runner = createTestWrapper(host, { wrapper: (x) => `import "./lib.js";\n${x}` });
 
       function $red(context: DecoratorContext, target: Type) {
