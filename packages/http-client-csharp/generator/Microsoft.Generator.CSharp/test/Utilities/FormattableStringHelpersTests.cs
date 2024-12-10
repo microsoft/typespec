@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                         $"A timestamp indicating the last modified time",
                         $"client. The operation will be performed only",
                         $"been modified since the specified time."
-                    }).SetName("Case for all literals no args");
+                    }).SetName("TestBreakLines_AllLiteralsNoArgs");
 
                 yield return new TestCaseData(
                     (FormattableString)$"{"A timestamp indicating the last modified time\nclient. The operation will be performed only\nbeen modified since the specified time."}",
@@ -38,14 +38,14 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                         $"{"A timestamp indicating the last modified time"}",
                         $"{"client. The operation will be performed only"}",
                         $"{"been modified since the specified time."}"
-                    }).SetName("Case for one arg only");
+                    }).SetName("TestBreakLines_OneArgOnly");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x"}second\nthird{"y"}",
                     new List<FormattableString> {
                         $"first{"x"}second",
                         $"third{"y"}"
-                    }).SetName("Case for line breaks in format");
+                    }).SetName("TestBreakLines_LineBreaksInFormat");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x\nz"}second\nthird{"y"}",
@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                         $"first{"x"}",
                         $"{"z"}second",
                         $"third{"y"}"
-                    }).SetName("Case for line break in argument");
+                    }).SetName("TestBreakLines_LineBreakInArgument");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x"}second\nthird{"y\n"}",
@@ -61,76 +61,76 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                         $"first{"x"}second",
                         $"third{"y"}",
                         $"{""}"
-                    }).SetName("Case for line breaks at end of argument");
+                    }).SetName("TestBreakLines_LineBreaksAtEndOfArgument");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x"}second\nthird{null}",
                     new List<FormattableString> {
                         $"first{"x"}second",
                         $"third{null}"
-                    }).SetName("Case for null argument");
+                    }).SetName("TestBreakLines_NullArgument");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x":L}second\nthird{null}",
                     new List<FormattableString> {
                         $"first{"x":L}second",
                         $"third{null}"
-                    }).SetName("Case for trivial format specifier");
+                    }).SetName("TestBreakLines_TrivialFormatSpecifier");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{",
                     new List<FormattableString> {
                         $"first{{"
-                    }).SetName("Case when the formattable string has {");
+                    }).SetName("TestBreakLines_LiteralOpenBrace");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first}}",
                     new List<FormattableString> {
                         $"first}}"
-                    }).SetName("Case when the formattable string has }");
+                    }).SetName("TestBreakLines_LiteralCloseBrace");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{}}",
                     new List<FormattableString> {
                         $"first{{}}"
-                    }).SetName("Case when the formattable string has { and }");
+                    }).SetName("TestBreakLines_LiteralOpenAndCloseBrace");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{T}}",
                     new List<FormattableString> {
                         $"first{{T}}"
-                    }).SetName("Case when the formattable string has { and }");
+                    }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithT");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first {"name"}: {{T}}, last {"name"}: {{U}}",
                     new List<FormattableString> {
                         $"first {"name"}: {{T}}, last {"name"}: {{U}}"
-                    }).SetName("Case when the formattable string has { and }, and with arguments");
+                    }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithArgs");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{\n}}",
                     new List<FormattableString> {
                         $"first{{", $"}}"
-                    }).SetName("Case when the formattable string has { and } and line breaks");
+                    }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaks");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{T\n}}",
                     new List<FormattableString> {
                         $"first{{T", $"}}"
-                    }).SetName("Case when the formattable string has { and } and line breaks");
+                    }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndT");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{T{"name"}\n}}",
                     new List<FormattableString> {
                         $"first{{T{"name"}", $"}}"
-                    }).SetName("Case when the formattable string has { and } and line breaks and with arguments");
+                    }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndArgs");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{{T{"last\nname"}\n}}",
                     new List<FormattableString> {
                         $"first{{T{"last"}",
                         $"{"name"}", $"}}"
-                    }).SetName("Case when the formattable string has { and } and line breaks and with arguments which contains line breaks");
+                    }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndArgsContainingLineBreaks");
 
                 FormattableString inner = $"{"x"}\n{"y"}";
                 FormattableString outter = $"first{inner}second\nthird{null}";
@@ -140,7 +140,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                         $"first{"x"}",
                         $"{"y"}second",
                         $"third{null}"
-                    }).SetName("Case for recursive formattable strings (formattable string as arg of the other");
+                    }).SetName("TestBreakLines_RecursiveFormattableStrings");
 
                 // TODO: Check if this is valid after we update logic in FormattableStringHelpers to handle FormatSpecifier and \n in one argument
                 yield return new TestCaseData(
@@ -148,7 +148,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                     new List<FormattableString> {
                         $"first{"x\ny":L}second",
                         $"third{null}"
-                    }).SetName("Case for format specifier in arg");
+                    }).SetName("TestBreakLines_FormatSpecifierInArg");
             }
         }
     }

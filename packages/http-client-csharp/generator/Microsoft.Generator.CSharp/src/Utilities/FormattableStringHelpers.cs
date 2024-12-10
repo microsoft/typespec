@@ -124,16 +124,16 @@ namespace Microsoft.Generator.CSharp
 
         private static void BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
         {
-            Span<Range> destination = stackalloc Range[input.Format.Length];
+            Span<Range> splitIndices = stackalloc Range[input.Format.Length];
             foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(input.Format))
             {
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
                 {
-                    var numSplits = span.Split(destination, "\n");
+                    var numSplits = span.Split(splitIndices, "\n");
                     for (int i = 0; i < numSplits; i++)
                     {
-                        var part = span[destination[i]];
+                        var part = span[splitIndices[i]];
                         // the literals could contain { and }, but they are unescaped. Since we are putting them back into the format, we need to escape them again.
                         var startsWithCurlyBrace = part.Length > 0 && (part[0] == '{' || part[0] == '}');
                         var start = startsWithCurlyBrace ? 1 : 0;
@@ -170,17 +170,30 @@ namespace Microsoft.Generator.CSharp
                     // TODO: https://github.com/microsoft/typespec/issues/5255
                     if (!span.Contains(':') && arg is string str)
                     {
-                        // TODO -- refactor with span
-                        var splitNewLine = str.Split("\n");
-                        for (int i = 0; i < splitNewLine.Length; i++)
+                        ReadOnlySpan<char> strSpan = str.AsSpan();
+                        int start = 0, end = 0;
+                        bool isLast = false;
+                        // go into the loop when there are characters left
+                        while (end < strSpan.Length)
                         {
-                            var argPart = splitNewLine[i];
-                            formatBuilder.Append('{');
-                            formatBuilder.Append(args.Count);
-                            formatBuilder.Append('}');
-                            args.Add(argPart);
+                            var indexOfLF = strSpan[start..].IndexOf('\n');
+                            if (indexOfLF < 0)
+                            {
+                                end = strSpan.Length;
+                                isLast = true;
+                            }
+                            else
+                            {
+                                end = start + indexOfLF;
+                            }
 
-                            if (i < splitNewLine.Length - 1) // if not last part we know this part ends with \n, add to current result and clear
+                            formatBuilder.Append('{')
+                                .Append(args.Count)
+                                .Append('}');
+                            args.Add(strSpan[start..end].ToString());
+                            start = end + 1; // goes to the next char after the \n we found
+
+                            if (!isLast)
                             {
                                 FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
                                 result.Add(formattableString);
