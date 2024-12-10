@@ -23,6 +23,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCon
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.HashSet;
@@ -241,7 +242,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
             classBlock.javadocComment(comment -> {
                 comment.description("Gets an instance of " + subClientClassName + " class.");
                 for (ClientMethodParameter property : methodParameters) {
-                    comment.param(property.getName(), property.getDescription());
+                    comment.param(property.getName(), MethodUtil.methodParameterDescriptionOrDefault(property));
                 }
                 comment.methodReturns("an instance of " + subClientClassName + "class");
             });
