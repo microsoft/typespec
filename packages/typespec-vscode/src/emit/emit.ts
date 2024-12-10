@@ -32,12 +32,14 @@ export async function doEmit(
       const inputBox = vscode.window.createInputBox();
       inputBox.title = "Choose TypeSpec Project Directory";
       inputBox.prompt = "Choose the TypeSpec project.";
-      inputBox.value = vscode.workspace.workspaceFolders
-        ? vscode.workspace.workspaceFolders[0].uri.fsPath
-        : "";
-      inputBox.placeholder = vscode.workspace.workspaceFolders
-        ? vscode.workspace.workspaceFolders[0].uri.fsPath
-        : "TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp).";
+      // inputBox.value = vscode.workspace.workspaceFolders
+      //   ? vscode.workspace.workspaceFolders[0].uri.fsPath
+      //   : "";
+      // inputBox.placeholder = vscode.workspace.workspaceFolders
+      //   ? vscode.workspace.workspaceFolders[0].uri.fsPath
+      //   : "TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp).";
+      inputBox.placeholder =
+        "Path of TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp).";
       inputBox.buttons = [openDiaglogButton];
       const validateInput = async (text: string) => {
         if (text.trim() === "") {
@@ -166,8 +168,9 @@ export async function doEmit(
   }
 
   const configFile = path.resolve(baseDir, "tspconfig.yaml");
+  let hasConfig = await isFile(configFile);
   // let typespecConfig = undefined;
-  if (!(await isFile(configFile))) {
+  if (!hasConfig) {
     await vscode.window
       .showQuickPick(["Yes", "No"], {
         title: "No tspconfig.yaml found in the project directory. Do you want to create one?",
@@ -178,7 +181,7 @@ export async function doEmit(
       .then(async (selection) => {
         if (selection === "Yes") {
           /* create tspconfig.yaml */
-          const yaml = `options:\n  "${selectedEmitter.package}":\n    emitter-output-dir: client/${selectedEmitter.language}`;
+          const yaml = `options:\n  "${selectedEmitter.package}":\n    clear-output-folder: true`;
           await vscode.workspace.fs.writeFile(
             vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
             Buffer.from(yaml),
@@ -190,6 +193,7 @@ export async function doEmit(
             preview: false,
             viewColumn: vscode.ViewColumn.Two,
           });
+          hasConfig = true;
         }
       });
   } else {
@@ -207,17 +211,17 @@ export async function doEmit(
   //   : undefined;
   // const outputDirInConfig = optionsInConfig ? optionsInConfig["emitter-output-dir"] : undefined;
   const outputDirInConfig = undefined;
-  const outputDirInput = await vscode.window.showInputBox({
-    title: `Configure output directory for ${selectedEmitter.language}`,
-    placeHolder: `client/${selectedEmitter.language}`,
-    value: outputDirInConfig ?? `client/${selectedEmitter.language}`,
-    prompt: `Please provide the output directory for ${selectedEmitter.language} SDK`,
+  const packageName = await vscode.window.showInputBox({
+    title: `Configure Package Name for ${selectedEmitter.language}`,
+    placeHolder: `${selectedEmitter.language}`,
+    value: outputDirInConfig ?? `${selectedEmitter.language}`,
+    prompt: `Please provide the package name for ${selectedEmitter.language} SDK`,
     validateInput: (text: string) => {
       return text.trim() === "" ? "Input cannot be empty" : null;
     },
     ignoreFocusOut: true,
   });
-  selectedEmitter.outputDir = outputDirInput;
+  selectedEmitter.outputDir = packageName;
   // if (optionsInConfig) {
   //   optionsInConfig["emitter-output-dir"] = outputDirInput;
   //   typespecConfig!.options![`${selectedEmitter.package}`] = optionsInConfig;
@@ -230,15 +234,28 @@ export async function doEmit(
   // );
 
   /* config the emitter in the tspConfig.yaml */
+  const yes = {
+    label: "Yes",
+    detail: "Configure the emitter in the tspConfig.yaml",
+  };
+  const no = { label: "No", description: "" };
   await vscode.window
-    .showQuickPick(["Yes", "No"], {
-      title: "configure the emitters in the tspConfig.yaml?",
+    .showQuickPick([yes, no], {
+      title: "configure emitter",
       canPickMany: false,
-      placeHolder: "Pick a option",
+      placeHolder: "Configure the emitter in the tspConfig.yaml",
       ignoreFocusOut: true,
     })
     .then(async (selection) => {
-      if (selection === "Yes") {
+      if (selection === yes) {
+        if (!hasConfig) {
+          /* create tspconfig.yaml */
+          const yaml = `options:\n  "${selectedEmitter.package}":\n    package-dir: ${packageName}`;
+          await vscode.workspace.fs.writeFile(
+            vscode.Uri.file(path.resolve(baseDir, "tspconfig.yaml")),
+            Buffer.from(yaml),
+          );
+        }
         const document = await vscode.workspace.openTextDocument(
           path.resolve(baseDir, "tspconfig.yaml"),
         );
@@ -247,14 +264,22 @@ export async function doEmit(
           viewColumn: vscode.ViewColumn.Two,
         });
         await vscode.window
-          .showQuickPick(["Completed"], {
-            title: "Is emitter configuration completed?",
-            canPickMany: false,
-            placeHolder: "Pick a option",
-            ignoreFocusOut: true,
-          })
+          .showQuickPick(
+            [
+              {
+                label: "Completed",
+                detail: "Emitter configuration is completed.",
+              },
+            ],
+            {
+              title: "Is emitter configuration completed?",
+              canPickMany: false,
+              placeHolder: "Pick a option",
+              ignoreFocusOut: true,
+            },
+          )
           .then((selection) => {
-            if (selection === "Completed") {
+            if (selection?.label === "Completed") {
               vscode.commands.executeCommand("workbench.action.closeActiveEditor");
             }
           });
@@ -355,7 +380,7 @@ export async function doEmit(
   let outputDir = path.resolve(baseDir, "tsp-output", selectedEmitter.language);
   if (selectedEmitter.outputDir) {
     if (!path.isAbsolute(selectedEmitter.outputDir)) {
-      outputDir = path.resolve(baseDir, selectedEmitter.outputDir);
+      outputDir = path.resolve(baseDir, "client", selectedEmitter.outputDir);
     } else {
       outputDir = selectedEmitter.outputDir;
     }
@@ -421,17 +446,17 @@ export async function check(startFile: string): Promise<{
   //   setTimeout(resolve, 180000);
   //   logger.info(`complete runtime check.`);
   // });
-  const cli = await resolveTypeSpecCli(dirname(startFile));
-  if (!cli) {
-    return { valid: true, required: [] };
-  }
-  const args: string[] = cli.args ?? [];
-  args.push("compile");
-  args.push(startFile);
-  args.push("--no-emit");
-  await promisifySpawn(cli.command, args, {
-    cwd: dirname(startFile),
-  });
-  logger.info(`complete runtime check.`);
+  // const cli = await resolveTypeSpecCli(dirname(startFile));
+  // if (!cli) {
+  //   return { valid: true, required: [] };
+  // }
+  // const args: string[] = cli.args ?? [];
+  // args.push("compile");
+  // args.push(startFile);
+  // args.push("--no-emit");
+  // await promisifySpawn(cli.command, args, {
+  //   cwd: dirname(startFile),
+  // });
+  // logger.info(`complete runtime check.`);
   return { valid: true, required: [] };
 }
