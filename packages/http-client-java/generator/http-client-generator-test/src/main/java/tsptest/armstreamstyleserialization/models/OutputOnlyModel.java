@@ -39,6 +39,13 @@ public interface OutputOnlyModel {
     String title();
 
     /**
+     * Gets the dog property: The dog property.
+     * 
+     * @return the dog value.
+     */
+    Dog dog();
+
+    /**
      * Gets the inner tsptest.armstreamstyleserialization.fluent.models.OutputOnlyModelInner object.
      * 
      * @return the inner object.

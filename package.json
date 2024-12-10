@@ -33,7 +33,11 @@
     "test:e2e": "pnpm -r run test:e2e",
     "update-latest-docs": "pnpm -r run update-latest-docs",
     "watch": "tsc --build ./tsconfig.ws.json --watch",
-    "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts  --config ./eng/common/config/labels.ts"
+    "sync-labels": "tsx ./eng/common/scripts/labels/sync-labels.ts  --config ./eng/common/config/labels.ts",
+    "validate-scenarios": "pnpm -r --filter=@typespec/http-specs run validate-scenarios",
+    "validate-mock-apis": "pnpm -r --filter=@typespec/http-specs run validate-mock-apis",
+    "generate-scenarios-summary": "pnpm -r --filter=@typespec/http-specs run generate-scenarios-summary",
+    "upload-manifest": "pnpm -r --filter=@typespec/http-specs run upload-manifest"
   },
   "devDependencies": {
     "@chronus/chronus": "^0.13.0",

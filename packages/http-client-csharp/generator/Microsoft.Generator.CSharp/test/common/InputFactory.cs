@@ -209,7 +209,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             IEnumerable<OperationResponse>? responses = null,
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
-            string path = "")
+            string path = "",
+            string httpMethod = "GET")
         {
             return new InputOperation(
                 name,
@@ -219,7 +220,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 access,
                 parameters is null ? [] : [.. parameters],
                 responses is null ? [OperationResponse()] : [.. responses],
-                "GET",
+                httpMethod,
                 BodyMediaType.Json,
                 uri,
                 path,

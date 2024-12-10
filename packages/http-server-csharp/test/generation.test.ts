@@ -1024,3 +1024,77 @@ it("generates valid code for anonymous models", async () => {
     ],
   );
 });
+
+it("handles nullable types correctly", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Nullable numeric property */
+        intProp: int32 | null;
+        /** Nullable reference type */
+        stringProp: string | null;
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        /** A complex property */
+        modelProp: {
+          bar: string;
+        } | null;
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        anotherModelProp: {
+          baz: string;
+        };
+        
+        yetAnother: Foo.modelProp | null;
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `,
+    [
+      ["Model0.cs", ["public partial class Model0", "public string Bar { get; set; }"]],
+      ["Model1.cs", ["public partial class Model1", "public string Baz { get; set; }"]],
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int? IntProp { get; set; }",
+          "public string StringProp { get; set; }",
+          "public Model0 ModelProp { get; set; }",
+          "public Model1 AnotherModelProp { get; set; }",
+          "public Model0 YetAnother { get; set; }",
+        ],
+      ],
+      ["ContosoOperationsControllerBase.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+    ],
+  );
+});
+
+it("handles implicit request body models correctly", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
+      @route("/foo") @post op foo(intProp?: int32, arrayProp?: string[]): void;
+      `,
+    [
+      [
+        "Model0.cs",
+        [
+          "public partial class Model0",
+          "public int? IntProp { get; set; }",
+          "public string[] ArrayProp { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsControllerBase.cs",
+        [
+          `public virtual async Task<IActionResult> Foo(Model0 body)`,
+          ".FooAsync(body?.IntProp, body?.ArrayProp)",
+        ],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
+    ],
+  );
+});

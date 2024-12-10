@@ -453,7 +453,7 @@ function* emitQueryParamBinding(
   yield `const ${nameCase.camelCase} = __query_params.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
 
   if (!parameter.param.optional) {
-    yield `if (${nameCase.camelCase} === null) {`;
+    yield `if (!${nameCase.camelCase}) {`;
     // prettier-ignore
     yield `  throw new Error("Invalid request: missing required query parameter '${parameter.name}'.");`;
     yield "}";

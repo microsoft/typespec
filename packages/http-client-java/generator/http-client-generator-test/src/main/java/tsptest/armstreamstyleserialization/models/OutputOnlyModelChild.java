@@ -107,6 +107,15 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
     }
 
     /**
+     * Get the dog property: The dog property.
+     * 
+     * @return the dog value.
+     */
+    public Dog dog() {
+        return this.innerProperties() == null ? null : this.innerProperties().dog();
+    }
+
+    /**
      * Validates the instance.
      * 
      * @throws IllegalArgumentException thrown if the instance is not valid.

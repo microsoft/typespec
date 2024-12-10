@@ -21,7 +21,7 @@ export const GeneratorInformation: FunctionComponent<GeneratorInformationProps> 
         valueTitle={report.createdAt}
       />
       <InfoEntry
-        label="Cadl Ranch Spec version"
+        label="Spec version"
         caption="This is the version of the spec package used to create this report"
         value={report.scenariosMetadata.version}
       />

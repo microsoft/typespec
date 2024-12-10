@@ -2,6 +2,7 @@ import {
   SdkBasicServiceMethod,
   SdkClientType,
   SdkCredentialParameter,
+  SdkCredentialType,
   SdkEndpointParameter,
   SdkEndpointType,
   SdkLroPagingServiceMethod,
@@ -10,6 +11,7 @@ import {
   SdkPagingServiceMethod,
   SdkServiceMethod,
   SdkServiceOperation,
+  SdkUnionType,
   UsageFlags,
   getCrossLanguagePackageId,
   isAzureCoreModel,
@@ -107,6 +109,28 @@ function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
       }
     } else {
       return emitEndpointType(context, parameter.type);
+    }
+  }
+  // filter out credential that python does not support for now
+  if (parameter.kind === "credential") {
+    const filteredCredentialType = [];
+    const originalCredentialType =
+      parameter.type.kind === "union" ? parameter.type.variantTypes : [parameter.type];
+    for (const credentialType of originalCredentialType) {
+      if (
+        credentialType.scheme.type === "oauth2" ||
+        credentialType.scheme.type === "http" ||
+        (credentialType.scheme.type === "apiKey" && credentialType.scheme.in === "header")
+      ) {
+        filteredCredentialType.push(credentialType);
+      }
+    }
+    if (filteredCredentialType.length === 0) {
+      return [];
+    } else if (filteredCredentialType.length === 1) {
+      parameter.type = filteredCredentialType[0];
+    } else {
+      (parameter.type as SdkUnionType<SdkCredentialType>).variantTypes = filteredCredentialType;
     }
   }
   const base = {
@@ -226,6 +250,16 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   };
 }
 
+function onlyUsedByPolling(usage: UsageFlags): boolean {
+  return (
+    ((usage & UsageFlags.LroInitial) > 0 ||
+      (usage & UsageFlags.LroFinalEnvelope) > 0 ||
+      (usage & UsageFlags.LroPolling) > 0) &&
+    (usage & UsageFlags.Input) === 0 &&
+    (usage & UsageFlags.Output) === 0
+  );
+}
+
 export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   sdkContext: PythonSdkContext<TServiceOperation>,
 ) {
@@ -254,6 +288,10 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
     ) {
       continue;
     }
+    // filter out models only used for polling and or envelope result
+    if (onlyUsedByPolling(model.usage)) {
+      continue;
+    }
     // filter out specific models not used in python, e.g., pageable models
     if (disableGenerationMap.has(model)) {
       continue;
@@ -267,6 +305,9 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   for (const sdkEnum of sdkPackage.enums) {
     // filter out api version enum since python do not generate it
     if (sdkEnum.usage === UsageFlags.ApiVersionEnum) {
+      continue;
+    }
+    if (onlyUsedByPolling(sdkEnum.usage)) {
       continue;
     }
     // filter out core enums
