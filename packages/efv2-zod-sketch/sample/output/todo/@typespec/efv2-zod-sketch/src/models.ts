@@ -8,29 +8,45 @@ completed
 };
 
 
+export const enum todoOwners
+{
+alice = "Alice",
+bob = "Bob",
+charlie = "Charlie"
+};
+
+
+export const enum todoDogNames
+{
+fido,
+rover,
+spot
+};
+
+
 export const enum todoLabelColor
 {
-red= 16711680,
-green= 65280,
-blue= 255
+red = 16711680,
+green = 65280,
+blue = 255
 };
 
 
 export const enum score
 {
-a= 90,
-b= 80,
-c= 70,
-d= 60,
-f= 50
+a = 90,
+b = 80,
+c = 70,
+d = 60,
+f = 50
 };
 
 
 export const enum interestingNumbers
 {
-pi= 3.14159,
-e= 2.71828,
-avagadro= 6.022e+23
+pi = 3.14159,
+e = 2.71828,
+avagadro = 6.022e+23
 };
   
 export const user = z.object(

@@ -19,6 +19,18 @@ enum TodoStatus {
   Completed,
 }
 
+enum TodoOwners{
+  Alice: "Alice",
+  Bob: "Bob",
+  Charlie: "Charlie",
+}
+
+enum TodoDogNames {
+  "Fido",
+  "Rover",
+  "Spot",
+}
+
 enum TodoLabelColor {
   Red : 0xff0000,
   Green: 0x00ff00,

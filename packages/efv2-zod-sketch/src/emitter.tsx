@@ -478,7 +478,12 @@ function ZodEnumMembers(props: ZodEnumMembersProps) {
   props.enum.members.forEach((value: EnumMember) => {
     const memberName = namePolicy.getName(value.name, "variable");
     if (value.value !== undefined) {
-      array.push(memberName +  "= " + value.value);
+      if (typeof(value.value) === "string") {
+        array.push(memberName +  " = \"" + value.value + "\"");
+      }
+      else {
+        array.push(memberName +  " = " + value.value);
+      }
     } else {
       array.push(memberName);
     }
