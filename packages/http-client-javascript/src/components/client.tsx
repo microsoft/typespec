@@ -18,8 +18,10 @@ export function Client(props: ClientProps) {
     return null;
   }
 
+  const namePolicy = ts.useTSNamePolicy();
+  const fileName = namePolicy.getName(`${props.client.name}`, "variable");
   const clients = $.client.flat(props.client);
-  return <ts.SourceFile path="client.ts" >
+  return <ts.SourceFile path={`${fileName}.ts`} >
     {ay.mapJoin(clients, (client) => <ClientClass client={client} />, { joiner: "\n\n" })}
   </ts.SourceFile>;
 }
