@@ -442,7 +442,7 @@ class JinjaSerializer(ReaderAndWriter):
         return self._namespace_from_package_name
 
     @property
-    def _exec_path_implimentation(self) -> Path:
+    def exec_path_compensation(self) -> Path:
         """Assume the process is running in the root folder of the package. If not, we need the path implementation."""
         return (
             Path("../" * (self._name_space().count(".") + 1))
@@ -451,11 +451,7 @@ class JinjaSerializer(ReaderAndWriter):
         )
 
     def exec_path(self, namespace: str) -> Path:
-        return self._exec_path_implimentation / Path(*namespace.split("."))
-
-    # find root folder where "setup.py" is
-    def _package_root_folder(self, namespace_path: Path) -> Path:
-        return namespace_path / Path("../" * (self._name_space().count(".") + 1))
+        return self.exec_path_compensation / Path(*namespace.split("."))
 
     @property
     def _additional_folder(self) -> Path:
