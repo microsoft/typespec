@@ -85,7 +85,7 @@ export async function deactivate() {
 }
 
 function generatSdkTask(): vscode.Task[] {
-  let task = new vscode.Task(
+  const task = new vscode.Task(
     {
       label: "Task: Generate SDK",
       type: "typespec",
