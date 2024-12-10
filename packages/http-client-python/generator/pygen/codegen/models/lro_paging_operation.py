@@ -20,8 +20,8 @@ class LROPagingOperation(LROOperationBase[LROPagingResponse], PagingOperationBas
     def operation_type(self) -> str:
         return "lropaging"
 
-    def cls_type_annotation(self, *, async_mode: bool) -> str:
-        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode)}]"
+    def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
+        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         lro_imports = LROOperationBase.imports(self, async_mode, **kwargs)

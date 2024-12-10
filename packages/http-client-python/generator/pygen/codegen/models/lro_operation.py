@@ -92,9 +92,9 @@ class LROOperationBase(OperationBase[LROResponseType]):
             return lro_response.type_annotation(**kwargs)
         return "None"
 
-    def cls_type_annotation(self, *, async_mode: bool) -> str:
+    def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
         """We don't want the poller to show up in ClsType, so we call super() on response type annotation"""
-        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode)}]"
+        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
     def get_poller_with_response_type(self, async_mode: bool) -> str:
         return self.response_type_annotation(async_mode=async_mode)

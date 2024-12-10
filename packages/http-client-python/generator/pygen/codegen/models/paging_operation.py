@@ -103,8 +103,8 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def operation_type(self) -> str:
         return "paging"
 
-    def cls_type_annotation(self, *, async_mode: bool) -> str:
-        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode)}]"
+    def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
+        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = super()._imports_shared(async_mode, **kwargs)
