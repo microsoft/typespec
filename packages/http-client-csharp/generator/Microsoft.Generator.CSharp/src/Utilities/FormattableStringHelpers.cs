@@ -99,19 +99,19 @@ namespace Microsoft.Generator.CSharp
             return position < 0 ? text : text.Substring(0, position) + newValue + text.Substring(position + oldValue.Length);
         }
 
-        internal static IReadOnlyList<FormattableString> BreakLines(FormattableString fs)
+        internal static IReadOnlyList<FormattableString> BreakLines(FormattableString input)
         {
             // handle empty input fs - we should not throw it away when it is empty
-            if (fs.Format.Length == 0)
+            if (input.Format.Length == 0)
             {
-                return [fs]; // return it as is
+                return [input]; // return it as is
             }
 
             StringBuilder formatBuilder = new StringBuilder();
             var args = new List<object?>();
             List<FormattableString> result = new List<FormattableString>();
 
-            BreakLinesCore(fs, formatBuilder, args, result);
+            BreakLinesCore(input, formatBuilder, args, result);
 
             // if formatBuilder is not empty at end, add it to result
             if (formatBuilder.Length > 0)
