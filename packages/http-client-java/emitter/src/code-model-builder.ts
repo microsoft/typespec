@@ -969,20 +969,19 @@ export class CodeModelBuilder {
         if (bodyType && bodyType.kind === "model") {
           const itemName = sdkMethod.response.resultPath;
           const nextLinkName = sdkMethod.nextLinkPath;
-          if (itemName && nextLinkName) {
-            op.extensions = op.extensions ?? {};
-            op.extensions["x-ms-pageable"] = {
-              itemName: itemName,
-              nextLinkName: nextLinkName,
-            };
 
-            op.responses?.forEach((r) => {
-              if (r instanceof SchemaResponse) {
-                this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
-              }
-            });
-            break;
-          }
+          op.extensions = op.extensions ?? {};
+          op.extensions["x-ms-pageable"] = {
+            itemName: itemName,
+            nextLinkName: nextLinkName,
+          };
+
+          op.responses?.forEach((r) => {
+            if (r instanceof SchemaResponse) {
+              this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+            }
+          });
+          break;
         }
       }
     }
