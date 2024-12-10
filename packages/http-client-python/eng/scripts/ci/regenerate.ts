@@ -16,7 +16,7 @@ const argv = parseArgs({
     pluginDir: { type: "string" },
     emitterName: { type: "string" },
     generatedFolder: { type: "string" },
-    usePyodide: { type: "boolean" },
+    pyodide: { type: "boolean" },
   },
 });
 
