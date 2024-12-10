@@ -177,7 +177,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                 {
                     new Part("This ", true, -1),
                     new Part("0", false, 0),
-                    new Part(" has literal {{", true, -1)
+                    new Part(" has literal {", true, -1)
                 });
                 // when the format contains a { or } literal at its end
                 fs = $"This {"fs"} has literal }}";
@@ -185,7 +185,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                 {
                     new Part("This ", true, -1),
                     new Part("0", false, 0),
-                    new Part(" has literal }}", true, -1)
+                    new Part(" has literal }", true, -1)
                 });
                 // when the format contains a { or } literal in its middle
                 fs = $"This {"fs"} has literal }} and {"fs"}";
@@ -193,7 +193,8 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                 {
                     new Part("This ", true, -1),
                     new Part("0", false, 0),
-                    new Part(" has literal }} and ", true, -1),
+                    new Part(" has literal }", true, -1), // the implementation will break up the literals by { and } and unescape them
+                    new Part(" and ", true, -1),
                     new Part("1", false, 1)
                 });
                 // when the format contains both literal { and } in its middle
@@ -202,7 +203,9 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                 {
                     new Part("This ", true, -1),
                     new Part("0", false, 0),
-                    new Part(" has literal {{ and }} in the middle", true, -1)
+                    new Part(" has literal {", true, -1),
+                    new Part(" and }", true, -1),
+                    new Part(" in the middle", true, -1)
                 });
                 // when the format contains both literal { and } in its middle but separated by an argument
                 fs = $"This {"fs"} has literal {{, {"fs"} and }} in the middle";
@@ -210,9 +213,11 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                 {
                     new Part("This ", true, -1),
                     new Part("0", false, 0),
-                    new Part(" has literal {{, ", true, -1),
+                    new Part(" has literal {", true, -1),
+                    new Part(", ", true, -1),
                     new Part("1", false, 1),
-                    new Part(" and }} in the middle", true, -1)
+                    new Part(" and }", true, -1),
+                    new Part(" in the middle", true, -1)
                 });
             }
         }
