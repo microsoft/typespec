@@ -131,7 +131,7 @@ class OperationGroup(BaseModel):
         if self.is_mixin:
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(
-                    serialize_namespace, self.code_model.namespace, module_name="_vendor", async_mode=async_mode
+                    serialize_namespace, self.client.client_namespace, module_name="_vendor", async_mode=async_mode
                 ),
                 f"{self.client.name}MixinABC",
                 ImportType.LOCAL,

@@ -236,7 +236,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
 
     def need_vendored_code(self, async_mode: bool, client_namespace: str) -> bool:
         """Whether we need to vendor code in the _vendor.py in specific namespace"""
-        self.need_vendored_form_data(async_mode, client_namespace) or self.need_vendored_etag(client_namespace) or self.need_vendored_abstract(client_namespace) or self.need_vendored_mixin(client_namespace)
+        return self.need_vendored_form_data(async_mode, client_namespace) or self.need_vendored_etag(client_namespace) or self.need_vendored_abstract(client_namespace) or self.need_vendored_mixin(client_namespace)
     
     def need_vendored_form_data(self, async_mode: bool, client_namespace: str) -> bool:
         return (not async_mode) and self.is_top_namespace(client_namespace) and self.has_form_data and self.options["models_mode"] == "dpg"
