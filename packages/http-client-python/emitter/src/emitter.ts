@@ -89,14 +89,6 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   }
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
   addDefaultOptions(sdkContext);
-  let venvPath = path.join(root, "venv");
-  if (fs.existsSync(path.join(venvPath, "bin"))) {
-    venvPath = path.join(venvPath, "bin", "python");
-  } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
-    venvPath = path.join(venvPath, "Scripts", "python.exe");
-  } else {
-    throw new Error("Virtual environment doesn't exist.");
-  }
   const resolvedOptions = sdkContext.emitContext.options;
   const commandArgs: Record<string, string> = {};
   if (resolvedOptions["packaging-files-config"]) {
@@ -126,7 +118,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   }
   commandArgs["from-typespec"] = "true";
   if (!program.compilerOptions.noEmit && !program.hasError()) {
-    if (resolvedOptions["use-pyodide"] || !fs.existsSync(venvPath)) {
+    if (resolvedOptions["use-pyodide"] || !fs.existsSync(path.join(root, "venv"))) {
       // here we run with pyodide, if there's no venv or if the user specifies to use pyodide
       const outputFolder = path.relative(root, outputDir);
       const pyodide = await setupPyodideCall(root, outputFolder);
