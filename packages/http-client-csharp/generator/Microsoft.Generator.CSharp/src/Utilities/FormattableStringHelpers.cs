@@ -101,6 +101,12 @@ namespace Microsoft.Generator.CSharp
 
         internal static IReadOnlyList<FormattableString> BreakLines(FormattableString fs)
         {
+            // handle empty input fs - we should not throw it away when it is empty
+            if (fs.Format.Length == 0)
+            {
+                return [fs]; // return it as is
+            }
+
             StringBuilder formatBuilder = new StringBuilder();
             var args = new List<object?>();
             List<FormattableString> result = new List<FormattableString>();
