@@ -18,7 +18,7 @@ class ModelInitSerializer:
         self.enums = enums
 
     def serialize(self) -> str:
-        schemas = [s.name for s in self.code_model.public_model_types(self.models)]
+        schemas = [s.name for s in self.code_model.get_public_model_types(self.models)]
         schemas.sort()
         enums = [e.name for e in self.enums if not e.internal] if self.enums else None
 

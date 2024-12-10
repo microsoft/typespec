@@ -20,7 +20,6 @@ from ..models import (
     BodyParameter,
     FileImport,
 )
-from .utils import get_namespace_config, get_namespace_from_package_name
 from .._utils import get_parent_namespace
 
 _LOGGER = logging.getLogger(__name__)

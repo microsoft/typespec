@@ -44,7 +44,7 @@ class RequestBuildersSerializer(BaseSerializer):
 
     @property
     def serialize_namespace(self) -> str:
-        return self.code_model.get_serialize_namespace(self.client_namespace, namespace_type=NamespaceType.OPERATION)
+        return self.code_model.get_serialize_namespace(self.client_namespace, client_namespace_type=NamespaceType.OPERATION)
 
     def serialize_request_builders(self) -> str:
         template = self.env.get_template("request_builders.py.jinja2")

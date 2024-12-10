@@ -111,7 +111,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         serialize_namespace: str,
         imported_namespace: Optional[str] = None,
         *,
-        namespace_type: NamespaceType = NamespaceType.CLIENT,
+        imported_namespace_type: NamespaceType = NamespaceType.CLIENT,
         async_mode: bool = False,
         module_name: Optional[str] = None,
     ) -> str:
@@ -119,9 +119,9 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             imported_namespace = self.namespace
         else:
             async_namespace = ".aio" if async_mode else ""
-            if namespace_type == NamespaceType.MODEL:
+            if imported_namespace_type == NamespaceType.MODEL:
                 module_namespace = ".models"
-            elif namespace_type == NamespaceType.OPERATION:
+            elif imported_namespace_type == NamespaceType.OPERATION:
                 module_namespace = f".{self.operations_folder_name(imported_namespace)}"
             else:
                 module_namespace = ""
@@ -152,7 +152,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         if not self.need_unique_model_alias:
             return "_models"
         relative_path = self.get_relative_import_path(
-            serialize_namespace, imported_namespace, namespace_type=NamespaceType.MODEL
+            serialize_namespace, imported_namespace, imported_namespace_type=NamespaceType.MODEL
         )
         dot_num = max(relative_path.count(".") - 1, 0)
         parts = [""] + [p for p in relative_path.split(".") if p]
@@ -161,6 +161,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @property
     def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:
         if not self._client_namespace_types:
+            # calculate client namespace types for each kind of client namespace
             for client in self.clients:
                 if client.client_namespace not in self._client_namespace_types:
                     self._client_namespace_types[client.client_namespace] = ClientNamespaceType()
@@ -178,6 +179,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
                     self._client_namespace_types[operation_group.client_namespace] = ClientNamespaceType()
                 self._client_namespace_types[operation_group.client_namespace].operation_groups.append(operation_group)
 
+            # here we can check and record whether there are multi kinds of client namespace
             if len(self._client_namespace_types.keys()) > 1:
                 self.has_subnamespace = True
 
@@ -229,9 +231,11 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return self.clients[0].filename
 
     def get_clients(self, client_namespace: str) -> List[Client]:
+        """ Get all clients in specific namespace """
         return self.client_namespace_types.get(client_namespace, ClientNamespaceType()).clients
 
     def is_top_namespace(self, client_namespace: str) -> bool:
+        """Whether the namespace is the top namespace. For a package named 'azure-mgmt-service', 'azure.mgmt.service' is the top namespace"""
         return client_namespace == self.namespace
 
     def need_vendored_code(self, async_mode: bool, client_namespace: str) -> bool:
@@ -248,9 +252,9 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return self.is_top_namespace(client_namespace) and self.has_abstract_operations
     
     def need_vendored_mixin(self, client_namespace: str) -> bool:
-        return self.has_mixin_abc(client_namespace)
+        return self.has_mixin(client_namespace)
 
-    def has_mixin_abc(self, client_namespace: str) -> bool:
+    def has_mixin(self, client_namespace: str) -> bool:
         return any(c for c in self.get_clients(client_namespace) if c.has_mixin)
 
     @property
@@ -269,11 +273,12 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return self._operations_folder_name[client_namespace]
 
     def get_serialize_namespace(
-        self, client_namespace: str, async_mode: bool = False, namespace_type: NamespaceType = NamespaceType.CLIENT
+        self, client_namespace: str, async_mode: bool = False, client_namespace_type: NamespaceType = NamespaceType.CLIENT
     ) -> str:
-        if namespace_type == NamespaceType.CLIENT:
+        """calculate the namespace for serialization from client namespace"""
+        if client_namespace_type == NamespaceType.CLIENT:
             return client_namespace + (".aio" if async_mode else "")
-        if namespace_type == NamespaceType.MODEL:
+        if client_namespace_type == NamespaceType.MODEL:
             return client_namespace + ".models"
 
         operations_folder_name = self.operations_folder_name(client_namespace)
@@ -309,9 +314,13 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def model_types(self, val: List[ModelType]) -> None:
         self._model_types = val
 
-    def public_model_types(self, models: Optional[ModelType] = None) -> List[ModelType]:
-        models = self.model_types if models is None else models
+    @staticmethod
+    def get_public_model_types(models: List[ModelType]) -> List[ModelType]:
         return [m for m in models if not m.internal and not m.base == "json"]
+
+    @property
+    def public_model_types(self) -> List[ModelType]:
+        return self.get_public_model_types(self.model_types)
 
     @property
     def enums(self) -> List[EnumType]:

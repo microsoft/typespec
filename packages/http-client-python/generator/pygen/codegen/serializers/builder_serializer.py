@@ -32,6 +32,7 @@ from ..models import (
     ParameterListType,
     ByteArraySchema,
 )
+from ..models.utils import NamespaceType
 from .parameter_serializer import ParameterSerializer, PopKwargType
 from ..models.parameter_list import ParameterType
 from . import utils
@@ -188,11 +189,19 @@ def is_json_model_type(parameters: ParameterListType) -> bool:
 
 
 class _BuilderBaseSerializer(Generic[BuilderType]):
-    def __init__(self, code_model: CodeModel, async_mode: bool, serialize_namespace: Optional[str] = None) -> None:
+    def __init__(self, code_model: CodeModel, async_mode: bool, client_namespace: str) -> None:
         self.code_model = code_model
         self.async_mode = async_mode
-        self.serialize_namespace = code_model.namespace if serialize_namespace is None else serialize_namespace
+        self.client_namespace = client_namespace
         self.parameter_serializer = ParameterSerializer(self.serialize_namespace)
+
+    @property
+    def serialize_namespace(self) -> str:
+        return self.code_model.get_serialize_namespace(
+            self.client_namespace,
+            async_mode=self.async_mode,
+            client_namespace_type=NamespaceType.OPERATION,
+        )
 
     @property
     @abstractmethod
@@ -362,6 +371,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
 
 
 class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
+
     def description_and_summary(self, builder: RequestBuilderType) -> List[str]:
         retval = super().description_and_summary(builder)
         retval += [
@@ -1196,10 +1206,10 @@ PagingOperationType = TypeVar("PagingOperationType", bound=Union[PagingOperation
 
 
 class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
-    def __init__(self, code_model: CodeModel, async_mode: bool, serialize_namespace: Optional[str] = None) -> None:
+    def __init__(self, code_model: CodeModel, async_mode: bool, client_namespace: str) -> None:
         # for pylint reasons need to redefine init
         # probably because inheritance is going too deep
-        super().__init__(code_model, async_mode, serialize_namespace)
+        super().__init__(code_model, async_mode, client_namespace)
         # self.code_model = code_model
         # self.async_mode = async_mode
         # self.parameter_serializer = ParameterSerializer(self.serialize_namespace)
@@ -1361,10 +1371,10 @@ LROOperationType = TypeVar("LROOperationType", bound=Union[LROOperation, LROPagi
 
 
 class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
-    def __init__(self, code_model: CodeModel, async_mode: bool, serialize_namespace: Optional[str] = None) -> None:
+    def __init__(self, code_model: CodeModel, async_mode: bool, client_namespace: str) -> None:
         # for pylint reasons need to redefine init
         # probably because inheritance is going too deep
-        super().__init__(code_model, async_mode, serialize_namespace)
+        super().__init__(code_model, async_mode, client_namespace)
         # self.code_model = code_model
         # self.async_mode = async_mode
         # self.parameter_serializer = ParameterSerializer()
@@ -1510,7 +1520,7 @@ def get_operation_serializer(
     builder: Operation,
     code_model,
     async_mode: bool,
-    serialize_namespace: Optional[str] = None,
+    client_namespace: str,
 ) -> Union[
     OperationSerializer,
     PagingOperationSerializer,
@@ -1529,5 +1539,4 @@ def get_operation_serializer(
         ret_cls = LROOperationSerializer
     elif builder.operation_type == "paging":
         ret_cls = PagingOperationSerializer
-    serialize_namespace = code_model.namespace if serialize_namespace is None else serialize_namespace
-    return ret_cls(code_model, async_mode, serialize_namespace)
+    return ret_cls(code_model, async_mode, client_namespace)

@@ -311,7 +311,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
                     serialize_namespace,
                     og.client_namespace,
                     async_mode=async_mode,
-                    namespace_type=NamespaceType.OPERATION,
+                    imported_namespace_type=NamespaceType.OPERATION,
                 ),
                 og.class_name,
                 ImportType.LOCAL,

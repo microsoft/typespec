@@ -136,7 +136,7 @@ class _ModelSerializer(BaseSerializer, ABC):
 
     @property
     def serialize_namespace(self) -> str:
-        return self.code_model.get_serialize_namespace(self.client_namespace, namespace_type=NamespaceType.MODEL)
+        return self.code_model.get_serialize_namespace(self.client_namespace, client_namespace_type=NamespaceType.MODEL)
 
 
 class MsrestModelSerializer(_ModelSerializer):
@@ -150,7 +150,7 @@ class MsrestModelSerializer(_ModelSerializer):
         for model in self.models:
             file_import.merge(model.imports(is_operation_file=False))
             for param in self._init_line_parameters(model):
-                file_import.merge(param.imports(serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.MODEL))
+                file_import.merge(param.imports(serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.MODEL))
 
         return file_import
 
@@ -233,7 +233,7 @@ class DpgModelSerializer(_ModelSerializer):
             file_import.merge(model.imports(is_operation_file=False, serialize_namespace=self.serialize_namespace))
             for prop in model.properties:
                 file_import.merge(
-                    prop.imports(serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.MODEL)
+                    prop.imports(serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.MODEL)
                 )
             if model.is_polymorphic:
                 file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)

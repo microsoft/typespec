@@ -81,7 +81,7 @@ class EnumValue(BaseType):
             self.code_model.get_relative_import_path(
                 serialize_namespace,
                 self.enum_type.client_namespace,
-                namespace_type=NamespaceType.MODEL,
+                imported_namespace_type=NamespaceType.MODEL,
                 module_name=self.code_model.enums_filename,
             ),
             self.enum_type.name,
@@ -234,8 +234,8 @@ class EnumType(BaseType):
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
             alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
-            namespace_type = kwargs.get("namespace_type")
-            if namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
+            serialize_namespace_type = kwargs.get("serialize_namespace_type")
+            if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
                 file_import.add_submodule_import(
                     relative_path,
                     "models",
@@ -243,7 +243,7 @@ class EnumType(BaseType):
                     alias=alias,
                     typing_section=TypingSection.REGULAR,
                 )
-            elif namespace_type == NamespaceType.MODEL:
+            elif serialize_namespace_type == NamespaceType.MODEL:
                 file_import.add_submodule_import(
                     relative_path,
                     "models",

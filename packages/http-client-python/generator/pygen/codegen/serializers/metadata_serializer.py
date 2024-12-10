@@ -205,17 +205,13 @@ class MetadataSerializer(BaseSerializer):
                 get_operation_serializer,
                 code_model=self.client.code_model,
                 async_mode=True,
-                serialize_namespace=self.code_model.get_serialize_namespace(
-                    self.client_namespace, async_mode=True, namespace_type=NamespaceType.OPERATION
-                ),
+                client_namespace=self.client_namespace,
             ),
             get_sync_operation_serializer=functools.partial(
                 get_operation_serializer,
                 code_model=self.client.code_model,
                 async_mode=False,
-                serialize_namespace=self.code_model.get_serialize_namespace(
-                    self.client_namespace, async_mode=False, namespace_type=NamespaceType.OPERATION
-                ),
+                client_namespace=self.client_namespace,
             ),
             has_credential=bool(self.client.credential),
         )

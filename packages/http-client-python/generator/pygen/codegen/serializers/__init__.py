@@ -501,9 +501,9 @@ class JinjaSerializer(ReaderAndWriter):
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
         if not self.code_model.options["azure_arm"]:
-            for is_async in (True, False):
-                async_suffix = "_async" if is_async else ""
-                general_serializer.is_async = is_async
+            for async_mode in (True, False):
+                async_suffix = "_async" if async_mode else ""
+                general_serializer.async_mode = async_mode
                 self.write_file(
                     out_path / f"testpreparer{async_suffix}.py",
                     general_serializer.serialize_testpreparer(),
@@ -516,9 +516,9 @@ class JinjaSerializer(ReaderAndWriter):
                 ):
                     continue
                 test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)
-                for is_async in (True, False):
+                for async_mode in (True, False):
                     try:
-                        test_serializer.is_async = is_async
+                        test_serializer.async_mode = async_mode
                         self.write_file(
                             out_path / f"{to_snake_case(test_serializer.test_class_name)}.py",
                             test_serializer.serialize_test(),

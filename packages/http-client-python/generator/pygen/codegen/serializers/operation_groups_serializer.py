@@ -53,7 +53,7 @@ class OperationGroupsSerializer(BaseSerializer):
     @property
     def serialize_namespace(self) -> str:
         return self.code_model.get_serialize_namespace(
-            self.client_namespace, async_mode=self.async_mode, namespace_type=NamespaceType.OPERATION
+            self.client_namespace, async_mode=self.async_mode, client_namespace_type=NamespaceType.OPERATION
         )
 
     def serialize(self) -> str:
@@ -63,7 +63,7 @@ class OperationGroupsSerializer(BaseSerializer):
                 operation_group.imports(
                     async_mode=self.async_mode,
                     serialize_namespace=self.serialize_namespace,
-                    namespace_type=NamespaceType.OPERATION,
+                    serialize_namespace_type=NamespaceType.OPERATION,
                 )
             )
 
@@ -81,11 +81,12 @@ class OperationGroupsSerializer(BaseSerializer):
                 get_operation_serializer,
                 code_model=self.code_model,
                 async_mode=self.async_mode,
-                serialize_namespace=self.serialize_namespace,
+                client_namespace=self.client_namespace,
             ),
             request_builder_serializer=RequestBuilderSerializer(
                 self.code_model,
                 async_mode=False,
+                client_namespace=self.client_namespace,
             ),
             get_request_builders=self._get_request_builders,
         )

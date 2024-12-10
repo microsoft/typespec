@@ -24,7 +24,7 @@ mypy==1.13.0
 -e ./generated/azure-example-basic
 -e ./generated/azure-resource-manager-common-properties
 -e ./generated/azure-resource-manager-resources
--e ./generated/client-namespace
+# -e ./generated/client-namespace
 
 # common test case
 -e ./generated/authentication-api-key

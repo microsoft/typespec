@@ -72,7 +72,7 @@ class GeneralSerializer(BaseSerializer):
         for client in clients:
             imports.merge(
                 client.imports(
-                    self.async_mode, serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.CLIENT
+                    self.async_mode, serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.CLIENT
                 )
             )
 
@@ -159,7 +159,7 @@ class GeneralSerializer(BaseSerializer):
         for client in self.code_model.clients:
             imports.merge(
                 client.config.imports(
-                    self.async_mode, serialize_namespace=self.serialize_namespace, namespace_type=NamespaceType.CLIENT
+                    self.async_mode, serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.CLIENT
                 )
             )
         return template.render(
@@ -191,8 +191,8 @@ class GeneralSerializer(BaseSerializer):
 
     def serialize_cross_language_definition_file(self) -> str:
         cross_langauge_def_dict = {
-            f"{self.code_model.namespace}.models.{model.name}": model.cross_language_definition_id
-            for model in self.code_model.public_model_types()
+            f"{model.client_namespace}.models.{model.name}": model.cross_language_definition_id
+            for model in self.code_model.public_model_types
         }
         cross_langauge_def_dict.update(
             {

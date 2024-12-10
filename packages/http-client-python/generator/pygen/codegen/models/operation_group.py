@@ -110,7 +110,7 @@ class OperationGroup(BaseModel):
                     self.code_model.get_relative_import_path(
                         serialize_namespace,
                         self.client_namespace,
-                        namespace_type=NamespaceType.OPERATION,
+                        imported_namespace_type=NamespaceType.OPERATION,
                         async_mode=async_mode,
                     ),
                     og.class_name,
@@ -118,7 +118,7 @@ class OperationGroup(BaseModel):
                 )
         # for multiapi
         if (
-            (self.code_model.public_model_types())
+            (self.code_model.public_model_types)
             and self.code_model.options["models_mode"] == "msrest"
             and not self.is_mixin
         ):

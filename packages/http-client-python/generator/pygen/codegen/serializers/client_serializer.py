@@ -136,7 +136,7 @@ class ClientSerializer:
         is_msrest_model = self.client.code_model.options["models_mode"] == "msrest"
         if is_msrest_model:
             add_private_models = len(self.client.code_model.model_types) != len(
-                self.client.code_model.public_model_types()
+                self.client.code_model.public_model_types
             )
             model_dict_name = f"_models.{self.client.code_model.models_filename}" if add_private_models else "_models"
             retval.append(
