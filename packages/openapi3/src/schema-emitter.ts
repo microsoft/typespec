@@ -565,26 +565,18 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       if (Object.keys(additionalProps).length === 0) {
         return new ObjectBuilder(schema);
       } else {
+        const merged = new ObjectBuilder<OpenAPI3Schema>(schema);
+        for (const [key, value] of Object.entries(additionalProps)) {
+          merged.set(key, value);
+        }
+
         if (
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
-            return new ObjectBuilder({
-              type: "object",
-              allOf: B.array([schema]),
-              ...additionalProps,
-            });
-          } else {
-            return new ObjectBuilder({ allOf: B.array([schema]), ...additionalProps });
-          }
-        } else {
-          const merged = new ObjectBuilder<OpenAPI3Schema>(schema);
-          for (const [key, value] of Object.entries(additionalProps)) {
-            merged.set(key, value);
-          }
-          return merged;
+          merged.set("type", "object" as any);
         }
+        return merged;
       }
     };
 

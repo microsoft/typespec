@@ -541,12 +541,12 @@ describe("openapi3: union type", () => {
         anyOf: [
           {
             type: "object",
-            allOf: [{ $ref: "#/components/schemas/MyStr" }],
+            $ref: "#/components/schemas/MyStr",
             nullable: true,
           },
           {
             type: "object",
-            allOf: [{ $ref: "#/components/schemas/Foo" }],
+            $ref: "#/components/schemas/Foo",
             nullable: true,
           },
         ],
@@ -566,7 +566,7 @@ describe("openapi3: union type", () => {
         anyOf: [
           {
             type: "object",
-            allOf: [{ $ref: "#/components/schemas/Foo" }],
+            $ref: "#/components/schemas/Foo",
             nullable: true,
           },
           {
@@ -589,7 +589,7 @@ describe("openapi3: union type", () => {
         `);
 
       expect(openApi.components.schemas.Test).toMatchObject({
-        allOf: [{ $ref: "#/components/schemas/Other" }],
+        $ref: "#/components/schemas/Other",
         nullable: true,
       });
     });

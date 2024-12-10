@@ -16,7 +16,7 @@ describe("openapi3: nullable properties", () => {
     );
     deepStrictEqual(res.components.schemas.Thing.properties.properties, {
       type: "object",
-      allOf: [{ $ref: "#/components/schemas/Thing" }],
+      $ref: "#/components/schemas/Thing",
       nullable: true,
     });
   });
@@ -34,11 +34,7 @@ describe("openapi3: nullable properties", () => {
         }
         `,
     );
-    deepStrictEqual(res.schemas.X.properties.prop.allOf, [
-      {
-        $ref: "#/components/schemas/A",
-      },
-    ]);
+    deepStrictEqual(res.schemas.X.properties.prop.$ref, "#/components/schemas/A");
     ok(res.schemas.X.properties.prop.nullable);
   });
 
