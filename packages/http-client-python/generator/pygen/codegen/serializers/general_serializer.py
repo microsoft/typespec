@@ -85,12 +85,13 @@ class GeneralSerializer(BaseSerializer):
             serialize_namespace=self.serialize_namespace,
         )
 
-    def serialize_vendor_file(self, clients: List[Client]) -> str:
+    def serialize_vendor_file(self) -> str:
         template = self.env.get_template("vendor.py.jinja2")
+        clients = self.code_model.get_clients(self.client_namespace)
 
         # configure imports
         file_import = FileImport(self.code_model)
-        if self.code_model.need_mixin_abc:
+        if self.code_model.need_vendored_mixin(self.client_namespace):
             file_import.add_submodule_import(
                 "abc",
                 "ABC",
@@ -110,18 +111,18 @@ class GeneralSerializer(BaseSerializer):
             for client in clients:
                 if client.has_mixin:
                     file_import.add_submodule_import(
-                        self.code_model.get_relative_import_path(self.serialize_namespace, client.client_namespace, async_mode=self.async_mode, module_name="_configuration"),
+                        "._configuration",
                         f"{client.name}Configuration",
                         ImportType.LOCAL,
                     )
-        if self.code_model.has_etag:
+        if self.code_model.need_vendored_etag(self.client_namespace):
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             file_import.add_submodule_import(
                 "",
                 "MatchConditions",
                 ImportType.SDKCORE,
             )
-        if self.code_model.has_form_data and self.code_model.options["models_mode"] == "dpg" and not self.async_mode:
+        if self.code_model.need_vendored_form_data(self.async_mode, self.client_namespace):
             file_import.add_submodule_import("typing", "IO", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Tuple", ImportType.STDLIB)
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB)
@@ -149,6 +150,7 @@ class GeneralSerializer(BaseSerializer):
             ),
             async_mode=self.async_mode,
             clients=clients,
+            client_namespace=self.client_namespace,
         )
 
     def serialize_config_file(self, clients: List[Client]) -> str:

@@ -373,17 +373,23 @@ class JinjaSerializer(ReaderAndWriter):
             # if there was a patch file before, we keep it
             self._keep_patch_file(exec_path / Path(f"{async_path}_patch.py"), env)
 
-    def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
+            # sometimes we need define additional Mixin class for client in _vendor.py
+            self._serialize_and_write_vendor_file(env, namespace)
+
+    def _serialize_and_write_vendor_file(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)
         # write _vendor.py
         for async_mode, async_path in self.serialize_loop:
-            if self.code_model.need_vendored_code(async_mode=async_mode):
+            if self.code_model.need_vendored_code(async_mode=async_mode, client_namespace=namespace):
                 self.write_file(
                     exec_path / Path(f"{async_path}_vendor.py"),
-                    GeneralSerializer(code_model=self.code_model, env=env, async_mode=async_mode).serialize_vendor_file(
-                        self.code_model.clients
-                    ),
+                    GeneralSerializer(code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace).serialize_vendor_file(),
                 )
+
+    def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
+        exec_path = self.exec_path(namespace)
+        # write _vendor.py
+        self._serialize_and_write_vendor_file(env, namespace)
 
         general_serializer = GeneralSerializer(code_model=self.code_model, env=env, async_mode=False)
 

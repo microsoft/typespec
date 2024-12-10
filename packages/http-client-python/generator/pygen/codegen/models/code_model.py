@@ -228,17 +228,30 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def client_filename(self) -> str:
         return self.clients[0].filename
 
-    def need_vendored_code(self, async_mode: bool) -> bool:
-        """Whether we need to vendor code in the _vendor.py file for this SDK"""
-        if self.has_abstract_operations:
-            return True
-        if async_mode:
-            return self.need_mixin_abc
-        return self.need_mixin_abc or self.has_etag or self.has_form_data
+    def get_clients(self, client_namespace: str) -> List[Client]:
+        return self.client_namespace_types.get(client_namespace, ClientNamespaceType()).clients
 
-    @property
-    def need_mixin_abc(self) -> bool:
-        return any(c for c in self.clients if c.has_mixin)
+    def is_top_namespace(self, client_namespace: str) -> bool:
+        return client_namespace == self.namespace
+
+    def need_vendored_code(self, async_mode: bool, client_namespace: str) -> bool:
+        """Whether we need to vendor code in the _vendor.py in specific namespace"""
+        self.need_vendored_form_data(async_mode, client_namespace) or self.need_vendored_etag(client_namespace) or self.need_vendored_abstract(client_namespace) or self.need_vendored_mixin(client_namespace)
+    
+    def need_vendored_form_data(self, async_mode: bool, client_namespace: str) -> bool:
+        return (not async_mode) and self.is_top_namespace(client_namespace) and self.has_form_data and self.options["models_mode"] == "dpg"
+    
+    def need_vendored_etag(self, client_namespace: str) -> bool:
+        return self.is_top_namespace(client_namespace) and self.has_etag
+    
+    def need_vendored_abstract(self, client_namespace: str) -> bool:
+        return self.is_top_namespace(client_namespace) and self.has_abstract_operations
+    
+    def need_vendored_mixin(self, client_namespace: str) -> bool:
+        return self.has_mixin_abc(client_namespace)
+
+    def has_mixin_abc(self, client_namespace: str) -> bool:
+        return any(c for c in self.get_clients(client_namespace) if c.has_mixin)
 
     @property
     def has_abstract_operations(self) -> bool:
@@ -297,7 +310,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self._model_types = val
 
     def public_model_types(self, models: Optional[ModelType] = None) -> List[ModelType]:
-        models = models or self.model_types
+        models = self.model_types if models is None else models
         return [m for m in models if not m.internal and not m.base == "json"]
 
     @property
