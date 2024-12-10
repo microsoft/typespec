@@ -6,7 +6,7 @@ import { BasicTestRunner } from "@typespec/compiler/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
 import { uriTemplateLib } from "../../../src/components/external-packages/uri-template.js";
 import { HttpResponse } from "../../../src/components/http-response.jsx";
-import { ModelsFile } from "../../../src/components/models-file.jsx";
+import { Models } from "../../../src/components/models.jsx";
 import { ModelSerializers } from "../../../src/components/serializers.jsx";
 import { createHttpClientJavascriptEmitterTestRunner } from "../../test-host.js";
 
@@ -78,7 +78,7 @@ describe("HttpResponse", () => {
 
     const res = render(
       <Output namePolicy={namePolicy} externals={[uriTemplateLib]}>
-         <ModelsFile types={[Widget]} />
+         <Models types={[Widget]} />
          <ModelSerializers types={[Widget]}/>
         <ts.SourceFile path="test.ts">
           <HttpResponse operation={read} responseRefkey={refkey()} />
@@ -125,7 +125,7 @@ describe("HttpResponse", () => {
 
     const res = render(
       <Output namePolicy={namePolicy} externals={[uriTemplateLib]}>
-         <ModelsFile types={[Widget]} />
+         <Models types={[Widget]} />
          <ModelSerializers types={[Widget]}/>
         <ts.SourceFile path="test.ts">
           <HttpResponse operation={read} responseRefkey={refkey()} />
@@ -176,7 +176,7 @@ describe("HttpResponse", () => {
 
     const res = render(
       <Output namePolicy={namePolicy} externals={[uriTemplateLib]}>
-         <ModelsFile types={[Widget]} />
+         <Models types={[Widget]} />
          <ModelSerializers types={[Widget]}/>
         <ts.SourceFile path="test.ts">
           <HttpResponse operation={read} responseRefkey={refkey()} />

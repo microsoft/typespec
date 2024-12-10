@@ -3,12 +3,12 @@ import * as ts from "@alloy-js/typescript";
 import { Type } from "@typespec/compiler";
 import * as ef from "@typespec/emitter-framework/typescript";
 
-export interface ModelsFileProps {
+export interface ModelsProps {
   path?: string;
   types: Type[];
 }
 
-export function ModelsFile(props: ModelsFileProps) {
+export function Models(props: ModelsProps) {
   return <ts.SourceFile path={props.path ?? "models.ts"}>
       {mapJoin(
         props.types,

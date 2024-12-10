@@ -5,7 +5,7 @@ import { Model, Operation } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
 import { HttpRequestOptions } from "../../../src/components/http-request-options.jsx";
-import { ModelsFile } from "../../../src/components/models-file.jsx";
+import { Models } from "../../../src/components/models.jsx";
 import { ModelSerializers } from "../../../src/components/serializers.jsx";
 import { createHttpClientJavascriptEmitterTestRunner } from "../../test-host.js";
 
@@ -262,7 +262,7 @@ describe("HttpRequestBody", () => {
 
     const res = render(
       <Output namePolicy={namePolicy}>
-        <ModelsFile types={[Widget]} />
+        <Models types={[Widget]} />
         <ModelSerializers types={[Widget]} />
         <ts.SourceFile path="test.ts">
           {code`
@@ -307,7 +307,7 @@ describe("HttpRequestBody", () => {
 
     const res = render(
       <Output namePolicy={namePolicy}>
-        <ModelsFile types={[Widget]} />
+        <Models types={[Widget]} />
         <ModelSerializers types={[Widget]} />
         <ts.SourceFile path="test.ts">
           <HttpRequestOptions.Body operation={read} />
