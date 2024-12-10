@@ -1,11 +1,12 @@
-export interface TodoContext {
-  endpoint: string;
-}
-export interface TodoOptions {
+import { Client, ClientOptions, KeyCredential, getClient } from "@typespec/ts-http-runtime";
+
+export interface TodoClientContext extends Client {}
+export interface TodoClientOptions extends ClientOptions {
   endpoint?: string;
 }
-export function createTodoContext(endpoint: string, options?: TodoOptions): TodoContext {
-  return {
-    endpoint,
-  };
+export function createTodoClientContext(
+  endpoint: string,
+  credential: KeyCredential | KeyCredential,
+): TodoClientContext {
+  return getClient(endpoint, credential, { allowInsecureConnection: true });
 }

@@ -4,57 +4,51 @@ import {
   EmitContext,
   Enum,
   getNamespaceFullName,
-  listServices,
   Model,
   navigateProgram,
   navigateType,
   Operation,
   Scalar,
-  Service,
   Type,
   Union,
 } from "@typespec/compiler";
-import { ClientLibrary } from "@typespec/http-client-library/components";
-import { ClientContext } from "./components/client-context.js";
-import { ClientFile } from "./components/client.jsx";
+import { $ } from "@typespec/compiler/typekit";
+import { ClientContext } from "./components/client-context/client-context.jsx";
+import { ClientDirectory } from "./components/client-directory.jsx";
+import { ClientOperations } from "./components/client-operation.jsx";
+import { Client } from "./components/client.jsx";
+import { httpRuntimeTemplateLib } from "./components/external-packages/ts-http-runtime.js";
 import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 import { ModelsFile } from "./components/models-file.js";
-import { Operations } from "./components/operations-file.js";
 import { ModelSerializers } from "./components/serializers.js";
-import {
-  HttpFetchDeclaration,
-  HttpFetchOptionsDeclaration,
-} from "./components/static-fetch-wrapper.jsx";
 
 export async function $onEmit(context: EmitContext) {
   const visited = operationWalker(context);
   const tsNamePolicy = ts.createTSNamePolicy();
-  const service: Service | undefined = listServices(context.program)[0];
-  return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib]}>
-      <ClientLibrary scope="typescript">
+  const rootNs = $.clientLibrary.listNamespaces()[0]; // TODO: Handle multiple namespaces
+  const topLevelClient = $.client.getClient(rootNs); // TODO: Handle multiple clients
+  const flatClients = $.client.flat(topLevelClient);
+  return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib, httpRuntimeTemplateLib]}>
         <ts.PackageDirectory name="test-package" version="1.0.0" path=".">
           <ay.SourceDirectory path="src">
             <ts.BarrelFile export="." />
-            <ClientFile service={service}  />
+            <Client client={topLevelClient} />
             <ay.SourceDirectory path="models">
               <ts.BarrelFile />
               <ModelsFile types={visited.dataTypes} />
               <ModelSerializers types={visited.dataTypes} />
             </ay.SourceDirectory>
             <ay.SourceDirectory path="api">
-              <ClientContext service={service} />
-              <Operations operations={visited.operations} service={service} />
-              <ts.BarrelFile />
-            </ay.SourceDirectory>
-            <ay.SourceDirectory path="utilities">
-              <ts.SourceFile path="http-fetch.ts">
-                <HttpFetchOptionsDeclaration />
-                <HttpFetchDeclaration />
-              </ts.SourceFile>
+              <ts.BarrelFile export="." />
+              {ay.mapJoin(flatClients, (client) => (
+                <ClientDirectory client={client}>
+                  <ClientOperations client={client} />
+                  <ClientContext client={client} />
+                </ClientDirectory>
+              ))}
             </ay.SourceDirectory>
           </ay.SourceDirectory>
         </ts.PackageDirectory>
-      </ClientLibrary>
     </ay.Output>;
 }
 

@@ -8,10 +8,6 @@ import { uriTemplateLib } from "../../../src/components/external-packages/uri-te
 import { HttpRequest } from "../../../src/components/http-request.jsx";
 import { ModelsFile } from "../../../src/components/models-file.jsx";
 import { ModelSerializers } from "../../../src/components/serializers.jsx";
-import {
-  HttpFetchDeclaration,
-  HttpFetchOptionsDeclaration,
-} from "../../../src/components/static-fetch-wrapper.jsx";
 import { createHttpClientJavascriptEmitterTestRunner } from "../../test-host.js";
 
 const namePolicy = ts.createTSNamePolicy();
@@ -40,10 +36,6 @@ describe("HttpRequest", () => {
 
     const res = render(
       <Output namePolicy={namePolicy} externals={[uriTemplateLib]}>
-        <ts.SourceFile path="http-fetch.ts">
-          <HttpFetchOptionsDeclaration />
-          <HttpFetchDeclaration />
-        </ts.SourceFile>
         <ts.SourceFile path="test.ts">
           <HttpRequest operation={read} />
         </ts.SourceFile>
@@ -99,10 +91,6 @@ describe("HttpRequest", () => {
       <Output namePolicy={namePolicy} externals={[uriTemplateLib]}>
         <ModelsFile types={[Widget]} />
         <ModelSerializers types={[Widget]}/>
-        <ts.SourceFile path="http-fetch.ts">
-          <HttpFetchOptionsDeclaration />
-          <HttpFetchDeclaration />
-        </ts.SourceFile>
         <ts.SourceFile path="test.ts">
           <HttpRequest operation={read} />
         </ts.SourceFile>
@@ -157,10 +145,6 @@ describe("HttpRequest", () => {
 
     const res = render(
       <Output namePolicy={namePolicy} externals={[uriTemplateLib]}>
-        <ts.SourceFile path="http-fetch.ts">
-          <HttpFetchOptionsDeclaration />
-          <HttpFetchDeclaration />
-        </ts.SourceFile>
         <ts.SourceFile path="test.ts">
           <HttpRequest operation={read} />
         </ts.SourceFile>

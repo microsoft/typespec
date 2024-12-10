@@ -2,6 +2,7 @@ import { ModelProperty, Operation, Type } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
+import { clientOperationCache } from "./client.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
 
 export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation> {
@@ -26,6 +27,11 @@ export interface SdkOperationKit extends NameKit<Operation>, AccessKit<Operation
    * Get exception response type for an operation
    */
   getExceptionReturnType(operation: Operation): Type | undefined;
+  /**
+   * Gets the client in which the operation is defined
+   * @param operation operation to find out which client it belongs to
+   */
+  getClient(operation: Operation): Client | undefined;
 }
 
 interface SdkKit {
@@ -39,6 +45,15 @@ declare module "@typespec/compiler/typekit" {
 
 defineKit<SdkKit>({
   operation: {
+    getClient(operation) {
+      for (const [client, operations] of clientOperationCache.entries()) {
+        if (operations.includes(operation)) {
+          return client;
+        }
+      }
+
+      return undefined;
+    },
     getOverloads(client, operation) {
       if (operation.name === "constructor") {
         const constructors = getConstructors(client);

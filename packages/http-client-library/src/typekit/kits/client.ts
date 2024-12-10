@@ -14,6 +14,11 @@ import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<Client> {
   /**
+   * Get the parent of a client
+   * @param type The client to get the parent of
+   */
+  getParent(type: Client | Namespace | Interface): Client | undefined;
+  /**
    * Flatten a client into a list of clients. This will include the client and all its sub clients recursively.
    * @param client The client to flatten
    */
@@ -61,10 +66,19 @@ function getClientName(name: string): string {
   return name.endsWith("Client") ? name : `${name}Client`;
 }
 
-const clientCache = new Map<Namespace | Interface, Client>();
+export const clientCache = new Map<Namespace | Interface, Client>();
+export const clientOperationCache = new Map<Client, Operation[]>();
 
 defineKit<TypeKit>({
   client: {
+    getParent(client) {
+      const type = client.kind === "Client" ? client.type : client;
+      if (type.namespace && type.namespace !== $.program.getGlobalNamespaceType()) {
+        return this.client.getClient(type.namespace);
+      }
+
+      return undefined;
+    },
     flat(client) {
       const clientStack = [client];
       const clients: Client[] = [];
@@ -106,6 +120,10 @@ defineKit<TypeKit>({
       return client.type.kind === "Namespace";
     },
     listServiceOperations(client) {
+      if (clientOperationCache.has(client)) {
+        return clientOperationCache.get(client)!;
+      }
+
       const operations: Operation[] = [];
 
       function addOperations(current: Namespace | Interface) {
@@ -131,6 +149,8 @@ defineKit<TypeKit>({
       }
 
       addOperations(client.type);
+
+      clientOperationCache.set(client, operations);
       return operations;
     },
     getUrlTemplate(client, constructor) {

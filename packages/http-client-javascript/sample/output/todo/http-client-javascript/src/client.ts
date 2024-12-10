@@ -1,75 +1,81 @@
-import { TodoContext, TodoOptions, createTodoContext } from "./api/clientContext.js";
-import { createAttachment, list as list_2 } from "./api/todoItems/attachments/operations.js";
-import { create as create_2, delete_, get, list, update } from "./api/todoItems/operations.js";
-import { create } from "./api/users/operations.js";
+import { KeyCredential } from "@typespec/ts-http-runtime";
+import {
+  AttachmentsClientContext,
+  createAttachmentsClientContext,
+} from "./api/attachmentsClient/clientContext.js";
+import { createAttachment, list as list_2 } from "./api/attachmentsClient/operations.js";
+import { TodoClientContext, createTodoClientContext } from "./api/clientContext.js";
+import {
+  TodoItemsClientContext,
+  createTodoItemsClientContext,
+} from "./api/todoItemsClient/clientContext.js";
+import { create, delete_, get, list, update } from "./api/todoItemsClient/operations.js";
+import { UsersClientContext, createUsersClientContext } from "./api/usersClient/clientContext.js";
+import { create as create_2 } from "./api/usersClient/operations.js";
 import { TodoAttachment, TodoItem, TodoItemPatch, User } from "./models/models.js";
 
 export class TodoClient {
-  todoItems: TodoItemsClient;
-  attachments: AttachmentsClient;
-  users: UsersClient;
-  #context: TodoContext;
-  constructor(endpoint: string, options?: TodoOptions) {
-    this.#context = createTodoContext(endpoint, options);
-    this.todoItems = new TodoItemsClient(this.#context);
-    this.attachments = new AttachmentsClient(this.#context);
-    this.users = new UsersClient(this.#context);
+  #context: TodoClientContext;
+  usersClient: UsersClient;
+  todoItemsClient: TodoItemsClient;
+  constructor(endpoint: string, credential: KeyCredential | KeyCredential) {
+    this.#context = createTodoClientContext(endpoint, credential);
+    this.usersClient = new UsersClient(endpoint);
+    this.todoItemsClient = new TodoItemsClient(endpoint);
   }
 }
+
 export class TodoItemsClient {
-  attachments: AttachmentsClient;
-  #context: TodoContext;
-  constructor(context: TodoContext) {
-    this.#context = context;
-    this.attachments = new AttachmentsClient(this.#context);
+  #context: TodoItemsClientContext;
+  attachmentsClient: AttachmentsClient;
+  constructor(endpoint: string) {
+    this.#context = createTodoItemsClientContext(endpoint);
+    this.attachmentsClient = new AttachmentsClient(endpoint);
   }
-  list(options?: { limit?: number; offset?: number }) {
+  async list(options?: { limit?: number; offset?: number }) {
     return list(this.#context, options);
   }
-
-  create(
+  async create(
     item: TodoItem,
     contentType: "application/json",
     options?: {
       attachments?: TodoAttachment[];
     },
   ) {
-    return create_2(this.#context, item, contentType, options);
+    return create(this.#context, item, contentType, options);
   }
-
-  get(id: number) {
+  async get(id: number) {
     return get(this.#context, id);
   }
-
-  update(id: number, patch: TodoItemPatch, contentType: "application/merge-patch+json") {
+  async update(id: number, patch: TodoItemPatch, contentType: "application/merge-patch+json") {
     return update(this.#context, id, patch, contentType);
   }
-
-  delete(id: number) {
+  async delete(id: number) {
     return delete_(this.#context, id);
   }
 }
 
 export class AttachmentsClient {
-  #context: TodoContext;
-  constructor(context: TodoContext) {
-    this.#context = context;
+  #context: AttachmentsClientContext;
+
+  constructor(endpoint: string) {
+    this.#context = createAttachmentsClientContext(endpoint);
   }
-  list(itemId: number) {
+  async list(itemId: number) {
     return list_2(this.#context, itemId);
   }
-
-  createAttachment(itemId: number, contents: TodoAttachment) {
+  async createAttachment(itemId: number, contents: TodoAttachment) {
     return createAttachment(this.#context, itemId, contents);
   }
 }
 
 export class UsersClient {
-  #context: TodoContext;
-  constructor(context: TodoContext) {
-    this.#context = context;
+  #context: UsersClientContext;
+
+  constructor(endpoint: string) {
+    this.#context = createUsersClientContext(endpoint);
   }
-  create(user: User) {
-    return create(this.#context, user);
+  async create(user: User) {
+    return create_2(this.#context, user);
   }
 }

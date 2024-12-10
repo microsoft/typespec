@@ -1,125 +1,133 @@
-import { refkey as getRefkey, mapJoin, refkey } from "@alloy-js/core";
+import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Interface, Namespace, Operation, Service } from "@typespec/compiler";
+import { ClassDeclaration } from "@alloy-js/typescript";
+import { $ } from "@typespec/compiler/typekit";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
-import { getClientParams } from "../utils/client.js";
+import * as cl from "@typespec/http-client-library";
 import { prepareOperation } from "../utils/operations.js";
-import { ClientContextFactoryRefkey, ClientContextRefkey } from "./client-context.jsx";
-
-export interface ClientFileProps {
-  name?: string;
-  service?: Service;
-}
-
-export function ClientFile(props: ClientFileProps) {
-  if (!props.service) {
-    return null;
-  }
-
-  const clientlets = getClientlets(props.service.type);
-
-  return <ts.SourceFile path="client.ts"> 
-    <Client type={props.service.type} />
-    {mapJoin(clientlets, (container) => <Client clientlet type={container} />, {joiner: "\n\n"})}
-  </ts.SourceFile>;
-}
-
-function getClientlets(rootNamespace: Namespace): (Namespace | Interface)[] {
-  const clientlets = new Set<Namespace | Interface>();
-  const stack = [...rootNamespace.namespaces.values(), ...rootNamespace.interfaces.values()];
-  while (stack.length > 0) {
-    const container = stack.pop();
-    if (!container) {
-      continue;
-    }
-
-    if (container.operations.size > 0) {
-      clientlets.add(container);
-    }
-
-    if (container.kind === "Namespace") {
-      stack.push(...container.interfaces.values());
-      for (const child of container.namespaces.values()) {
-        stack.push(child);
-      }
-    }
-  }
-  return Array.from(clientlets);
-}
+import { buildClientParameters } from "../utils/parameters.jsx";
+import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";
+import { getClientContextFactoryRef } from "./client-context/client-context-factory.jsx";
 
 export interface ClientProps {
-  name?: string;
-  clientlet?: boolean;
-  type: Namespace | Interface;
+  client: cl.Client;
 }
 
 export function Client(props: ClientProps) {
+  if (!props.client) {
+    return null;
+  }
+
+  const clients = $.client.flat(props.client);
+  return <ts.SourceFile path="client.ts" >
+    {ay.mapJoin(clients, (client) => <ClientClass client={client} />, { joiner: "\n\n" })}
+  </ts.SourceFile>;
+}
+
+export interface ClientClassProps {
+  client: cl.Client;
+}
+
+export function getClientClassRef(client: cl.Client) {
+  const refkey = ay.refkey(client.type, "client-class");
+  return {
+    key: refkey,
+    component: <ts.Reference refkey={refkey} />,
+  };
+}
+
+function getClientContextFieldRef(client: cl.Client) {
+  const refkey = ay.refkey(client.type, "client-context");
+  return {
+    key: refkey,
+    component: <ts.Reference refkey={refkey} />,
+  };
+}
+export function ClientClass(props: ClientClassProps) {
   const namePolicy = ts.useTSNamePolicy();
-  const name = props.name ?? props.type.name;
-  const className = namePolicy.getName(`${name}Client`, "class");
-  const methods = props.type.operations;
-  const clientlets = props.type.kind === "Namespace" ? getClientlets(props.type) : [];
-  const clientParameters = getClientParams(props.type, { isClientlet: props.clientlet });
-  const paramsInit = Object.keys(clientParameters);
-  const thisContext = refkey();
-
-  const contextInit = props.clientlet ? (
-    <><ts.Reference refkey={thisContext} /> = context</>
-  ) : (
-    <> <ts.Reference refkey={thisContext} /> = <ts.FunctionCallExpression refkey={ClientContextFactoryRefkey} args={paramsInit} /></>
-  );
-
-  return <ts.ClassDeclaration export name={className} refkey={getClientletClassRefkey(props.type)}>
-  {mapJoin(clientlets, (namespace) => <ClientletField type={namespace} />, {joiner: "\n"})}
-  <ts.ClassField name="context" jsPrivate={true} refkey={thisContext} type={<ts.Reference refkey={ClientContextRefkey} />}/>
-    <ts.ClassMethod name="constructor" parameters={clientParameters}>
-     {contextInit}
-      {mapJoin(clientlets, (namespace) => {
-        return <>
-          <ts.Reference refkey={getClientletFieldRefkey(namespace)} /> = new <ts.Reference refkey={getClientletClassRefkey(namespace)} />({thisContext});
-        </>
-      }, {joiner: "\n"})}
-    </ts.ClassMethod>
-    <OperationClassMethods operations={methods} />
-</ts.ClassDeclaration>;
+  const clientName = namePolicy.getName($.client.getName(props.client), "class");
+  const contextMemberRef = getClientContextFieldRef(props.client).key;
+  const contextDeclarationRef = getClientcontextDeclarationRef(props.client);
+  const clientClassRef = getClientClassRef(props.client);
+  const subClients = $.clientLibrary.listClients(props.client);
+  const operations = $.client.listServiceOperations(props.client);
+  return <ClassDeclaration export name={clientName} refkey={clientClassRef.key}>
+    <ts.ClassField name="context" jsPrivate refkey={contextMemberRef} type={contextDeclarationRef.component} />;
+    {ay.mapJoin(subClients, subClient => (
+      <SubClientClassField client={subClient} />
+    ), { joiner: "\n" })}
+    <ClientConstructor client={props.client} />
+    {ay.mapJoin(operations, op => {
+      const clientOperation = prepareOperation(op);
+      const args = [...clientOperation.parameters.properties.keys()];
+      return <ClassMethod async type={clientOperation} returnType={null}>
+          return <ts.FunctionCallExpression refkey={ay.refkey(clientOperation)} args={["this.#context", ...args]}/>;
+      </ClassMethod>
+    })}
+  </ClassDeclaration>;
 }
 
-export interface ClientletFieldProps {
-  type: Namespace | Interface;
+interface SubClientClassFieldProps {
+  client: cl.Client;
 }
 
-export function ClientletField(props: ClientletFieldProps) {
+function getSubClientClassFieldRef(client: cl.Client) {
+  const refkey = ay.refkey(client.type, "client-field");
+  return {
+    key: refkey,
+    component: <ts.Reference refkey={refkey} />,
+  };
+}
+
+function SubClientClassField(props: SubClientClassFieldProps) {
   const namePolicy = ts.useTSNamePolicy();
-  const name = namePolicy.getName(props.type.name, "class");
-  const refkey = getClientletClassRefkey(props.type);
-  return <ts.ClassField 
-    name={name} 
-    type={<ts.Reference refkey={refkey}/>}
-    refkey={getClientletFieldRefkey(props.type)} />;
+  const fieldName = namePolicy.getName($.client.getName(props.client), "class");
+  const subClientClassRef = getClientClassRef(props.client);
+  const subClientFieldRef = getSubClientClassFieldRef(props.client);
+  return <ts.ClassField name={fieldName} type={subClientClassRef.component} refkey={subClientFieldRef.key} />;
 }
 
-function getClientletClassRefkey(type: Namespace | Interface) {
-  return getRefkey(type, "client");
+interface ClientConstructorProps {
+  client: cl.Client;
 }
 
-function getClientletFieldRefkey(type: Namespace | Interface) {
-  return getRefkey(type, "field");
+function getClientConstructorRef(client: cl.Client) {
+  const refkey = ay.refkey(client.type, "client-constructor");
+  return {
+    key: refkey,
+    component: <ts.Reference refkey={refkey} />,
+  };
 }
 
-export interface ClientMethodsProps {
-  operations: Map<string, Operation>;
+function ClientConstructor(props: ClientConstructorProps) {
+  const subClients = $.clientLibrary.listClients(props.client);
+  const clientContextFieldRef = getClientContextFieldRef(props.client);
+  const clientContextFactoryRef = getClientContextFactoryRef(props.client);
+  const constructorParameters = buildClientParameters(props.client);
+  const args = Object.keys(constructorParameters);
+
+  return <ts.ClassMethod name="constructor" parameters={constructorParameters}>
+    {clientContextFieldRef.component} = <ts.FunctionCallExpression refkey={clientContextFactoryRef.key}  args={args}/>;
+    {ay.mapJoin(subClients, subClient => {
+      const subClientFieldRef = getSubClientClassFieldRef(subClient);
+      return <>
+        {subClientFieldRef.component} = <NewClientExpression client={subClient} />;
+      </>
+    }, {joiner: "\n"})}
+  </ts.ClassMethod>;
 }
 
-export function OperationClassMethods(props: ClientMethodsProps) {
-  return mapJoin(
-    props.operations,
-    (_name, operation) => {
-      const preparedOperation = prepareOperation(operation);
-      const args = [...preparedOperation.parameters.properties.keys()];
-      return <ClassMethod type={preparedOperation} returnType="">
-      return <ts.FunctionCallExpression refkey={getRefkey(preparedOperation)} args={["this.#context", ...args]}/>;
-    </ClassMethod>;
-    },
-    { joiner: "\n\n" },
-  );
+export interface NewClientExpressionProps {
+  client: cl.Client;
+}
+
+function NewClientExpression(props: NewClientExpressionProps) {
+  const clientConstructorRef = getClientClassRef(props.client);
+  const clientParams = buildClientParameters(props.client);
+
+  const args = Object.keys(clientParams);
+
+  return <>
+    new <ts.FunctionCallExpression refkey={clientConstructorRef.key} args={args} />
+  </>;
 }

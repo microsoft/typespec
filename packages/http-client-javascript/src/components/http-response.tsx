@@ -44,14 +44,13 @@ export function HttpResponses(props: HttpResponsesProps) {
       if (body && body.bodyKind === "single") {
         expression =
           <>
-      const bodyJson = await response.json();
-      return <TypeTransformCall type={body.type} target="application" itemPath={["bodyJson"]} />;
+      return <TypeTransformCall type={body.type} target="application" itemPath={["response", "body"]} />;
       </>;
       }
 
       if ($.httpResponse.statusCode.isSingle(statusCode)) {
         return code`
-      if (response.status === ${statusCode}${contentTypeCheck}) {
+      if (+response.status === ${statusCode} ${contentTypeCheck}) {
         ${expression}
       }
       `;
@@ -59,7 +58,7 @@ export function HttpResponses(props: HttpResponsesProps) {
 
       if ($.httpResponse.statusCode.isRange(statusCode)) {
         return code`
-      if (response.status >= ${statusCode.start} && response.status <= ${statusCode.end} ${contentTypeCheck}) {
+      if (+response.status >= ${statusCode.start} && +response.status <= ${statusCode.end} ${contentTypeCheck}) {
         ${expression}
       }
       `;

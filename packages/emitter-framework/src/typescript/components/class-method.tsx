@@ -19,7 +19,7 @@ export function ClassMethod(props: ClassMethodProps) {
   const refkey = props.refkey ?? getRefkey(props.type, "method");
 
   const name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
-  const returnType = props.returnType ?? <TypeExpression type={getReturnType(props.type)} />;
+  const returnType = props.returnType === null ? undefined : <TypeExpression type={getReturnType(props.type)} />;
 
   return <ts.ClassMethod
     refkey={refkey}

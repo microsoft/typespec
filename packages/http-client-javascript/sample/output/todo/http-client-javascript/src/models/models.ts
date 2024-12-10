@@ -103,3 +103,15 @@ export interface TodoItemPatch {
 export interface NoContentResponse {
   statusCode: 204;
 }
+
+export interface AttachmentPage {
+  items: TodoAttachment[];
+  pagination: {
+    pageSize: number;
+    totalSize: number;
+    limit?: number;
+    offset?: number;
+    prevLink?: string;
+    nextLink?: string;
+  };
+}

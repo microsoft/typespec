@@ -12,10 +12,8 @@ export interface HttpRequestOptionsProps {
 }
 
 export function HttpRequestOptions(props: HttpRequestOptionsProps) {
-  const method = JSON.stringify($.httpOperation.get(props.operation).verb);
   return <ts.VarDeclaration name="httpRequestOptions" refkey={props.refkey}>
     <ts.ObjectExpression>
-      <ts.ObjectProperty name="method" value={method} />,
       <HttpRequestOptions.Headers operation={props.operation} />
       <HttpRequestOptions.Body operation={props.operation} />
     </ts.ObjectExpression>
@@ -80,7 +78,7 @@ HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOpti
     <ef.TypeTransformCall type={body} target="transport" collapse={collapse} optionsBagName="options"/>;
 
   return <>
-    <ts.ObjectProperty name="body" value={<JSONSerializer>{bodyTransform}</JSONSerializer>} />,
+    <ts.ObjectProperty name="body" value={bodyTransform} />,
     </>;
 };
 

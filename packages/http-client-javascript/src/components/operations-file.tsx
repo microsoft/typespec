@@ -4,7 +4,7 @@ import { Operation, Service } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
 import { prepareOperation } from "../utils/operations.js";
-import { ClientContextRefkey } from "./client-context.jsx";
+import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";
 import { HttpRequest } from "./http-request.js";
 import { HttpResponse } from "./http-response.jsx";
 
@@ -58,12 +58,15 @@ export function OperationsFile(props: OperationsFileProps) {
     return null;
   }
 
+  const client = $.client.getClient(props.service.type)!;
+
   return <ts.SourceFile path={props.path}>
       {mapJoin(props.operations, (o) => {
         const preparedOperation = prepareOperation(o);
+        const clientContextDeclarationRef = getClientcontextDeclarationRef(client)
         const httpReturnType = $.httpOperation.getReturnType(preparedOperation);
         const responseRefkey = refkey();
-        const signatureParams = {  "client": <ts.Reference refkey={ClientContextRefkey}/>};
+        const signatureParams = {  "client": clientContextDeclarationRef.component};
         return (
           <FunctionDeclaration export async type={preparedOperation} returnType={httpReturnType ?<TypeExpression type={httpReturnType} /> : "void"} parameters={signatureParams}>
             <HttpRequest operation={o} responseRefkey={responseRefkey} />

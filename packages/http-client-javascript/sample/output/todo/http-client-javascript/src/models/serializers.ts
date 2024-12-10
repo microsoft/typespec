@@ -1,5 +1,6 @@
 import {
   ApiError,
+  AttachmentPage,
   InvalidTodoItem,
   InvalidUserResponse,
   NoContentResponse,
@@ -297,5 +298,31 @@ export function noContentResponseToTransport(item: NoContentResponse) {
 export function noContentResponseToApplication(item: any) {
   return {
     statusCode: item.statusCode,
+  };
+}
+export function attachmentPageToTransport(item: AttachmentPage) {
+  return {
+    items: arraySerializer(item.items),
+    pagination: {
+      pageSize: item.pagination.pageSize,
+      totalSize: item.pagination.totalSize,
+      limit: item.pagination.limit,
+      offset: item.pagination.offset,
+      prevLink: item.pagination.prevLink,
+      nextLink: item.pagination.nextLink,
+    },
+  };
+}
+export function attachmentPageToApplication(item: any) {
+  return {
+    items: arraySerializer(item.items),
+    pagination: {
+      pageSize: item.pagination.pageSize,
+      totalSize: item.pagination.totalSize,
+      limit: item.pagination.limit,
+      offset: item.pagination.offset,
+      prevLink: item.pagination.prevLink,
+      nextLink: item.pagination.nextLink,
+    },
   };
 }
