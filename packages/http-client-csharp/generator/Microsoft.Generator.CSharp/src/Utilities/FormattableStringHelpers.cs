@@ -121,7 +121,23 @@ namespace Microsoft.Generator.CSharp
                     for (int i = 0; i < numSplits; i++)
                     {
                         var part = span[destination[i]];
-                        formatBuilder.Append(part);
+                        // the literals could contain { and }, but they are unescaped. Since we are putting them back into the format, we need to escape them again.
+                        var startsWithCurlyBrace = part.Length > 0 && (part[0] == '{' || part[0] == '}');
+                        var start = startsWithCurlyBrace ? 1 : 0;
+                        var endsWithCurlyBrace = part.Length > 0 && (part[^1] == '{' || part[^1] == '}');
+                        var end = endsWithCurlyBrace ? part.Length - 1 : part.Length;
+                        if (startsWithCurlyBrace)
+                        {
+                            formatBuilder.Append(part[0]).Append(part[0]);
+                        }
+                        if (start <= end)
+                        {
+                            formatBuilder.Append(part[start..end]);
+                            if (endsWithCurlyBrace) // the condition start <= end is to avoid the case when the str is short and the first and the last char is the same one
+                            {
+                                formatBuilder.Append(part[^1]).Append(part[^1]);
+                            }
+                        }
                         if (i < numSplits - 1)
                         {
                             FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
