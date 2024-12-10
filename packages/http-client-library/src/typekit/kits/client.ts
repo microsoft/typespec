@@ -5,11 +5,13 @@ import {
   isTemplateDeclarationOrInstance,
   Namespace,
   Operation,
+  Type,
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
 import { Client } from "../../interfaces.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
+import { discoverDataTypes } from "../../utils/type-discovery.js";
 import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<Client> {
@@ -51,6 +53,11 @@ interface ClientKit extends NameKit<Client> {
   /**
    * Get the url template of a client, given its constructor as well */
   getUrlTemplate(client: Client, constructor: Operation): string;
+  /**
+   * Lists all data types used by the client
+   * @param namespace namespace to get the data types of
+   */
+  listDataTypes(client: Client): Type[];
 }
 
 interface TypeKit {
@@ -174,6 +181,9 @@ defineKit<TypeKit>({
         }
       }
       return "{endpoint}";
+    },
+    listDataTypes(client) {
+      return discoverDataTypes(client);
     },
   },
 });
