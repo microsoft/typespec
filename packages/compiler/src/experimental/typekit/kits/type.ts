@@ -2,7 +2,9 @@ import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils
 import {
   Discriminator,
   getDiscriminator,
+  getMaxLength,
   getMaxValue,
+  getMinLength,
   getMinValue,
 } from "../../../core/intrinsic-type-state.js";
 import { isErrorType } from "../../../core/type-utils.js";
@@ -75,6 +77,17 @@ export interface TypeKit {
    * @param type type to get the minimum value for
    */
   minValue(type: Type): number | undefined;
+
+  /**
+   * Gets the maximum length for a string type.
+   * @param type type to get the maximum length for
+   */
+  maxLength(type: Type): number | undefined;
+  /**
+   * Gets the minimum length for a string type.
+   * @param type type to get the minimum length for
+   */
+  minLength(type: Type): number | undefined;
 }
 
 interface BaseTypeKit {
@@ -209,6 +222,12 @@ defineKit<BaseTypeKit>({
     },
     minValue(type) {
       return getMinValue(this.program, type);
+    },
+    maxLength(type) {
+      return getMaxLength(this.program, type);
+    },
+    minLength(type) {
+      return getMinLength(this.program, type);
     },
   },
 });

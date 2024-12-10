@@ -110,3 +110,41 @@ describe("minValue and maxValue", () => {
     expect(min).toBe(15);
   });
 });
+
+describe("minLength and maxLength", () => {
+  it("can get the min and max length from string", async () => {
+    const { myString } = await getTypes(
+      `
+    @minLength(1)
+    @maxLength(10)
+    scalar myString extends string;
+    `,
+      ["myString"],
+    );
+
+    const max = $.type.maxLength(myString);
+    const min = $.type.minLength(myString);
+
+    expect(max).toBe(10);
+    expect(min).toBe(1);
+  });
+
+  it("can get the min and max length from modelProperty", async () => {
+    const { A } = await getTypes(
+      `
+    model A {
+      @minLength(15)
+      @maxLength(55)
+      foo: string;
+    }
+    `,
+      ["A"],
+    );
+
+    const max = $.type.maxLength((A as Model).properties.get("foo")!);
+    const min = $.type.minLength((A as Model).properties.get("foo")!);
+
+    expect(max).toBe(55);
+    expect(min).toBe(15);
+  });
+});
