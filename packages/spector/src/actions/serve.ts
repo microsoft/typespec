@@ -39,14 +39,14 @@ export async function startInBackground(config: ServeConfig) {
     const [nodeExe, entrypoint] = process.argv;
     logger.info(`Starting server in background at port ${config.port}`);
     const scenariosPath = Array.isArray(config.scenariosPath)
-      ? config.scenariosPath.join(" ")
-      : config.scenariosPath;
+      ? config.scenariosPath
+      : [config.scenariosPath];
     const cp = spawn(
       nodeExe,
       [
         entrypoint,
         "serve",
-        scenariosPath,
+        ...scenariosPath,
         "--port",
         config.port.toString(),
         "--coverageFile",
