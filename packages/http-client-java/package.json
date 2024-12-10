@@ -44,7 +44,7 @@
   "peerDependencies": {
     "@azure-tools/typespec-autorest": ">=0.48.0 <1.0.0",
     "@azure-tools/typespec-azure-core": ">=0.48.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.48.5 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.48.6 <1.0.0",
     "@typespec/compiler": ">=0.62.0 <1.0.0",
     "@typespec/http": ">=0.62.0 <1.0.0",
     "@typespec/openapi": ">=0.62.0 <1.0.0",
