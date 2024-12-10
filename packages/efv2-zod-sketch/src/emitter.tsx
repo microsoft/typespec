@@ -48,7 +48,17 @@ interface OptionalConstrain {
   value: boolean;
 }
 
-type Constrain = MinValueConstrain | MaxValueConstrain | OptionalConstrain;
+interface MaxLengthConstrain {
+  kind: "MaxLength";
+  value: number;
+}
+
+interface MinLengthConstrain {
+  kind: "MinLength";
+  value: number;
+}
+
+type Constrain = MinValueConstrain | MaxValueConstrain | OptionalConstrain | MaxLengthConstrain | MinLengthConstrain;
 
 /**
  * Component that represents a Zod Model
@@ -106,6 +116,15 @@ function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
     }
     if (maxValue !== undefined) {
       constrains.push({ kind: "MaxValue", value: maxValue });
+    }
+
+    const minLength = $.type.minLength(modelProperty);
+    const maxLength = $.type.maxLength(modelProperty);
+    if (minLength !== undefined) {
+      constrains.push({ kind: "MinLength", value: minLength });
+    }
+    if (maxLength !== undefined) {
+      constrains.push({ kind: "MaxLength", value: maxLength });
     }
   }
   return constrains;
@@ -273,7 +292,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     }
 
     if ($.scalar.isString(props.type)) {
-      return <>{zod.z}.string()</>;
+      return <>{zod.z}.string(){ZodStringConstraints(props)}</>;
     }
     if ($.scalar.isUrl(props.type)) {
       return <>{zod.z}.string().url()</>;
@@ -354,6 +373,16 @@ function ZodBigIntConstraints(
   const minmax = min + max;
   return minmax;
 }
+
+function ZodStringConstraints(props: ZodTypeProps): string {
+  const minLength = props.constrains.find((c) => c.kind === "MinLength")?.value;
+  const maxLength = props.constrains.find((c) => c.kind === "MaxLength")?.value;
+  const min: string = minLength !== undefined ? `.min(${minLength})` : "";
+  const max: string = maxLength !== undefined ? `.max(${maxLength})` : "";
+  const minmax = min + max;
+  return minmax;
+}
+
 
 /**
  * Collects all the models defined in the spec

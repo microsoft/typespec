@@ -2,9 +2,8 @@ import { z } from "zod";
 
 export const user = z.object(
 {
-boundNumeric: z.number().min(5).max(10),
 id: z.number().safe(),
-username: z.string(),
+username: z.string().min(2).max(50),
 email: z.string(),
 password: z.string(),
 boolean1: z.boolean(),
@@ -34,6 +33,7 @@ string1: z.string(),
 int16_1: z.number().min(-32768).max(32767).min(5).max(10),
 uint_1: z.number().nonnegative().min(42).max(255),
 float_1: z.number().max(10),
+boundNumeric: z.number().min(5).max(10),
 validated: z.boolean()
 }
 );
@@ -41,7 +41,7 @@ validated: z.boolean()
 export const todoItem = z.object(
 {
 id: z.number().safe(),
-title: z.string(),
+title: z.string().max(255),
 createdBy: z.any(),
 assignedTo: z.any(),
 description: z.string(),
@@ -63,7 +63,7 @@ color: z.string()
 
 export const todoFileAttachment = z.object(
 {
-filename: z.string(),
+filename: z.string().max(255),
 mediaType: z.string(),
 contents: z.string()
 }
@@ -97,9 +97,8 @@ statusCode: z.number().min(500).max(599)
 
 export const userCreatedResponse = z.object(
 {
-boundNumeric: z.number().min(5).max(10),
 id: z.number().safe(),
-username: z.string(),
+username: z.string().min(2).max(50),
 email: z.string(),
 password: z.string(),
 boolean1: z.boolean(),
@@ -129,6 +128,7 @@ string1: z.string(),
 int16_1: z.number().min(-32768).max(32767).min(5).max(10),
 uint_1: z.number().nonnegative().min(42).max(255),
 float_1: z.number().max(10),
+boundNumeric: z.number().min(5).max(10),
 validated: z.boolean(),
 statusCode: z.number(),
 token: z.string()
