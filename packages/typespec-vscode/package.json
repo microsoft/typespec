@@ -18,7 +18,7 @@
   ],
   "preview": true,
   "publisher": "typespec",
-  "displayName": "TypeSpec for VS Code",
+  "displayName": "TypeSpec",
   "categories": [
     "Programming Languages",
     "Snippets"
