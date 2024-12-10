@@ -188,10 +188,11 @@ def is_json_model_type(parameters: ParameterListType) -> bool:
 
 
 class _BuilderBaseSerializer(Generic[BuilderType]):
-    def __init__(self, code_model: CodeModel, async_mode: bool) -> None:
+    def __init__(self, code_model: CodeModel, async_mode: bool, serialize_namespace: Optional[str] = None) -> None:
         self.code_model = code_model
         self.async_mode = async_mode
-        self.parameter_serializer = ParameterSerializer()
+        self.serialize_namespace = code_model.namespace if serialize_namespace is None else serialize_namespace
+        self.parameter_serializer = ParameterSerializer(self.serialize_namespace)
 
     @property
     @abstractmethod
@@ -237,7 +238,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
     def method_signature_and_response_type_annotation(
         self, builder: BuilderType, *, want_decorators: Optional[bool] = True
     ) -> str:
-        response_type_annotation = builder.response_type_annotation(async_mode=self.async_mode)
+        response_type_annotation = builder.response_type_annotation(async_mode=self.async_mode, serialize_namespace=self.serialize_namespace)
         method_signature = self._method_signature(builder)
         decorators = self.decorators(builder)
         decorators_str = ""
@@ -616,13 +617,13 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         for p in builder.parameters.parameters:
             if p.hide_in_operation_signature:
                 kwargs.append(f'{p.client_name} = kwargs.pop("{p.client_name}", None)')
-        cls_annotation = builder.cls_type_annotation(async_mode=self.async_mode)
+        cls_annotation = builder.cls_type_annotation(async_mode=self.async_mode, serialize_namespace=self.serialize_namespace)
         kwargs.append(f"cls: {cls_annotation} = kwargs.pop(\n    'cls', None\n)")
         return kwargs
 
     def response_docstring(self, builder: OperationType) -> List[str]:
         response_str = f":return: {builder.response_docstring_text(async_mode=self.async_mode)}"
-        rtype_str = f":rtype: {builder.response_docstring_type(async_mode=self.async_mode)}"
+        rtype_str = f":rtype: {builder.response_docstring_type(async_mode=self.async_mode, serialize_namespace=self.serialize_namespace)}"
         return [
             response_str,
             rtype_str,
@@ -672,7 +673,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             serialization_ctxt_cmd = f", {ser_ctxt_name}={ser_ctxt_name}" if xml_serialization_ctxt else ""
             create_body_call = (
                 f"_{body_kwarg_name} = self._serialize.body({body_param.client_name}, "
-                f"'{body_param.type.serialization_type}'{is_xml_cmd}{serialization_ctxt_cmd})"
+                f"'{body_param.type.serialization_type(serialize_namespace=self.serialize_namespace)}'{is_xml_cmd}{serialization_ctxt_cmd})"
             )
         elif self.code_model.options["models_mode"] == "dpg":
             if json_serializable(body_param.default_content_type):
@@ -903,7 +904,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         retval: List[str] = [
             (
                 f"response_headers['{response_header.wire_name}']=self._deserialize("
-                f"'{response_header.serialization_type}', response.headers.get('{response_header.wire_name}'))"
+                f"'{response_header.serialization_type(serialize_namespace=self.serialize_namespace)}', response.headers.get('{response_header.wire_name}'))"
             )
             for response_header in response.headers
         ]
@@ -937,7 +938,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 pylint_disable = "  # pylint: disable=protected-access"
             if self.code_model.options["models_mode"] == "msrest":
                 deserialize_code.append("deserialized = self._deserialize(")
-                deserialize_code.append(f"    '{response.serialization_type}',{pylint_disable}")
+                deserialize_code.append(
+                    f"    '{response.serialization_type(serialize_namespace=self.serialize_namespace)}',{pylint_disable}"
+                )
                 deserialize_code.append(" pipeline_response.http_response")
                 deserialize_code.append(")")
             elif self.code_model.options["models_mode"] == "dpg":
@@ -956,7 +959,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         deserialize_func = "_deserialize_xml"
                     deserialize_code.append(f"deserialized = {deserialize_func}(")
                     deserialize_code.append(
-                        f"    {response.type.type_annotation(is_operation_file=True)},{pylint_disable}"
+                        f"    {response.type.type_annotation(is_operation_file=True, serialize_namespace=self.serialize_namespace)},{pylint_disable}"
                     )
                     deserialize_code.append(f"    response.{response_attr}(){response.result_property}{format_filed}")
                     deserialize_code.append(")")
@@ -1193,13 +1196,13 @@ PagingOperationType = TypeVar("PagingOperationType", bound=Union[PagingOperation
 
 
 class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
-    def __init__(self, code_model: CodeModel, async_mode: bool) -> None:
+    def __init__(self, code_model: CodeModel, async_mode: bool, serialize_namespace: Optional[str] = None) -> None:
         # for pylint reasons need to redefine init
         # probably because inheritance is going too deep
-        super().__init__(code_model, async_mode)
-        self.code_model = code_model
-        self.async_mode = async_mode
-        self.parameter_serializer = ParameterSerializer()
+        super().__init__(code_model, async_mode, serialize_namespace)
+        # self.code_model = code_model
+        # self.async_mode = async_mode
+        # self.parameter_serializer = ParameterSerializer(self.serialize_namespace)
 
     def serialize_path(self, builder: PagingOperationType) -> List[str]:
         return self.parameter_serializer.serialize_path(builder.parameters.path, self.serializer_name)
@@ -1289,10 +1292,10 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         deserialized = "pipeline_response.http_response.json()"
         if self.code_model.options["models_mode"] == "msrest":
             suffix = ".http_response" if hasattr(builder, "initial_operation") else ""
-            deserialize_type = response.serialization_type
+            deserialize_type = response.serialization_type(serialize_namespace=self.serialize_namespace)
             pylint_disable = "  # pylint: disable=protected-access"
             if isinstance(response.type, ModelType) and not response.type.internal:
-                deserialize_type = f'"{response.serialization_type}"'
+                deserialize_type = f'"{response.serialization_type(serialize_namespace=self.serialize_namespace)}"'
                 pylint_disable = ""
             deserialized = (
                 f"self._deserialize(\n    {deserialize_type},{pylint_disable}\n    pipeline_response{suffix}\n)"
@@ -1358,13 +1361,13 @@ LROOperationType = TypeVar("LROOperationType", bound=Union[LROOperation, LROPagi
 
 
 class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
-    def __init__(self, code_model: CodeModel, async_mode: bool) -> None:
+    def __init__(self, code_model: CodeModel, async_mode: bool, serialize_namespace: Optional[str] = None) -> None:
         # for pylint reasons need to redefine init
         # probably because inheritance is going too deep
-        super().__init__(code_model, async_mode)
-        self.code_model = code_model
-        self.async_mode = async_mode
-        self.parameter_serializer = ParameterSerializer()
+        super().__init__(code_model, async_mode, serialize_namespace)
+        # self.code_model = code_model
+        # self.async_mode = async_mode
+        # self.parameter_serializer = ParameterSerializer()
 
     def serialize_path(self, builder: LROOperationType) -> List[str]:
         return self.parameter_serializer.serialize_path(builder.parameters.path, self.serializer_name)
@@ -1507,6 +1510,7 @@ def get_operation_serializer(
     builder: Operation,
     code_model,
     async_mode: bool,
+    serialize_namespace: Optional[str] = None,
 ) -> Union[
     OperationSerializer,
     PagingOperationSerializer,
@@ -1525,4 +1529,5 @@ def get_operation_serializer(
         ret_cls = LROOperationSerializer
     elif builder.operation_type == "paging":
         ret_cls = PagingOperationSerializer
-    return ret_cls(code_model, async_mode)
+    serialize_namespace = code_model.namespace if serialize_namespace is None else serialize_namespace
+    return ret_cls(code_model, async_mode, serialize_namespace)

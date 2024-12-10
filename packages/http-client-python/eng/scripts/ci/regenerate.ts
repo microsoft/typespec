@@ -121,6 +121,9 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "client/structure/two-operation-group": {
     "package-name": "client-structure-twooperationgroup",
   },
+  "client/namespace": {
+    "enable-typespec-namespace": "true",
+  }
 };
 
 function toPosix(dir: string): string {
