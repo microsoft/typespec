@@ -1095,7 +1095,7 @@ export class CodeModelBuilder {
 
   private processParameter(
     op: CodeModelOperation,
-    param: SdkQueryParameter | SdkPathParameter | SdkHeaderParameter,
+    param: SdkHttpOperation["parameters"][number],
     clientContext: ClientContext,
   ) {
     if (clientContext.apiVersions && isApiVersion(this.sdkContext, param)) {

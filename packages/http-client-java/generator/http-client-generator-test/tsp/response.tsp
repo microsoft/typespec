@@ -86,7 +86,7 @@ model StringsList {
   @items
   value: string[];
 
-  @global.Azure.Core.nextLink
+  @nextLink
   nextLink?: string;
 }
 
@@ -95,7 +95,7 @@ model Int32sList {
   @items
   value: int32[];
 
-  @global.Azure.Core.nextLink
+  @nextLink
   nextLink?: string;
 }
 
@@ -104,7 +104,7 @@ model DateTimesList {
   @items
   value: utcDateTime[];
 
-  @global.Azure.Core.nextLink
+  @nextLink
   nextLink?: string;
 }
 
