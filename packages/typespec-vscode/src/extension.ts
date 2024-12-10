@@ -1,5 +1,6 @@
 import vscode, { commands, ExtensionContext } from "vscode";
 import { SettingName } from "./const.js";
+import { doEmit } from "./emit/emit.js";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
@@ -31,6 +32,20 @@ export async function activate(context: ExtensionContext) {
     }),
   );
 
+  /* code generation command. */
+  context.subscriptions.push(
+    commands.registerCommand("typespec.GenerateSDK", async (uri: vscode.Uri) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Window,
+          title: "TypeSpec: Gerating Client SDK...",
+          cancellable: false,
+        },
+        async (progress) => await doEmit(context, uri, progress),
+      );
+    }),
+  );
+
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(async (e: vscode.ConfigurationChangeEvent) => {
       if (e.affectsConfiguration(SettingName.TspServerPath)) {
@@ -42,6 +57,16 @@ export async function activate(context: ExtensionContext) {
       }
     }),
   );
+
+  const taskDisposal = vscode.tasks.registerTaskProvider("typespec", {
+    provideTasks: () => {
+      return generatSdkTask();
+    },
+    resolveTask(_task: vscode.Task): vscode.Task | undefined {
+      return undefined;
+    },
+  });
+  context.subscriptions.push(taskDisposal);
 
   return await vscode.window.withProgress(
     {
@@ -57,4 +82,19 @@ export async function activate(context: ExtensionContext) {
 
 export async function deactivate() {
   await client?.stop();
+}
+
+function generatSdkTask(): vscode.Task[] {
+  const task = new vscode.Task(
+    {
+      label: "Task: Generate SDK",
+      type: "typespec",
+    },
+    vscode.TaskScope.Workspace,
+    "Generate Sdk Task",
+    "tsp",
+    new vscode.ShellExecution("code --command 'typespec.GenerateSDK'"),
+    // new vscode.ShellExecution("code --command 'typespec.GenerateSDK'"),
+  );
+  return [task];
 }
