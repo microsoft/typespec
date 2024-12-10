@@ -33,7 +33,7 @@
     "build": "tsc -p ./emitter/tsconfig.build.json && tsx ./eng/scripts/setup/build.ts",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint": "eslint . --max-warnings=0",
-    "lint:py": "tsx ./eng/scripts/ci/lint.ts --folderName generator",
+    "lint:py": "tsx ./eng/scripts/ci/lint.ts --folderName generator/pygen",
     "format": "pnpm -w format:dir packages/http-client-python && tsx ./eng/scripts/ci/format.ts",
     "install": "tsx ./eng/scripts/setup/install.ts",
     "prepare": "tsx ./eng/scripts/setup/prepare.ts",

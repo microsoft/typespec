@@ -3,19 +3,16 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from itertools import chain
 from typing import (
     Dict,
     List,
     Any,
     Optional,
-    Tuple,
     Union,
     TYPE_CHECKING,
     Generic,
     TypeVar,
     cast,
-    Sequence,
 )
 
 from .request_builder_parameter import RequestBuilderParameter
@@ -433,7 +430,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             raise ValueError(f"Incorrect status code {status_code}, operation {self.name}") from exc
 
     @property
-    def success_status_codes(self) -> Sequence[Union[str, int]]:
+    def success_status_codes(self) -> List[Union[int, str, List[int]]]:
         """The list of all successfull status code."""
         return sorted([code for response in self.responses for code in response.status_codes])
 
