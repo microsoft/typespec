@@ -18,11 +18,11 @@
     "python"
   ],
   "type": "module",
-  "main": "dist/emitter/index.js",
+  "main": "dist/emitter/src/index.js",
   "exports": {
     ".": {
-      "types": "./dist/emitter/index.d.ts",
-      "default": "./dist/emitter/index.js"
+      "types": "./dist/emitter/src/index.d.ts",
+      "default": "./dist/emitter/src/index.js"
     }
   },
   "engines": {
