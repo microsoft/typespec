@@ -110,9 +110,22 @@ namespace Microsoft.Generator.CSharp
             StringBuilder formatBuilder = new StringBuilder();
             var args = new List<object?>();
             List<FormattableString> result = new List<FormattableString>();
-            Span<Range> destination = stackalloc Range[fs.Format.Length];
 
-            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(fs.Format))
+            BreakLinesCore(fs, formatBuilder, args, result);
+
+            // if formatBuilder is not empty at end, add it to result
+            if (formatBuilder.Length > 0)
+            {
+                FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
+                result.Add(formattableString);
+            }
+            return result;
+        }
+
+        private static void BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
+        {
+            Span<Range> destination = stackalloc Range[input.Format.Length];
+            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(input.Format))
             {
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
@@ -130,10 +143,10 @@ namespace Microsoft.Generator.CSharp
                         {
                             formatBuilder.Append(part[0]).Append(part[0]);
                         }
-                        if (start <= end)
+                        if (start <= end) // ensure that we have follow up characters before we move on
                         {
                             formatBuilder.Append(part[start..end]);
-                            if (endsWithCurlyBrace) // the condition start <= end is to avoid the case when the str is short and the first and the last char is the same one
+                            if (endsWithCurlyBrace)
                             {
                                 formatBuilder.Append(part[^1]).Append(part[^1]);
                             }
@@ -150,13 +163,14 @@ namespace Microsoft.Generator.CSharp
                 // if not Literal, is Args - recurse through Args and check if args has breaklines
                 else
                 {
-                    var arg = fs.GetArgument(index);
+                    var arg = input.GetArgument(index);
                     // when span has a format specifier, go into else case
                     // if span contains ':' we don't need to split arg and add it directly to FormatBuilder
                     // TODO: The following logic of the FormatSpecifier handling is temporary until we have a case where FormatSpecifier and \n both exist in an argument.
                     // TODO: https://github.com/microsoft/typespec/issues/5255
                     if (!span.Contains(':') && arg is string str)
                     {
+                        // TODO -- refactor with span
                         var splitNewLine = str.Split("\n");
                         for (int i = 0; i < splitNewLine.Length; i++)
                         {
@@ -175,6 +189,10 @@ namespace Microsoft.Generator.CSharp
                             }
                         }
                     }
+                    else if (!span.Contains(':') && arg is FormattableString fs)
+                    {
+                        BreakLinesCore(fs, formatBuilder, args, result);
+                    }
                     else
                     {
                         // if not a string or FormattableString, add to args because we cannot parse it
@@ -191,13 +209,6 @@ namespace Microsoft.Generator.CSharp
                     }
                 }
             }
-            // if formatBuilder is not empty at end, add it to result
-            if (formatBuilder.Length > 0)
-            {
-                FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
-                result.Add(formattableString);
-            }
-            return result;
         }
     }
 }

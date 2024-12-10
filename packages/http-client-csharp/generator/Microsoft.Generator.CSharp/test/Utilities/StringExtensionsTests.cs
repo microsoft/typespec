@@ -3,9 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
-using Microsoft.Generator.CSharp.Input;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Utilities
