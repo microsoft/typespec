@@ -18,7 +18,7 @@ export function ClientDirectory(props: ClientDirectoryProps) {
   const clientName = namePolicy.getName(props.client.name, "variable");
 
   return <ay.SourceDirectory path={clientName}>
-    <ts.BarrelFile export="." />
+    <ts.BarrelFile export={clientName} />
     {props.children}
   </ay.SourceDirectory>;
 }

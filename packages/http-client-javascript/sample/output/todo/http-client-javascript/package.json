@@ -10,6 +10,11 @@
     "typescript": "^5.5.2"
   },
   "exports": {
-    ".": "./dist/api/usersClient/index.js"
+    ".": "./dist/index.js",
+    "./models": "./dist/models/index.js",
+    "./api": "./dist/api/index.js",
+    "./todoItemsClient": "./dist/api/todoItemsClient/index.js",
+    "./attachmentsClient": "./dist/api/attachmentsClient/index.js",
+    "./usersClient": "./dist/api/usersClient/index.js"
   }
 }

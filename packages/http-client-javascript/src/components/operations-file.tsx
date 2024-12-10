@@ -66,7 +66,7 @@ export function OperationsFile(props: OperationsFileProps) {
         const clientContextDeclarationRef = getClientcontextDeclarationRef(client)
         const httpReturnType = $.httpOperation.getReturnType(preparedOperation);
         const responseRefkey = refkey();
-        const signatureParams = {  "client": clientContextDeclarationRef.component};
+        const signatureParams = {  "client": clientContextDeclarationRef};
         return (
           <FunctionDeclaration export async type={preparedOperation} returnType={httpReturnType ?<TypeExpression type={httpReturnType} /> : "void"} parameters={signatureParams}>
             <HttpRequest operation={o} responseRefkey={responseRefkey} />

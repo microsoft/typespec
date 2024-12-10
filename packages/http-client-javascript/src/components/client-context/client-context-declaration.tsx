@@ -8,16 +8,12 @@ export interface ClientContextDeclarationProps {
 }
 
 export function getClientcontextDeclarationRef(client: cl.Client) {
-  const refkey = ay.refkey(client, "declaration");
-  return {
-    key: refkey,
-    component: <ts.Reference refkey={refkey} />,
-  };
+  return ay.refkey(client, "declaration");
 }
 
 export function ClientContextDeclaration(props: ClientContextDeclarationProps) {
   const ref = getClientcontextDeclarationRef(props.client);
   const namePolicy = ts.useTSNamePolicy();
   const name = namePolicy.getName(`${props.client.name}Context`, "class");
-  return <ts.InterfaceDeclaration export name={name} refkey={ref.key} extends={httpRuntimeTemplateLib.Client} />;
+  return <ts.InterfaceDeclaration export name={name} refkey={ref} extends={httpRuntimeTemplateLib.Client} />;
 }

@@ -8,11 +8,7 @@ export interface ClientContextOptionsDeclarationProps {
 }
 
 export function getClientContextOptionsRef(client: cl.Client) {
-  const refkey = ay.refkey(client, "options");
-  return {
-    key: refkey,
-    component: <ts.Reference refkey={refkey} />,
-  };
+  return ay.refkey(client, "options");
 }
 
 export function ClientContextOptionsDeclaration(props: ClientContextOptionsDeclarationProps) {
@@ -23,7 +19,7 @@ export function ClientContextOptionsDeclaration(props: ClientContextOptionsDecla
   // TODO: Here we will calculate and include all the options that the client can accept
   const clientOptions: Map<string, ay.Children> = new Map();
 
-  return <ts.InterfaceDeclaration export name={name} refkey={ref.key} extends={<ts.Reference refkey={httpRuntimeTemplateLib.ClientOptions}/>}>
+  return <ts.InterfaceDeclaration export name={name} refkey={ref} extends={<ts.Reference refkey={httpRuntimeTemplateLib.ClientOptions}/>}>
         {ay.mapJoin(clientOptions, (key, value) => (
           <ts.InterfaceMember optional name={key} type={value} />
         ), { joiner: ";\n" })}

@@ -23,12 +23,12 @@ export async function $onEmit() {
             <ts.BarrelFile export="." />
             <Client client={topLevelClient} />
             <ay.SourceDirectory path="models">
-              <ts.BarrelFile />
+              <ts.BarrelFile export="models"/>
               <Models types={dataTypes} />
               <ModelSerializers types={dataTypes} />
             </ay.SourceDirectory>
             <ay.SourceDirectory path="api">
-              <ts.BarrelFile export="." />
+              <ts.BarrelFile export="api" />
               {ay.mapJoin(flatClients, (client) => (
                 <ClientDirectory client={client}>
                   <ClientOperations client={client} />
