@@ -8,6 +8,7 @@ import { supportsHyperlink } from "./support-hyperlinks.js";
 export interface FormatLogOptions {
   pathRelativeTo?: string;
   pretty?: boolean;
+  excludeLogLevel?: boolean;
 }
 
 export interface ConsoleSinkOptions extends FormatLogOptions {}
@@ -33,8 +34,8 @@ function hyperlink(text: string, url: string | undefined, options: FormatLogOpti
 
 export function formatLog(log: ProcessedLog, options: FormatLogOptions): string {
   const code = log.code ? ` ${hyperlink(color(options, log.code, pc.gray), log.url, options)}` : "";
-  const level = formatLevel(options, log.level);
-  const content = `${level}${code}: ${log.message}`;
+  const level: string = options.excludeLogLevel === true ? "" : formatLevel(options, log.level);
+  const content = level || code ? `${level}${code}: ${log.message}` : log.message;
   const root = log.sourceLocation;
   if (root?.file) {
     const formattedLocation = formatSourceLocation(options, root);
