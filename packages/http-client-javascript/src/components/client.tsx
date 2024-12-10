@@ -31,30 +31,22 @@ export interface ClientClassProps {
 }
 
 export function getClientClassRef(client: cl.Client) {
-  const refkey = ay.refkey(client.type, "client-class");
-  return {
-    key: refkey,
-    component: <ts.Reference refkey={refkey} />,
-  };
+  return ay.refkey(client.type, "client-class");
 }
 
 function getClientContextFieldRef(client: cl.Client) {
-  const refkey = ay.refkey(client.type, "client-context");
-  return {
-    key: refkey,
-    component: <ts.Reference refkey={refkey} />,
-  };
+  return ay.refkey(client.type, "client-context");
 }
 export function ClientClass(props: ClientClassProps) {
   const namePolicy = ts.useTSNamePolicy();
   const clientName = namePolicy.getName($.client.getName(props.client), "class");
-  const contextMemberRef = getClientContextFieldRef(props.client).key;
+  const contextMemberRef = getClientContextFieldRef(props.client);
   const contextDeclarationRef = getClientcontextDeclarationRef(props.client);
   const clientClassRef = getClientClassRef(props.client);
   const subClients = $.clientLibrary.listClients(props.client);
   const operations = $.client.listServiceOperations(props.client);
-  return <ClassDeclaration export name={clientName} refkey={clientClassRef.key}>
-    <ts.ClassField name="context" jsPrivate refkey={contextMemberRef} type={contextDeclarationRef.component} />;
+  return <ClassDeclaration export name={clientName} refkey={clientClassRef}>
+    <ts.ClassField name="context" jsPrivate refkey={contextMemberRef} type={contextDeclarationRef} />;
     {ay.mapJoin(subClients, subClient => (
       <SubClientClassField client={subClient} />
     ), { joiner: "\n" })}
@@ -63,7 +55,7 @@ export function ClientClass(props: ClientClassProps) {
       const clientOperation = prepareOperation(op);
       const args = [...clientOperation.parameters.properties.keys()];
       return <ClassMethod async type={clientOperation} returnType={null}>
-          return <ts.FunctionCallExpression refkey={ay.refkey(clientOperation)} args={["this.#context", ...args]}/>;
+          return <ts.FunctionCallExpression refkey={ay.refkey(clientOperation)} args={[contextMemberRef, ...args]}/>;
       </ClassMethod>
     })}
   </ClassDeclaration>;
@@ -74,11 +66,7 @@ interface SubClientClassFieldProps {
 }
 
 function getSubClientClassFieldRef(client: cl.Client) {
-  const refkey = ay.refkey(client.type, "client-field");
-  return {
-    key: refkey,
-    component: <ts.Reference refkey={refkey} />,
-  };
+  return ay.refkey(client.type, "client-field");
 }
 
 function SubClientClassField(props: SubClientClassFieldProps) {
@@ -86,19 +74,11 @@ function SubClientClassField(props: SubClientClassFieldProps) {
   const fieldName = namePolicy.getName($.client.getName(props.client), "class");
   const subClientClassRef = getClientClassRef(props.client);
   const subClientFieldRef = getSubClientClassFieldRef(props.client);
-  return <ts.ClassField name={fieldName} type={subClientClassRef.component} refkey={subClientFieldRef.key} />;
+  return <ts.ClassField name={fieldName} type={subClientClassRef} refkey={subClientFieldRef} />;
 }
 
 interface ClientConstructorProps {
   client: cl.Client;
-}
-
-function getClientConstructorRef(client: cl.Client) {
-  const refkey = ay.refkey(client.type, "client-constructor");
-  return {
-    key: refkey,
-    component: <ts.Reference refkey={refkey} />,
-  };
 }
 
 function ClientConstructor(props: ClientConstructorProps) {
@@ -109,11 +89,11 @@ function ClientConstructor(props: ClientConstructorProps) {
   const args = Object.keys(constructorParameters);
 
   return <ts.ClassMethod name="constructor" parameters={constructorParameters}>
-    {clientContextFieldRef.component} = <ts.FunctionCallExpression refkey={clientContextFactoryRef.key}  args={args}/>;
+    {clientContextFieldRef} = <ts.FunctionCallExpression refkey={clientContextFactoryRef}  args={args}/>;
     {ay.mapJoin(subClients, subClient => {
       const subClientFieldRef = getSubClientClassFieldRef(subClient);
       return <>
-        {subClientFieldRef.component} = <NewClientExpression client={subClient} />;
+        {subClientFieldRef} = <NewClientExpression client={subClient} />;
       </>
     }, {joiner: "\n"})}
   </ts.ClassMethod>;
@@ -130,6 +110,6 @@ function NewClientExpression(props: NewClientExpressionProps) {
   const args = Object.keys(clientParams);
 
   return <>
-    new <ts.FunctionCallExpression refkey={clientConstructorRef.key} args={args} />
+    new <ts.FunctionCallExpression refkey={clientConstructorRef} args={args} />
   </>;
 }

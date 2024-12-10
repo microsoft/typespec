@@ -13,11 +13,7 @@ export interface ClientContextFactoryProps {
 }
 
 export function getClientContextFactoryRef(client: cl.Client) {
-  const refkey = ay.refkey(client, "contextFactory");
-  return {
-    key: refkey,
-    component: <ts.Reference refkey={refkey} />,
-  };
+  return ay.refkey(client, "contextFactory");
 }
 
 export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps) {
@@ -35,8 +31,8 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   export
   name={factoryFunctionName}
   type={clientConstructor}
-  returnType={contextDeclarationRef.component}
-  refkey={ref.key}
+  returnType={contextDeclarationRef}
+  refkey={ref}
   parametersMode="replace"
   parameters={parameters}
 >
