@@ -101,6 +101,14 @@ foreach ($directory in $directories) {
         continue
     }
 
+    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
+    if ($folders.Contains("srv-driven")) {
+        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
+        continue
+    }
+
     $cadlRanchLaunchProjects.Add(($folders -join "-"), ("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
     if ($LaunchOnly) {
         continue
@@ -112,11 +120,6 @@ foreach ($directory in $directories) {
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
-    }
-
-    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
-    if ($folders.Contains("srv-driven")) {
-        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
     }
 
     # TODO need to build but depends on https://github.com/Azure/autorest.csharp/issues/4463

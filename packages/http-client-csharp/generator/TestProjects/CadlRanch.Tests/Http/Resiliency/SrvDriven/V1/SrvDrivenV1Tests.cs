@@ -2,16 +2,19 @@
 // Licensed under the MIT License.
 
 using NUnit.Framework;
-using Resiliency.ServiceDriven.V1;
+using Resiliency.SrvDriven.V1;
 using System.Threading.Tasks;
 
-namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven
+namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven.V1
 {
     /// <summary>
     /// Contains tests for the service-driven resiliency V1 client.
     /// </summary>
-    public partial class SrvDrivenTests : CadlRanchTestBase
+    public partial class SrvDrivenV2Tests : CadlRanchTestBase
     {
+        private const string ServiceDeploymentV1 = "v1";
+        private const string ServiceDeploymentV2 = "v2";
+
         // This test validates the v1 client behavior when both the service deployment and api version are set to V1.
         [CadlRanchTest]
         public Task AddOptionalParamFromNone_V1Client_V1Service_WithApiVersionV1() => Test(async (host) =>
