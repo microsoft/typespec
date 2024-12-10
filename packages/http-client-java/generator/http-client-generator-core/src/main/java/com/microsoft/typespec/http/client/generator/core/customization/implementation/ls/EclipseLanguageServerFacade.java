@@ -4,8 +4,10 @@
 package com.microsoft.typespec.http.client.generator.core.customization.implementation.ls;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -73,11 +75,19 @@ public class EclipseLanguageServerFacade {
             }
 
             Process server = startServer(command, languageServerPath, logger);
-            server.waitFor(1, TimeUnit.SECONDS);
-            if (!server.isAlive() && pathToLanguageServerPlugin == null) {
-                logger.warn(
-                    "Eclipse language server did not start correctly. The folder may be corrupted. Try re-download.");
-                server = startServer(command, getLanguageServerDirectory(javaVersion, logger, true), logger);
+            if (!server.isAlive()) {
+                if (pathToLanguageServerPlugin == null) {
+                    logger.warn(
+                        "Eclipse language server failed to start. The folder may be corrupted. Try re-download.");
+                    server = startServer(command, getLanguageServerDirectory(javaVersion, logger, true), logger);
+                    if (!server.isAlive()) {
+                        throw new RuntimeException(String.format(
+                            "Eclipse language server failed to start, error output:\n %s", readServerOutput(server)));
+                    }
+                } else {
+                    throw new RuntimeException(String.format(
+                        "Eclipse language server failed to start, error output:\n %s", readServerOutput(server)));
+                }
             }
             this.server = server;
         } catch (Exception e) {
@@ -85,7 +95,18 @@ public class EclipseLanguageServerFacade {
         }
     }
 
-    private Process startServer(List<String> command, Path languageServerPath, Logger logger) throws IOException {
+    private String readServerOutput(Process server) throws IOException {
+        if (server.getInputStream() == null) {
+            return null;
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream()))) {
+            reader.lines().forEachOrdered(line -> stringBuilder.append(line).append("\n"));
+        }
+        return stringBuilder.toString();
+    }
+
+    private Process startServer(List<String> command, Path languageServerPath, Logger logger) throws Exception {
         logger.info("Starting Eclipse JDT language server at {}", languageServerPath);
         final Process server;
         server = new ProcessBuilder(command).redirectOutput(ProcessBuilder.Redirect.PIPE)
@@ -93,6 +114,7 @@ public class EclipseLanguageServerFacade {
             .redirectErrorStream(true)
             .directory(languageServerPath.toFile())
             .start();
+        server.waitFor(1, TimeUnit.SECONDS);
         return server;
     }
 
