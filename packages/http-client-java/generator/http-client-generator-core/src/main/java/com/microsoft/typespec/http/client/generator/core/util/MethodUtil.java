@@ -23,6 +23,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
@@ -324,6 +325,20 @@ public class MethodUtil {
                     || Objects.equals(p.getName(), "maxPageSize")))
             .map(ProxyMethodParameter::getRequestParameterName)
             .findFirst();
+    }
+
+    /**
+     * Gets method parameter description, or a default description if not exists.
+     * 
+     * @param p the client method parameter
+     * @return the method parameter description
+     */
+    public static String methodParameterDescriptionOrDefault(ClientMethodParameter p) {
+        String doc = p.getDescription();
+        if (CoreUtils.isNullOrEmpty(doc)) {
+            doc = String.format("The %1$s parameter", p.getName());
+        }
+        return doc;
     }
 
     /**
