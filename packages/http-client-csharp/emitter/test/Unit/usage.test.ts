@@ -664,7 +664,7 @@ interface LegacyLro {
     );
 
     ok(radiologyInsightsInferenceResult);
-    // TODO -- TCGC now has a bug that the LRO final result does not have Json usage when the polling operation does not have convenientAPI but the LRO has convenientAPI.
+    // TODO -- TCGC now has a bug that the LRO final result does not have Json usage when the polling operation does not have convenientAPI but the LRO has convenientAPI. https://github.com/Azure/typespec-azure/issues/1964
     //strictEqual(radiologyInsightsInferenceResult.usage, UsageFlags.Output | UsageFlags.Json);
   });
 });
