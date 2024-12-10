@@ -7,6 +7,22 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`OpenAPI extension must start with 'x-' but was '${"value"}'`,
+        decorator: paramMessage`Extension decorator only support minProperties/maxProperties/uniqueItems/multipleOf/'x-' but was '${"value"}'`,
+      },
+    },
+    "invalid-extension-value": {
+      severity: "error",
+      messages: {
+        default: paramMessage`'${"extensionName"}' must number.'`,
+        uniqueItems: paramMessage`${"extensionName"}' must boolean.`,
+      },
+    },
+    "invalid-extension-target": {
+      severity: "error",
+      messages: {
+        default: paramMessage`'minProperties/maxProperties' can only apply to model, but ${"paramName"} is not`,
+        uniqueItems: paramMessage`'uniqueItems' can only be apply to properties that are arrays, but ${"paramName"} is not`,
+        multipleOf: paramMessage`'multipleOf' can only be apply to properties that are number, but ${"paramName"} is not`,
       },
     },
     "duplicate-type-name": {

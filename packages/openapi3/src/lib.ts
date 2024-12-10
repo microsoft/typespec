@@ -281,6 +281,12 @@ export const libDef = {
         default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
       },
     },
+    "minmaxProperties-invalid-model": {
+      severity: "warning",
+      messages: {
+        default: paramMessage` \`@extension(${"key"}, ${"value"})\` is only used to specify the inclusive number of properties allowed in an object instance. currently it is not object so will be ignored.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
