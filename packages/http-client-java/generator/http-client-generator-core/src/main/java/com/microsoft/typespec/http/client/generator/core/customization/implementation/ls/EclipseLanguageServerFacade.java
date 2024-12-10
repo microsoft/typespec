@@ -77,14 +77,17 @@ public class EclipseLanguageServerFacade {
             Process server = startServer(command, languageServerPath, logger);
             if (!server.isAlive()) {
                 if (pathToLanguageServerPlugin == null) {
+                    // If user didn't specify language server path, we do a clean re-download.
                     logger.warn(
                         "Eclipse language server failed to start. The folder may be corrupted. Try re-download.");
                     server = startServer(command, getLanguageServerDirectory(javaVersion, logger, true), logger);
                     if (!server.isAlive()) {
+                        // if server failed to start anyway, throw with server output.
                         throw new RuntimeException(String.format(
                             "Eclipse language server failed to start, error output:\n %s", readServerOutput(server)));
                     }
                 } else {
+                    // if user specify the language server path, we just throw with server output.
                     throw new RuntimeException(String.format(
                         "Eclipse language server failed to start, error output:\n %s", readServerOutput(server)));
                 }
