@@ -279,7 +279,7 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
   return addOptions(spec, GENERATED_FOLDER, flags).map((option) => {
     return {
       outputDir: option.outputDir,
-      command: `tsp compile ${spec} --emit=${toPosix(PLUGIN_DIR)} ${option.optionsStr}`,
+      command: `tsp compile ${spec} --emit=${toPosix(resolve(PLUGIN_DIR, "dist/emitter/src"))} ${option.optionsStr}`,
     };
   });
 }
