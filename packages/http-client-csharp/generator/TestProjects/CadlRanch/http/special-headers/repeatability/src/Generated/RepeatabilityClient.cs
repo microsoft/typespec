@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SpecialHeaders.Repeatability
@@ -23,6 +24,6 @@ namespace SpecialHeaders.Repeatability
 
         public virtual ClientResult ImmediateSuccess() => throw null;
 
-        public virtual Task<ClientResult> ImmediateSuccessAsync() => throw null;
+        public virtual Task<ClientResult> ImmediateSuccessAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

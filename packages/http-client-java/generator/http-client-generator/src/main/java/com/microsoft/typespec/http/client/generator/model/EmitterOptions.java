@@ -17,7 +17,7 @@ import java.util.Map;
 public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String namespace;
     private String outputDir;
-    private String flavor = "Azure";
+    private String flavor = "generic";
     private String serviceName;
     private List<String> serviceVersions;
     private Boolean generateTests = true;

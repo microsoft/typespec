@@ -33,6 +33,7 @@ import com.azure.core.util.serializer.JacksonAdapter;
 import com.azure.core.util.serializer.SerializerAdapter;
 import reactor.core.publisher.Mono;
 import versioning.renamedfrom.RenamedFromServiceVersion;
+import versioning.renamedfrom.models.Versions;
 
 /**
  * Initializes a new instance of the RenamedFromClient type.
@@ -60,14 +61,14 @@ public final class RenamedFromClientImpl {
     /**
      * Need to be set as 'v1' or 'v2' in client.
      */
-    private final String version;
+    private final Versions version;
 
     /**
      * Gets Need to be set as 'v1' or 'v2' in client.
      * 
      * @return the version value.
      */
-    public String getVersion() {
+    public Versions getVersion() {
         return this.version;
     }
 
@@ -134,7 +135,7 @@ public final class RenamedFromClientImpl {
      * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public RenamedFromClientImpl(String endpoint, String version, RenamedFromServiceVersion serviceVersion) {
+    public RenamedFromClientImpl(String endpoint, Versions version, RenamedFromServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
             JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
     }
@@ -147,7 +148,7 @@ public final class RenamedFromClientImpl {
      * @param version Need to be set as 'v1' or 'v2' in client.
      * @param serviceVersion Service version.
      */
-    public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, String version,
+    public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
         RenamedFromServiceVersion serviceVersion) {
         this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
     }
@@ -162,7 +163,7 @@ public final class RenamedFromClientImpl {
      * @param serviceVersion Service version.
      */
     public RenamedFromClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String version, RenamedFromServiceVersion serviceVersion) {
+        Versions version, RenamedFromServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
@@ -185,7 +186,7 @@ public final class RenamedFromClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> newOp(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+        Mono<Response<BinaryData>> newOp(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
             @QueryParam("newQuery") String newQuery, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);
@@ -196,7 +197,7 @@ public final class RenamedFromClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> newOpSync(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
+        Response<BinaryData> newOpSync(@HostParam("endpoint") String endpoint, @HostParam("version") Versions version,
             @QueryParam("newQuery") String newQuery, @HeaderParam("Content-Type") String contentType,
             @HeaderParam("Accept") String accept, @BodyParam("application/json") BinaryData body,
             RequestOptions requestOptions, Context context);

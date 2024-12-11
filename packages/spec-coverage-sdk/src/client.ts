@@ -20,9 +20,16 @@ export class SpecCoverageClient {
 
   constructor(
     storageAccountName: string,
-    credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
+    options?: {
+      credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential;
+      containerName?: string;
+    },
   ) {
-    this.#container = getCoverageContainer(storageAccountName, credential);
+    this.#container = getCoverageContainer(
+      storageAccountName,
+      options?.credential,
+      options?.containerName,
+    );
     this.manifest = new SpecManifestOperations(this.#container);
     this.coverage = new SpecCoverageOperations(this.#container);
   }
@@ -52,8 +59,8 @@ export class SpecManifestOperations {
     });
   }
 
-  public async get(): Promise<ScenarioManifest> {
-    return readJsonBlob<ScenarioManifest>(this.#blob);
+  public async get(): Promise<ScenarioManifest[]> {
+    return readJsonBlob<ScenarioManifest[]>(this.#blob);
   }
 }
 
@@ -147,12 +154,14 @@ export class SpecCoverageOperations {
 function getCoverageContainer(
   storageAccountName: string,
   credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
+  containerName?: string,
 ): ContainerClient {
   const blobSvc = new BlobServiceClient(
     `https://${storageAccountName}.blob.core.windows.net`,
     credential,
   );
-  const containerClient = blobSvc.getContainerClient(`coverages`);
+  containerName = containerName || "coverages";
+  const containerClient = blobSvc.getContainerClient(containerName);
   return containerClient;
 }
 

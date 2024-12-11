@@ -14,7 +14,7 @@
     "parameters.basic.ImplicitBodyClient": "null",
     "parameters.basic.ImplicitBodyClient.simple": "Parameters.Basic.ImplicitBody.simple",
     "parameters.basic.ImplicitBodyClient.simpleWithResponse": "Parameters.Basic.ImplicitBody.simple",
-    "parameters.basic.implementation.models.SimpleRequest": "Parameters.Basic.ImplicitBody.simple.Request.anonymous",
-    "parameters.basic.models.User": "Parameters.Basic.ExplicitBody.User"
+    "parameters.basic.explicitbody.models.User": "Parameters.Basic.ExplicitBody.User",
+    "parameters.basic.implicitbody.implementation.models.SimpleRequest": "Parameters.Basic.ImplicitBody.simple.Request.anonymous"
   }
 }

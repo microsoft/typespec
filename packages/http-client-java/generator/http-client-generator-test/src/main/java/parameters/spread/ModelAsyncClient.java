@@ -18,7 +18,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import parameters.spread.implementation.ModelsImpl;
 import parameters.spread.implementation.models.SpreadCompositeRequestMixRequest;
-import parameters.spread.models.BodyParameter;
+import parameters.spread.model.models.BodyParameter;
 import reactor.core.publisher.Mono;
 
 /**

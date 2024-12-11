@@ -1,7 +1,6 @@
 export * from "./literal.js";
 export * from "./model-property.js";
 export * from "./model.js";
-export * from "./realm.js";
 export * from "./scalar.js";
 export * from "./type.js";
 export * from "./union-variant.js";

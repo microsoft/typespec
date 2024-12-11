@@ -16,8 +16,8 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
+import parameters.basic.explicitbody.models.User;
 import parameters.basic.implementation.ExplicitBodiesImpl;
-import parameters.basic.models.User;
 import reactor.core.publisher.Mono;
 
 /**

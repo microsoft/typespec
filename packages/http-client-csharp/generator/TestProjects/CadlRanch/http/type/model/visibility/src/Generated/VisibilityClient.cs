@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Model.Visibility.Models;
 
@@ -24,7 +25,7 @@ namespace _Type.Model.Visibility
 
         public virtual ClientResult<VisibilityModel> GetModel(VisibilityModel input) => throw null;
 
-        public virtual Task<ClientResult<VisibilityModel>> GetModelAsync(VisibilityModel input) => throw null;
+        public virtual Task<ClientResult<VisibilityModel>> GetModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult HeadModel(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -32,7 +33,7 @@ namespace _Type.Model.Visibility
 
         public virtual ClientResult HeadModel(VisibilityModel input) => throw null;
 
-        public virtual Task<ClientResult> HeadModelAsync(VisibilityModel input) => throw null;
+        public virtual Task<ClientResult> HeadModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -40,7 +41,7 @@ namespace _Type.Model.Visibility
 
         public virtual ClientResult PutModel(VisibilityModel input) => throw null;
 
-        public virtual Task<ClientResult> PutModelAsync(VisibilityModel input) => throw null;
+        public virtual Task<ClientResult> PutModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PatchModel(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -52,7 +53,7 @@ namespace _Type.Model.Visibility
 
         public virtual ClientResult PostModel(VisibilityModel input) => throw null;
 
-        public virtual Task<ClientResult> PostModelAsync(VisibilityModel input) => throw null;
+        public virtual Task<ClientResult> PostModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult DeleteModel(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -60,7 +61,7 @@ namespace _Type.Model.Visibility
 
         public virtual ClientResult DeleteModel(VisibilityModel input) => throw null;
 
-        public virtual Task<ClientResult> DeleteModelAsync(VisibilityModel input) => throw null;
+        public virtual Task<ClientResult> DeleteModelAsync(VisibilityModel input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult PutReadOnlyModel(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -68,6 +69,6 @@ namespace _Type.Model.Visibility
 
         public virtual ClientResult<ReadOnlyModel> PutReadOnlyModel(ReadOnlyModel input) => throw null;
 
-        public virtual Task<ClientResult<ReadOnlyModel>> PutReadOnlyModelAsync(ReadOnlyModel input) => throw null;
+        public virtual Task<ClientResult<ReadOnlyModel>> PutReadOnlyModelAsync(ReadOnlyModel input, CancellationToken cancellationToken = default) => throw null;
     }
 }

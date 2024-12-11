@@ -49,11 +49,8 @@ function IsSpecDir {
 }
 
 $failingSpecs = @(
-    Join-Path 'http' 'special-words'
-    Join-Path 'http' 'payload' 'json-merge-patch'
     Join-Path 'http' 'payload' 'pageable'
-    Join-Path 'http' 'resiliency' 'srv-driven'
-    Join-Path 'http' 'routes'
+    Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'special-headers' 'conditional-request'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'templated'
@@ -83,10 +80,6 @@ foreach ($directory in $directories) {
         continue
     }
 
-    if ($folders.Contains("versioning")) {
-        continue # TODO: adopt versioning cadl ranch specs https://github.com/microsoft/typespec/issues/3965
-    }
-
     if ($failingSpecs.Contains($subPath)) {
         Write-Host "Skipping $subPath" -ForegroundColor Yellow
         continue
@@ -97,15 +90,31 @@ foreach ($directory in $directories) {
         $generationDir = Join-Path $generationDir $folder
     }
 
-    #create the directory if it doesn't exist
+    # create the directory if it doesn't exist
     if (-not (Test-Path $generationDir)) {
         New-Item -ItemType Directory -Path $generationDir | Out-Null
+    }
+    
+    if ($folders.Contains("versioning")) {
+        Generate-Versioning $directory.FullName $generationDir -generateStub $stubbed
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
+        continue
+    }
+
+    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
+    if ($folders.Contains("srv-driven")) {
+        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
+        continue
     }
 
     $cadlRanchLaunchProjects.Add(($folders -join "-"), ("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
     if ($LaunchOnly) {
         continue
     }
+    
     Write-Host "Generating $subPath" -ForegroundColor Cyan
     Invoke (Get-TspCommand $specFile $generationDir $stubbed)
 
@@ -161,5 +170,6 @@ if ($null -eq $filter) {
 
     # Write the launch settings to the launchSettings.json file
     $launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"
-    $sortedLaunchSettings | ConvertTo-Json | Set-Content $launchSettingsPath
+    # Write the settings to JSON and normalize line endings to Unix style (LF)
+    $sortedLaunchSettings | ConvertTo-Json | ForEach-Object { $_ -replace "`r`n", "`n" } | Set-Content $launchSettingsPath
 }

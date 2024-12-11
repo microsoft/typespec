@@ -4,7 +4,7 @@ import {
   SdkHttpOperation,
   SdkServiceOperation,
 } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext } from "@typespec/compiler";
+import { EmitContext, NoTarget } from "@typespec/compiler";
 import { exec } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
@@ -12,7 +12,7 @@ import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
-import { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
+import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
 
@@ -47,7 +47,7 @@ function addDefaultOptions(sdkContext: SdkContext) {
   }
   if (!options["package-name"]) {
     options["package-name"] = removeUnderscoresFromNamespace(
-      sdkContext.sdkPackage.rootNamespace.toLowerCase(),
+      (sdkContext.sdkPackage.rootNamespace ?? "").toLowerCase(),
     ).replace(/\./g, "-");
   }
   if (options.flavor !== "azure") {
@@ -80,6 +80,15 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
   const yamlMap = emitCodeModel(sdkContext);
+  if (yamlMap.clients.length === 0) {
+    reportDiagnostic(program, {
+      code: "no-valid-client",
+      target: NoTarget,
+    });
+    return;
+  }
+
+  addDefaultOptions(sdkContext);
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
   addDefaultOptions(sdkContext);
   const resolvedOptions = sdkContext.emitContext.options;

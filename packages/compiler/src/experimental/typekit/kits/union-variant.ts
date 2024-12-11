@@ -44,7 +44,7 @@ export interface UnionVariantKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends UnionVariantKit {}
+  interface Typekit extends UnionVariantKit {}
 }
 
 defineKit<UnionVariantKit>({
@@ -53,7 +53,7 @@ defineKit<UnionVariantKit>({
       const variant: UnionVariant = this.program.checker.createType({
         kind: "UnionVariant",
         name: desc.name ?? Symbol("name"),
-        decorators: decoratorApplication(desc.decorators),
+        decorators: decoratorApplication(this, desc.decorators),
         type: desc.type,
         node: undefined as any,
         union: desc.union as any,

@@ -5,6 +5,7 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type._Array.Models;
 
@@ -22,7 +23,7 @@ namespace _Type._Array
 
         public virtual ClientResult<IList<InnerModel>> Get() => throw null;
 
-        public virtual Task<ClientResult<IList<InnerModel>>> GetAsync() => throw null;
+        public virtual Task<ClientResult<IList<InnerModel>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -30,6 +31,6 @@ namespace _Type._Array
 
         public virtual ClientResult Put(IEnumerable<InnerModel> body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(IEnumerable<InnerModel> body) => throw null;
+        public virtual Task<ClientResult> PutAsync(IEnumerable<InnerModel> body, CancellationToken cancellationToken = default) => throw null;
     }
 }

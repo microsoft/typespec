@@ -12,6 +12,6 @@
     "serialization.encodedname.json.JsonClient.send": "Serialization.EncodedName.Json.Property.send",
     "serialization.encodedname.json.JsonClient.sendWithResponse": "Serialization.EncodedName.Json.Property.send",
     "serialization.encodedname.json.JsonClientBuilder": "Serialization.EncodedName.Json",
-    "serialization.encodedname.json.models.JsonEncodedNameModel": "Serialization.EncodedName.Json.Property.JsonEncodedNameModel"
+    "serialization.encodedname.json.property.models.JsonEncodedNameModel": "Serialization.EncodedName.Json.Property.JsonEncodedNameModel"
   }
 }

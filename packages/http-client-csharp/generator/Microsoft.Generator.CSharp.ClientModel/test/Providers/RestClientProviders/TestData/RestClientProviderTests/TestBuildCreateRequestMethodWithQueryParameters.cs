@@ -10,7 +10,7 @@ namespace Sample
     /// <summary></summary>
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
@@ -43,6 +43,23 @@ namespace Sample
             if ((optionalParam != null))
             {
                 uri.AppendQuery("optionalParam", optionalParam, true);
+            }
+            if (((p3Explode != null) && !((p3Explode is global::Sample.ChangeTrackingDictionary<string, int> changeTrackingDictionary) && changeTrackingDictionary.IsUndefined)))
+            {
+                foreach (var @param in p3Explode)
+                {
+                    uri.AppendQuery(@param.Key, @param.Value, true);
+                }
+            }
+            if (((p3 != null) && !((p3 is global::Sample.ChangeTrackingDictionary<string, int> changeTrackingDictionary0) && changeTrackingDictionary0.IsUndefined)))
+            {
+                global::System.Collections.Generic.List<object> list = new global::System.Collections.Generic.List<object>();
+                foreach (var @param in p3)
+                {
+                    list.Add(@param.Key);
+                    list.Add(@param.Value);
+                }
+                uri.AppendQueryDelimited("p3", list, ",", null, true);
             }
             request.Uri = uri.ToUri();
             message.Apply(options);

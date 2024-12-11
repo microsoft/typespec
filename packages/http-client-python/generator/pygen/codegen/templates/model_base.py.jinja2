@@ -752,7 +752,7 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
         except AttributeError:
             model_name = annotation
         if module is not None:
-            annotation = _get_model(module, model_name)
+            annotation = _get_model(module, model_name)  # type: ignore
 
     try:
         if module and _is_model(annotation):
@@ -890,6 +890,23 @@ def _deserialize(
     if not isinstance(deserializer, functools.partial):
         deserializer = _get_deserialize_callable_from_annotation(deserializer, module, rf)
     return _deserialize_with_callable(deserializer, value)
+
+
+def _failsafe_deserialize(
+  deserializer: typing.Any,
+  value: typing.Any,
+  module: typing.Optional[str] = None,
+  rf: typing.Optional["_RestField"] = None,
+  format: typing.Optional[str] = None,
+) -> typing.Any:
+  try:
+      return _deserialize(deserializer, value, module, rf, format)
+  except DeserializationError:
+      _LOGGER.warning(
+          "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
+          exc_info=True
+      )
+      return None
 
 
 class _RestField:
