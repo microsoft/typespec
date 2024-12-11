@@ -111,10 +111,11 @@ namespace Microsoft.Generator.CSharp
             var args = new List<object?>();
             List<FormattableString> result = new List<FormattableString>();
 
-            BreakLinesCore(input, formatBuilder, args, result);
+            var hasEmptyLastLine = BreakLinesCore(input, formatBuilder, args, result);
 
             // if formatBuilder is not empty at end, add it to result
-            if (formatBuilder.Length > 0)
+            // or when the last char is line break, we should also construct one and add it into the result
+            if (formatBuilder.Length > 0 || hasEmptyLastLine)
             {
                 FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
                 result.Add(formattableString);
@@ -122,10 +123,14 @@ namespace Microsoft.Generator.CSharp
             return result;
         }
 
-        private static void BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
+        private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
         {
-            Span<Range> splitIndices = stackalloc Range[input.Format.Length];
-            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(input.Format))
+            // stackalloc cannot be used in a loop, we must allocate it here.
+            // for a format string with length n, the worst case that produces the most segments is when all its content is the char to split.
+            // For instance, when the format string is all \n, it will produce n+1 segments (because we did not omit empty entries).
+            Span<Range> splitIndices = stackalloc Range[input.Format.Length + 1];
+            ReadOnlySpan<char> formatSpan = input.Format.AsSpan();
+            foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(formatSpan))
             {
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
@@ -191,6 +196,8 @@ namespace Microsoft.Generator.CSharp
                     }
                 }
             }
+
+            return formatSpan[^1] == '\n';
 
             static void BreakLinesCoreForString(ReadOnlySpan<char> span, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
             {

@@ -85,6 +85,8 @@ namespace Microsoft.Generator.CSharp
 
         public static GetPathPartsEnumerator GetFormattableStringFormatParts(string? format) => new GetPathPartsEnumerator(format);
 
+        public static GetPathPartsEnumerator GetFormattableStringFormatParts(ReadOnlySpan<char> format) => new GetPathPartsEnumerator(format);
+
         public ref struct GetPathPartsEnumerator
         {
             private ReadOnlySpan<char> _path;

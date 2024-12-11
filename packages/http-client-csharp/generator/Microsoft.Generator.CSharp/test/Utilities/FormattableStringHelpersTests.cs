@@ -25,6 +25,14 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
             get
             {
                 yield return new TestCaseData(
+                    (FormattableString)$"\n\n\n\n",
+                    new List<FormattableString>
+                    {
+                        $"", $"", $"", $"", $"" // four line breaks should produce 5 lines.
+                    })
+                    .SetName("TestBreakLines_AllLineBreaks");
+
+                yield return new TestCaseData(
                     (FormattableString)$"A timestamp indicating the last modified time\nclient. The operation will be performed only\nbeen modified since the specified time.",
                     new List<FormattableString> {
                         $"A timestamp indicating the last modified time",
@@ -192,15 +200,39 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                         $"}}"
                     }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndArgsContainingLineBreaks");
 
-                FormattableString inner = $"{"x"}\n{"y"}";
+                FormattableString inner = $"{"x"}\n{"y"}z";
                 FormattableString outter = $"first{inner}second\nthird{null}";
                 yield return new TestCaseData(
                     outter,
                     new List<FormattableString> {
                         $"first{"x"}",
-                        $"{"y"}second",
+                        $"{"y"}zsecond",
                         $"third{null}"
                     }).SetName("TestBreakLines_RecursiveFormattableStrings");
+
+                inner = $"\n\n\n\n";
+                outter = $"first{inner}second\nthird{null}";
+                yield return new TestCaseData(
+                    outter,
+                    new List<FormattableString> {
+                        $"first",
+                        $"",
+                        $"",
+                        $"",
+                        $"second",
+                        $"third{null}"
+                    }).SetName("TestBreakLines_RecursiveFormattableStringsWithAllLineBreaks");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"first\n\n\n\nsecond\nthird{null}",
+                    new List<FormattableString> {
+                        $"first",
+                        $"",
+                        $"",
+                        $"",
+                        $"second",
+                        $"third{null}"
+                    }).SetName("TestBreakLines_MultipleLineBreaks");
 
                 // TODO: Check if this is valid after we update logic in FormattableStringHelpers to handle FormatSpecifier and \n in one argument
                 yield return new TestCaseData(
