@@ -5,7 +5,7 @@ import {
   SdkServiceOperation,
 } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, NoTarget } from "@typespec/compiler";
-import { exec } from "child_process";
+import { execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
@@ -117,6 +117,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     commandArgs["emit-cross-language-definition-file"] = "true";
   }
   commandArgs["from-typespec"] = "true";
+
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     if (resolvedOptions["use-pyodide"] || !fs.existsSync(path.join(root, "venv"))) {
       // here we run with pyodide, if there's no venv or if the user specifies to use pyodide
@@ -152,11 +153,11 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       }
       commandArgs["output-folder"] = outputDir;
       commandArgs["cadl-file"] = yamlPath;
-      await exec(
-        Object.entries(commandArgs)
-          .map(([key, value]) => `--${key} ${value}`)
-          .join(" "),
-      );
+      const commandFlags = Object.entries(commandArgs)
+        .map(([key, value]) => `--${key}=${value}`)
+        .join(" ");
+      const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
+      execSync(command);
     }
   }
 }
