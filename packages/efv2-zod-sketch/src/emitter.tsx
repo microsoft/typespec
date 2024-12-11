@@ -9,7 +9,7 @@ import {
   navigateType,
   Type,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { zod } from "./external-packages/zod.js";
 
 export async function $onEmit(context: EmitContext) {

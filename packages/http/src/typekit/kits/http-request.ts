@@ -1,5 +1,5 @@
 import { Model, ModelProperty } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { HttpOperation } from "../../types.js";
 
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
@@ -33,7 +33,7 @@ interface TypekitExtension {
 }
 
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

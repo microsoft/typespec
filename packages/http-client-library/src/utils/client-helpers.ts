@@ -1,5 +1,5 @@
 import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { getAuthentication, getServers } from "@typespec/http";
 import { Client } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";

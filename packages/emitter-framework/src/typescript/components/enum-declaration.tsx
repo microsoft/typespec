@@ -1,5 +1,5 @@
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import * as ts from "@alloy-js/typescript";
 import { mapJoin, Refkey, refkey } from "@alloy-js/core";
 

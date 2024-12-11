@@ -1,5 +1,5 @@
 import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
-import { defineKit, Typekit } from "@typespec/compiler/experimental/typekit";
+import { defineKit, Typekit } from "@typespec/compiler/typekit";
 import { getHttpOperation } from "../../operations.js";
 import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../types.js";
 
@@ -45,7 +45,7 @@ interface TypekitExtension {
   httpOperation: HttpOperationKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

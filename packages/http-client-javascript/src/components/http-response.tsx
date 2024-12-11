@@ -1,6 +1,6 @@
 import { Children, code, mapJoin, Refkey } from "@alloy-js/core";
 import { Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { TypeTransformCall } from "@typespec/emitter-framework/typescript";
 
 export interface HttpResponseProps {

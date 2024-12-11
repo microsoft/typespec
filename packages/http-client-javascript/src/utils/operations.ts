@@ -4,7 +4,7 @@ import {
   unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
 } from "@typespec/compiler/experimental";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 
 /**
  * Prepares operation for client representation. This includes adding an options bag for optional parameters.

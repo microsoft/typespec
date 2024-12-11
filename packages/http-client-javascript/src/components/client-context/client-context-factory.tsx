@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import { code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import * as cl from "@typespec/http-client-library";
 import { buildClientParameters } from "../../utils/parameters.jsx";

@@ -1,7 +1,7 @@
 import { Children, mapJoin, refkey, SourceDirectory } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Operation, Service } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
 import { prepareOperation } from "../utils/operations.js";
 import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";

@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ClassDeclaration } from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
 import * as cl from "@typespec/http-client-library";
 import { prepareOperation } from "../utils/operations.js";

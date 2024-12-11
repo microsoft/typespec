@@ -1,7 +1,7 @@
 import { Children, code, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import * as ef from "@typespec/emitter-framework/typescript";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
 

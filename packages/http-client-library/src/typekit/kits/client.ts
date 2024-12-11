@@ -8,7 +8,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import {  defineKit } from "@typespec/compiler/experimental/typekit";
+import {  defineKit } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
 import { Client } from "../../interfaces.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
@@ -66,7 +66,7 @@ interface TypeKit {
   client: ClientKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Typekit extends TypeKit {}
 }

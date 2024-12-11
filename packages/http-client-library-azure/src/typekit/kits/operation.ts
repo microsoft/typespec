@@ -6,7 +6,7 @@ import {
   getAccess as tcgcGetAccess,
 } from "@azure-tools/typespec-client-generator-core";
 import { BaseType, Operation } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/experimental/typekit";
+import { $, defineKit } from "@typespec/compiler/typekit";
 import { HttpAuth } from "@typespec/http";
 
 export interface SdkCredential extends BaseType {
@@ -34,7 +34,7 @@ interface TypeKit {
   operation: SdkOperationKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface OperationKit extends SdkOperationKit {}
 }

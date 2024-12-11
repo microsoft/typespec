@@ -1,5 +1,5 @@
 import { isErrorModel } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import {
   HttpOperationResponseContent,
   HttpStatusCodeRange,
@@ -22,7 +22,7 @@ interface TypekitExtension {
   httpResponse: HttpResponseKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

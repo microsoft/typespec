@@ -1,7 +1,7 @@
 import { Children, code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty, Scalar, Type, Union } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
+import { $ } from "@typespec/compiler/typekit";
 import {
   ArraySerializerRefkey,
   DateDeserializerRefkey,

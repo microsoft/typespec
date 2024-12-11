@@ -6,7 +6,7 @@ import {
   Model,
   Namespace,
 } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/experimental/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
 
 interface ClientLibraryKit {
@@ -44,7 +44,7 @@ interface TK {
   clientLibrary: ClientLibraryKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Typekit extends TK {}
 }
