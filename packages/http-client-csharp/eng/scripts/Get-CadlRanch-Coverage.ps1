@@ -7,8 +7,9 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 Refresh-Build
 
-$specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs'
-$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
+$specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs' 'specs'
+$azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
+$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 'http'
 $directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
@@ -36,6 +37,12 @@ foreach ($directory in $directories) {
     $specFile = Join-Path $specsDirectory $subPath "client.tsp"
     if (-not (Test-Path $specFile)) {
         $specFile = Join-Path $specsDirectory $subPath "main.tsp"
+    }
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $azureSpecsDirectory $subPath "client.tsp"
+    }
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $azureSpecsDirectory $subPath "main.tsp"
     }
     
     if ($subPath.Contains("versioning")) {

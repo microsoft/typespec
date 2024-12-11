@@ -100,6 +100,9 @@ foreach ($directory in $directories) {
 
     $generationDir = $cadlRanchRoot
     foreach ($folder in $folders) {
+        if ($folder -eq "specs") {
+            $folder = "http" # Keep consistent with the previous folder name
+        }
         $generationDir = Join-Path $generationDir $folder
     }
 
