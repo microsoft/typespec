@@ -1,4 +1,5 @@
-import * as fs from "fs";
+import * as fs from "fs/promises";
+import * as sysPath from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CompletionItem,
@@ -7,15 +8,9 @@ import {
   Range,
   TextEdit,
 } from "vscode-languageserver/node.js";
-import { isMap, isPair } from "yaml";
+import { Document, isMap, isPair, Node } from "yaml";
 import { emitterOptionsSchema, TypeSpecConfigJsonSchema } from "../../config/config-schema.js";
-import {
-  getAnyExtensionFromPath,
-  getBaseFileName,
-  getDirectoryPath,
-  getRelativePathFromDirectory,
-  joinPaths,
-} from "../../core/path-utils.js";
+import { getDirectoryPath, joinPaths } from "../../core/path-utils.js";
 import {
   DiagnosticMessages,
   JSONSchemaType,
@@ -25,12 +20,7 @@ import {
 import { distinctArray } from "../../utils/misc.js";
 import { FileService } from "../file-service.js";
 import { LibraryProvider } from "../lib-provider.js";
-import {
-  getYamlDocScalarNode,
-  resolveYamlScalarTarget,
-  YamlScalarTarget,
-  YamlVisitScalarNode,
-} from "../yaml-resolver.js";
+import { resolveYamlScalarTarget, YamlScalarTarget } from "../yaml-resolver.js";
 
 type ObjectJSONSchemaType = JSONSchemaType<object>;
 
@@ -51,32 +41,19 @@ export async function provideTspconfigCompletionItems(
   }
 
   // Variable interpolation
-  const yamlDocNodes = getYamlDocScalarNode(tspConfigDoc);
-  if (yamlDocNodes === undefined) {
-    return [];
+  const content = tspConfigDoc.getText();
+  const lines = content.split("\n");
+  const targetLine = lines[tspConfigPosition.line];
+  const variableInterpolationItems = resolveVariableInterpolationCompleteItems(
+    target,
+    tspConfigPosition,
+    targetLine,
+  );
+  if (variableInterpolationItems.length > 0) {
+    return variableInterpolationItems;
   }
 
-  if (target.sourceType === "QUOTE_DOUBLE" && /{(env\.)?}|{[^{}]*}/g.test(target.source)) {
-    // environment-variables
-    if (/{env\.}(?!\S)|{env\.}/g.test(target.source)) {
-      // environment-variables
-      return getEnvsCompletionItem(yamlDocNodes);
-    } else {
-      // parameters and built-in variables
-      return [
-        ...getParametersCompletionItems(yamlDocNodes),
-        ...["cwd", "project-root"].map((value) => {
-          const item: CompletionItem = {
-            label: value,
-            kind: CompletionItemKind.Value,
-            documentation: "Built-in variables",
-          };
-          return item;
-        }),
-      ];
-    }
-  }
-
+  const pos = tspConfigDoc.offsetAt(tspConfigPosition);
   const items = resolveTspConfigCompleteItems(
     await fileService.getPath(tspConfigDoc),
     target,
@@ -109,15 +86,18 @@ export async function provideTspconfigCompletionItems(
       const items: CompletionItem[] = [];
       for (const [name, pkg] of Object.entries(emitters)) {
         if (!siblings.includes(name)) {
-          items.push(
-            getCommonCompetionItem(
-              name,
-              sourceType,
-              source,
-              (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
-              tspConfigPosition,
-            ),
+          const item = createContainingQuatedValCompetionItem(
+            name,
+            sourceType,
+            source,
+            (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
+            tspConfigPosition,
+            target.nodePostionRange,
+            pos,
           );
+          if (item !== undefined) {
+            items.push(item);
+          }
         }
       }
       return items;
@@ -159,39 +139,41 @@ export async function provideTspconfigCompletionItems(
             // Below ruleSets are objects rather than arrays
             for (const [ruleSet] of Object.entries(exports?.$linter?.ruleSets)) {
               const labelName = `${name}/${ruleSet}`;
-              if (siblings.includes(labelName)) {
-                continue;
-              }
-
-              items.push(
-                getCommonCompetionItem(
+              if (!siblings.includes(labelName)) {
+                const item = createContainingQuatedValCompetionItem(
                   labelName,
                   sourceType,
                   source,
                   (await pkg.getPackageJsonData())?.description ?? `Linters from ${labelName}`,
                   tspConfigPosition,
-                ),
-              );
+                  target.nodePostionRange,
+                  pos,
+                );
+                if (item !== undefined) {
+                  items.push(item);
+                }
+              }
             }
             continue;
           }
 
           // If there is no corresponding ruleSet in the library, add the library name directly.
-          if (siblings.includes(name)) {
-            continue;
-          }
-
-          items.push(
-            getCommonCompetionItem(
+          if (!siblings.includes(name)) {
+            const item = createContainingQuatedValCompetionItem(
               name,
               sourceType,
               source,
               (await pkg.getPackageJsonData())?.description ?? `Linters from ${name}`,
               tspConfigPosition,
-            ),
-          );
+              target.nodePostionRange,
+              pos,
+            );
+            if (item !== undefined) {
+              items.push(item);
+            }
+          }
         }
-      } else {
+      } else if (extendKeyWord === "enable" || extendKeyWord === "disable") {
         // enable/disable rules
         for (const [name, pkg] of Object.entries(linters)) {
           const exports = await pkg.getModuleExports();
@@ -201,33 +183,43 @@ export async function provideTspconfigCompletionItems(
               exports?.$linter?.rules,
             )) {
               const labelName = `${name}/${rule.name}`;
-              items.push(
-                getCommonCompetionItem(
-                  labelName,
-                  sourceType,
-                  source,
-                  rule.description,
-                  tspConfigPosition,
-                ),
+              const item = createContainingQuatedValCompetionItem(
+                labelName,
+                sourceType,
+                source,
+                rule.description,
+                tspConfigPosition,
+                target.nodePostionRange,
+                pos,
               );
+              if (item !== undefined) {
+                items.push(item);
+              }
             }
           }
         }
+      } else {
+        log({
+          level: "warning",
+          message: "Unknown linter keyword",
+        });
       }
       return items;
     } else if (nodePath.length === CONFIG_PATH_LENGTH_FOR_EXTENDS && nodePath[0] === "extends") {
       const currentFolder = getDirectoryPath(tspConfigFile);
-      const extName = getAnyExtensionFromPath(tspConfigFile);
       const newFolderPath = joinPaths(currentFolder, source);
-      const configFile = getBaseFileName(tspConfigFile);
 
-      const relativeFiles = findFilesWithSameExtension(newFolderPath, extName, log, configFile);
+      const relativeFiles = await findFilesOrDirsWithSameExtension(
+        newFolderPath,
+        ".yaml",
+        sysPath.resolve(tspConfigFile),
+      );
       return getFilePathCompletionItems(relativeFiles, siblings);
     } else if (nodePath.length >= CONFIG_PATH_LENGTH_FOR_IMPORTS && nodePath[0] === "imports") {
       const currentFolder = getDirectoryPath(tspConfigFile);
       const newFolderPath = joinPaths(currentFolder, source);
 
-      const relativeFiles = findFilesWithSameExtension(newFolderPath, ".tsp", log);
+      const relativeFiles = await findFilesOrDirsWithSameExtension(newFolderPath, ".tsp");
       return getFilePathCompletionItems(relativeFiles, siblings);
     } else {
       const schema = TypeSpecConfigJsonSchema;
@@ -382,65 +374,105 @@ function getCompletionItemInsertedValue(sourceQuoteType: string, formatText: str
 }
 
 /**
- * Get the position of the new text
+ * Get the full completion item value and edit position
  * @param newText  the new text
  * @param source source text
+ * @param nodePosRange current node position range, [startPos, endPos, nodeEndPos]
+ * @param curPos current cursor position
  * @param tspConfigPosition original position, see {@link Position}
- * @returns TextEdit object
+ * @returns TextEdit object or undefined
  */
-function getNewTextAndPosition(
+function getFullCompletionItemValAndEditPosition(
   newText: string,
   source: string,
+  nodePosRange: number[],
+  curPos: number,
   tspConfigPosition: Position,
-): TextEdit {
-  return TextEdit.replace(
-    Range.create(
-      Position.create(tspConfigPosition.line, tspConfigPosition.character - source.length),
-      Position.create(tspConfigPosition.line, tspConfigPosition.character + newText.length),
-    ),
-    newText,
-  );
+): TextEdit | undefined {
+  const [startPos, endPos] = nodePosRange;
+
+  if (curPos >= startPos && curPos <= endPos) {
+    return TextEdit.replace(
+      Range.create(
+        Position.create(tspConfigPosition.line, tspConfigPosition.character - source.length),
+        Position.create(tspConfigPosition.line, tspConfigPosition.character + (endPos - curPos)),
+      ),
+      newText,
+    );
+  }
+  return undefined;
 }
 
 /**
- * Find a set of relative paths to files with the same suffix
- * @param rootPath The root path of the current configuration file
- * @param fileExtension  File extension
- * @param log log function
- * @param configFile Configuration file name
- * @returns Relative path array
+ * Get the common CompletionItem object, which value is included in quotes
+ * @param labelName The value of the label attribute of the CompletionItem object
+ * @param sourceType Input quote type
+ * @param source Entered text
+ * @param description The value of the documentation attribute of the CompletionItem object
+ * @param tspConfigPosition Input location object, see {@link Position}
+ * @param nodePosRange current node position range, [startPos, endPos, nodeEndPos]
+ * @param curPos current cursor position
+ * @returns CompletionItem object or undefined
  */
-function findFilesWithSameExtension(
+function createContainingQuatedValCompetionItem(
+  labelName: string,
+  sourceType: string,
+  source: string,
+  description: string,
+  tspConfigPosition: Position,
+  nodePosRange: number[],
+  curPos: number,
+): CompletionItem | undefined {
+  // Generate new text
+  const newText = getCompletionItemInsertedValue(sourceType, labelName);
+  const textEdit = getFullCompletionItemValAndEditPosition(
+    newText,
+    source,
+    nodePosRange,
+    curPos,
+    tspConfigPosition,
+  );
+  if (textEdit !== undefined) {
+    return {
+      label: labelName,
+      kind: CompletionItemKind.Field,
+      documentation: description,
+      textEdit: textEdit,
+    };
+  }
+  return undefined;
+}
+
+/**
+ * Find a set of dirs/files with the same suffix
+ * @param rootPath The absolute input path or relative path of the current configuration file
+ * @param fileExtension  File extension, such as ".yaml" or ".tsp"
+ * @param configFile absolute path of the current configuration file
+ * @returns dir/file array
+ */
+async function findFilesOrDirsWithSameExtension(
   rootPath: string,
   fileExtension: string,
-  log: (log: ServerLog) => void,
   configFile: string = "",
-): string[] {
+): Promise<string[]> {
   const exclude = ["node_modules", "tsp-output", ".vs", ".vscode"];
-  if (fileExtension === ".tsp") {
-    exclude.push("main.tsp");
-  }
 
   const files: string[] = [];
   try {
     // When reading the content under the path, an error may be reported if the path is incorrect.
-    fs.readdirSync(rootPath, { withFileTypes: true })
+    // Exclude the current configuration file, compare in absolute paths
+    (await fs.readdir(rootPath, { withFileTypes: true }))
       .filter(
         (d) =>
           (d.isDirectory() || (d.isFile() && d.name.endsWith(fileExtension))) &&
           !exclude.includes(d.name) &&
-          getBaseFileName(d.name) !== configFile,
+          sysPath.resolve(d.name) !== configFile,
       )
       .map((d) => {
-        const filePath = joinPaths(rootPath, d.name);
-        const relativePath = getRelativePathFromDirectory(rootPath, filePath, false);
-        files.push(relativePath);
+        files.push(d.name);
       });
-  } catch (error) {
-    log({
-      level: "error",
-      message: `input path error: ${(error as Error).message}`,
-    });
+  } catch {
+    return files;
   }
   return files;
 }
@@ -455,116 +487,107 @@ function getFilePathCompletionItems(relativeFiles: string[], siblings: string[])
   const items: CompletionItem[] = [];
   if (relativeFiles.length > 0) {
     for (const file of relativeFiles) {
-      if (siblings.includes(file)) {
-        continue;
+      if (!siblings.includes(file)) {
+        const item: CompletionItem = {
+          label: file,
+          kind: CompletionItemKind.File,
+        };
+        items.push(item);
       }
-
-      const item: CompletionItem = {
-        label: file,
-        kind: CompletionItemKind.File,
-      };
-      items.push(item);
     }
   }
   return items;
 }
 
 /**
- * Get the common CompletionItem object
- * @param labelName The value of the label attribute of the CompletionItem object
- * @param sourceType Input quote type
- * @param source Entered text
- * @param description The value of the documentation attribute of the CompletionItem object
- * @param tspConfigPosition Input location object, see {@link Position}
- * @returns CompletionItem object
+ * resolve variable interpolation completion items
+ * @param target YamlScalarTarget object, contains the information of the target node
+ * @param tspConfigPosition current cursor position in the configuration file
+ * @param targetLine current line content of the target node
+ * @returns variable interpolation completion items
  */
-function getCommonCompetionItem(
-  labelName: string,
-  sourceType: string,
-  source: string,
-  description: string,
+function resolveVariableInterpolationCompleteItems(
+  target: YamlScalarTarget,
   tspConfigPosition: Position,
-): CompletionItem {
-  // Generate new text
-  const newText = getCompletionItemInsertedValue(sourceType, labelName);
+  targetLine: string,
+): CompletionItem[] {
+  const yamlDocNodes = target.yamlDoc;
 
-  return {
-    label: labelName,
-    kind: CompletionItemKind.Field,
-    documentation: description,
-    textEdit: getNewTextAndPosition(newText, source, tspConfigPosition),
-  };
-}
+  if (target.sourceType === "QUOTE_DOUBLE" || target.sourceType === "QUOTE_SINGLE") {
+    const targetPos = targetLine.lastIndexOf("{");
+    const curText = targetLine.substring(targetPos, tspConfigPosition.character);
 
-/**
- * Get the CompletionItem array of custom variables
- * @param yamlDocNodes The contents of the YAML configuration file
- * @returns  CompletionItem array of custom variables
- */
-function getParametersCompletionItems(yamlDocNodes: YamlVisitScalarNode): CompletionItem[] {
-  const { path: yamlNode } = yamlDocNodes;
-  const configParams: string[] = [];
-  for (let i = 0; i < yamlNode.length; i++) {
-    const seg = yamlNode[i];
-    if (isMap(seg)) {
-      seg.items
-        .filter((item) => (<any>item.key).source === "parameters")
-        .map((item) => {
-          if (item.value !== null && isMap(item.value)) {
-            item.value.items.forEach((i) => {
-              if (isPair(i) && (item.key as any).source === "parameters") {
-                configParams.push((i.key as any).source ?? "");
-              }
-            });
-          }
-        });
-      break;
-    }
-  }
-  const result: CompletionItem[] = [];
-  configParams.map((param) => {
-    result.push({
-      label: param,
-      kind: CompletionItemKind.Value,
-      documentation: "Custom paramters variables",
-    });
-  });
-  return result;
-}
+    if (/{[^}]*env\.[^}]*$/.test(curText)) {
+      // environment-variables
+      return getCompletionItemsByFilter(
+        yamlDocNodes,
+        "environment-variables",
+        "Custom environment variables",
+      );
+    } else if (/{[^}]*$/.test(curText)) {
+      // parameters and built-in variables
+      const result = [
+        ...getCompletionItemsByFilter(yamlDocNodes, "parameters", "Custom paramters variables"),
+        ...["cwd", "project-root"].map((value) => {
+          const item: CompletionItem = {
+            label: value,
+            kind: CompletionItemKind.Value,
+            documentation: "Built-in variables",
+          };
+          return item;
+        }),
+      ];
 
-/**
- * Get the CompletionItem array of custom environment variables
- * @param yamlDocNodes The contents of the YAML configuration file
- * @returns  CompletionItem array of custom environment variables
- */
-function getEnvsCompletionItem(yamlDocNodes: YamlVisitScalarNode): CompletionItem[] {
-  const { path: yamlNode } = yamlDocNodes;
-  const configEnvs: string[] = [];
-  for (let i = 0; i < yamlNode.length; i++) {
-    const seg = yamlNode[i];
-    if (isMap(seg)) {
-      seg.items
-        .filter((item) => (<any>item.key).source === "environment-variables")
-        .map((item) => {
-          if (item.value !== null && isMap(item.value)) {
-            item.value.items.forEach((i) => {
-              if (isPair(i) && (item.key as any).source === "environment-variables") {
-                configEnvs.push((i.key as any).source ?? "");
-              }
-            });
-          }
-        });
-      break;
+      // if the current path is options, add output-dir and emitter-name
+      if (target.path.length > 2 && target.path[0] === "options") {
+        result.push(
+          ...["output-dir", "emitter-name"].map((value) => {
+            const item: CompletionItem = {
+              label: value,
+              kind: CompletionItemKind.Value,
+              documentation: "Built-in variables",
+            };
+            return item;
+          }),
+        );
+      }
+      return result;
     }
   }
 
+  return [];
+}
+
+/**
+ * Get the corresponding CompletionItem array based on the filter name
+ * @param yamlDoc The contents of the YAML configuration file
+ * @param filterName The filter name，such as "parameters" or "environment-variables"
+ * @param description The description of the CompletionItem object
+ * @returns  CompletionItem object array
+ */
+function getCompletionItemsByFilter(
+  yamlDoc: Document<Node, true>,
+  filterName: string,
+  description: string,
+): CompletionItem[] {
   const result: CompletionItem[] = [];
-  configEnvs.map((envLabel) => {
-    result.push({
-      label: envLabel,
-      kind: CompletionItemKind.Value,
-      documentation: "Custom environment variables",
-    });
-  });
+  if (isMap(yamlDoc.contents)) {
+    yamlDoc.contents.items
+      .filter((item) => (<any>item.key).source === filterName)
+      .map((item) => {
+        if (item.value !== null && isMap(item.value)) {
+          item.value.items.forEach((i) => {
+            if (isPair(i)) {
+              result.push({
+                label: (i.key as any).source ?? "",
+                kind: CompletionItemKind.Value,
+                documentation: description,
+              });
+            }
+          });
+        }
+      });
+  }
+
   return result;
 }

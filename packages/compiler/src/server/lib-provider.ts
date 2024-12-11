@@ -2,9 +2,9 @@ import { joinPaths } from "../core/path-utils.js";
 import { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
 
 export class LibraryProvider {
-  private isLibPackageCache = new Map<string, boolean>();
+  private libPackageFilterResultCache = new Map<string, boolean>();
   constructor(
-    private libPackageFilterResultCache: NpmPackageProvider,
+    private npmPackageProvider: NpmPackageProvider,
     private filter: (obj: Record<string, any>) => boolean,
   ) {}
 
@@ -14,11 +14,10 @@ export class LibraryProvider {
    * @returns
    */
   async listLibraries(startFolder: string): Promise<Record<string, NpmPackage>> {
-    const packageJsonFolder =
-      await this.libPackageFilterResultCache.getPackageJsonFolder(startFolder);
+    const packageJsonFolder = await this.npmPackageProvider.getPackageJsonFolder(startFolder);
     if (!packageJsonFolder) return {};
 
-    const pkg = await this.libPackageFilterResultCache.get(packageJsonFolder);
+    const pkg = await this.npmPackageProvider.get(packageJsonFolder);
     const data = await pkg?.getPackageJsonData();
     if (!data) return {};
 
@@ -43,8 +42,7 @@ export class LibraryProvider {
    * @returns
    */
   async getLibrary(startFolder: string, libName: string): Promise<NpmPackage | undefined> {
-    const packageJsonFolder =
-      await this.libPackageFilterResultCache.getPackageJsonFolder(startFolder);
+    const packageJsonFolder = await this.npmPackageProvider.getPackageJsonFolder(startFolder);
     if (!packageJsonFolder) {
       return undefined;
     }
@@ -52,8 +50,8 @@ export class LibraryProvider {
   }
 
   private async getLibFilterResult(depName: string, pkg: NpmPackage) {
-    if (this.isLibPackageCache.has(depName)) {
-      return this.isLibPackageCache.get(depName);
+    if (this.libPackageFilterResultCache.has(depName)) {
+      return this.libPackageFilterResultCache.get(depName);
     }
 
     const data = await pkg.getPackageJsonData();
@@ -67,18 +65,18 @@ export class LibraryProvider {
       // don't add to cache when failing to load exports which is unexpected
       if (!exports) return false;
 
-      const isEmitter = this.filter(exports);
-      this.isLibPackageCache.set(depName, isEmitter);
-      return isEmitter;
+      const filterResult = this.filter(exports);
+      this.libPackageFilterResultCache.set(depName, filterResult);
+      return filterResult;
     } else {
-      this.isLibPackageCache.set(depName, false);
+      this.libPackageFilterResultCache.set(depName, false);
       return false;
     }
   }
 
   private async getLibraryFromDep(packageJsonFolder: string, depName: string) {
     const depFolder = joinPaths(packageJsonFolder, "node_modules", depName);
-    const depPkg = await this.libPackageFilterResultCache.get(depFolder);
+    const depPkg = await this.npmPackageProvider.get(depFolder);
     if (depPkg && (await this.getLibFilterResult(depName, depPkg))) {
       return depPkg;
     }
