@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List, Dict, Any, Set, Union, Literal, Optional
+from typing import List, Dict, Any, Set, Union, Literal, Optional, cast
 
 from .base import BaseType
 from .enum_type import EnumType
@@ -131,7 +131,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         if key not in self._relative_import_path:
             idx = 0
             serialize_namespace_split = serialize_namespace.split(".")
-            imported_namespace_split = imported_namespace.split(".")
+            imported_namespace_split = cast(str, imported_namespace).split(".")
             while idx < min(len(serialize_namespace_split), len(imported_namespace_split)):
                 if serialize_namespace_split[idx] != imported_namespace_split[idx]:
                     break
@@ -183,7 +183,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             if len(self._client_namespace_types.keys()) > 1:
                 self.has_subnamespace = True
 
-            # insert namespace to make sure it is continuous(e.g. ("", "azure", "azure.mgmt", "azure.mgmt.service", ...))
+            # insert namespace to make sure it is continuous(e.g. ("", "azure", "azure.mgmt", "azure.mgmt.service"))
             longest_namespace = sorted(self._client_namespace_types.keys())[-1]
             namespace_parts = longest_namespace.split(".")
             for idx in range(len(namespace_parts) + 1):
@@ -231,26 +231,38 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return self.clients[0].filename
 
     def get_clients(self, client_namespace: str) -> List[Client]:
-        """ Get all clients in specific namespace """
+        """Get all clients in specific namespace"""
         return self.client_namespace_types.get(client_namespace, ClientNamespaceType()).clients
 
     def is_top_namespace(self, client_namespace: str) -> bool:
-        """Whether the namespace is the top namespace. For a package named 'azure-mgmt-service', 'azure.mgmt.service' is the top namespace"""
+        """Whether the namespace is the top namespace. For example, a package named 'azure-mgmt-service',
+        'azure.mgmt.service' is the top namespace.
+        """
         return client_namespace == self.namespace
 
     def need_vendored_code(self, async_mode: bool, client_namespace: str) -> bool:
         """Whether we need to vendor code in the _vendor.py in specific namespace"""
-        return self.need_vendored_form_data(async_mode, client_namespace) or self.need_vendored_etag(client_namespace) or self.need_vendored_abstract(client_namespace) or self.need_vendored_mixin(client_namespace)
-    
+        return (
+            self.need_vendored_form_data(async_mode, client_namespace)
+            or self.need_vendored_etag(client_namespace)
+            or self.need_vendored_abstract(client_namespace)
+            or self.need_vendored_mixin(client_namespace)
+        )
+
     def need_vendored_form_data(self, async_mode: bool, client_namespace: str) -> bool:
-        return (not async_mode) and self.is_top_namespace(client_namespace) and self.has_form_data and self.options["models_mode"] == "dpg"
-    
+        return (
+            (not async_mode)
+            and self.is_top_namespace(client_namespace)
+            and self.has_form_data
+            and self.options["models_mode"] == "dpg"
+        )
+
     def need_vendored_etag(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_etag
-    
+
     def need_vendored_abstract(self, client_namespace: str) -> bool:
         return self.is_top_namespace(client_namespace) and self.has_abstract_operations
-    
+
     def need_vendored_mixin(self, client_namespace: str) -> bool:
         return self.has_mixin(client_namespace)
 
@@ -273,7 +285,10 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return self._operations_folder_name[client_namespace]
 
     def get_serialize_namespace(
-        self, client_namespace: str, async_mode: bool = False, client_namespace_type: NamespaceType = NamespaceType.CLIENT
+        self,
+        client_namespace: str,
+        async_mode: bool = False,
+        client_namespace_type: NamespaceType = NamespaceType.CLIENT,
     ) -> str:
         """calculate the namespace for serialization from client namespace"""
         if client_namespace_type == NamespaceType.CLIENT:

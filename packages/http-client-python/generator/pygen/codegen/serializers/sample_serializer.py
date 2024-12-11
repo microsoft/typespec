@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Dict, Any, Union, Tuple, Optional
+from typing import Dict, Any, Union, Tuple
 from jinja2 import Environment
 
 from ..models.operation import OperationBase
@@ -45,7 +45,11 @@ class SampleSerializer(BaseSerializer):
     def _imports(self) -> FileImportSerializer:
         imports = FileImport(self.code_model)
         client = self.operation_group.client
-        namespace = get_parent_namespace(client.client_namespace) if self.code_model.options["multiapi"] else client.client_namespace
+        namespace = (
+            get_parent_namespace(client.client_namespace)
+            if self.code_model.options["multiapi"]
+            else client.client_namespace
+        )
         imports.add_submodule_import(namespace, client.name, ImportType.LOCAL)
         credential_type = getattr(client.credential, "type", None)
         if isinstance(credential_type, TokenCredentialType):

@@ -12,7 +12,6 @@
 # from client.clientnamespace.second.sub.models import SecondClientEnumType
 
 
-
 # @pytest.fixture
 # def first_client():
 #     with ClientNamespaceFirstClient() as client:

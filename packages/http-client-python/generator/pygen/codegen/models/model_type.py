@@ -11,7 +11,6 @@ from .utils import add_to_pylint_disable, NamespaceType
 from .base import BaseType
 from .constant_type import ConstantType
 from .property import Property
-from .enum_type import EnumType
 from .imports import FileImport, ImportType, TypingSection
 from ...utils import NAME_LENGTH_LIMIT
 
@@ -290,7 +289,8 @@ class GeneratedModelType(ModelType):
         return retval if is_operation_file or skip_quote else f'"{retval}"'
 
     def docstring_type(self, **kwargs: Any) -> str:
-        return f"~{self.code_model.namespace}.models.{self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)}"
+        type_annotation = self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
+        return f"~{self.code_model.namespace}.models.{type_annotation}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return self.name

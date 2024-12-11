@@ -4,13 +4,11 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any, List, Optional
-from jinja2 import Environment
+from typing import Any, List
 from .import_serializer import FileImportSerializer, TypingSection
 from ..models.imports import MsrestImportType, FileImport
 from ..models import (
     ImportType,
-    CodeModel,
     TokenCredentialType,
     Client,
 )
@@ -72,7 +70,9 @@ class GeneralSerializer(BaseSerializer):
         for client in clients:
             imports.merge(
                 client.imports(
-                    self.async_mode, serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.CLIENT
+                    self.async_mode,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.CLIENT,
                 )
             )
 
@@ -159,7 +159,9 @@ class GeneralSerializer(BaseSerializer):
         for client in self.code_model.clients:
             imports.merge(
                 client.config.imports(
-                    self.async_mode, serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.CLIENT
+                    self.async_mode,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.CLIENT,
                 )
             )
         return template.render(

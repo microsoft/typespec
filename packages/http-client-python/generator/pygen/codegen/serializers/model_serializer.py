@@ -73,7 +73,8 @@ class _ModelSerializer(BaseSerializer, ABC):
 
     def initialize_standard_property(self, prop: Property):
         if not (prop.optional or prop.client_default_value is not None):
-            return f"{prop.client_name}: {prop.type_annotation(serialize_namespace=self.serialize_namespace)},{prop.pylint_disable()}"
+            type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
+            return f"{prop.client_name}: {type_annotation},{prop.pylint_disable()}"
         return (
             f"{prop.client_name}: {prop.type_annotation(serialize_namespace=self.serialize_namespace)} = "
             f"{prop.client_default_value_declaration},{prop.pylint_disable()}"
@@ -150,7 +151,11 @@ class MsrestModelSerializer(_ModelSerializer):
         for model in self.models:
             file_import.merge(model.imports(is_operation_file=False))
             for param in self._init_line_parameters(model):
-                file_import.merge(param.imports(serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.MODEL))
+                file_import.merge(
+                    param.imports(
+                        serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.MODEL
+                    )
+                )
 
         return file_import
 
@@ -233,7 +238,9 @@ class DpgModelSerializer(_ModelSerializer):
             file_import.merge(model.imports(is_operation_file=False, serialize_namespace=self.serialize_namespace))
             for prop in model.properties:
                 file_import.merge(
-                    prop.imports(serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.MODEL)
+                    prop.imports(
+                        serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.MODEL
+                    )
                 )
             if model.is_polymorphic:
                 file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
@@ -295,7 +302,8 @@ class DpgModelSerializer(_ModelSerializer):
             if prop.is_discriminator and isinstance(prop.type, (ConstantType, EnumValue)) and prop.type.value
             else ""
         )
-        generated_code = f'{prop.client_name}: {prop.type_annotation(serialize_namespace=self.serialize_namespace)} = {field}({", ".join(args)})'
+        type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
+        generated_code = f'{prop.client_name}: {type_annotation} = {field}({", ".join(args)})'
         # there is 4 spaces indentation so original line length limit 120 - 4 = 116
         pylint_disable = (
             " # pylint: disable=line-too-long"

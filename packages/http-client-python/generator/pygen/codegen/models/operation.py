@@ -208,7 +208,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             e for e in self.exceptions if "default" not in e.status_codes and e.type and isinstance(e.type, ModelType)
         ]
 
-    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:  # pylint: disable=unused-argument
+    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, TypingSection.CONDITIONAL)
 

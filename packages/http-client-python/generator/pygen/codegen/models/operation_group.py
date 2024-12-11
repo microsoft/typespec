@@ -138,7 +138,9 @@ class OperationGroup(BaseModel):
             )
         if self.has_abstract_operations:
             file_import.add_submodule_import(
-                self.code_model.get_relative_import_path(serialize_namespace, module_name="_vendor", async_mode=async_mode),
+                self.code_model.get_relative_import_path(
+                    serialize_namespace, module_name="_vendor", async_mode=async_mode
+                ),
                 "raise_if_not_implemented",
                 ImportType.LOCAL,
             )

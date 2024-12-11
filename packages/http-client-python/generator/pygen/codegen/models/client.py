@@ -15,8 +15,6 @@ from .request_builder import (
     OverloadedRequestBuilder,
     get_request_builder,
 )
-from .model_type import ModelType
-from .enum_type import EnumType
 from .parameter import Parameter, ParameterMethodLocation
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation

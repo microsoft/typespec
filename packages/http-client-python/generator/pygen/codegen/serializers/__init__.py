@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import logging
 from collections import namedtuple
-from typing import List, Optional, Any, Union
+from typing import List, Any, Union
 from pathlib import Path
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
 
@@ -110,9 +110,7 @@ class JinjaSerializer(ReaderAndWriter):
             if client_namespace == "":
                 # Write the setup file
                 if self.code_model.options["basic_setup_py"]:
-                    self.write_file(
-                        exec_path / Path("setup.py"), general_serializer.serialize_setup_file()
-                    )
+                    self.write_file(exec_path / Path("setup.py"), general_serializer.serialize_setup_file())
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
                 if self.code_model.options["package_mode"]:
@@ -141,8 +139,9 @@ class JinjaSerializer(ReaderAndWriter):
                     general_serializer.serialize_pkgutil_init_file(),
                 )
 
-            # _model_base.py/_serialization.py/_vendor.py/py.typed/_types.py/_validation.py is always put in top level namespace
-            if client_namespace == self.code_model.namespace:
+            # _model_base.py/_serialization.py/_vendor.py/py.typed/_types.py/_validation.py
+            # is always put in top level namespace
+            if self.code_model.is_top_namespace(client_namespace):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
 
             # add models folder if there are models in this namespace
@@ -168,8 +167,8 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.code_model.options["multiapi"]:
                     self._serialize_and_write_metadata(env=env, namespace=client_namespace)
 
-    def _serialize_and_write_package_files(self, namespace: str) -> None:
-        root_of_sdk = self.exec_path(namespace)
+    def _serialize_and_write_package_files(self, client_namespace: str) -> None:
+        root_of_sdk = self.exec_path(client_namespace)
         if self.code_model.options["package_mode"] in VALID_PACKAGE_MODE:
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
@@ -383,7 +382,9 @@ class JinjaSerializer(ReaderAndWriter):
             if self.code_model.need_vendored_code(async_mode=async_mode, client_namespace=namespace):
                 self.write_file(
                     exec_path / Path(f"{async_path}_vendor.py"),
-                    GeneralSerializer(code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace).serialize_vendor_file(),
+                    GeneralSerializer(
+                        code_model=self.code_model, env=env, async_mode=async_mode, client_namespace=namespace
+                    ).serialize_vendor_file(),
                 )
 
     def _serialize_and_write_top_level_folder(self, env: Environment, namespace: str) -> None:
@@ -443,7 +444,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     @property
     def exec_path_compensation(self) -> Path:
-        """Assume the process is running in the root folder of the package. If not, we need the path implementation."""
+        """Assume the process is running in the root folder of the package. If not, we need the path compensation."""
         return (
             Path("../" * (self._name_space().count(".") + 1))
             if self.code_model.options["no_namespace_folders"]
@@ -495,7 +496,7 @@ class JinjaSerializer(ReaderAndWriter):
                             log_error = f"error happens in sample {file}: {e}"
                             _LOGGER.error(log_error)
 
-    def _serialize_and_write_test(self, env: Environment, namespace: Path):
+    def _serialize_and_write_test(self, env: Environment, namespace: str):
         self.code_model.for_test = True
         out_path = self.exec_path(namespace) / Path("generated_tests")
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)

@@ -15,7 +15,6 @@ from ..models import (
     ImportType,
     CodeModel,
 )
-from ..models.utils import NamespaceType
 from .builder_serializer import get_operation_serializer
 from .base_serializer import BaseSerializer
 from .import_serializer import FileImportSerializer

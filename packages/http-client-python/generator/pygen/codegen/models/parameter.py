@@ -158,7 +158,7 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     def serialization_type(self, **kwargs: Any) -> str:
         return self.type.serialization_type(**kwargs)
 
-    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
+    def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:  # pylint: disable=unused-argument
         file_import = FileImport(self.code_model)
         if self.optional and self.client_default_value is None:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
