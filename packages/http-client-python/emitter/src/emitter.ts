@@ -77,7 +77,7 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
 export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const program = context.program;
   const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
-  const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+  const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
   const yamlMap = emitCodeModel(sdkContext);
   if (yamlMap.clients.length === 0) {
@@ -126,8 +126,6 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       const globals = pyodide.toPy({ outputFolder, yamlRelativePath, commandArgs });
       const pythonCode = `
         async def main():
-          import pathlib
-          
           import warnings
           with warnings.catch_warnings():
             warnings.simplefilter("ignore", SyntaxWarning) # bc of m2r2 dep issues
