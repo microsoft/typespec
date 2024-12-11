@@ -201,12 +201,12 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                     }).SetName("TestBreakLines_LiteralOpenAndCloseBraceWithLineBreaksAndArgsContainingLineBreaks");
 
                 FormattableString inner = $"{"x"}\n{"y"}z";
-                FormattableString outter = $"first{inner}second\nthird{null}";
+                FormattableString outter = $"first{inner}Second\nthird{null}";
                 yield return new TestCaseData(
                     outter,
                     new List<FormattableString> {
                         $"first{"x"}",
-                        $"{"y"}zsecond",
+                        $"{"y"}zSecond",
                         $"third{null}"
                     }).SetName("TestBreakLines_RecursiveFormattableStrings");
 
