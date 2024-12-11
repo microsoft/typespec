@@ -231,7 +231,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     if ($.scalar.isInt16(props.type)) {
       return (
         <>
-          {zod.z}.number().min(-32768).max(32767){ZodNumericConstraints(props, -32768, 32767)}
+          {zod.z}.number(){ZodNumericConstraints(props, -32768, 32767)}
         </>
       );
     }
