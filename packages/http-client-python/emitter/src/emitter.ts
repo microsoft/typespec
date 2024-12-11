@@ -4,7 +4,7 @@ import {
   SdkHttpOperation,
   SdkServiceOperation,
 } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, NoTarget } from "@typespec/compiler";
+import { EmitContext, joinPaths, NoTarget } from "@typespec/compiler";
 import { exec } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
@@ -15,6 +15,7 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
+import os from "os";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
@@ -122,8 +123,8 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
       // here we run with pyodide, if there's no venv or if the user specifies to use pyodide
       const outputFolder = path.relative(root, outputDir);
       const pyodide = await setupPyodideCall(root, outputFolder);
-      const yamlRelativePath = path.relative(root, yamlPath);
-      const globals = pyodide.toPy({ outputFolder, yamlRelativePath, commandArgs });
+      const yamlFilePath = path.join("/tmp", path.basename(yamlPath));
+      const globals = pyodide.toPy({ outputFolder, yamlFilePath, commandArgs });
       const pythonCode = `
         async def main():
           import pathlib
@@ -132,9 +133,9 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
           with warnings.catch_warnings():
             warnings.simplefilter("ignore", SyntaxWarning) # bc of m2r2 dep issues
             from pygen import m2r, preprocess, codegen, black
-          m2r.M2R(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
-          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
-          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
+          m2r.M2R(output_folder=outputFolder, cadl_file=yamlFilePath, **commandArgs).process()
+          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlFilePath, **commandArgs).process()
+          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlFilePath, **commandArgs).process()
           black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
     
         await main()`;
@@ -168,7 +169,8 @@ async function setupPyodideCall(root: string, outputFolder: string) {
     fs.mkdirSync(outputFolder, { recursive: true });
   }
   const pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
-  pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "./" }, ".");
+  pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "." }, ".");
+  pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: joinPaths(os.tmpdir(), "cadl-codegen")}, "./tmp");
   await pyodide.loadPackage("setuptools");
   await pyodide.loadPackage("tomli");
   await pyodide.loadPackage("docutils");
