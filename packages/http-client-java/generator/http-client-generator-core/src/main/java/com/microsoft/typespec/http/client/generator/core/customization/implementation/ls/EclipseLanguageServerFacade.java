@@ -78,8 +78,8 @@ public class EclipseLanguageServerFacade {
             if (!server.isAlive()) {
                 if (pathToLanguageServerPlugin == null) {
                     // If user didn't specify language server path, we do a clean re-download.
-                    logger.warn(
-                        "Eclipse language server failed to start. The folder may be corrupted. Try re-download.");
+                    logger
+                        .warn("Eclipse language server failed to start. The folder may be corrupted. Try re-download.");
                     server = startServer(command, getLanguageServerDirectory(javaVersion, logger, true), logger);
                     if (!server.isAlive()) {
                         // if server failed to start anyway, throw with server output.
