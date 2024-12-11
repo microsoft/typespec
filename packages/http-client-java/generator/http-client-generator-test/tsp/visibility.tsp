@@ -11,7 +11,7 @@ namespace TspTest.Visibility;
 
 model Dog {
   @visibility(Lifecycle.Read) id: int32;
-  @visibility(Lifecycle.Update) secretName: string;
+  @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
 
   // no flags are like specifying all flags at once, so in this case
   // equivalent to @visibility("read", "write")
