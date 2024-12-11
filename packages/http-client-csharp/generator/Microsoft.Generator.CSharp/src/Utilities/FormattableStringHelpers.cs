@@ -164,69 +164,72 @@ namespace Microsoft.Generator.CSharp
                 else
                 {
                     var arg = input.GetArgument(index);
-                    // when span has a format specifier, go into else case
-                    // if span contains ':' we don't need to split arg and add it directly to FormatBuilder
-                    // TODO: The following logic of the FormatSpecifier handling is temporary until we have a case where FormatSpecifier and \n both exist in an argument.
-                    // TODO: https://github.com/microsoft/typespec/issues/5255
-                    if (!span.Contains(':') && arg is string str)
+                    // we only break lines in the arguments if the argument is a string or FormattableString and it does not have a format specifier (indicating by : in span)
+                    // we do nothing if the argument has a format specifier because we do not really know in which form to break them
+                    // considering the chance of having these cases would be very rare, we are leaving the part of "arguments with formatter specifier" empty
+                    var indexOfFormatSpecifier = span.IndexOf(':');
+                    switch (arg)
                     {
-                        ReadOnlySpan<char> strSpan = str.AsSpan();
-                        int start = 0, end = 0;
-                        bool isLast = false;
-                        // go into the loop when there are characters left
-                        while (end < strSpan.Length)
-                        {
-                            // we should not check both `\r\n` and `\n` because `\r\n` contains `\n`, if we use `IndexOf` to check both of them, there must be duplicate searches and we cannot have O(n) time complexity.
-                            var indexOfLF = strSpan[start..].IndexOf('\n');
-                            // check if the line already ends.
-                            if (indexOfLF < 0)
+                        case string str when indexOfFormatSpecifier < 0:
+                            BreakLinesCoreForString(str.AsSpan(), formatBuilder, args, result);
+                            break;
+                        case FormattableString fs when indexOfFormatSpecifier < 0:
+                            BreakLinesCore(fs, formatBuilder, args, result);
+                            break;
+                        default:
+                            // if not a string or FormattableString, add to args because we cannot parse it
+                            // add to FormatBuilder to maintain equal count between args and formatBuilder
+                            formatBuilder.Append('{');
+                            formatBuilder.Append(args.Count);
+                            if (indexOfFormatSpecifier >= 0)
                             {
-                                end = strSpan.Length;
-                                isLast = true;
+                                formatBuilder.Append(span[indexOfFormatSpecifier..]);
                             }
-                            else
-                            {
-                                end = start + indexOfLF;
-                            }
-                            // omit \r if there is one before the \n to include the case that line breaks are using \r\n
-                            int partEnd = end;
-                            if (end > 0 && strSpan[end - 1] == '\r')
-                            {
-                                partEnd--;
-                            }
-
-                            formatBuilder.Append('{')
-                                .Append(args.Count)
-                                .Append('}');
-                            args.Add(strSpan[start..partEnd].ToString());
-                            start = end + 1; // goes to the next char after the \n we found
-
-                            if (!isLast)
-                            {
-                                FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
-                                result.Add(formattableString);
-                                formatBuilder.Clear();
-                                args.Clear();
-                            }
-                        }
+                            formatBuilder.Append('}');
+                            args.Add(arg);
+                            break;
                     }
-                    else if (!span.Contains(':') && arg is FormattableString fs)
+                }
+            }
+
+            static void BreakLinesCoreForString(ReadOnlySpan<char> span, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
+            {
+                int start = 0, end = 0;
+                bool isLast = false;
+                // go into the loop when there are characters left
+                while (end < span.Length)
+                {
+                    // we should not check both `\r\n` and `\n` because `\r\n` contains `\n`, if we use `IndexOf` to check both of them, there must be duplicate searches and we cannot have O(n) time complexity.
+                    var indexOfLF = span[start..].IndexOf('\n');
+                    // check if the line already ends.
+                    if (indexOfLF < 0)
                     {
-                        BreakLinesCore(fs, formatBuilder, args, result);
+                        end = span.Length;
+                        isLast = true;
                     }
                     else
                     {
-                        // if not a string or FormattableString, add to args because we cannot parse it
-                        // add to FormatBuilder to maintain equal count between args and formatBuilder
-                        formatBuilder.Append('{');
-                        formatBuilder.Append(args.Count);
-                        var indexOfFormatSpecifier = span.IndexOf(':');
-                        if (indexOfFormatSpecifier >= 0)
-                        {
-                            formatBuilder.Append(span[indexOfFormatSpecifier..]);
-                        }
-                        formatBuilder.Append('}');
-                        args.Add(arg);
+                        end = start + indexOfLF;
+                    }
+                    // omit \r if there is one before the \n to include the case that line breaks are using \r\n
+                    int partEnd = end;
+                    if (end > 0 && span[end - 1] == '\r')
+                    {
+                        partEnd--;
+                    }
+
+                    formatBuilder.Append('{')
+                        .Append(args.Count)
+                        .Append('}');
+                    args.Add(span[start..partEnd].ToString());
+                    start = end + 1; // goes to the next char after the \n we found
+
+                    if (!isLast)
+                    {
+                        FormattableString formattableString = FormattableStringFactory.Create(formatBuilder.ToString(), args.ToArray());
+                        result.Add(formattableString);
+                        formatBuilder.Clear();
+                        args.Clear();
                     }
                 }
             }
