@@ -200,9 +200,13 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def has_etag(self) -> bool:
         return any(client.has_etag for client in self.clients)
 
+    @staticmethod
+    def clients_has_operations(clients: List[Client]) -> bool:
+        return any(c for c in clients if c.has_operations)
+
     @property
     def has_operations(self) -> bool:
-        return any(c for c in self.clients if c.has_operations)
+        return self.clients_has_operations(self.clients)
 
     @property
     def has_non_abstract_operations(self) -> bool:
@@ -277,8 +281,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         """Get the name of the operations folder that holds operations."""
         if client_namespace not in self._operations_folder_name:
             name = "operations"
-            client_namespace_type = self.client_namespace_types.get(client_namespace)
-            operation_groups = client_namespace_type.operation_groups if client_namespace_type else []
+            operation_groups = self.client_namespace_types.get(client_namespace, ClientNamespaceType()).operation_groups
             if self.options["version_tolerant"] and all(og.is_mixin for og in operation_groups):
                 name = f"_{name}"
             self._operations_folder_name[client_namespace] = name

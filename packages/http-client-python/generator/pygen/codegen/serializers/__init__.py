@@ -354,26 +354,28 @@ class JinjaSerializer(ReaderAndWriter):
             # when there is client.py, there must be __init__.py
             self.write_file(
                 exec_path / Path(f"{async_path}__init__.py"),
-                general_serializer.serialize_init_file(clients),
-            )
-
-            # write client file
-            self.write_file(
-                exec_path / Path(f"{async_path}{self.code_model.client_filename}.py"),
-                general_serializer.serialize_service_client_file(clients),
-            )
-
-            # write config file
-            self.write_file(
-                exec_path / Path(f"{async_path}_configuration.py"),
-                general_serializer.serialize_config_file(clients),
+                general_serializer.serialize_init_file([c for c in clients if c.has_operations]),
             )
 
             # if there was a patch file before, we keep it
             self._keep_patch_file(exec_path / Path(f"{async_path}_patch.py"), env)
 
-            # sometimes we need define additional Mixin class for client in _vendor.py
-            self._serialize_and_write_vendor_file(env, namespace)
+            if self.code_model.clients_has_operations(clients):
+
+                # write client file
+                self.write_file(
+                    exec_path / Path(f"{async_path}{self.code_model.client_filename}.py"),
+                    general_serializer.serialize_service_client_file(clients),
+                )
+
+                # write config file
+                self.write_file(
+                    exec_path / Path(f"{async_path}_configuration.py"),
+                    general_serializer.serialize_config_file(clients),
+                )
+
+                # sometimes we need define additional Mixin class for client in _vendor.py
+                self._serialize_and_write_vendor_file(env, namespace)
 
     def _serialize_and_write_vendor_file(self, env: Environment, namespace: str) -> None:
         exec_path = self.exec_path(namespace)

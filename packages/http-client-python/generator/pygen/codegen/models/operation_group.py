@@ -130,6 +130,7 @@ class OperationGroup(BaseModel):
             )
         if self.is_mixin:
             file_import.add_submodule_import(
+                # XxxMixinABC is always defined in _vendor of client namespace
                 self.code_model.get_relative_import_path(
                     serialize_namespace, self.client.client_namespace, module_name="_vendor", async_mode=async_mode
                 ),
@@ -138,8 +139,9 @@ class OperationGroup(BaseModel):
             )
         if self.has_abstract_operations:
             file_import.add_submodule_import(
+                # raise_if_not_implemented is always defined in _vendor of top namespace
                 self.code_model.get_relative_import_path(
-                    serialize_namespace, module_name="_vendor", async_mode=async_mode
+                    serialize_namespace, self.code_model.namespace, module_name="_vendor", async_mode=async_mode
                 ),
                 "raise_if_not_implemented",
                 ImportType.LOCAL,
