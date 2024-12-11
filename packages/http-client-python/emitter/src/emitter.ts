@@ -10,10 +10,10 @@ import fs from "fs";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
-import { runPython3 } from "./run-python3.js";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
+import { runPython3 } from "./run-python3.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
