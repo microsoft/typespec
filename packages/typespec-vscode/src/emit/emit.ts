@@ -4,9 +4,15 @@ import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "../log/logger.js";
 import { InstallationAction, NpmUtil } from "../npm-utils.js";
-import { getMainTspFile, resolveTypeSpecCli, toError, toOutput } from "../typespec-utils.js";
+import {
+  getMainTspFile,
+  resolveTypeSpecCli,
+  toError,
+  toOutput,
+  TraverseMainTspFileInWorkspace,
+} from "../typespec-utils.js";
 import { ExecOutput, isFile, promisifySpawn } from "../utils.js";
-import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
+import { EmitQuickPickItem, TypeSpecProjectPickItem } from "./emit-quick-pick-item.js";
 import { clientEmitters, Emitter } from "./emitter.js";
 export async function doEmit(
   context: vscode.ExtensionContext,
@@ -28,13 +34,14 @@ export async function doEmit(
       },
       "Browse...",
     );
+
     tspProjectFolder = await new Promise((resolve) => {
       const inputBox = vscode.window.createInputBox();
       inputBox.title = "Choose TypeSpec Project Directory";
       inputBox.prompt = "Choose the TypeSpec project.";
-      // inputBox.value = vscode.workspace.workspaceFolders
-      //   ? vscode.workspace.workspaceFolders[0].uri.fsPath
-      //   : "";
+      inputBox.value = vscode.workspace.workspaceFolders
+        ? vscode.workspace.workspaceFolders[0].uri.fsPath
+        : "";
       // inputBox.placeholder = vscode.workspace.workspaceFolders
       //   ? vscode.workspace.workspaceFolders[0].uri.fsPath
       //   : "TypeSpec project folder or TypeSpec enterpointer file(e.g. main.tsp).";
@@ -409,6 +416,80 @@ export async function doEmit(
   });
 
   /*TODO: build sdk. */
+}
+
+export async function emitCode(
+  context: vscode.ExtensionContext,
+  uri: vscode.Uri,
+  overallProgress: vscode.Progress<{ message?: string; increment?: number }>,
+) {
+  const targetPathes = await TraverseMainTspFileInWorkspace();
+  logger.info(`Found ${targetPathes.length} main.tsp files`);
+  if (targetPathes.length === 0) {
+    logger.info("No main.tsp file found. Emit canceled.", [], {
+      showOutput: false,
+      showPopup: true,
+      progress: overallProgress,
+    });
+    return;
+  }
+  const toProjectPickItem = (filePath: string): TypeSpecProjectPickItem => {
+    return {
+      label: filePath,
+      path: filePath,
+    };
+  };
+  const typespecProjectQuickPickItems: TypeSpecProjectPickItem[] = targetPathes.map((filePath) =>
+    toProjectPickItem(filePath),
+  );
+  const selectedProject = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
+    title: "Select TypeSpec Project",
+    canPickMany: false,
+    placeHolder: "Pick a project",
+    ignoreFocusOut: true,
+  });
+  if (!selectedProject) {
+    logger.info("No project selected. Emit canceled.", [], {
+      showOutput: false,
+      showPopup: true,
+      progress: overallProgress,
+    });
+    return;
+  }
+  const codesToEmit = [
+    {
+      label: "Client SDK",
+      detail: "Generate client SDK library from typespec.",
+      iconPath: Uri.file(context.asAbsolutePath(`./icons/sdk.svg`)),
+    },
+    {
+      label: "Server Stub",
+      detail: "Generate server codes from typespec",
+      iconPath: Uri.file(context.asAbsolutePath(`./icons/serverstub.svg`)),
+    },
+    {
+      label: "Protocol Schema",
+      detail: "Generate protocol schema (e.g. OpenAPI, Protobuf) from typespec",
+      iconPath: Uri.file(context.asAbsolutePath(`./icons/schema.svg`)),
+    },
+  ];
+  const codeType = await vscode.window.showQuickPick(codesToEmit, {
+    title: "Emit Code",
+    canPickMany: false,
+    placeHolder: "Select an option",
+    ignoreFocusOut: true,
+  });
+  if (!codeType) {
+    logger.info("No emitters selected. Emit canceled.", [], {
+      showOutput: false,
+      showPopup: true,
+      progress: overallProgress,
+    });
+    return;
+  }
+  if (codeType.label === "Client SDK") {
+    await doEmit(context, uri, overallProgress);
+  }
 }
 
 export async function compile(

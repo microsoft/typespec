@@ -7,3 +7,7 @@ export interface EmitQuickPickItem extends vscode.QuickPickItem {
   fromConfig: boolean;
   outputDir?: string;
 }
+
+export interface TypeSpecProjectPickItem extends vscode.QuickPickItem {
+  path: string;
+}

@@ -12,3 +12,5 @@ export const languageEmitterSettingNames: Record<string, string> = {
   Python: SettingName.PythonEmitter,
   JavaScript: SettingName.JsEmitter,
 };
+
+export const StartFileName = "main.tsp";

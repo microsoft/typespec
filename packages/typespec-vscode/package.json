@@ -77,7 +77,50 @@
             "default": "off",
             "description": "Define whether/how the TypeSpec language server should send traces to client. For the traces to show properly in vscode Output, make sure 'Log Level' is also set to 'Trace' so that they won't be filtered at client side, which can be set through 'Developer: Set Log Level...' command."
           },
-          "typespec.emitter": {
+          "typespec.client.emitter": {
+            "scope": "window",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "language": {
+                  "type": "string",
+                  "enum": [
+                    "DotNet",
+                    "Java",
+                    "TypeScript",
+                    "Python",
+                    "Go"
+                  ],
+                  "description": "Define the language for the emitter."
+                },
+                "package": {
+                  "type": "string",
+                  "description": "Define the emitter package.\n\nExample (with version): @typespec/http-client-csharp@1.0.0\n\nExample (without version): @typespec/http-client-csharp"
+                }
+              }
+            },
+            "default": [
+              {
+                "language": "DotNet",
+                "package": "@typespec/http-client-csharp"
+              },
+              {
+                "language": "Java",
+                "package": "@typespec/http-client-java"
+              },
+              {
+                "language": "TypeScript",
+                "package": "@azure-tools/typespec-ts"
+              },
+              {
+                "language": "Python",
+                "package": "@typespec/http-client-python"
+              }
+            ],
+            "description": "Define the emitter for any language client sdk generation."
+          },
+          "typespec.server.emitter": {
             "scope": "window",
             "type": "object",
             "properties": {
@@ -167,22 +210,27 @@
         "category": "TypeSpec"
       },
       {
-        "command": "typespec.GenerateSDK",
+        "command": "typespec.generateSDK",
         "title": "TypeSpec: Generate Client SDK",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.emit",
+        "title": "TypeSpec: Emit Code",
         "category": "TypeSpec"
       }
     ],
     "menus": {
       "explorer/context": [
         {
-          "command": "typespec.GenerateSDK",
+          "command": "typespec.generateSDK",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
           "group": "code_generation"
         }
       ],
       "editor/context": [
         {
-          "command": "typespec.GenerateSDK",
+          "command": "typespec.generateSDK",
           "when": "resourceLangId == typespec",
           "group": "code_generation"
         }

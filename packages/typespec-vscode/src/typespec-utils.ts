@@ -1,8 +1,10 @@
 import { readdir } from "fs";
 import path, { dirname } from "path";
+import vscode from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
+import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
-import { isFile, loadModule } from "./utils.js";
+import { isFile, loadModule, normalizeSlash } from "./utils.js";
 
 export const toOutput = (str: string) => {
   str
@@ -68,4 +70,14 @@ export async function getMainTspFile(tspPath: string): Promise<string | undefine
   }
 
   return undefined;
+}
+
+export async function TraverseMainTspFileInWorkspace() {
+  return await vscode.workspace
+    .findFiles(`**/${StartFileName}`, "**/node_modules/**")
+    .then((uris) =>
+      uris
+        .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
+        .map((uri) => normalizeSlash(uri.fsPath)),
+    );
 }
