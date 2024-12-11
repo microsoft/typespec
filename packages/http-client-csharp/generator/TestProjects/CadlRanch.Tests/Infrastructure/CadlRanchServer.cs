@@ -15,18 +15,18 @@ namespace TestProjects.CadlRanch.Tests
         internal static string GetBaseDirectory()
         {
             var nodeModules = GetNodeModulesDirectory();
-            return Path.Combine(nodeModules, "@azure-tools", "cadl-ranch");
+            return Path.Combine(nodeModules, "@typespec", "spector");
         }
 
         internal static string GetSpecDirectory()
         {
             var nodeModules = GetNodeModulesDirectory();
-            return Path.Combine(nodeModules, "@azure-tools", "cadl-ranch-specs");
+            return Path.Combine(nodeModules, "@typespec", "http-specs");
         }
 
         internal static string GetScenariosPath()
         {
-            return Path.Combine(GetSpecDirectory(), "http");
+            return Path.Combine(GetSpecDirectory(), "specs");
         }
         internal static string GetCoverageFilePath()
         {
@@ -35,7 +35,7 @@ namespace TestProjects.CadlRanch.Tests
 
         protected override void Stop(Process process)
         {
-            Process.Start(new ProcessStartInfo("node", $"{Path.Combine(GetNodeModulesDirectory(), "@azure-tools", "cadl-ranch", "dist", "cli", "cli.js")} server stop --port {Port}"));
+            Process.Start(new ProcessStartInfo("node", $"{Path.Combine(GetNodeModulesDirectory(), "@typespec", "spector", "dist", "cli", "cli.js")} server stop --port {Port}"));
             process.WaitForExit();
         }
     }

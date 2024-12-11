@@ -55,8 +55,8 @@
     "@typespec/versioning": ">=0.62.0 <1.0.0 || ~0.63.0-0"
   },
   "devDependencies": {
-    "@azure-tools/cadl-ranch": "0.16.1",
-    "@azure-tools/cadl-ranch-specs": "0.39.3",
+    "@typespec/http-specs": "0.1.0-alpha.4",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.2",
     "@azure-tools/typespec-azure-core": "0.48.0",
     "@azure-tools/typespec-client-generator-core": "0.48.1",
     "@microsoft/api-extractor": "^7.47.11",

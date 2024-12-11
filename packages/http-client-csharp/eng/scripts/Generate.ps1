@@ -37,7 +37,8 @@ if (-not $LaunchOnly) {
     }
 }
 
-$specsDirectory = "$packageRoot/node_modules/@azure-tools/cadl-ranch-specs"
+$specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
+$azureSpecsDirectory = "$packageRoot/node_modules/@azure-tools/azure-http-specs"
 $cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
 
 function IsSpecDir {
@@ -49,33 +50,46 @@ function IsSpecDir {
 }
 
 $failingSpecs = @(
-    Join-Path 'http' 'payload' 'pageable'
-    Join-Path 'http' 'special-headers' 'conditional-request'
-    Join-Path 'http' 'type' 'model' 'flatten'
-    Join-Path 'http' 'type' 'model' 'templated'
+    Join-Path 'specs' 'payload' 'pageable'
+    Join-Path 'specs' 'special-headers' 'conditional-request'
+    Join-Path 'specs' 'type' 'model' 'flatten'
+    Join-Path 'specs' 'type' 'model' 'templated'
+)
+
+$azureWhiteSpecs = @(
+    Join-Path 'specs' 'client' 'naming'
+    Join-Path 'specs' 'client' 'structure' 'client-operation-group'
+    Join-Path 'specs' 'client' 'structure' 'default'
+    Join-Path 'specs' 'client' 'structure' 'multi-client'
+    Join-Path 'specs' 'client' 'structure' 'renamed-operation'
+    Join-Path 'specs' 'client' 'structure' 'two-operation-group'
+    Join-Path 'specs' 'resiliency' 'srv-driven'
 )
 
 $cadlRanchLaunchProjects = @{}
 
 # Loop through all directories and subdirectories of the cadl ranch specs
-$directories = Get-ChildItem -Path "$specsDirectory/http" -Directory -Recurse
+$directories = @(Get-ChildItem -Path "$specsDirectory/specs" -Directory -Recurse)
+$directories += @(Get-ChildItem -Path "$azureSpecsDirectory/specs" -Directory -Recurse)
 foreach ($directory in $directories) {
     if (-not (IsSpecDir $directory.FullName)) {
         continue
     }
 
+    $fromAzure = $directory.FullName.Contains("azure-http-specs")
+
     $specFile = Join-Path $directory.FullName "client.tsp"
     if (-not (Test-Path $specFile)) {
         $specFile = Join-Path $directory.FullName "main.tsp"
     }
-    $subPath = $directory.FullName.Substring($specsDirectory.Length + 1)
+    $subPath = if ($fromAzure) {$directory.FullName.Substring($azureSpecsDirectory.Length + 1)} else {$directory.FullName.Substring($specsDirectory.Length + 1)}
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
 
-    if ($folders.Contains("azure")) {
+    if ($fromAzure -eq $true -and !$azureWhiteSpecs.Contains($subPath)) {
         continue
     }
 
