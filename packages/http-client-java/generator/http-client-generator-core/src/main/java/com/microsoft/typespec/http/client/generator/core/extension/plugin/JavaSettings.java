@@ -136,8 +136,8 @@ public class JavaSettings {
         this.autorestSettings = autorestSettings;
 
         // The modeler settings.
-        this.modelerSettings = new ModelerSettings(host.getValueWithJsonReader("modelerfour",
-          jsonReader -> jsonReader.readMap(JsonReader::readUntyped)));
+        this.modelerSettings = new ModelerSettings(
+            host.getValueWithJsonReader("modelerfour", jsonReader -> jsonReader.readMap(JsonReader::readUntyped)));
 
         // Whether to generate the Azure.
         this.azure = getBooleanValue(host, "azure-arm", false);
@@ -276,8 +276,8 @@ public class JavaSettings {
         this.clientBuilderDisabled = getBooleanValue(host, "disable-client-builder", false);
 
         // The polling configuration.
-        Map<String, PollingDetails> pollingConfig = host.getValueWithJsonReader("polling",
-            jsonReader -> jsonReader.readMap(PollingDetails::fromJson));
+        Map<String, PollingDetails> pollingConfig
+            = host.getValueWithJsonReader("polling", jsonReader -> jsonReader.readMap(PollingDetails::fromJson));
         if (pollingConfig != null) {
             if (!pollingConfig.containsKey("default")) {
                 pollingConfig.put("default", new PollingDetails());
@@ -297,7 +297,8 @@ public class JavaSettings {
         // If set to true, Jackson JsonGetter and JsonSetter will annotate getters and setters in generated models to
         // handle serialization and deserialization. For now, fields will continue being annotated to ensure that there
         // are no backwards compatibility breaks.
-        this.annotateGettersAndSettersForSerialization = getBooleanValue(host, "annotate-getters-and-setters-for-serialization", false);
+        this.annotateGettersAndSettersForSerialization
+            = getBooleanValue(host, "annotate-getters-and-setters-for-serialization", false);
 
         // Error HTTP status code exception type handling.
         // The fully-qualified class that should be used as the default exception type. This class must extend from
@@ -305,12 +306,13 @@ public class JavaSettings {
         this.defaultHttpExceptionType = getStringValue(host, "default-http-exception-type");
 
         // Whether to use the default HTTP status code to exception type mapping.
-        this.useDefaultHttpStatusCodeToExceptionTypeMapping = getBooleanValue(host, "use-default-http-status-code-to-exception-type-mapping", false);
+        this.useDefaultHttpStatusCodeToExceptionTypeMapping
+            = getBooleanValue(host, "use-default-http-status-code-to-exception-type-mapping", false);
 
         // A mapping of HTTP response status code to the exception type that should be thrown if that status code is
         // seen. All exception types must be fully-qualified and extend from HttpResponseException.
-        this.httpStatusCodeToExceptionTypeMapping = host.getValueWithJsonReader("http-status-code-to-exception-type-mapping",
-          JavaSettings::parseStatusCodeMapping);
+        this.httpStatusCodeToExceptionTypeMapping = host
+            .getValueWithJsonReader("http-status-code-to-exception-type-mapping", JavaSettings::parseStatusCodeMapping);
 
         // Whether to handle partial updates.
         this.handlePartialUpdate = getBooleanValue(host, "partial-update", false);
