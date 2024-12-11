@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client.Structure.Service.Renamed.Operation
@@ -20,7 +21,7 @@ namespace Client.Structure.Service.Renamed.Operation
 
         public virtual ClientResult RenamedTwo() => throw null;
 
-        public virtual Task<ClientResult> RenamedTwoAsync() => throw null;
+        public virtual Task<ClientResult> RenamedTwoAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult RenamedFour(RequestOptions options) => throw null;
 
@@ -28,7 +29,7 @@ namespace Client.Structure.Service.Renamed.Operation
 
         public virtual ClientResult RenamedFour() => throw null;
 
-        public virtual Task<ClientResult> RenamedFourAsync() => throw null;
+        public virtual Task<ClientResult> RenamedFourAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult RenamedSix(RequestOptions options) => throw null;
 
@@ -36,6 +37,6 @@ namespace Client.Structure.Service.Renamed.Operation
 
         public virtual ClientResult RenamedSix() => throw null;
 
-        public virtual Task<ClientResult> RenamedSixAsync() => throw null;
+        public virtual Task<ClientResult> RenamedSixAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

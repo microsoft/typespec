@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using Parameters.BodyOptionality.Models;
 
@@ -24,7 +25,7 @@ namespace Parameters.BodyOptionality
 
         public virtual ClientResult RequiredExplicit(BodyModel body) => throw null;
 
-        public virtual Task<ClientResult> RequiredExplicitAsync(BodyModel body) => throw null;
+        public virtual Task<ClientResult> RequiredExplicitAsync(BodyModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult RequiredImplicit(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -32,7 +33,7 @@ namespace Parameters.BodyOptionality
 
         public virtual ClientResult RequiredImplicit(string name) => throw null;
 
-        public virtual Task<ClientResult> RequiredImplicitAsync(string name) => throw null;
+        public virtual Task<ClientResult> RequiredImplicitAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
         public virtual OptionalExplicit GetOptionalExplicitClient() => throw null;
     }

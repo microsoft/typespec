@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Union.Models;
 
@@ -21,7 +22,7 @@ namespace _Type.Union
 
         public virtual ClientResult<GetResponse9> Get() => throw null;
 
-        public virtual Task<ClientResult<GetResponse9>> GetAsync() => throw null;
+        public virtual Task<ClientResult<GetResponse9>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Send(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -29,6 +30,6 @@ namespace _Type.Union
 
         public virtual ClientResult Send(GetResponseProp4 prop) => throw null;
 
-        public virtual Task<ClientResult> SendAsync(GetResponseProp4 prop) => throw null;
+        public virtual Task<ClientResult> SendAsync(GetResponseProp4 prop, CancellationToken cancellationToken = default) => throw null;
     }
 }

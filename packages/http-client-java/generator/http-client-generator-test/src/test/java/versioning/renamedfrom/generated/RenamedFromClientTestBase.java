@@ -16,6 +16,7 @@ import com.azure.core.util.Configuration;
 import versioning.renamedfrom.NewInterfaceClient;
 import versioning.renamedfrom.RenamedFromClient;
 import versioning.renamedfrom.RenamedFromClientBuilder;
+import versioning.renamedfrom.models.Versions;
 
 class RenamedFromClientTestBase extends TestProxyTestBase {
     protected RenamedFromClient renamedFromClient;
@@ -26,7 +27,7 @@ class RenamedFromClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         RenamedFromClientBuilder renamedFromClientbuilder = new RenamedFromClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .version(Configuration.getGlobalConfiguration().get("VERSION", "version"))
+            .version(Versions.fromString(Configuration.getGlobalConfiguration().get("VERSION", "version")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -36,7 +37,7 @@ class RenamedFromClientTestBase extends TestProxyTestBase {
 
         RenamedFromClientBuilder newInterfaceClientbuilder = new RenamedFromClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-            .version(Configuration.getGlobalConfiguration().get("VERSION", "version"))
+            .version(Versions.fromString(Configuration.getGlobalConfiguration().get("VERSION", "version")))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

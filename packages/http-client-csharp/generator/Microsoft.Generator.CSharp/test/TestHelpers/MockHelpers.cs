@@ -26,9 +26,19 @@ namespace Microsoft.Generator.CSharp.Tests
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
             Func<Task<Compilation>>? compilation = null,
-            IEnumerable<MetadataReference>? additionalMetadataReferences = null)
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null,
+            IEnumerable<string>? sharedSourceDirectories = null,
+            IEnumerable<string>? typesToKeep = null)
         {
-            var mockPlugin = LoadMockPlugin(createCSharpTypeCore, createOutputLibrary, configuration, inputModelTypes, inputEnumTypes, additionalMetadataReferences);
+            var mockPlugin = LoadMockPlugin(
+                createCSharpTypeCore,
+                createOutputLibrary,
+                configuration,
+                inputModelTypes,
+                inputEnumTypes,
+                additionalMetadataReferences,
+                sharedSourceDirectories,
+                typesToKeep);
 
             var compilationResult = compilation == null ? null : await compilation();
 
@@ -44,7 +54,9 @@ namespace Microsoft.Generator.CSharp.Tests
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
             InputEnumType[]? inputEnumTypes = null,
-            IEnumerable<MetadataReference>? additionalMetadataReferences = null)
+            IEnumerable<MetadataReference>? additionalMetadataReferences = null,
+            IEnumerable<string>? sharedSourceDirectories = null,
+            IEnumerable<string>? typesToKeep = null)
         {
             var configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             // initialize the singleton instance of the plugin
@@ -80,6 +92,22 @@ namespace Microsoft.Generator.CSharp.Tests
                 foreach (var reference in additionalMetadataReferences)
                 {
                     mockPlugin.Object.AddMetadataReference(reference);
+                }
+            }
+
+            if (sharedSourceDirectories != null)
+            {
+                foreach (var directory in sharedSourceDirectories)
+                {
+                    mockPlugin.Object.AddSharedSourceDirectory(directory);
+                }
+            }
+
+            if (typesToKeep != null)
+            {
+                foreach (var type in typesToKeep)
+                {
+                    mockPlugin.Object.AddTypeToKeep(type);
                 }
             }
 

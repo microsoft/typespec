@@ -46,16 +46,16 @@
     "_specs_.azure.clientgenerator.core.access.SharedModelInOperationClient.internalWithResponse": "_Specs_.Azure.ClientGenerator.Core.Access.SharedModelInOperation.internal",
     "_specs_.azure.clientgenerator.core.access.SharedModelInOperationClient.publicMethod": "_Specs_.Azure.ClientGenerator.Core.Access.SharedModelInOperation.public",
     "_specs_.azure.clientgenerator.core.access.SharedModelInOperationClient.publicMethodWithResponse": "_Specs_.Azure.ClientGenerator.Core.Access.SharedModelInOperation.public",
-    "_specs_.azure.clientgenerator.core.access.implementation.models.AbstractModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.AbstractModel",
-    "_specs_.azure.clientgenerator.core.access.implementation.models.BaseModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.BaseModel",
-    "_specs_.azure.clientgenerator.core.access.implementation.models.InnerModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.InnerModel",
-    "_specs_.azure.clientgenerator.core.access.implementation.models.InternalDecoratorModelInInternal": "_Specs_.Azure.ClientGenerator.Core.Access.InternalOperation.InternalDecoratorModelInInternal",
-    "_specs_.azure.clientgenerator.core.access.implementation.models.NoDecoratorModelInInternal": "_Specs_.Azure.ClientGenerator.Core.Access.InternalOperation.NoDecoratorModelInInternal",
-    "_specs_.azure.clientgenerator.core.access.implementation.models.OuterModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.OuterModel",
-    "_specs_.azure.clientgenerator.core.access.implementation.models.RealModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.RealModel",
-    "_specs_.azure.clientgenerator.core.access.models.NoDecoratorModelInPublic": "_Specs_.Azure.ClientGenerator.Core.Access.PublicOperation.NoDecoratorModelInPublic",
-    "_specs_.azure.clientgenerator.core.access.models.PublicDecoratorModelInInternal": "_Specs_.Azure.ClientGenerator.Core.Access.InternalOperation.PublicDecoratorModelInInternal",
-    "_specs_.azure.clientgenerator.core.access.models.PublicDecoratorModelInPublic": "_Specs_.Azure.ClientGenerator.Core.Access.PublicOperation.PublicDecoratorModelInPublic",
-    "_specs_.azure.clientgenerator.core.access.models.SharedModel": "_Specs_.Azure.ClientGenerator.Core.Access.SharedModelInOperation.SharedModel"
+    "_specs_.azure.clientgenerator.core.access.internaloperation.implementation.models.InternalDecoratorModelInInternal": "_Specs_.Azure.ClientGenerator.Core.Access.InternalOperation.InternalDecoratorModelInInternal",
+    "_specs_.azure.clientgenerator.core.access.internaloperation.implementation.models.NoDecoratorModelInInternal": "_Specs_.Azure.ClientGenerator.Core.Access.InternalOperation.NoDecoratorModelInInternal",
+    "_specs_.azure.clientgenerator.core.access.internaloperation.models.PublicDecoratorModelInInternal": "_Specs_.Azure.ClientGenerator.Core.Access.InternalOperation.PublicDecoratorModelInInternal",
+    "_specs_.azure.clientgenerator.core.access.publicoperation.models.NoDecoratorModelInPublic": "_Specs_.Azure.ClientGenerator.Core.Access.PublicOperation.NoDecoratorModelInPublic",
+    "_specs_.azure.clientgenerator.core.access.publicoperation.models.PublicDecoratorModelInPublic": "_Specs_.Azure.ClientGenerator.Core.Access.PublicOperation.PublicDecoratorModelInPublic",
+    "_specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.AbstractModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.AbstractModel",
+    "_specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.BaseModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.BaseModel",
+    "_specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.InnerModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.InnerModel",
+    "_specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.OuterModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.OuterModel",
+    "_specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.RealModel": "_Specs_.Azure.ClientGenerator.Core.Access.RelativeModelInOperation.RealModel",
+    "_specs_.azure.clientgenerator.core.access.sharedmodelinoperation.models.SharedModel": "_Specs_.Azure.ClientGenerator.Core.Access.SharedModelInOperation.SharedModel"
   }
 }

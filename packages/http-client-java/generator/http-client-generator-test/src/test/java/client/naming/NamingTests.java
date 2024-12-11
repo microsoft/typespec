@@ -3,13 +3,13 @@
 
 package client.naming;
 
-import client.naming.models.ClientExtensibleEnum;
-import client.naming.models.ClientModel;
-import client.naming.models.ClientNameAndJsonEncodedNameModel;
-import client.naming.models.ClientNameModel;
-import client.naming.models.ExtensibleEnum;
-import client.naming.models.JavaModel;
-import client.naming.models.LanguageClientNameModel;
+import client.naming.model.models.ClientModel;
+import client.naming.model.models.JavaModel;
+import client.naming.property.models.ClientNameAndJsonEncodedNameModel;
+import client.naming.property.models.ClientNameModel;
+import client.naming.property.models.LanguageClientNameModel;
+import client.naming.unionenum.models.ClientExtensibleEnum;
+import client.naming.unionenum.models.ExtensibleEnum;
 import org.junit.jupiter.api.Test;
 
 public class NamingTests {

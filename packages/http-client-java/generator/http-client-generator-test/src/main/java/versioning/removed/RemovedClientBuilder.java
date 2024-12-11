@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.removed.implementation.RemovedClientImpl;
+import versioning.removed.models.Versions;
 
 /**
  * A builder for creating a new instance of the RemovedClient type.
@@ -190,19 +191,19 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
     }
 
     /*
-     * Need to be set as 'v1' or 'v2' in client.
+     * Need to be set as 'v1', 'v2preview' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
-     * Sets Need to be set as 'v1' or 'v2' in client.
+     * Sets Need to be set as 'v1', 'v2preview' or 'v2' in client.
      * 
      * @param version the version value.
      * @return the RemovedClientBuilder.
      */
     @Generated
-    public RemovedClientBuilder version(String version) {
+    public RemovedClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }

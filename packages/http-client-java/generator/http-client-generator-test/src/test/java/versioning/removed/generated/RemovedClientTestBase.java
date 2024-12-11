@@ -15,6 +15,7 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import versioning.removed.RemovedClient;
 import versioning.removed.RemovedClientBuilder;
+import versioning.removed.models.Versions;
 
 class RemovedClientTestBase extends TestProxyTestBase {
     protected RemovedClient removedClient;
@@ -23,7 +24,7 @@ class RemovedClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         RemovedClientBuilder removedClientbuilder
             = new RemovedClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .version(Configuration.getGlobalConfiguration().get("VERSION", "version"))
+                .version(Versions.fromString(Configuration.getGlobalConfiguration().get("VERSION", "version")))
                 .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
                 .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

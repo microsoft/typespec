@@ -3,6 +3,7 @@ import { getVisibilityForClass } from "../../../core/visibility/core.js";
 import { EncodeData, getEncode, getFormat } from "../../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 
+/** @experimental */
 export interface ModelPropertyKit {
   /**
    * Check if the given `type` is a model property.
@@ -46,7 +47,7 @@ interface TypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends TypeKit {}
+  interface Typekit extends TypeKit {}
 }
 
 defineKit<TypeKit>({

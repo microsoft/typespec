@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClientImpl;
+import versioning.returntypechangedfrom.models.Versions;
 
 /**
  * A builder for creating a new instance of the ReturnTypeChangedFromClient type.
@@ -194,7 +195,7 @@ public final class ReturnTypeChangedFromClientBuilder implements HttpTrait<Retur
      * Need to be set as 'v1' or 'v2' in client.
      */
     @Generated
-    private String version;
+    private Versions version;
 
     /**
      * Sets Need to be set as 'v1' or 'v2' in client.
@@ -203,7 +204,7 @@ public final class ReturnTypeChangedFromClientBuilder implements HttpTrait<Retur
      * @return the ReturnTypeChangedFromClientBuilder.
      */
     @Generated
-    public ReturnTypeChangedFromClientBuilder version(String version) {
+    public ReturnTypeChangedFromClientBuilder version(Versions version) {
         this.version = version;
         return this;
     }

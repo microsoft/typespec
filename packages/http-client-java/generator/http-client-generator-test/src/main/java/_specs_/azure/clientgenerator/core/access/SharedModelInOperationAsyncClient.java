@@ -5,7 +5,7 @@
 package _specs_.azure.clientgenerator.core.access;
 
 import _specs_.azure.clientgenerator.core.access.implementation.SharedModelInOperationsImpl;
-import _specs_.azure.clientgenerator.core.access.models.SharedModel;
+import _specs_.azure.clientgenerator.core.access.sharedmodelinoperation.models.SharedModel;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;

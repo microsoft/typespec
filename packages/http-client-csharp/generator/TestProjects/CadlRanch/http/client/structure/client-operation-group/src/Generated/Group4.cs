@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client.Structure.Service
@@ -20,6 +21,6 @@ namespace Client.Structure.Service
 
         public virtual ClientResult Four() => throw null;
 
-        public virtual Task<ClientResult> FourAsync() => throw null;
+        public virtual Task<ClientResult> FourAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -78,6 +78,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # also generate with group-etag-headers=false since mgmt doesn't support etag grouping yet
     $tspOptions += " --option ""@typespec/http-client-java.group-etag-headers=false"""
+  } elseif ($tspFile -match "subclient.tsp") {
+    $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp
@@ -119,7 +121,7 @@ $generateScript = {
 
 ./Setup.ps1
 
-New-Item -Path ./existingcode/src/main/java/com/cadl/ -ItemType Directory -Force | Out-Null
+New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 
 if (Test-Path ./src/main/java/tsptest/partialupdate) {
   Copy-Item -Path ./src/main/java/tsptest/partialupdate -Destination ./existingcode/src/main/java/tsptest/partialupdate -Recurse -Force

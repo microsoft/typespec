@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.3.9",
+  "version": "0.4.2",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -33,7 +33,7 @@
     "build": "tsc -p ./emitter/tsconfig.build.json",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "lint": "eslint . --max-warnings=0",
-    "lint:py": "tsx ./eng/scripts/ci/lint.ts --folderName generator",
+    "lint:py": "tsx ./eng/scripts/ci/lint.ts --folderName generator/pygen",
     "format": "pnpm -w format:dir packages/http-client-python && tsx ./eng/scripts/ci/format.ts",
     "install": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/install.py",
     "prepare": "tsx ./eng/scripts/setup/run-python3.ts ./eng/scripts/setup/prepare.py",
@@ -60,7 +60,7 @@
     "@azure-tools/typespec-azure-resource-manager": ">=0.48.0 <1.0.0",
     "@azure-tools/typespec-autorest": ">=0.48.0 <1.0.0",
     "@azure-tools/typespec-azure-rulesets": ">=0.48.0 <3.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.48.0 <1.0.0"
+    "@azure-tools/typespec-client-generator-core": ">=0.48.5 <1.0.0"
   },
   "dependencies": {
     "js-yaml": "~4.1.0",
@@ -77,7 +77,7 @@
     "@azure-tools/typespec-azure-core": "~0.48.0",
     "@azure-tools/typespec-azure-rulesets": "~0.48.0",
     "@azure-tools/typespec-azure-resource-manager": "~0.48.0",
-    "@azure-tools/typespec-client-generator-core": "~0.48.0",
+    "@azure-tools/typespec-client-generator-core": "~0.48.5",
     "@azure-tools/cadl-ranch-specs": "~0.39.1",
     "@azure-tools/cadl-ranch-expect": "~0.15.6",
     "@types/js-yaml": "~4.0.5",

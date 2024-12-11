@@ -11,7 +11,10 @@ import {
   Operation,
   Program,
   Scalar,
+  Service,
   StringLiteral,
+  StringTemplate,
+  StringTemplateSpan,
   Tuple,
   Type,
   Union,
@@ -21,6 +24,7 @@ import {
   isErrorModel,
   isNeverType,
   isNullType,
+  isTemplateDeclaration,
   isVoidType,
 } from "@typespec/compiler";
 import {
@@ -37,6 +41,7 @@ import {
   code,
   createAssetEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -70,6 +75,7 @@ import {
   getCSharpIdentifier,
   getCSharpStatusCode,
   getCSharpType,
+  getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
   getModelAttributes,
   getModelInstantiationName,
@@ -119,8 +125,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     declarationName(declarationType: TypeSpecDeclaration): string {
       switch (declarationType.kind) {
         case "Enum":
+          if (!declarationType.name) return `Enum${_unionCounter++}`;
+          return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Interface":
+          if (!declarationType.name) return `Interface${_unionCounter++}`;
+          return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Model":
+          if (!declarationType.name) return `Model${_unionCounter++}`;
+          return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Operation":
           return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Union":
@@ -197,13 +209,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           return this.emitter.result.rawCode(code`System.Text.Json.Nodes.JsonNode`);
         case "ErrorType":
         case "never":
-        case "void":
           reportDiagnostic(this.emitter.getProgram(), {
             code: "invalid-intrinsic",
             target: intrinsic,
             format: { typeName: intrinsic.name },
           });
           return "";
+        case "void":
+          const type = getCSharpTypeForIntrinsic(this.emitter.getProgram(), intrinsic);
+          return this.emitter.result.rawCode(`${type?.type.getTypeReference()}`);
       }
     }
 
@@ -247,7 +261,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const modelFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
-      return this.#createModelContext(modelNamespace, modelFile);
+      return this.#createModelContext(modelNamespace, modelFile, modelName);
     }
 
     modelInstantiationContext(model: Model): Context {
@@ -259,7 +273,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const sourceFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const modelNamespace = `${this.#getOrSetBaseNamespace(model)}.Models`;
-      const context = this.#createModelContext(modelNamespace, sourceFile);
+      const context = this.#createModelContext(modelNamespace, sourceFile, model.name);
       context.instantiationName = modelName;
       return context;
     }
@@ -284,15 +298,45 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           !isNeverType(prop.type) &&
           !isNullType(prop.type) &&
           !isErrorModel(this.emitter.getProgram(), prop.type)
-        )
+        ) {
           result.push(code`${this.emitter.emitModelProperty(prop)}`);
+        }
       }
 
       return result.reduce();
     }
 
+    modelLiteralContext(model: Model): Context {
+      const name = this.emitter.emitDeclarationName(model) || "";
+      return this.modelDeclarationContext(model, name);
+    }
+
+    modelLiteral(model: Model): EmitterOutput<string> {
+      const modelName: string = this.emitter.getContext().name;
+      reportDiagnostic(this.emitter.getProgram(), {
+        code: "anonymous-model",
+        target: model,
+        format: { emittedName: modelName },
+      });
+      return this.modelDeclaration(model, modelName);
+    }
+
     #isRecord(type: Type): boolean {
       return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
+    }
+
+    #isInheritedProperty(property: ModelProperty): boolean {
+      const visited: Model[] = [];
+      function isInherited(model: Model, propertyName: string) {
+        if (visited.includes(model)) return false;
+        visited.push(model);
+        if (model.properties.has(propertyName)) return true;
+        if (model.baseModel === undefined) return false;
+        return isInherited(model.baseModel, propertyName);
+      }
+      const model = property.model;
+      if (model === undefined || model.baseModel === undefined) return false;
+      return isInherited(model.baseModel, property.name);
     }
 
     modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
@@ -302,17 +346,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         property,
         property.name,
       );
-      const [typeName, typeDefault] = this.#findPropertyType(property);
+
+      const [typeName, typeDefault, nullable] = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
-      const attributes = getModelAttributes(this.emitter.getProgram(), property);
+      const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
       // eslint-disable-next-line @typescript-eslint/no-deprecated
       const defaultValue = property.default
         ? // eslint-disable-next-line @typescript-eslint/no-deprecated
           code`${this.emitter.emitType(property.default)}`
         : typeDefault;
       return this.emitter.result
-        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${typeName}${
-        property.optional && isValueType(this.emitter.getProgram(), property.type) ? "?" : ""
+        .rawCode(code`${doc ? `${formatComment(doc)}\n` : ""}${`${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}${attributes?.length > 0 ? "\n" : ""}`}public ${this.#isInheritedProperty(property) ? "new " : ""}${typeName}${
+        isValueType(this.emitter.getProgram(), property.type) && (property.optional || nullable)
+          ? "?"
+          : ""
       } ${propertyName} { get; ${typeDefault ? "}" : "set; }"}${
         defaultValue ? ` = ${defaultValue};\n` : "\n"
       }
@@ -321,25 +368,121 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     #findPropertyType(
       property: ModelProperty,
-    ): [EmitterOutput<string>, string | boolean | undefined] {
-      switch (property.type.kind) {
+    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
+      return this.#getTypeInfoForTsType(property.type);
+    }
+
+    #getTypeInfoForUnion(
+      union: Union,
+    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
+      const propResult = this.#getNonNullableTsType(union);
+      if (propResult === undefined) {
+        return [
+          code`${emitter.emitTypeReference(union)}`,
+          undefined,
+          [...union.variants.values()].filter((v) => isNullType(v.type)).length > 0,
+        ];
+      }
+      const [typeName, typeDefault, _] = this.#getTypeInfoForTsType(propResult.type);
+      return [typeName, typeDefault, propResult.nullable];
+    }
+    #getTypeInfoForTsType(
+      tsType: Type,
+    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
+      function extractStringValue(type: Type, span: StringTemplateSpan): string {
+        switch (type.kind) {
+          case "String":
+            return type.value;
+          case "Boolean":
+            return `${type.value}`;
+          case "Number":
+            return type.valueAsString;
+          case "StringTemplateSpan":
+            if (type.isInterpolated) {
+              return extractStringValue(type.type, span);
+            } else {
+              return type.type.value;
+            }
+          case "ModelProperty":
+            return extractStringValue(type.type, span);
+          case "EnumMember":
+            if (type.value === undefined) return type.name;
+            if (typeof type.value === "string") return type.value;
+            if (typeof type.value === "number") return `${type.value}`;
+        }
+        reportDiagnostic(emitter.getProgram(), {
+          code: "invalid-interpolation",
+          target: span,
+          format: {},
+        });
+        return "";
+      }
+      switch (tsType.kind) {
         case "String":
-          return [code`string`, `"${property.type.value}"`];
-        case "Boolean":
-          return [code`bool`, `${property.type.value === true ? true : false}`];
-        case "Number":
-        case "Object":
-          return [code`object`, undefined];
-        case "Model":
-          if (this.#isRecord(property.type)) {
-            return [code`JsonObject`, undefined];
+          return [code`string`, `"${tsType.value}"`, false];
+        case "StringTemplate":
+          const template = tsType;
+          if (template.stringValue !== undefined)
+            return [code`string`, `"${template.stringValue}"`, false];
+          const spanResults: string[] = [];
+          for (const span of template.spans) {
+            spanResults.push(extractStringValue(span, span));
           }
-          return [code`${this.emitter.emitTypeReference(property.type)}`, undefined];
+          return [code`string`, `"${spanResults.join("")}"`, false];
+        case "Boolean":
+          return [code`bool`, `${tsType.value === true ? true : false}`, false];
+        case "Number":
+          const [type, value] = this.#findNumericType(tsType);
+          return [code`${type}`, `${value}`, false];
+        case "Tuple":
+          const defaults = [];
+          const [csharpType, isObject] = this.#coalesceTypes(tsType.values);
+          if (isObject) return ["object[]", undefined, false];
+          for (const value of tsType.values) {
+            const [_, itemDefault] = this.#getTypeInfoForTsType(value);
+            defaults.push(itemDefault);
+          }
+          return [
+            code`${csharpType.getTypeReference()}[]`,
+            `[${defaults.join(", ")}]`,
+            csharpType.isNullable,
+          ];
+        case "Object":
+          return [code`object`, undefined, false];
+        case "Model":
+          if (this.#isRecord(tsType)) {
+            return [code`JsonObject`, undefined, false];
+          }
+          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
+        case "ModelProperty":
+          return this.#getTypeInfoForTsType(tsType.type);
+        case "Enum":
+          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
+        case "EnumMember":
+          if (typeof tsType.value === "number") {
+            const stringValue = tsType.value.toString();
+            if (stringValue.includes(".") || stringValue.includes("e"))
+              return ["double", stringValue, false];
+            return ["int", stringValue, false];
+          }
+          if (typeof tsType.value === "string") {
+            return ["string", tsType.value, false];
+          }
+          return [code`object`, undefined, false];
+        case "Union":
+          return this.#getTypeInfoForUnion(tsType);
+        case "UnionVariant":
+          return this.#getTypeInfoForTsType(tsType.type);
         default:
-          return [code`${this.emitter.emitTypeReference(property.type)}`, undefined];
+          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
       }
     }
 
+    #findNumericType(type: NumericLiteral): [string, string] {
+      const stringValue = type.valueAsString;
+      if (stringValue.includes(".") || stringValue.includes("e")) return ["double", stringValue];
+      return ["int", stringValue];
+    }
     modelPropertyReference(property: ModelProperty): EmitterOutput<string> {
       return code`${this.emitter.emitTypeReference(property.type)}`;
     }
@@ -385,7 +528,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Interface;
       const ifaceNamespace = this.#getOrSetBaseNamespace(iface);
       const modelNamespace = `${ifaceNamespace}.Models`;
-      const context = this.#createModelContext(ifaceNamespace, sourceFile);
+      const context = this.#createModelContext(ifaceNamespace, sourceFile, ifaceName);
       context.file.imports.set("System", ["System"]);
       context.file.imports.set("System.Net", ["System.Net"]);
       context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
@@ -552,6 +695,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return this.#emitOperationResponses(httpOperation);
     }
 
+    stringTemplate(stringTemplate: StringTemplate): EmitterOutput<string> {
+      return this.emitter.result.rawCode(stringTemplate.stringValue || "");
+    }
+
     #getOperationResponse(operation: HttpOperation): [string, CSharpType] | undefined {
       const validResponses = operation.responses.filter(
         (r) =>
@@ -588,7 +735,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
 
       for (const response of operation.responses) {
-        this.emitter.emitType(response.type);
+        if (!isEmptyResponseModel(this.emitter.getProgram(), response.type))
+          this.emitter.emitType(response.type);
       }
 
       return builder.reduce();
@@ -629,13 +777,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
       let i = 1;
       for (const requiredParam of requiredParams) {
+        const [paramType, _, __] = this.#findPropertyType(requiredParam);
         signature.push(
-          code`${this.emitter.emitTypeReference(requiredParam.type)} ${ensureCSharpIdentifier(this.emitter.getProgram(), requiredParam, requiredParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
+          code`${paramType} ${ensureCSharpIdentifier(this.emitter.getProgram(), requiredParam, requiredParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
         );
       }
       for (const optionalParam of optionalParams) {
+        const [paramType, _, __] = this.#findPropertyType(optionalParam);
         signature.push(
-          code`${this.emitter.emitTypeReference(optionalParam.type)}? ${ensureCSharpIdentifier(this.emitter.getProgram(), optionalParam, optionalParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
+          code`${paramType}? ${ensureCSharpIdentifier(this.emitter.getProgram(), optionalParam, optionalParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
         );
       }
       return signature.reduce();
@@ -770,7 +920,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         name,
         NameCasingType.Parameter,
       );
-      const [emittedType, emittedDefault] = this.#findPropertyType(parameter);
+      let [emittedType, emittedDefault, _] = this.#findPropertyType(parameter);
+      if (emittedType.toString().endsWith("[]")) emittedDefault = undefined;
       // eslint-disable-next-line @typescript-eslint/no-deprecated
       const defaultValue = parameter.default
         ? // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -780,11 +931,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         code`${httpParam.type !== "path" ? this.#emitParameterAttribute(httpParam) : ""}${emittedType} ${emittedName}${defaultValue === undefined ? "" : ` = ${defaultValue}`}`,
       );
     }
+    #getBodyParameters(operation: HttpOperation): ModelProperty[] | undefined {
+      const bodyParam = operation.parameters.body;
+      if (bodyParam === undefined) return undefined;
+      if (bodyParam.property !== undefined) return [bodyParam.property];
+      if (bodyParam.type.kind !== "Model" || bodyParam.type.properties.size < 1) return undefined;
+      return [...bodyParam.type.properties.values()];
+    }
 
     #emitOperationCallParameters(operation: HttpOperation): EmitterOutput<string> {
       const signature = new StringBuilder();
-      const bodyParam = operation.parameters.body;
       let i = 0;
+      const bodyParameters = this.#getBodyParameters(operation);
       //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
       for (const parameter of operation.parameters.parameters) {
         i++;
@@ -795,13 +953,27 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         ) {
           signature.push(
             code`${this.#emitOperationCallParameter(operation, parameter)}${
-              i < operation.parameters.parameters.length || bodyParam !== undefined ? ", " : ""
+              i < operation.parameters.parameters.length || bodyParameters !== undefined ? ", " : ""
             }`,
           );
         }
       }
-      if (bodyParam !== undefined) {
-        signature.push(code`body`);
+      if (bodyParameters !== undefined) {
+        if (bodyParameters.length === 1) {
+          signature.push(code`body`);
+        } else {
+          let j = 0;
+          for (const parameter of bodyParameters) {
+            j++;
+            const propertyName = ensureCSharpIdentifier(
+              this.emitter.getProgram(),
+              parameter,
+              parameter.name,
+              NameCasingType.Property,
+            );
+            signature.push(code`body?.${propertyName}${j < bodyParameters.length ? ", " : ""}`);
+          }
+        }
       }
 
       return signature.reduce();
@@ -832,9 +1004,10 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
     }
 
-    #createModelContext(namespace: string, file: SourceFile<string>): Context {
+    #createModelContext(namespace: string, file: SourceFile<string>, name: string): Context {
       const context = {
         namespace: namespace,
+        name: name,
         file: file,
         scope: file.globalScope,
       };
@@ -1016,35 +1189,76 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     #coalesceUnionTypes(union: Union): CSharpType {
-      const defaultValue: CSharpType = new CSharpType({
-        name: "object",
-        namespace: "System",
-        isValueType: false,
-      });
+      const [result, _] = this.#coalesceTypes([...union.variants.values()].flatMap((v) => v.type));
+      return result;
+    }
+
+    #getNonNullableTsType(union: Union): { type: Type; nullable: boolean } | undefined {
+      const types = [...union.variants.values()];
+      const nulls = types.flatMap((v) => v.type).filter((t) => isNullType(t));
+      const nonNulls = types.flatMap((v) => v.type).filter((t) => !isNullType(t));
+      if (nonNulls.length === 1) return { type: nonNulls[0], nullable: nulls.length > 0 };
+      return undefined;
+    }
+
+    #coalesceTypes(types: Type[]): [CSharpType, boolean] {
+      const defaultValue: [CSharpType, boolean] = [
+        new CSharpType({
+          name: "object",
+          namespace: "System",
+          isValueType: false,
+        }),
+        true,
+      ];
       let current: CSharpType | undefined = undefined;
-      for (const [_, variant] of union.variants.entries()) {
-        let candidate: CSharpType;
-        switch (variant.type.kind) {
+      let nullable: boolean = false;
+      for (const type of types) {
+        let candidate: CSharpType | undefined = undefined;
+        switch (type.kind) {
           case "Boolean":
             candidate = new CSharpType({ name: "bool", namespace: "System", isValueType: true });
             break;
+          case "StringTemplate":
           case "String":
             candidate = new CSharpType({ name: "string", namespace: "System", isValueType: false });
             break;
+          case "Number":
+            const stringValue = type.valueAsString;
+            if (stringValue.includes(".") || stringValue.includes("e")) {
+              candidate = new CSharpType({
+                name: "double",
+                namespace: "System",
+                isValueType: true,
+              });
+            } else {
+              candidate = new CSharpType({ name: "int", namespace: "System", isValueType: true });
+            }
+            break;
           case "Union":
-            candidate = this.#coalesceUnionTypes(variant.type);
+            candidate = this.#coalesceUnionTypes(type);
             break;
           case "Scalar":
-            candidate = getCSharpTypeForScalar(this.emitter.getProgram(), variant.type);
+            candidate = getCSharpTypeForScalar(this.emitter.getProgram(), type);
+            break;
+          case "Intrinsic":
+            if (isNullType(type)) {
+              nullable = true;
+              candidate = current;
+            } else {
+              return defaultValue;
+            }
             break;
           default:
             return defaultValue;
         }
 
         current = current ?? candidate;
-        if (current === undefined || !candidate.equals(current)) return defaultValue;
+        if (current === undefined || (candidate !== undefined && !candidate.equals(current)))
+          return defaultValue;
       }
-      return current ?? defaultValue;
+
+      if (current !== undefined && nullable) current.isNullable = true;
+      return current === undefined ? defaultValue : [current, false];
     }
 
     writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
@@ -1095,11 +1309,17 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
   }
 
-  function processNameSpace(program: Program, target: Namespace) {
-    const service = getService(program, target);
+  function isEmptyResponseModel(program: Program, model: Type): boolean {
+    if (model.kind !== "Model") return false;
+    return model.properties.size === 1 && isStatusCode(program, [...model.properties.values()][0]);
+  }
+  function processNameSpace(program: Program, target: Namespace, service?: Service | undefined) {
+    if (!service) service = getService(program, target);
     if (service) {
       for (const [_, model] of target.models) {
-        emitter.emitType(model);
+        if (!isTemplateDeclaration(model) && !isEmptyResponseModel(program, model)) {
+          emitter.emitType(model);
+        }
       }
       for (const [_, en] of target.enums) {
         emitter.emitType(en);
@@ -1108,10 +1328,38 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         emitter.emitType(sc);
       }
       for (const [_, iface] of target.interfaces) {
+        if (!isTemplateDeclaration(iface)) {
+          emitter.emitType(iface);
+        }
+      }
+      if (target.operations.size > 0) {
+        // Collect interface operations for a business logic interface and controller
+        const nsOps: [string, Operation][] = [];
+
+        for (const [name, op] of target.operations) {
+          if (!isTemplateDeclaration(op)) {
+            nsOps.push([name, op]);
+          }
+        }
+        const iface: Interface = program.checker.createAndFinishType({
+          node: undefined as any,
+          sourceInterfaces: [],
+          decorators: [],
+          operations: createRekeyableMap(nsOps),
+          kind: "Interface",
+          name: `${target.name}Operations`,
+          namespace: target,
+          entityKind: "Type",
+          isFinished: true,
+        });
+        for (const [_, op] of nsOps) {
+          op.interface = iface;
+        }
         emitter.emitType(iface);
       }
-      for (const [_, op] of target.operations) {
-        emitter.emitType(op);
+
+      for (const [_, sub] of target.namespaces) {
+        processNameSpace(program, sub, service);
       }
     } else {
       for (const [_, sub] of target.namespaces) {

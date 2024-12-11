@@ -40,19 +40,19 @@
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
-      <version>1.54.0</version>
+      <version>1.54.1</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-http-netty</artifactId>
-      <version>1.15.6</version>
+      <version>1.15.7</version>
     </dependency>
 
     <!-- Test Dependencies -->
     <dependency>
       <groupId>com.azure</groupId>
       <artifactId>azure-core-test</artifactId>
-      <version>1.27.0-beta.3</version>
+      <version>1.27.0-beta.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
