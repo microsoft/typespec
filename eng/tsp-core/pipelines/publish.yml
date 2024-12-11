@@ -176,3 +176,33 @@ extends:
                 displayName: "Build"
               - script: docker push $(imageName) --all-tags
                 displayName: "Push"
+
+      - stage: publish_manifest
+        displayName: Manifest
+        dependsOn: build
+        jobs:
+          - job: publish_manifest
+            displayName: Publish Manifest
+            pool:
+              name: $(WINDOWSPOOL)
+              image: $(WINDOWSVMIMAGE)
+              os: windows
+            variables:
+              TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+            steps:
+              - template: /eng/tsp-core/pipelines/templates/install.yml
+              - template: /eng/tsp-core/pipelines/templates/build.yml
+
+              - script: pnpm run validate-scenarios --debug
+                displayName: Validate Scenarios
+
+              - script: pnpm run validate-mock-apis --debug
+                displayName: Validate mock apis
+
+              - task: AzureCLI@2
+                displayName: Upload scenario manifest
+                inputs:
+                  azureSubscription: "TypeSpec Storage"
+                  scriptType: "bash"
+                  scriptLocation: "inlineScript"
+                  inlineScript: "pnpm upload-manifest"

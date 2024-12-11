@@ -70,6 +70,9 @@ export async function getCoverageSummaries(): Promise<CoverageSummary[]> {
     (manifest: ScenarioManifest) => manifest.setName !== "@azure-tools/azure-http-specs",
   )[0];
   for (const key in generatorReports["standard"]) {
+    if (!(generatorReports["standard"] as any)[key]) {
+      continue;
+    }
     (generatorReports["standard"] as any)[key] = {
       ...(generatorReports["standard"] as any)[key][0],
       generatorMetadata: (generatorReports["standard"] as any)[key]["generatorMetadata"],
