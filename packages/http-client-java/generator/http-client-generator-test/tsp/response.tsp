@@ -94,18 +94,12 @@ model StringsList {
 model Int32sList {
   @items
   value: int32[];
-
-  @nextLink
-  nextLink?: string;
 }
 
 @pagedResult
 model DateTimesList {
   @items
   value: utcDateTime[];
-
-  @nextLink
-  nextLink?: string;
 }
 
 op CustomLongRunningOperation<
