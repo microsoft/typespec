@@ -4,18 +4,17 @@ import {
   SdkHttpOperation,
   SdkServiceOperation,
 } from "@azure-tools/typespec-client-generator-core";
-import { EmitContext, joinPaths, NoTarget } from "@typespec/compiler";
+import { EmitContext, NoTarget } from "@typespec/compiler";
 import { exec } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
-import { runPython3 } from "../../eng/scripts/setup/run-python3.js";
+import { runPython3 } from "./run-python3.js";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
-import os from "os";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
