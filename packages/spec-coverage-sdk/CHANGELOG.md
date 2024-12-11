@@ -2,6 +2,10 @@
 
 ## 0.1.0-alpha.2
 
+No changes, version bump only.
+
+## 0.1.0-alpha.2
+
 - Added `packageName` to `scenariosMetadata`.
 
 ## 0.1.0-alpha.1
