@@ -322,7 +322,7 @@ function getMediaTypes(type: SdkType): string[] {
 function loadOperationPaging(
   method: SdkServiceMethod<SdkHttpOperation>,
 ): OperationPaging | undefined {
-  if (method.kind !== "paging") {
+  if (method.kind !== "paging" || method.__raw_paged_metadata === undefined) {
     return undefined;
   }
 
