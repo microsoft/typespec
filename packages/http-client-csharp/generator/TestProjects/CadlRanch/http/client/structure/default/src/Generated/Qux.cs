@@ -19,7 +19,7 @@ namespace Client.Structure.Service.Default
 
         public virtual Task<ClientResult> EightAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Eight() => throw null;
+        public virtual ClientResult Eight(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> EightAsync(CancellationToken cancellationToken = default) => throw null;
 
