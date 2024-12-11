@@ -14,7 +14,7 @@ public class CustomizationTest extends Customization {
     @Override
     public void customize(LibraryCustomization customization, Logger logger) {
         logger.info("Customizing the NamingClient javadoc");
-        PackageCustomization packageCustomization = customization.getPackage("com.cadl.naming");
+        PackageCustomization packageCustomization = customization.getPackage("tsptest.naming");
         ClassCustomization classCustomization = packageCustomization.getClass("NamingClient");
         classCustomization.getMethod("postWithResponse")
                 .getJavadoc()

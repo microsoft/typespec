@@ -4,6 +4,7 @@ import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
+/** @experimental */
 interface ModelDescriptor {
   /**
    * The name of the Model. If name is provided, it is a Model  declaration.
@@ -87,7 +88,7 @@ interface TypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends TypeKit {}
+  interface Typekit extends ModelKit {}
 }
 
 export const ModelKit = defineKit<TypeKit>({
@@ -97,7 +98,7 @@ export const ModelKit = defineKit<TypeKit>({
       const model: Model = this.program.checker.createType({
         kind: "Model",
         name: desc.name ?? "",
-        decorators: decoratorApplication(desc.decorators),
+        decorators: decoratorApplication(this, desc.decorators),
         properties: properties,
         expression: desc.name === undefined,
         node: undefined as any,

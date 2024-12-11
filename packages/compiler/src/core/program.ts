@@ -1,7 +1,7 @@
 import { OutputDirectory, render } from "@alloy-js/core";
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
-import { setCurrentProgram } from "../experimental/typekit/define-kit.js";
+import { setCurrentProgram } from "../experimental/typekit/index.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";

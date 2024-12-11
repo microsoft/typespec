@@ -73,7 +73,7 @@ interface TypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends TypeKit {}
+  interface Typekit extends TypeKit {}
 }
 
 defineKit<TypeKit>({

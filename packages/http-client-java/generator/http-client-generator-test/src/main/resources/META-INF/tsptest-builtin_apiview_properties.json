@@ -1,0 +1,14 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.builtin.BuiltinAsyncClient": "null",
+    "tsptest.builtin.BuiltinAsyncClient.read": "TspTest.Builtin.BuiltinOp.read",
+    "tsptest.builtin.BuiltinAsyncClient.readWithResponse": "TspTest.Builtin.BuiltinOp.read",
+    "tsptest.builtin.BuiltinClient": "null",
+    "tsptest.builtin.BuiltinClient.read": "TspTest.Builtin.BuiltinOp.read",
+    "tsptest.builtin.BuiltinClient.readWithResponse": "TspTest.Builtin.BuiltinOp.read",
+    "tsptest.builtin.BuiltinClientBuilder": "TspTest.Builtin",
+    "tsptest.builtin.models.Builtin": "TspTest.Builtin.Builtin",
+    "tsptest.builtin.models.Encoded": "TspTest.Builtin.Encoded"
+  }
+}

@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client.Structure.Service.Default
@@ -20,7 +21,7 @@ namespace Client.Structure.Service.Default
 
         public virtual ClientResult Three() => throw null;
 
-        public virtual Task<ClientResult> ThreeAsync() => throw null;
+        public virtual Task<ClientResult> ThreeAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Four(RequestOptions options) => throw null;
 
@@ -28,6 +29,6 @@ namespace Client.Structure.Service.Default
 
         public virtual ClientResult Four() => throw null;
 
-        public virtual Task<ClientResult> FourAsync() => throw null;
+        public virtual Task<ClientResult> FourAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

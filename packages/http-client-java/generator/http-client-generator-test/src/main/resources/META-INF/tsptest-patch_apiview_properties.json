@@ -1,0 +1,27 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.patch.PatchAsyncClient": "null",
+    "tsptest.patch.PatchAsyncClient.createOrUpdateFish": "TspTest.Patch.Patch.createOrUpdateFish",
+    "tsptest.patch.PatchAsyncClient.createOrUpdateFishWithResponse": "TspTest.Patch.Patch.createOrUpdateFish",
+    "tsptest.patch.PatchAsyncClient.createOrUpdateOptionalResource": "TspTest.Patch.Patch.createOrUpdateOptionalResource",
+    "tsptest.patch.PatchAsyncClient.createOrUpdateOptionalResourceWithResponse": "TspTest.Patch.Patch.createOrUpdateOptionalResource",
+    "tsptest.patch.PatchAsyncClient.createOrUpdateResource": "TspTest.Patch.Patch.createOrUpdateResource",
+    "tsptest.patch.PatchAsyncClient.createOrUpdateResourceWithResponse": "TspTest.Patch.Patch.createOrUpdateResource",
+    "tsptest.patch.PatchClient": "null",
+    "tsptest.patch.PatchClient.createOrUpdateFish": "TspTest.Patch.Patch.createOrUpdateFish",
+    "tsptest.patch.PatchClient.createOrUpdateFishWithResponse": "TspTest.Patch.Patch.createOrUpdateFish",
+    "tsptest.patch.PatchClient.createOrUpdateOptionalResource": "TspTest.Patch.Patch.createOrUpdateOptionalResource",
+    "tsptest.patch.PatchClient.createOrUpdateOptionalResourceWithResponse": "TspTest.Patch.Patch.createOrUpdateOptionalResource",
+    "tsptest.patch.PatchClient.createOrUpdateResource": "TspTest.Patch.Patch.createOrUpdateResource",
+    "tsptest.patch.PatchClient.createOrUpdateResourceWithResponse": "TspTest.Patch.Patch.createOrUpdateResource",
+    "tsptest.patch.PatchClientBuilder": "TspTest.Patch",
+    "tsptest.patch.models.Fish": "TspTest.Patch.Fish",
+    "tsptest.patch.models.InnerModel": "TspTest.Patch.InnerModel",
+    "tsptest.patch.models.Resource": "TspTest.Patch.Resource",
+    "tsptest.patch.models.ResourceEnumValue": "Resource.enumValue.anonymous",
+    "tsptest.patch.models.Salmon": "TspTest.Patch.Salmon",
+    "tsptest.patch.models.SawShark": "TspTest.Patch.SawShark",
+    "tsptest.patch.models.Shark": "TspTest.Patch.Shark"
+  }
+}

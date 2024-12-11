@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Generator.CSharp.Primitives;
@@ -38,6 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
             defaultValue: Null);
         public static readonly ParameterProvider RequestOptions = new(ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", ClientModelPlugin.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
         public static readonly ParameterProvider RequestContent = new("content", $"The content to send as the body of the request.", ClientModelPlugin.Instance.TypeFactory.RequestContentApi.RequestContentType, location: ParameterLocation.Body) { Validation = ParameterValidationType.AssertNotNull };
+        public static readonly ParameterProvider CancellationToken = new("cancellationToken", $"The cancellation token that can be used to cancel the operation.", new CSharpType(typeof(CancellationToken)), defaultValue: Default);
 
         // There is intentionally no default value here to avoid ambiguous calls between convenience and protocol methods.
         public static readonly ParameterProvider OptionalRequestContent = new(

@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using Parameters.BodyOptionality.Models;
 
@@ -21,7 +22,7 @@ namespace Parameters.BodyOptionality
 
         public virtual ClientResult Set(BodyModel body = null) => throw null;
 
-        public virtual Task<ClientResult> SetAsync(BodyModel body = null) => throw null;
+        public virtual Task<ClientResult> SetAsync(BodyModel body = null, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Omit(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -29,6 +30,6 @@ namespace Parameters.BodyOptionality
 
         public virtual ClientResult Omit(BodyModel body = null) => throw null;
 
-        public virtual Task<ClientResult> OmitAsync(BodyModel body = null) => throw null;
+        public virtual Task<ClientResult> OmitAsync(BodyModel body = null, CancellationToken cancellationToken = default) => throw null;
     }
 }

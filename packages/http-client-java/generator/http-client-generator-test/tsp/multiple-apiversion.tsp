@@ -8,15 +8,17 @@ using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.Core.Foundations;
 using Azure.Core.Traits;
+using Azure.ClientGenerator.Core;
 
 @service({
   title: "MultipleApiVersion",
 })
-@versioned(Cadl.MultipleApiVersion.Versions)
+@versioned(TspTest.MultipleApiVersion.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "FirstClient",
 })
-namespace Cadl.MultipleApiVersion {
+@clientNamespace("tsptest.multipleapiversion", "java")
+namespace TspTest.MultipleApiVersion {
   @resource("resources")
   model Resource {
     @visibility("read")
@@ -50,11 +52,12 @@ namespace Cadl.MultipleApiVersion {
 @service({
   title: "MultipleApiVersion2",
 })
-@versioned(Cadl.MultipleApiVersion2.Versions)
+@versioned(TspTest.MultipleApiVersion2.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "SecondClient",
 })
-namespace Cadl.MultipleApiVersion2 {
+@clientNamespace("tsptest.multipleapiversion", "java")
+namespace TspTest.MultipleApiVersion2 {
   @resource("resources")
   model Resource2 {
     @visibility("read")
@@ -88,11 +91,12 @@ namespace Cadl.MultipleApiVersion2 {
 @service({
   title: "MultipleApiVersion3",
 })
-@versioned(Cadl.MultipleApiVersion3.Versions)
+@versioned(TspTest.MultipleApiVersion3.Versions)
 @Azure.ClientGenerator.Core.client({
   name: "NoApiVersionClient",
 })
-namespace Cadl.MultipleApiVersion3 {
+@clientNamespace("tsptest.multipleapiversion", "java")
+namespace TspTest.MultipleApiVersion3 {
   enum Versions {
     v2022_10_01_preview: "2022-10-01-preview",
     v2022_12_01_preview: "2022-12-01-preview",

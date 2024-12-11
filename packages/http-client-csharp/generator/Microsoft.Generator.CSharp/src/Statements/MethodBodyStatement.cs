@@ -26,6 +26,24 @@ namespace Microsoft.Generator.CSharp.Statements
 
         public string ToDisplayString() => GetDebuggerDisplay();
 
+        public IEnumerable<MethodBodyStatement> Flatten()
+        {
+            if (this is MethodBodyStatements statements)
+            {
+                foreach (var statement in statements.Statements)
+                {
+                    foreach (var subStatement in statement.Flatten())
+                    {
+                        yield return subStatement;
+                    }
+                }
+            }
+            else
+            {
+                yield return this;
+            }
+        }
+
         private string GetDebuggerDisplay()
         {
             using CodeWriter writer = new CodeWriter();

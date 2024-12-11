@@ -73,26 +73,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             Assert.AreEqual("_pipelineMessageClassifier200", pipelineMessageClassifier200.Name);
             Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier200.Modifiers);
 
-            //validate _pipelineMessageClassifier201
-            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier201"));
-            var pipelineMessageClassifier201 = fieldHash["_pipelineMessageClassifier201"];
-            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier201.Type.Name);
-            Assert.AreEqual("_pipelineMessageClassifier201", pipelineMessageClassifier201.Name);
-            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier201.Modifiers);
-
-            //validate _pipelineMessageClassifier204
-            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier204"));
-            var pipelineMessageClassifier204 = fieldHash["_pipelineMessageClassifier204"];
-            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier204.Type.Name);
-            Assert.AreEqual("_pipelineMessageClassifier204", pipelineMessageClassifier204.Name);
-            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier204.Modifiers);
-
-            //validate _pipelineMessageClassifier2xxAnd4xx
-            Assert.IsTrue(fieldHash.ContainsKey("_pipelineMessageClassifier2xxAnd4xx"));
-            var pipelineMessageClassifier2xxAnd4xx = fieldHash["_pipelineMessageClassifier2xxAnd4xx"];
-            Assert.AreEqual("Classifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Type.Name);
-            Assert.AreEqual("_pipelineMessageClassifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Name);
-            Assert.AreEqual(FieldModifiers.Private | FieldModifiers.Static, pipelineMessageClassifier2xxAnd4xx.Modifiers);
+            //validate _pipelineMessageClassifier201 isn't present
+            Assert.IsFalse(fieldHash.ContainsKey("_pipelineMessageClassifier201"));
+            //validate _pipelineMessageClassifier204 isn't present
+            Assert.IsFalse(fieldHash.ContainsKey("_pipelineMessageClassifier204"));
         }
 
         [Test]
@@ -109,29 +93,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier200.Modifiers);
             Assert.IsFalse(pipelineMessageClassifier200.Body.HasSetter);
 
-            //validate _pipelineMessageClassifier201
-            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier201"));
-            var pipelineMessageClassifier201 = propertyHash["PipelineMessageClassifier201"];
-            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier201.Type.Name);
-            Assert.AreEqual("PipelineMessageClassifier201", pipelineMessageClassifier201.Name);
-            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier201.Modifiers);
-            Assert.IsFalse(pipelineMessageClassifier201.Body.HasSetter);
-
-            //validate _pipelineMessageClassifier204
-            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier204"));
-            var pipelineMessageClassifier204 = propertyHash["PipelineMessageClassifier204"];
-            Assert.AreEqual("PipelineMessageClassifier", pipelineMessageClassifier204.Type.Name);
-            Assert.AreEqual("PipelineMessageClassifier204", pipelineMessageClassifier204.Name);
-            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier204.Modifiers);
-            Assert.IsFalse(pipelineMessageClassifier204.Body.HasSetter);
-
-            //validate _pipelineMessageClassifier2xxAnd4xx
-            Assert.IsTrue(propertyHash.ContainsKey("PipelineMessageClassifier2xxAnd4xx"));
-            var pipelineMessageClassifier2xxAnd4xx = propertyHash["PipelineMessageClassifier2xxAnd4xx"];
-            Assert.AreEqual("Classifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Type.Name);
-            Assert.AreEqual("PipelineMessageClassifier2xxAnd4xx", pipelineMessageClassifier2xxAnd4xx.Name);
-            Assert.AreEqual(MethodSignatureModifiers.Private | MethodSignatureModifiers.Static, pipelineMessageClassifier2xxAnd4xx.Modifiers);
-            Assert.IsFalse(pipelineMessageClassifier2xxAnd4xx.Body.HasSetter);
+            //validate _pipelineMessageClassifier201 isn't present
+            Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier201"));
+            //validate _pipelineMessageClassifier204 isn't present
+            Assert.IsFalse(propertyHash.ContainsKey("PipelineMessageClassifier204"));
         }
 
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
@@ -256,26 +221,112 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
         public void ValidateClientResponseClassifiers(InputClient inputClient)
         {
             var restClientProvider = new ClientProvider(inputClient).RestClient;
-            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == "CreateTestOperationRequest");
-            Assert.IsNotNull(method);
+            Dictionary<string, FieldProvider> fieldHash = restClientProvider.Fields.ToDictionary(f => f.Name);
+            Dictionary<string, PropertyProvider> propertyHash = restClientProvider.Properties.ToDictionary(p => p.Name);
 
-            var bodyStatements = method?.BodyStatements as MethodBodyStatements;
-            Assert.IsNotNull(bodyStatements);
-            /* verify that the expected classifier is present in the body */
-            var inputOp = inputClient.Operations.FirstOrDefault();
-            Assert.IsNotNull(inputOp);
-            var expectedStatusCode = inputOp!.Responses.FirstOrDefault()?.StatusCodes.FirstOrDefault();
-            Assert.IsNotNull(expectedStatusCode);
-            if (expectedStatusCode == 201)
+            foreach (var inputOperation in inputClient.Operations)
             {
-                Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier201;\n"));
-                Assert.IsFalse(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier200;\n"));
+                List<int> expectedStatusCodes = [];
+                foreach (var response in inputOperation.Responses)
+                {
+                    if (response.IsErrorResponse)
+                        continue;
+                    expectedStatusCodes.AddRange(response.StatusCodes);
+                }
+
+                Assert.IsTrue(expectedStatusCodes.Count > 0);
+
+                var classifierNameSuffix = string.Join(string.Empty, expectedStatusCodes.OrderBy(s => s));
+                Assert.IsNotEmpty(classifierNameSuffix);
+
+                // validate fields
+                Assert.IsTrue(fieldHash.ContainsKey($"_pipelineMessageClassifier{classifierNameSuffix}"));
+                // validate properties
+                Assert.IsTrue(propertyHash.ContainsKey($"PipelineMessageClassifier{classifierNameSuffix}"));
+
+                // verify that the expected classifier is present in the CreateRequest method body
+                var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name == $"CreateTestOperation{classifierNameSuffix}Request");
+                Assert.IsNotNull(method);
+
+                var bodyStatements = method?.BodyStatements as MethodBodyStatements;
+                Assert.IsNotNull(bodyStatements);
+
+                ValidateResponseClassifier(bodyStatements!, classifierNameSuffix);
             }
-            else if (expectedStatusCode == 200)
+        }
+
+        // This test validates that all the success status codes have their respective classifiers generated.
+        [Test]
+        public void ValidateAllClientResponseClassifiers()
+        {
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                operations:
+                [
+                    OperationWith204Resp,
+                    OperationWith205Resp,
+                    OperationWith206Resp,
+                    OperationWith200Resp,
+                    OperationWith202Resp,
+                    OperationWith201Resp,
+                    OperationWith203Resp,
+                    OperationWith200201202Resp,
+                    OperationWith200201202Resp_Duplicate
+                ]);
+            var restClientProvider = new ClientProvider(inputClient).RestClient;
+            var writer = new TypeProviderWriter(restClientProvider);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // validates no duplicate properties or fields are generated for the same status codes.
+        [TestCaseSource(nameof(TestResponseClassifiersDuplicationTestCases))]
+        public void TestResponseClassifierDuplication(InputClient inputClient)
+        {
+            var restClientProvider = new ClientProvider(inputClient).RestClient;
+            var classifierFields = restClientProvider.Fields.Where(f => f.Name.StartsWith("_pipelineMessageClassifier")).ToList();
+            var classifierProperties = restClientProvider.Properties.Where(p => p.Name.StartsWith("PipelineMessageClassifier")).ToList();
+
+            Assert.AreEqual(4, classifierFields.Count);
+            Assert.AreEqual(4, classifierProperties.Count);
+
+            Assert.IsTrue(classifierFields.Any(f => f.Name == "_pipelineMessageClassifier200"));
+            Assert.IsTrue(classifierFields.Any(f => f.Name == "_pipelineMessageClassifier201202"));
+            Assert.IsTrue(classifierFields.Any(f => f.Name == "_pipelineMessageClassifier201204"));
+            Assert.IsTrue(classifierFields.Any(f => f.Name == "_pipelineMessageClassifier200201204"));
+
+            Assert.IsTrue(classifierProperties.Any(p => p.Name == "PipelineMessageClassifier200"));
+            Assert.IsTrue(classifierProperties.Any(p => p.Name == "PipelineMessageClassifier201202"));
+            Assert.IsTrue(classifierProperties.Any(p => p.Name == "PipelineMessageClassifier201204"));
+            Assert.IsTrue(classifierProperties.Any(p => p.Name == "PipelineMessageClassifier200201204"));
+        }
+
+        [Test]
+        public void ValidateGetResponseClassifiersThrowsWhenNoSuccess()
+        {
+            var inputOp = InputFactory.Operation(
+                "TestOperation",
+                responses: [InputFactory.OperationResponse([500])]);
+            var inputClient = InputFactory.Client(
+                "TestClient",
+                operations: [inputOp]);
+            Assert.IsNotNull(inputClient);
+
+            var restClientProvider = new ClientProvider(inputClient).RestClient;
+            Assert.IsNotNull(restClientProvider);
+
+            try
             {
-                Assert.IsTrue(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier200;\n"));
-                Assert.IsFalse(bodyStatements!.Statements.Any(s => s.ToDisplayString() == "message.ResponseClassifier = PipelineMessageClassifier201;\n"));
+                var methods  = restClientProvider.Methods;
             }
+            catch (InvalidOperationException e)
+            {
+                Assert.AreEqual($"Unexpected status codes for operation {inputOp.Name}", e.Message);
+                return;
+            }
+
+            Assert.Fail("Expected Exception to be thrown.");
         }
 
         [Test]
@@ -287,7 +338,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: true, delimiter: "|"),
                 InputFactory.Parameter("p2Explode", InputFactory.Array(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, explode: true),
                 InputFactory.Parameter("p2", InputFactory.Array(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, delimiter: " "),
-                InputFactory.Parameter("optionalParam", new InputNullableType(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: false, explode: false)
+                InputFactory.Parameter("optionalParam", new InputNullableType(InputPrimitiveType.String), location: RequestLocation.Query, isRequired: false, explode: false),
+                InputFactory.Parameter("p3Explode", InputFactory.Dictionary(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true, explode: true),
+                InputFactory.Parameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), location: RequestLocation.Query, isRequired: true),
             ];
             var operation = InputFactory.Operation(
                 "sampleOp",
@@ -303,6 +356,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             var writer = new TypeProviderWriter(restClientProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
+        {
+            var classifier = $"PipelineMessageClassifier{parsedStatusCodes}";
+            var classifierStatement = $"message.ResponseClassifier = {classifier};\n";
+
+            Assert.IsTrue(bodyStatements.Statements.Any(s => s.ToDisplayString() == classifierStatement));
         }
 
         private readonly static InputOperation BasicOperation = InputFactory.Operation(
@@ -324,21 +385,75 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
                 InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
             ]);
 
+        private static readonly InputOperation OperationWith200Resp = InputFactory.Operation(
+            "TestOperation200",
+            parameters:
+            [
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ],
+            responses: [InputFactory.OperationResponse([200])]);
+        private static readonly InputOperation OperationWith200201202Resp = InputFactory.Operation(
+           "TestOperation200201202",
+           parameters:
+           [
+               InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+           ],
+           responses: [InputFactory.OperationResponse([201, 200, 202])]);
+        private static readonly InputOperation OperationWith200201202Resp_Duplicate = InputFactory.Operation(
+          "DuplicateTestOperation200201202",
+          parameters:
+          [
+              InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+          ],
+          responses: [InputFactory.OperationResponse([201, 200, 202])]);
+
         private static readonly InputOperation OperationWith201Resp = InputFactory.Operation(
-            "TestOperation",
+            "TestOperation201",
             parameters:
             [
                 InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
             ],
             responses: [InputFactory.OperationResponse([201])]);
 
-        private static readonly InputOperation OperationWith200Resp = InputFactory.Operation(
-            "TestOperation",
+        private static readonly InputOperation OperationWith202Resp = InputFactory.Operation(
+            "TestOperation202",
             parameters:
             [
                 InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
             ],
-            responses: [InputFactory.OperationResponse([200])]);
+            responses: [InputFactory.OperationResponse([202])]);
+
+        private static readonly InputOperation OperationWith203Resp = InputFactory.Operation(
+            "TestOperation203",
+            parameters:
+            [
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ],
+            responses: [InputFactory.OperationResponse([203])]);
+
+        private static readonly InputOperation OperationWith204Resp = InputFactory.Operation(
+            "TestOperation204",
+            parameters:
+            [
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ],
+            responses: [InputFactory.OperationResponse([204])]);
+
+        private static readonly InputOperation OperationWith205Resp = InputFactory.Operation(
+            "TestOperation205",
+            parameters:
+            [
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ],
+            responses: [InputFactory.OperationResponse([205])]);
+
+        private static readonly InputOperation OperationWith206Resp = InputFactory.Operation(
+            "TestOperation206",
+            parameters:
+            [
+                InputFactory.Parameter("message", InputPrimitiveType.Boolean, isRequired: true)
+            ],
+            responses: [InputFactory.OperationResponse([206])]);
 
         private readonly static InputOperation OperationWithSpreadParam = InputFactory.Operation(
             "CreateMessageWithSpread",
@@ -453,8 +568,44 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
 
         private static IEnumerable<TestCaseData> ValidateClientResponseClassifiersTestCases =>
         [
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith200Resp])),
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith200201202Resp])),
             new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith201Resp])),
-            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith200Resp]))
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith202Resp])),
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith203Resp])),
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith204Resp])),
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith205Resp])),
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith206Resp])),
+            new TestCaseData(InputFactory.Client("TestClient", operations: [OperationWith203Resp, OperationWith200Resp, OperationWith202Resp])),
+        ];
+
+        private static IEnumerable<TestCaseData> TestResponseClassifiersDuplicationTestCases =>
+        [
+            new TestCaseData(InputFactory.Client("TestClient", operations:
+            [
+                // _pipelineMessageClassifier200
+                InputFactory.Operation("TestOperation200",
+                    responses: [InputFactory.OperationResponse([200])]),
+                InputFactory.Operation("TestOperation200_1",
+                    responses: [InputFactory.OperationResponse([200])]),
+                // _pipelineMessageClassifier201202
+                InputFactory.Operation("TestOperation202201",
+                    responses: [InputFactory.OperationResponse([201, 202])]),
+                InputFactory.Operation("TestOperation202201_1",
+                    responses: [InputFactory.OperationResponse([201, 202])]),
+                InputFactory.Operation("TestOperation202_201",
+                    responses: [InputFactory.OperationResponse([202]), InputFactory.OperationResponse([201])]),
+                InputFactory.Operation("TestOperation202_201_1",
+                    responses: [InputFactory.OperationResponse([202]), InputFactory.OperationResponse([201])]),
+                // _pipelineMessageClassifier201204
+                InputFactory.Operation("TestOperation204_201",
+                    responses: [InputFactory.OperationResponse([204]), InputFactory.OperationResponse([201])]),
+                InputFactory.Operation("TestOperation204_201_1",
+                    responses: [InputFactory.OperationResponse([201]), InputFactory.OperationResponse([204])]),
+                // _pipelineMessageClassifier200202204
+                InputFactory.Operation("TestOperation200_201_204",
+                    responses: [InputFactory.OperationResponse([204]), InputFactory.OperationResponse([201]), InputFactory.OperationResponse([200])]),
+            ]))
         ];
 
         private static IEnumerable<TestCaseData> GetSpreadParameterModelTestCases =>

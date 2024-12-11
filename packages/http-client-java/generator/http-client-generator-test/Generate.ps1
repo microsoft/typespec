@@ -30,16 +30,16 @@ $generateScript = {
   $tspOptions = "--option ""@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"""
   if ($tspFile -match "type[\\/]enum[\\/]extensible[\\/]") {
     # override namespace for reserved keyword "enum"
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=com.type.enums.extensible"""
+    $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.extensible"""
   } elseif ($tspFile -match "type[\\/]enum[\\/]fixed[\\/]") {
     # override namespace for reserved keyword "enum"
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=com.type.enums.fixed"""
+    $tspOptions += " --option ""@typespec/http-client-java.namespace=type.enums.fixed"""
   } elseif ($tspFile -match "azure[\\/]example[\\/]basic[\\/]") {
     # override examples-directory
     $tspOptions += " --option ""@typespec/http-client-java.examples-directory={project-root}/http/azure/example/basic/examples"""
   } elseif ($tspFile -match "resiliency[\\/]srv-driven[\\/]old\.tsp") {
     # override namespace for "resiliency/srv-driven/old.tsp" (make it different to that from "main.tsp")
-    $tspOptions += " --option ""@typespec/http-client-java.namespace=com.resiliency.servicedriven.v1"""
+    $tspOptions += " --option ""@typespec/http-client-java.namespace=resiliency.servicedriven.v1"""
     # enable advanced versioning for resiliency test
     $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
     $tspOptions += " --option ""@typespec/http-client-java.api-version=all"""
@@ -78,6 +78,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # also generate with group-etag-headers=false since mgmt doesn't support etag grouping yet
     $tspOptions += " --option ""@typespec/http-client-java.group-etag-headers=false"""
+  } elseif ($tspFile -match "subclient.tsp") {
+    $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp
@@ -119,10 +121,10 @@ $generateScript = {
 
 ./Setup.ps1
 
-New-Item -Path ./existingcode/src/main/java/com/cadl/ -ItemType Directory -Force | Out-Null
+New-Item -Path ./existingcode/src/main/java/tsptest -ItemType Directory -Force | Out-Null
 
-if (Test-Path ./src/main/java/com/cadl/partialupdate) {
-  Copy-Item -Path ./src/main/java/com/cadl/partialupdate -Destination ./existingcode/src/main/java/com/cadl/partialupdate -Recurse -Force
+if (Test-Path ./src/main/java/tsptest/partialupdate) {
+  Copy-Item -Path ./src/main/java/tsptest/partialupdate -Destination ./existingcode/src/main/java/tsptest/partialupdate -Recurse -Force
 }
 
 if (Test-Path ./src/main) {
@@ -143,7 +145,7 @@ $job | Receive-Job
 
 # partial update test
 npx tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
-Copy-Item -Path ./existingcode/src/main/java/com/cadl/partialupdate -Destination ./src/main/java/com/cadl/partialupdate -Recurse -Force
+Copy-Item -Path ./existingcode/src/main/java/tsptest/partialupdate -Destination ./src/main/java/tsptest/partialupdate -Recurse -Force
 Remove-Item ./existingcode -Recurse -Force
 
 # run cadl ranch tests sources

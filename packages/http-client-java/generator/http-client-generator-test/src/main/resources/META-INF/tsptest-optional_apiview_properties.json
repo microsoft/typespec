@@ -1,0 +1,15 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.optional.OptionalAsyncClient": "null",
+    "tsptest.optional.OptionalAsyncClient.put": "TspTest.Optional.OptionalOp.put",
+    "tsptest.optional.OptionalAsyncClient.putWithResponse": "TspTest.Optional.OptionalOp.put",
+    "tsptest.optional.OptionalClient": "null",
+    "tsptest.optional.OptionalClient.put": "TspTest.Optional.OptionalOp.put",
+    "tsptest.optional.OptionalClient.putWithResponse": "TspTest.Optional.OptionalOp.put",
+    "tsptest.optional.OptionalClientBuilder": "TspTest.Optional",
+    "tsptest.optional.models.AllPropertiesOptional": "TspTest.Optional.AllPropertiesOptional",
+    "tsptest.optional.models.ImmutableModel": "TspTest.Optional.Immutable",
+    "tsptest.optional.models.Optional": "TspTest.Optional.Optional"
+  }
+}

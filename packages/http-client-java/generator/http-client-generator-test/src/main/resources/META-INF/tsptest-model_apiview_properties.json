@@ -1,0 +1,33 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.model.ModelAsyncClient": "null",
+    "tsptest.model.ModelAsyncClient.get3": "TspTest.Model.ModelOp.get3",
+    "tsptest.model.ModelAsyncClient.get3WithResponse": "TspTest.Model.ModelOp.get3",
+    "tsptest.model.ModelAsyncClient.put1": "TspTest.Model.ModelOp.put1",
+    "tsptest.model.ModelAsyncClient.put1WithResponse": "TspTest.Model.ModelOp.put1",
+    "tsptest.model.ModelAsyncClient.put2": "TspTest.Model.ModelOp.put2",
+    "tsptest.model.ModelAsyncClient.put2WithResponse": "TspTest.Model.ModelOp.put2",
+    "tsptest.model.ModelAsyncClient.putNested": "TspTest.Model.ModelOp.putNested",
+    "tsptest.model.ModelAsyncClient.putNestedWithResponse": "TspTest.Model.ModelOp.putNested",
+    "tsptest.model.ModelClient": "null",
+    "tsptest.model.ModelClient.get3": "TspTest.Model.ModelOp.get3",
+    "tsptest.model.ModelClient.get3WithResponse": "TspTest.Model.ModelOp.get3",
+    "tsptest.model.ModelClient.put1": "TspTest.Model.ModelOp.put1",
+    "tsptest.model.ModelClient.put1WithResponse": "TspTest.Model.ModelOp.put1",
+    "tsptest.model.ModelClient.put2": "TspTest.Model.ModelOp.put2",
+    "tsptest.model.ModelClient.put2WithResponse": "TspTest.Model.ModelOp.put2",
+    "tsptest.model.ModelClient.putNested": "TspTest.Model.ModelOp.putNested",
+    "tsptest.model.ModelClient.putNestedWithResponse": "TspTest.Model.ModelOp.putNested",
+    "tsptest.model.ModelClientBuilder": "TspTest.Model",
+    "tsptest.model.models.InputOutputData2": "TspTest.Model.InputOutputData2",
+    "tsptest.model.models.NestedModel": "TspTest.Model.NestedModel",
+    "tsptest.model.models.NestedModel1": "TspTest.Model.NestedModel1",
+    "tsptest.model.models.NestedModel2": "TspTest.Model.NestedModel2",
+    "tsptest.model.models.OutputData": "TspTest.Model.OutputData",
+    "tsptest.model.models.OutputData3": "TspTest.Model.OutputData3",
+    "tsptest.model.models.Resource1": "TspTest.Model.Resource1",
+    "tsptest.model.models.Resource2": "TspTest.Model.Resource2",
+    "tsptest.model.models.Resource3": "TspTest.Model.Resource3"
+  }
+}

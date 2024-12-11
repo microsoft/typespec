@@ -70,7 +70,7 @@ export interface UnionKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends UnionKit {}
+  interface Typekit extends UnionKit {}
 }
 
 export const UnionKit = defineKit<UnionKit>({
@@ -83,7 +83,7 @@ export const UnionKit = defineKit<UnionKit>({
       const union: Union = this.program.checker.createType({
         kind: "Union",
         name: desc.name,
-        decorators: decoratorApplication(desc.decorators),
+        decorators: decoratorApplication(this, desc.decorators),
         variants: createRekeyableMap(),
         get options() {
           return Array.from(this.variants.values()).map((v) => v.type);

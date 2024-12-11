@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.ValueTypes.Models;
 
@@ -21,7 +22,7 @@ namespace _Type.Property.ValueTypes
 
         public virtual ClientResult<BooleanLiteralProperty> Get() => throw null;
 
-        public virtual Task<ClientResult<BooleanLiteralProperty>> GetAsync() => throw null;
+        public virtual Task<ClientResult<BooleanLiteralProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
@@ -29,6 +30,6 @@ namespace _Type.Property.ValueTypes
 
         public virtual ClientResult Put(BooleanLiteralProperty body) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BooleanLiteralProperty body) => throw null;
+        public virtual Task<ClientResult> PutAsync(BooleanLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

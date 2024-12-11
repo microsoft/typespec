@@ -1,0 +1,28 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.protocolandconvenient.ProtocolAndConvenientAsyncClient": "null",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientAsyncClient.beginCreateOrReplace": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.createOrReplace",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientAsyncClient.beginCreateOrReplaceWithModel": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.createOrReplace",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientAsyncClient.bothConvenientAndProtocol": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.bothConvenientAndProtocol",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientAsyncClient.bothConvenientAndProtocolWithResponse": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.bothConvenientAndProtocol",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientAsyncClient.list": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.list",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientAsyncClient.onlyConvenient": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.onlyConvenient",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientAsyncClient.onlyConvenientWithResponse": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.onlyConvenient",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClient": "null",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClient.beginCreateOrReplace": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.createOrReplace",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClient.beginCreateOrReplaceWithModel": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.createOrReplace",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClient.bothConvenientAndProtocol": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.bothConvenientAndProtocol",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClient.bothConvenientAndProtocolWithResponse": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.bothConvenientAndProtocol",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClient.list": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.list",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClient.onlyConvenient": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.onlyConvenient",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClient.onlyConvenientWithResponse": "TspTest.ProtocolAndConvenient.ProtocolAndConvenienceOp.onlyConvenient",
+    "tsptest.protocolandconvenient.ProtocolAndConvenientClientBuilder": "TspTest.ProtocolAndConvenient",
+    "tsptest.protocolandconvenient.models.ResourceA": "TspTest.ProtocolAndConvenient.ResourceA",
+    "tsptest.protocolandconvenient.models.ResourceB": "TspTest.ProtocolAndConvenient.ResourceB",
+    "tsptest.protocolandconvenient.models.ResourceE": "TspTest.ProtocolAndConvenient.ResourceE",
+    "tsptest.protocolandconvenient.models.ResourceF": "TspTest.ProtocolAndConvenient.ResourceF",
+    "tsptest.protocolandconvenient.models.ResourceI": "TspTest.ProtocolAndConvenient.ResourceI",
+    "tsptest.protocolandconvenient.models.ResourceJ": "TspTest.ProtocolAndConvenient.ResourceJ"
+  }
+}

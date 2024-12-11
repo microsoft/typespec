@@ -307,7 +307,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                         });
 
                     // setter
-                    if (!propertyIsReadOnly) {
+                    if (!propertyIsReadOnly && !property.isConstant()) {
                         generateSetterJavadoc(classBlock, model, property);
                         addGeneratedAnnotation(classBlock);
                         ClientModelPropertyReference propertyReferenceFinal = propertyReference;
