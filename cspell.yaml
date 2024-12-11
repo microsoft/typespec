@@ -247,6 +247,11 @@ words:
   - xplat
   - xxsubtype
   - yamls
+  - pyodide
+  - pyimport
+  - NODEFS
+  - deps
+  - pyyaml
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
