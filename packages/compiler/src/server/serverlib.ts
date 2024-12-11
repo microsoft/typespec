@@ -285,7 +285,7 @@ export function createServer(host: ServerHost): Server {
       customCapacities,
       compilerRootFolder,
       compilerCliJsPath: compilerRootFolder
-        ? joinPaths(compilerRootFolder, "cmd/tsp.js")
+        ? joinPaths(compilerRootFolder, "cmd", "tsp.js")
         : undefined,
     };
     return result;

@@ -1,4 +1,4 @@
-import { cwd } from "process";
+import { cwd } from "node:process";
 import vscode, { QuickPickItem } from "vscode";
 import logger from "../log/logger.js";
 import { InstallGlobalCliCommandArgs } from "../types.js";

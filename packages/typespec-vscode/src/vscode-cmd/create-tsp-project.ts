@@ -80,7 +80,7 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         }
       }
 
-      const isSupport = await IsCompilerSupport(client);
+      const isSupport = await isCompilerSupport(client);
       if (!isSupport) {
         logger.info("Creating TypeSpec Project cancelled due to unsupported by compiler.");
         return;
@@ -314,7 +314,7 @@ async function validateTemplate(
         `Current tsp version (${compilerVersion}) < template designed tsp version(${templateRequiredVersion}). ` +
         `The project created may not be correct. Do you want to continue?`,
       ignoreFocusOut: true,
-      title: "Template version mismatch",
+      title: "Template version mismatches with tsp. Do you want to continue?",
     });
     if (cont !== "Yes") {
       logger.info(
@@ -335,7 +335,7 @@ async function validateTemplate(
       placeHolder:
         "Template validation failed. Do you want to continue? Detail log can be found in the Output window.",
       ignoreFocusOut: true,
-      title: "Template validation failed",
+      title: "Template validation failed. Do you want to continue?",
     });
     if (cont !== "Yes") {
       logger.info("Creating TypeSpec Project cancelled due to template validation failure.");
@@ -503,7 +503,7 @@ async function selectTemplate(
   return selected?.info;
 }
 
-async function IsCompilerSupport(client: TspLanguageClient): Promise<boolean> {
+async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
   if (
     client.initializeResult?.serverInfo?.version === undefined ||
     client.initializeResult?.customCapacities?.getInitProjectContext !== true ||
@@ -511,7 +511,7 @@ async function IsCompilerSupport(client: TspLanguageClient): Promise<boolean> {
     client.initializeResult?.customCapacities?.initProject !== true
   ) {
     logger.error(
-      `Create project feature is not supported by the current TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "<= 0.62.0"}). Please upgrade TypeSpec Compiler and try again.`,
+      `Create project feature is not supported by the current TypeSpec Compiler (ver ${client.initializeResult?.serverInfo?.version ?? "<= 0.63.0"}). Please upgrade TypeSpec Compiler and try again.`,
       [],
       {
         showOutput: true,
@@ -620,7 +620,7 @@ async function checkProjectRootFolderEmpty(selectedFolder: string): Promise<bool
         canPickMany: false,
         placeHolder: "The folder to create project is not empty. Do you want to continue?",
         ignoreFocusOut: true,
-        title: "Project root folder is not empty",
+        title: "The folder to create project is not empty. Do you want to continue?",
       });
       if (cont !== "Yes") {
         logger.info("Selected folder is not empty and user confirmed not to continue.");
@@ -640,7 +640,7 @@ async function checkProjectRootFolderEmpty(selectedFolder: string): Promise<bool
 async function InstallCompilerAndRestartLSPClient(): Promise<TspLanguageClient | undefined> {
   const igcArgs: InstallGlobalCliCommandArgs = {
     confirm: true,
-    confirmTitle: "Checking TypeSpec Compiler/CLI...",
+    confirmTitle: "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
     confirmPlaceholder:
       "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
   };
