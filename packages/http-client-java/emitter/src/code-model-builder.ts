@@ -54,7 +54,6 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHeaderParameter,
   SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpResponse,
@@ -64,7 +63,6 @@ import {
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
-  SdkQueryParameter,
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
@@ -163,6 +161,8 @@ import {
   trace,
 } from "./utils.js";
 const { isEqual } = pkg;
+
+type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
 
 export class CodeModelBuilder {
   private program: Program;
@@ -1094,7 +1094,7 @@ export class CodeModelBuilder {
 
   private processParameter(
     op: CodeModelOperation,
-    param: SdkHttpOperation["parameters"][number],
+    param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
     if (clientContext.apiVersions && isApiVersion(this.sdkContext, param)) {
@@ -1588,11 +1588,7 @@ export class CodeModelBuilder {
   }
 
   private addParameterOrBodyPropertyToCodeModelRequest(
-    opParameter:
-      | SdkPathParameter
-      | SdkHeaderParameter
-      | SdkQueryParameter
-      | SdkBodyModelPropertyType,
+    opParameter: SdkHttpOperationParameterType | SdkBodyModelPropertyType,
     op: CodeModelOperation,
     request: Request,
     schema: ObjectSchema,
