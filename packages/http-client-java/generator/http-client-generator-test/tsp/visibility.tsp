@@ -13,8 +13,7 @@ model Dog {
   @visibility(Lifecycle.Read) id: int32;
   @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
 
-  // no flags are like specifying all flags at once, so in this case
-  // equivalent to @visibility("read", "write")
+  // no flags are same as specifying all Lifecycle
   name: string;
 }
 
@@ -58,8 +57,8 @@ interface VisibilityWrite {
 interface VisibilityOp extends VisibilityRead, VisibilityWrite {
   @post
   @route("/query")
-  query(@body dog: ReadDog): {
-    @body body: Dog;
+  query(@body dog: WriteDog): {
+    @body body: ReadDog;
   };
 
   @put
