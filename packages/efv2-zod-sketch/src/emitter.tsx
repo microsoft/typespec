@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, Model, ModelProperty, Enum, EnumValue, EnumMember, navigateType, Type } from "@typespec/compiler";
+import { EmitContext, Model, ModelProperty, Enum, EnumMember, navigateType, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { zod } from "./external-packages/zod.js";
 
