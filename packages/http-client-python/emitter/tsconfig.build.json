@@ -2,10 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
-    "rootDir": "../",
-    "outDir": "../dist",
+    "rootDir": "./src",
+    "outDir": "../dist/emitter",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
   "references": [],
-  "include": ["src/**/*", "../eng/scripts/setup/*"]
+  "include": ["src/**/*"]
 }
