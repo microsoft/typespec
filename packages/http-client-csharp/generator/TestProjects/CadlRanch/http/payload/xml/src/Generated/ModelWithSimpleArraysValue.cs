@@ -20,7 +20,7 @@ namespace Payload.Xml
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<ModelWithSimpleArrays> Get() => throw null;
+        public virtual ClientResult<ModelWithSimpleArrays> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<ModelWithSimpleArrays>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Payload.Xml
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(ModelWithSimpleArrays input) => throw null;
+        public virtual ClientResult Put(ModelWithSimpleArrays input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(ModelWithSimpleArrays input, CancellationToken cancellationToken = default) => throw null;
     }

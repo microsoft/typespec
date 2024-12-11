@@ -20,7 +20,7 @@ namespace Payload.Xml
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<ModelWithDictionary> Get() => throw null;
+        public virtual ClientResult<ModelWithDictionary> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<ModelWithDictionary>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Payload.Xml
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(ModelWithDictionary input) => throw null;
+        public virtual ClientResult Put(ModelWithDictionary input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(ModelWithDictionary input, CancellationToken cancellationToken = default) => throw null;
     }

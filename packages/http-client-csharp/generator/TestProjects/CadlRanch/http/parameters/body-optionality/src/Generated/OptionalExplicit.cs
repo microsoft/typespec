@@ -20,7 +20,7 @@ namespace Parameters.BodyOptionality
 
         public virtual Task<ClientResult> SetAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Set(BodyModel body = null) => throw null;
+        public virtual ClientResult Set(BodyModel body = null, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> SetAsync(BodyModel body = null, CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Parameters.BodyOptionality
 
         public virtual Task<ClientResult> OmitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Omit(BodyModel body = null) => throw null;
+        public virtual ClientResult Omit(BodyModel body = null, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> OmitAsync(BodyModel body = null, CancellationToken cancellationToken = default) => throw null;
     }

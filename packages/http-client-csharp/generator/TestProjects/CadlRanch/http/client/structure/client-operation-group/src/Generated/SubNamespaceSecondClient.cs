@@ -25,7 +25,7 @@ namespace Client.Structure.Service
 
         public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Five() => throw null;
+        public virtual ClientResult Five(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
 
