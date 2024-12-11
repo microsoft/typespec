@@ -1004,9 +1004,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         elif isinstance(builder.stream_value, str):  # _stream is not sure, so we need to judge it
             retval.append("    if _stream:")
             retval.extend([f"    {l}" for l in response_read])
-        retval.append(
-            f"    map_error(status_code=response.status_code, response=response, error_map=error_map)"
-        )
+        retval.append("    map_error(status_code=response.status_code, response=response, error_map=error_map)")
         error_model = ""
         if builder.non_default_errors and self.code_model.options["models_mode"]:
             error_model = ", model=error"
@@ -1018,10 +1016,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     for status_code in e.status_codes:
                         retval.append(f"    {condition} response.status_code == {status_code}:")
                         if self.code_model.options["models_mode"] == "dpg":
-                            retval.append(f"        error = _failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)},  response.json())")
+                            retval.append(f"        error = _failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)},  response.json())")  # type: ignore # pylint: disable=line-too-long
                         else:
                             retval.append(
-                                f"        error = self._deserialize.failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)}, "
+                                f"        error = self._deserialize.failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)}, "  # type: ignore # pylint: disable=line-too-long
                                 "pipeline_response)"
                             )
                         # add build-in error type
@@ -1056,12 +1054,14 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             )
                 # ranged status code only exist in typespec and will not have multiple status codes
                 else:
-                    retval.append(f"    {condition} {e.status_codes[0][0]} <= response.status_code <= {e.status_codes[0][1]}:")
+                    retval.append(
+                        f"    {condition} {e.status_codes[0][0]} <= response.status_code <= {e.status_codes[0][1]}:"
+                    )
                     if self.code_model.options["models_mode"] == "dpg":
-                        retval.append(f"        error = _failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)},  response.json())")
+                        retval.append(f"        error = _failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)},  response.json())")  # type: ignore  # pylint: disable=line-too-long
                     else:
                         retval.append(
-                            f"        error = self._deserialize.failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)}, "
+                            f"        error = self._deserialize.failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)}, "  # type: ignore  # pylint: disable=line-too-long
                             "pipeline_response)"
                         )
                 condition = "elif"
@@ -1072,7 +1072,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if builder.non_default_errors:
                 retval.append("    else:")
             if self.code_model.options["models_mode"] == "dpg":
-                retval.append(f"{indent}error = _failsafe_deserialize({builder.default_error_deserialization},  response.json())")
+                retval.append(
+                    f"{indent}error = _failsafe_deserialize({builder.default_error_deserialization},  response.json())"
+                )
             else:
                 retval.append(
                     f"{indent}error = self._deserialize.failsafe_deserialize({builder.default_error_deserialization}, "
@@ -1099,7 +1101,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if len(builder.responses) > 1:
                 status_codes, res_headers, res_deserialization = [], [], []
                 for status_code in builder.success_status_codes:
-                    response = builder.get_response_from_status(status_code)
+                    response = builder.get_response_from_status(status_code)  # type: ignore
                     if response.headers or response.type:
                         status_codes.append(status_code)
                         res_headers.append(self.response_headers(response))
@@ -1156,10 +1158,13 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if code in non_default_error.status_codes:
                 return False
             # ranged status code
-            if isinstance(non_default_error.status_codes[0], list) and non_default_error.status_codes[0][0] <= code <= non_default_error.status_codes[0][1]:
+            if (
+                isinstance(non_default_error.status_codes[0], list)
+                and non_default_error.status_codes[0][0] <= code <= non_default_error.status_codes[0][1]
+            ):
                 return False
         return True
-    
+
     def error_map(self, builder: OperationType) -> List[str]:
         retval = ["error_map: MutableMapping = {"]
         if builder.non_default_errors and self.code_model.options["models_mode"]:

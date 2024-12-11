@@ -250,8 +250,15 @@ class CodeGenerator(Plugin):
                     if not operation.get("exceptions"):
                         continue
                     # sort exceptions by status code, first single status code, then range, then default
-                    operation["exceptions"] = sorted(operation["exceptions"], key=lambda x: 3 if x["statusCodes"][0] == "default" else (1 if isinstance(x["statusCodes"][0], int) else 2))
-                        
+                    operation["exceptions"] = sorted(
+                        operation["exceptions"],
+                        key=lambda x: (
+                            3
+                            if x["statusCodes"][0] == "default"
+                            else (1 if isinstance(x["statusCodes"][0], int) else 2)
+                        ),
+                    )
+
     @staticmethod
     def remove_cloud_errors(yaml_data: Dict[str, Any]) -> None:
         for client in yaml_data["clients"]:
@@ -327,7 +334,7 @@ class CodeGenerator(Plugin):
         self._validate_code_model_options()
         options = self._build_code_model_options()
         yaml_data = self.get_yaml()
-        
+
         self.sort_exceptions(yaml_data)
 
         if self.options_retriever.azure_arm:

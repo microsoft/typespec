@@ -29,7 +29,7 @@ public final class ClientInitializationClient {
     /**
      * Gets an instance of SubClient class.
      * 
-     * @param name
+     * @param name The name parameter.
      * @return an instance of SubClientclass.
      */
     public SubClient getSubClient(String name) {
