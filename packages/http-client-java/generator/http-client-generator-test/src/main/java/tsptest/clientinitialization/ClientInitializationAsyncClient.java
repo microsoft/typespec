@@ -29,7 +29,7 @@ public final class ClientInitializationAsyncClient {
     /**
      * Gets an instance of SubAsyncClient class.
      * 
-     * @param name
+     * @param name The name parameter.
      * @return an instance of SubAsyncClientclass.
      */
     public SubAsyncClient getSubAsyncClient(String name) {
