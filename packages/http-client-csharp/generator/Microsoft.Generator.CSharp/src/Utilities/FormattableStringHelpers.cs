@@ -130,7 +130,7 @@ namespace Microsoft.Generator.CSharp
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
                 {
-                    var numSplits = span.Split(splitIndices, "\n");
+                    var numSplits = span.SplitAny(splitIndices, ["\r\n", "\n"]);
                     for (int i = 0; i < numSplits; i++)
                     {
                         var part = span[splitIndices[i]];
@@ -176,7 +176,9 @@ namespace Microsoft.Generator.CSharp
                         // go into the loop when there are characters left
                         while (end < strSpan.Length)
                         {
+                            // we should not check both `\r\n` and `\n` because `\r\n` contains `\n`, if we use `IndexOf` to check both of them, there must be duplicate searches and we cannot have O(n) time complexity.
                             var indexOfLF = strSpan[start..].IndexOf('\n');
+                            // check if the line already ends.
                             if (indexOfLF < 0)
                             {
                                 end = strSpan.Length;
@@ -186,11 +188,17 @@ namespace Microsoft.Generator.CSharp
                             {
                                 end = start + indexOfLF;
                             }
+                            // omit \r if there is one before the \n to include the case that line breaks are using \r\n
+                            int partEnd = end;
+                            if (end > 0 && strSpan[end - 1] == '\r')
+                            {
+                                partEnd--;
+                            }
 
                             formatBuilder.Append('{')
                                 .Append(args.Count)
                                 .Append('}');
-                            args.Add(strSpan[start..end].ToString());
+                            args.Add(strSpan[start..partEnd].ToString());
                             start = end + 1; // goes to the next char after the \n we found
 
                             if (!isLast)

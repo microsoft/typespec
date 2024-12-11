@@ -33,12 +33,68 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                     }).SetName("TestBreakLines_AllLiteralsNoArgs");
 
                 yield return new TestCaseData(
+                    (FormattableString)$"A timestamp indicating \rthe last modified time\nclient. The operation will be performed only\nbeen modified since the specified time.",
+                    new List<FormattableString> {
+                        $"A timestamp indicating \rthe last modified time",
+                        $"client. The operation will be performed only",
+                        $"been modified since the specified time."
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithCR");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"A timestamp indicating the last modified time\r\nclient. The operation will be performed only\r\nbeen modified since the specified time.",
+                    new List<FormattableString> {
+                        $"A timestamp indicating the last modified time",
+                        $"client. The operation will be performed only",
+                        $"been modified since the specified time."
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithCRLF");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"A timestamp indicating the last modified time\r\nclient. The operation will be performed only\nbeen modified since the specified time.",
+                    new List<FormattableString> {
+                        $"A timestamp indicating the last modified time",
+                        $"client. The operation will be performed only",
+                        $"been modified since the specified time."
+                    }).SetName("TestBreakLines_AllLiteralsNoArgsWithMixedCRLF");
+
+                yield return new TestCaseData(
                     (FormattableString)$"{"A timestamp indicating the last modified time\nclient. The operation will be performed only\nbeen modified since the specified time."}",
                     new List<FormattableString> {
                         $"{"A timestamp indicating the last modified time"}",
                         $"{"client. The operation will be performed only"}",
                         $"{"been modified since the specified time."}"
                     }).SetName("TestBreakLines_OneArgOnly");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"{"A timestamp indicating \rthe last modified time\nclient. The operation will be performed only\nbeen modified since the specified time."}",
+                    new List<FormattableString> {
+                        $"{"A timestamp indicating \rthe last modified time"}",
+                        $"{"client. The operation will be performed only"}",
+                        $"{"been modified since the specified time."}"
+                    }).SetName("TestBreakLines_OneArgOnlyWithCR");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"{"A timestamp indicating \rthe last modified time\r\r\r\nclient. The operation will be performed only\nbeen modified since the specified time."}",
+                    new List<FormattableString> {
+                        $"{"A timestamp indicating \rthe last modified time\r\r"}",
+                        $"{"client. The operation will be performed only"}",
+                        $"{"been modified since the specified time."}"
+                    }).SetName("TestBreakLines_OneArgOnlyWithMultipleCRs");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"{"A timestamp indicating the last modified time\r\nclient. The operation will be performed only\r\nbeen modified since the specified time."}",
+                    new List<FormattableString> {
+                        $"{"A timestamp indicating the last modified time"}",
+                        $"{"client. The operation will be performed only"}",
+                        $"{"been modified since the specified time."}"
+                    }).SetName("TestBreakLines_OneArgOnlyWithCRLF");
+
+                yield return new TestCaseData(
+                    (FormattableString)$"{"A timestamp indicating the last modified time\r\nclient. The operation will be performed only\nbeen modified since the specified time."}",
+                    new List<FormattableString> {
+                        $"{"A timestamp indicating the last modified time"}",
+                        $"{"client. The operation will be performed only"}",
+                        $"{"been modified since the specified time."}"
+                    }).SetName("TestBreakLines_OneArgOnlyWithMixedCRLF");
 
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x"}second\nthird{"y"}",
