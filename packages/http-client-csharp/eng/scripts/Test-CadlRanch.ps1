@@ -67,11 +67,6 @@ foreach ($directory in $directories) {
         if ($subPath.Contains("v1")) {
             Generate-Srv-Driven ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
         }
-        else {
-            continue;
-        }
-        # remove versioning from the test filter to ensure both versions are tested
-        $testFilter = $testFilter.Replace(".V1", "")
     }
     else {
         $command = Get-TspCommand $specFile $outputDir
