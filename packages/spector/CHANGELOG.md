@@ -1,5 +1,9 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.5
+
+No changes, version bump only.
+
 ## 0.1.0-alpha.4
 
 - Update `server start` script parameter - `scenarioPath` to `scenarioPaths`.

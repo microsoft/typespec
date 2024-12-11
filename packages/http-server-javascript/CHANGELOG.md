@@ -1,5 +1,14 @@
 # Changelog - @typespec/http-server-javascript
 
+## 0.58.0-alpha.6
+
+### Bug Fixes
+
+- [#5253](https://github.com/microsoft/typespec/pull/5253) Added an additional check for the presence of a property before performing a bounds check on integer properties constrained to a range.
+- [#5253](https://github.com/microsoft/typespec/pull/5253) Fixed a null check in query parameter requiredness check by replacing it with a falseness check.
+- [#5188](https://github.com/microsoft/typespec/pull/5188) Added logic to handle "unspeakable" identifier names (#5185)
+
+
 ## 0.58.0-alpha.5
 
 ### Bump dependencies
