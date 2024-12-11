@@ -86,7 +86,7 @@ model StringsList {
   @items
   value: string[];
 
-  @global.Azure.Core.nextLink
+  @nextLink
   nextLink?: string;
 }
 
@@ -94,18 +94,12 @@ model StringsList {
 model Int32sList {
   @items
   value: int32[];
-
-  @global.Azure.Core.nextLink
-  nextLink?: string;
 }
 
 @pagedResult
 model DateTimesList {
   @items
   value: utcDateTime[];
-
-  @global.Azure.Core.nextLink
-  nextLink?: string;
 }
 
 op CustomLongRunningOperation<
