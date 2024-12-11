@@ -1,7 +1,7 @@
 import { Children, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 
 export interface HttpRequestParametersExpressionProps {
   parameters?: Model;

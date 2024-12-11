@@ -26,7 +26,6 @@ interface UnionVariantDescriptor {
 }
 
 export interface UnionVariantKit {
-  unionVariant: {
     /**
      * Create a union variant.
      *
@@ -40,14 +39,17 @@ export interface UnionVariantKit {
      * @param type The type to check.
      */
     is(type: Type): type is UnionVariant;
-  };
+}
+
+interface TypekitExtension {
+  unionVariant: UnionVariantKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends UnionVariantKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<UnionVariantKit>({
+defineKit<TypekitExtension>({
   unionVariant: {
     create(desc) {
       const variant: UnionVariant = this.program.checker.createType({

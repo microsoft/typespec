@@ -16,7 +16,7 @@ import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
 /**  @experimental */
-export interface TypeKit {
+export interface TypeTypeKit {
   /**
    * Clones a type and adds it to the typekit's realm.
    * @param type Type to clone
@@ -90,18 +90,18 @@ export interface TypeKit {
   minLength(type: Type): number | undefined;
 }
 
-interface BaseTypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with general types.
    */
-  type: TypeKit;
+  type: TypeTypeKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends BaseTypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<BaseTypeKit>({
+defineKit<TypekitExtension>({
   type: {
     finishType(type: Type) {
       this.program.checker.finishType(type);

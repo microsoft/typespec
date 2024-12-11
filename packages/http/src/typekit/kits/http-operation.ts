@@ -1,5 +1,5 @@
 import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
-import { defineKit, Typekit } from "@typespec/compiler/typekit";
+import { defineKit, Typekit } from "@typespec/compiler/experimental/typekit";
 import { getHttpOperation } from "../../operations.js";
 import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../types.js";
 
@@ -21,8 +21,7 @@ export interface FlatHttpResponse {
   responseContent: HttpOperationResponseContent;
 }
 
-interface HttpOperationKit {
-  httpOperation: {
+export interface HttpOperationKit {
     /**
      * Get the corresponding HTTP operation for the given TypeSpec operation. The same
      * TypeSpec operation will always return the exact same HttpOperation object.
@@ -40,14 +39,17 @@ interface HttpOperationKit {
      * @param op operation to get the return type for
      */
     getReturnType(op: Operation, options?: { includeErrors?: boolean }): Type;
-  };
 }
 
-declare module "@typespec/compiler/typekit" {
-  interface Typekit extends HttpOperationKit {}
+interface TypekitExtension {
+  httpOperation: HttpOperationKit;
 }
 
-defineKit<HttpOperationKit>({
+declare module "@typespec/compiler/experimental/typekit" {
+  interface Typekit extends TypekitExtension {}
+}
+
+defineKit<TypekitExtension>({
   httpOperation: {
     get(op) {
       return ignoreDiagnostics(getHttpOperation(this.program, op));

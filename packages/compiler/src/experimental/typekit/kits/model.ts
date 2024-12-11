@@ -75,7 +75,7 @@ export interface ModelKit {
   getEffectiveModel(model: Model, filter?: (property: ModelProperty) => boolean): Model;
 }
 
-interface TypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with model properties.
    *
@@ -88,10 +88,10 @@ interface TypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends TypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-export const ModelKit = defineKit<TypeKit>({
+defineKit<TypekitExtension>({
   model: {
     create(desc) {
       const properties = createRekeyableMap(Array.from(Object.entries(desc.properties)));

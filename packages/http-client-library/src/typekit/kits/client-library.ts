@@ -6,11 +6,11 @@ import {
   Model,
   Namespace,
 } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { Client } from "../../interfaces.js";
 
 interface ClientLibraryKit {
-  /**
+   /**
    * Get the top-level namespaces that are used to generate the client library.
    *
    * @param namespace: If namespace param is given, we will return the children of the given namespace.
@@ -40,16 +40,16 @@ interface ClientLibraryKit {
   listEnums(namespace: Namespace): Enum[];
 }
 
-interface TypeKit {
+interface TK {
   clientLibrary: ClientLibraryKit;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Typekit extends TypeKit {}
+  interface Typekit extends TK {}
 }
 
-defineKit<TypeKit>({
+defineKit<TK>({
   clientLibrary: {
     listNamespaces(namespace) {
       if (namespace) {

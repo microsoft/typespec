@@ -1,5 +1,5 @@
 import { BaseType, ModelProperty, Value } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { HttpAuth } from "@typespec/http";
 import { Client } from "../../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../../types/credential-symbol.js";
@@ -47,7 +47,7 @@ interface TypeKit {
   modelProperty: SdkModelPropertyKit;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ModelPropertyKit extends SdkModelPropertyKit {}
 }
@@ -58,16 +58,16 @@ defineKit<TypeKit>({
       return credentialSymbol in modelProperty && modelProperty[credentialSymbol] === true;
     },
     isOnClient(client, modelProperty) {
-      const clientParams = $.operation.getClientSignature(client, $.client.getConstructor(client));
+      const clientParams = this.operation.getClientSignature(client, this.client.getConstructor(client));
       // TODO: better comparison than name
       return Boolean(clientParams.find((p) => p.name === modelProperty.name));
     },
     getClientDefaultValue(client, modelProperty) {
-      if (!$.modelProperty.isOnClient(client, modelProperty)) return undefined;
+      if (!this.modelProperty.isOnClient(client, modelProperty)) return undefined;
       return modelProperty.defaultValue;
     },
     getCredentialAuth(type) {
-      if (!$.modelProperty.isCredential(type)) {
+      if (!this.modelProperty.isCredential(type)) {
         return undefined;
       }
 
@@ -92,7 +92,7 @@ defineKit<TypeKit>({
     isDiscriminator(type) {
       const sourceModel = type.model;
       if (!sourceModel) return false;
-      const disc = $.model.getDiscriminatorProperty(sourceModel);
+      const disc = this.model.getDiscriminatorProperty(sourceModel);
       return disc === type;
     },
     getAccess(modelProperty) {

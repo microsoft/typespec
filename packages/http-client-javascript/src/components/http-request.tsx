@@ -2,7 +2,7 @@ import { Children, code, refkey, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Reference } from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { uriTemplateLib } from "./external-packages/uri-template.js";
 import { HttpRequestOptions } from "./http-request-options.js";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.js";

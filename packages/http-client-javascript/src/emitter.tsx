@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { ClientContext } from "./components/client-context/client-context.jsx";
 import { ClientDirectory } from "./components/client-directory.jsx";
 import { ClientOperations } from "./components/client-operation.jsx";

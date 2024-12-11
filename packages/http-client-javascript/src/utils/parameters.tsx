@@ -1,7 +1,7 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ModelProperty } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
 import { HttpAuth } from "@typespec/http";
 import * as cl from "@typespec/http-client-library";

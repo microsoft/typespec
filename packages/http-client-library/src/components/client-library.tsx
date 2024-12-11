@@ -1,6 +1,6 @@
 import { Children } from "@alloy-js/core";
 import { listServices, Namespace } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { ClientLibraryContext } from "../context/client-library-context.js";
 export interface ClientLibraryProps {
   scope: string;

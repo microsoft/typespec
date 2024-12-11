@@ -24,7 +24,6 @@ interface UnionDescriptor {
 }
 
 export interface UnionKit {
-  union: {
     /**
      * Creates a union type with filtered variants.
      * @param filterFn Function to filter the union variants
@@ -66,14 +65,17 @@ export interface UnionKit {
      * @param type Uniton to check if it is an expression
      */
     isExpression(type: Union): boolean;
-  };
+}
+
+interface TypekitExtension {
+  union: UnionKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends UnionKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-export const UnionKit = defineKit<UnionKit>({
+export const UnionKit = defineKit<TypekitExtension>({
   union: {
     filter(union, filterFn) {
       const variants = Array.from(union.variants.values()).filter(filterFn);

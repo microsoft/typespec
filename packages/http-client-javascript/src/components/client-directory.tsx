@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import * as cl from "@typespec/http-client-library";
 
 export interface ClientDirectoryProps {

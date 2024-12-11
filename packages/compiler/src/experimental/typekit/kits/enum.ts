@@ -25,7 +25,6 @@ interface EnumDescriptor {
 }
 
 interface EnumKit {
-  enum: {
     /**
      * Build an enum type. The enum type will be finished (i.e. decorators are
      * run).
@@ -45,14 +44,17 @@ interface EnumKit {
      * @param type the type to check.
      */
     is(type: Type): type is Enum;
-  };
+}
+
+interface TypekitExtension {
+  enum: EnumKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends EnumKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<EnumKit>({
+defineKit<TypekitExtension>({
   enum: {
     create(desc) {
       const en: Enum = this.program.checker.createType({

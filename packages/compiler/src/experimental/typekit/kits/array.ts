@@ -3,22 +3,19 @@ import { Model, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface ArrayKit {
-  array: {
-    /**
-     * Check if the given `type` is an Array.
-     *
-     * @param type The type to check.
-     */
     is(type: Type): type is Model;
     getElementType(type: Model): Type;
-  };
+}
+
+interface TypekitExtension {
+  array: ArrayKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends ArrayKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<ArrayKit>({
+defineKit<TypekitExtension>({
   array: {
     is(type) {
       return type.kind === "Model" && isArrayModelType(this.program, type);

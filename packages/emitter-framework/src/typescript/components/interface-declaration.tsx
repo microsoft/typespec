@@ -1,7 +1,7 @@
 import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Interface, Model, ModelProperty, Operation, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { InterfaceMember } from "./interface-member.js";
 
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {

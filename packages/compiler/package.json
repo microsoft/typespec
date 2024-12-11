@@ -42,13 +42,13 @@
       "types": "./dist/src/emitter-framework/index.d.ts",
       "default": "./dist/src/emitter-framework/index.js"
     },
-    "./typekit": {
-      "types": "./dist/src/typekit/index.d.ts",
-      "default": "./dist/src/typekit/index.js"
-    },
     "./experimental": {
       "types": "./dist/src/experimental/index.d.ts",
       "default": "./dist/src/experimental/index.js"
+    },
+    "./experimental/typekit": {
+      "types": "./dist/src/experimental/typekit/index.d.ts",
+      "default": "./dist/src/experimental/typekit/index.js"
     }
   },
   "browser": {

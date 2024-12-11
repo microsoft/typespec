@@ -1,7 +1,15 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { EmitContext, Model, ModelProperty, Enum, EnumMember, navigateType, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import {
+  EmitContext,
+  Enum,
+  EnumMember,
+  Model,
+  ModelProperty,
+  navigateType,
+  Type,
+} from "@typespec/compiler";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { zod } from "./external-packages/zod.js";
 
 export async function $onEmit(context: EmitContext) {
@@ -9,7 +17,6 @@ export async function $onEmit(context: EmitContext) {
   const models = getModels();
   const enums = getEnums();
   const tsNamePolicy = ts.createTSNamePolicy();
-
 
   // Emit all enums and models
   return (
@@ -24,7 +31,7 @@ export async function $onEmit(context: EmitContext) {
               },
               { joiner: "\n\n" },
             )}
-                  
+
             {ay.mapJoin(
               models,
               (model) => {
@@ -74,7 +81,12 @@ interface MinLengthConstrain {
   value: number;
 }
 
-type Constrain = MinValueConstrain | MaxValueConstrain | OptionalConstrain | MaxLengthConstrain | MinLengthConstrain;
+type Constrain =
+  | MinValueConstrain
+  | MaxValueConstrain
+  | OptionalConstrain
+  | MaxLengthConstrain
+  | MinLengthConstrain;
 
 /**
  * Component that represents a collection of Zod Model properties
@@ -150,10 +162,10 @@ function ZodType(props: ZodTypeProps) {
 }
 
 function getScalarIntrinsicZodType(props: ZodTypeProps): string {
-// Note: the Prettier extension for VS Code is not formatting the fragments correctly.
-// If you turn it on and save your file, it will insert newlines within the fragments, which results in
-// incorrect Zod code being emitted.  You can turn off the Prettier extension for this file by adding  "files.exclude": { "**/efv2-zod-sketch/src/emitter.tsx": true } to your .vscode/settings.json file. 
-// You can also turn off the Prettier extension for all files by adding "editor.formatOnSave": false to your  .vscode/settings.json file.
+  // Note: the Prettier extension for VS Code is not formatting the fragments correctly.
+  // If you turn it on and save your file, it will insert newlines within the fragments, which results in
+  // incorrect Zod code being emitted.  You can turn off the Prettier extension for this file by adding  "files.exclude": { "**/efv2-zod-sketch/src/emitter.tsx": true } to your .vscode/settings.json file.
+  // You can also turn off the Prettier extension for all files by adding "editor.formatOnSave": false to your  .vscode/settings.json file.
 
   if ($.scalar.is(props.type)) {
     // Types with parity in Zod
@@ -280,13 +292,18 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     if ($.scalar.isUint64(props.type)) {
       return (
         <>
-          {zod.z}.bigint().nonnegative(){ZodBigIntConstraints(props, undefined, 18446744073709551615n)}
+          {zod.z}.bigint().nonnegative()
+          {ZodBigIntConstraints(props, undefined, 18446744073709551615n)}
         </>
       );
     }
 
     if ($.scalar.isString(props.type)) {
-      return <>{zod.z}.string(){ZodStringConstraints(props)}</>;
+      return (
+        <>
+          {zod.z}.string(){ZodStringConstraints(props)}
+        </>
+      );
     }
     if ($.scalar.isUrl(props.type)) {
       return <>{zod.z}.string().url()</>;
@@ -377,7 +394,6 @@ function ZodStringConstraints(props: ZodTypeProps): string {
   return minmax;
 }
 
-
 /**
  * Collects all the models defined in the spec
  * @returns A collection of all defined models in the spec
@@ -465,7 +481,7 @@ function ZodEnum(props: EnumProps) {
   const enumCall = "export const enum " + enumName + "\n";
   const enumMembers = ZodEnumMembers(props);
   const enumBody = enumCall + "{\n" + enumMembers + "\n};\n";
-  return (enumBody);
+  return enumBody;
 }
 
 interface ZodEnumMembersProps {
@@ -478,11 +494,10 @@ function ZodEnumMembers(props: ZodEnumMembersProps) {
   props.enum.members.forEach((value: EnumMember) => {
     const memberName = namePolicy.getName(value.name, "variable");
     if (value.value !== undefined) {
-      if (typeof(value.value) === "string") {
-        array.push(memberName +  " = \"" + value.value + "\"");
-      }
-      else {
-        array.push(memberName +  " = " + value.value);
+      if (typeof value.value === "string") {
+        array.push(memberName + ' = "' + value.value + '"');
+      } else {
+        array.push(memberName + " = " + value.value);
       }
     } else {
       array.push(memberName);
@@ -517,5 +532,3 @@ function getEnums() {
 
   return [...globalEnums, ...enums];
 }
-
-

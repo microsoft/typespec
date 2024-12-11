@@ -1,6 +1,6 @@
 import { Interface, Namespace } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { ok } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";

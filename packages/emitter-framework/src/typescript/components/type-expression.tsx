@@ -6,7 +6,7 @@ import { UnionExpression } from "./union-expression.js";
 import {ArrayExpression} from "./array-expression.js";
 import { RecordExpression } from "./record-expression.js";
 import { InterfaceExpression } from "./interface-declaration.js";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 
 export interface TypeExpressionProps {
   type: Type;

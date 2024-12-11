@@ -4,7 +4,7 @@ import {
   SdkClient,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import { $, defineKit } from "@typespec/compiler/experimental/typekit";
 import { addEndpointParameter, Client } from "@typespec/http-client-library";
 
 interface SdkClientKit {
@@ -27,7 +27,7 @@ interface TypeKit {
   client: SdkClientKit;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ClientKit extends SdkClientKit {}
 }

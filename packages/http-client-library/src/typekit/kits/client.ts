@@ -5,14 +5,16 @@ import {
   isTemplateDeclarationOrInstance,
   Namespace,
   Operation,
+  Program,
   Type,
 } from "@typespec/compiler";
-import {  defineKit, Typekit } from "@typespec/compiler/typekit";
+import {  defineKit } from "@typespec/compiler/experimental/typekit";
 import { getServers } from "@typespec/http";
 import { Client } from "../../interfaces.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { discoverDataTypes } from "../../utils/type-discovery.js";
 import { NameKit } from "./utils.js";
+import "@typespec/http/typekit";
 
 interface ClientKit extends NameKit<Client> {
   /**
@@ -64,7 +66,7 @@ interface TypeKit {
   client: ClientKit;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Typekit extends TypeKit {}
 }
@@ -133,11 +135,11 @@ defineKit<TypeKit>({
 
       const operations: Operation[] = [];
 
-      function addOperations(typekit: Typekit, current: Namespace | Interface) {
+      function addOperations(program: Program, current: Namespace | Interface) {
         if (
           current.kind === "Namespace" &&
           current !== client.type &&
-          getService(typekit.program, current)
+          getService(program, current)
         ) {
           // if I'm a different service, I'm done
           return;
@@ -155,7 +157,7 @@ defineKit<TypeKit>({
         }
       }
 
-      addOperations(this, client.type);
+      addOperations(this.program, client.type);
 
       clientOperationCache.set(client, operations);
       return operations;

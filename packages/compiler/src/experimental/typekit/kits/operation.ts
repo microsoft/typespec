@@ -27,7 +27,7 @@ export interface OperationKit {
   create(desc: OperationDescriptor): Operation;
 }
 
-interface TypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with operation properties.
    */
@@ -35,10 +35,10 @@ interface TypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends TypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-export const OperationKit = defineKit<TypeKit>({
+defineKit<TypekitExtension>({
   operation: {
     create(desc) {
       const parametersModel = this.model.create({

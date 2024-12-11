@@ -4,7 +4,7 @@ import {
   getClientNameOverride,
 } from "@azure-tools/typespec-client-generator-core";
 import { listServices, Namespace } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import { $, defineKit } from "@typespec/compiler/experimental/typekit";
 import { Client } from "@typespec/http-client-library";
 
 interface AzureClientLibraryKit {
@@ -20,7 +20,7 @@ interface Typekit {
   clientLibrary: AzureClientLibraryKit;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface ClientLibraryKit extends AzureClientLibraryKit {}
 }

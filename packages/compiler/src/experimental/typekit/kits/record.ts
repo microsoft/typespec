@@ -3,7 +3,6 @@ import { Model, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface RecordKit {
-  record: {
     /**
      * Check if the given `type` is a Record.
      *
@@ -15,14 +14,17 @@ export interface RecordKit {
      * @param type a Record Model type
      */
     getElementType(type: Model): Type;
-  };
+}
+
+interface TypekitExtension {
+  record: RecordKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends RecordKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<RecordKit>({
+defineKit<TypekitExtension>({
   record: {
     is(type) {
       return type.kind === "Model" && isRecordModelType(this.program, type);

@@ -1,11 +1,10 @@
 import { Model, ModelProperty } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { HttpOperation } from "../../types.js";
 
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
 
 interface HttpRequestKit {
-  httpRequest: {
     body: {
       /**
        * Checks the body is a property explicitly tagged with @body or @bodyRoot
@@ -27,14 +26,18 @@ interface HttpRequestKit {
       httpOperation: HttpOperation,
       kind: HttpRequestParameterKind[] | HttpRequestParameterKind,
     ): Model | undefined;
-  };
 }
 
-declare module "@typespec/compiler/typekit" {
-  interface Typekit extends HttpRequestKit {}
+interface TypekitExtension {
+  httpRequest: HttpRequestKit;
 }
 
-defineKit<HttpRequestKit>({
+
+declare module "@typespec/compiler/experimental/typekit" {
+  interface Typekit extends TypekitExtension {}
+}
+
+defineKit<TypekitExtension>({
   httpRequest: {
     body: {
       isExplicit(httpOperation: HttpOperation) {

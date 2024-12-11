@@ -2,7 +2,6 @@ import type { Scalar } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 interface BuiltinKit {
-  builtin: {
     /**
      * Accessor for the string builtin type.
      */
@@ -127,14 +126,17 @@ interface BuiltinKit {
      * Accessor for the numeric builtin type, representing a numeric value.
      */
     get numeric(): Scalar;
-  };
+}
+
+interface TypekitExtension { 
+    builtin: BuiltinKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends BuiltinKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<BuiltinKit>({
+defineKit<TypekitExtension>({
   builtin: {
     get string(): Scalar {
       return this.program.checker.getStdType("string");

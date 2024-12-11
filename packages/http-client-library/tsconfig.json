@@ -12,7 +12,6 @@
     "declarationMap": true,
     "jsx": "preserve",
 
-    "emitDeclarationOnly": true,
     "outDir": "dist"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],

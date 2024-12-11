@@ -60,7 +60,7 @@ export interface ModelPropertyKit {
   getVisibilityForClass(property: ModelProperty, visibilityClass: Enum): Set<EnumMember>;
 }
 
-interface TypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with model properties.
    *
@@ -73,10 +73,10 @@ interface TypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends TypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<TypeKit>({
+defineKit<TypekitExtension>({
   modelProperty: {
     is(type) {
       return type.kind === "ModelProperty";
