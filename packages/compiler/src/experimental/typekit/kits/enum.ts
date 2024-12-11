@@ -24,29 +24,6 @@ interface EnumDescriptor {
   members?: Record<string, string | number> | EnumMember[];
 }
 
-interface EnumMemberDescriptor {
-  /**
-   * The name of the enum member.
-   */
-  name: string;
-  /**
-   * Decorators to apply to the enum member.
-   */
-  decorators?: DecoratorArgs[];
-
-  /**
-   * The value of the enum member. If not supplied, the value will be the same
-   * as the name.
-   */
-  value?: string | number;
-
-  /**
-   * The enum that the member belongs to. If not provided here, it is assumed
-   * that it will be set in `enum.build`.
-   */
-  enum?: Enum;
-}
-
 interface EnumKit {
   enum: {
     /**
@@ -72,7 +49,7 @@ interface EnumKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends EnumKit {}
+  interface Typekit extends EnumKit {}
 }
 
 defineKit<EnumKit>({
@@ -81,7 +58,7 @@ defineKit<EnumKit>({
       const en: Enum = this.program.checker.createType({
         kind: "Enum",
         name: desc.name,
-        decorators: decoratorApplication(desc.decorators),
+        decorators: decoratorApplication(this, desc.decorators),
         members: createRekeyableMap(),
         node: undefined as any,
       });

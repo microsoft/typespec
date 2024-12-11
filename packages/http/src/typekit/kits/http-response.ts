@@ -21,7 +21,7 @@ interface HttpResponseKit {
 }
 
 declare module "@typespec/compiler/typekit" {
-  interface TypekitPrototype extends HttpResponseKit {}
+  interface Typekit extends HttpResponseKit {}
 }
 
 defineKit<HttpResponseKit>({

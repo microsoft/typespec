@@ -45,7 +45,7 @@ interface EnumMemberKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends EnumMemberKit {}
+  interface Typekit extends EnumMemberKit {}
 }
 
 defineKit<EnumMemberKit>({
@@ -55,7 +55,7 @@ defineKit<EnumMemberKit>({
         kind: "EnumMember",
         name: desc.name,
         value: desc.value,
-        decorators: decoratorApplication(desc.decorators),
+        decorators: decoratorApplication(this, desc.decorators),
         node: undefined as any,
         enum: desc.enum as any, // initialized in enum.build if not provided here
       });

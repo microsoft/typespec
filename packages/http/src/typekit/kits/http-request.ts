@@ -1,5 +1,5 @@
 import { Model, ModelProperty } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { HttpOperation } from "../../types.js";
 
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
@@ -31,7 +31,7 @@ interface HttpRequestKit {
 }
 
 declare module "@typespec/compiler/typekit" {
-  interface TypekitPrototype extends HttpRequestKit {}
+  interface Typekit extends HttpRequestKit {}
 }
 
 defineKit<HttpRequestKit>({
@@ -63,7 +63,7 @@ defineKit<HttpRequestKit>({
 
       const bodyPropertyName = bodyProperty.name ? bodyProperty.name : "body";
 
-      return $.model.create({
+      return this.model.create({
         properties: { [bodyPropertyName]: bodyProperty },
       });
     },
@@ -102,7 +102,7 @@ defineKit<HttpRequestKit>({
         {} as Record<string, ModelProperty>,
       );
 
-      return $.model.create({ properties });
+      return this.model.create({ properties });
     },
   },
 });

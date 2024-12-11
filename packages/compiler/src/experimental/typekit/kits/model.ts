@@ -88,7 +88,7 @@ interface TypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends ModelKit {}
+  interface Typekit extends TypeKit {}
 }
 
 export const ModelKit = defineKit<TypeKit>({

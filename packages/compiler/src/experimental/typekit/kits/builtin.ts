@@ -1,5 +1,5 @@
 import type { Scalar } from "../../../core/types.js";
-import { $, defineKit } from "../define-kit.js";
+import { defineKit } from "../define-kit.js";
 
 interface BuiltinKit {
   builtin: {
@@ -131,85 +131,85 @@ interface BuiltinKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends BuiltinKit {}
+  interface Typekit extends BuiltinKit {}
 }
 
 defineKit<BuiltinKit>({
   builtin: {
     get string(): Scalar {
-      return $.program.checker.getStdType("string");
+      return this.program.checker.getStdType("string");
     },
     get boolean(): Scalar {
-      return $.program.checker.getStdType("boolean");
+      return this.program.checker.getStdType("boolean");
     },
     get bytes(): Scalar {
-      return $.program.checker.getStdType("bytes");
+      return this.program.checker.getStdType("bytes");
     },
     get decimal(): Scalar {
-      return $.program.checker.getStdType("decimal");
+      return this.program.checker.getStdType("decimal");
     },
     get decimal128(): Scalar {
-      return $.program.checker.getStdType("decimal128");
+      return this.program.checker.getStdType("decimal128");
     },
     get duration(): Scalar {
-      return $.program.checker.getStdType("duration");
+      return this.program.checker.getStdType("duration");
     },
     get float(): Scalar {
-      return $.program.checker.getStdType("float");
+      return this.program.checker.getStdType("float");
     },
     get float32(): Scalar {
-      return $.program.checker.getStdType("float32");
+      return this.program.checker.getStdType("float32");
     },
     get float64(): Scalar {
-      return $.program.checker.getStdType("float64");
+      return this.program.checker.getStdType("float64");
     },
     get int8(): Scalar {
-      return $.program.checker.getStdType("int8");
+      return this.program.checker.getStdType("int8");
     },
     get int16(): Scalar {
-      return $.program.checker.getStdType("int16");
+      return this.program.checker.getStdType("int16");
     },
     get int32(): Scalar {
-      return $.program.checker.getStdType("int32");
+      return this.program.checker.getStdType("int32");
     },
     get int64(): Scalar {
-      return $.program.checker.getStdType("int64");
+      return this.program.checker.getStdType("int64");
     },
     get integer(): Scalar {
-      return $.program.checker.getStdType("integer");
+      return this.program.checker.getStdType("integer");
     },
     get offsetDateTime(): Scalar {
-      return $.program.checker.getStdType("offsetDateTime");
+      return this.program.checker.getStdType("offsetDateTime");
     },
     get plainDate(): Scalar {
-      return $.program.checker.getStdType("plainDate");
+      return this.program.checker.getStdType("plainDate");
     },
     get plainTime(): Scalar {
-      return $.program.checker.getStdType("plainTime");
+      return this.program.checker.getStdType("plainTime");
     },
     get safeInt(): Scalar {
-      return $.program.checker.getStdType("safeint");
+      return this.program.checker.getStdType("safeint");
     },
     get uint8(): Scalar {
-      return $.program.checker.getStdType("uint8");
+      return this.program.checker.getStdType("uint8");
     },
     get uint16(): Scalar {
-      return $.program.checker.getStdType("uint16");
+      return this.program.checker.getStdType("uint16");
     },
     get uint32(): Scalar {
-      return $.program.checker.getStdType("uint32");
+      return this.program.checker.getStdType("uint32");
     },
     get uint64(): Scalar {
-      return $.program.checker.getStdType("uint64");
+      return this.program.checker.getStdType("uint64");
     },
     get url(): Scalar {
-      return $.program.checker.getStdType("url");
+      return this.program.checker.getStdType("url");
     },
     get utcDateTime(): Scalar {
-      return $.program.checker.getStdType("utcDateTime");
+      return this.program.checker.getStdType("utcDateTime");
     },
     get numeric(): Scalar {
-      return $.program.checker.getStdType("numeric");
+      return this.program.checker.getStdType("numeric");
     },
   },
 });

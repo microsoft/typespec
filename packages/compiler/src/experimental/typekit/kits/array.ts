@@ -15,7 +15,7 @@ export interface ArrayKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends ArrayKit {}
+  interface Typekit extends ArrayKit {}
 }
 
 defineKit<ArrayKit>({

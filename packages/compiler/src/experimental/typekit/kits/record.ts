@@ -19,7 +19,7 @@ export interface RecordKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends RecordKit {}
+  interface Typekit extends RecordKit {}
 }
 
 defineKit<RecordKit>({
