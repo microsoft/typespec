@@ -10,7 +10,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven.V1
     /// <summary>
     /// Contains tests for the service-driven resiliency V1 client.
     /// </summary>
-    public partial class SrvDrivenV2Tests : CadlRanchTestBase
+    public partial class SrvDrivenV1Tests : CadlRanchTestBase
     {
         private const string ServiceDeploymentV1 = "v1";
         private const string ServiceDeploymentV2 = "v2";
