@@ -115,12 +115,10 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       enumValues.add(member.value ?? member.name);
     }
 
-    if (enumTypes.size > 1) {
-      reportDiagnostic(program, { code: "enum-unique-type", target: en });
-    }
+    const enumTypesArray = [...enumTypes];
 
     const schema: OpenAPISchema3_1 = {
-      type: enumTypes.values().next().value!,
+      type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
       enum: [...enumValues],
     };
 
