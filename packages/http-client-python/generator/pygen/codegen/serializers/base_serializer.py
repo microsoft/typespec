@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+from typing import Optional
 from jinja2 import Environment
 from ..models import (
     FileImport,
@@ -13,9 +14,22 @@ from ..models import (
 class BaseSerializer:
     """Base serializer for SDK root level files"""
 
-    def __init__(self, code_model: CodeModel, env: Environment):
+    def __init__(
+        self,
+        code_model: CodeModel,
+        env: Environment,
+        async_mode: bool = False,
+        *,
+        client_namespace: Optional[str] = None
+    ):
         self.code_model = code_model
         self.env = env
+        self.async_mode = async_mode
+        self.client_namespace = code_model.namespace if client_namespace is None else client_namespace
 
     def init_file_import(self) -> FileImport:
         return FileImport(self.code_model)
+
+    @property
+    def serialize_namespace(self) -> str:
+        return self.code_model.get_serialize_namespace(self.client_namespace, async_mode=self.async_mode)

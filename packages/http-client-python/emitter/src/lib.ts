@@ -17,6 +17,7 @@ export interface PythonEmitterOptions {
   debug?: boolean;
   flavor?: "azure";
   "examples-dir"?: string;
+  "enable-typespec-namespace"?: boolean;
 }
 
 export interface PythonSdkContext<TServiceOperation extends SdkServiceOperation>
@@ -43,6 +44,7 @@ const EmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
     debug: { type: "boolean", nullable: true },
     flavor: { type: "string", nullable: true },
     "examples-dir": { type: "string", nullable: true, format: "absolute-path" },
+    "enable-typespec-namespace": { type: "boolean", nullable: true },
   },
   required: [],
 };

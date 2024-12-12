@@ -21,7 +21,13 @@ import { Type } from "@typespec/compiler";
 import { HttpAuth, Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
 import { PythonSdkContext } from "./lib.js";
-import { camelToSnakeCase, emitParamBase, getAddedOn, getImplementation } from "./utils.js";
+import {
+  camelToSnakeCase,
+  emitParamBase,
+  getAddedOn,
+  getClientNamespace,
+  getImplementation,
+} from "./utils.js";
 
 export const typesMap = new Map<SdkType, Record<string, any>>();
 export const simpleTypesMap = new Map<string | null, Record<string, any>>();
@@ -75,7 +81,7 @@ export function getType<TServiceOperation extends SdkServiceOperation>(
     case "union":
       return emitUnion(context, type);
     case "enum":
-      return emitEnum(type);
+      return emitEnum(context, type);
     case "constant":
       return emitConstant(type)!;
     case "array":
@@ -86,7 +92,7 @@ export function getType<TServiceOperation extends SdkServiceOperation>(
     case "duration":
       return emitDurationOrDateType(type);
     case "enumvalue":
-      return emitEnumMember(type, emitEnum(type.enumType));
+      return emitEnumMember(type, emitEnum(context, type.enumType));
     case "credential":
       return emitCredential(type);
     case "bytes":
@@ -289,6 +295,7 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
     usage: type.usage,
     isXml: type.usage & UsageFlags.Xml ? true : false,
     xmlMetadata: type.usage & UsageFlags.Xml ? getXmlMetadata(type) : undefined,
+    clientNamespace: getClientNamespace(context, type.clientNamespace),
   };
 
   typesMap.set(type, newValue);
@@ -314,7 +321,10 @@ function emitModel<TServiceOperation extends SdkServiceOperation>(
   return newValue;
 }
 
-function emitEnum(type: SdkEnumType): Record<string, any> {
+function emitEnum<TServiceOperation extends SdkServiceOperation>(
+  context: PythonSdkContext<TServiceOperation>,
+  type: SdkEnumType,
+): Record<string, any> {
   if (typesMap.has(type)) {
     return typesMap.get(type)!;
   }
@@ -352,6 +362,7 @@ function emitEnum(type: SdkEnumType): Record<string, any> {
     values,
     xmlMetadata: {},
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
+    clientNamespace: getClientNamespace(context, type.clientNamespace),
   };
   for (const value of type.values) {
     newValue.values.push(emitEnumMember(value, newValue));
@@ -469,6 +480,7 @@ function emitUnion<TServiceOperation extends SdkServiceOperation>(
     type: "combined",
     types: type.variantTypes.map((x) => getType(context, x)),
     xmlMetadata: {},
+    clientNamespace: getClientNamespace(context, type.clientNamespace),
   });
 }
 
