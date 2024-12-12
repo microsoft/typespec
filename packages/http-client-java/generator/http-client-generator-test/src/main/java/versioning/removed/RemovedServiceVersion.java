@@ -16,6 +16,11 @@ public enum RemovedServiceVersion implements ServiceVersion {
     V1("v1"),
 
     /**
+     * Enum value v2preview.
+     */
+    V2PREVIEW("v2preview"),
+
+    /**
      * Enum value v2.
      */
     V2("v2");

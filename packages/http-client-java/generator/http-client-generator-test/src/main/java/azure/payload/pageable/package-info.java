@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the data models for Templated.
- * Illustrates the model templated cases. There is a base templated type and an instantiated type extending from it.
+ * Package containing the classes for Pageable.
+ * Test describing pageable.
  * <!-- end generated doc -->
  */
-package type.model.templated.models;
+package azure.payload.pageable;

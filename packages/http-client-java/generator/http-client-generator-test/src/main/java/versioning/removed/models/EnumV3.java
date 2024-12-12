@@ -5,45 +5,40 @@
 package versioning.removed.models;
 
 /**
- * The version of the API.
+ * Defines values for EnumV3.
  */
-public enum Versions {
+public enum EnumV3 {
     /**
-     * The version v1.
+     * Enum value enumMemberV1.
      */
-    V1("v1"),
+    ENUM_MEMBER_V1("enumMemberV1"),
 
     /**
-     * The V2 Preview version.
+     * Enum value enumMemberV2Preview.
      */
-    V2PREVIEW("v2preview"),
+    ENUM_MEMBER_V2PREVIEW("enumMemberV2Preview");
 
     /**
-     * The version v2.
-     */
-    V2("v2");
-
-    /**
-     * The actual serialized value for a Versions instance.
+     * The actual serialized value for a EnumV3 instance.
      */
     private final String value;
 
-    Versions(String value) {
+    EnumV3(String value) {
         this.value = value;
     }
 
     /**
-     * Parses a serialized value to a Versions instance.
+     * Parses a serialized value to a EnumV3 instance.
      * 
      * @param value the serialized value to parse.
-     * @return the parsed Versions object, or null if unable to parse.
+     * @return the parsed EnumV3 object, or null if unable to parse.
      */
-    public static Versions fromString(String value) {
+    public static EnumV3 fromString(String value) {
         if (value == null) {
             return null;
         }
-        Versions[] items = Versions.values();
-        for (Versions item : items) {
+        EnumV3[] items = EnumV3.values();
+        for (EnumV3 item : items) {
             if (item.toString().equalsIgnoreCase(value)) {
                 return item;
             }

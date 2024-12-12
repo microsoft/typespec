@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the implementations for Templated.
- * Illustrates the model templated cases. There is a base templated type and an instantiated type extending from it.
+ * Package containing the data models for Pageable.
+ * Test for pageable payload.
  * <!-- end generated doc -->
  */
-package type.model.templated.implementation;
+package payload.pageable.serverdrivenpagination.models;
