@@ -29,18 +29,29 @@ namespace Microsoft.Generator.CSharp.Statements
         {
             StartTag = startTag;
             EndTag = endTag;
-            _lines = EscapeLines(lines);
+            _lines = NormalizeLines(lines);
             InnerStatements = innerStatements;
         }
 
-        private List<FormattableString> EscapeLines(IEnumerable<FormattableString> lines)
+        private List<FormattableString> NormalizeLines(IEnumerable<FormattableString> lines)
         {
-            List<FormattableString> escapedLines = new List<FormattableString>();
+            List<FormattableString> result = new List<FormattableString>();
+
+            // break lines if they have line breaks
             foreach (var line in lines)
             {
-                escapedLines.Add(FormattableStringFactory.Create(EscapeLine(line.Format), EscapeArguments(line.GetArguments())));
+                var breakLines = FormattableStringHelpers.BreakLines(line);
+                result.AddRange(breakLines);
             }
-            return escapedLines;
+
+            // escape lines if they have invalid characters
+            for (int i = 0; i < result.Count; i++)
+            {
+                var line = result[i];
+                result[i] = FormattableStringFactory.Create(EscapeLine(line.Format), EscapeArguments(line.GetArguments()));
+            }
+
+            return result;
         }
 
         private static object?[] EscapeArguments(object?[] objects)

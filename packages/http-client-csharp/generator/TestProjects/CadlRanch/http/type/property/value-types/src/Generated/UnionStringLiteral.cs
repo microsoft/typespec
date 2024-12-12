@@ -20,7 +20,7 @@ namespace _Type.Property.ValueTypes
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<UnionStringLiteralProperty> Get() => throw null;
+        public virtual ClientResult<UnionStringLiteralProperty> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<UnionStringLiteralProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.ValueTypes
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(UnionStringLiteralProperty body) => throw null;
+        public virtual ClientResult Put(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
