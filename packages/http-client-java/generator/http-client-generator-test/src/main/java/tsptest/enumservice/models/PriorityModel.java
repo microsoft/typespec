@@ -44,11 +44,9 @@ public final class PriorityModel implements ExpandableEnum<Integer> {
      * 
      * @param value a value to look for.
      * @return the corresponding PriorityModel.
+     * @throws IllegalArgumentException if value is null.
      */
     @Generated
-    /**
-     * @throws NullPointerException thrown if 'value' is null.
-     */
     public static PriorityModel fromValue(Integer value) {
         if (value == null) {
             throw new IllegalArgumentException("'value' cannot be null.");

@@ -258,6 +258,7 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 comment.description("Creates or finds a " + enumName);
                 comment.param("value", "a value to look for");
                 comment.methodReturns("the corresponding " + enumName);
+                comment.methodThrows("IllegalArgumentException", "if value is null");
             });
 
             addGeneratedAnnotation(classBlock);
@@ -265,8 +266,6 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 classBlock.annotation("JsonCreator");
             }
 
-            classBlock.javadocComment(
-                commentBlock -> commentBlock.methodThrows("NullPointerException", "thrown if 'value' is null"));
             classBlock.publicStaticMethod(String.format("%1$s fromValue(%2$s value)", enumName, pascalTypeName),
                 function -> {
                     function.ifBlock("value == null",
