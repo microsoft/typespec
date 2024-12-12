@@ -24,7 +24,7 @@ namespace Server.Path.Multiple
 
         public virtual Task<ClientResult> NoOperationParamsAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult NoOperationParams() => throw null;
+        public virtual ClientResult NoOperationParams(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> NoOperationParamsAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -32,7 +32,7 @@ namespace Server.Path.Multiple
 
         public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithOperationPathParam(string keyword) => throw null;
+        public virtual ClientResult WithOperationPathParam(string keyword, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, CancellationToken cancellationToken = default) => throw null;
     }
