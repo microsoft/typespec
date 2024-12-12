@@ -234,7 +234,7 @@ namespace Microsoft.Generator.CSharp.Tests.Utilities
                         $"third{null}"
                     }).SetName("TestBreakLines_MultipleLineBreaks");
 
-                // TODO: Check if this is valid after we update logic in FormattableStringHelpers to handle FormatSpecifier and \n in one argument
+                // current solution of format specifier in argument is that we ignore them during the process of line breaking.
                 yield return new TestCaseData(
                     (FormattableString)$"first{"x\ny":L}second\nthird{null}",
                     new List<FormattableString> {
