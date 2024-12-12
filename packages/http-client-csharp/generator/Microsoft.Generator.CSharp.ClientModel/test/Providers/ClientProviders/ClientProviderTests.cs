@@ -578,7 +578,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
-            Assert.AreEqual(1, convenienceMethods[0].Signature.Parameters.Count);
+            Assert.AreEqual(2, convenienceMethods[0].Signature.Parameters.Count);
 
             Assert.AreEqual(new CSharpType(typeof(string)), convenienceMethods[0].Signature.Parameters[0].Type);
             Assert.AreEqual("p1", convenienceMethods[0].Signature.Parameters[0].Name);

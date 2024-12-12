@@ -20,7 +20,7 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<MultipleSpreadRecord> Get() => throw null;
+        public virtual ClientResult<MultipleSpreadRecord> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<MultipleSpreadRecord>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(MultipleSpreadRecord body) => throw null;
+        public virtual ClientResult Put(MultipleSpreadRecord body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(MultipleSpreadRecord body, CancellationToken cancellationToken = default) => throw null;
     }
