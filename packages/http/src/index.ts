@@ -21,7 +21,5 @@ export * from "./route.js";
 
 export * from "./types.js";
 
-export * from "./streams/index.js";
-
 /** @internal */
 export { $decorators } from "./tsp-index.js";

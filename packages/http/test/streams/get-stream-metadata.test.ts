@@ -7,7 +7,7 @@ import {
 } from "@typespec/compiler/testing";
 import { StreamsTestLibrary } from "@typespec/streams/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { getStreamMetadata } from "../../src/index.js";
+import { getStreamMetadata } from "../../src/experimental/index.js";
 import { getAllHttpServices } from "../../src/operations.js";
 import { HttpTestLibrary } from "../../src/testing/index.js";
 import { HttpService } from "../../src/types.js";
