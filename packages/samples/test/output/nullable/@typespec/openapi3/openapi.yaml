@@ -28,8 +28,7 @@ paths:
           application/json:
             schema:
               type: object
-              allOf:
-                - $ref: '#/components/schemas/AnotherModel'
+              $ref: '#/components/schemas/AnotherModel'
               nullable: true
 components:
   schemas:
@@ -63,8 +62,7 @@ components:
           nullable: true
         modelOrNull:
           type: object
-          allOf:
-            - $ref: '#/components/schemas/AnotherModel'
+          $ref: '#/components/schemas/AnotherModel'
           nullable: true
         literalsOrNull:
           type: string
