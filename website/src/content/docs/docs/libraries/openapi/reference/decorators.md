@@ -46,10 +46,10 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 #### Parameters
 
-| Name  | Type             | Description                         |
-| ----- | ---------------- | ----------------------------------- |
-| key   | `valueof string` | Extension key. Must start with `x-` |
-| value | `unknown`        | Extension value.                    |
+| Name  | Type             | Description                                                                                                 |
+| ----- | ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| key   | `valueof string` | minProperties/maxProperties/uniqueItems/multipleOf or Extension key. The extension key must start with `x-` |
+| value | `unknown`        | Extension value.                                                                                            |
 
 #### Examples
 
@@ -62,6 +62,42 @@ Attach some custom data to the OpenAPI element generated from this type.
   }
 )
 op read(): string;
+```
+
+##### A schema can ensure that each of the items in an array is unique.
+
+```typespec
+model Foo {
+  @extension("uniqueItems", true)
+  x: unknown[];
+}
+```
+
+##### Numbers can be restricted to a multiple of a given number, using the multipleOf keyword. It may be set to any positive number.
+
+```typespec
+model Foo {
+  @extension("multipleOf", 1)
+  x: int32;
+}
+```
+
+##### The number of properties on an object can be restricted using the maxProperties keyword.
+
+```typespec
+model Foo {
+  @extension("maxProperties", 1)
+  x: int32;
+}
+```
+
+##### The number of properties on an object can be restricted using the minProperties keyword.
+
+```typespec
+model Foo {
+  @extension("minProperties", 1)
+  x: int32;
+}
 ```
 
 ### `@externalDocs` {#@TypeSpec.OpenAPI.externalDocs}

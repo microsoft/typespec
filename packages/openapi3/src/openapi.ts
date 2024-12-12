@@ -78,6 +78,7 @@ import {
   getExternalDocs,
   getOpenAPITypeName,
   getParameterKey,
+  getSchemaExtensions,
   getTagsMetadata,
   isReadonlyProperty,
   resolveInfo,
@@ -1569,6 +1570,22 @@ function createOAPIEmitter(
         typeNameOptions,
       );
       validateComponentFixedFieldKey(property, key);
+      const parent = property.model!;
+      const schemaextensions = getSchemaExtensions(program, parent);
+      if (schemaextensions) {
+        for (const key of schemaextensions.keys()) {
+          program.reportDiagnostic(
+            createDiagnostic({
+              code: "minmaxProperties-invalid-model",
+              format: {
+                key: key,
+                value: schemaextensions.get(key),
+              },
+              target: parent,
+            }),
+          );
+        }
+      }
 
       root.components!.parameters![key] = { ...param };
       for (const key of Object.keys(param)) {
@@ -1643,12 +1660,26 @@ function createOAPIEmitter(
     return callSchemaEmitter(type, visibility) as any;
   }
 
-  function attachExtensions(program: Program, type: Type, emitObject: any) {
+  function attachExtensions(
+    program: Program,
+    type: Type,
+    emitObject: any,
+    ignoreSchemaExtensions = false,
+  ) {
     // Attach any OpenAPI extensions
     const extensions = getExtensions(program, type);
     if (extensions) {
       for (const key of extensions.keys()) {
         emitObject[key] = extensions.get(key);
+      }
+    }
+
+    if (ignoreSchemaExtensions) {
+      const schemaextensions = getSchemaExtensions(program, type);
+      if (schemaextensions) {
+        for (const key of schemaextensions.keys()) {
+          emitObject[key] = schemaextensions.get(key);
+        }
       }
     }
   }
@@ -1728,7 +1759,7 @@ function createOAPIEmitter(
       };
     }
 
-    attachExtensions(program, typespecType, newTarget);
+    attachExtensions(program, typespecType, newTarget, true);
 
     return newTarget;
   }

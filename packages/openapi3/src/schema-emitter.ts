@@ -69,6 +69,7 @@ import {
   getExtensions,
   getExternalDocs,
   getOpenAPITypeName,
+  getSchemaExtensions,
   isReadonlyProperty,
   shouldInline,
 } from "@typespec/openapi";
@@ -676,6 +677,14 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     if (extensions) {
       for (const key of extensions.keys()) {
         emitObject[key] = extensions.get(key);
+      }
+    }
+
+    // Attach any OpenAPI schema extensions
+    const schemaExtensions = getSchemaExtensions(program, type);
+    if (schemaExtensions) {
+      for (const key of schemaExtensions.keys()) {
+        emitObject[key] = schemaExtensions.get(key);
       }
     }
   }
