@@ -5,7 +5,7 @@
 /**
  * <!-- start generated doc -->
  * Package containing the implementations for Pageable.
- * Test describing pageable.
+ * Test for pageable payload.
  * <!-- end generated doc -->
  */
 package payload.pageable.implementation;

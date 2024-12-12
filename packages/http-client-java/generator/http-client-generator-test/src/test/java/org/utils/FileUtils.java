@@ -14,11 +14,11 @@ public class FileUtils {
     }
 
     public static Path getJpgFile() {
-        return Paths.get("node_modules/@azure-tools/cadl-ranch-specs/assets/image.jpg");
+        return Paths.get("node_modules/@typespec/http-specs/assets/image.jpg");
     }
 
     public static Path getPngFile() {
-        return Paths.get("node_modules/@azure-tools/cadl-ranch-specs/assets/image.png");
+        return Paths.get("node_modules/@typespec/http-specs/assets/image.png");
     }
 
     public static byte[] getJpgBytes() {
