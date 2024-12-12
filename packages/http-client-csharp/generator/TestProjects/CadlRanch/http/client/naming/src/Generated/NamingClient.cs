@@ -23,7 +23,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> ClientNameAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult ClientName() => throw null;
+        public virtual ClientResult ClientName(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ClientNameAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -31,7 +31,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> ParameterAsync(string clientName, RequestOptions options) => throw null;
 
-        public virtual ClientResult Parameter(string clientName) => throw null;
+        public virtual ClientResult Parameter(string clientName, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ParameterAsync(string clientName, CancellationToken cancellationToken = default) => throw null;
 
@@ -39,7 +39,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> ClientAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Client(ClientNameModel body) => throw null;
+        public virtual ClientResult Client(ClientNameModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ClientAsync(ClientNameModel body, CancellationToken cancellationToken = default) => throw null;
 
@@ -47,7 +47,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> LanguageAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Language(LanguageClientNameModel body) => throw null;
+        public virtual ClientResult Language(LanguageClientNameModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> LanguageAsync(LanguageClientNameModel body, CancellationToken cancellationToken = default) => throw null;
 
@@ -55,7 +55,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> CompatibleWithEncodedNameAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult CompatibleWithEncodedName(ClientNameAndJsonEncodedNameModel body) => throw null;
+        public virtual ClientResult CompatibleWithEncodedName(ClientNameAndJsonEncodedNameModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> CompatibleWithEncodedNameAsync(ClientNameAndJsonEncodedNameModel body, CancellationToken cancellationToken = default) => throw null;
 
@@ -63,7 +63,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> RequestAsync(string clientName, RequestOptions options) => throw null;
 
-        public virtual ClientResult Request(string clientName) => throw null;
+        public virtual ClientResult Request(string clientName, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> RequestAsync(string clientName, CancellationToken cancellationToken = default) => throw null;
 
@@ -71,7 +71,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> ResponseAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Response() => throw null;
+        public virtual ClientResult Response(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ResponseAsync(CancellationToken cancellationToken = default) => throw null;
 

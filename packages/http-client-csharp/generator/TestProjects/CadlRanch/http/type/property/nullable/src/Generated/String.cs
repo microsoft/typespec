@@ -20,7 +20,7 @@ namespace _Type.Property.Nullable
 
         public virtual Task<ClientResult> GetNonNullAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<StringProperty> GetNonNull() => throw null;
+        public virtual ClientResult<StringProperty> GetNonNull(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<StringProperty>> GetNonNullAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.Nullable
 
         public virtual Task<ClientResult> GetNullAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<StringProperty> GetNull() => throw null;
+        public virtual ClientResult<StringProperty> GetNull(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<StringProperty>> GetNullAsync(CancellationToken cancellationToken = default) => throw null;
 
