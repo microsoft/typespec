@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.5.0
+
+### Bug Fixes
+
+- Add support for generation in enviroments without a Python installation
+
 ## 0.4.2
 
 ### Bug Fixes
