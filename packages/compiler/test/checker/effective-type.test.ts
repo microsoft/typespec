@@ -10,7 +10,7 @@ describe("compiler: effective type", () => {
 
   beforeEach(async () => {
     const removeSymbol = Symbol("remove");
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     testHost.addJsFile("remove.js", {
       $remove: ({ program }: DecoratorContext, entity: Type) => {
         program.stateSet(removeSymbol).add(entity);

@@ -11,7 +11,7 @@ describe("compiler: suppress", () => {
   let host: TestHost;
 
   beforeEach(async () => {
-    host = await createTestHost();
+    host = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   async function run(typespec: string) {

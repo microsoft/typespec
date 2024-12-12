@@ -25,7 +25,7 @@ describe("compiler: semantic walker", () => {
   let host: TestHost;
 
   beforeEach(async () => {
-    host = await createTestHost();
+    host = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   function createCollector(customListener?: SemanticNodeListener) {

@@ -19,7 +19,7 @@ describe("compiler: namespaces with blocks", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     testHost.addJsFile("blue.js", { $blue });
   });
 
@@ -91,6 +91,9 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
+
+      using N;
+      alias A = X | Y | Z;
       `,
     );
     testHost.addTypeSpecFile(
@@ -131,6 +134,9 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
+      model M {
+        ...N.Z;
+      }
       `,
     );
     testHost.addTypeSpecFile(
@@ -276,6 +282,8 @@ describe("compiler: namespaces with blocks", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
+
+      alias fooOp = foo.foo;
       `,
     );
     testHost.addTypeSpecFile(
@@ -349,7 +357,7 @@ describe("compiler: blockless namespaces", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     testHost.addJsFile("blue.js", { $blue });
   });
 
@@ -360,6 +368,7 @@ describe("compiler: blockless namespaces", () => {
       import "./a.tsp";
       import "./b.tsp";
       import "./c.tsp";
+      alias foo = Z;
       `,
     );
     testHost.addTypeSpecFile(
@@ -482,6 +491,7 @@ describe("compiler: blockless namespaces", () => {
       `
       import "./a.tsp";
       import "./b.tsp";
+      alias foo = X;
       `,
     );
     testHost.addTypeSpecFile(
@@ -556,7 +566,7 @@ describe("compiler: namespace type name", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("prefix with the namespace of the entity", async () => {
@@ -614,7 +624,7 @@ describe("compiler: decorators in namespaces", () => {
   let testHost: TestHost;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   it("puts decorators in namespaces using an exported string", async () => {
