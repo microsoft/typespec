@@ -1,30 +1,34 @@
 import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
 import { defineKit, Typekit } from "@typespec/compiler/experimental/typekit";
 import { getHttpOperation } from "../../../operations.js";
-import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../../types.js";
+import {
+  HttpOperation,
+  HttpOperationResponseContent,
+  HttpStatusCodesEntry,
+} from "../../../types.js";
 
 /**
  * Utilities for working with HTTP operations.
  * @experimental
  */
 export interface HttpOperationKit {
-    /**
-     * Get the corresponding HTTP operation for the given TypeSpec operation. The same
-     * TypeSpec operation will always return the exact same HttpOperation object.
-     *
-     * @param op The TypeSpec operation to get the HTTP operation metadata for.
-     */
-    get(op: Operation): HttpOperation;
-    /**
-     * Get the responses for the given operation. This function will return an array of responses grouped by status code and content type.
-     * @param op operation to extract the HttpResponse from
-     */
-    getResponses(op: Operation): FlatHttpResponse[];
-    /**
-     * Get the Http Return type for the given operation. This function will resolve the returnType based on the Http Operation.
-     * @param op operation to get the return type for
-     */
-    getReturnType(op: Operation, options?: { includeErrors?: boolean }): Type;
+  /**
+   * Get the corresponding HTTP operation for the given TypeSpec operation. The same
+   * TypeSpec operation will always return the exact same HttpOperation object.
+   *
+   * @param op The TypeSpec operation to get the HTTP operation metadata for.
+   */
+  get(op: Operation): HttpOperation;
+  /**
+   * Get the responses for the given operation. This function will return an array of responses grouped by status code and content type.
+   * @param op operation to extract the HttpResponse from
+   */
+  getResponses(op: Operation): FlatHttpResponse[];
+  /**
+   * Get the Http Return type for the given operation. This function will resolve the returnType based on the Http Operation.
+   * @param op operation to get the return type for
+   */
+  getReturnType(op: Operation, options?: { includeErrors?: boolean }): Type;
 }
 
 /**

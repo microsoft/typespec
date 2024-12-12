@@ -3,15 +3,15 @@ import { getVisibilityForClass } from "../../../core/visibility/core.js";
 import { EncodeData, getEncode, getFormat } from "../../../lib/decorators.js";
 import { defineKit } from "../define-kit.js";
 
-  /**
-   * @experimental
-   * Utilities for working with model properties.
-   *
-   * For many reflection operations, the metadata being asked for may be found
-   * on the model property or the type of the model property. In such cases,
-   * these operations will return the metadata from the model property if it
-   * exists, or the type of the model property if it exists.
-   */
+/**
+ * @experimental
+ * Utilities for working with model properties.
+ *
+ * For many reflection operations, the metadata being asked for may be found
+ * on the model property or the type of the model property. In such cases,
+ * these operations will return the metadata from the model property if it
+ * exists, or the type of the model property if it exists.
+ */
 export interface ModelPropertyKit {
   /**
    * Check if the given `type` is a model property.

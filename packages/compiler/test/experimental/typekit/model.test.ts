@@ -28,13 +28,13 @@ it("returns false whe the type is not a model", async () => {
 it("creates a new Model", async () => {
   const foo = $.model.create({
     name: "Foo",
-    properties: {}
-  })
+    properties: {},
+  });
 
   expect($.model.is(foo)).toBe(true);
 });
 
-it("can get the effective model type", async () => { 
+it("can get the effective model type", async () => {
   const { Foo, create } = await getTypes(
     `
     model Foo {

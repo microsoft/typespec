@@ -1,6 +1,6 @@
 import { Model, Operation } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/experimental/typekit";
+import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { createHttpTestRunner } from "./../../test-host.js";
 
@@ -58,7 +58,7 @@ it("should identify a single  and default status code", async () => {
   const error = $.httpOperation.getResponses(getFoo)[1];
   expect($.httpResponse.statusCode.isSingle(response.statusCode)).toBe(true);
   expect($.httpResponse.statusCode.isDefault(error.statusCode)).toBe(true);
-})
+});
 
 it("should identify a range status code", async () => {
   const { getFoo } = (await runner.compile(`
@@ -84,5 +84,4 @@ it("should identify a range status code", async () => {
   const error = $.httpOperation.getResponses(getFoo)[1];
   expect($.httpResponse.statusCode.isRange(response.statusCode)).toBe(true);
   expect($.httpResponse.statusCode.isDefault(error.statusCode)).toBe(true);
-})
-
+});
