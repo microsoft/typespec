@@ -9,13 +9,6 @@ export const enum SettingName {
   SchemaEmitter = "typespec.schema.emitter",
 }
 
-export const languageEmitterSettingNames: Record<string, string> = {
-  DotNet: SettingName.NetEmitter,
-  Java: SettingName.JavaEmitter,
-  Python: SettingName.PythonEmitter,
-  JavaScript: SettingName.JsEmitter,
-};
-
 export const EmitterSettingName: Record<string, string> = {
   client: SettingName.ClientEmitter,
   server: SettingName.ServerEmitter,
