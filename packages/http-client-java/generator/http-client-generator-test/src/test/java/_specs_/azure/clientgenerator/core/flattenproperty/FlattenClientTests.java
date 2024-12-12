@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 public class FlattenClientTests {
     private final FlattenPropertyClient flattenClient
-        = new FlattenPropertyClientBuilder().endpoint("http://localhost:3001").buildClient();
+        = new FlattenPropertyClientBuilder().buildClient();
 
     @Test
     public void testFlattenModel() {

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 public class RpcTests {
 
-    private final RpcClient client = new RpcClientBuilder().endpoint("http://localhost:3001").buildClient();
+    private final RpcClient client = new RpcClientBuilder().buildClient();
 
     @Test
     public void testRpc() {

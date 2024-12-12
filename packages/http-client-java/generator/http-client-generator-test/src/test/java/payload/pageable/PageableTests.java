@@ -14,7 +14,7 @@ import payload.pageable.models.User;
 
 public class PageableTests {
 
-    private final PageableClient client = new PageableClientBuilder().endpoint("http://localhost:3001")
+    private final PageableClient client = new PageableClientBuilder()
         .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
             .setAllowedQueryParamNames(new HashSet<>(Arrays.asList("maxpagesize", "skipToken"))))
         .buildClient();

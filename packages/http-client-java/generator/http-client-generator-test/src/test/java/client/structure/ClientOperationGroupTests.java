@@ -13,9 +13,9 @@ public class ClientOperationGroupTests {
     @Test
     public void test() {
         FirstClientBuilder clientBuilder1
-            = new FirstClientBuilder().endpoint("http://localhost:3001").client(ClientType.CLIENT_OPERATION_GROUP);
+            = new FirstClientBuilder().endpoint("http://localhost:3000").client(ClientType.CLIENT_OPERATION_GROUP);
         SecondClientBuilder clientBuilder2
-            = new SecondClientBuilder().endpoint("http://localhost:3001").client(ClientType.CLIENT_OPERATION_GROUP);
+            = new SecondClientBuilder().endpoint("http://localhost:3000").client(ClientType.CLIENT_OPERATION_GROUP);
 
         clientBuilder1.buildClient().one();
         clientBuilder1.buildGroup3Client().two();

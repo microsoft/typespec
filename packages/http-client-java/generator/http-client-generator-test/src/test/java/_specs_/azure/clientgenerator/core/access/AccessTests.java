@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 public class AccessTests {
 
     private final PublicOperationClient publicClient
-        = new AccessClientBuilder().endpoint("http://localhost:3001").buildPublicOperationClient();
+        = new AccessClientBuilder().buildPublicOperationClient();
     private final InternalOperationClient internalClient
-        = new AccessClientBuilder().endpoint("http://localhost:3001").buildInternalOperationClient();
+        = new AccessClientBuilder().buildInternalOperationClient();
     private final SharedModelInOperationClient sharedClient
-        = new AccessClientBuilder().endpoint("http://localhost:3001").buildSharedModelInOperationClient();
+        = new AccessClientBuilder().buildSharedModelInOperationClient();
     private final RelativeModelInOperationClient relativeClient
-        = new AccessClientBuilder().endpoint("http://localhost:3001").buildRelativeModelInOperationClient();
+        = new AccessClientBuilder().buildRelativeModelInOperationClient();
 
     @Test
     public void test() {

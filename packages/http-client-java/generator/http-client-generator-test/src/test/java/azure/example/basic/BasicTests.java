@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 public class BasicTests {
 
-    private final AzureExampleClient client = new AzureExampleClientBuilder().endpoint("http://localhost:3001")
+    private final AzureExampleClient client = new AzureExampleClientBuilder()
         .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
         .buildClient();
 

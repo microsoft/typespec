@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class ScalarTests {
 
     private final static String LOCATION_REGION = "eastus";
-    private final ScalarClient client = new ScalarClientBuilder().endpoint("http://localhost:3001").buildClient();
+    private final ScalarClient client = new ScalarClientBuilder().buildClient();
 
     @Test
     public void testGet() {

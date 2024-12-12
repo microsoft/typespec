@@ -22,11 +22,11 @@ import reactor.test.StepVerifier;
 
 public class CoreTests {
 
-    private final BasicAsyncClient client = new BasicClientBuilder().endpoint("http://localhost:3001")
+    private final BasicAsyncClient client = new BasicClientBuilder()
         .httpClient(new AssertingHttpClientBuilder(HttpClient.createDefault()).assertAsync().build())
         .buildAsyncClient();
 
-    private final BasicClient syncClient = new BasicClientBuilder().endpoint("http://localhost:3001")
+    private final BasicClient syncClient = new BasicClientBuilder()
         .httpClient(new AssertingHttpClientBuilder(HttpClient.createDefault()).assertSync().build())
         .buildClient();
 

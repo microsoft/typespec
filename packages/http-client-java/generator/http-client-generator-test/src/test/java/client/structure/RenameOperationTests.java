@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 
 public class RenameOperationTests {
 
-    private final RenamedOperationClient client = new RenamedOperationClientBuilder().endpoint("http://localhost:3001")
+    private final RenamedOperationClient client = new RenamedOperationClientBuilder().endpoint("http://localhost:3000")
         .client(ClientType.RENAMED_OPERATION)
         .buildClient();
-    private final GroupClient groupClient = new RenamedOperationClientBuilder().endpoint("http://localhost:3001")
+    private final GroupClient groupClient = new RenamedOperationClientBuilder().endpoint("http://localhost:3000")
         .client(ClientType.RENAMED_OPERATION)
         .buildGroupClient();
 

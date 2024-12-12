@@ -14,14 +14,14 @@ import org.junit.jupiter.api.Test;
 
 public class NamingTests {
 
-    private final NamingClient client = new NamingClientBuilder().endpoint("http://localhost:3001").buildClient();
+    private final NamingClient client = new NamingClientBuilder().buildClient();
 
     // client name should be "ClientModel", currently a bug in TCGC
     private final ClientModelClient modelClient
-        = new NamingClientBuilder().endpoint("http://localhost:3001").buildClientModelClient();
+        = new NamingClientBuilder().buildClientModelClient();
 
     private final UnionEnumClient enumClient
-        = new NamingClientBuilder().endpoint("http://localhost:3001").buildUnionEnumClient();
+        = new NamingClientBuilder().buildUnionEnumClient();
 
     @Test
     public void testNaming() {
