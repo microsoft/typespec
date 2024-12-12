@@ -18,7 +18,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -266,9 +265,12 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 classBlock.annotation("JsonCreator");
             }
 
+            classBlock.javadocComment(
+                commentBlock -> commentBlock.methodThrows("NullPointerException", "thrown if 'value' is null"));
             classBlock.publicStaticMethod(String.format("%1$s fromValue(%2$s value)", enumName, pascalTypeName),
                 function -> {
-                    function.line("Objects.requireNonNull(value, \"'value' cannot be null.\");");
+                    function.ifBlock("value == null",
+                        ifBlock -> ifBlock.line("throw new IllegalArgumentException(\"'value' cannot be null.\");"));
                     function.methodReturn("VALUES.computeIfAbsent(value, NEW_INSTANCE)");
                 });
 
