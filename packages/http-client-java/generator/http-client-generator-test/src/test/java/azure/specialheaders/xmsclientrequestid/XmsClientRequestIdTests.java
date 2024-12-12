@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class XmsClientRequestIdTests {
 
-    private final XmsClientRequestIdClient client
-        = new XmsClientRequestIdClientBuilder().buildClient();
+    private final XmsClientRequestIdClient client = new XmsClientRequestIdClientBuilder().buildClient();
 
     @Test
     public void testRequestId() {

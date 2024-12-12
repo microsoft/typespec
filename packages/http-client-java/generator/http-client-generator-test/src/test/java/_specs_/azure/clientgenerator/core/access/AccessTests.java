@@ -11,10 +11,8 @@ import org.junit.jupiter.api.Test;
 
 public class AccessTests {
 
-    private final PublicOperationClient publicClient
-        = new AccessClientBuilder().buildPublicOperationClient();
-    private final InternalOperationClient internalClient
-        = new AccessClientBuilder().buildInternalOperationClient();
+    private final PublicOperationClient publicClient = new AccessClientBuilder().buildPublicOperationClient();
+    private final InternalOperationClient internalClient = new AccessClientBuilder().buildInternalOperationClient();
     private final SharedModelInOperationClient sharedClient
         = new AccessClientBuilder().buildSharedModelInOperationClient();
     private final RelativeModelInOperationClient relativeClient

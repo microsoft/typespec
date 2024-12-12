@@ -3,6 +3,7 @@
 
 package azure.payload.pageable;
 
+import azure.payload.pageable.models.User;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.http.rest.PagedIterable;
@@ -10,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import azure.payload.pageable.models.User;
 
 public class PageableTests {
 
