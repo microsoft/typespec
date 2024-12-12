@@ -1,5 +1,5 @@
 import vscode from "vscode";
-import { languageEmitterSettingNames } from "../const.js";
+import { EmitterSettingName } from "../const.js";
 
 export enum EmitterKind {
   Schema = "schema",
@@ -16,9 +16,8 @@ export interface Emitter {
 
 const extensionConfig = vscode.workspace.getConfiguration();
 
-function getEmitter(language: string): Emitter {
-  const packageFullName: string =
-    extensionConfig.get(languageEmitterSettingNames[language] ?? "") ?? "";
+function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter {
+  const packageFullName: string = emitter.package ?? "";
   const index = packageFullName.lastIndexOf("@");
   let version = undefined;
   let packageName = packageFullName;
@@ -28,13 +27,16 @@ function getEmitter(language: string): Emitter {
   }
 
   return {
-    language: language,
+    language: emitter.language,
     package: packageName,
     version: version,
-    kind: EmitterKind.Client,
+    kind: kind,
   };
 }
 
-export const clientEmitters: ReadonlyArray<Emitter> = Object.keys(languageEmitterSettingNames).map(
-  (lang) => getEmitter(lang),
-);
+export function getRegisterEmitters(kind: EmitterKind): ReadonlyArray<Emitter> {
+  const emitters: ReadonlyArray<Emitter> =
+    extensionConfig.get(EmitterSettingName[kind] ?? "") ?? [];
+
+  return emitters.map((emitter) => getEmitter(kind, emitter));
+}

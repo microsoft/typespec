@@ -4,6 +4,9 @@ export const enum SettingName {
   JavaEmitter = "typespec.emitter.java",
   PythonEmitter = "typespec.emitter.python",
   JsEmitter = "typespec.emitter.javascript",
+  ClientEmitter = "typespec.client.emitter",
+  ServerEmitter = "typespec.server.emitter",
+  SchemaEmitter = "typespec.schema.emitter",
 }
 
 export const languageEmitterSettingNames: Record<string, string> = {
@@ -11,6 +14,12 @@ export const languageEmitterSettingNames: Record<string, string> = {
   Java: SettingName.JavaEmitter,
   Python: SettingName.PythonEmitter,
   JavaScript: SettingName.JsEmitter,
+};
+
+export const EmitterSettingName: Record<string, string> = {
+  client: SettingName.ClientEmitter,
+  server: SettingName.ServerEmitter,
+  schema: SettingName.SchemaEmitter,
 };
 
 export const StartFileName = "main.tsp";

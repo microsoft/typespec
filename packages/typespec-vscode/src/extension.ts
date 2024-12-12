@@ -1,6 +1,6 @@
 import vscode, { commands, ExtensionContext } from "vscode";
 import { SettingName } from "./const.js";
-import { doEmit, emitCode } from "./emit/emit.js";
+import { emitCode } from "./emit/emit.js";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
@@ -29,20 +29,6 @@ export async function activate(context: ExtensionContext) {
       if (client) {
         await client.restart();
       }
-    }),
-  );
-
-  /* code generation command. */
-  context.subscriptions.push(
-    commands.registerCommand("typespec.generateSDK", async (uri: vscode.Uri) => {
-      await vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Window,
-          title: "Generate Client SDK...",
-          cancellable: false,
-        },
-        async (progress) => await doEmit(context, uri, progress),
-      );
     }),
   );
 

@@ -88,11 +88,11 @@
                   "enum": [
                     "DotNet",
                     "Java",
-                    "TypeScript",
+                    "JavaScript",
                     "Python",
                     "Go"
                   ],
-                  "description": "Define the language for the emitter."
+                  "description": "Define the language the emitter will emit."
                 },
                 "package": {
                   "type": "string",
@@ -118,64 +118,71 @@
                 "package": "@typespec/http-client-python"
               }
             ],
-            "description": "Define the emitter for any language client sdk generation."
+            "description": "Define the emitter for a language client sdk generation."
           },
           "typespec.server.emitter": {
             "scope": "window",
-            "type": "object",
-            "properties": {
-              "Net": {
-                "type": "string",
-                "default": "@typespec/http-client-csharp",
-                "description": "Define the emitter to generate .NET SDK."
-              },
-              "Java": {
-                "type": "string",
-                "default": "@typespec/http-client-java",
-                "description": "Define the emitter to generate Java SDK."
-              },
-              "JavaScript": {
-                "type": "string",
-                "default": "@azure-tools/typespec-ts",
-                "description": "Define the emitter to generate JS SDK."
-              },
-              "Python": {
-                "type": "string",
-                "default": "@typespec/http-client-python",
-                "description": "Define the emitter to generate Python SDK."
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "language": {
+                  "type": "string",
+                  "enum": [
+                    "DotNet",
+                    "Java",
+                    "JavaScript",
+                    "Python",
+                    "Go"
+                  ],
+                  "description": "Define the language for the emitter."
+                },
+                "package": {
+                  "type": "string",
+                  "description": "Define the emitter package.\n\nExample (with version): @typespec/http-server-csharp@1.0.0\n\nExample (without version): @typespec/http-server-csharp"
+                }
               }
             },
-            "default": {
-              "Net": "@typespec/http-client-csharp",
-              "Java": "@typespec/http-client-java",
-              "JavaScript": "@azure-tools/typespec-ts",
-              "Python": "@typespec/http-client-python"
+            "default": [
+              {
+                "language": "DotNet",
+                "package": "@typespec/http-server-csharp"
+              },
+              {
+                "language": "JavaScript",
+                "package": "@typespec/http-server-javascript"
+              }
+            ],
+            "description": "Define the emitter for server code generation."
+          },
+          "typespec.schema.emitter": {
+            "scope": "window",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "language": {
+                  "type": "string",
+                  "enum": [
+                    "OpenAPI3",
+                    "ProtoBuf",
+                    "JsonSchema"
+                  ],
+                  "description": "Define the language for the emitter."
+                },
+                "package": {
+                  "type": "string",
+                  "description": "Define the emitter package.\n\nExample (with version): @typespec/openapi3@1.0.0\n\nExample (without version): @typespec/openapi3"
+                }
+              }
             },
-            "description": "Define the emitter for any language sdk generation."
-          },
-          "typespec.emitter.net": {
-            "scope": "window",
-            "type": "string",
-            "default": "@typespec/http-client-csharp",
-            "description": "Define the emitter to generate .NET SDK.\n\nExample (with version): @typespec/http-client-csharp@1.0.0\n\nExample (without version): @typespec/http-client-csharp"
-          },
-          "typespec.emitter.java": {
-            "scope": "window",
-            "type": "string",
-            "default": "@typespec/http-client-java",
-            "description": "Define the emitter to generate Java SDK.\n\nExample (with version): @typespec/http-client-java@1.0.0\n\nExample (without version): @typespec/http-client-java"
-          },
-          "typespec.emitter.python": {
-            "scope": "window",
-            "type": "string",
-            "default": "@typespec/http-client-python",
-            "description": "Define the emitter to generate Python SDK.\n\nExample (with version): @typespec/http-client-python@1.0.0\n\nExample (without version): @typespec/http-client-python"
-          },
-          "typespec.emitter.javascript": {
-            "scope": "window",
-            "type": "string",
-            "default": "@azure-tools/typespec-ts",
-            "description": "Define the emitter to generate Js SDK.\n\nExample (with version): @azure-tools/typespec-ts@1.0.0\n\nExample (without version): @azure-tools/typespec-ts"
+            "default": [
+              {
+                "language": "OpenAPI3",
+                "package": "@typespec/openapi3"
+              }
+            ],
+            "description": "Define the emitter for a schema."
           }
         }
       }
@@ -210,11 +217,6 @@
         "category": "TypeSpec"
       },
       {
-        "command": "typespec.generateSDK",
-        "title": "TypeSpec: Generate Client SDK",
-        "category": "TypeSpec"
-      },
-      {
         "command": "typespec.emit",
         "title": "TypeSpec: Emit Code",
         "category": "TypeSpec"
@@ -223,14 +225,14 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "typespec.generateSDK",
+          "command": "typespec.emit",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
           "group": "code_generation"
         }
       ],
       "editor/context": [
         {
-          "command": "typespec.generateSDK",
+          "command": "typespec.emit",
           "when": "resourceLangId == typespec",
           "group": "code_generation"
         }
