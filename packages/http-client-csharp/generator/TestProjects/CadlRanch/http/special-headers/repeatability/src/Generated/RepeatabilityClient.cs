@@ -22,7 +22,7 @@ namespace SpecialHeaders.Repeatability
 
         public virtual Task<ClientResult> ImmediateSuccessAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult ImmediateSuccess() => throw null;
+        public virtual ClientResult ImmediateSuccess(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ImmediateSuccessAsync(CancellationToken cancellationToken = default) => throw null;
     }
