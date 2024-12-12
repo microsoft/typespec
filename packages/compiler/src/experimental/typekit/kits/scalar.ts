@@ -5,12 +5,12 @@ import { defineKit, Typekit } from "../define-kit.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ModelPropertyKit } from "./model-property.js";
 
-/** @experimental */
-interface ScalarKit {
   /**
    * Operations for scalar types like strings, numerics, booleans, dates, etc.
+   * @experimental
    */
-  scalar: {
+export interface ScalarKit {
+
     /**
      * Check if `type` is any scalar type.
      *
@@ -403,14 +403,21 @@ interface ScalarKit {
      * @param scalar The scalar to get the format for.
      */
     getFormat(scalar: Scalar): string | undefined;
-  };
+}
+
+interface TypekitExtension {
+    /**
+     * Operations for scalar types like strings, numerics, booleans, dates, etc.
+     * @experimental
+     */
+    scalar: ScalarKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends ScalarKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<ScalarKit>({
+defineKit<TypekitExtension>({
   scalar: {
     is(type) {
       return type.kind === "Scalar";
