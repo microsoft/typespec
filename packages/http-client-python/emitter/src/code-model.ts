@@ -250,6 +250,16 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   };
 }
 
+function onlyUsedByPolling(usage: UsageFlags): boolean {
+  return (
+    ((usage & UsageFlags.LroInitial) > 0 ||
+      (usage & UsageFlags.LroFinalEnvelope) > 0 ||
+      (usage & UsageFlags.LroPolling) > 0) &&
+    (usage & UsageFlags.Input) === 0 &&
+    (usage & UsageFlags.Output) === 0
+  );
+}
+
 export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   sdkContext: PythonSdkContext<TServiceOperation>,
 ) {
@@ -278,6 +288,10 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
     ) {
       continue;
     }
+    // filter out models only used for polling and or envelope result
+    if (onlyUsedByPolling(model.usage)) {
+      continue;
+    }
     // filter out specific models not used in python, e.g., pageable models
     if (disableGenerationMap.has(model)) {
       continue;
@@ -291,6 +305,9 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   for (const sdkEnum of sdkPackage.enums) {
     // filter out api version enum since python do not generate it
     if (sdkEnum.usage === UsageFlags.ApiVersionEnum) {
+      continue;
+    }
+    if (onlyUsedByPolling(sdkEnum.usage)) {
       continue;
     }
     // filter out core enums

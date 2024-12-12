@@ -1,5 +1,6 @@
 import vscode, { commands, ExtensionContext } from "vscode";
-import { State } from "vscode-languageclient";
+import { createCodeActionProvider } from "./code-action-provider.js";
+import { SettingName } from "./const.js";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
@@ -13,6 +14,7 @@ import {
 } from "./types.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
+import { createCommandOpenUrl } from "./vscode-command.js";
 
 let client: TspLanguageClient | undefined;
 /**
@@ -24,6 +26,9 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 
 export async function activate(context: ExtensionContext) {
   context.subscriptions.push(createTaskProvider());
+
+  context.subscriptions.push(createCodeActionProvider());
+  context.subscriptions.push(createCommandOpenUrl());
 
   context.subscriptions.push(
     commands.registerCommand(CommandName.ShowOutputChannel, () => {

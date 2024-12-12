@@ -50,7 +50,8 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import { NoTarget, resolveModule, ResolveModuleHost, typespecVersion } from "../core/index.js";
+import { NoTarget, ProcessedLog, resolveModule, ResolveModuleHost, typespecVersion } from "../core/index.js";
+import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
@@ -1042,6 +1043,16 @@ export function createServer(host: ServerHost): Server {
       readFile,
       stat,
       getSourceFileKind,
+      logSink: {
+        log: (log: ProcessedLog) => {
+          const msg = formatLog(log, { excludeLogLevel: true });
+          const sLog: ServerLog = {
+            level: log.level,
+            message: msg,
+          };
+          host.log(sLog);
+        },
+      },
     };
 
     async function readFile(path: string): Promise<ServerSourceFile> {
