@@ -27,9 +27,9 @@ paths:
         content:
           application/json:
             schema:
-              type: object
               $ref: '#/components/schemas/AnotherModel'
               nullable: true
+              type: object
 components:
   schemas:
     AnotherModel:
@@ -61,9 +61,9 @@ components:
           type: string
           nullable: true
         modelOrNull:
-          type: object
           $ref: '#/components/schemas/AnotherModel'
           nullable: true
+          type: object
         literalsOrNull:
           type: string
           enum:
