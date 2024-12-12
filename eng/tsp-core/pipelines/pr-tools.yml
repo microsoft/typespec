@@ -83,8 +83,16 @@ extends:
                   echo "##[section]Retrieving typespec-vscode artifact URL..."
                   artifactUrl=$(curl -s -u :$(System.AccessToken) "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension" | jq -r '.resource.downloadUrl')
                   echo "Typespec-Vscode Artifact URL: $artifactUrl"
-                  echo "##vso[task.setvariable variable=vscodeUrl]$artifactUrl"
+                  # echo "##vso[task.setvariable variable=vscodeUrl]$artifactUrl"
                 displayName: Get vscode artifact URL
+              - pwsh: |
+                  $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$($(System.AccessToken))"))
+                  $artifactUrl = "$(System.TeamFoundationCollectionUri)/$(System.TeamProject)/_apis/build/builds/$(Build.BuildId)/artifacts?artifactName=vscode-extension"
+                  $response = Invoke-RestMethod -Uri $artifactUrl -Method Get -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}
+
+                  $downloadUrl = $response.value.downloadUrl
+                  Write-Output "Artifact URL: $downloadUrl"
+                  Write-Host "##vso[task.setvariable variable=vscodeUrl]$downloadUrl"
 
               - script: npx tsx eng/tsp-core/scripts/create-tryit-comment.ts
                 displayName: Check already commented
