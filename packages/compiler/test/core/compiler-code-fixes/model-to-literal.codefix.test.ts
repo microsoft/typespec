@@ -21,3 +21,21 @@ it("it change model expression to an object value", async () => {
       }
     `);
 });
+
+it("it recursively changes the model expression to the corresponding object value", async () => {
+  await expectCodeFixOnAst(
+    `
+      @example(┆{Bar : {Baz : "Hello"}})
+      model Foo { Bar : Bar; }
+      model Bar { Baz : string }
+    `,
+    (node) => {
+      strictEqual(node.kind, SyntaxKind.ModelExpression);
+      return createModelToObjectValueCodeFix(node);
+    },
+  ).toChangeTo(`
+      @example(#{Bar : #{Baz : "Hello"}})
+      model Foo { Bar : Bar; }
+      model Bar { Baz : string }
+    `);
+});
