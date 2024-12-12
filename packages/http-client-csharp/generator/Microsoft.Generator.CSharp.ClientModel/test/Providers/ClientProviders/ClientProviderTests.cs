@@ -117,7 +117,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 // oauth2 auth should have the following fields: AuthorizationScopes, _tokenCredential
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
             }
@@ -200,7 +200,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 // oauth2 auth should have the following fields: AuthorizationScopes, _tokenCredential
                 AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
                 {
-                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
             }
