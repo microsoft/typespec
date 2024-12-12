@@ -237,6 +237,10 @@ export async function emitCode(
       return {
         label: filePath,
         path: filePath,
+        iconPath: {
+          light: Uri.file(context.asAbsolutePath(`./icons/tsp-file.light.svg`)),
+          dark: Uri.file(context.asAbsolutePath(`./icons/tsp-file.dark.svg`)),
+        },
       };
     };
     const typespecProjectQuickPickItems: TypeSpecProjectPickItem[] = targetPathes.map((filePath) =>

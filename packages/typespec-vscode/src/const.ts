@@ -1,9 +1,5 @@
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
-  NetEmitter = "typespec.emitter.net",
-  JavaEmitter = "typespec.emitter.java",
-  PythonEmitter = "typespec.emitter.python",
-  JsEmitter = "typespec.emitter.javascript",
   ClientEmitter = "typespec.client.emitter",
   ServerEmitter = "typespec.server.emitter",
   SchemaEmitter = "typespec.schema.emitter",

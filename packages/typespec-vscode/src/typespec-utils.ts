@@ -43,7 +43,7 @@ export async function resolveTypeSpecCli(absolutePath: string): Promise<Executab
 export async function getMainTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
   const baseDir = isFilePath ? dirname(tspPath) : tspPath;
-  const mainTspFile = path.resolve(baseDir, "main.tsp");
+  const mainTspFile = path.resolve(baseDir, StartFileName);
   if (await isFile(mainTspFile)) {
     return mainTspFile;
   }
