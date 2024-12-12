@@ -109,7 +109,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (tokenAuth.Scopes != null)
                 {
                     _tokenCredentialScopesField = new FieldProvider(
-                        FieldModifiers.Private | FieldModifiers.Const,
+                        FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly,
                         typeof(string[]),
                         TokenCredentialScopesFieldName,
                         this,
