@@ -1,6 +1,7 @@
 import vscode, { commands, ExtensionContext } from "vscode";
 import { createCodeActionProvider } from "./code-action-provider.js";
 import { SettingName } from "./const.js";
+import { emitCode } from "./emit/emit.js";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
@@ -33,6 +34,20 @@ export async function activate(context: ExtensionContext) {
       if (client) {
         await client.restart();
       }
+    }),
+  );
+
+  /* emit command. */
+  context.subscriptions.push(
+    commands.registerCommand("typespec.emit", async (uri: vscode.Uri) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Window,
+          title: "Emit Code...",
+          cancellable: false,
+        },
+        async (progress) => await emitCode(context, uri, progress),
+      );
     }),
   );
 
