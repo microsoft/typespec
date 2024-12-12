@@ -25,8 +25,15 @@ interface UnionVariantDescriptor {
   union?: Union;
 }
 
+/**
+ * Utilities for working with union variants.
+ * 
+ * Union variants are types that represent a single value within a union that can be one of
+ * several types.
+ * 
+ * @experimental
+ */
 export interface UnionVariantKit {
-  unionVariant: {
     /**
      * Create a union variant.
      *
@@ -40,14 +47,21 @@ export interface UnionVariantKit {
      * @param type The type to check.
      */
     is(type: Type): type is UnionVariant;
-  };
+}
+
+interface TypekitExtension {
+  /**
+   * Utilities for working with union variants.
+   * @experimental
+   */
+  unionVariant: UnionVariantKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends UnionVariantKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<UnionVariantKit>({
+defineKit<TypekitExtension>({
   unionVariant: {
     create(desc) {
       const variant: UnionVariant = this.program.checker.createType({

@@ -23,8 +23,11 @@ interface UnionDescriptor {
   variants?: Record<string | symbol, string | number> | UnionVariant[];
 }
 
+/**
+ * Utilities for working with unions.
+ * @experimental
+ */
 export interface UnionKit {
-  union: {
     /**
      * Create a union type.
      *
@@ -55,14 +58,21 @@ export interface UnionKit {
      * @param type The union to check.
      */
     isExtensible(type: Union): boolean;
-  };
+}
+
+interface TypekitExtension {
+  /**
+   * Utilities for working with unions.
+   * @experimental
+   */
+  union: UnionKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends UnionKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-export const UnionKit = defineKit<UnionKit>({
+export const UnionKit = defineKit<TypekitExtension>({
   union: {
     create(desc) {
       const union: Union = this.program.checker.createType({
