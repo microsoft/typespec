@@ -50,7 +50,13 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import { NoTarget, ProcessedLog, resolveModule, ResolveModuleHost, typespecVersion } from "../core/index.js";
+import {
+  NoTarget,
+  ProcessedLog,
+  resolveModule,
+  ResolveModuleHost,
+  typespecVersion,
+} from "../core/index.js";
 import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
