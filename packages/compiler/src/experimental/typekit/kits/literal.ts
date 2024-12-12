@@ -3,8 +3,7 @@ import type { BooleanLiteral, NumericLiteral, StringLiteral, Type } from "../../
 import { defineKit } from "../define-kit.js";
 
 /** @experimental */
-interface LiteralKit {
-  literal: {
+export interface LiteralKit {
     /**
      * Create a literal type from a JavaScript value.
      *
@@ -60,14 +59,17 @@ interface LiteralKit {
      * @param type The type to check.
      */
     isBoolean(type: Type): type is BooleanLiteral;
-  };
+}
+
+interface TypekitExtension {
+  literal: LiteralKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends LiteralKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<LiteralKit>({
+defineKit<TypekitExtension>({
   literal: {
     create(value) {
       if (typeof value === "string") {

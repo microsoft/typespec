@@ -52,6 +52,7 @@
     "@typespec/json-schema": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
+    "http-client-javascript": "workspace:~",
     "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/sse": "workspace:~",

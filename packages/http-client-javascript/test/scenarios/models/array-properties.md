@@ -1,0 +1,45 @@
+# Should generate a model with a porperty with array
+
+## TypeSpec
+
+```tsp
+model Widget {
+  id: string[];
+  weight: int32[];
+  color: ("red" | "blue")[];
+}
+op foo(): Widget;
+```
+
+## TypeScript
+
+Should generate a model with name `Widget` that contains array properties
+
+```ts src/models/models.ts interface Widget
+export interface Widget {
+  id: string[];
+  weight: number[];
+  color: ("red" | "blue")[];
+}
+```
+
+# Should generate a model with a porperty with array of record
+
+## TypeSpec
+
+```tsp
+model Widget {
+  id: Record<int32>[];
+}
+op foo(): Widget;
+```
+
+## TypeScript
+
+Should generate a model with name `Widget` that contains array properties of record type
+
+```ts src/models/models.ts interface Widget
+export interface Widget {
+  id: Record<string, number>[];
+}
+```
