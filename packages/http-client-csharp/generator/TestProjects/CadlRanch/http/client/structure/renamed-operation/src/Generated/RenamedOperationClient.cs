@@ -25,7 +25,7 @@ namespace Client.Structure.Service.Renamed.Operation
 
         public virtual Task<ClientResult> RenamedOneAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult RenamedOne() => throw null;
+        public virtual ClientResult RenamedOne(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> RenamedOneAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -33,7 +33,7 @@ namespace Client.Structure.Service.Renamed.Operation
 
         public virtual Task<ClientResult> RenamedThreeAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult RenamedThree() => throw null;
+        public virtual ClientResult RenamedThree(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> RenamedThreeAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -41,7 +41,7 @@ namespace Client.Structure.Service.Renamed.Operation
 
         public virtual Task<ClientResult> RenamedFiveAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult RenamedFive() => throw null;
+        public virtual ClientResult RenamedFive(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> RenamedFiveAsync(CancellationToken cancellationToken = default) => throw null;
 

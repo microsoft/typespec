@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 import tsptest.enumservice.implementation.EnumServiceClientImpl;
 import tsptest.enumservice.models.ColorModel;
 import tsptest.enumservice.models.Priority;
+import tsptest.enumservice.models.PriorityModel;
 
 public class EnumTests {
 
@@ -127,6 +128,15 @@ public class EnumTests {
         HttpRequest request = new HttpRequest(HttpMethod.POST, "http://endpoint/");
         getRequestCallback(requestOptionsArgumentCaptor.getValue()).accept(request);
         Assertions.assertEquals("colorArrayOpt=Green&colorArrayOpt=Red", request.getUrl().getQuery());
+    }
+
+    @Test
+    public void testExpandableEnum() {
+        Assertions.assertEquals(PriorityModel.HIGH, PriorityModel.fromValue(100));
+        Assertions.assertNotEquals(PriorityModel.HIGH, PriorityModel.LOW);
+        Assertions.assertNotEquals(PriorityModel.HIGH, PriorityModel.fromValue(200));
+
+        Assertions.assertEquals(100, PriorityModel.HIGH.getValue());
     }
 
     private static void verifyQuery(String query, String key, String value) {

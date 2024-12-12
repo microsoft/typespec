@@ -115,13 +115,13 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
-    "http-payload-xml": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/payload/xml -p StubLibraryPlugin",
+    "http-resiliency-srv-driven-v1": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/resiliency/srv-driven/v1 -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
-    "http-resiliency-srv-driven": {
-      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/resiliency/srv-driven -p StubLibraryPlugin",
+    "http-resiliency-srv-driven-v2": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/resiliency/srv-driven/v2 -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
@@ -257,6 +257,66 @@
     },
     "http-type-union": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/type/union -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-added-v1": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/added/v1 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-added-v2": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/added/v2 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-madeOptional-v1": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/madeOptional/v1 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-madeOptional-v2": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/madeOptional/v2 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-removed-v1": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/removed/v1 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-removed-v2": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/removed/v2 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-renamedFrom-v1": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/renamedFrom/v1 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-renamedFrom-v2": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/renamedFrom/v2 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-returnTypeChangedFrom-v1": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/returnTypeChangedFrom/v1 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-returnTypeChangedFrom-v2": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/returnTypeChangedFrom/v2 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-typeChangedFrom-v1": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/typeChangedFrom/v1 -p StubLibraryPlugin",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
+    },
+    "http-versioning-typeChangedFrom-v2": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/CadlRanch/http/versioning/typeChangedFrom/v2 -p StubLibraryPlugin",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
     },
