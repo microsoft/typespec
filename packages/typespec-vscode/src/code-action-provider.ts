@@ -1,5 +1,5 @@
 import vscode from "vscode";
-import { OPEN_URL_COMMAND } from "./vscode-command.js";
+import { CommandName } from "./types.js";
 
 export function createCodeActionProvider() {
   return vscode.languages.registerCodeActionsProvider(
@@ -61,7 +61,7 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
       vscode.CodeActionKind.QuickFix,
     );
     action.command = {
-      command: OPEN_URL_COMMAND,
+      command: CommandName.OpenUrl,
       title: diagnostic.message,
       arguments: [url],
     };
