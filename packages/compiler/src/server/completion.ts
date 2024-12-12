@@ -404,6 +404,19 @@ function addIdentifierCompletion(
   { program, completions }: CompletionContext,
   node: IdentifierNode,
 ) {
+  // Process the three keyword hints of the meta properties separately, such as `::type`, `::parameters`, `::returnType`
+  if (node.parent && "selector" in node.parent && node.parent.selector === "::") {
+    ["type", "parameters", "returnType"].map((label) => {
+      const item: CompletionItem = {
+        label: label,
+        kind: CompletionItemKind.Field,
+        documentation: `${label} of meta properties`,
+      };
+      completions.items.push(item);
+    });
+    return;
+  }
+
   const result = program.checker.resolveCompletions(node);
   if (result.size === 0) {
     return;
