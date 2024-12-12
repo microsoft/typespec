@@ -21,16 +21,18 @@
     <TargetVsixContainer>$(MSBuildThisFileDirectory)..\$(AssemblyName).vsix</TargetVsixContainer>
   </PropertyGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt" Link="DebugSourceDirectory.txt" Visible="False" />
+    <Content Include="$(IntermediateOutputPath)DebugSourceDirectory.txt"
+      Link="DebugSourceDirectory.txt" Visible="False" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\LICENSE" Link="LICENSE" />
     <Content Include="*.pkgdef" />
-    <Content Include="../node_modules/typespec-vscode/dist/typespec.tmLanguage" Link="TextMate/typespec.tmLanguage" />
+    <Content Include="../node_modules/typespec-vscode/dist/typespec.tmLanguage"
+      Link="TextMate/typespec.tmLanguage" />
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
     <Reference Include="System.ComponentModel.Composition" />
     <!-- The 'MessagePack' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.SDK', 'Microsoft.VisualStudio.Workspace' and 'Microsoft.VisualStudio.VSIntegration' -->
-    <!-- Have to add it explicitly here because the vesrion used by 'Micrisoft.VisualStudio...' report vulnerabilities now -->
+    <!-- Have to add it explicitly here because the version used by 'Microsoft.VisualStudio...' report vulnerabilities now -->
     <!-- TODO: remove this explicit reference after 'Microsoft.VisualStudio...' releases new version having 'MessagePack' updated to vulnerability free version-->
     <PackageReference Include="MessagePack" Version="2.5.192" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
@@ -59,20 +61,26 @@
     <PackageReference Include="NewtonSoft.JSON" Version="13.0.3" ExcludeAssets="Runtime" />
   </ItemGroup>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
-  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != '' and '$(MSBuildRuntimeType)' != 'Core'" />
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets"
+    Condition="'$(VSToolsPath)' != '' and '$(MSBuildRuntimeType)' != 'Core'" />
   <Target Name="GetPackageVersionForVsixManifest" Returns="$(Version)" />
   <!-- VS SDK does not currently support building with dotnet build.  -->
-  <Target Name="WarnAboutDotnetBuildAndVsix" Condition="'$(MSBuildRuntimeType)' == 'Core'" AfterTargets="AfterBuild">
-    <Message Importance="High" Text="VSIX packaging skipped: not supported by `dotnet build`, use Visual Studio `msbuild` to package VSIX." />
+  <Target Name="WarnAboutDotnetBuildAndVsix" Condition="'$(MSBuildRuntimeType)' == 'Core'"
+    AfterTargets="AfterBuild">
+    <Message Importance="High"
+      Text="VSIX packaging skipped: not supported by `dotnet build`, use Visual Studio `msbuild` to package VSIX." />
   </Target>
   <!-- Stash debug source directory so deployed debug vsix can use it to find and tsp-server under
   development in source tree. -->
-  <Target Name="WriteDebugSourceDirectory" Condition="'$(Configuration)' == 'Debug'" BeforeTargets="BeforeBuild">
-    <WriteLinesToFile File="$(IntermediateOutputPath)DebugSourceDirectory.txt" Lines="$(MSBuildThisFileDirectory)" WriteOnlyWhenDifferent="true" Overwrite="true" />
+  <Target Name="WriteDebugSourceDirectory" Condition="'$(Configuration)' == 'Debug'"
+    BeforeTargets="BeforeBuild">
+    <WriteLinesToFile File="$(IntermediateOutputPath)DebugSourceDirectory.txt"
+      Lines="$(MSBuildThisFileDirectory)" WriteOnlyWhenDifferent="true" Overwrite="true" />
   </Target>
   <!-- Helpful for debugging deployment issues to be able to see at minimum verbosity if extension
   was deployed -->
-  <Target Name="LogVsixDeployment" BeforeTargets="DeployVsixExtensionFiles" Condition="'$(DeployExtension)' == 'true'">
+  <Target Name="LogVsixDeployment" BeforeTargets="DeployVsixExtensionFiles"
+    Condition="'$(DeployExtension)' == 'true'">
     <Message Importance="High" Text="$(TargetVsixContainer) -&gt; $(VsixDeploymentPath)" />
   </Target>
 </Project>
