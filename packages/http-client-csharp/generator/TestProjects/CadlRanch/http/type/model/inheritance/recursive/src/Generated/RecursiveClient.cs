@@ -23,7 +23,7 @@ namespace _Type.Model.Inheritance.Recursive
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(Extension input) => throw null;
+        public virtual ClientResult Put(Extension input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(Extension input, CancellationToken cancellationToken = default) => throw null;
 
@@ -31,7 +31,7 @@ namespace _Type.Model.Inheritance.Recursive
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Extension> Get() => throw null;
+        public virtual ClientResult<Extension> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Extension>> GetAsync(CancellationToken cancellationToken = default) => throw null;
     }
