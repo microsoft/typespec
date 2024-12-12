@@ -44,8 +44,13 @@ public final class PriorityModel implements ExpandableEnum<Integer> {
      * @return the corresponding PriorityModel.
      */
     @JsonCreator
+    /**
+     * @throws NullPointerException thrown if 'value' is null.
+     */
     public static PriorityModel fromValue(Integer value) {
-        Objects.requireNonNull(value, "'value' cannot be null.");
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
         return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 

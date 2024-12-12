@@ -46,8 +46,13 @@ public final class OlympicRecordModel implements ExpandableEnum<Double> {
      * @return the corresponding OlympicRecordModel.
      */
     @Generated
+    /**
+     * @throws NullPointerException thrown if 'value' is null.
+     */
     public static OlympicRecordModel fromValue(Double value) {
-        Objects.requireNonNull(value, "'value' cannot be null.");
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
+        }
         return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
