@@ -5,33 +5,32 @@ import { HttpOperation } from "../../../types.js";
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
 
 interface HttpRequestKit {
-    body: {
-      /**
-       * Checks the body is a property explicitly tagged with @body or @bodyRoot
-       * @param httpOperation the http operation to check
-       */
-      isExplicit(httpOperation: HttpOperation): boolean;
-    };
+  body: {
     /**
-     * Gets a Model representing the body parameters of an http operation.
-     * @param httpOperation the http operation to get the body parameters from
+     * Checks the body is a property explicitly tagged with @body or @bodyRoot
+     * @param httpOperation the http operation to check
      */
-    getBodyParameters(httpOperation: HttpOperation): Model | undefined;
-    /**
-     * Gets a Model representing the parameters of an http operation.
-     * @param httpOperation The Http operation to get the parameters from.
-     * @param kind A string to filters specific parameter kinds, or an array to combine multiple kinds.
-     */
-    getParameters(
-      httpOperation: HttpOperation,
-      kind: HttpRequestParameterKind[] | HttpRequestParameterKind,
-    ): Model | undefined;
+    isExplicit(httpOperation: HttpOperation): boolean;
+  };
+  /**
+   * Gets a Model representing the body parameters of an http operation.
+   * @param httpOperation the http operation to get the body parameters from
+   */
+  getBodyParameters(httpOperation: HttpOperation): Model | undefined;
+  /**
+   * Gets a Model representing the parameters of an http operation.
+   * @param httpOperation The Http operation to get the parameters from.
+   * @param kind A string to filters specific parameter kinds, or an array to combine multiple kinds.
+   */
+  getParameters(
+    httpOperation: HttpOperation,
+    kind: HttpRequestParameterKind[] | HttpRequestParameterKind,
+  ): Model | undefined;
 }
 
 interface TypekitExtension {
   httpRequest: HttpRequestKit;
 }
-
 
 declare module "@typespec/compiler/experimental/typekit" {
   interface Typekit extends TypekitExtension {}

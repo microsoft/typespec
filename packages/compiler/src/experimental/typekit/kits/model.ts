@@ -38,21 +38,21 @@ interface ModelDescriptor {
  * @experimental
  */
 export interface ModelKit {
-    /**
-     * Create a model type.
-     *
-     * @param desc The descriptor of the model.
-     */
-    create(desc: ModelDescriptor): Model;
+  /**
+   * Create a model type.
+   *
+   * @param desc The descriptor of the model.
+   */
+  create(desc: ModelDescriptor): Model;
 
-    /**
-     * Check if the given `type` is a model..
-     *
-     * @param type The type to check.
-     */
-    is(type: Type): type is Model;
+  /**
+   * Check if the given `type` is a model..
+   *
+   * @param type The type to check.
+   */
+  is(type: Type): type is Model;
 
-      /**
+  /**
    * If the input is anonymous (or the provided filter removes properties)
    * and there exists a named model with the same set of properties
    * (ignoring filtered properties), then return that named model.
@@ -73,7 +73,7 @@ export interface ModelKit {
 
 interface TypekitExtension {
   /**
-   * Utilities for working with models. 
+   * Utilities for working with models.
    * @experimental
    */
   model: ModelKit;
