@@ -20,7 +20,7 @@ namespace Encode.Bytes
 
         public virtual Task<ClientResult> DefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<DefaultBytesProperty> Default(DefaultBytesProperty body) => throw null;
+        public virtual ClientResult<DefaultBytesProperty> Default(DefaultBytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<DefaultBytesProperty>> DefaultAsync(DefaultBytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Encode.Bytes
 
         public virtual Task<ClientResult> Base64Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Base64BytesProperty> Base64(Base64BytesProperty body) => throw null;
+        public virtual ClientResult<Base64BytesProperty> Base64(Base64BytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Base64BytesProperty>> Base64Async(Base64BytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -36,7 +36,7 @@ namespace Encode.Bytes
 
         public virtual Task<ClientResult> Base64urlAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Base64urlBytesProperty> Base64url(Base64urlBytesProperty body) => throw null;
+        public virtual ClientResult<Base64urlBytesProperty> Base64url(Base64urlBytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Base64urlBytesProperty>> Base64urlAsync(Base64urlBytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -44,7 +44,7 @@ namespace Encode.Bytes
 
         public virtual Task<ClientResult> Base64urlArrayAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Base64urlArrayBytesProperty> Base64urlArray(Base64urlArrayBytesProperty body) => throw null;
+        public virtual ClientResult<Base64urlArrayBytesProperty> Base64urlArray(Base64urlArrayBytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Base64urlArrayBytesProperty>> Base64urlArrayAsync(Base64urlArrayBytesProperty body, CancellationToken cancellationToken = default) => throw null;
     }

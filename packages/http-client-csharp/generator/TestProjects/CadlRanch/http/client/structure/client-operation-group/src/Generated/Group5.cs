@@ -19,7 +19,7 @@ namespace Client.Structure.Service
 
         public virtual Task<ClientResult> SixAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Six() => throw null;
+        public virtual ClientResult Six(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> SixAsync(CancellationToken cancellationToken = default) => throw null;
     }

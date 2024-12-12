@@ -19,7 +19,7 @@ namespace Client.Structure.Service
 
         public virtual Task<ClientResult> TwoAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Two() => throw null;
+        public virtual ClientResult Two(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -27,7 +27,7 @@ namespace Client.Structure.Service
 
         public virtual Task<ClientResult> ThreeAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Three() => throw null;
+        public virtual ClientResult Three(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ThreeAsync(CancellationToken cancellationToken = default) => throw null;
     }

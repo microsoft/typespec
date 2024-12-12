@@ -95,7 +95,7 @@ public final class ClientInitializationClientImpl {
     /**
      * Gets an instance of SubClientImpl class.
      * 
-     * @param name
+     * @param name The name parameter.
      * @return an instance of SubClientImplclass.
      */
     public SubClientImpl getSubClient(String name) {

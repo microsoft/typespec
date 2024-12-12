@@ -36,7 +36,7 @@ public final class ReadDog implements JsonSerializable<ReadDog> {
      * @param name the name value to set.
      */
     @Generated
-    public ReadDog(int id, String name) {
+    private ReadDog(int id, String name) {
         this.id = id;
         this.name = name;
     }

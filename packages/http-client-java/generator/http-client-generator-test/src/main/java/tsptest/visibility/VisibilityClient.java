@@ -73,6 +73,7 @@ public final class VisibilityClient {
      * <pre>
      * {@code
      * {
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -111,7 +112,7 @@ public final class VisibilityClient {
      * <pre>
      * {@code
      * {
-     *     id: int (Required)
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -123,7 +124,6 @@ public final class VisibilityClient {
      * {@code
      * {
      *     id: int (Required)
-     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -233,10 +233,10 @@ public final class VisibilityClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Dog query(ReadDog dog) {
+    public ReadDog query(WriteDog dog) {
         // Generated convenience method for queryWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return queryWithResponse(BinaryData.fromObject(dog), requestOptions).getValue().toObject(Dog.class);
+        return queryWithResponse(BinaryData.fromObject(dog), requestOptions).getValue().toObject(ReadDog.class);
     }
 
     /**

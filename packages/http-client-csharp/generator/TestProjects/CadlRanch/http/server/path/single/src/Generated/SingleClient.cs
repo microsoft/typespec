@@ -24,7 +24,7 @@ namespace Server.Path.Single
 
         public virtual Task<ClientResult> MyOpAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult MyOp() => throw null;
+        public virtual ClientResult MyOp(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> MyOpAsync(CancellationToken cancellationToken = default) => throw null;
     }

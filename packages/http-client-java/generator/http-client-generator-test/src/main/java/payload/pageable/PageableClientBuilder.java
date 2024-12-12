@@ -270,7 +270,7 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
      */
     @Generated
     public PageableAsyncClient buildAsyncClient() {
-        return new PageableAsyncClient(buildInnerClient());
+        return new PageableAsyncClient(buildInnerClient().getServerDrivenPaginations());
     }
 
     /**
@@ -280,7 +280,7 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
      */
     @Generated
     public PageableClient buildClient() {
-        return new PageableClient(buildInnerClient());
+        return new PageableClient(buildInnerClient().getServerDrivenPaginations());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(PageableClientBuilder.class);

@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.ArrayList;
@@ -386,7 +387,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             classBlock.javadocComment(comment -> {
                 comment.description("Gets an instance of " + subClientName + " class.");
                 for (ClientMethodParameter parameter : methodParameters) {
-                    comment.param(parameter.getName(), parameter.getDescription());
+                    comment.param(parameter.getName(), MethodUtil.methodParameterDescriptionOrDefault(parameter));
                 }
                 comment.methodReturns("an instance of " + subClientName + "class");
             });

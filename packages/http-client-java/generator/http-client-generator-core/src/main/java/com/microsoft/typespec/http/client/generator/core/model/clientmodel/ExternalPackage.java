@@ -16,10 +16,10 @@ public class ExternalPackage {
     public static final ExternalPackage CORE
         = new Builder().packageName(CLIENTCORE_PACKAGE_NAME).groupId("io.clientcore").artifactId("core").build();
 
-    public static final ExternalPackage JSON = new Builder().packageName(CLIENTCORE_JSON_PACKAGE_NAME)
-        .groupId("io.clientcore")
-        .artifactId("core-json")
-        .build();
+//    public static final ExternalPackage JSON = new Builder().packageName(CLIENTCORE_JSON_PACKAGE_NAME)
+//        .groupId("io.clientcore")
+//        .artifactId("core-json")
+//        .build();
 
     private final String packageName;
     private final String groupId;

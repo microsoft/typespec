@@ -20,7 +20,7 @@ namespace _Type._Enum.Fixed
 
         public virtual Task<ClientResult> GetKnownValueAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<DaysOfWeekEnum> GetKnownValue() => throw null;
+        public virtual ClientResult<DaysOfWeekEnum> GetKnownValue(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<DaysOfWeekEnum>> GetKnownValueAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type._Enum.Fixed
 
         public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutKnownValue(DaysOfWeekEnum body) => throw null;
+        public virtual ClientResult PutKnownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutKnownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
@@ -36,7 +36,7 @@ namespace _Type._Enum.Fixed
 
         public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutUnknownValue(DaysOfWeekEnum body) => throw null;
+        public virtual ClientResult PutUnknownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutUnknownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
     }

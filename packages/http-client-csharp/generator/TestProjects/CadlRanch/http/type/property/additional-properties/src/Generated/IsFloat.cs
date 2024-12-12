@@ -20,7 +20,7 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IsFloatAdditionalProperties> Get() => throw null;
+        public virtual ClientResult<IsFloatAdditionalProperties> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<IsFloatAdditionalProperties>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IsFloatAdditionalProperties body) => throw null;
+        public virtual ClientResult Put(IsFloatAdditionalProperties body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(IsFloatAdditionalProperties body, CancellationToken cancellationToken = default) => throw null;
     }

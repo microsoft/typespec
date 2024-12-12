@@ -16,7 +16,10 @@ model Diagnostic {
   error: Error;
 }
 
+@error
+model NotFoundErrorResponse is NotFoundResponse;
+
 @route("/error")
 interface ErrorOp {
-  read(): ResourceCreatedOrOkResponse<Diagnostic> | ErrorResponse;
+  read(): ResourceCreatedOrOkResponse<Diagnostic> | NotFoundErrorResponse | ErrorResponse;
 }

@@ -21,7 +21,7 @@ namespace _Type._Array
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IList<BinaryData>> Get() => throw null;
+        public virtual ClientResult<IList<BinaryData>> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<IList<BinaryData>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -29,7 +29,7 @@ namespace _Type._Array
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IEnumerable<BinaryData> body) => throw null;
+        public virtual ClientResult Put(IEnumerable<BinaryData> body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(IEnumerable<BinaryData> body, CancellationToken cancellationToken = default) => throw null;
     }

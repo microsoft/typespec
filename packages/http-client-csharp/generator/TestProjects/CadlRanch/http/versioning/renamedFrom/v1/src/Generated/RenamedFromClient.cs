@@ -25,7 +25,7 @@ namespace Versioning.RenamedFrom.V1
 
         public virtual Task<ClientResult> OldOpAsync(string oldQuery, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<OldModel> OldOp(string oldQuery, OldModel body) => throw null;
+        public virtual ClientResult<OldModel> OldOp(string oldQuery, OldModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<OldModel>> OldOpAsync(string oldQuery, OldModel body, CancellationToken cancellationToken = default) => throw null;
 

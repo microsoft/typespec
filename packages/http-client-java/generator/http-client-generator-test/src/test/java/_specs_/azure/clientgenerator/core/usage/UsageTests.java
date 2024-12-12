@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 public class UsageTests {
 
-    private final UsageClient client = new UsageClientBuilder().endpoint("http://localhost:3001").buildClient();
+    private final UsageClient client = new UsageClientBuilder().buildClient();
 
     @Test
     public void test() throws NoSuchMethodException {

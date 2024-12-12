@@ -19,7 +19,7 @@ namespace Client.Structure.Service.Default
 
         public virtual Task<ClientResult> SevenAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Seven() => throw null;
+        public virtual ClientResult Seven(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> SevenAsync(CancellationToken cancellationToken = default) => throw null;
     }

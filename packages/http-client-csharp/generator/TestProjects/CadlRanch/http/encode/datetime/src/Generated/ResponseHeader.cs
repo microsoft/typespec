@@ -19,7 +19,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> DefaultAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Default() => throw null;
+        public virtual ClientResult Default(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> DefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -27,7 +27,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> Rfc3339Async(RequestOptions options) => throw null;
 
-        public virtual ClientResult Rfc3339() => throw null;
+        public virtual ClientResult Rfc3339(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> Rfc3339Async(CancellationToken cancellationToken = default) => throw null;
 
@@ -35,7 +35,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> Rfc7231Async(RequestOptions options) => throw null;
 
-        public virtual ClientResult Rfc7231() => throw null;
+        public virtual ClientResult Rfc7231(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> Rfc7231Async(CancellationToken cancellationToken = default) => throw null;
 
@@ -43,7 +43,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> UnixTimestampAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult UnixTimestamp() => throw null;
+        public virtual ClientResult UnixTimestamp(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> UnixTimestampAsync(CancellationToken cancellationToken = default) => throw null;
     }

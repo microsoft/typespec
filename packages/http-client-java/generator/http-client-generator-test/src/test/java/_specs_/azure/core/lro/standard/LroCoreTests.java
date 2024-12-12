@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test;
 
 public class LroCoreTests {
 
-    private final StandardClient client = new StandardClientBuilder().endpoint("http://localhost:3001")
+    private final StandardClient client = new StandardClientBuilder()
         .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
         .buildClient();
 
-    private final StandardAsyncClient asyncClient = new StandardClientBuilder().endpoint("http://localhost:3001")
+    private final StandardAsyncClient asyncClient = new StandardClientBuilder()
         .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
         .buildAsyncClient();
 

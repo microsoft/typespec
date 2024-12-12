@@ -78,8 +78,6 @@ public class PomMapper implements IMapper<Project, Pom> {
         List<String> dependencyIdentifiers = new ArrayList<>();
         // for generic pom, stream style is always true
         addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.CLIENTCORE, false);
-        addDependencyIdentifier(dependencyIdentifiers, addedDependencyPrefixes, Project.Dependency.CLIENTCORE_JSON,
-            false);
 
         // merge dependencies in POM and dependencies added above
         dependencyIdentifiers.addAll(project.getPomDependencyIdentifiers()

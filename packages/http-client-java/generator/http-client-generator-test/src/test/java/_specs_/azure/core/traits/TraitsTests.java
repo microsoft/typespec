@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 public class TraitsTests {
 
-    private TraitsClient client = new TraitsClientBuilder().endpoint("http://localhost:3001").buildClient();
+    private TraitsClient client = new TraitsClientBuilder().buildClient();
 
     @Test
     public void testGet() {

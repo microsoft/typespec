@@ -3,6 +3,8 @@
 #nullable disable
 
 using System.ClientModel;
+using System.ClientModel.Primitives;
+using System.Threading;
 using Sample.Models;
 
 namespace Sample
@@ -10,9 +12,9 @@ namespace Sample
     /// <summary></summary>
     public partial class TestClient
     {
-        public virtual global::System.ClientModel.ClientResult Operation(global::Sample.Models.InputEnum queryParam)
+        public virtual global::System.ClientModel.ClientResult Operation(global::Sample.Models.InputEnum queryParam, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return this.Operation(queryParam.ToString(), options: null);
+            return this.Operation(queryParam.ToString(), cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null);
         }
     }
 }

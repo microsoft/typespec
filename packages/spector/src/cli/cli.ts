@@ -92,13 +92,14 @@ async function main() {
     .command("server", "Server management", (cmd) => {
       cmd
         .command(
-          "start <scenariosPath>",
+          "start <scenariosPaths..>",
           "Start the server in the background.",
           (cmd) => {
             return cmd
-              .positional("scenariosPath", {
-                description: "Path to the scenarios and mock apis",
+              .positional("scenariosPaths", {
+                description: "Path(s) to the scenarios and mock apis",
                 type: "string",
+                array: true,
                 demandOption: true,
               })
               .option("port", {
@@ -115,7 +116,7 @@ async function main() {
           },
           async (args) =>
             startInBackground({
-              scenariosPath: resolve(process.cwd(), args.scenariosPath),
+              scenariosPath: args.scenariosPaths,
               port: args.port,
               coverageFile: args.coverageFile,
             }),

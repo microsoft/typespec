@@ -20,7 +20,7 @@ namespace _Type.Property.ValueTypes
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Decimal128Property> Get() => throw null;
+        public virtual ClientResult<Decimal128Property> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Decimal128Property>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.ValueTypes
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(Decimal128Property body) => throw null;
+        public virtual ClientResult Put(Decimal128Property body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(Decimal128Property body, CancellationToken cancellationToken = default) => throw null;
     }

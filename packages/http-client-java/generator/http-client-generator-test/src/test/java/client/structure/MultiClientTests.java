@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Test;
 public class MultiClientTests {
 
     private final ClientAClient client1
-        = new ClientAClientBuilder().endpoint("http://localhost:3001").client(ClientType.MULTI_CLIENT).buildClient();
+        = new ClientAClientBuilder().endpoint("http://localhost:3000").client(ClientType.MULTI_CLIENT).buildClient();
     private final ClientBClient client2
-        = new ClientBClientBuilder().endpoint("http://localhost:3001").client(ClientType.MULTI_CLIENT).buildClient();
+        = new ClientBClientBuilder().endpoint("http://localhost:3000").client(ClientType.MULTI_CLIENT).buildClient();
 
     @Test
     public void testClient() {

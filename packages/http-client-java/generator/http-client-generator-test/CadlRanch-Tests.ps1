@@ -6,15 +6,13 @@ Set-StrictMode -Version 3.0
 Write-Host "Running cadl ranch tests"
 
 Write-Host "Starting the test server"
-npm run http-specs-start
-npm run azure-http-specs-start
+npm run tsp-spector-start
 Write-Host "Compile and run the tests"
 mvn clean test --no-transfer-progress -T 1C
 if ($LASTEXITCODE -ne 0) {
   exit $LASTEXITCODE
 }
 Write-Host "Stopping the test server"
-npm run http-specs-stop
-npm run azure-http-specs-stop
+npm run tsp-spector-stop
 
 Write-Host "Finished running the cadl ranch tests"

@@ -24,7 +24,7 @@ namespace Versioning.ReturnTypeChangedFrom.V1
 
         public virtual Task<ClientResult> TestAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<int> Test(string body) => throw null;
+        public virtual ClientResult<int> Test(string body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<int>> TestAsync(string body, CancellationToken cancellationToken = default) => throw null;
     }

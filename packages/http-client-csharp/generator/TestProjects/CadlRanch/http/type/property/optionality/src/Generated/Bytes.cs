@@ -20,7 +20,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BytesProperty> GetAll() => throw null;
+        public virtual ClientResult<BytesProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<BytesProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> GetDefaultAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BytesProperty> GetDefault() => throw null;
+        public virtual ClientResult<BytesProperty> GetDefault(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<BytesProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -36,7 +36,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutAll(BytesProperty body) => throw null;
+        public virtual ClientResult PutAll(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAllAsync(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -44,7 +44,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutDefault(BytesProperty body) => throw null;
+        public virtual ClientResult PutDefault(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutDefaultAsync(BytesProperty body, CancellationToken cancellationToken = default) => throw null;
     }

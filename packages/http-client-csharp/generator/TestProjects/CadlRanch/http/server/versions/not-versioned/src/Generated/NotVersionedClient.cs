@@ -24,7 +24,7 @@ namespace Server.Versions.NotVersioned
 
         public virtual Task<ClientResult> WithoutApiVersionAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult WithoutApiVersion() => throw null;
+        public virtual ClientResult WithoutApiVersion(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> WithoutApiVersionAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -32,7 +32,7 @@ namespace Server.Versions.NotVersioned
 
         public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithQueryApiVersion(string apiVersion) => throw null;
+        public virtual ClientResult WithQueryApiVersion(string apiVersion, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> WithQueryApiVersionAsync(string apiVersion, CancellationToken cancellationToken = default) => throw null;
 
@@ -40,7 +40,7 @@ namespace Server.Versions.NotVersioned
 
         public virtual Task<ClientResult> WithPathApiVersionAsync(string apiVersion, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithPathApiVersion(string apiVersion) => throw null;
+        public virtual ClientResult WithPathApiVersion(string apiVersion, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> WithPathApiVersionAsync(string apiVersion, CancellationToken cancellationToken = default) => throw null;
     }

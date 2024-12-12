@@ -2,14 +2,20 @@
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
     "versioning.removed.RemovedAsyncClient": "Versioning.Removed",
+    "versioning.removed.RemovedAsyncClient.modelV3": "Versioning.Removed.modelV3",
+    "versioning.removed.RemovedAsyncClient.modelV3WithResponse": "Versioning.Removed.modelV3",
     "versioning.removed.RemovedAsyncClient.v2": "Versioning.Removed.v2",
     "versioning.removed.RemovedAsyncClient.v2WithResponse": "Versioning.Removed.v2",
     "versioning.removed.RemovedClient": "Versioning.Removed",
+    "versioning.removed.RemovedClient.modelV3": "Versioning.Removed.modelV3",
+    "versioning.removed.RemovedClient.modelV3WithResponse": "Versioning.Removed.modelV3",
     "versioning.removed.RemovedClient.v2": "Versioning.Removed.v2",
     "versioning.removed.RemovedClient.v2WithResponse": "Versioning.Removed.v2",
     "versioning.removed.RemovedClientBuilder": "Versioning.Removed",
     "versioning.removed.models.EnumV2": "Versioning.Removed.EnumV2",
+    "versioning.removed.models.EnumV3": "Versioning.Removed.EnumV3",
     "versioning.removed.models.ModelV2": "Versioning.Removed.ModelV2",
+    "versioning.removed.models.ModelV3": "Versioning.Removed.ModelV3",
     "versioning.removed.models.Versions": "Versioning.Removed.Versions"
   }
 }

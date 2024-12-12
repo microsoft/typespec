@@ -1,5 +1,9 @@
 # Change Log - typespec-vscode
 
+## 0.63.0
+
+No changes, version bump only.
+
 ## 0.62.0
 
 ### Bug Fixes

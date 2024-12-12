@@ -86,6 +86,7 @@ public final class VisibilityWritesImpl {
      * <pre>
      * {@code
      * {
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -126,6 +127,7 @@ public final class VisibilityWritesImpl {
      * <pre>
      * {@code
      * {
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }

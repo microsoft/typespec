@@ -57,14 +57,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             if (spreadInputParameter != null)
             {
                 var spreadModelProperties = _spreadModel.Properties;
-                Assert.AreEqual(spreadModelProperties.Count + 1, convenienceMethodParams.Count);
+                // model properties + 2 (parameter and cancellation token)
+                Assert.AreEqual(spreadModelProperties.Count + 2, convenienceMethodParams.Count);
                 Assert.AreEqual("p1", convenienceMethodParams[0].Name);
                 Assert.AreEqual(spreadModelProperties[0].Name, convenienceMethodParams[1].Name);
             }
         }
 
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
-        public void AsyncMethodsHaveOptionalCancellationToken(InputOperation inputOperation)
+        public void ConvenienceMethodsHaveOptionalCancellationToken(InputOperation inputOperation)
         {
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
 
@@ -84,6 +85,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.IsNotNull(asyncConvenienceMethodParameters);
 
             var lastParameter = asyncConvenienceMethodParameters.Last();
+            Assert.IsTrue(lastParameter.Type.Equals(typeof(CancellationToken)));
+            Assert.IsFalse(lastParameter.Type.IsNullable);
+            Assert.AreEqual(Snippet.Default, lastParameter.DefaultValue);
+
+            var syncConvenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "content")
+                   && m.Signature.Name == inputOperation.Name.ToCleanName());
+            Assert.IsNotNull(syncConvenienceMethod);
+
+            var syncConvenienceMethodParameters = syncConvenienceMethod!.Signature.Parameters;
+            Assert.IsNotNull(syncConvenienceMethodParameters);
+
+            lastParameter = syncConvenienceMethodParameters.Last();
             Assert.IsTrue(lastParameter.Type.Equals(typeof(CancellationToken)));
             Assert.IsFalse(lastParameter.Type.IsNullable);
             Assert.AreEqual(Snippet.Default, lastParameter.DefaultValue);

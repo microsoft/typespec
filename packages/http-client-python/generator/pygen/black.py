@@ -51,6 +51,7 @@ class BlackScriptPlugin(Plugin):
         return True
 
     def format_file(self, file: Path) -> None:
+        file_content = ""
         try:
             file_content = self.read_file(file)
             file_content = black.format_file_contents(file_content, fast=True, mode=_BLACK_MODE)
