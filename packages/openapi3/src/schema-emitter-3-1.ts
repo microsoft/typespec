@@ -10,10 +10,12 @@ import {
   Program,
   Scalar,
   serializeValueAsJson,
+  Tuple,
   Type,
   Union,
 } from "@typespec/compiler";
 import {
+  ArrayBuilder,
   AssetEmitter,
   createAssetEmitter,
   EmitterOutput,
@@ -113,12 +115,10 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       enumValues.add(member.value ?? member.name);
     }
 
-    if (enumTypes.size > 1) {
-      reportDiagnostic(program, { code: "enum-unique-type", target: en });
-    }
+    const enumTypesArray = [...enumTypes];
 
     const schema: OpenAPISchema3_1 = {
-      type: enumTypes.values().next().value!,
+      type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
       enum: [...enumValues],
     };
 
@@ -238,5 +238,20 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       target: intrinsic,
     });
     return {};
+  }
+
+  tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    return new ObjectBuilder({
+      type: "array",
+      prefixItems: this.emitter.emitTupleLiteralValues(tuple),
+    });
+  }
+
+  tupleLiteralValues(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    const values = new ArrayBuilder();
+    for (const value of tuple.values.values()) {
+      values.push(this.emitter.emitType(value));
+    }
+    return values;
   }
 }
