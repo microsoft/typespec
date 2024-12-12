@@ -38,7 +38,7 @@ export async function doEmit(
       package: e.package,
       emitterKind: e.kind,
       label: e.language,
-      detail: `Create ${e.language} sdk from ${e.package}`,
+      detail: `Generate ${e.language} ${e.kind} code from ${e.package}`,
       picked: false,
       fromConfig: false,
       iconPath: Uri.file(context.asAbsolutePath(`./icons/${e.language.toLowerCase()}.svg`)),
@@ -49,7 +49,7 @@ export async function doEmit(
   const all = [...registerEmitters].map((e) => toQuickPickItem(e));
 
   const selectedEmitter = await vscode.window.showQuickPick<EmitQuickPickItem>(all, {
-    title: "Select the Language of the SDK",
+    title: "Select the Language",
     canPickMany: false,
     placeHolder: "Pick a Language",
     ignoreFocusOut: true,
@@ -181,24 +181,36 @@ export async function doEmit(
 
   const options: Record<string, string> = {};
   options["emitter-output-dir"] = outputDir;
-  logger.info(`Generate ${selectedEmitter.language} Client SDK under ${outputDir}...`, [], {
-    showOutput: false,
-    showPopup: true,
-    progress: overallProgress,
-  });
+  logger.info(
+    `Generate ${selectedEmitter.language} ${selectedEmitter.kind} code under ${outputDir}...`,
+    [],
+    {
+      showOutput: false,
+      showPopup: true,
+      progress: overallProgress,
+    },
+  );
   const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
   if (compileResult.exitCode !== 0) {
-    logger.error(`Failed to generate ${selectedEmitter.language} Client SDK.`, [], {
-      showOutput: true,
-      showPopup: true,
-      progress: overallProgress,
-    });
+    logger.error(
+      `Failed to generate ${selectedEmitter.language} ${selectedEmitter.kind} code.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+        progress: overallProgress,
+      },
+    );
   } else {
-    logger.info(`complete generating ${selectedEmitter.language} Client SDK.`, [], {
-      showOutput: true,
-      showPopup: true,
-      progress: overallProgress,
-    });
+    logger.info(
+      `complete generating ${selectedEmitter.language} ${selectedEmitter.kind} code.`,
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+        progress: overallProgress,
+      },
+    );
   }
 
   /*TODO: build sdk. */
