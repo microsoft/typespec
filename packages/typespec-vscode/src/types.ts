@@ -8,6 +8,7 @@ export const enum CommandName {
   RestartServer = "typespec.restartServer",
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",
+  OpenUrl = "typespec.openUrl",
 }
 
 export interface InstallGlobalCliCommandArgs {
