@@ -304,9 +304,9 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
       ]);
     });
 
-  it("errors on invalid parameter keys", async () => {
-    const diagnostics = await diagnoseOpenApiFor(
-      `
+    it("errors on invalid parameter keys", async () => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `
       model Pet {
         @query()
         $take?: int32;
@@ -319,18 +319,18 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
         op list(...Pet): void;
       }
       `,
-      { "omit-unreachable-types": true },
-    );
+        { "omit-unreachable-types": true },
+      );
 
-    expectDiagnostics(diagnostics, [
-      {
-        code: "@typespec/openapi3/invalid-component-fixed-field-key",
-      },
-      {
-        code: "@typespec/openapi3/invalid-component-fixed-field-key",
-      },
-    ]);
-  });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/openapi3/invalid-component-fixed-field-key",
+        },
+        {
+          code: "@typespec/openapi3/invalid-component-fixed-field-key",
+        },
+      ]);
+    });
 
     it("inline spread of parameters from anonymous model", async () => {
       const oapi = await openApiFor(
