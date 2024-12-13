@@ -39,6 +39,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
+    "emitter-name": { type: "string", nullable: true },
     "examples-directory": { type: "string", nullable: true },
     "examples-dir": { type: "string", nullable: true },
     "api-version": { type: "string", nullable: true },
