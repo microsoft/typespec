@@ -20,7 +20,7 @@ namespace SpecialWords
 
         public virtual Task<ClientResult> SameAsModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SameAsModel(SameAsModel body) => throw null;
+        public virtual ClientResult SameAsModel(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> SameAsModelAsync(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
     }
