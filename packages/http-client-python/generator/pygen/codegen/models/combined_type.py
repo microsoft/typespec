@@ -8,6 +8,7 @@ import re
 from .imports import FileImport, ImportType, TypingSection
 from .base import BaseType
 from .model_type import ModelType
+from .utils import NamespaceType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -113,7 +114,8 @@ class CombinedType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-        if self.name and not kwargs.get("is_types_file"):
+        serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        if self.name and serialize_namespace_type != NamespaceType.TYPES_FILE:
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(serialize_namespace),
                 "_types",

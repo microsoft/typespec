@@ -243,7 +243,7 @@ class EnumType(BaseType):
                     alias=alias,
                     typing_section=TypingSection.REGULAR,
                 )
-            elif serialize_namespace_type == NamespaceType.MODEL:
+            elif serialize_namespace_type in [NamespaceType.MODEL, NamespaceType.TYPES_FILE]:
                 file_import.add_submodule_import(
                     relative_path,
                     "models",

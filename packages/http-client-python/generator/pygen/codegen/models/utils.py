@@ -29,3 +29,4 @@ class NamespaceType(str, Enum):
     MODEL = "model"
     OPERATION = "operation"
     CLIENT = "client"
+    TYPES_FILE = "types_file"
