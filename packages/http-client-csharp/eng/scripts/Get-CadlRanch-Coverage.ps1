@@ -52,7 +52,7 @@ foreach ($directory in $directories) {
     if ($subPath.Contains("srv-driven")) {
         if ($subPath.Contains("v1")) {
             # this will generate v1 and v2 so we only need to call it once for one of the versions
-            Generate-Srv-Driven ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+            Generate-Srv-Driven ($(Join-Path $azureSpecsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
         }
         continue
     }
