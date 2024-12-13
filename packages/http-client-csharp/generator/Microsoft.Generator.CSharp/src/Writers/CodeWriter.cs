@@ -79,7 +79,7 @@ namespace Microsoft.Generator.CSharp
             const string declarationFormatString = ":D"; // :D :)
             const string identifierFormatString = ":I";
             const string crefFormatString = ":C"; // wraps content into "see cref" tag, available only in xmlDoc
-            foreach ((var span, bool isLiteral, int index) in StringExtensions.GetPathParts(formattableString.Format))
+            foreach ((var span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(formattableString.Format))
             {
                 if (isLiteral)
                 {

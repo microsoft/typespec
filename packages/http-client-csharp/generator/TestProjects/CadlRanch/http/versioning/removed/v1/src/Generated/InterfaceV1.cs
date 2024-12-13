@@ -20,7 +20,7 @@ namespace Versioning.Removed.V1
 
         public virtual Task<ClientResult> V1InInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ModelV1> V1InInterface(ModelV1 body) => throw null;
+        public virtual ClientResult<ModelV1> V1InInterface(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<ModelV1>> V1InInterfaceAsync(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
     }

@@ -20,7 +20,7 @@ namespace _Type.Property.ValueTypes
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<UnknownIntProperty> Get() => throw null;
+        public virtual ClientResult<UnknownIntProperty> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<UnknownIntProperty>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.ValueTypes
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(UnknownIntProperty body) => throw null;
+        public virtual ClientResult Put(UnknownIntProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(UnknownIntProperty body, CancellationToken cancellationToken = default) => throw null;
     }
