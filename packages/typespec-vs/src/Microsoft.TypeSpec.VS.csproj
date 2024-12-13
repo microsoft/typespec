@@ -33,7 +33,7 @@
     <Reference Include="System.ComponentModel.Composition" />
     <!-- The 'MessagePack' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.SDK', 'Microsoft.VisualStudio.Workspace' and 'Microsoft.VisualStudio.VSIntegration' -->
     <!-- Have to add it explicitly here because the version used by 'Microsoft.VisualStudio...' report vulnerabilities now -->
-    <!-- TODO: remove this explicit reference after 'Microsoft.VisualStudio...' releases new version having 'MessagePack' updated to vulnerability free version-->
+    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version having 'MessagePack' updated to vulnerability free version-->
     <PackageReference Include="MessagePack" Version="2.5.192" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
     <Content Include="Icons\logo.png">
@@ -49,13 +49,13 @@
   <ItemGroup>
     <!-- The 'Microsoft.VisualStudio.Composition' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.Workspace' -->
     <!-- Have to add it explicitly here because otherwise 'Microsoft.VisualStudio.Workspace" will report warning NU1603 because its desired version not found and higher version will be used -->
-    <!-- TODO: remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
+    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
     <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.12.18" />
     <!-- Use 17.0.x or latest 16.x if no 17.0.x for compatible API-->
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.12.40392" ExcludeAssets="Runtime" />
     <!-- The 'Microsoft.VisualStudio.Shell.15.0' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.Workspace.VSIntegration' -->
     <!-- Have to add it explicitly here because otherwise 'Microsoft.VisualStudio.Workspace.VSIntegration" will report warning NU1603 because its desired version not found and higher version will be used -->
-    <!-- TODO: remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
+    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
     <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.12.40392" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.12.19" ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.12.19" ExcludeAssets="Runtime" />
