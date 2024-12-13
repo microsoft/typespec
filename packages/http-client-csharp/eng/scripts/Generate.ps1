@@ -50,20 +50,21 @@ function IsSpecDir {
 }
 
 $failingSpecs = @(
-    Join-Path 'specs' 'payload' 'pageable'
-    Join-Path 'specs' 'special-headers' 'conditional-request'
-    Join-Path 'specs' 'type' 'model' 'flatten'
-    Join-Path 'specs' 'type' 'model' 'templated'
+    Join-Path 'http' 'payload' 'pageable'
+    Join-Path 'http' 'payload' 'xml'
+    Join-Path 'http' 'special-headers' 'conditional-request'
+    Join-Path 'http' 'type' 'model' 'flatten'
+    Join-Path 'http' 'type' 'model' 'templated'
 )
 
 $azureWhiteSpecs = @(
-    Join-Path 'specs' 'client' 'naming'
-    Join-Path 'specs' 'client' 'structure' 'client-operation-group'
-    Join-Path 'specs' 'client' 'structure' 'default'
-    Join-Path 'specs' 'client' 'structure' 'multi-client'
-    Join-Path 'specs' 'client' 'structure' 'renamed-operation'
-    Join-Path 'specs' 'client' 'structure' 'two-operation-group'
-    Join-Path 'specs' 'resiliency' 'srv-driven'
+    Join-Path 'http' 'client' 'naming'
+    Join-Path 'http' 'client' 'structure' 'client-operation-group'
+    Join-Path 'http' 'client' 'structure' 'default'
+    Join-Path 'http' 'client' 'structure' 'multi-client'
+    Join-Path 'http' 'client' 'structure' 'renamed-operation'
+    Join-Path 'http' 'client' 'structure' 'two-operation-group'
+    Join-Path 'http' 'resiliency' 'srv-driven'
 )
 
 $cadlRanchLaunchProjects = @{}
@@ -83,6 +84,7 @@ foreach ($directory in $directories) {
         $specFile = Join-Path $directory.FullName "main.tsp"
     }
     $subPath = if ($fromAzure) {$directory.FullName.Substring($azureSpecsDirectory.Length + 1)} else {$directory.FullName.Substring($specsDirectory.Length + 1)}
+    $subPath = $subPath -replace '^specs', 'http' # Keep consistent with the previous folder name
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
@@ -100,9 +102,6 @@ foreach ($directory in $directories) {
 
     $generationDir = $cadlRanchRoot
     foreach ($folder in $folders) {
-        if ($folder -eq "specs") {
-            $folder = "http" # Keep consistent with the previous folder name
-        }
         $generationDir = Join-Path $generationDir $folder
     }
 

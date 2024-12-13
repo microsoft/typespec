@@ -27,7 +27,5 @@ namespace _Type.Model.Visibility.Models
             get => throw null;
             set => throw null;
         }
-
-        public VisibilityModelNoneProp NoneProp => throw null;
     }
 }
