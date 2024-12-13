@@ -25,7 +25,9 @@ class ClientSerializer:
             function_def="def",
             method_name="__init__",
             need_self_param=True,
-            method_param_signatures=self.client.parameters.method_signature(async_mode),
+            method_param_signatures=self.client.parameters.method_signature(
+                async_mode, serialize_namespace=self.serialize_namespace
+            ),
             pylint_disable=pylint_disable,
         )
 

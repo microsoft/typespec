@@ -240,7 +240,9 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
             function_def=self._function_def,
             method_name=builder.name,
             need_self_param=self._need_self_param,
-            method_param_signatures=builder.method_signature(self.async_mode),
+            method_param_signatures=builder.method_signature(
+                self.async_mode, serialize_namespace=self.serialize_namespace
+            ),
             pylint_disable=builder.pylint_disable(self.async_mode),
         )
 
@@ -298,6 +300,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
             )
             docstring_type = param.docstring_type(
                 async_mode=self.async_mode,
+                serialize_namespace=self.serialize_namespace,
             )
             description_list.append(f":{param.docstring_type_keyword} {param.client_name}: {docstring_type}")
         return description_list
@@ -1023,11 +1026,14 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 if isinstance(e.status_codes[0], int):
                     for status_code in e.status_codes:
                         retval.append(f"    {condition} response.status_code == {status_code}:")
+                        type_annotation = e.type.type_annotation(  # type: ignore
+                            is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
+                        )
                         if self.code_model.options["models_mode"] == "dpg":
-                            retval.append(f"        error = _failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)},  response.json())")  # type: ignore # pylint: disable=line-too-long
+                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response.json())")
                         else:
                             retval.append(
-                                f"        error = self._deserialize.failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)}, "  # type: ignore # pylint: disable=line-too-long
+                                f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
                                 "pipeline_response)"
                             )
                         # add build-in error type
@@ -1065,11 +1071,14 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     retval.append(
                         f"    {condition} {e.status_codes[0][0]} <= response.status_code <= {e.status_codes[0][1]}:"
                     )
+                    type_annotation = e.type.type_annotation(  # type: ignore
+                        is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
+                    )
                     if self.code_model.options["models_mode"] == "dpg":
-                        retval.append(f"        error = _failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)},  response.json())")  # type: ignore  # pylint: disable=line-too-long
+                        retval.append(f"        error = _failsafe_deserialize({type_annotation},  response.json())")
                     else:
                         retval.append(
-                            f"        error = self._deserialize.failsafe_deserialize({e.type.type_annotation(is_operation_file=True, skip_quote=True)}, "  # type: ignore  # pylint: disable=line-too-long
+                            f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
                             "pipeline_response)"
                         )
                 condition = "elif"
@@ -1326,7 +1335,9 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         access = f".{item_name}" if self.code_model.options["models_mode"] == "msrest" else f'["{item_name}"]'
         list_of_elem_deserialized = ""
         if self.code_model.options["models_mode"] == "dpg":
-            item_type = builder.item_type.type_annotation(is_operation_file=True)
+            item_type = builder.item_type.type_annotation(
+                is_operation_file=True, serialize_namespace=self.serialize_namespace
+            )
             list_of_elem_deserialized = f"_deserialize({item_type}, deserialized{access})"
         else:
             list_of_elem_deserialized = f"deserialized{access}"

@@ -212,8 +212,8 @@ class _ParameterBase(BaseModel, abc.ABC):  # pylint: disable=too-many-instance-a
     @abc.abstractmethod
     def in_method_signature(self) -> bool: ...
 
-    def method_signature(self, async_mode: bool) -> str:
-        type_annotation = self.type_annotation(async_mode=async_mode)
+    def method_signature(self, async_mode: bool, **kwargs: Any) -> str:
+        type_annotation = self.type_annotation(async_mode=async_mode, **kwargs)
         if self.client_default_value is not None or self.optional:
             return f"{self.client_name}: {type_annotation} = {self.client_default_value_declaration},"
         if self.default_to_unset_sentinel:

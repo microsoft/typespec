@@ -104,7 +104,7 @@ class OperationGroup(BaseModel):
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         for operation in self.operations:
             file_import.merge(operation.imports(async_mode, **kwargs))
-        if (not self.code_model.options["combine_operation_files"]):
+        if not self.code_model.options["combine_operation_files"]:
             for og in self.operation_groups:
                 file_import.add_submodule_import(
                     self.code_model.get_relative_import_path(
@@ -118,18 +118,20 @@ class OperationGroup(BaseModel):
                 )
         else:
             for og in self.operation_groups:
-                namespace = self.code_model.get_serialize_namespace(og.client_namespace, async_mode, NamespaceType.OPERATION)
+                namespace = self.code_model.get_serialize_namespace(
+                    og.client_namespace, async_mode, NamespaceType.OPERATION
+                )
                 if namespace != serialize_namespace:
-                  file_import.add_submodule_import(
-                      self.code_model.get_relative_import_path(
-                          serialize_namespace,
-                          og.client_namespace,
-                          imported_namespace_type=NamespaceType.OPERATION,
-                          async_mode=async_mode,
-                      ),
-                      og.class_name,
-                      ImportType.LOCAL,
-                  )
+                    file_import.add_submodule_import(
+                        self.code_model.get_relative_import_path(
+                            serialize_namespace,
+                            og.client_namespace,
+                            imported_namespace_type=NamespaceType.OPERATION,
+                            async_mode=async_mode,
+                        ),
+                        og.class_name,
+                        ImportType.LOCAL,
+                    )
         # for multiapi
         if (
             (self.code_model.public_model_types)

@@ -172,9 +172,12 @@ class EnumType(BaseType):
         :rtype: str
         """
         if self.code_model.options["models_mode"]:
-            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-            model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
-            module_name = f"{model_alias}." if kwargs.get("need_model_alias", True) else ""
+
+            module_name = ""
+            if kwargs.get("need_model_alias", True):
+                serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
+                model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
+                module_name = f"{model_alias}."
             file_name = f"{self.code_model.enums_filename}." if self.internal else ""
             model_name = module_name + file_name + self.name
             # we don't need quoted annotation in operation files, and need it in model folder files.

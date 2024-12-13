@@ -113,7 +113,7 @@ class BaseBuilder(
             )
         return self._description or self.name
 
-    def method_signature(self, async_mode: bool) -> List[str]:
+    def method_signature(self, async_mode: bool, **kwargs: Any) -> List[str]:
         if self.abstract:
             return ["*args,", "**kwargs"]
-        return self.parameters.method_signature(async_mode)
+        return self.parameters.method_signature(async_mode, **kwargs)
