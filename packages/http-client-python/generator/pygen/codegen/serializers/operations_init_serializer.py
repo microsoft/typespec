@@ -18,7 +18,7 @@ class OperationsInitSerializer:
         async_mode: bool,
     ) -> None:
         self.code_model = code_model
-        self.operation_groups = operation_groups
+        self.operation_groups = [og for og in operation_groups if not og.has_parent_operation_group]
         self.env = env
         self.async_mode = async_mode
 

@@ -113,6 +113,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         *,
         imported_namespace_type: NamespaceType = NamespaceType.CLIENT,
         async_mode: bool = False,
+        filename: str = "",
         module_name: Optional[str] = None,
     ) -> str:
         if imported_namespace is None:
@@ -125,7 +126,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
                 module_namespace = f".{self.operations_folder_name(imported_namespace)}"
             else:
                 module_namespace = ""
-            imported_namespace = imported_namespace + async_namespace + module_namespace
+            imported_namespace = imported_namespace + async_namespace + module_namespace + filename
 
         key = f"{serialize_namespace}-{imported_namespace}"
         if key not in self._relative_import_path:

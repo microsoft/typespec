@@ -307,6 +307,7 @@ class GeneratedModelType(ModelType):
         relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
         alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
+        called_by_property = kwargs.get("called_by_property", False)
         # add import for models in operations or _types file
         if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
             file_import.add_submodule_import(
@@ -314,16 +315,16 @@ class GeneratedModelType(ModelType):
                 "models",
                 ImportType.LOCAL,
                 alias=alias,
-                typing_section=TypingSection.REGULAR,
             )
             if self.is_form_data:
                 file_import.add_submodule_import(
                     self.code_model.get_relative_import_path(serialize_namespace),
                     "_model_base",
                     ImportType.LOCAL,
-                    typing_section=TypingSection.REGULAR,
                 )
-        elif serialize_namespace_type in [NamespaceType.MODEL, NamespaceType.TYPES_FILE]:
+        elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
+            serialize_namespace_type == NamespaceType.MODEL and called_by_property
+        ):
             file_import.add_submodule_import(
                 relative_path,
                 "models",

@@ -225,23 +225,42 @@ class DpgModelSerializer(_ModelSerializer):
 
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
-        file_import.add_submodule_import(
-            self.code_model.get_relative_import_path(self.serialize_namespace),
-            "_model_base",
-            ImportType.LOCAL,
-            TypingSection.REGULAR,
-        )
-
+        if any(not m.parents for m in self.models):
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(self.serialize_namespace),
+                "_model_base",
+                ImportType.LOCAL,
+                TypingSection.REGULAR,
+            )
         for model in self.models:
             if model.base == "json":
                 continue
-            file_import.merge(model.imports(is_operation_file=False, serialize_namespace=self.serialize_namespace))
+            file_import.merge(
+                model.imports(
+                    is_operation_file=False,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.MODEL,
+                )
+            )
             for prop in model.properties:
                 file_import.merge(
                     prop.imports(
-                        serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.MODEL
+                        serialize_namespace=self.serialize_namespace,
+                        serialize_namespace_type=NamespaceType.MODEL,
+                        called_by_property=True,
                     )
                 )
+            for parent in model.parents:
+                if parent.client_namespace != model.client_namespace:
+                    file_import.add_submodule_import(
+                        self.code_model.get_relative_import_path(
+                            self.serialize_namespace,
+                            parent.client_namespace,
+                            imported_namespace_type=NamespaceType.MODEL,
+                        ),
+                        parent.name,
+                        ImportType.LOCAL,
+                    )
             if model.is_polymorphic:
                 file_import.add_submodule_import("typing", "Dict", ImportType.STDLIB)
             if not model.internal and self.init_line(model):

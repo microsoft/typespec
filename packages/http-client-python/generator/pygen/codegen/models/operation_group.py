@@ -128,6 +128,7 @@ class OperationGroup(BaseModel):
                             og.client_namespace,
                             imported_namespace_type=NamespaceType.OPERATION,
                             async_mode=async_mode,
+                            filename=f".{og.filename}",
                         ),
                         og.class_name,
                         ImportType.LOCAL,
