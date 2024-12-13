@@ -1,4 +1,3 @@
-import { cwd } from "node:process";
 import vscode, { QuickPickItem } from "vscode";
 import logger from "../log/logger.js";
 import { InstallGlobalCliCommandArgs } from "../types.js";
@@ -42,7 +41,11 @@ export async function installCompilerGlobally(
       const TIMEOUT = 300000; // set timeout to 5 minutes which should be enough for installing compiler
       try {
         const output = await createPromiseWithCancelAndTimeout(
-          spawnExecutionAndLogToOutput("npm", ["install", "-g", "@typespec/compiler"], cwd()),
+          spawnExecutionAndLogToOutput(
+            "npm",
+            ["install", "-g", "@typespec/compiler"],
+            process.cwd(),
+          ),
           token,
           TIMEOUT,
         );
