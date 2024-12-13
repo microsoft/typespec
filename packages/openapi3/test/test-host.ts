@@ -98,7 +98,7 @@ export async function openApiFor(
     "./main.tsp",
     `import "@typespec/http"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3";import "@typespec/xml";import "@typespec/json-schema"; ${
       versions ? `import "@typespec/versioning"; using TypeSpec.Versioning;` : ""
-    }using TypeSpec.Rest;using TypeSpec.Http;using TypeSpec.OpenAPI;using TypeSpec.Xml;using TypeSpec.JsonSchema;${code}`,
+    }using TypeSpec.Rest;using TypeSpec.Http;using TypeSpec.OpenAPI;using TypeSpec.Xml;${code}`,
   );
   const diagnostics = await host.diagnose("./main.tsp", {
     noEmit: false,
