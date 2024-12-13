@@ -65,7 +65,7 @@ export async function activate(context: ExtensionContext) {
               logger.info(
                 "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
               );
-              return await recreateLSPClient(context, args?.popupRecreateLspError);
+              return recreateLSPClient(context, args?.popupRecreateLspError);
             }
           },
         );
