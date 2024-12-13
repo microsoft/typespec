@@ -5,7 +5,6 @@ import {
   SdkBodyParameter,
   SdkBuiltInKinds,
   SdkContext,
-  SdkCookieParameter,
   SdkHeaderParameter,
   SdkHttpOperation,
   SdkHttpParameter,
@@ -152,8 +151,12 @@ function fromSdkOperationParameters(
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
     if (p.kind === "cookie") {
-      Logger.getInstance().error(`Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`);
-      throw new Error(`Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`);
+      Logger.getInstance().error(
+        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
+      );
+      throw new Error(
+        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
+      );
     }
     const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeMap);
     parameters.set(p, param);
