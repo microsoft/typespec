@@ -218,5 +218,5 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   ) {
     return rootNamespace;
   }
-  return removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+  return clientNamespace === "" ? rootNamespace : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
 }
