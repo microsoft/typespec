@@ -20,7 +20,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IntLiteralProperty> GetAll() => throw null;
+        public virtual ClientResult<IntLiteralProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<IntLiteralProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> GetDefaultAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IntLiteralProperty> GetDefault() => throw null;
+        public virtual ClientResult<IntLiteralProperty> GetDefault(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<IntLiteralProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -36,7 +36,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutAll(IntLiteralProperty body) => throw null;
+        public virtual ClientResult PutAll(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAllAsync(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -44,7 +44,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutDefault(IntLiteralProperty body) => throw null;
+        public virtual ClientResult PutDefault(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutDefaultAsync(IntLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }

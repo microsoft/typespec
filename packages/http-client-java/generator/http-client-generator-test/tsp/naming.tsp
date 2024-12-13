@@ -72,7 +72,6 @@ model BytesData extends Data {
   @doc("Data as {@code byte[]}")
   @clientName("dataAsBytes")
   @encodedName("application/json", "data_bytes")
-  @projectedName("client", "noeffect")
   data: bytes;
 }
 
