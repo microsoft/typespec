@@ -2,6 +2,7 @@ import { EmitContext, Namespace, Program } from "@typespec/compiler";
 import { AssetEmitter } from "@typespec/compiler/emitter-framework";
 import { MetadataInfo } from "@typespec/http";
 import { getExternalDocs, resolveInfo } from "@typespec/openapi";
+import { JsonSchemaModule } from "./json-schema-module.js";
 import { OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { createSchemaEmitter3_0 } from "./schema-emitter-3-0.js";
@@ -17,6 +18,7 @@ export type CreateSchemaEmitter = (props: {
   visibilityUsage: VisibilityUsageTracker;
   options: ResolvedOpenAPI3EmitterOptions;
   xmlModule: XmlModule | undefined;
+  jsonSchemaModule: JsonSchemaModule | undefined;
 }) => AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
 export interface OpenApiSpecSpecificProps {

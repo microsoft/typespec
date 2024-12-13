@@ -88,6 +88,7 @@ import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
+import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema-module.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
@@ -312,6 +313,7 @@ function createOAPIEmitter(
     allHttpAuthentications: HttpAuth[],
     defaultAuth: AuthenticationReference,
     xmlModule: XmlModule | undefined,
+    jsonSchemaModule: JsonSchemaModule | undefined,
     version?: string,
   ) {
     diagnostics = createDiagnosticCollector();
@@ -334,6 +336,7 @@ function createOAPIEmitter(
       visibilityUsage,
       options,
       xmlModule,
+      jsonSchemaModule,
     });
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
@@ -638,7 +641,15 @@ function createOAPIEmitter(
       const auth = (serviceAuth = resolveAuthentication(httpService));
 
       const xmlModule = await resolveXmlModule();
-      initializeEmitter(service, auth.schemes, auth.defaultAuth, xmlModule, version);
+      const jsonSchemaModule = await resolveJsonSchemaModule();
+      initializeEmitter(
+        service,
+        auth.schemes,
+        auth.defaultAuth,
+        xmlModule,
+        jsonSchemaModule,
+        version,
+      );
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {

@@ -66,6 +66,7 @@ import {
 import { attachExtensions } from "./attach-extensions.js";
 import { getOneOf, getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
+import { JsonSchemaModule } from "./json-schema-module.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
@@ -89,18 +90,21 @@ export class OpenAPI3SchemaEmitterBase<
   protected _visibilityUsage: VisibilityUsageTracker;
   protected _options: ResolvedOpenAPI3EmitterOptions;
   protected _xmlModule: XmlModule | undefined;
+  protected _jsonSchemaModule: JsonSchemaModule | undefined;
   constructor(
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
     options: ResolvedOpenAPI3EmitterOptions,
     xmlModule: XmlModule | undefined,
+    jsonSchemaModule: JsonSchemaModule | undefined,
   ) {
     super(emitter);
     this._metadataInfo = metadataInfo;
     this._visibilityUsage = visibilityUsage;
     this._options = options;
     this._xmlModule = xmlModule;
+    this._jsonSchemaModule = jsonSchemaModule;
   }
 
   modelDeclarationReferenceContext(model: Model, name: string): Context {
@@ -606,6 +610,10 @@ export class OpenAPI3SchemaEmitterBase<
     refSchema?: Schema,
   ) {}
 
+  applyJsonSchemaConstraints(
+    applyConstraint: (fn: (p: Program, t: Type) => any, key: keyof CommonOpenAPI3Schema) => void,
+  ) {}
+
   applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: Schema,
@@ -628,6 +636,7 @@ export class OpenAPI3SchemaEmitterBase<
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");
+    this.applyJsonSchemaConstraints(applyConstraint);
 
     if (isSecret(program, type)) {
       schema.format = "password";

@@ -70,6 +70,9 @@
   "peerDependenciesMeta": {
     "@typespec/xml": {
       "optional": true
+    },
+    "@typespec/json-schema": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -83,6 +86,7 @@
     "@typespec/tspd": "workspace:~",
     "@typespec/versioning": "workspace:~",
     "@typespec/xml": "workspace:~",
+    "@typespec/json-schema": "workspace:~",
     "@vitest/coverage-v8": "^2.1.5",
     "@vitest/ui": "^2.1.2",
     "c8": "^10.1.2",

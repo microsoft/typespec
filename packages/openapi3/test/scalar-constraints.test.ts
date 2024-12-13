@@ -220,13 +220,15 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
       strictEqual(schema.maxLength, 2);
       strictEqual(schema.pattern, "a|b");
       strictEqual(schema.format, "ipv4");
+      strictEqual(schema.contentEncoding, "base64");
     }
 
     const decorators = `
       @minLength(1)
       @maxLength(2)
       @pattern("a|b")
-      @format("ipv4")`;
+      @format("ipv4")
+      @contentEncoding("base64")`;
 
     it("on scalar declaration", async () => {
       const schemas = await oapiForModel(
