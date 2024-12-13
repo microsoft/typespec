@@ -54,7 +54,6 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHeaderParameter,
   SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpResponse,
@@ -64,7 +63,6 @@ import {
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
-  SdkQueryParameter,
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
@@ -163,6 +161,8 @@ import {
   trace,
 } from "./utils.js";
 const { isEqual } = pkg;
+
+type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
 
 export class CodeModelBuilder {
   private program: Program;
@@ -969,20 +969,19 @@ export class CodeModelBuilder {
         if (bodyType && bodyType.kind === "model") {
           const itemName = sdkMethod.response.resultPath;
           const nextLinkName = sdkMethod.nextLinkPath;
-          if (itemName && nextLinkName) {
-            op.extensions = op.extensions ?? {};
-            op.extensions["x-ms-pageable"] = {
-              itemName: itemName,
-              nextLinkName: nextLinkName,
-            };
 
-            op.responses?.forEach((r) => {
-              if (r instanceof SchemaResponse) {
-                this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
-              }
-            });
-            break;
-          }
+          op.extensions = op.extensions ?? {};
+          op.extensions["x-ms-pageable"] = {
+            itemName: itemName,
+            nextLinkName: nextLinkName,
+          };
+
+          op.responses?.forEach((r) => {
+            if (r instanceof SchemaResponse) {
+              this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+            }
+          });
+          break;
         }
       }
     }
@@ -1095,7 +1094,7 @@ export class CodeModelBuilder {
 
   private processParameter(
     op: CodeModelOperation,
-    param: SdkQueryParameter | SdkPathParameter | SdkHeaderParameter,
+    param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
     if (clientContext.apiVersions && isApiVersion(this.sdkContext, param)) {
@@ -1589,11 +1588,7 @@ export class CodeModelBuilder {
   }
 
   private addParameterOrBodyPropertyToCodeModelRequest(
-    opParameter:
-      | SdkPathParameter
-      | SdkHeaderParameter
-      | SdkQueryParameter
-      | SdkBodyModelPropertyType,
+    opParameter: SdkHttpOperationParameterType | SdkBodyModelPropertyType,
     op: CodeModelOperation,
     request: Request,
     schema: ObjectSchema,
@@ -2542,25 +2537,33 @@ export class CodeModelBuilder {
     // clientNamespace from TCGC
     const clientNamespace: string | undefined = type?.clientNamespace;
 
-    if (this.isBranded() && type) {
-      // special handling for namespace of model that cannot be mapped to azure-core
-      if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
-        // TypeSpec.Http.File
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
-        // Azure.Core.OperationState
-        return this.baseJavaNamespace;
-      } else if (
-        type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
-        type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
-      ) {
-        // Azure.Core.ResourceOperationStatus<>
-        // Azure.Core.Foundations.OperationStatus<>
-        // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
-        // models in Azure.ResourceManager
-        return this.baseJavaNamespace;
+    if (type) {
+      if (this.isBranded()) {
+        // special handling for namespace of model that cannot be mapped to azure-core
+        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
+          // Azure.Core.OperationState
+          return this.baseJavaNamespace;
+        } else if (
+          type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
+          type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
+        ) {
+          // Azure.Core.ResourceOperationStatus<>
+          // Azure.Core.Foundations.OperationStatus<>
+          // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
+          // models in Azure.ResourceManager
+          return this.baseJavaNamespace;
+        }
+      } else {
+        // special handling for namespace of model in TypeSpec.Rest.Resource
+        if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+          // models in TypeSpec.Rest.Resource
+          return this.baseJavaNamespace;
+        }
       }
     }
 

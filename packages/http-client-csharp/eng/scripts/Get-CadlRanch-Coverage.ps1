@@ -28,10 +28,6 @@ foreach ($directory in $directories) {
     $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
     $subPath = $outputDir.Substring($cadlRanchRoot.Length + 1)
 
-    if ($subPath.Contains($(Join-Path 'srv-driven' 'v1'))) {
-        continue
-    }
-
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
 
     $specFile = Join-Path $specsDirectory $subPath "client.tsp"

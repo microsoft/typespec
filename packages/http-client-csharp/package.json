@@ -58,7 +58,7 @@
     "@typespec/http-specs": "0.1.0-alpha.4",
     "@azure-tools/azure-http-specs": "0.1.0-alpha.2",
     "@azure-tools/typespec-azure-core": "0.48.0",
-    "@azure-tools/typespec-client-generator-core": "0.48.1",
+    "@azure-tools/typespec-client-generator-core": "0.48.6",
     "@microsoft/api-extractor": "^7.47.11",
     "@types/node": "~22.7.5",
     "@typespec/compiler": "0.62.0",

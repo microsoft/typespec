@@ -7,27 +7,31 @@ import {
 const storageAccountName = "typespec";
 
 export type GeneratorNames =
-  | "python"
-  | "typescript/rlc"
-  | "typescript/modular"
-  | "csharp"
+  | "@typespec/http-client-python"
+  | "@azure-tools/typespec-python"
+  | "@azure-tools/typespec-go"
+  | "@azure-tools/typespec-csharp"
   | "@typespec/http-client-csharp"
-  | "java"
-  | "go"
-  | "cpp"
-  | "rust"
+  | "@azure-tools/typespec-ts-rlc"
+  | "@azure-tools/typespec-ts-modular"
+  | "@azure-tools/typespec-java"
+  | "@typespec/http-client-java"
+  | "@azure-tools/typespec-cpp"
+  | "@azure-tools/typespec-rust"
   | "test";
 const query = new URLSearchParams(window.location.search);
 const generatorNames: GeneratorNames[] = [
-  "python",
-  "typescript/rlc",
-  "typescript/modular",
-  "csharp",
+  "@typespec/http-client-python",
+  "@azure-tools/typespec-python",
+  "@azure-tools/typespec-go",
+  "@azure-tools/typespec-csharp",
   "@typespec/http-client-csharp",
-  "java",
-  "go",
-  "cpp",
-  "rust",
+  "@azure-tools/typespec-ts-rlc",
+  "@azure-tools/typespec-ts-modular",
+  "@azure-tools/typespec-java",
+  "@typespec/http-client-java",
+  "@azure-tools/typespec-cpp",
+  "@azure-tools/typespec-rust",
   ...(query.has("showtest") ? (["test"] as const) : []),
 ];
 
