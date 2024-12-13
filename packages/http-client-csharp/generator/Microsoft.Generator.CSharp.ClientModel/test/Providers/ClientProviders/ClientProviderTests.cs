@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -59,7 +60,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 apiKeyAuth: apiKeyAuth,
                 oauth2Auth: oauth2Auth,
                 clients: clients,
-                clientPipelineApi: _hasAuth ? TestClientPipelineApi.Instance : null);
+                clientPipelineApi: TestClientPipelineApi.Instance);
         }
 
         [Test]
@@ -227,9 +228,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var expectedPrimaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
             Assert.AreEqual(expectedPrimaryCtorCount, primaryPublicConstructors.Length);
 
-            foreach (var primaryCtor in primaryPublicConstructors)
+            for (int i = 0; i < primaryPublicConstructors.Length; i++)
             {
-                ValidatePrimaryConstructor(primaryCtor, inputParameters);
+                ValidatePrimaryConstructor(primaryPublicConstructors[i], inputParameters, i);
             }
         }
 
@@ -330,7 +331,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         private void ValidatePrimaryConstructor(
             ConstructorProvider primaryPublicConstructor,
-            List<InputParameter> inputParameters)
+            List<InputParameter> inputParameters,
+            int ctorIndex,
+            [CallerMemberName] string method = "",
+            [CallerFilePath] string filePath = "")
         {
             var primaryCtorParams = primaryPublicConstructor?.Signature?.Parameters;
             // in no auth case, the ctor only have two parameters: endpoint and options
@@ -375,8 +379,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
 
             // validate the body of the primary ctor
+            var caseName = TestContext.CurrentContext.Test.Properties.Get("caseName");
+            var expected = Helpers.GetExpectedFromFile($"{caseName},{_hasKeyAuth},{_hasOAuth2},{ctorIndex}", method, filePath);
             var primaryCtorBody = primaryPublicConstructor?.BodyStatements;
             Assert.IsNotNull(primaryCtorBody);
+            Assert.AreEqual(expected, primaryCtorBody?.ToDisplayString());
         }
 
         private void ValidateSecondaryConstructor(
@@ -960,7 +967,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         defaultValue: InputFactory.Constant.String("someValue"),
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                });
+                }).SetProperty("caseName", "WithDefault");
                 // scenario where endpoint is required
                 yield return new TestCaseData(new List<InputParameter>
                 {
@@ -976,7 +983,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         kind: InputOperationParameterKind.Client)
-                });
+                }).SetProperty("caseName", "WithRequired");
             }
         }
 
@@ -1185,47 +1192,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         // TODO -- this is temporary here before System.ClientModel officially supports OAuth2 auth
-        private record TestClientPipelineApi : ClientPipelineApi
+        private record TestClientPipelineApi : ClientPipelineProvider
         {
             private static ClientPipelineApi? _instance;
-            internal static ClientPipelineApi Instance => _instance ??= new TestClientPipelineApi(Empty);
+            internal new static ClientPipelineApi Instance => _instance ??= new TestClientPipelineApi(Empty);
 
-            public TestClientPipelineApi(ValueExpression original) : base(typeof(string), original)
+            public TestClientPipelineApi(ValueExpression original) : base(original)
             {
             }
 
-            public override CSharpType ClientPipelineType => typeof(string);
-
-            public override CSharpType ClientPipelineOptionsType => typeof(string);
-
-            public override CSharpType PipelinePolicyType => typeof(string);
-
-            public override CSharpType KeyCredentialType => typeof(ApiKeyCredential);
-
             public override CSharpType TokenCredentialType => typeof(FakeTokenCredential);
-
-            public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
-                => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
-
-            public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
-                => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
-
-            public override ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
-                => Original.Invoke("GetFakeApiKeyAuthorizationPolicy", keyPrefix != null ? [credential, headerName, keyPrefix] : [credential, headerName]);
-
+                
             public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
                 => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
 
             public override ClientPipelineApi ToExpression() => this;
-
-            public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
-                => [Original.Invoke("GetFakeProcessMessage", [message, options]).Terminate()];
-
-            public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
-                => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
         }
 
         internal class FakeTokenCredential { }
