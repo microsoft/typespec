@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.4.3
+
+### Bump dependencies
+
+- Bump `@typespec/*` 0.63.0 and `@azure-tools/*` 0.49.0
+
 ## 0.4.2
 
 ### Bug Fixes
