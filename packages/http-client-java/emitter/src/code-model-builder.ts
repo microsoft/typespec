@@ -2537,25 +2537,33 @@ export class CodeModelBuilder {
     // clientNamespace from TCGC
     const clientNamespace: string | undefined = type?.clientNamespace;
 
-    if (this.isBranded() && type) {
-      // special handling for namespace of model that cannot be mapped to azure-core
-      if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
-        // TypeSpec.Http.File
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
-        // Azure.Core.OperationState
-        return this.baseJavaNamespace;
-      } else if (
-        type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
-        type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
-      ) {
-        // Azure.Core.ResourceOperationStatus<>
-        // Azure.Core.Foundations.OperationStatus<>
-        // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
-        // models in Azure.ResourceManager
-        return this.baseJavaNamespace;
+    if (type) {
+      if (this.isBranded()) {
+        // special handling for namespace of model that cannot be mapped to azure-core
+        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
+          // Azure.Core.OperationState
+          return this.baseJavaNamespace;
+        } else if (
+          type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
+          type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
+        ) {
+          // Azure.Core.ResourceOperationStatus<>
+          // Azure.Core.Foundations.OperationStatus<>
+          // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
+          // models in Azure.ResourceManager
+          return this.baseJavaNamespace;
+        }
+      } else {
+        // special handling for namespace of model in TypeSpec.Rest.Resource
+        if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+          // models in TypeSpec.Rest.Resource
+          return this.baseJavaNamespace;
+        }
       }
     }
 
