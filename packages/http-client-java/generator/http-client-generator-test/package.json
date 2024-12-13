@@ -7,9 +7,9 @@
     "format": "npm run -s prettier -- --write",
     "check-format": "npm run prettier -- --check",
     "prettier": "prettier --config ./.prettierrc.yaml **/*.tsp",
-    "tsp-spector-run": "tsp-spector serve ./node_modules/@typespec/http-specs/specs ./node_modules/@azure-tools/azure-http-specs/specs --coverageFile ./tsp-spector-coverage-java-standard.json",
-    "tsp-spector-start": "tsp-spector server start ./node_modules/@typespec/http-specs/specs ./node_modules/@azure-tools/azure-http-specs/specs --coverageFile ./tsp-spector-coverage-java-standard.json",
-    "tsp-spector-stop": "tsp-spector server stop"
+    "spector-serve": "tsp-spector serve ./node_modules/@typespec/http-specs/specs ./node_modules/@azure-tools/azure-http-specs/specs --coverageFile ./tsp-spector-coverage-java-standard.json",
+    "spector-start": "tsp-spector server start ./node_modules/@typespec/http-specs/specs ./node_modules/@azure-tools/azure-http-specs/specs --coverageFile ./tsp-spector-coverage-java-standard.json",
+    "spector-stop": "tsp-spector server stop"
   },
   "dependencies": {
     "@typespec/http-specs": "0.1.0-alpha.5",
