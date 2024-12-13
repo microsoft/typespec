@@ -33,7 +33,7 @@ export interface DiagnosticMatch {
   /**
    * Match the severity.
    */
-  severity?: "error" | "warning";
+  severity?: "error" | "warning" | "hint";
 
   /**
    * Name of the file for this diagnostic.

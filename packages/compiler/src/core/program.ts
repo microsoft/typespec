@@ -15,6 +15,7 @@ import { PackageJson } from "../types/package-json.js";
 import { deepEquals, findProjectRoot, isDefined, mapEquals, mutate } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
+import { removeUnusedCodeCodeFix } from "./compiler-code-fixes/remove-unused-code.codefix.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
@@ -45,11 +46,13 @@ import {
   EmitContext,
   EmitterFunc,
   Entity,
+  IdentifierNode,
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
   LiteralType,
   LocationContext,
+  MemberExpressionNode,
   ModuleLibraryMetadata,
   Namespace,
   NoTarget,
@@ -250,6 +253,8 @@ export async function compile(
     return program;
   }
 
+  validateUnusedCode();
+
   // Linter stage
   program.reportDiagnostics(linter.lint());
 
@@ -259,6 +264,29 @@ export async function compile(
   }
 
   return program;
+
+  function validateUnusedCode() {
+    const getUsingName = (node: MemberExpressionNode | IdentifierNode): string => {
+      if (node.kind === SyntaxKind.MemberExpression) {
+        return `${getUsingName(node.base)}${node.selector}${node.id.sv}`;
+      } else {
+        // identifier node
+        return node.sv;
+      }
+    };
+    resolver.getUnusedUsings().forEach((target) => {
+      reportDiagnostic(
+        createDiagnostic({
+          code: "unused-using",
+          target: target,
+          format: {
+            code: `using ${getUsingName(target.name)}`,
+          },
+          codefixes: [removeUnusedCodeCodeFix(target)],
+        }),
+      );
+    });
+  }
 
   /**
    * Validate the libraries loaded during the compilation process are compatible.
