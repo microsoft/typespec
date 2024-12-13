@@ -13,11 +13,10 @@ import org.junit.jupiter.api.Test;
 
 public class PageTests {
 
-    private final PageClient client = new PageClientBuilder().endpoint("http://localhost:3001")
-        .httpClient(new AssertingHttpClientBuilder(
-            HttpClient.createDefault(new HttpClientOptions().setHttpClientProvider(NettyAsyncHttpClientProvider.class)))
-                .assertSync()
-                .build())
+    private final PageClient client = new PageClientBuilder().httpClient(new AssertingHttpClientBuilder(
+        HttpClient.createDefault(new HttpClientOptions().setHttpClientProvider(NettyAsyncHttpClientProvider.class)))
+            .assertSync()
+            .build())
         .buildClient();
 
     @Test
@@ -31,8 +30,7 @@ public class PageTests {
 
     @Test
     public void testListTwoModels() {
-        TwoModelsAsPageItemClient client
-            = new PageClientBuilder().endpoint("http://localhost:3001").buildTwoModelsAsPageItemClient();
+        TwoModelsAsPageItemClient client = new PageClientBuilder().buildTwoModelsAsPageItemClient();
 
         client.listFirstItem().stream().count();
 

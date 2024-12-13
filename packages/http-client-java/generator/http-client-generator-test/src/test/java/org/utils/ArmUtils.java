@@ -25,7 +25,7 @@ public final class ArmUtils {
 
     private final static AzureProfile AZURE_PROFILE
         = new AzureProfile("00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000000",
-            new AzureEnvironment(Map.of("resourceManagerEndpointUrl", "http://localhost:3001")));
+            new AzureEnvironment(Map.of("resourceManagerEndpointUrl", "http://localhost:3000")));
 
     private ArmUtils() {
     }
