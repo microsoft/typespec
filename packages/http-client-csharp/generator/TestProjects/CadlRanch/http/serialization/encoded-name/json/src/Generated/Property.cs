@@ -20,7 +20,7 @@ namespace Serialization.EncodedName.Json
 
         public virtual Task<ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Send(JsonEncodedNameModel body) => throw null;
+        public virtual ClientResult Send(JsonEncodedNameModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> SendAsync(JsonEncodedNameModel body, CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Serialization.EncodedName.Json
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<JsonEncodedNameModel> Get() => throw null;
+        public virtual ClientResult<JsonEncodedNameModel> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<JsonEncodedNameModel>> GetAsync(CancellationToken cancellationToken = default) => throw null;
     }

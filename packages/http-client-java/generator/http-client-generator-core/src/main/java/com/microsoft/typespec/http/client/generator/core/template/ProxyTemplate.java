@@ -211,9 +211,15 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                 for (Map.Entry<ClassType, List<Integer>> exception : restAPIMethod.getUnexpectedResponseExceptionTypes()
                     .entrySet()) {
                     ClientModel errorModel = ClientModelUtil.getErrorModelFromException(exception.getKey());
-                    interfaceBlock.annotation("UnexpectedResponseExceptionDetail(statusCode = {"
-                        + exception.getValue().stream().map(String::valueOf).collect(Collectors.joining(","))
-                        + " }, exceptionBodyClass = " + errorModel.getName() + ".class)");
+                    if (errorModel == null) {
+                        interfaceBlock.annotation("UnexpectedResponseExceptionDetail(statusCode = {"
+                            + exception.getValue().stream().map(String::valueOf).collect(Collectors.joining(","))
+                            + " })");
+                    } else {
+                        interfaceBlock.annotation("UnexpectedResponseExceptionDetail(statusCode = {"
+                            + exception.getValue().stream().map(String::valueOf).collect(Collectors.joining(","))
+                            + " }, exceptionBodyClass = " + errorModel.getName() + ".class)");
+                    }
                 }
             }
         }
