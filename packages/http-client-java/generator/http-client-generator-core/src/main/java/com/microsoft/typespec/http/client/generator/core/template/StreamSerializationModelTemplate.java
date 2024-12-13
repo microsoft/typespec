@@ -2320,6 +2320,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     });
                     propertiesManager.forEachXmlElement(element -> {
                         if (element.isRequired() && element.isConstant()) {
+                            // the element is element of a constant, which can only have one value
+                            // skip de-serialize
                             return;
                         }
                         handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, false);
