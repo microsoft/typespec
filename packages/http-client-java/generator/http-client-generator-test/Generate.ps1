@@ -89,7 +89,7 @@ $generateScript = {
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
-  $tspCommand = "npx tsp compile $tspFile $tspOptions $tspTrace"
+  $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
 
   $timer = [Diagnostics.Stopwatch]::StartNew()
   $generateOutput = Invoke-Expression $tspCommand
@@ -144,7 +144,7 @@ $job | Wait-Job -Timeout 600
 $job | Receive-Job
 
 # partial update test
-npx tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
+npx --no-install tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
 Copy-Item -Path ./existingcode/src/main/java/tsptest/partialupdate -Destination ./src/main/java/tsptest/partialupdate -Recurse -Force
 Remove-Item ./existingcode -Recurse -Force
 
