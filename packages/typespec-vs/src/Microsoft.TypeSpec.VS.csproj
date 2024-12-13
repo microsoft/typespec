@@ -7,7 +7,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>Latest</LangVersion>
     <Nullable>Enable</Nullable>
-    <!-- Set this to 'all' explicitly to get a consistent behavior. It's the default value now in latest VS/.Net/NugetMgr, but maybe not in some pervious version -->
+    <!-- Set this to 'all' explicitly to get a consistent behavior. It's the default value now in latest VS/.Net/NugetMgr, but maybe not in some previous version -->
     <!-- https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/9.0/nugetaudit-transitive-packages -->
     <NuGetAuditMode>all</NuGetAuditMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
