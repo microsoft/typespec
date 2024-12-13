@@ -49,7 +49,14 @@ const EmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
 
 const libDef = {
   name: "@typespec/http-client-python",
-  diagnostics: {},
+  diagnostics: {
+    "no-valid-client": {
+      severity: "warning",
+      messages: {
+        default: "Can't generate Python SDK since no client defined in typespec file.",
+      },
+    },
+  },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<PythonEmitterOptions>,
   },

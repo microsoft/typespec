@@ -45,7 +45,7 @@ namespace Microsoft.Generator.CSharp
         public CodeModelPlugin(GeneratorContext context)
         {
             Configuration = context.Configuration;
-            _inputLibrary = new(() => new InputLibrary(Instance.Configuration.OutputDirectory));
+            _inputLibrary = new InputLibrary(Configuration.OutputDirectory);
             TypeFactory = new TypeFactory();
         }
 
@@ -57,14 +57,14 @@ namespace Microsoft.Generator.CSharp
         }
 
         internal bool IsNewProject { get; set; }
-        private Lazy<InputLibrary> _inputLibrary;
+        private InputLibrary _inputLibrary;
 
         // Extensibility points to be implemented by a plugin
         public virtual TypeFactory TypeFactory { get; }
         public virtual SourceInputModel SourceInputModel => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
-        public virtual InputLibrary InputLibrary => _inputLibrary.Value;
+        public virtual InputLibrary InputLibrary => _inputLibrary;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
         public IReadOnlyList<MetadataReference> AdditionalMetadataReferences => _additionalMetadataReferences;
 

@@ -11,12 +11,15 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Defines values for OlympicRecordModel.
  */
 public final class OlympicRecordModel implements ExpandableEnum<Double> {
     private static final Map<Double, OlympicRecordModel> VALUES = new ConcurrentHashMap<>();
+
+    private static final Function<Double, OlympicRecordModel> NEW_INSTANCE = OlympicRecordModel::new;
 
     /**
      * Static value 9.58 for OlympicRecordModel.
@@ -41,15 +44,14 @@ public final class OlympicRecordModel implements ExpandableEnum<Double> {
      * 
      * @param value a value to look for.
      * @return the corresponding OlympicRecordModel.
+     * @throws IllegalArgumentException if value is null.
      */
     @Generated
     public static OlympicRecordModel fromValue(Double value) {
-        Objects.requireNonNull(value, "'value' cannot be null.");
-        OlympicRecordModel member = VALUES.get(value);
-        if (member != null) {
-            return member;
+        if (value == null) {
+            throw new IllegalArgumentException("'value' cannot be null.");
         }
-        return VALUES.computeIfAbsent(value, key -> new OlympicRecordModel(key));
+        return VALUES.computeIfAbsent(value, NEW_INSTANCE);
     }
 
     /**
@@ -82,7 +84,7 @@ public final class OlympicRecordModel implements ExpandableEnum<Double> {
     @Generated
     @Override
     public boolean equals(Object obj) {
-        return Objects.equals(this.value, obj);
+        return this == obj;
     }
 
     @Generated
