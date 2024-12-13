@@ -137,7 +137,7 @@ if (Test-Path ./tsp-output) {
   Remove-Item ./tsp-output -Recurse -Force
 }
 
-# run other local tests except partial update
+# generate for other local test sources except partial update
 $job = Get-Item ./tsp/* -Filter "*.tsp" -Exclude "*partialupdate*" | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
 $job | Wait-Job -Timeout 600
@@ -148,7 +148,7 @@ npx tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emi
 Copy-Item -Path ./existingcode/src/main/java/tsptest/partialupdate -Destination ./src/main/java/tsptest/partialupdate -Recurse -Force
 Remove-Item ./existingcode -Recurse -Force
 
-# run http-specs / azure-http-specs tests sources
+# generate for http-specs/azure-http-specs test sources
 Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
 Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
 # remove xml tests, emitter has not supported xml model

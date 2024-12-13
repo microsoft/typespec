@@ -35,16 +35,16 @@ try {
             Push-Location $generatorTestDir
             try {
                 & ./Setup.ps1
-                & ./CadlRanch-Tests.ps1
+                & ./Spector-Tests.ps1
                 Set-Location $packageRoot
-                Write-Host 'Cadl ranch tests passed'
+                Write-Host "Spector tests passed"
             }
             finally {
                 Pop-Location
             }
         } 
         catch {
-            Write-Error "Cadl ranch tests failed:  $_"
+            Write-Error "Spector tests failed: $_"
         }
         # copy coverage report to artifacts dir
         try {

@@ -3,7 +3,7 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 
-Write-Host "Running cadl ranch tests"
+Write-Host "Running Spector tests"
 
 Write-Host "Starting the test server"
 npm run tsp-spector-start
@@ -15,4 +15,4 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "Stopping the test server"
 npm run tsp-spector-stop
 
-Write-Host "Finished running the cadl ranch tests"
+Write-Host "Finished running the Spector tests"
