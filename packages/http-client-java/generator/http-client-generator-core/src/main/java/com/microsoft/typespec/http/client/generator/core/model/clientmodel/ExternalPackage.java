@@ -8,7 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 public class ExternalPackage {
 
     public static final String CLIENTCORE_PACKAGE_NAME = "io.clientcore.core";
-    public static final String CLIENTCORE_JSON_PACKAGE_NAME = "io.clientcore.core.json";
+    public static final String CLIENTCORE_JSON_PACKAGE_NAME = "io.clientcore.core.serialization.json";
 
     public static final String AZURE_CORE_PACKAGE_NAME = "com.azure.core";
     public static final String AZURE_JSON_PACKAGE_NAME = "com.azure.json";
