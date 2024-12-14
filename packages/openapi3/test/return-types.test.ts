@@ -88,7 +88,9 @@ describe("openapi3: return types", () => {
       }
       `);
     ok(res.paths["/"].get.responses["201"]);
-    deepStrictEqual(res.paths["/"].get.responses["201"].content["application/json"].schema, {});
+    deepStrictEqual(res.paths["/"].get.responses["201"], {
+      description: "The request has succeeded and a new resource has been created as a result.",
+    });
   });
 
   it("defines responses with headers and status codes", async () => {

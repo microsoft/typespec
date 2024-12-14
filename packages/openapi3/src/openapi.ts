@@ -957,7 +957,7 @@ function createOAPIEmitter(
   ) {
     schemaMap ??= new Map<string, OpenAPI3MediaType[]>();
     for (const data of responses) {
-      if (data.body === undefined) {
+      if (data.body === undefined || data.body.type.kind === "Intrinsic") {
         continue;
       }
       obj.content ??= {};
