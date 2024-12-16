@@ -5,13 +5,13 @@ import {
   JSONSchemaType,
   resolvePath,
 } from "@typespec/compiler";
-import { spawn } from "child_process";
 import { promises } from "fs";
 import { dump } from "js-yaml";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
-import { logError } from "./utils.js";
+import { asyncSpawn, logError } from "./utils.js";
+import { validateDependencies } from "./validate.js";
 
 export interface EmitterOptions {
   namespace?: string;
@@ -111,8 +111,15 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
+export function $onValidate(context: EmitContext<EmitterOptions>) {
+  const program = context.program;
+  validateDependencies(program, false);
+}
+
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const program = context.program;
+  validateDependencies(program, true);
+
   const options = context.options;
   if (!options["flavor"]) {
     if (options["package-dir"]?.toLocaleLowerCase().startsWith("azure")) {
@@ -170,60 +177,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
     javaArgs.push(jarFileName);
     javaArgs.push(codeModelFileName);
     try {
-      type SpawnReturns = {
-        stdout: string;
-        stderr: string;
-      };
-      await new Promise<SpawnReturns>((resolve, reject) => {
-        const childProcess = spawn("java", javaArgs, { stdio: "inherit" });
-
-        let error: Error | undefined = undefined;
-
-        // std
-        const stdout: string[] = [];
-        const stderr: string[] = [];
-        if (childProcess.stdout) {
-          childProcess.stdout.on("data", (data) => {
-            stdout.push(data.toString());
-          });
-        }
-        if (childProcess.stderr) {
-          childProcess.stderr.on("data", (data) => {
-            stderr.push(data.toString());
-          });
-        }
-
-        // failed to spawn the process
-        childProcess.on("error", (e) => {
-          error = e;
-        });
-
-        // process exits with error
-        childProcess.on("exit", (code, signal) => {
-          if (code !== 0) {
-            if (code) {
-              error = new Error(`JAR ended with code '${code}'.`);
-            } else {
-              error = new Error(`JAR terminated by signal '${signal}'.`);
-            }
-          }
-        });
-
-        // close and complete Promise
-        childProcess.on("close", () => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve({
-              stdout: stdout.join(""),
-              stderr: stderr.join(""),
-            });
-          }
-        });
-      });
-
-      // as stdio: "inherit", std is not captured by spawn
-      // program.trace("http-client-java", output.stdout ? output.stdout : output.stderr);
+      await asyncSpawn("java", javaArgs);
     } catch (error: any) {
       if (error && "code" in error && error["code"] === "ENOENT") {
         logError(program, "'java' is not on PATH. Please install JDK 11 or above.");
