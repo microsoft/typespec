@@ -6,6 +6,7 @@ import "@typespec/json-schema";
 using Http;
 using JsonSchema;
 
+
 @service({
   title: "Todo App",
 })
@@ -115,6 +116,8 @@ model User {
   @minValue(5)
   @maxValue(10)
   boundNumeric: numeric;
+
+
 
   /** Whether the user is validated. Never visible to the API. */
   @visibility("none") validated: boolean;

@@ -303,10 +303,18 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     }
 
     //Dates and times
-    if ($.scalar.isUtcDateTime(props.type)) {
+    if ($.scalar.isUtcDateTime(props.type) ||  $.scalar.extendsUtcDateTime(props.type)) {
+      const encoding = $.scalar.getEncoding(props.type);
+      if (encoding?.encoding === "unixTimestamp") {
+        return <>{zod.z}.number().int()</>;
+      }
       return <>{zod.z}.string().datetime()</>;
     }
-    if ($.scalar.isOffsetDateTime(props.type)) {
+    if ($.scalar.isOffsetDateTime(props.type) || $.scalar.extendsUtcDateTime(props.type)) {
+      const encoding = $.scalar.getEncoding(props.type);
+      if (encoding?.encoding === "unixTimestamp") {
+        return <>{zod.z}.number().int()</>;
+      }
       return <>{zod.z}.string().datetime( &#123;offset: true&#125;)</>;
     }
     if ($.scalar.isDuration(props.type)) {
