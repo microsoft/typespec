@@ -11,7 +11,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
 import { asyncSpawn, logError } from "./utils.js";
-import { validateDependencies } from "./validate.js";
+import { JDK_NOT_FOUND_MESSAGE, validateDependencies } from "./validate.js";
 
 export interface EmitterOptions {
   namespace?: string;
@@ -183,7 +183,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         await asyncSpawn("java", javaArgs);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
-          logError(program, "'java' is not on PATH. Please install JDK 11 or above.");
+          logError(program, JDK_NOT_FOUND_MESSAGE);
         } else {
           logError(program, error.message);
         }

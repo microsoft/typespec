@@ -1,6 +1,9 @@
 import { Program } from "@typespec/compiler";
 import { asyncSpawn, logError } from "./utils.js";
 
+export const JDK_NOT_FOUND_MESSAGE =
+  "JDK Development Kit is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download";
+
 export async function validateDependencies(program: Program, logDiagnostic: boolean = false) {
   // Check JDK and version
   try {
@@ -8,10 +11,9 @@ export async function validateDependencies(program: Program, logDiagnostic: bool
   } catch (error: any) {
     let message = error.message;
     if (error && "code" in error && error["code"] === "ENOENT") {
-      message =
-        "JDK Development Kit is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download";
+      message = JDK_NOT_FOUND_MESSAGE;
     }
-    console.log(message);
+    console.log("[ERROR] " + message);
     if (logDiagnostic) {
       logError(program, message);
     }
@@ -26,7 +28,7 @@ export async function validateDependencies(program: Program, logDiagnostic: bool
       message =
         "JDK Development Kit is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download";
     }
-    console.log(message);
+    console.log("[ERROR] " + message);
     if (logDiagnostic) {
       logError(program, message);
     }
