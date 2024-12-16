@@ -36,7 +36,7 @@ export async function validateDependencies(
 
   // Check Maven
   try {
-    await spawnAsync("mvn", ["-v"], { stdio: "pipe", shell: true });
+    await spawnAsync(process.platform === "win32" ? "mvn.cmd" : "mvn", ["-v"], { stdio: "pipe" });
   } catch (error: any) {
     let message = error.message;
     if (error && "code" in error && error["code"] === "ENOENT") {
