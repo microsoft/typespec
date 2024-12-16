@@ -17,7 +17,7 @@ http/client/structure/two-operation-group
 # Unresolved Symbol api-version
 http/server/path/multiple
 # Unresolved Symbol version
-http/versioning/added
+#http/versioning/added
 http/versioning/madeOptional
 http/versioning/removed
 http/versioning/renamedFrom

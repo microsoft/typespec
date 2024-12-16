@@ -38,6 +38,8 @@
     "execa": "^9.5.2",
     "globby": "^14.0.2",
     "fs-extra": "^11.2.0",
+    "yargs": "^17.7.2",
+    "inquirer": "^12.2.0",
     "@typespec/versioning": "workspace:~",
     "@azure-tools/typespec-client-generator-core": "0.49.0",
     "@azure-tools/typespec-azure-resource-manager": "0.49.0",
