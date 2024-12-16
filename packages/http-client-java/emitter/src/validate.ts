@@ -35,12 +35,13 @@ export async function validateDependencies(
   }
 
   // Check Maven
-  const shell = (process.platform === 'win32');
+  // nodejs does not allow spawn of .cmd on win32
+  const shell = process.platform === "win32";
   try {
     await spawnAsync("mvn", ["-v"], { stdio: "pipe", shell: shell });
   } catch (error: any) {
     let message = error.message;
-    if (shell || (error && ("code" in error && error["code"] === "ENOENT"))) {
+    if (shell || (error && "code" in error && error["code"] === "ENOENT")) {
       message =
         "Apache Maven is not found in PATH. Apache Maven can be downloaded from https://maven.apache.org/download.cgi";
     }

@@ -111,11 +111,6 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
-export async function $onValidate(context: EmitContext<EmitterOptions>) {
-  const program = context.program;
-  await validateDependencies(program, false);
-}
-
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const program = context.program;
   await validateDependencies(program, true);
