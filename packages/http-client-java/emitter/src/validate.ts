@@ -17,8 +17,8 @@ export async function validateDependencies(
         // the message is JDK 17, because clientcore depends on JDK 17
         // emitter only require JDK 11
         const message = `Java Development Kit (JDK) in PATH is version ${javaVersion}. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download`;
-        // eslint-disable-next-line no-console
-        console.log("[ERROR] " + message);
+        // // eslint-disable-next-line no-console
+        // console.log("[ERROR] " + message);
         if (program && logDiagnostic) {
           logError(program, message);
         }
@@ -29,8 +29,8 @@ export async function validateDependencies(
     if (error && "code" in error && error["code"] === "ENOENT") {
       message = JDK_NOT_FOUND_MESSAGE;
     }
-    // eslint-disable-next-line no-console
-    console.log("[ERROR] " + message);
+    // // eslint-disable-next-line no-console
+    // console.log("[ERROR] " + message);
     if (program && logDiagnostic) {
       logError(program, message);
     }
@@ -47,8 +47,8 @@ export async function validateDependencies(
       message =
         "Apache Maven is not found in PATH. Apache Maven can be downloaded from https://maven.apache.org/download.cgi";
     }
-    // eslint-disable-next-line no-console
-    console.log("[ERROR] " + message);
+    // // eslint-disable-next-line no-console
+    // console.log("[ERROR] " + message);
     if (program && logDiagnostic) {
       logError(program, message);
     }
