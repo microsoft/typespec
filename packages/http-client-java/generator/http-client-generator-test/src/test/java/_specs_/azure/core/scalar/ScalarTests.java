@@ -4,17 +4,13 @@
 package _specs_.azure.core.scalar;
 
 import _specs_.azure.core.scalar.models.AzureLocationModel;
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ScalarTests {
 
     private final static String LOCATION_REGION = "eastus";
-    private final ScalarClient client
-        = new ScalarClientBuilder().httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC))
-            .buildClient();
+    private final ScalarClient client = new ScalarClientBuilder().buildClient();
 
     @Test
     public void testGet() {
