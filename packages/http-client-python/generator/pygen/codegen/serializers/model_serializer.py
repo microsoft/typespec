@@ -156,6 +156,14 @@ class MsrestModelSerializer(_ModelSerializer):
                         serialize_namespace=self.serialize_namespace, serialize_namespace_type=NamespaceType.MODEL
                     )
                 )
+            for prop in model.properties:
+                file_import.merge(
+                    prop.imports(
+                        serialize_namespace=self.serialize_namespace,
+                        serialize_namespace_type=NamespaceType.MODEL,
+                        called_by_property=True,
+                    )
+                )
 
         return file_import
 
