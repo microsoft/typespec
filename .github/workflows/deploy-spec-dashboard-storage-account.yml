@@ -34,4 +34,4 @@ jobs:
           AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZ_SPEC_DASHBOARD_CONNECTION_STRING }}
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name specdashboardstorage --connection-string "$AZURE_STORAGE_CONNECTION_STRING" --source packages/spec-dashboard/dist/ --destination '$web'
+            az storage blob upload-batch --account-name specdashboardstorage --connection-string "$AZURE_STORAGE_CONNECTION_STRING" --source packages/spec-dashboard/dist/ --destination '$web' --overwrite
