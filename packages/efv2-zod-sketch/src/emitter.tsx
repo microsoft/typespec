@@ -80,13 +80,24 @@ interface MinLengthConstrain {
   kind: "MinLength";
   value: number;
 }
+interface MaxItemsConstrain {
+  kind: "MaxItems";
+  value: number;
+}
+
+interface MinItemsConstrain {
+  kind: "MinItems";
+  value: number;
+}
 
 type Constrain =
   | MinValueConstrain
   | MaxValueConstrain
   | OptionalConstrain
   | MaxLengthConstrain
-  | MinLengthConstrain;
+  | MinLengthConstrain
+  | MaxItemsConstrain
+  | MinItemsConstrain;
 
 /**
  * Component that represents a collection of Zod Model properties
@@ -134,6 +145,19 @@ function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
       constrains.push({ kind: "MaxLength", value: maxLength });
     }
   }
+  // TODO:  Enable this once the array contraints are exposed in the typekit
+  /*
+  else if (modelProperty.type.kind === "Model") {
+    const maxItems = $.type.maxItems(modelProperty);
+    const minItems = $.type.minItems(modelProperty);
+    if (maxItems !== undefined) {
+      constrains.push({ kind: "MaxItems", value: maxItems });
+    }
+    if (minItems !== undefined) {
+      constrains.push({ kind: "MinItems", value: minItems });
+    }
+  }
+  */
   return constrains;
 }
 
@@ -156,10 +180,42 @@ function ZodType(props: ZodTypeProps) {
       return <>{zod.z}.string()</>;
     case "Number":
       return <>{zod.z}.number()</>;
+    case "Model":
+      if (props.type.name === "Array") {
+        if (props.type.indexer !== undefined) {
+        const elementType = props.type.indexer.value;
+        // TODO: Swap to this once I know how to get the ModelProperty of the element type
+        const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
+        const arrayConstraints = ZodArrayConstraints(props);
+        return (
+          <>{zod.z}.array(<ZodType type={elementType} constrains={elementConstrains} />){arrayConstraints}</>
+        );
+        }
+      }
+      else
+      {
+        // Need to print out something like foo: z.object({a1: z.number(), a2: z.string()}),
+        return <ZodNestedModel model={props.type} />
+      }
+      break;
     default:
       return <>{zod.z}.any()</>;
   }
 }
+
+function ZodNestedModel(props: ModelProps) {
+  const namePolicy = ts.useTSNamePolicy();
+  const modelName = namePolicy.getName(props.model.name, "variable");
+  return (
+    <>{modelName} {zod.z}.object(
+      &#123;
+         <ZodModelProperties model={props.model} />
+      &#125;
+      )
+    </>
+  );
+}
+
 
 function getScalarIntrinsicZodType(props: ZodTypeProps): string {
   // Note: the Prettier extension for VS Code is not formatting the fragments correctly.
@@ -402,6 +458,15 @@ function ZodStringConstraints(props: ZodTypeProps): string {
   return minmax;
 }
 
+function ZodArrayConstraints(props: ZodTypeProps): string {
+  const minItems = props.constrains.find((c) => c.kind === "MinItems")?.value;
+  const maxItems = props.constrains.find((c) => c.kind === "MaxItems")?.value;
+  const min: string = minItems !== undefined ? `.min(${minItems})` : "";
+  const max: string = maxItems !== undefined ? `.max(${maxItems})` : "";
+  const minmax = min + max;
+  return minmax;
+}
+
 /**
  * Collects all the models defined in the spec
  * @returns A collection of all defined models in the spec
@@ -445,6 +510,10 @@ function getModels() {
 function ZodModel(props: ModelProps) {
   const namePolicy = ts.useTSNamePolicy();
   const modelName = namePolicy.getName(props.model.name, "variable");
+
+  // Don't emit models without names -- those are nested models
+  if (modelName.length === 0) return "";
+
   return (
     <ts.VarDeclaration export name={modelName}>
       {zod.z}.object(
@@ -455,6 +524,7 @@ function ZodModel(props: ModelProps) {
     </ts.VarDeclaration>
   );
 }
+
 
 interface ZodModelPropertiesProps {
   model: Model;
