@@ -145,8 +145,6 @@ function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
       constrains.push({ kind: "MaxLength", value: maxLength });
     }
   }
-  // TODO:  Enable this once the array contraints are exposed in the typekit
-  /*
   else if (modelProperty.type.kind === "Model") {
     const maxItems = $.type.maxItems(modelProperty);
     const minItems = $.type.minItems(modelProperty);
@@ -157,7 +155,7 @@ function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
       constrains.push({ kind: "MinItems", value: minItems });
     }
   }
-  */
+
   return constrains;
 }
 

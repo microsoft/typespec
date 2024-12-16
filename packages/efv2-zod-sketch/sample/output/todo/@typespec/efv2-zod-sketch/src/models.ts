@@ -95,8 +95,8 @@ float_1: z.number().max(10),
 boundNumeric: z.number().min(5).max(10),
 stringArray1: z.array(z.string()),
 stringArray2: z.array(z.string()),
-intArray1: z.array(z.number()),
-intArray2: z.array(z.number()),
+intArray1: z.array(z.number()).min(1),
+intArray2: z.array(z.number()).max(10),
 validated: z.boolean()
 }
 );
@@ -205,8 +205,8 @@ float_1: z.number().max(10),
 boundNumeric: z.number().min(5).max(10),
 stringArray1: z.array(z.string()),
 stringArray2: z.array(z.string()),
-intArray1: z.array(z.number()),
-intArray2: z.array(z.number()),
+intArray1: z.array(z.number()).min(1),
+intArray2: z.array(z.number()).max(10),
 validated: z.boolean(),
 statusCode: z.number(),
 token: z.string()
