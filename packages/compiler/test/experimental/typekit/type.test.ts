@@ -148,3 +148,79 @@ describe("minLength and maxLength", () => {
     expect(min).toBe(15);
   });
 });
+
+describe("minItems and maxItems", () => {
+  it("can get the min and max items from array", async () => {
+    const { myArray } = await getTypes(
+      `
+    @minItems(1)
+    @maxItems(10)
+    model myArray is Array<string>;
+    `,
+      ["myArray"],
+    );
+
+    const max = $.type.maxItems(myArray);
+    const min = $.type.minItems(myArray);
+
+    expect(max).toBe(10);
+    expect(min).toBe(1);
+  });
+
+  it("can get the min and max items from modelProperty", async () => {
+    const { A } = await getTypes(
+      `
+    model A {
+      @minItems(15)
+      @maxItems(55)
+      foo: string[];
+    }
+    `,
+      ["A"],
+    );
+
+    const max = $.type.maxItems((A as Model).properties.get("foo")!);
+    const min = $.type.minItems((A as Model).properties.get("foo")!);
+
+    expect(max).toBe(55);
+    expect(min).toBe(15);
+  });
+});
+
+describe("minValueExclusive and maxValueExclusive", () => {
+  it("can get the min and max values from number", async () => {
+    const { myNumber } = await getTypes(
+      `
+    @minValueExclusive(1)
+    @maxValueExclusive(10)
+    scalar myNumber extends numeric;
+    `,
+      ["myNumber"],
+    );
+
+    const max = $.type.maxValueExclusive(myNumber);
+    const min = $.type.minValueExclusive(myNumber);
+
+    expect(max).toBe(10);
+    expect(min).toBe(1);
+  });
+
+  it("can get the min and max values from modelProperty", async () => {
+    const { A } = await getTypes(
+      `
+    model A {
+      @minValueExclusive(15)
+      @maxValueExclusive(55)
+      foo: int32;
+    }
+    `,
+      ["A"],
+    );
+
+    const max = $.type.maxValueExclusive((A as Model).properties.get("foo")!);
+    const min = $.type.minValueExclusive((A as Model).properties.get("foo")!);
+
+    expect(max).toBe(55);
+    expect(min).toBe(15);
+  });
+});

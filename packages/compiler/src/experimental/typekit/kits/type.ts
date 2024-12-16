@@ -2,10 +2,14 @@ import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils
 import {
   Discriminator,
   getDiscriminator,
+  getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMaxValueExclusive,
+  getMinItems,
   getMinLength,
   getMinValue,
+  getMinValueExclusive,
 } from "../../../core/intrinsic-type-state.js";
 import { isErrorType } from "../../../core/type-utils.js";
 import { Enum, Model, Scalar, Union, type Namespace, type Type } from "../../../core/types.js";
@@ -79,6 +83,18 @@ export interface TypeTypeKit {
   minValue(type: Type): number | undefined;
 
   /**
+   * Gets the maximum value this numeric type should be, exclusive of the given value.
+   * @param type
+   */
+  maxValueExclusive(type: Type): number | undefined;
+
+  /**
+   * Gets the minimum value this numeric type should be, exclusive of the given value.
+   * @param type type to get the minimum value for
+   */
+  minValueExclusive(type: Type): number | undefined;
+
+  /**
    * Gets the maximum length for a string type.
    * @param type type to get the maximum length for
    */
@@ -88,6 +104,16 @@ export interface TypeTypeKit {
    * @param type type to get the minimum length for
    */
   minLength(type: Type): number | undefined;
+  /**
+   * Gets the maximum number of items for an array type.
+   * @param type type to get the maximum number of items for
+   */
+  maxItems(type: Type): number | undefined;
+  /**
+   * Gets the minimum number of items for an array type.
+   * @param type type to get the minimum number of items for
+   */
+  minItems(type: Type): number | undefined;
 }
 
 interface TypekitExtension {
@@ -242,6 +268,18 @@ defineKit<TypekitExtension>({
     },
     minLength(type) {
       return getMinLength(this.program, type);
+    },
+    maxItems(type) {
+      return getMaxItems(this.program, type);
+    },
+    maxValueExclusive(type) {
+      return getMaxValueExclusive(this.program, type);
+    },
+    minValueExclusive(type) {
+      return getMinValueExclusive(this.program, type);
+    },
+    minItems(type) {
+      return getMinItems(this.program, type);
     },
   },
 });
