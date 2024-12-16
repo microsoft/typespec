@@ -1,0 +1,38 @@
+name: Deploy Spec Dashboard to Azure Storage
+
+on:
+  push:
+    branches:
+      - main
+      
+# Allow one concurrent deployment
+concurrency:
+  group: "dashboard-pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: ./.github/actions/setup
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install browsers
+        run: pnpm exec playwright install
+
+      - name: Build
+        run: pnpm --filter "@typespec/spec-dashboard..." run build
+
+      - name: Upload to Azure Storage
+        uses: azure/cli@v1
+        with:
+          inlineScript: |
+            az storage blob upload-batch \
+              --account-name specdashboardstorage \
+              --source packages/spec-dashboard/dist \
+              --destination $web
