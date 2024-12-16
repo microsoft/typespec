@@ -1,5 +1,5 @@
 import { NoTarget, Program, Type } from "@typespec/compiler";
-import { spawn } from "child_process";
+import { spawn, SpawnOptions } from "child_process";
 
 export function logError(program: Program, msg: string) {
   trace(program, msg);
@@ -70,9 +70,13 @@ export type SpawnReturns = {
   stderr: string;
 };
 
-export async function asyncSpawn(command: string, args: readonly string[]): Promise<SpawnReturns> {
+export async function spawnAsync(
+  command: string,
+  args: readonly string[],
+  options: SpawnOptions,
+): Promise<SpawnReturns> {
   return new Promise<SpawnReturns>((resolve, reject) => {
-    const childProcess = spawn(command, args, { stdio: "inherit" });
+    const childProcess = spawn(command, args, options);
 
     let error: Error | undefined = undefined;
 
