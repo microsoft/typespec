@@ -32,4 +32,4 @@ jobs:
         uses: azure/cli@v1
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name specdashboardstorage --source dist/ --destination '$web'
+            az storage blob upload-batch --account-name specdashboardstorage --source packages/spec-dashboard/dist/ --destination '$web'
