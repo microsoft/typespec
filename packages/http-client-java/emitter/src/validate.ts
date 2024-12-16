@@ -26,7 +26,7 @@ export async function validateDependencies(program: Program, logDiagnostic: bool
     let message = error.message;
     if (error && "code" in error && error["code"] === "ENOENT") {
       message =
-        "JDK Development Kit is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download";
+        "Apache Maven is not found in PATH. Apache Maven can be downloaded from https://maven.apache.org/download.cgi";
     }
     console.log("[ERROR] " + message);
     if (logDiagnostic) {
