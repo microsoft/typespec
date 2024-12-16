@@ -181,21 +181,35 @@ function ZodType(props: ZodTypeProps) {
     case "Number":
       return <>{zod.z}.number()</>;
     case "Model":
-      if (props.type.name === "Array") {
-        if (props.type.indexer !== undefined) {
-        const elementType = props.type.indexer.value;
-        // TODO: Swap to this once I know how to get the ModelProperty of the element type
-        const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
-        const arrayConstraints = ZodArrayConstraints(props);
-        return (
-          <>{zod.z}.array(<ZodType type={elementType} constrains={elementConstrains} />){arrayConstraints}</>
-        );
+      switch (props.type.name) {
+        case "Array":
+          if (props.type.indexer !== undefined) {
+          const elementType = props.type.indexer.value;
+          // TODO: Swap to this once I know how to get the ModelProperty of the element type
+          const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
+          const arrayConstraints = ZodArrayConstraints(props);
+          return (
+            <>{zod.z}.array(<ZodType type={elementType} constrains={elementConstrains} />){arrayConstraints}</>
+          );
+          }
+          break;
+        case "Record":
+          {
+            if (props.type.indexer !== undefined) {
+              const elementType = props.type.indexer.value;
+           // TODO: Swap to this once I know how to get the ModelProperty of the element type
+           const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
+              return (
+                <>{zod.z}.record(z.string(),<ZodType type={elementType} constrains={elementConstrains} />)</>
+              );
+            }
+          }
+          break;
+        default:
+        {
+          // Need to print out something like foo: z.object({a1: z.number(), a2: z.string()}),
+          return <ZodNestedModel model={props.type} />
         }
-      }
-      else
-      {
-        // Need to print out something like foo: z.object({a1: z.number(), a2: z.string()}),
-        return <ZodNestedModel model={props.type} />
       }
       break;
     default:

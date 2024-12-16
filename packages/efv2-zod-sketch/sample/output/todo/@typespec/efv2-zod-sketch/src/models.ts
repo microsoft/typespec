@@ -52,6 +52,7 @@ avagadro = 6.022e+23
 
 export const user = z.object(
 {
+myPetRecord: z.record(z.string(),z.number()),
 constrainedArray: z.array(z.string()),
 petRecord:  z.object(
 {
@@ -161,6 +162,7 @@ statusCode: z.number().min(500).max(599)
 
 export const userCreatedResponse = z.object(
 {
+myPetRecord: z.record(z.string(),z.number()),
 constrainedArray: z.array(z.string()),
 petRecord:  z.object(
 {

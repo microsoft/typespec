@@ -58,6 +58,8 @@ scalar string50 extends string;
 
 @jsonSchema
 model User {
+  myPetRecord: Record<integer>;
+    
   constrained_array: string50[];
   
   petRecord: {
@@ -137,6 +139,8 @@ model User {
 
   @maxItems(10)
   intArray2: Array<integer>;
+
+
   
 
   /** Whether the user is validated. Never visible to the API. */
