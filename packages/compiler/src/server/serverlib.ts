@@ -710,6 +710,7 @@ export function createServer(host: ServerHost): Server {
       if (doc) {
         const items = await provideTspconfigCompletionItems(doc, params.position, {
           fileService,
+          compilerHost,
           emitterProvider,
           linterProvider,
           log,

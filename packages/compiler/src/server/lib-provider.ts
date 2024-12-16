@@ -5,7 +5,7 @@ export class LibraryProvider {
   private libPackageFilterResultCache = new Map<string, boolean>();
   constructor(
     private npmPackageProvider: NpmPackageProvider,
-    private filter: (obj: Record<string, any>) => boolean,
+    private filter: (libExports: Record<string, any>) => boolean,
   ) {}
 
   /**

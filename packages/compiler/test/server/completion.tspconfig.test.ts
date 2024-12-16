@@ -71,11 +71,27 @@ describe("Test completion items for options and emitters", () => {
   it.each([
     {
       config: `emit:\n  - ┆`,
+      expected: ['"fake-emitter"', '"fake-emitter-no-schema"'],
+    },
+    {
+      config: `emit:\n  - "┆"`,
+      expected: ["fake-emitter", "fake-emitter-no-schema"],
+    },
+    {
+      config: `emit:\n  - "┆`,
+      expected: ["fake-emitter", "fake-emitter-no-schema"],
+    },
+    {
+      config: `emit:\n  - '┆`,
+      expected: ["fake-emitter", "fake-emitter-no-schema"],
+    },
+    {
+      config: `emit:\n  - '┆'`,
       expected: ["fake-emitter", "fake-emitter-no-schema"],
     },
     {
       config: `options:\n\n  fak┆`,
-      expected: ["fake-emitter", "fake-emitter-no-schema"],
+      expected: ['"fake-emitter"', '"fake-emitter-no-schema"'],
     },
   ])("#%# Test emitters: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, true, expected);
@@ -167,7 +183,27 @@ describe("Test completion items for emitters options", () => {
       expected: ["a", "b", "c"],
     },
   ])("#%# Test emitter options: $config", async ({ config, expected }) => {
-    await checkCompletionItems(config, true, expected, "./subfolder/tspconfig.yaml");
+    await checkCompletionItems(config, true, expected, false, "./subfolder/tspconfig.yaml");
+  });
+});
+
+describe("Test whether the completion items description of the emitters options is optional or required", () => {
+  it.each([
+    {
+      config: `options:\n  fake-emitter:\n    ┆`,
+      expected: [
+        "[required]\nThe name of the target to emit to.", //"target-name",
+        "[optional]\nWhether the target is valid.", //"is-valid",
+        "[required]\n", //"type",
+        "[optional]\n", //"emitter-output-dir",
+        "[optional]\n", //"options",
+        "[optional]\n", //"options-b",
+        "[optional]\n", //"options-arr-obj",
+        "[optional]\n", //"options-arr-boolean",
+      ],
+    },
+  ])("#%# Test emitter options: $config", async ({ config, expected }) => {
+    await checkCompletionItems(config, true, expected, true, "./subfolder/tspconfig.yaml");
   });
 });
 
@@ -209,23 +245,43 @@ describe("Test completion items for linter", () => {
       expected: ["extends", "disable"],
     },
     {
-      config: `linter:\n  enable:\n    linter-one: ┆`,
-      expected: ["true", "false"],
+      config: `linter:\n  extends:\n    - "┆`,
+      expected: ["fake-linter-no-schema", "fake-linter/recommended"],
     },
     {
-      config: `linter:\n  enable:\n    linter-one┆:`,
+      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n    - "┆`,
+      expected: ["fake-linter-no-schema"],
+    },
+    {
+      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n  enable:\n    "┆`,
+      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+    },
+    {
+      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n  disable:\n    "┆`,
+      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+    },
+    {
+      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n    - "fake-linter-no-schema"\n  enable:\n    "┆`,
+      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+    },
+    {
+      config: `linter:\n  extends:\n    - "fake-linter/recommended"\n  enable:\n    "fake-linter/casing": true\n  disable:\n    "┆`,
+      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
+    },
+    {
+      config: `linter:\n  extends:\n    - "fake-linter-no-schema"    - "fake-linter/recommended"┆`,
       expected: [],
     },
     {
-      config: `linter:\n  disable:\n    linter-one: true\n    ┆`,
+      config: `linter:\n  extends:\n  enable:    "fak┆e"`,
       expected: [],
     },
     {
-      config: `linter:\n  disable:\n    linter-one: true\n    linter-two: ┆`,
+      config: `linter:\n  extends:\n    - "fake-linter-no-schema"    - "fake"┆`,
       expected: [],
     },
-  ])("#%# Test linter: $config", async ({ config, expected }) => {
-    await checkCompletionItems(config, true, expected);
+  ])("#%# Test emitter options: $config", async ({ config, expected }) => {
+    await checkCompletionItems(config, true, expected, false, "./subfolder/tspconfig.yaml");
   });
 });
 
@@ -245,6 +301,169 @@ describe("Test completion items for additionalProperties", () => {
     },
     {
       config: `environment-variables:\nparameters:\n  my-param: ┆`,
+      expected: [],
+    },
+  ])("#%# Test addProp: $config", async ({ config, expected }) => {
+    await checkCompletionItems(config, true, expected);
+  });
+});
+
+describe("Test completion items that use parameters and environment variables and built-in variables", () => {
+  it.each([
+    {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: "{env.┆}"`,
+      expected: ["BASE_DIR", "test-env"],
+    },
+    {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: "{  env.┆}"`,
+      expected: ["BASE_DIR", "test-env"],
+    },
+    {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: "outdir/{env.┆}"`,
+      expected: ["BASE_DIR", "test-env"],
+    },
+    {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: "outdir/{env.┆}/myDir"`,
+      expected: ["BASE_DIR", "test-env"],
+    },
+    {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: "{}env.┆}"`,
+      expected: [],
+    },
+    {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: "{ abcenv.┆}"`,
+      expected: ["cwd", "project-root"],
+    },
+    {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: ┆"{ env.}"`,
+      expected: [],
+    },
+    {
+      config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "{┆}"`,
+      expected: ["cwd", "project-root", "base-dir", "test-param"],
+    },
+    {
+      config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "{cw┆}"`,
+      expected: ["cwd", "project-root", "base-dir", "test-param"],
+    },
+    {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\nparameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "{env.┆}"`,
+      expected: ["BASE_DIR", "test-env"],
+    },
+    {
+      config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "test/{cw┆}"`,
+      expected: ["cwd", "project-root", "base-dir", "test-param"],
+    },
+    {
+      config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "outDir/{cw┆}/myDir"`,
+      expected: ["cwd", "project-root", "base-dir", "test-param"],
+    },
+    {
+      config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "{env.┆}"`,
+      expected: [],
+    },
+    {
+      config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "{}┆"`,
+      expected: [],
+    },
+    {
+      config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: ┆"{}"`,
+      expected: [],
+    },
+  ])("#%# Test addProp: $config", async ({ config, expected }) => {
+    await checkCompletionItems(config, false, expected);
+  });
+});
+
+describe("Test completion items for extends", () => {
+  it.each([
+    {
+      config: `extends:  "┆`,
+      expected: ["tspconfigtest0.yaml", "demo_yaml", "demo_tsp"],
+    },
+    {
+      config: `extends:  "./┆`,
+      expected: ["tspconfigtest0.yaml", "demo_yaml", "demo_tsp"],
+    },
+    {
+      config: `extends:  "./demo_yaml┆"`,
+      expected: ["tspconfigtest2.yaml"],
+    },
+    {
+      config: `extends:  "Z:/test/workspace┆"`,
+      expected: ["tspconfigtest0.yaml", "demo_yaml", "demo_tsp"],
+    },
+    {
+      config: `extends:  \n┆`,
+      expected: [
+        "emit",
+        "environment-variables",
+        "imports",
+        "linter",
+        "options",
+        "output-dir",
+        "parameters",
+        "trace",
+        "warn-as-error",
+      ],
+    },
+    {
+      config: `extends:  "./demo┆"`,
+      expected: [],
+    },
+    {
+      config: `extends:  "./tspconfigtest0.yaml"┆`,
+      expected: [],
+    },
+    {
+      config: `extends:  "./┆demo"`,
+      expected: [],
+    },
+    {
+      config: `extends:  "Z:/test/workspace/demo┆"`,
+      expected: [],
+    },
+  ])("#%# Test addProp: $config", async ({ config, expected }) => {
+    await checkCompletionItems(config, true, expected);
+  });
+});
+
+describe("Test completion items for imports", () => {
+  it.each([
+    {
+      config: `imports:\n  - "./┆`,
+      expected: ["demo_yaml", "demo_tsp"],
+    },
+    {
+      config: `imports:\n  - "./demo_tsp"\n  - "./┆`,
+      expected: ["demo_yaml", "demo_tsp"],
+    },
+    {
+      config: `imports:\n  - "./demo_tsp/┆`,
+      expected: ["test1.tsp", "test3.tsp"],
+    },
+    {
+      config: `imports:\n  - "./demo_tsp/test1.tsp"\n  - "./demo_tsp/┆`,
+      expected: ["test1.tsp", "test3.tsp"],
+    },
+    {
+      config: `imports:\n  - "Z:/test/workspace/┆`,
+      expected: ["demo_yaml", "demo_tsp"],
+    },
+    {
+      config: `imports:\n  - "┆./demo"`,
+      expected: [],
+    },
+    {
+      config: `imports:\n  - "Z:/test/workspace/demo┆`,
+      expected: [],
+    },
+    {
+      config: `imports:\n  - "./demo_tsp/test┆`,
+      expected: [],
+    },
+    {
+      config: `imports:\n  "./┆"`,
       expected: [],
     },
   ])("#%# Test addProp: $config", async ({ config, expected }) => {
@@ -428,11 +647,14 @@ async function checkCompletionItems(
   configWithPosition: string,
   includeWorkspace: boolean,
   expected: string[],
+  isTestDesc: boolean = false,
   tspconfigPathUnderWorkspace: string = "./tspconfig.yaml",
 ) {
   const items = (await complete(configWithPosition, includeWorkspace, tspconfigPathUnderWorkspace))
     .items;
-  expect(items.map((i) => i.label).sort()).toEqual(expected.sort());
+  isTestDesc
+    ? expect(items.map((i) => i.documentation ?? "").sort()).toEqual(expected.sort())
+    : expect(items.map((i) => i.textEdit?.newText ?? i.label).sort()).toEqual(expected.sort());
 }
 
 async function complete(

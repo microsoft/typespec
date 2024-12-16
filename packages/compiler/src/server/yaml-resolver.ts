@@ -44,9 +44,13 @@ export interface YamlScalarTarget {
    */
   yamlDoc: Document<Node, true>;
   /**
-   * The position range of the node in the document
+   * The position range of the text in the document, such as [startPos, endPos, _endNodePos]
    */
-  nodePostionRange: number[];
+  TextRange: number[];
+  /**
+   * The cursor current position
+   */
+  curPos: number;
 }
 
 interface YamlVisitScalarNode {
@@ -100,7 +104,8 @@ export function resolveYamlScalarTarget(
         sourceType: "PLAIN",
         siblings: rootProperties,
         yamlDoc,
-        nodePostionRange: [],
+        TextRange: [],
+        curPos: pos,
       };
     }
     for (let i = position.line - 1; i >= 0; i--) {
@@ -149,7 +154,8 @@ export function resolveYamlScalarTarget(
             sourceType: "PLAIN",
             siblings: [...yp.siblings, yp.source],
             yamlDoc,
-            nodePostionRange: yp.nodePostionRange ?? [],
+            TextRange: yp.TextRange ?? [],
+            curPos: pos,
           };
         }
         break;
@@ -195,7 +201,8 @@ export function resolveYamlScalarTarget(
               ? (last.value?.items.map((item) => (item.key as any).source ?? "") ?? [])
               : [],
             yamlDoc,
-            nodePostionRange: yp.nodePostionRange ?? [],
+            TextRange: yp.TextRange ?? [],
+            curPos: pos,
           };
         }
         break;
@@ -262,7 +269,8 @@ function createYamlPathFromVisitScalarNode(
       sourceType: n.type ?? "PLAIN",
       siblings: [],
       yamlDoc,
-      nodePostionRange: n.range ?? [],
+      TextRange: n.range ?? [],
+      curPos: offset,
     };
   } else if (isPair(last)) {
     if (nodePath.length < 2) {
@@ -285,7 +293,8 @@ function createYamlPathFromVisitScalarNode(
         sourceType: n.type ?? "PLAIN",
         siblings: [],
         yamlDoc,
-        nodePostionRange: n.range ?? [],
+        TextRange: n.range ?? [],
+        curPos: offset,
       };
     } else {
       const parent = nodePath.length >= 2 ? nodePath[nodePath.length - 2] : undefined;
@@ -300,7 +309,8 @@ function createYamlPathFromVisitScalarNode(
         siblings: targetSiblings,
         sourceType: n.type ?? "PLAIN",
         yamlDoc,
-        nodePostionRange: n.range ?? [],
+        TextRange: n.range ?? [],
+        curPos: offset,
       };
     }
   } else if (isSeq(last)) {
@@ -313,7 +323,8 @@ function createYamlPathFromVisitScalarNode(
         .filter((i) => i !== n)
         .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
       yamlDoc,
-      nodePostionRange: n.range ?? [],
+      TextRange: n.range ?? [],
+      curPos: offset,
     };
   } else {
     log({
