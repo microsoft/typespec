@@ -20,7 +20,7 @@ export async function list(
     return attachmentPageToApplication(response.body);
   }
 
-  if (+response.status === 404 && !response.body) {
+  if (+response.status === 204 && !response.body) {
     return;
   }
 
@@ -44,10 +44,6 @@ export async function createAttachment(
 
   const response = await client.path(path).post(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
-    return;
-  }
-
-  if (+response.status === 404 && !response.body) {
     return;
   }
 

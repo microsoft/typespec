@@ -1,44 +1,3 @@
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  password: string;
-  validated: boolean;
-}
-
-export interface UserCreatedResponse {
-  id: number;
-  username: string;
-  email: string;
-  password: string;
-  validated: boolean;
-  statusCode: 200;
-  token: string;
-}
-
-export interface UserExistsResponse extends ApiError {
-  statusCode: 409;
-  code: "user-exists";
-}
-
-export interface ApiError {
-  code: string;
-  message: string;
-}
-
-export interface InvalidUserResponse extends ApiError {
-  statusCode: 422;
-  code: "invalid-user";
-}
-
-export interface Standard4XxResponse extends ApiError {
-  statusCode: number;
-}
-
-export interface Standard5XxResponse extends ApiError {
-  statusCode: number;
-}
-
 export interface TodoPage {
   items: TodoItem[];
   pagination: {
@@ -85,23 +44,11 @@ export interface TodoUrlAttachment {
   url: string;
 }
 
-export interface InvalidTodoItem extends ApiError {
-  statusCode: 422;
-}
-
-export interface NotFoundResponse {
-  statusCode: 404;
-}
-
 export interface TodoItemPatch {
   title?: string;
   assignedTo?: number | null;
   description?: string | null;
   status?: "NotStarted" | "InProgress" | "Completed";
-}
-
-export interface NoContentResponse {
-  statusCode: 204;
 }
 
 export interface AttachmentPage {
@@ -114,4 +61,12 @@ export interface AttachmentPage {
     prevLink?: string;
     nextLink?: string;
   };
+}
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  password: string;
+  validated: boolean;
 }

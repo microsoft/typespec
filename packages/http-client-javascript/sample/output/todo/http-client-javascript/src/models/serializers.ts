@@ -1,12 +1,5 @@
 import {
-  ApiError,
   AttachmentPage,
-  InvalidTodoItem,
-  InvalidUserResponse,
-  NoContentResponse,
-  NotFoundResponse,
-  Standard4XxResponse,
-  Standard5XxResponse,
   TodoFileAttachment,
   TodoItem,
   TodoItemPatch,
@@ -14,8 +7,6 @@ import {
   TodoPage,
   TodoUrlAttachment,
   User,
-  UserCreatedResponse,
-  UserExistsResponse,
 } from "./models.js";
 
 export function recordSerializer(
@@ -63,102 +54,6 @@ export function dateUnixTimestampSerializer(date: Date): number {
 }
 export function dateUnixTimestampDeserializer(date: number): Date {
   return new Date(date * 1000);
-}
-export function userToTransport(item: User) {
-  return {
-    id: item.id,
-    username: item.username,
-    email: item.email,
-    password: item.password,
-    validated: item.validated,
-  };
-}
-export function userToApplication(item: any) {
-  return {
-    id: item.id,
-    username: item.username,
-    email: item.email,
-    password: item.password,
-    validated: item.validated,
-  };
-}
-export function userCreatedResponseToTransport(item: UserCreatedResponse) {
-  return {
-    id: item.id,
-    username: item.username,
-    email: item.email,
-    password: item.password,
-    validated: item.validated,
-    statusCode: item.statusCode,
-    token: item.token,
-  };
-}
-export function userCreatedResponseToApplication(item: any) {
-  return {
-    id: item.id,
-    username: item.username,
-    email: item.email,
-    password: item.password,
-    validated: item.validated,
-    statusCode: item.statusCode,
-    token: item.token,
-  };
-}
-export function userExistsResponseToTransport(item: UserExistsResponse) {
-  return {
-    statusCode: item.statusCode,
-    code: item.code,
-  };
-}
-export function userExistsResponseToApplication(item: any) {
-  return {
-    statusCode: item.statusCode,
-    code: item.code,
-  };
-}
-export function apiErrorToTransport(item: ApiError) {
-  return {
-    code: item.code,
-    message: item.message,
-  };
-}
-export function apiErrorToApplication(item: any) {
-  return {
-    code: item.code,
-    message: item.message,
-  };
-}
-export function invalidUserResponseToTransport(item: InvalidUserResponse) {
-  return {
-    statusCode: item.statusCode,
-    code: item.code,
-  };
-}
-export function invalidUserResponseToApplication(item: any) {
-  return {
-    statusCode: item.statusCode,
-    code: item.code,
-  };
-}
-export function standard4XxResponseToTransport(item: Standard4XxResponse) {
-  return {
-    statusCode: item.statusCode,
-  };
-}
-export function standard4XxResponseToApplication(item: any) {
-  return {
-    statusCode: item.statusCode,
-  };
-}
-export function standard5XxResponseToTransport(item: Standard5XxResponse) {
-  return {
-    statusCode: item.statusCode,
-  };
-}
-export function standard5XxResponseToApplication(item: any) {
-  return {
-    statusCode: item.statusCode,
-  };
 }
 export function todoPageToTransport(item: TodoPage) {
   return {
@@ -254,26 +149,6 @@ export function todoUrlAttachmentToApplication(item: any) {
     url: item.url,
   };
 }
-export function invalidTodoItemToTransport(item: InvalidTodoItem) {
-  return {
-    statusCode: item.statusCode,
-  };
-}
-export function invalidTodoItemToApplication(item: any) {
-  return {
-    statusCode: item.statusCode,
-  };
-}
-export function notFoundResponseToTransport(item: NotFoundResponse) {
-  return {
-    statusCode: item.statusCode,
-  };
-}
-export function notFoundResponseToApplication(item: any) {
-  return {
-    statusCode: item.statusCode,
-  };
-}
 export function todoItemPatchToTransport(item: TodoItemPatch) {
   return {
     title: item.title,
@@ -288,16 +163,6 @@ export function todoItemPatchToApplication(item: any) {
     assignedTo: item.assignedTo,
     description: item.description,
     status: item.status,
-  };
-}
-export function noContentResponseToTransport(item: NoContentResponse) {
-  return {
-    statusCode: item.statusCode,
-  };
-}
-export function noContentResponseToApplication(item: any) {
-  return {
-    statusCode: item.statusCode,
   };
 }
 export function attachmentPageToTransport(item: AttachmentPage) {
@@ -324,5 +189,23 @@ export function attachmentPageToApplication(item: any) {
       prevLink: item.pagination.prevLink,
       nextLink: item.pagination.nextLink,
     },
+  };
+}
+export function userToTransport(item: User) {
+  return {
+    id: item.id,
+    username: item.username,
+    email: item.email,
+    password: item.password,
+    validated: item.validated,
+  };
+}
+export function userToApplication(item: any) {
+  return {
+    id: item.id,
+    username: item.username,
+    email: item.email,
+    password: item.password,
+    validated: item.validated,
   };
 }

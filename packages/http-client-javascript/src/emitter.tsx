@@ -1,5 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import { EmitContext } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { ClientContext } from "./components/client-context/client-context.jsx";
 import { ClientDirectory } from "./components/client-directory.jsx";
@@ -10,12 +11,12 @@ import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 import { Models } from "./components/models.js";
 import { ModelSerializers } from "./components/serializers.js";
 
-export async function $onEmit() {
+export async function $onEmit(context: EmitContext) {
   const tsNamePolicy = ts.createTSNamePolicy();
   const rootNs = $.clientLibrary.listNamespaces()[0]; // TODO: Handle multiple namespaces
   const topLevelClient = $.client.getClient(rootNs); // TODO: Handle multiple clients
   const flatClients = $.client.flat(topLevelClient);
-  const dataTypes = $.client.listDataTypes(topLevelClient);
+  const dataTypes = $.clientLibrary.listDataTypes(topLevelClient);
 
   return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib, httpRuntimeTemplateLib]}>
         <ts.PackageDirectory name="test-package" version="1.0.0" path=".">

@@ -2,7 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { FunctionDeclaration, TypeExpression } from "@typespec/emitter-framework/typescript";
+import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
 import * as cl from "@typespec/http-client-library";
 import { prepareOperation } from "../utils/operations.js";
 import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";
@@ -36,12 +36,11 @@ export function ClientOperation(props: ClientOperationProps) {
 
   const jsClientOperation = prepareOperation(props.operation);
   const responseRefkey = ay.refkey(props.operation, "http-response");
-  const httpReturnType = $.httpOperation.getReturnType(props.operation);
   const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
   const signatureParams = {
     client: clientContextInterfaceRef,
   };
-  return <FunctionDeclaration export async type={jsClientOperation} parametersMode="prepend" parameters={signatureParams}  returnType={<TypeExpression type={httpReturnType} />}>
+  return <FunctionDeclaration export async type={jsClientOperation} parametersMode="prepend" parameters={signatureParams}>
       <HttpRequest operation={props.operation} responseRefkey={responseRefkey} />
       <HttpResponse operation={props.operation} responseRefkey={responseRefkey} />
     </FunctionDeclaration>;

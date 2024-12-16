@@ -871,12 +871,21 @@ importers:
       '@alloy-js/babel-preset':
         specifier: 0.1.1
         version: 0.1.1(@babel/core@7.25.8)
+      '@azure-tools/cadl-ranch':
+        specifier: 0.16.2
+        version: 0.16.2(@types/express@4.17.21)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)
       '@azure-tools/cadl-ranch-expect':
-        specifier: 0.15.4
-        version: 0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
+        specifier: 0.15.7
+        version: 0.15.7(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
       '@azure-tools/cadl-ranch-specs':
-        specifier: 0.37.2
-        version: 0.37.2(@azure-tools/cadl-ranch-expect@0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))(@typespec/xml@0.63.0(@typespec/compiler@packages+compiler))
+        specifier: 0.39.6
+        version: 0.39.6(@azure-tools/cadl-ranch-expect@0.15.7(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning))(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.63.0(@typespec/compiler@packages+compiler))
+      '@azure-tools/typespec-azure-resource-manager':
+        specifier: 0.49.0
+        version: 0.49.0(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
+      '@azure-tools/typespec-client-generator-core':
+        specifier: 0.49.0
+        version: 0.49.0(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
       '@babel/cli':
         specifier: ^7.24.8
         version: 7.25.9(@babel/core@7.25.8)
@@ -886,6 +895,12 @@ importers:
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.25.8)(@types/babel__core@7.20.5)(rollup@4.24.0)
+      '@typespec/versioning':
+        specifier: workspace:~
+        version: link:../versioning
+      chalk:
+        specifier: ^2.4.2
+        version: 2.4.2
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -2750,8 +2765,16 @@ packages:
     resolution: {integrity: sha512-eSl2RStE1Vbbe09jITyGyScXdDGO9hwKojBc+QVnpYARsF+m2J55D8ImJBZ8HNB7iURxgi1psx+oQy5PsHkFKw==}
     engines: {node: '>=16.0.0'}
 
+  '@azure-tools/cadl-ranch-api@0.5.0':
+    resolution: {integrity: sha512-awgLMCWGy4VxIJ5n9SJuTH0WfZFsUv5kYffIYfvGPtV3NIkCwO1u39Polb4BBR8GLELWjRuHMxYsmhwpTzRBpw==}
+    engines: {node: '>=16.0.0'}
+
   '@azure-tools/cadl-ranch-coverage-sdk@0.8.4':
     resolution: {integrity: sha512-N207EZEdJrXDKUVmi5Cnw/4y+/Ou9dTbdhMPDoLaalUxZp8T/YK+Y057/M88G0dY76PEAwWPPDolLchW62LZNQ==}
+    engines: {node: '>=16.0.0'}
+
+  '@azure-tools/cadl-ranch-coverage-sdk@0.9.0':
+    resolution: {integrity: sha512-u4WU5U6Ps6oct9E3FiBdORMsSiqpV1VBFeiqH4ZTXCV3A245n3GzznRexZ5bDuRlRY4ea2BVvKrVnemaYaLp+w==}
     engines: {node: '>=16.0.0'}
 
   '@azure-tools/cadl-ranch-expect@0.15.4':
@@ -2763,14 +2786,14 @@ packages:
       '@typespec/rest': ~0.60.0
       '@typespec/versioning': ~0.60.0
 
-  '@azure-tools/cadl-ranch-expect@0.15.5':
-    resolution: {integrity: sha512-7tr/FIDeFCJnDjEQ7J/A2MKmnmYrJBlTS7y9XjsWpJLC/fpB3lyvDvVYlsFmeO5dmnRc3+B4eEoWgWx46r3auA==}
+  '@azure-tools/cadl-ranch-expect@0.15.7':
+    resolution: {integrity: sha512-3f6PLUn4vVyiKOTnqdxppHhpQ3chb2D6ZMI7w65Xf5DYByyqC/rnMU25AjUu1jiIKwwANDtd6UDX6pWQrj87vQ==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
-      '@typespec/compiler': ~0.61.0
-      '@typespec/http': ~0.61.0
-      '@typespec/rest': ~0.61.0
-      '@typespec/versioning': ~0.61.0
+      '@typespec/compiler': ~0.63.0
+      '@typespec/http': ~0.63.0
+      '@typespec/rest': ~0.63.0
+      '@typespec/versioning': ~0.63.0
 
   '@azure-tools/cadl-ranch-specs@0.37.2':
     resolution: {integrity: sha512-C8WBSIHR4IMVZ/s8iDlD8LRSYDcid7pgsslim+ddZeJ8Yp/D7FayIIxXxR4t9SsP9SG0l7lJ6eS29MPMY0DlJw==}
@@ -2784,8 +2807,25 @@ packages:
       '@typespec/versioning': ~0.60.0
       '@typespec/xml': ~0.60.0
 
+  '@azure-tools/cadl-ranch-specs@0.39.6':
+    resolution: {integrity: sha512-oa8CDSVZhpO8xwjxLjgAa8ppyBel/QCCw9DjAd6sdj/VumJq+Bzcj9wKly0Vy4RFqdPSxPMdCcjlED63Xb1+YQ==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@azure-tools/cadl-ranch-expect': ~0.15.7
+      '@azure-tools/typespec-azure-core': ~0.49.0
+      '@typespec/compiler': ~0.63.0
+      '@typespec/http': ~0.63.0
+      '@typespec/rest': ~0.63.0
+      '@typespec/versioning': ~0.63.0
+      '@typespec/xml': ~0.63.0
+
   '@azure-tools/cadl-ranch@0.14.7':
     resolution: {integrity: sha512-vJrHpLT797aelIYJlFchKsFffmhWyC+zeQ8xlt6NVjdU6xhHdYjFcVVBCTrccCAfOtI2StL3ethK119RAvjWOQ==}
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+
+  '@azure-tools/cadl-ranch@0.16.2':
+    resolution: {integrity: sha512-1FtmiOp89qo3Jj2Gq6hTq23paolHocxNoBIugZPcEPY0ZNwOe+Ea24D0v0e3gd6RbomRKfKbmr3UVodN/xWLQA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
 
@@ -2797,6 +2837,17 @@ packages:
       '@typespec/http': ~0.61.0
       '@typespec/rest': ~0.61.0
 
+  '@azure-tools/typespec-azure-resource-manager@0.49.0':
+    resolution: {integrity: sha512-1xWuG8OBJDykYM6BFD2owV9WH+oC32zt7XteXA0T4nH2T+D+sEFKppkCOMtIjX7ENBAlecmbdwgSNTZYQf4vaw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@azure-tools/typespec-azure-core': ~0.49.0
+      '@typespec/compiler': ~0.63.0
+      '@typespec/http': ~0.63.0
+      '@typespec/openapi': ~0.63.0
+      '@typespec/rest': ~0.63.0
+      '@typespec/versioning': ~0.63.0
+
   '@azure-tools/typespec-client-generator-core@0.47.3':
     resolution: {integrity: sha512-13knZRDFBlVTw61vbhAnvQzttnqPRwHK0+YI/3QbYRN77j/Kv3zXFPeCcromz31exg3Y/Q8qD24mJ1Oikab2mA==}
     engines: {node: '>=18.0.0'}
@@ -2807,6 +2858,17 @@ packages:
       '@typespec/openapi': ~0.61.0
       '@typespec/rest': ~0.61.0
       '@typespec/versioning': ~0.61.0
+
+  '@azure-tools/typespec-client-generator-core@0.49.0':
+    resolution: {integrity: sha512-inFLRIeTU0mQg4PT19O3YwT/4YODLuTgIsXuhKDdG/sEsx8PG8AEFTabtnZJ0w3Lc4xuxKFJrzZ2ZH2iiAAbig==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@azure-tools/typespec-azure-core': ~0.49.0
+      '@typespec/compiler': ~0.63.0
+      '@typespec/http': ~0.63.0
+      '@typespec/openapi': ~0.63.0
+      '@typespec/rest': ~0.63.0
+      '@typespec/versioning': ~0.63.0
 
   '@azure/abort-controller@1.1.0':
     resolution: {integrity: sha512-TrRLIoSQVzfAJX9H1JeFjzAoDGcoK1IYX1UImfceTZpsyYfWr09Ss1aHW1y5TrrR3iq6RZLBwJ3E24uwPhwahw==}
@@ -6397,12 +6459,27 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
+  '@typespec/compiler@0.63.0':
+    resolution: {integrity: sha512-cC3YniwbFghn1fASX3r1IgNjMrwaY4gmzznkHT4f/NxE+HK4XoXWn4EG7287QgVMCaHUykzJCIfW9k7kIleW5A==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
   '@typespec/http@0.61.0':
     resolution: {integrity: sha512-7+AYHkzkc+p652GY9BcEbXY4OZa1fTr03MVmZeafvmbQbXfyzUU9eJld13M3v6NaUWqXWZ7nBNMISyKiXp/kSw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@typespec/compiler': ~0.61.0
       '@typespec/streams': ~0.61.0
+    peerDependenciesMeta:
+      '@typespec/streams':
+        optional: true
+
+  '@typespec/http@0.63.0':
+    resolution: {integrity: sha512-SYVbBmLPAPdWZfdMs0QlbpTnFREDnkINu2FR+0kRX12qzbRgpRbLsdhg59qx4TfKoh4IAPgSV+Fq84w7BWGsyQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@typespec/compiler': ~0.63.0
+      '@typespec/streams': ~0.63.0
     peerDependenciesMeta:
       '@typespec/streams':
         optional: true
@@ -6433,6 +6510,12 @@ packages:
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@typespec/compiler': ~0.61.0
+
+  '@typespec/streams@0.63.0':
+    resolution: {integrity: sha512-4vEd5jdpdaY2i9CDHwSRuiUNCJr+M/gUCwNsaGWgsJdrfR/lx8WX3Y27KcRDNVcRQF7nsOR4i28r4siWqrTM4w==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@typespec/compiler': ~0.63.0
 
   '@typespec/versioning@0.63.0':
     resolution: {integrity: sha512-BPvmPL+g20yEmSA8XRfbIHdToNOjssq4QfwOU6D7kKLLXnZHFb1hmuwW0tf0Wa/lYgoaUC60ONAeoXgNT1ZOIQ==}
@@ -13419,7 +13502,33 @@ snapshots:
       - '@types/express'
       - supports-color
 
+  '@azure-tools/cadl-ranch-api@0.5.0(@types/express@4.17.21)':
+    dependencies:
+      body-parser: 1.20.3
+      deep-equal: 2.2.3
+      express: 4.21.1
+      express-promise-router: 4.1.1(@types/express@4.17.21)(express@4.21.1)
+      glob: 11.0.0
+      morgan: 1.10.0
+      multer: 1.4.5-lts.1
+      picocolors: 1.1.1
+      winston: 3.15.0
+      xml-formatter: 3.6.3
+      xml2js: 0.6.2
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - '@types/express'
+      - supports-color
+
   '@azure-tools/cadl-ranch-coverage-sdk@0.8.4':
+    dependencies:
+      '@azure/identity': 4.4.1
+      '@azure/storage-blob': 12.25.0
+      '@types/node': 22.10.2
+    transitivePeerDependencies:
+      - supports-color
+
+  '@azure-tools/cadl-ranch-coverage-sdk@0.9.0':
     dependencies:
       '@azure/identity': 4.4.1
       '@azure/storage-blob': 12.25.0
@@ -13433,11 +13542,25 @@ snapshots:
       '@typespec/http': link:packages/http
       '@typespec/rest': link:packages/rest
 
-  '@azure-tools/cadl-ranch-expect@0.15.5(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler)))(@typespec/rest@0.61.0(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))))':
+  '@azure-tools/cadl-ranch-expect@0.15.7(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler)))(@typespec/rest@0.61.0(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))))':
     dependencies:
       '@typespec/compiler': 0.61.2
       '@typespec/http': 0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))
       '@typespec/rest': 0.61.0(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler)))
+
+  '@azure-tools/cadl-ranch-expect@0.15.7(@typespec/compiler@0.63.0)(@typespec/http@0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler)))(@typespec/rest@0.63.0(@typespec/compiler@0.63.0)(@typespec/http@0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))))(@typespec/versioning@packages+versioning)':
+    dependencies:
+      '@typespec/compiler': 0.63.0
+      '@typespec/http': 0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))
+      '@typespec/rest': 0.63.0(@typespec/compiler@0.63.0)(@typespec/http@0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler)))
+      '@typespec/versioning': link:packages/versioning
+
+  '@azure-tools/cadl-ranch-expect@0.15.7(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)':
+    dependencies:
+      '@typespec/compiler': link:packages/compiler
+      '@typespec/http': link:packages/http
+      '@typespec/rest': link:packages/rest
+      '@typespec/versioning': link:packages/versioning
 
   '@azure-tools/cadl-ranch-specs@0.37.2(@azure-tools/cadl-ranch-expect@0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))(@typespec/xml@0.63.0(@typespec/compiler@packages+compiler))':
     dependencies:
@@ -13455,16 +13578,68 @@ snapshots:
       - debug
       - supports-color
 
+  '@azure-tools/cadl-ranch-specs@0.39.6(@azure-tools/cadl-ranch-expect@0.15.7(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning))(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)(@typespec/xml@0.63.0(@typespec/compiler@packages+compiler))':
+    dependencies:
+      '@azure-tools/cadl-ranch': 0.16.2(@types/express@4.17.21)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)
+      '@azure-tools/cadl-ranch-api': 0.5.0(@types/express@4.17.21)
+      '@azure-tools/cadl-ranch-expect': 0.15.7(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)
+      '@azure-tools/typespec-azure-core': 0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
+      '@typespec/compiler': link:packages/compiler
+      '@typespec/http': link:packages/http
+      '@typespec/rest': link:packages/rest
+      '@typespec/versioning': link:packages/versioning
+      '@typespec/xml': 0.63.0(@typespec/compiler@packages+compiler)
+    transitivePeerDependencies:
+      - '@types/express'
+      - '@typespec/streams'
+      - debug
+      - supports-color
+
   '@azure-tools/cadl-ranch@0.14.7(@types/express@4.17.21)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))':
     dependencies:
       '@azure-tools/cadl-ranch-api': 0.4.7(@types/express@4.17.21)
       '@azure-tools/cadl-ranch-coverage-sdk': 0.8.4
-      '@azure-tools/cadl-ranch-expect': 0.15.5(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler)))(@typespec/rest@0.61.0(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))))
+      '@azure-tools/cadl-ranch-expect': 0.15.7(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler)))(@typespec/rest@0.61.0(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))))
       '@azure/identity': 4.4.1
       '@types/js-yaml': 4.0.9
       '@typespec/compiler': 0.61.2
       '@typespec/http': 0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))
       '@typespec/rest': 0.61.0(@typespec/compiler@0.61.2)(@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler)))
+      ajv: 8.17.1
+      axios: 1.7.7
+      body-parser: 1.20.3
+      deep-equal: 2.2.3
+      express: 4.21.1
+      express-promise-router: 4.1.1(@types/express@4.17.21)(express@4.21.1)
+      form-data: 3.0.2
+      glob: 11.0.0
+      jackspeak: 4.0.1
+      js-yaml: 4.1.0
+      morgan: 1.10.0
+      multer: 1.4.5-lts.1
+      node-fetch: 3.3.2
+      picocolors: 1.1.1
+      source-map-support: 0.5.21
+      winston: 3.15.0
+      xml2js: 0.6.2
+      yargs: 17.7.2
+    transitivePeerDependencies:
+      - '@types/express'
+      - '@typespec/streams'
+      - '@typespec/versioning'
+      - debug
+      - supports-color
+
+  '@azure-tools/cadl-ranch@0.16.2(@types/express@4.17.21)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))(@typespec/versioning@packages+versioning)':
+    dependencies:
+      '@azure-tools/cadl-ranch-api': 0.5.0(@types/express@4.17.21)
+      '@azure-tools/cadl-ranch-coverage-sdk': 0.9.0
+      '@azure-tools/cadl-ranch-expect': 0.15.7(@typespec/compiler@0.63.0)(@typespec/http@0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler)))(@typespec/rest@0.63.0(@typespec/compiler@0.63.0)(@typespec/http@0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))))(@typespec/versioning@packages+versioning)
+      '@azure/identity': 4.4.1
+      '@types/js-yaml': 4.0.9
+      '@typespec/compiler': 0.63.0
+      '@typespec/http': 0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))
+      '@typespec/rest': 0.63.0(@typespec/compiler@0.63.0)(@typespec/http@0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler)))
       ajv: 8.17.1
       axios: 1.7.7
       body-parser: 1.20.3
@@ -13502,6 +13677,17 @@ snapshots:
       '@typespec/http': link:packages/http
       '@typespec/rest': link:packages/rest
 
+  '@azure-tools/typespec-azure-resource-manager@0.49.0(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)':
+    dependencies:
+      '@azure-tools/typespec-azure-core': 0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
+      '@typespec/compiler': link:packages/compiler
+      '@typespec/http': link:packages/http
+      '@typespec/openapi': link:packages/openapi
+      '@typespec/rest': link:packages/rest
+      '@typespec/versioning': link:packages/versioning
+      change-case: 5.4.4
+      pluralize: 8.0.0
+
   '@azure-tools/typespec-client-generator-core@0.47.3(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.63.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@0.63.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/rest@0.63.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))(@typespec/versioning@0.63.0(@typespec/compiler@packages+compiler))':
     dependencies:
       '@azure-tools/typespec-azure-core': 0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@0.63.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http))
@@ -13512,6 +13698,18 @@ snapshots:
       '@typespec/versioning': 0.63.0(@typespec/compiler@packages+compiler)
       change-case: 5.4.4
       pluralize: 8.0.0
+
+  '@azure-tools/typespec-client-generator-core@0.49.0(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/openapi@packages+openapi)(@typespec/rest@packages+rest)(@typespec/versioning@packages+versioning)':
+    dependencies:
+      '@azure-tools/typespec-azure-core': 0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
+      '@typespec/compiler': link:packages/compiler
+      '@typespec/http': link:packages/http
+      '@typespec/openapi': link:packages/openapi
+      '@typespec/rest': link:packages/rest
+      '@typespec/versioning': link:packages/versioning
+      change-case: 5.4.4
+      pluralize: 8.0.0
+      yaml: 2.5.1
 
   '@azure/abort-controller@1.1.0':
     dependencies:
@@ -18523,11 +18721,34 @@ snapshots:
       yaml: 2.5.1
       yargs: 17.7.2
 
+  '@typespec/compiler@0.63.0':
+    dependencies:
+      '@babel/code-frame': 7.25.9
+      ajv: 8.17.1
+      change-case: 5.4.4
+      globby: 14.0.2
+      mustache: 4.2.0
+      picocolors: 1.1.1
+      prettier: 3.3.3
+      prompts: 2.4.2
+      semver: 7.6.3
+      temporal-polyfill: 0.2.5
+      vscode-languageserver: 9.0.1
+      vscode-languageserver-textdocument: 1.0.12
+      yaml: 2.5.1
+      yargs: 17.7.2
+
   '@typespec/http@0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))':
     dependencies:
       '@typespec/compiler': 0.61.2
     optionalDependencies:
       '@typespec/streams': 0.61.0(@typespec/compiler@packages+compiler)
+
+  '@typespec/http@0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))':
+    dependencies:
+      '@typespec/compiler': 0.63.0
+    optionalDependencies:
+      '@typespec/streams': 0.63.0(@typespec/compiler@packages+compiler)
 
   '@typespec/openapi@0.63.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)':
     dependencies:
@@ -18539,12 +18760,22 @@ snapshots:
       '@typespec/compiler': 0.61.2
       '@typespec/http': 0.61.0(@typespec/compiler@0.61.2)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))
 
+  '@typespec/rest@0.63.0(@typespec/compiler@0.63.0)(@typespec/http@0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler)))':
+    dependencies:
+      '@typespec/compiler': 0.63.0
+      '@typespec/http': 0.63.0(@typespec/compiler@0.63.0)(@typespec/streams@0.63.0(@typespec/compiler@packages+compiler))
+
   '@typespec/rest@0.63.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)':
     dependencies:
       '@typespec/compiler': link:packages/compiler
       '@typespec/http': link:packages/http
 
   '@typespec/streams@0.61.0(@typespec/compiler@packages+compiler)':
+    dependencies:
+      '@typespec/compiler': link:packages/compiler
+    optional: true
+
+  '@typespec/streams@0.63.0(@typespec/compiler@packages+compiler)':
     dependencies:
       '@typespec/compiler': link:packages/compiler
     optional: true

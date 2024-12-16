@@ -132,7 +132,7 @@ export async function get(
     };
   }
 
-  if (+response.status === 404 && !response.body) {
+  if (+response.status === 204 && !response.body) {
     return;
   }
 
@@ -197,10 +197,6 @@ export async function delete_(client: TodoItemsClientContext, id: number): Promi
 
   const response = await client.path(path).delete(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
-    return;
-  }
-
-  if (+response.status === 404 && !response.body) {
     return;
   }
 
