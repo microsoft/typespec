@@ -97,7 +97,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 [.. parameters, options]);
             var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
-            foreach (var param in ClientProvider.GetClientParameters())
+            foreach (var param in ClientProvider.ClientParameters)
             {
                 paramMap[param.Name] = param;
             }
@@ -356,7 +356,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 /* when the parameter is in operation.uri, it is client parameter
                  * It is not operation parameter and not in inputParamHash list.
                  */
-                var isClientParameter = ClientProvider.GetClientParameters().Any(p => p.Name == paramName);
+                var isClientParameter = ClientProvider.ClientParameters.Any(p => p.Name == paramName);
                 CSharpType? type;
                 string? format;
                 ValueExpression valueExpression;
