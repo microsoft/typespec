@@ -1,5 +1,5 @@
 import { useTSNamePolicy } from "@alloy-js/typescript";
-import { ModelProperty, Operation } from "@typespec/compiler";
+import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
 import { isModelProperty, isOperation } from "../../core/utils/typeguards.js";
 import { FunctionDeclaration } from "./function-declaration.js";
 import { TypeExpression } from "./type-expression.js";
@@ -14,6 +14,10 @@ export function InterfaceMember({ type, optional  }: InterfaceMemberProps) {
   const name = namer.getName(type.name, "object-member-getter");
   if (isModelProperty(type)) {
     const optionality = type.optional ?? optional ? "?" : "";
+
+    if(isNeverType(type.type)) {
+      return null;
+    }
 
     return (
       <>
