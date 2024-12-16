@@ -205,12 +205,15 @@ function ZodType(props: ZodTypeProps) {
             }
           }
           break;
-        default:
+        case "":
         {
           // Need to print out something like foo: z.object({a1: z.number(), a2: z.string()}),
           return <ZodNestedModel model={props.type} />
         }
-      }
+        break;
+        default:
+          return <>{zod.z}.any()</>;
+          }
       break;
     default:
       return <>{zod.z}.any()</>;

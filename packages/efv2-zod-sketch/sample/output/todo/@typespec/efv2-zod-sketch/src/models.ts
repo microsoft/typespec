@@ -236,21 +236,7 @@ offset: z.number().min(-2147483648).max(2147483647)
 
 export const todoPage = z.object(
 {
-items: z.array(todoItem z.object(
-{
-  id: z.number().safe(),
-  title: z.string().max(255),
-  createdBy: z.any(),
-  assignedTo: z.any(),
-  description: z.string(),
-  status: z.any(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  completedAt: z.string().datetime(),
-  labels: z.any(),
-  _dummy: z.string()
-}
-)),
+items: z.array(z.any()),
 pageSize: z.number().min(-2147483648).max(2147483647),
 totalSize: z.number().min(-2147483648).max(2147483647),
 limit: z.number().min(-2147483648).max(2147483647),
