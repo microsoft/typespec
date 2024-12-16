@@ -33,7 +33,7 @@ class M2R(YamlUpdatePlugin):
     def update_yaml(self, yaml_data: Dict[str, Any]) -> None:
         """Convert in place the YAML str."""
         self._convert_docstring_no_cycles(yaml_data, set())
-  
+
     def _convert_docstring_no_cycles(self, yaml_data: Union[Dict[str, Any], str], node_list: Set[int]) -> None:
         """Walk the YAML tree to convert MD to RST."""
         if id(yaml_data) in node_list:
