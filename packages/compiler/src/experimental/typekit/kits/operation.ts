@@ -1,5 +1,5 @@
 import { ModelProperty, Operation, Type } from "../../../core/types.js";
-import { $, defineKit } from "../define-kit.js";
+import { defineKit } from "../define-kit.js";
 
 interface OperationDescriptor {
   /**
@@ -27,7 +27,7 @@ export interface OperationKit {
   create(desc: OperationDescriptor): Operation;
 }
 
-interface TypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with operation properties.
    */
@@ -35,13 +35,13 @@ interface TypeKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends TypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-export const OperationKit = defineKit<TypeKit>({
+defineKit<TypekitExtension>({
   operation: {
     create(desc) {
-      const parametersModel = $.model.create({
+      const parametersModel = this.model.create({
         name: `${desc.name}Parameters`,
         properties: desc.parameters.reduce(
           (acc, property) => {

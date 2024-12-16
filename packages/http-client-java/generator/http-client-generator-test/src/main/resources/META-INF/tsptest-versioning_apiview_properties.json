@@ -1,0 +1,20 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.versioning.VersioningAsyncClient": "null",
+    "tsptest.versioning.VersioningAsyncClient.beginCreateLongRunning": "TspTest.Versioning.VersioningOp.createLongRunning",
+    "tsptest.versioning.VersioningAsyncClient.beginCreateLongRunningWithModel": "TspTest.Versioning.VersioningOp.createLongRunning",
+    "tsptest.versioning.VersioningAsyncClient.beginExport": "TspTest.Versioning.VersioningOp.export",
+    "tsptest.versioning.VersioningAsyncClient.beginExportWithModel": "TspTest.Versioning.VersioningOp.export",
+    "tsptest.versioning.VersioningAsyncClient.list": "TspTest.Versioning.VersioningOp.list",
+    "tsptest.versioning.VersioningClient": "null",
+    "tsptest.versioning.VersioningClient.beginCreateLongRunning": "TspTest.Versioning.VersioningOp.createLongRunning",
+    "tsptest.versioning.VersioningClient.beginCreateLongRunningWithModel": "TspTest.Versioning.VersioningOp.createLongRunning",
+    "tsptest.versioning.VersioningClient.beginExport": "TspTest.Versioning.VersioningOp.export",
+    "tsptest.versioning.VersioningClient.beginExportWithModel": "TspTest.Versioning.VersioningOp.export",
+    "tsptest.versioning.VersioningClient.list": "TspTest.Versioning.VersioningOp.list",
+    "tsptest.versioning.VersioningClientBuilder": "TspTest.Versioning",
+    "tsptest.versioning.models.ExportedResource": "TspTest.Versioning.ExportedResource",
+    "tsptest.versioning.models.Resource": "TspTest.Versioning.Resource"
+  }
+}

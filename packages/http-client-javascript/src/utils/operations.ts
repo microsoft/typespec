@@ -22,7 +22,7 @@ const httpParamsMutator: Mutator = {
   name: "Http parameters",
   Operation: {
     filter() {
-      return MutatorFlow.DoNotRecurse;
+      return MutatorFlow.DoNotRecur;
     },
     mutate(o, clone, _program, realm) {
       const httpOperation = $.httpOperation.get(o);

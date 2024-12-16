@@ -1,0 +1,25 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.multicontenttypes.MultiContentTypesAsyncClient": "TspTest.MultiContentTypes",
+    "tsptest.multicontenttypes.MultiContentTypesClient": "TspTest.MultiContentTypes",
+    "tsptest.multicontenttypes.MultiContentTypesClientBuilder": "TspTest.MultiContentTypes",
+    "tsptest.multicontenttypes.MultipleContentTypesOnRequestAsyncClient": "null",
+    "tsptest.multicontenttypes.MultipleContentTypesOnRequestAsyncClient.uploadJsonWithMultiBodyTypesForMultiContentTypes": "TspTest.MultiContentTypes.MultipleContentTypesOnRequest.uploadJsonWithMultiBodyTypesForMultiContentTypes",
+    "tsptest.multicontenttypes.MultipleContentTypesOnRequestAsyncClient.uploadJsonWithMultiBodyTypesForMultiContentTypesWithResponse": "TspTest.MultiContentTypes.MultipleContentTypesOnRequest.uploadJsonWithMultiBodyTypesForMultiContentTypes",
+    "tsptest.multicontenttypes.MultipleContentTypesOnRequestClient": "null",
+    "tsptest.multicontenttypes.MultipleContentTypesOnRequestClient.uploadJsonWithMultiBodyTypesForMultiContentTypes": "TspTest.MultiContentTypes.MultipleContentTypesOnRequest.uploadJsonWithMultiBodyTypesForMultiContentTypes",
+    "tsptest.multicontenttypes.MultipleContentTypesOnRequestClient.uploadJsonWithMultiBodyTypesForMultiContentTypesWithResponse": "TspTest.MultiContentTypes.MultipleContentTypesOnRequest.uploadJsonWithMultiBodyTypesForMultiContentTypes",
+    "tsptest.multicontenttypes.SingleContentTypeAsyncClient": "null",
+    "tsptest.multicontenttypes.SingleContentTypeAsyncClient.downloadImageForSingleContentType": "TspTest.MultiContentTypes.SingleContentType.downloadImageForSingleContentType",
+    "tsptest.multicontenttypes.SingleContentTypeAsyncClient.downloadImageForSingleContentTypeWithResponse": "TspTest.MultiContentTypes.SingleContentType.downloadImageForSingleContentType",
+    "tsptest.multicontenttypes.SingleContentTypeAsyncClient.uploadImageForSingleContentType": "TspTest.MultiContentTypes.SingleContentType.uploadImageForSingleContentType",
+    "tsptest.multicontenttypes.SingleContentTypeAsyncClient.uploadImageForSingleContentTypeWithResponse": "TspTest.MultiContentTypes.SingleContentType.uploadImageForSingleContentType",
+    "tsptest.multicontenttypes.SingleContentTypeClient": "null",
+    "tsptest.multicontenttypes.SingleContentTypeClient.downloadImageForSingleContentType": "TspTest.MultiContentTypes.SingleContentType.downloadImageForSingleContentType",
+    "tsptest.multicontenttypes.SingleContentTypeClient.downloadImageForSingleContentTypeWithResponse": "TspTest.MultiContentTypes.SingleContentType.downloadImageForSingleContentType",
+    "tsptest.multicontenttypes.SingleContentTypeClient.uploadImageForSingleContentType": "TspTest.MultiContentTypes.SingleContentType.uploadImageForSingleContentType",
+    "tsptest.multicontenttypes.SingleContentTypeClient.uploadImageForSingleContentTypeWithResponse": "TspTest.MultiContentTypes.SingleContentType.uploadImageForSingleContentType",
+    "tsptest.multicontenttypes.models.Resource": "TspTest.MultiContentTypes.Resource"
+  }
+}

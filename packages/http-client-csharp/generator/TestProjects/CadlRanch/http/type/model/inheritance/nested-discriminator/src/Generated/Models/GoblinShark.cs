@@ -9,8 +9,8 @@ namespace _Type.Model.Inheritance.NestedDiscriminator.Models
 {
     public partial class GoblinShark : Shark
     {
-        public GoblinShark(int age) : base("goblin", age) => throw null;
+        public GoblinShark(int age) : base(age, "goblin") => throw null;
 
-        internal GoblinShark(string sharktype, string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(sharktype, kind, age, additionalBinaryDataProperties) => throw null;
+        internal GoblinShark(string kind, int age, IDictionary<string, BinaryData> additionalBinaryDataProperties, string sharktype) : base(kind, age, additionalBinaryDataProperties, sharktype) => throw null;
     }
 }

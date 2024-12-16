@@ -29,6 +29,15 @@ function createServerTests(url: string, value: unknown, patchNullableProperty?: 
       response: {
         status: 204,
       },
+      handler: (req) => {
+        req.expect.coercedBodyEquals({
+          requiredProperty: "foo",
+          nullableProperty: patchNullableProperty || null,
+        });
+        return {
+          status: 204,
+        };
+      },
       kind: "MockApiDefinition",
     }),
   };

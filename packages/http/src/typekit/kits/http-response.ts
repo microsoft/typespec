@@ -7,7 +7,6 @@ import {
 } from "../../types.js";
 
 interface HttpResponseKit {
-  httpResponse: {
     /**
      * Check if the response is an error response.
      */
@@ -17,14 +16,17 @@ interface HttpResponseKit {
       isRange(statusCode: HttpStatusCodesEntry): statusCode is HttpStatusCodeRange;
       isDefault(statusCode: HttpStatusCodesEntry): statusCode is "*";
     };
-  };
+}
+
+interface TypekitExtension {
+  httpResponse: HttpResponseKit;
 }
 
 declare module "@typespec/compiler/typekit" {
-  interface TypekitPrototype extends HttpResponseKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<HttpResponseKit>({
+defineKit<TypekitExtension>({
   httpResponse: {
     isErrorResponse(response) {
       return response.body ? isErrorModel(this.program, response.body.type) : false;

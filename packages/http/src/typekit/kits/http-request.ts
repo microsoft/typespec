@@ -1,11 +1,10 @@
 import { Model, ModelProperty } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { HttpOperation } from "../../types.js";
 
 export type HttpRequestParameterKind = "query" | "header" | "path" | "contentType" | "body";
 
 interface HttpRequestKit {
-  httpRequest: {
     body: {
       /**
        * Checks the body is a property explicitly tagged with @body or @bodyRoot
@@ -27,14 +26,18 @@ interface HttpRequestKit {
       httpOperation: HttpOperation,
       kind: HttpRequestParameterKind[] | HttpRequestParameterKind,
     ): Model | undefined;
-  };
 }
+
+interface TypekitExtension {
+  httpRequest: HttpRequestKit;
+}
+
 
 declare module "@typespec/compiler/typekit" {
-  interface TypekitPrototype extends HttpRequestKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<HttpRequestKit>({
+defineKit<TypekitExtension>({
   httpRequest: {
     body: {
       isExplicit(httpOperation: HttpOperation) {
@@ -63,7 +66,7 @@ defineKit<HttpRequestKit>({
 
       const bodyPropertyName = bodyProperty.name ? bodyProperty.name : "body";
 
-      return $.model.create({
+      return this.model.create({
         properties: { [bodyPropertyName]: bodyProperty },
       });
     },
@@ -102,7 +105,7 @@ defineKit<HttpRequestKit>({
         {} as Record<string, ModelProperty>,
       );
 
-      return $.model.create({ properties });
+      return this.model.create({ properties });
     },
   },
 });

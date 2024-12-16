@@ -8,8 +8,11 @@ import {
   Scalar,
   Type,
   getFriendlyName,
+  isNullType,
   isNumericType,
   isTemplateInstance,
+  isUnknownType,
+  isVoidType,
 } from "@typespec/compiler";
 import { StringBuilder } from "@typespec/compiler/emitter-framework";
 import {
@@ -38,10 +41,13 @@ import {
 } from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 
+const _scalars: Map<Scalar, CSharpType> = new Map<Scalar, CSharpType>();
 export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharpType {
+  if (_scalars.has(scalar)) return _scalars.get(scalar)!;
   if (program.checker.isStdType(scalar)) {
     return getCSharpTypeForStdScalars(program, scalar);
   }
+
   if (scalar.baseScalar) {
     return getCSharpTypeForScalar(program, scalar.baseScalar);
   }
@@ -51,12 +57,16 @@ export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharp
     format: { typeName: scalar.name },
     target: scalar,
   });
-  return new CSharpType({
+
+  const result = new CSharpType({
     name: "Object",
     namespace: "System",
     isBuiltIn: true,
     isValueType: false,
   });
+
+  _scalars.set(scalar, result);
+  return result;
 }
 
 export const UnknownType: CSharpType = new CSharpType({
@@ -68,7 +78,7 @@ export const UnknownType: CSharpType = new CSharpType({
 export function getCSharpType(
   program: Program,
   type: Type,
-  namespace: string,
+  namespace?: string,
 ): { type: CSharpType; value?: CSharpValue } | undefined {
   const known = getKnownType(program, type);
   if (known !== undefined) return { type: known };
@@ -115,7 +125,7 @@ export function getCSharpType(
       return {
         type: new CSharpType({
           name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
-          namespace: namespace,
+          namespace: namespace || "Models",
           isBuiltIn: false,
           isValueType: false,
         }),
@@ -164,24 +174,26 @@ export function getCSharpType(
 export function coalesceTypes(
   program: Program,
   types: Type[],
-  namespace: string,
+  namespace?: string,
 ): { type: CSharpType; value?: CSharpValue } {
   const visited = new Map<Type, { type: CSharpType; value?: CSharpValue }>();
   let candidateType: CSharpType | undefined = undefined;
   let candidateValue: CSharpValue | undefined = undefined;
   for (const type of types) {
-    if (!visited.has(type)) {
-      const resolvedType = getCSharpType(program, type, namespace);
-      if (resolvedType === undefined) return { type: UnknownType };
-      if (resolvedType.type === UnknownType) return resolvedType;
-      if (candidateType === undefined) {
-        candidateType = resolvedType.type;
-        candidateValue = resolvedType.value;
-      } else {
-        if (candidateValue !== resolvedType.value) candidateValue = undefined;
-        if (candidateType !== resolvedType.type) return { type: UnknownType };
+    if (!isNullType(type)) {
+      if (!visited.has(type)) {
+        const resolvedType = getCSharpType(program, type, namespace);
+        if (resolvedType === undefined) return { type: UnknownType };
+        if (resolvedType.type === UnknownType) return resolvedType;
+        if (candidateType === undefined) {
+          candidateType = resolvedType.type;
+          candidateValue = resolvedType.value;
+        } else {
+          if (candidateValue !== resolvedType.value) candidateValue = undefined;
+          if (candidateType !== resolvedType.type) return { type: UnknownType };
+        }
+        visited.set(type, resolvedType);
       }
-      visited.set(type, resolvedType);
     }
   }
 
@@ -196,31 +208,32 @@ export function getCSharpTypeForIntrinsic(
   program: Program,
   type: IntrinsicType,
 ): { type: CSharpType; value?: CSharpValue } | undefined {
-  switch (type.name) {
-    case "unknown":
-      return { type: UnknownType };
-    case "void":
-      return {
-        type: new CSharpType({
-          name: "void",
-          namespace: "System",
-          isBuiltIn: true,
-          isValueType: false,
-        }),
-      };
-    case "null":
-      return {
-        type: new CSharpType({
-          name: "object",
-          namespace: "System",
-          isBuiltIn: true,
-          isValueType: false,
-        }),
-        value: new NullValue(),
-      };
-    default:
-      return undefined;
+  if (isUnknownType(type)) {
+    return { type: UnknownType };
   }
+  if (isVoidType(type)) {
+    return {
+      type: new CSharpType({
+        name: "void",
+        namespace: "System",
+        isBuiltIn: true,
+        isValueType: false,
+      }),
+    };
+  }
+  if (isNullType(type)) {
+    return {
+      type: new CSharpType({
+        name: "object",
+        namespace: "System",
+        isBuiltIn: true,
+        isValueType: false,
+      }),
+      value: new NullValue(),
+    };
+  }
+
+  return undefined;
 }
 
 type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
@@ -360,8 +373,11 @@ export function getCSharpTypeForStdScalars(
   program: Program,
   scalar: Scalar & { name: ExtendedIntrinsicScalarName },
 ): CSharpType {
+  const cached: CSharpType | undefined = _scalars.get(scalar);
+  if (cached !== undefined) return cached;
   const builtIn: CSharpType | undefined = standardScalars.get(scalar.name);
   if (builtIn !== undefined) {
+    _scalars.set(scalar, builtIn);
     if (scalar.name === "numeric" || scalar.name === "integer" || scalar.name === "float") {
       reportDiagnostic(program, {
         code: "no-numeric",
@@ -386,10 +402,18 @@ export function getCSharpTypeForStdScalars(
 }
 
 export function isValueType(program: Program, type: Type): boolean {
-  if (type.kind === "Boolean" || type.kind === "Number" || type.kind === "Enum") return true;
-  if (type.kind !== "Scalar") return false;
-  const scalarType = getCSharpTypeForScalar(program, type);
-  return scalarType.isValueType;
+  if (
+    type.kind === "Boolean" ||
+    type.kind === "Number" ||
+    type.kind === "Enum" ||
+    type.kind === "EnumMember"
+  )
+    return true;
+  if (type.kind === "Scalar") return getCSharpTypeForScalar(program, type).isValueType;
+  if (type.kind !== "Union") return false;
+  return [...type.variants.values()]
+    .flatMap((v) => v.type)
+    .every((t) => isNullType(t) || isValueType(program, t));
 }
 
 export function formatComment(
@@ -531,9 +555,9 @@ export function ensureCSharpIdentifier(
 export function getModelAttributes(
   program: Program,
   entity: Type,
-  csharpName?: string,
+  cSharpName?: string,
 ): Attribute[] {
-  return getAttributes(program, entity);
+  return getAttributes(program, entity, cSharpName);
 }
 
 export function getModelInstantiationName(program: Program, model: Model, name: string): string {

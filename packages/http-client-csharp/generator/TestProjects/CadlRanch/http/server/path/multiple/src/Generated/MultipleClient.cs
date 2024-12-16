@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Server.Path.Multiple
@@ -25,7 +26,7 @@ namespace Server.Path.Multiple
 
         public virtual ClientResult NoOperationParams() => throw null;
 
-        public virtual Task<ClientResult> NoOperationParamsAsync() => throw null;
+        public virtual Task<ClientResult> NoOperationParamsAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options) => throw null;
 
@@ -33,6 +34,6 @@ namespace Server.Path.Multiple
 
         public virtual ClientResult WithOperationPathParam(string keyword) => throw null;
 
-        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword) => throw null;
+        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -1,5 +1,5 @@
 import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import { defineKit, Typekit } from "@typespec/compiler/typekit";
 import { getHttpOperation } from "../../operations.js";
 import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../types.js";
 
@@ -21,8 +21,7 @@ export interface FlatHttpResponse {
   responseContent: HttpOperationResponseContent;
 }
 
-interface HttpOperationKit {
-  httpOperation: {
+export interface HttpOperationKit {
     /**
      * Get the corresponding HTTP operation for the given TypeSpec operation. The same
      * TypeSpec operation will always return the exact same HttpOperation object.
@@ -40,14 +39,17 @@ interface HttpOperationKit {
      * @param op operation to get the return type for
      */
     getReturnType(op: Operation, options?: { includeErrors?: boolean }): Type;
-  };
+}
+
+interface TypekitExtension {
+  httpOperation: HttpOperationKit;
 }
 
 declare module "@typespec/compiler/typekit" {
-  interface TypekitPrototype extends HttpOperationKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<HttpOperationKit>({
+defineKit<TypekitExtension>({
   httpOperation: {
     get(op) {
       return ignoreDiagnostics(getHttpOperation(this.program, op));
@@ -71,12 +73,12 @@ defineKit<HttpOperationKit>({
         httpReturnType = this.union.create({
           variants: res.map((t) => {
             return this.unionVariant.create({
-              type: getEffectiveType(t),
+              type: getEffectiveType(this, t),
             });
           }),
         });
       } else {
-        httpReturnType = getEffectiveType(responses[0].responseContent.body?.type);
+        httpReturnType = getEffectiveType(this, responses[0].responseContent.body?.type);
       }
 
       return httpReturnType;
@@ -107,12 +109,12 @@ defineKit<HttpOperationKit>({
   },
 });
 
-function getEffectiveType(type?: Type): Type {
+function getEffectiveType(typekit: Typekit, type?: Type): Type {
   if (type === undefined) {
     return { kind: "Intrinsic", name: "void" } as VoidType;
   }
-  if ($.model.is(type)) {
-    return $.model.getEffectiveModel(type);
+  if (typekit.model.is(type)) {
+    return typekit.model.getEffectiveModel(type);
   }
 
   return type;

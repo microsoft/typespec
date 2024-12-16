@@ -5,14 +5,16 @@ import {
   isTemplateDeclarationOrInstance,
   Namespace,
   Operation,
+  Program,
   Type,
 } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import {  defineKit } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
 import { Client } from "../../interfaces.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { discoverDataTypes } from "../../utils/type-discovery.js";
 import { NameKit } from "./utils.js";
+import "@typespec/http/typekit";
 
 interface ClientKit extends NameKit<Client> {
   /**
@@ -32,7 +34,7 @@ interface ClientKit extends NameKit<Client> {
   /**
    * Get the constructor for a client. Will return the base intersection of all possible constructors.
    *
-   * If you'd like to look at overloads, call `$.operation.getOverloads` on the result of this function.
+   * If you'd like to look at overloads, call `this.operation.getOverloads` on the result of this function.
    *
    * @param client The client we're getting constructors for
    */
@@ -66,7 +68,7 @@ interface TypeKit {
 
 declare module "@typespec/compiler/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface TypekitPrototype extends TypeKit {}
+  interface Typekit extends TypeKit {}
 }
 
 function getClientName(name: string): string {
@@ -80,7 +82,7 @@ defineKit<TypeKit>({
   client: {
     getParent(client) {
       const type = client.kind === "Client" ? client.type : client;
-      if (type.namespace && type.namespace !== $.program.getGlobalNamespaceType()) {
+      if (type.namespace && type.namespace !== this.program.getGlobalNamespaceType()) {
         return this.client.getClient(type.namespace);
       }
 
@@ -93,7 +95,7 @@ defineKit<TypeKit>({
         const currentClient = clientStack.pop();
         if (currentClient) {
           clients.push(currentClient);
-          clientStack.push(...$.clientLibrary.listClients(currentClient));
+          clientStack.push(...this.clientLibrary.listClients(currentClient));
         }
       }
       return clients;
@@ -133,11 +135,11 @@ defineKit<TypeKit>({
 
       const operations: Operation[] = [];
 
-      function addOperations(current: Namespace | Interface) {
+      function addOperations(program: Program, current: Namespace | Interface) {
         if (
           current.kind === "Namespace" &&
           current !== client.type &&
-          getService($.program, current)
+          getService(program, current)
         ) {
           // if I'm a different service, I'm done
           return;
@@ -155,16 +157,16 @@ defineKit<TypeKit>({
         }
       }
 
-      addOperations(client.type);
+      addOperations(this.program, client.type);
 
       clientOperationCache.set(client, operations);
       return operations;
     },
     getUrlTemplate(client, constructor) {
-      const params = $.operation.getClientSignature(client, constructor);
+      const params = this.operation.getClientSignature(client, constructor);
       const endpointParams = params
         .filter(
-          (p) => $.modelProperty.getName(p) === "endpoint" || $.modelProperty.isHttpPathParam(p),
+          (p) => this.modelProperty.getName(p) === "endpoint" || this.modelProperty.isHttpPathParam(p),
         )
         .map((p) => p.name)
         .sort();
@@ -172,7 +174,7 @@ defineKit<TypeKit>({
         return "{endpoint}";
       }
       // here we have multiple templated arguments to an endpoint
-      const servers = getServers($.program, client.service) || [];
+      const servers = getServers(this.program, client.service) || [];
       for (const server of servers) {
         const serverParams = [...server.parameters.values()].map((p) => p.name).sort();
         if (JSON.stringify(serverParams) === JSON.stringify(endpointParams)) {

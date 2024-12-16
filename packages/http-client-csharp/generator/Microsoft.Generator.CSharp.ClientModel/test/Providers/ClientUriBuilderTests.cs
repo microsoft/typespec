@@ -244,17 +244,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
 
-        [TestCase("http://localhost", new[] { "hello", "world" }, true, "http://localhost/hello%2Cworld")]
-        [TestCase("http://localhost", new[] { "hello", "world" }, false, "http://localhost/hello,world")]
-        public void AppendPath_StringArray(string endpoint, IEnumerable<string> value, bool escape, string expected)
+        [TestCase("http://localhost", new[] { "hello", "world" }, ",", true, "http://localhost/hello%2Cworld")]
+        [TestCase("http://localhost", new[] { "hello", "world" }, ".", false, "http://localhost/hello.world")]
+        public void AppendPathDelimited_StringArray(string endpoint, IEnumerable<string> value, string delimiter, bool escape, string expected)
         {
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
-            builder.AppendPath(value, escape);
+            builder.AppendPathDelimited(value, delimiter, null, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
+
+        [TestCase("http://localhost", new[] { 4, 5 }, ",", true, "http://localhost/4%2C5")]
+        [TestCase("http://localhost", new[] { 1, 2 }, ".", false, "http://localhost/1.2")]
+        public void AppendPathDelimited_IntArray(string endpoint, IEnumerable<int> value, string delimiter, bool escape, string expected)
+        {
+            var builder = new ClientUriBuilder();
+            builder.Reset(new Uri(endpoint));
+
+            builder.AppendPathDelimited(value, delimiter, null, escape);
+
+            Assert.AreEqual(expected, builder.ToUri().ToString());
+        }
+
 
         [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "D", true, "http://localhost/1905-06-30")]
         [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "U", true, "http://localhost/-2035622760")]
@@ -453,7 +466,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
-            builder.AppendQueryDelimited("query", value, delimiter, escape);
+            builder.AppendQueryDelimited("query", value, delimiter, null, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }

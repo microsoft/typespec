@@ -1,0 +1,26 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.internal.InternalAsyncClient": "null",
+    "tsptest.internal.InternalAsyncClient.getInternal": "TspTest.Internal.InternalOp.getInternal",
+    "tsptest.internal.InternalAsyncClient.getInternalWithResponse": "TspTest.Internal.InternalOp.getInternal",
+    "tsptest.internal.InternalAsyncClient.postInternal": "TspTest.Internal.InternalOp.postInternal",
+    "tsptest.internal.InternalAsyncClient.postInternalWithResponse": "TspTest.Internal.InternalOp.postInternal",
+    "tsptest.internal.InternalClient": "null",
+    "tsptest.internal.InternalClient.getInternal": "TspTest.Internal.InternalOp.getInternal",
+    "tsptest.internal.InternalClient.getInternalWithResponse": "TspTest.Internal.InternalOp.getInternal",
+    "tsptest.internal.InternalClient.postInternal": "TspTest.Internal.InternalOp.postInternal",
+    "tsptest.internal.InternalClient.postInternalWithResponse": "TspTest.Internal.InternalOp.postInternal",
+    "tsptest.internal.InternalClientBuilder": "TspTest.Internal",
+    "tsptest.internal.implementation.models.Color": "TspTest.Internal.Color",
+    "tsptest.internal.implementation.models.ColorModel": "TspTest.Internal.ColorModel",
+    "tsptest.internal.models.ApiRequest": "TspTest.Internal.ApiRequest",
+    "tsptest.internal.models.ApiResponse": "TspTest.Internal.ApiResponse",
+    "tsptest.internal.models.RequestInner": "TspTest.Internal.RequestInner",
+    "tsptest.internal.models.ResponseInternal": "TspTest.Internal.ResponseInternal",
+    "tsptest.internal.models.ResponseInternalInner": "TspTest.Internal.ResponseInternalInner",
+    "tsptest.internal.models.StandAloneData": "TspTest.Internal.StandAloneData",
+    "tsptest.internal.models.StandAloneDataInner": "TspTest.Internal.StandAloneDataInner",
+    "tsptest.internal.models.UnusedEnum": "TspTest.Internal.UnusedEnum"
+  }
+}

@@ -1,5 +1,5 @@
 import { ModelProperty, Operation, Type } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
 import { clientOperationCache } from "./client.js";
@@ -78,17 +78,17 @@ defineKit<SdkKit>({
       if (returnType === undefined) {
         return undefined;
       }
-      if ($.union.is(returnType)) {
-        const validTypes = [...returnType.variants.values()].filter((v) => !$.type.isError(v.type));
+      if (this.union.is(returnType)) {
+        const validTypes = [...returnType.variants.values()].filter((v) => !this.type.isError(v.type));
         if (validTypes.length === 0) {
           return undefined;
         }
         if (validTypes.length === 1) {
           return validTypes[0].type;
         }
-        return $.union.create({ variants: validTypes });
+        return this.union.create({ variants: validTypes });
       }
-      if (!$.type.isError(returnType)) {
+      if (!this.type.isError(returnType)) {
         return returnType;
       }
       return undefined;
@@ -98,17 +98,17 @@ defineKit<SdkKit>({
       if (returnType === undefined) {
         return undefined;
       }
-      if ($.union.is(returnType)) {
-        const errorTypes = [...returnType.variants.values()].filter((v) => $.type.isError(v.type));
+      if (this.union.is(returnType)) {
+        const errorTypes = [...returnType.variants.values()].filter((v) => this.type.isError(v.type));
         if (errorTypes.length === 0) {
           return undefined;
         }
         if (errorTypes.length === 1) {
           return errorTypes[0].type;
         }
-        return $.union.create({ variants: errorTypes });
+        return this.union.create({ variants: errorTypes });
       }
-      if ($.type.isError(returnType)) {
+      if (this.type.isError(returnType)) {
         return returnType;
       }
       return undefined;

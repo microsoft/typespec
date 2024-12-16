@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Client.Structure.Service.Default
@@ -20,7 +21,7 @@ namespace Client.Structure.Service.Default
 
         public virtual ClientResult Eight() => throw null;
 
-        public virtual Task<ClientResult> EightAsync() => throw null;
+        public virtual Task<ClientResult> EightAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual QuxBar GetQuxBarClient() => throw null;
     }

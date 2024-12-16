@@ -77,7 +77,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             // ensure the signature is correct and includes the base discriminator value
             // and the cat model's discriminator with literal value
             Assert.IsTrue(birdModelMethod!.BodyStatements!.ToDisplayString()
-                .Contains("return new global::Sample.Models.Bird(\"red\", \"bird\", name, additionalBinaryDataProperties: null);"));
+                .Contains("return new global::Sample.Models.Bird(\"bird\", name, additionalBinaryDataProperties: null, \"red\");"), birdModelMethod!.BodyStatements!.ToDisplayString());
         }
 
         private static ModelFactoryProvider SetupModelFactory()

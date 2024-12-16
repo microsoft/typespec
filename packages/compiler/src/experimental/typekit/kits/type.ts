@@ -11,12 +11,12 @@ import { isErrorType } from "../../../core/type-utils.js";
 import { Enum, Model, Scalar, Union, type Namespace, type Type } from "../../../core/types.js";
 import { getDoc, getSummary } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
-import { $, defineKit } from "../define-kit.js";
+import { Typekit, defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
 /**  @experimental */
-export interface TypeKit {
+export interface TypeTypeKit {
   /**
    * Clones a type and adds it to the typekit's realm.
    * @param type Type to clone
@@ -90,18 +90,18 @@ export interface TypeKit {
   minLength(type: Type): number | undefined;
 }
 
-interface BaseTypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with general types.
    */
-  type: TypeKit;
+  type: TypeTypeKit;
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends BaseTypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<BaseTypeKit>({
+defineKit<TypekitExtension>({
   type: {
     finishType(type: Type) {
       this.program.checker.finishType(type);
@@ -151,27 +151,41 @@ defineKit<BaseTypeKit>({
             projections: [...type.projections],
           });
           const clonedNamespace = clone as Namespace;
-          clonedNamespace.decoratorDeclarations = cloneTypeCollection(type.decoratorDeclarations, {
+          clonedNamespace.decoratorDeclarations = cloneTypeCollection(
+            this,
+            type.decoratorDeclarations,
+            {
+              namespace: clonedNamespace,
+            },
+          );
+          clonedNamespace.models = cloneTypeCollection(this, type.models, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.models = cloneTypeCollection(type.models, { namespace: clonedNamespace });
-          clonedNamespace.enums = cloneTypeCollection(type.enums, { namespace: clonedNamespace });
-          clonedNamespace.functionDeclarations = cloneTypeCollection(type.functionDeclarations, {
+          clonedNamespace.enums = cloneTypeCollection(this, type.enums, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.interfaces = cloneTypeCollection(type.interfaces, {
+          clonedNamespace.functionDeclarations = cloneTypeCollection(
+            this,
+            type.functionDeclarations,
+            {
+              namespace: clonedNamespace,
+            },
+          );
+          clonedNamespace.interfaces = cloneTypeCollection(this, type.interfaces, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.namespaces = cloneTypeCollection(type.namespaces, {
+          clonedNamespace.namespaces = cloneTypeCollection(this, type.namespaces, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.operations = cloneTypeCollection(type.operations, {
+          clonedNamespace.operations = cloneTypeCollection(this, type.operations, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.scalars = cloneTypeCollection(type.scalars, {
+          clonedNamespace.scalars = cloneTypeCollection(this, type.scalars, {
             namespace: clonedNamespace,
           });
-          clonedNamespace.unions = cloneTypeCollection(type.unions, { namespace: clonedNamespace });
+          clonedNamespace.unions = cloneTypeCollection(this, type.unions, {
+            namespace: clonedNamespace,
+          });
           break;
         default:
           clone = this.program.checker.createType({
@@ -180,7 +194,7 @@ defineKit<BaseTypeKit>({
           });
           break;
       }
-      this.realm.get().addType(clone);
+      this.realm.addType(clone);
       return clone;
     },
     isError(type) {
@@ -210,9 +224,9 @@ defineKit<BaseTypeKit>({
 
       const [union] = getDiscriminatedUnion(type, discriminator);
       const variants = Array.from(union.variants.entries()).map(([k, v]) =>
-        $.unionVariant.create({ name: k, type: v }),
+        this.unionVariant.create({ name: k, type: v }),
       );
-      return $.union.create({
+      return this.union.create({
         name: union.propertyName,
         variants,
       });
@@ -233,12 +247,13 @@ defineKit<BaseTypeKit>({
 });
 
 function cloneTypeCollection<T extends Type>(
+  kit: Typekit,
   collection: Map<string, T>,
   options: { namespace?: Namespace } = {},
 ): Map<string, T> {
   const cloneCollection = new Map<string, T>();
   for (const [key, type] of collection) {
-    const clone = $.type.clone(type);
+    const clone = kit.type.clone(type);
     if ("namespace" in clone && options.namespace) {
       clone.namespace = options.namespace;
     }

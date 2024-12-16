@@ -28,7 +28,6 @@ interface EnumMemberDescriptor {
 }
 
 interface EnumMemberKit {
-  enumMember: {
     /**
      * Create an enum type. The enum type will be finished (i.e. decorators are
      * run).
@@ -41,21 +40,24 @@ interface EnumMemberKit {
      * @param type the type to check.
      */
     is(type: Type): type is EnumMember;
-  };
+}
+
+interface TypekitExtension {
+  enumMember: EnumMemberKit;
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends EnumMemberKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<EnumMemberKit>({
+defineKit<TypekitExtension>({
   enumMember: {
     create(desc) {
       const member: EnumMember = this.program.checker.createType({
         kind: "EnumMember",
         name: desc.name,
         value: desc.value,
-        decorators: decoratorApplication(desc.decorators),
+        decorators: decoratorApplication(this, desc.decorators),
         node: undefined as any,
         enum: desc.enum as any, // initialized in enum.build if not provided here
       });

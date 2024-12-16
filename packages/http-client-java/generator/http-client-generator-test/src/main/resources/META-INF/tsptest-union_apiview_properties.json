@@ -1,0 +1,31 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.union.UnionAsyncClient": "null",
+    "tsptest.union.UnionAsyncClient.beginGenerate": "TspTest.Union.UnionFlattenOp.generate",
+    "tsptest.union.UnionAsyncClient.beginGenerateWithModel": "TspTest.Union.UnionFlattenOp.generate",
+    "tsptest.union.UnionAsyncClient.get": "TspTest.Union.UnionFlattenOp.get",
+    "tsptest.union.UnionAsyncClient.getWithResponse": "TspTest.Union.UnionFlattenOp.get",
+    "tsptest.union.UnionAsyncClient.send": "TspTest.Union.UnionFlattenOp.send",
+    "tsptest.union.UnionAsyncClient.sendLong": "TspTest.Union.UnionFlattenOp.sendLong",
+    "tsptest.union.UnionAsyncClient.sendLongWithResponse": "TspTest.Union.UnionFlattenOp.sendLong",
+    "tsptest.union.UnionAsyncClient.sendWithResponse": "TspTest.Union.UnionFlattenOp.send",
+    "tsptest.union.UnionClient": "null",
+    "tsptest.union.UnionClient.beginGenerate": "TspTest.Union.UnionFlattenOp.generate",
+    "tsptest.union.UnionClient.beginGenerateWithModel": "TspTest.Union.UnionFlattenOp.generate",
+    "tsptest.union.UnionClient.get": "TspTest.Union.UnionFlattenOp.get",
+    "tsptest.union.UnionClient.getWithResponse": "TspTest.Union.UnionFlattenOp.get",
+    "tsptest.union.UnionClient.send": "TspTest.Union.UnionFlattenOp.send",
+    "tsptest.union.UnionClient.sendLong": "TspTest.Union.UnionFlattenOp.sendLong",
+    "tsptest.union.UnionClient.sendLongWithResponse": "TspTest.Union.UnionFlattenOp.sendLong",
+    "tsptest.union.UnionClient.sendWithResponse": "TspTest.Union.UnionFlattenOp.send",
+    "tsptest.union.UnionClientBuilder": "TspTest.Union",
+    "tsptest.union.implementation.models.SendLongRequest": "sendLong.Request.anonymous",
+    "tsptest.union.implementation.models.SendRequest": "send.Request.anonymous",
+    "tsptest.union.implementation.models.SubResult": "TspTest.Union.SubResult",
+    "tsptest.union.models.ArrayData": "TspTest.Union.ArrayData",
+    "tsptest.union.models.Result": "TspTest.Union.Result",
+    "tsptest.union.models.SendLongOptions": "null",
+    "tsptest.union.models.User": "TspTest.Union.User"
+  }
+}

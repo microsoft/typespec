@@ -6,11 +6,11 @@ import {
   Model,
   Namespace,
 } from "@typespec/compiler";
-import { $, defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { Client } from "../../interfaces.js";
 
 interface ClientLibraryKit {
-  /**
+   /**
    * Get the top-level namespaces that are used to generate the client library.
    *
    * @param namespace: If namespace param is given, we will return the children of the given namespace.
@@ -40,31 +40,31 @@ interface ClientLibraryKit {
   listEnums(namespace: Namespace): Enum[];
 }
 
-interface Typekit {
+interface TK {
   clientLibrary: ClientLibraryKit;
 }
 
 declare module "@typespec/compiler/typekit" {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface TypekitPrototype extends Typekit {}
+  interface Typekit extends TK {}
 }
 
-defineKit<Typekit>({
+defineKit<TK>({
   clientLibrary: {
     listNamespaces(namespace) {
       if (namespace) {
         return [...namespace.namespaces.values()];
       }
-      return [...$.program.checker.getGlobalNamespaceType().namespaces.values()].filter(
-        (n) => getLocationContext($.program, n).type === "project",
+      return [...this.program.checker.getGlobalNamespaceType().namespaces.values()].filter(
+        (n) => getLocationContext(this.program, n).type === "project",
       );
     },
     listClients(type) {
       if (type.kind === "Namespace") {
-        const topLevelNamespaces = listServices($.program)
+        const topLevelNamespaces = listServices(this.program)
           .filter((i) => i.type === type)
           .map((sn) => {
-            return $.client.getClient(sn.type);
+            return this.client.getClient(sn.type);
           });
         if (topLevelNamespaces.length !== 0) {
           // if we're trying to get top-level namespaces, we should return them
@@ -77,7 +77,7 @@ defineKit<Typekit>({
         return [];
       }
       const subnamespaces: (Namespace | Interface)[] = [
-        ...$.clientLibrary.listNamespaces(clientType),
+        ...this.clientLibrary.listNamespaces(clientType),
         ...clientType.interfaces.values(),
       ];
       if (type.kind === "Namespace") {
@@ -85,7 +85,7 @@ defineKit<Typekit>({
         subnamespaces.push(clientType);
       }
       return subnamespaces.map((sn) => {
-        return $.client.getClient(sn);
+        return this.client.getClient(sn);
       });
     },
     listModels(namespace) {

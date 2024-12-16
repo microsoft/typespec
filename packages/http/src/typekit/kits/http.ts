@@ -11,7 +11,7 @@ import {
 } from "../../decorators.js";
 import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from "../../types.js";
 
-export interface HttpModelPropertyKit {
+export interface HttpModelProperty {
   getHttpParamOptions(
     prop: ModelProperty,
   ): HeaderFieldOptions | PathParameterOptions | QueryParameterOptions | undefined;
@@ -24,15 +24,15 @@ export interface HttpModelPropertyKit {
   isHttpMultipartBody(prop: ModelProperty): boolean;
 }
 
-interface HttpKit {
-  modelProperty: HttpModelPropertyKit;
+interface TypekitExtension {
+  modelProperty: HttpModelProperty;
 }
 
 declare module "@typespec/compiler/typekit" {
-  interface ModelPropertyKit extends HttpModelPropertyKit {}
+  interface ModelPropertyKit extends HttpModelProperty {}
 }
 
-defineKit<HttpKit>({
+defineKit<TypekitExtension>({
   modelProperty: {
     getHttpParamOptions(prop: ModelProperty) {
       if (isHeader(this.program, prop)) {

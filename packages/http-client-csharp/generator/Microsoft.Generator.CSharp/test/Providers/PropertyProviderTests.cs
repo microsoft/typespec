@@ -13,7 +13,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 {
     public class PropertyProviderTests
     {
-        public PropertyProviderTests()
+        [SetUp]
+        public void SetUp()
         {
             MockHelpers.LoadMockPlugin();
         }
@@ -105,6 +106,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             var parameter = property.AsParameter;
 
             Assert.IsTrue(parameter.Type.Equals(typeof(int)));
+        }
+
+        [Test]
+        public void TestSpecialWords()
+        {
+            var testTypeProvider = new TestTypeProvider();
+            var inputPropertyName = testTypeProvider.Name;
+            InputModelProperty inputModelProperty = InputFactory.Property(inputPropertyName, InputPrimitiveType.String);
+            InputFactory.Model("TestModel", properties: [inputModelProperty]);
+
+            var property = new PropertyProvider(inputModelProperty, testTypeProvider);
+            Assert.AreEqual(inputPropertyName.ToCleanName() + "Property", property.Name);
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()

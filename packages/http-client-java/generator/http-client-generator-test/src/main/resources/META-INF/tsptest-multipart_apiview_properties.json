@@ -1,0 +1,24 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.multipart.MultipartAsyncClient": "TspTest.Multipart",
+    "tsptest.multipart.MultipartAsyncClient.upload": "TspTest.Multipart.upload",
+    "tsptest.multipart.MultipartAsyncClient.uploadHttpPart": "TspTest.Multipart.uploadHttpPart",
+    "tsptest.multipart.MultipartAsyncClient.uploadHttpPartWithResponse": "TspTest.Multipart.uploadHttpPart",
+    "tsptest.multipart.MultipartAsyncClient.uploadWithResponse": "TspTest.Multipart.upload",
+    "tsptest.multipart.MultipartClient": "TspTest.Multipart",
+    "tsptest.multipart.MultipartClient.upload": "TspTest.Multipart.upload",
+    "tsptest.multipart.MultipartClient.uploadHttpPart": "TspTest.Multipart.uploadHttpPart",
+    "tsptest.multipart.MultipartClient.uploadHttpPartWithResponse": "TspTest.Multipart.uploadHttpPart",
+    "tsptest.multipart.MultipartClient.uploadWithResponse": "TspTest.Multipart.upload",
+    "tsptest.multipart.MultipartClientBuilder": "TspTest.Multipart",
+    "tsptest.multipart.models.FileDataFileDetails": "null",
+    "tsptest.multipart.models.FileDetails": "TypeSpec.Http.File",
+    "tsptest.multipart.models.FormData": "TspTest.Multipart.FormData",
+    "tsptest.multipart.models.ImageFileDetails": "null",
+    "tsptest.multipart.models.ImageType": "TspTest.Multipart.ImageType",
+    "tsptest.multipart.models.InheritFileData": "TspTest.Multipart.Inherit2File",
+    "tsptest.multipart.models.Size": "TspTest.Multipart.Size",
+    "tsptest.multipart.models.UploadHttpPartRequest": "TspTest.Multipart.uploadHttpPart.Request.anonymous"
+  }
+}

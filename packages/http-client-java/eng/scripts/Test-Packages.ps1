@@ -20,22 +20,44 @@ Invoke-LoggedCommand "mvn -version"
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
-        Push-Location "$packageRoot"
+        Write-Host "Current PATH: $env:PATH"
+        Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
+        $env:JAVA_HOME = $env:JAVA_HOME_21_X64
+        Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
+
+        $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
+
+        Write-Host "Updated PATH: $env:PATH"
+        
+        # cadl-ranch tests (unit tests included in java/typescript package build)
         try {
-            Write-Host "Current PATH: $env:PATH"
-            Write-Host "Current JAVA_HOME: $Env:JAVA_HOME"
-            $env:JAVA_HOME = $env:JAVA_HOME_21_X64
-            Write-Host "Updated JAVA_HOME: $Env:JAVA_HOME"
-
-            $env:PATH = "$env:JAVA_HOME\bin;$env:PATH"
-
-            Write-Host "Updated PATH: $env:PATH"
-            # test the emitter
-            Invoke-LoggedCommand "npm run build" -GroupOutput
-            
+            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
+            Push-Location $generatorTestDir
+            try {
+                & ./Setup.ps1
+                & ./CadlRanch-Tests.ps1
+                Set-Location $packageRoot
+                Write-Host 'Cadl ranch tests passed'
+            }
+            finally {
+                Pop-Location
+            }
+        } 
+        catch {
+            Write-Error "Cadl ranch tests failed:  $_"
         }
-        finally {
-            Pop-Location
+        # copy coverage report to artifacts dir
+        try {
+            $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
+            if (!(Test-Path $coverageReportDir)) {
+                New-Item -ItemType Directory -Path $coverageReportDir
+
+                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-test/cadl-ranch-coverage-java-standard.json'
+                $targetFile = Join-Path $coverageReportDir 'cadl-ranch-coverage-java-standard.json'
+                Copy-Item $sourceFile -Destination $targetFile
+            }
+        } catch {
+            Write-Error "Failed to copy coverage report file: $_"
         }
     }
     if ($GenerationChecks) {
@@ -52,17 +74,6 @@ try {
         }
         catch {
             Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
-        }
-
-        try {
-            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
-            Set-Location $generatorTestDir
-            & ./CadlRanch-Tests.ps1
-            Set-Location $packageRoot
-            Write-Host 'Cadl ranch tests passed'
-        } 
-        catch {
-            Write-Error "Cadl ranch tests failed:  $_"
         }
     }
 }
