@@ -28,8 +28,10 @@ jobs:
       - name: Build
         run: pnpm --filter "@typespec/spec-dashboard..." run build
 
-      - name: Upload to Azure Storage
+      - name: Upload to Azure Storage      
         uses: azure/cli@v1
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZ_SPEC_DASHBOARD_CONNECTION_STRING }}
         with:
           inlineScript: |
-            az storage blob upload-batch --account-name specdashboardstorage --source packages/spec-dashboard/dist/ --destination '$web'
+            az storage blob upload-batch --account-name specdashboardstorage --connection-string "$AZURE_STORAGE_CONNECTION_STRING" --source packages/spec-dashboard/dist/ --destination '$web'
