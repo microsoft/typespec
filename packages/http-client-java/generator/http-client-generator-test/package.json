@@ -7,12 +7,13 @@
     "format": "npm run -s prettier -- --write",
     "check-format": "npm run prettier -- --check",
     "prettier": "prettier --config ./.prettierrc.yaml **/*.tsp",
-    "testserver-run": "cadl-ranch serve ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java-standard.json",
-    "testserver-start": "cadl-ranch server start ./node_modules/@azure-tools/cadl-ranch-specs/http --coverageFile ./cadl-ranch-coverage-java-standard.json",
-    "testserver-stop": "cadl-ranch server stop"
+    "spector-serve": "tsp-spector serve ./node_modules/@typespec/http-specs/specs ./node_modules/@azure-tools/azure-http-specs/specs --coverageFile ./tsp-spector-coverage-java-standard.json",
+    "spector-start": "tsp-spector server start ./node_modules/@typespec/http-specs/specs ./node_modules/@azure-tools/azure-http-specs/specs --coverageFile ./tsp-spector-coverage-java-standard.json",
+    "spector-stop": "tsp-spector server stop"
   },
   "dependencies": {
-    "@azure-tools/cadl-ranch-specs": "0.39.5",
+    "@typespec/http-specs": "0.1.0-alpha.5",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.4",
     "@typespec/http-client-java": "file:/../../typespec-http-client-java-0.1.4.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
