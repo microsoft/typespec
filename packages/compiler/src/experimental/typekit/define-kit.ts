@@ -32,6 +32,8 @@ export type StripGuards<T> = {
     : StripGuards<T[K]>;
 };
 
+export const TypekitNamespaceSymbol = Symbol("TypekitNamespace");
+
 /**
  * Defines an extension to the Typekit interface.
  *
@@ -44,9 +46,20 @@ export function defineKit<T extends Record<string, any>>(
 ): void {
   for (const [name, fnOrNs] of Object.entries(source)) {
     let kits = fnOrNs;
+
     if (TypekitPrototype[name] !== undefined) {
       kits = { ...TypekitPrototype[name], ...fnOrNs };
     }
+
+     // Tag top-level namespace objects with the symbol
+     if (typeof kits === "object" && kits !== null) {
+      Object.defineProperty(kits, TypekitNamespaceSymbol, {
+        value: true,
+        enumerable: false, // Keep the symbol non-enumerable
+        configurable: false,
+      });
+    }
+
     TypekitPrototype[name] = kits;
   }
 }
