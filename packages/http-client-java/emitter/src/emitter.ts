@@ -111,14 +111,14 @@ export const $lib = createTypeSpecLibrary({
   },
 });
 
-export function $onValidate(context: EmitContext<EmitterOptions>) {
+export async function $onValidate(context: EmitContext<EmitterOptions>) {
   const program = context.program;
-  validateDependencies(program, false);
+  await validateDependencies(program, false);
 }
 
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const program = context.program;
-  validateDependencies(program, true);
+  await validateDependencies(program, true);
 
   const options = context.options;
   if (!options["flavor"]) {
