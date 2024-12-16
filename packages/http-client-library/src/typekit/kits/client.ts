@@ -5,16 +5,15 @@ import {
   isTemplateDeclarationOrInstance,
   Namespace,
   Operation,
-  Program,
   Type,
 } from "@typespec/compiler";
-import {  defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
+import "@typespec/http/typekit";
 import { Client } from "../../interfaces.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { discoverDataTypes } from "../../utils/type-discovery.js";
 import { NameKit } from "./utils.js";
-import "@typespec/http/typekit";
 
 interface ClientKit extends NameKit<Client> {
   /**
@@ -135,11 +134,11 @@ defineKit<TypeKit>({
 
       const operations: Operation[] = [];
 
-      function addOperations(program: Program, current: Namespace | Interface) {
+      function addOperations(_$: any, current: Namespace | Interface) {
         if (
           current.kind === "Namespace" &&
           current !== client.type &&
-          getService(program, current)
+          getService(_$.program, current)
         ) {
           // if I'm a different service, I'm done
           return;
@@ -150,14 +149,19 @@ defineKit<TypeKit>({
         }
 
         for (const op of current.operations.values()) {
+          const clientOperation = _$.type.clone(op);
+          const returnType = _$.httpOperation.getReturnType(op);
+          clientOperation.returnType = returnType;
+          _$.program.checker.finishType(clientOperation);
+
           // Skip templated operations
-          if (!isTemplateDeclarationOrInstance(op)) {
-            operations.push(op);
+          if (!isTemplateDeclarationOrInstance(clientOperation)) {
+            operations.push(clientOperation);
           }
         }
       }
 
-      addOperations(this.program, client.type);
+      addOperations(this, client.type);
 
       clientOperationCache.set(client, operations);
       return operations;
@@ -166,7 +170,8 @@ defineKit<TypeKit>({
       const params = this.operation.getClientSignature(client, constructor);
       const endpointParams = params
         .filter(
-          (p) => this.modelProperty.getName(p) === "endpoint" || this.modelProperty.isHttpPathParam(p),
+          (p) =>
+            this.modelProperty.getName(p) === "endpoint" || this.modelProperty.isHttpPathParam(p),
         )
         .map((p) => p.name)
         .sort();
