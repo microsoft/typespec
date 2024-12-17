@@ -49,7 +49,7 @@ export async function provideTspconfigCompletionItems(
   const variableInterpolationItems = resolveVariableInterpolationCompleteItems(
     target.yamlDoc,
     target.path,
-    tspConfigDoc.getText().slice(target.TextRange[0], target.curPos),
+    tspConfigDoc.getText().slice(target.nodePostionRange.pos, target.curPos),
   );
   if (variableInterpolationItems.length > 0) {
     return variableInterpolationItems;
@@ -358,9 +358,10 @@ function createContainingQuatedValCompetionItem(
   tspConfigPosition: Position,
   target: YamlScalarTarget,
 ): CompletionItem {
-  const [startPos, endPos] = target.TextRange;
-
-  if (target.curPos >= startPos && target.curPos <= endPos) {
+  if (
+    target.curPos >= target.nodePostionRange.pos &&
+    target.curPos <= target.nodePostionRange.end
+  ) {
     return {
       label: labelName,
       kind: CompletionItemKind.Field,
