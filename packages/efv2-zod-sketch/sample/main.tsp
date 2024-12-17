@@ -58,10 +58,13 @@ scalar string50 extends string;
 
 @jsonSchema
 model User {
+  /** This one doesn't work yet -- see work item (1) in emitter.tsx */
+  constrainedScalar: string50;
+
   myPetRecord: Record<integer>;
     
   constrained_array: string50[];
-  
+
   petRecord: {
     name: string;
     age: int32;

@@ -1,10 +1,30 @@
 /**
  * Known remaining TODO items:
- * - Add support for unions
- * - Add support for references to other models, including internal properties
- * - Add support for nullable
+ * - (1) I need to combine the acquisition of constraints for ModelProperty and Type into a single function.
+ *   First, I will see if it's a ModelProperty, and check for constraints on that.
+ *   Then I check for constraints on its Type (use just use Type if not a ModelProperty).
+ *   Then I check for constraints on the Type's (whichever I used) baseScalar, it it exists.
+ *   Finally, I need to rationalize any conflicts in the constraints to keep the most restrictive values.
+ * - (2) Add support for references to other models, including internal properties (fix any output which is currently z.any())
+ * - (3) Add support for unions
+ * - (4) Add support for nullable
+ * - (5) Revisit optional
+ * 
+ * Lower priority:
  * - Clean up unnecessary interfaces
+ * - Consider supporting "scalar foo extends bar" by creating a TypeScript type for those and using that for properties
+ *   instead of just (for example) putting bounds on the scalar as I am doing now.
  * */
+
+/* Key scripts 
+Build from the root of the project:
+  pnpm --filter efv2-zod-sketch... build
+
+Build, babel, and debug from packages\efv2-zod-sketch:
+  pnpm run build
+  npx babel src -d dist/src --extensions '.ts,.tsx'
+  pnpm build-todo
+*/
 
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
