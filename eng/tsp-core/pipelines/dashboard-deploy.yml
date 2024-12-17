@@ -41,5 +41,5 @@ extends:
                   scriptLocation: "inlineScript"
                   inlineScript: |
                     echo "Uploading files to Azure Blob Storage..."
-                    az storage blob upload-batch --connection-string "$(connectionString)" --source packages/spec-dashboard/dist/ --destination '$web' --overwrite
+                    az storage blob upload-batch --source packages/spec-dashboard/dist/ --destination '$web' --overwrite --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
                   displayName: "Upload files to Azure Blob Storage"
