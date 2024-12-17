@@ -247,11 +247,11 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
 
   if ($.scalar.is(props.type)) {
     // Types with parity in Zod
-    if ($.scalar.isBoolean(props.type) || $.scalar.extendsBoolean(props.type)) {
+    if ($.scalar.extendsBoolean(props.type)) {
       return <>{zod.z}.boolean(){optString}</>;
     }
 
-    if ($.scalar.isBytes(props.type) || $.scalar.extendsBytes(props.type)) {
+    if ($.scalar.extendsBytes(props.type)) {
       return <>{zod.z}.string(){optString}</>;
     }
 
@@ -260,21 +260,21 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     // affect precision and not min/max values (i.e. a mismatch won't
     // cause an overflow but just a truncation in accuracy).  We will leave these as
     // numbers.
-    if ($.scalar.isFloat(props.type) || $.scalar.extendsFloat(props.type)) {
+    if ($.scalar.extendsFloat(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}{optString}
         </>
       );
     }
-    if ($.scalar.isFloat32(props.type) || $.scalar.extendsFloat32(props.type)) {
+    if ($.scalar.extendsFloat32(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}{optString}
         </>
       );
     }
-    if ($.scalar.isFloat64(props.type) || $.scalar.extendsFloat64(props.type)) {
+    if ($.scalar.extendsFloat64(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}{optString}
@@ -282,63 +282,63 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       );
     }
 
-    if ($.scalar.isInt8(props.type) || $.scalar.extendsInt8(props.type)) {
+    if ($.scalar.extendsInt8(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, -128, 127)}{optString}
         </>
       );
     }
-    if ($.scalar.isInt16(props.type) || $.scalar.extendsInt16(props.type)) {
+    if ($.scalar.extendsInt16(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, -32768, 32767)}{optString}
         </>
       );
     }
-    if ($.scalar.isInt32(props.type) || $.scalar.extendsInt32(props.type)) {
+    if ($.scalar.extendsInt32(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, -2147483648, 2147483647)}{optString}
         </>
       );
     }
-    if ($.scalar.isSafeint(props.type) || $.scalar.extendsSafeint(props.type)) {
+    if ($.scalar.extendsSafeint(props.type)) {
       return (
         <>
           {zod.z}.number().safe(){ZodNumericConstraints(props, undefined, undefined)}{optString}
         </>
       );
     }
-    if ($.scalar.isInt64(props.type) || $.scalar.extendsInt64(props.type)) {
+    if ($.scalar.extendsInt64(props.type)) {
       return (
         <>
           {zod.z}.bigint(){ZodBigIntConstraints(props, -9223372036854775808n, 9223372036854775807n)}{optString}
         </>
       );
     }
-    if ($.scalar.isUint8(props.type) || $.scalar.extendsUint8(props.type)) {
+    if ($.scalar.extendsUint8(props.type)) {
       return (
         <>
           {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 255)}{optString}
         </>
       );
     }
-    if ($.scalar.isUint16(props.type) || $.scalar.extendsUint16(props.type)) {
+    if ($.scalar.extendsUint16(props.type)) {
       return (
         <>
           {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 65535)}{optString}
         </>
       );
     }
-    if ($.scalar.isUint32(props.type) ||  $.scalar.extendsUint32(props.type)) {
+    if ($.scalar.extendsUint32(props.type)) {
       return (
         <>
           {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 4294967295)}{optString}
         </>
       );
     }
-    if ($.scalar.isUint64(props.type) || $.scalar.extendsUint64(props.type)) {
+    if ($.scalar.extendsUint64(props.type)) {
       return (
         <>
           {zod.z}.bigint().nonnegative(){ZodBigIntConstraints(props, undefined, 18446744073709551615n)}{optString}
@@ -346,7 +346,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       );
     }
     // With integers, we completely understand the range and can parse to it.
-    if ($.scalar.isInteger(props.type) || $.scalar.extendsInteger(props.type)) {
+    if ($.scalar.extendsInteger(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}{optString}
@@ -354,11 +354,11 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       );
     }
 
-    if ($.scalar.isUrl(props.type) || $.scalar.extendsUrl(props.type)) {
+    if ($.scalar.extendsUrl(props.type)) {
       return <>{zod.z}.string().url(){optString}</>;
     }
 
-    if ($.scalar.isString(props.type) || $.scalar.extendsString(props.type)) {
+    if ($.scalar.extendsString(props.type)) {
       return (
         <>
           {zod.z}.string(){ZodStringConstraints(props)}{optString}
@@ -366,7 +366,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       );
     }
 
-    if ($.scalar.isDecimal(props.type) || $.scalar.extendsDecimal(props.type)) {
+    if ($.scalar.extendsDecimal(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}{optString}
@@ -379,7 +379,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     // makes no sense if this is a floating point number.  We will leave this as a number.
     // Since Decimal128 is a 128-bit floating point number, we'll take the hit in
     // precision if an integer.
-    if ($.scalar.isDecimal128(props.type) || $.scalar.extendsDecimal128(props.type)) {
+    if ($.scalar.extendsDecimal128(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}{optString}
@@ -387,7 +387,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       );
     }
 
-    if ($.scalar.isNumeric(props.type) || $.scalar.extendsNumeric(props.type)) {
+    if ($.scalar.extendsNumeric(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}{optString}
@@ -396,27 +396,27 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     }
 
     //Dates and times
-    if ($.scalar.isUtcDateTime(props.type) ||  $.scalar.extendsUtcDateTime(props.type)) {
+    if ($.scalar.extendsOffsetDateTime(props.type)) {
+      const encoding = $.scalar.getEncoding(props.type);
+      if (encoding?.encoding === "unixTimestamp") {
+        return <>{zod.z}.number().int(){optString}</>;
+      }
+      return <>{zod.z}.string().datetime(&#123;offset: true&#125;){optString}</>;
+    }
+    if ($.scalar.extendsUtcDateTime(props.type)) {
       const encoding = $.scalar.getEncoding(props.type);
       if (encoding?.encoding === "unixTimestamp") {
         return <>{zod.z}.number().int(){optString}</>;
       }
       return <>{zod.z}.string().datetime(){optString}</>;
     }
-    if ($.scalar.isOffsetDateTime(props.type) || $.scalar.extendsUtcDateTime(props.type)) {
-      const encoding = $.scalar.getEncoding(props.type);
-      if (encoding?.encoding === "unixTimestamp") {
-        return <>{zod.z}.number().int(){optString}</>;
-      }
-      return <>{zod.z}.string().datetime( &#123;offset: true&#125;){optString}</>;
-    }
-    if ($.scalar.isDuration(props.type) || $.scalar.extendsDuration(props.type)) {
+    if ($.scalar.extendsDuration(props.type)) {
       return <>{zod.z}.string().duration(){optString}</>;
     }
-    if ($.scalar.isPlainDate(props.type) || $.scalar.extendsPlainDate(props.type)) {
+    if ($.scalar.extendsPlainDate(props.type)) {
       return <>{zod.z}.string().date(){optString}</>;
     }
-    if ($.scalar.isPlainTime(props.type) || $.scalar.extendsPlainTime(props.type)) {
+    if ($.scalar.extendsPlainTime(props.type)) {
       return <>{zod.z}.string().time(){optString}</>;
     }
   }
