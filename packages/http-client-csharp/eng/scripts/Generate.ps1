@@ -56,7 +56,7 @@ $failingSpecs = @(
     Join-Path 'http' 'type' 'model' 'templated'
 )
 
-$azureWhiteSpecs = @(
+$azureAllowSpecs = @(
     Join-Path 'http' 'client' 'naming'
     Join-Path 'http' 'client' 'structure' 'client-operation-group'
     Join-Path 'http' 'client' 'structure' 'default'
@@ -83,14 +83,14 @@ foreach ($directory in $directories) {
         $specFile = Join-Path $directory.FullName "main.tsp"
     }
     $subPath = if ($fromAzure) {$directory.FullName.Substring($azureSpecsDirectory.Length + 1)} else {$directory.FullName.Substring($specsDirectory.Length + 1)}
-    $subPath = $subPath -replace '^specs', 'http' # Keep consistent with the previous folder name
+    $subPath = $subPath -replace '^specs', 'http' # Keep consistent with the previous folder name because 'http' makes more sense then current 'specs'
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
 
-    if ($fromAzure -eq $true -and !$azureWhiteSpecs.Contains($subPath)) {
+    if ($fromAzure -eq $true -and !$azureAllowSpecs.Contains($subPath)) {
         continue
     }
 
