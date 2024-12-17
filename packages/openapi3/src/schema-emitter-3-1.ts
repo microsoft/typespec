@@ -26,11 +26,12 @@ import {
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
+import { JsonSchemaModule } from "./json-schema-module.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
-import { JsonType, OpenAPISchema3_1 } from "./types.js";
+import { CommonOpenAPI3Schema, JsonType, OpenAPISchema3_1 } from "./types.js";
 import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
@@ -40,10 +41,11 @@ function createWrappedSchemaEmitterClass(
   visibilityUsage: VisibilityUsageTracker,
   options: ResolvedOpenAPI3EmitterOptions,
   xmlModule: XmlModule | undefined,
+  jsonSchemaModule: JsonSchemaModule | undefined,
 ): typeof TypeEmitter<Record<string, any>, OpenAPI3EmitterOptions> {
   return class extends OpenAPI31SchemaEmitter {
     constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-      super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
+      super(emitter, metadataInfo, visibilityUsage, options, xmlModule, jsonSchemaModule);
     }
   };
 }
@@ -56,6 +58,7 @@ export const createSchemaEmitter3_1: CreateSchemaEmitter = ({ program, context, 
       rest.visibilityUsage,
       rest.options,
       rest.xmlModule,
+      rest.jsonSchemaModule,
     ),
     context,
   );
@@ -253,5 +256,13 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
       values.push(this.emitter.emitType(value));
     }
     return values;
+  }
+
+  applyJsonSchemaConstraints(
+    applyConstraint: (fn: (p: Program, t: Type) => any, key: keyof CommonOpenAPI3Schema) => void,
+  ) {
+    if (this._jsonSchemaModule) {
+      this._jsonSchemaModule.attachJsonSchemaObject(applyConstraint);
+    }
   }
 }

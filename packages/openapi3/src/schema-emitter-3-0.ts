@@ -41,7 +41,7 @@ function createWrappedSchemaEmitterClass(
 ): typeof TypeEmitter<Record<string, any>, OpenAPI3EmitterOptions> {
   return class extends OpenAPI3SchemaEmitter {
     constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-      super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
+      super(emitter, metadataInfo, visibilityUsage, options, xmlModule, undefined);
     }
   };
 }
