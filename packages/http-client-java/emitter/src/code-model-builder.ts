@@ -201,9 +201,12 @@ export class CodeModelBuilder {
     }
 
     const service = listServices(this.program)[0];
+    if (!service) {
+      this.logWarning("TypeSpec for HTTP client should define a service.");
+    }
     this.serviceNamespace = service?.type ?? this.program.getGlobalNamespaceType();
 
-    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Client";
 
     const namespace1 = this.namespace;
     this.typeNameOptions = {
