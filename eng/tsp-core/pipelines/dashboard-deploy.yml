@@ -5,9 +5,6 @@ trigger:
       # For patch releases
       - release/*
 
-variables:
-  connectionString: $(AZ_SPEC_DASHBOARD_CONNECTION_STRING)
-
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
@@ -41,5 +38,5 @@ extends:
                   scriptLocation: "inlineScript"
                   inlineScript: |
                     echo "Uploading files to Azure Blob Storage..."
-                    az storage blob upload-batch --source packages/spec-dashboard/dist/ --destination '$web' --overwrite --connection-string "$AZURE_STORAGE_CONNECTION_STRING"
+                    az storage blob upload-batch --source packages/spec-dashboard/dist/ --destination '$web' --overwrite
                   displayName: "Upload files to Azure Blob Storage"
