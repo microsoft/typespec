@@ -1,4 +1,6 @@
+-r ../../requirements.txt
 -e ../../
+
 aiohttp;python_full_version>="3.5.2"
 requests==2.32.2
 pytest
