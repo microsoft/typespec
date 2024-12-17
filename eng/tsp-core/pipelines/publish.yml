@@ -1,9 +1,16 @@
+# Continuous Integration
+
 trigger:
   branches:
     include:
       - main
       # For patch releases
       - release/*
+  paths:
+    exclude:
+      - packages/http-client-csharp
+
+pr: none
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
@@ -13,7 +20,7 @@ extends:
 
     stages:
       - stage: build
-        displayName: Build and Deploy
+        displayName: Build
 
         pool:
           name: $(WINDOWSPOOL)
@@ -31,12 +38,171 @@ extends:
               - template: /eng/tsp-core/pipelines/templates/install.yml
               - template: /eng/tsp-core/pipelines/templates/build.yml
 
+              - script: pnpm run test:ci
+                displayName: Test
+
+              - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
+
+              - script: pnpm chronus pack --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-stable
+                displayName: Pack packages
+
+              - task: CopyFiles@2
+                displayName: "Copy VSCode extension .vsix to artifact directory"
+                inputs:
+                  SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+                  Contents: "*.vsix"
+                  TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
+
+              - task: CopyFiles@2
+                displayName: "Copy VS extension .vsix to artifact directory"
+                inputs:
+                  SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+                  Contents: "*.vsix"
+                  TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+
+              - task: AzureCLI@1
+                displayName: "Publish bundled packages to package storage"
+                inputs:
+                  azureSubscription: "Azure SDK Engineering System"
+                  scriptLocation: inlineScript
+                  inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
+
+              # Update version for next version publish
+              - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
+                displayName: Bump version to prerelease targets
+
+              - script: npm run gen-manifest
+                displayName: Regen manifest for compiler
+                workingDirectory: ./packages/compiler
+
+              - script: pnpm chronus pack --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-next
+                displayName: Pack next packages
+
+              # Publish Next playground
+              - task: AzureCLI@1
+                displayName: "Publish playground"
+                inputs:
+                  azureSubscription: "Azure SDK Engineering System"
+                  scriptLocation: inlineScript
+                  inlineScript: |
+                    az storage blob upload-batch ^
+                      --auth-mode login ^
+                      --destination $web ^
+                      --account-name "cadlplayground" ^
+                      --destination-path / ^
+                      --source "./packages/playground-website/dist/web/" ^
+                      --overwrite
+
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/npm-packages-stable
+                  artifact: npm-packages-stable
+                  displayName: Publish npm stable packages(.tgz) as pipeline artifacts
+
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/npm-packages-next
+                  artifact: npm-packages-next
+                  displayName: Publish npm next packages(.tgz) as pipeline artifacts
+
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/vscode-extension
+                  artifact: vscode-extension-unsigned
+                  displayName: Publish VSCode extension(.vsix) as pipeline artifacts
+
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/vs-extension
+                  artifact: vs-extension-unsigned
+                  displayName: Publish VS extension(.vsix) as pipeline artifacts
+
+      - stage: publish_npm
+        displayName: Publish Npm Packages
+        dependsOn: build
+
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
+        jobs:
+          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
+            parameters:
+              artifactName: npm-packages-stable
+              tag: latest
+              publishGithubRelease: true
+
+          - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
+            parameters:
+              artifactName: npm-packages-next
+              tag: next
+
+      - stage: publish_vscode
+        displayName: Publish VSCode extension
+        dependsOn: build
+        jobs:
+          - template: /eng/tsp-core/pipelines/jobs/publish-vscode.yml
+
+      - stage: publish_vs
+        displayName: Publish VS extension
+        dependsOn: build
+        jobs:
+          - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
+
+      - stage: docker
+        displayName: Docker
+        dependsOn: []
+        jobs:
+          - job: docker
+            displayName: Build and publish
+            variables:
+              imageName: "azsdkengsys.azurecr.io/typespec"
+            pool:
+              name: $(LINUXPOOL)
+              image: $(LINUXVMIMAGE)
+              os: linux
+            steps:
+              - task: Docker@1
+                displayName: login
+                inputs:
+                  azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
+                  azureContainerRegistry: azsdkengsys.azurecr.io
+                  command: login
+
+              - script: |
+                  docker build -f ./docker/Dockerfile \
+                    -t $(imageName):latest \
+                    -t $(imageName):alpine \
+                    .
+                displayName: "Build"
+              - script: docker push $(imageName) --all-tags
+                displayName: "Push"
+
+      - stage: publish_manifest
+        displayName: Manifest
+        dependsOn: build
+        jobs:
+          - job: publish_manifest
+            displayName: Publish Manifest
+            pool:
+              name: $(WINDOWSPOOL)
+              image: $(WINDOWSVMIMAGE)
+              os: windows
+            variables:
+              TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+            steps:
+              - template: /eng/tsp-core/pipelines/templates/install.yml
+              - template: /eng/tsp-core/pipelines/templates/build.yml
+
+              - script: pnpm run validate-scenarios --debug
+                displayName: Validate Scenarios
+
+              - script: pnpm run validate-mock-apis --debug
+                displayName: Validate mock apis
+
               - task: AzureCLI@2
+                displayName: Upload scenario manifest
                 inputs:
                   azureSubscription: "TypeSpec Storage"
                   scriptType: "bash"
                   scriptLocation: "inlineScript"
-                  inlineScript: |
-                    echo "Uploading files to Azure Blob Storage..."
-                    az storage blob upload-batch --source packages/spec-dashboard/dist/ --destination '$web' --overwrite
-                  displayName: "Upload files to Azure Blob Storage"
+                  inlineScript: "pnpm upload-manifest"
