@@ -15,7 +15,6 @@ import { JDK_NOT_FOUND_MESSAGE, validateDependencies } from "./validate.js";
 
 export interface EmitterOptions {
   namespace?: string;
-  "output-dir"?: string;
   "package-dir"?: string;
 
   flavor?: string;
@@ -57,12 +56,16 @@ export interface DevOptions {
   "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
 }
 
+type CodeModelEmitterOptions = EmitterOptions & {
+  "output-dir": string;
+  arm?: boolean;
+};
+
 const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   additionalProperties: true,
   properties: {
     namespace: { type: "string", nullable: true },
-    "output-dir": { type: "string", nullable: true },
     "package-dir": { type: "string", nullable: true },
 
     flavor: { type: "string", nullable: true },
@@ -118,8 +121,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
   if (!program.hasError()) {
     const options = context.options;
     if (!options["flavor"]) {
-      if (options["package-dir"]?.toLocaleLowerCase().startsWith("azure")) {
-        // Azure package
+      if ($lib.name === "@azure-tools/typespec-java") {
         options["flavor"] = "azure";
       }
     }
@@ -130,10 +132,13 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       const __dirname = dirname(fileURLToPath(import.meta.url));
       const moduleRoot = resolvePath(__dirname, "..", "..");
 
-      const outputPath = options["output-dir"] ?? context.emitterOutputDir;
-      options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
+      const outputPath = context.emitterOutputDir;
+      (options as CodeModelEmitterOptions)["output-dir"] = getNormalizedAbsolutePath(
+        outputPath,
+        undefined,
+      );
 
-      (options as any)["arm"] = codeModel.arm;
+      (options as CodeModelEmitterOptions).arm = codeModel.arm;
 
       const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
 
