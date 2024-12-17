@@ -97,7 +97,7 @@ export async function doEmit(
   const npmUtil = new NpmUtil(baseDir);
   const packagesToInstall: string[] = [];
   const packagesToVerify: { package: string; version?: string }[] = [];
-  // packagesToVerify.push({ package: "@typespec/compiler" });
+
   /* install emitter package. */
   logger.info(`select ${selectedEmitter.package}`);
   packagesToVerify.push({ package: selectedEmitter.package, version: selectedEmitter.version });
