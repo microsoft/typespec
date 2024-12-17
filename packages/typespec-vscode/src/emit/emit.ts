@@ -215,20 +215,32 @@ export async function doEmit(
       progress: overallProgress,
     },
   );
-  const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
-  if (compileResult.exitCode !== 0) {
-    logger.error(
-      `Failed to generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
-      [],
-      {
-        showOutput: true,
-        showPopup: true,
-        progress: overallProgress,
-      },
-    );
-  } else {
+  try {
+    const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
+    if (compileResult.exitCode !== 0) {
+      logger.error(
+        `Failed to generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
+        [],
+        {
+          showOutput: true,
+          showPopup: true,
+          progress: overallProgress,
+        },
+      );
+    } else {
+      logger.info(
+        `complete generating ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
+        [],
+        {
+          showOutput: true,
+          showPopup: true,
+          progress: overallProgress,
+        },
+      );
+    }
+  } catch (err) {
     logger.info(
-      `complete generating ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
+      `Exception occurred when generating ${selectedEmitter.language} ${selectedEmitter.emitterKind} code. ${err}`,
       [],
       {
         showOutput: true,

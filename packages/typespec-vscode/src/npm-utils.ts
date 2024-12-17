@@ -73,7 +73,7 @@ export class NpmUtil {
     const dependenciesResult = await spawnExecution(
       "npm",
       ["view", packageFullName, dependencyType],
-      this.cwd ,
+      this.cwd,
       on,
     );
 
