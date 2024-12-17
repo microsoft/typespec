@@ -1,14 +1,9 @@
 /**
  * Known remaining TODO items:
- * - (1) I need to combine the acquisition of constraints for ModelProperty and Type into a single function.
- *   First, I will see if it's a ModelProperty, and check for constraints on that.
- *   Then I check for constraints on its Type (use just use Type if not a ModelProperty).
- *   Then I check for constraints on the Type's (whichever I used) baseScalar, it it exists.
- *   Finally, I need to rationalize any conflicts in the constraints to keep the most restrictive values.
- * - (2) Add support for references to other models, including internal properties (fix any output which is currently z.any())
- * - (3) Add support for unions
- * - (4) Add support for nullable
- * - (5) Revisit optional
+ * - (1) Add support for references to other models, including internal properties (fix any output which is currently z.any())
+ * - (2) Add support for unions
+ * - (3) Add support for nullable
+ * - (4) Revisit optional
  * 
  * Lower priority:
  * - Clean up unnecessary interfaces
@@ -85,49 +80,16 @@ interface EnumProps {
   enum: Enum;
 }
 
-interface MinValueConstrain {
-  kind: "MinValue";
-  value: number;
-}
 
-interface MaxValueConstrain {
-  kind: "MaxValue";
-  value: number;
+type Constraints = {
+  minValue?: number;
+  maxValue?: number;
+  minLength?: number;
+  maxLength?: number;
+  minItems?: number;
+  maxItems?: number;
+  itemOptional?: boolean;
 }
-
-interface OptionalConstrain {
-  kind: "Optional";
-  value: boolean;
-}
-
-interface MaxLengthConstrain {
-  kind: "MaxLength";
-  value: number;
-}
-
-interface MinLengthConstrain {
-  kind: "MinLength";
-  value: number;
-}
-interface MaxItemsConstrain {
-  kind: "MaxItems";
-  value: number;
-}
-
-interface MinItemsConstrain {
-  kind: "MinItems";
-  value: number;
-}
-
-type Constrain =
-  | MinValueConstrain
-  | MaxValueConstrain
-  | OptionalConstrain
-  | MaxLengthConstrain
-  | MinLengthConstrain
-  | MaxItemsConstrain
-  | MinItemsConstrain;
-
 /**
  * Component that represents a collection of Zod Model properties
  */
@@ -138,10 +100,10 @@ function ZodModelProperties(props: ZodModelPropertiesProps) {
     props.model.properties,
     (name, prop) => {
       const propName = namePolicy.getName(name, "object-member-data");
-      const propConstrains = getModelPropertyConstrains(prop);
+      const propConstrains = getAllPropertyConstraints(prop);
       return (
         <>
-          {propName}: <ZodType type={prop.type} constrains={propConstrains} />
+          {propName}: <ZodType type={prop.type} constraints={propConstrains} />
         </>
       );
     },
@@ -149,69 +111,62 @@ function ZodModelProperties(props: ZodModelPropertiesProps) {
   );
 }
 
-// This signature might need to be updated to include the Type property
-function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
-  const constrains: Constrain[] = [];
-  if (modelProperty.optional) {
-    constrains.push({ kind: "Optional", value: true });
-  }
+function getAllPropertyConstraints(type: Type): Constraints {
+  const constraints: Constraints = {};
 
-  if (modelProperty.type.kind === "Scalar") {
-    getScalarTypePropertyConstrains(modelProperty, constrains);  }
-  else if (modelProperty.type.kind === "Model") {
-    getNestedModelPropertyConstraints(modelProperty, constrains);
+  if ($.modelProperty.is(type)) {
+    if (type.optional) {
+      constraints.itemOptional = true;
+    }
+    getLocalPropertyConstraints(type, constraints);
+    getLocalPropertyConstraints(type.type, constraints);
+    if ($.scalar.is(type.type) && type.type.baseScalar) {
+      getLocalPropertyConstraints(type.type.baseScalar, constraints);
+    }
   }
-
-  return constrains;
+  else {
+    getLocalPropertyConstraints(type, constraints);
+    if ($.scalar.is(type) && type.baseScalar) {
+      getLocalPropertyConstraints(type.baseScalar, constraints);
+    }
+  }
+  
+  return constraints;
 }
 
-// This signature might need to be updated to include the Type property
-function getTypePropertyConstrains(type: Type): Constrain[] {
-  const constrains: Constrain[] = [];
-   if (type.kind === "Scalar") {
-    getScalarTypePropertyConstrains(type, constrains);
-  }
-  else if (type.kind === "Model") {
-    getNestedModelPropertyConstraints(type, constrains);
-  }
+function getLocalPropertyConstraints(type: Type, constraints: Constraints) {
+    const maxItems = $.type.maxItems(type);
+    const minItems = $.type.minItems(type);
+    const minValue = $.type.minValue(type);
+    const maxValue = $.type.maxValue(type);
+    const minLength = $.type.minLength(type);
+    const maxLength = $.type.maxLength(type);
 
-  return constrains;
-}
+    // Aim for most restrictive criteria:
+    if (maxItems !== undefined && (constraints.maxItems === undefined || maxItems < constraints.maxItems)) {
+      constraints.maxItems = maxItems;
+    }
+    if (minItems !== undefined && (constraints.minItems === undefined || minItems > constraints.minItems)) {
+      constraints.minItems = minItems;
+    }
+    if (minValue !== undefined && (constraints.minValue === undefined || minValue > constraints.minValue)) {
+      constraints.minValue = minValue;
+    }
+    if (maxValue !== undefined && (constraints.maxValue === undefined || maxValue < constraints.maxValue)) {
+      constraints.maxValue = maxValue;
+    }
+    if (minLength !== undefined && (constraints.minLength === undefined || minLength > constraints.minLength)) {
+      constraints.minLength = minLength;
+    }
+    if (maxLength !== undefined && (constraints.maxLength === undefined || maxLength < constraints.maxLength)) {
+      constraints.maxLength = maxLength;
+    }
+ }
+
 
 interface ZodTypeProps {
   type: Type;
-  constrains: Constrain[];
-}
-
-function getNestedModelPropertyConstraints(type: Type, constrains: Constrain[]) {
-  const maxItems = $.type.maxItems(type);
-  const minItems = $.type.minItems(type);
-  if (maxItems !== undefined) {
-    constrains.push({ kind: "MaxItems", value: maxItems });
-  }
-  if (minItems !== undefined) {
-    constrains.push({ kind: "MinItems", value: minItems });
-  }
-}
-
-function getScalarTypePropertyConstrains(type: Type, constrains: Constrain[]) {
-  const minValue = $.type.minValue(type);
-  const maxValue = $.type.maxValue(type);
-  if (minValue !== undefined) {
-    constrains.push({ kind: "MinValue", value: minValue });
-  }
-  if (maxValue !== undefined) {
-    constrains.push({ kind: "MaxValue", value: maxValue });
-  }
-
-  const minLength = $.type.minLength(type);
-  const maxLength = $.type.maxLength(type);
-  if (minLength !== undefined) {
-    constrains.push({ kind: "MinLength", value: minLength });
-  }
-  if (maxLength !== undefined) {
-    constrains.push({ kind: "MaxLength", value: maxLength });
-  }
+  constraints: Constraints;
 }
 
 /**
@@ -241,10 +196,10 @@ function ZodType(props: ZodTypeProps) {
     if ($.array.is(props.type)) {
       if (props.type.indexer !== undefined) {
         const elementType = props.type.indexer.value;
-        const elementConstrains: Constrain[] = getTypePropertyConstrains(elementType);
+        const elementConstrains: Constraints = getAllPropertyConstraints(elementType);
         const arrayConstraints = ZodArrayConstraints(props);
         return (
-          <>{zod.z}.array(<ZodType type={elementType} constrains={elementConstrains} />){arrayConstraints}</>
+          <>{zod.z}.array(<ZodType type={elementType} constraints={elementConstrains} />){arrayConstraints}</>
         );
       }
     }
@@ -253,9 +208,9 @@ function ZodType(props: ZodTypeProps) {
     {
       if (props.type.indexer !== undefined) {
         const elementType = props.type.indexer.value;
-        const elementConstrains: Constrain[] = getTypePropertyConstrains(elementType);
+        const elementConstrains: Constraints = getAllPropertyConstraints(elementType);
         return (
-          <>{zod.z}.record(z.string(),<ZodType type={elementType} constrains={elementConstrains} />)</>
+          <>{zod.z}.record(z.string(),<ZodType type={elementType} constraints={elementConstrains} />)</>
         );
       }
     }
@@ -461,7 +416,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       return <>{zod.z}.string().time()</>;
     }
   }
-  return <>{zod.z}.string()</>;
+  return <>{zod.z}.any()</>;
 }
 
 function ZodNumericConstraints(
@@ -469,8 +424,8 @@ function ZodNumericConstraints(
   minBasic: number | undefined,
   maxBasic: number | undefined,
 ): string {
-  const minValue = props.constrains.find((c) => c.kind === "MinValue")?.value;
-  const maxValue = props.constrains.find((c) => c.kind === "MaxValue")?.value;
+  const minValue = props.constraints.minValue;
+  const maxValue = props.constraints.maxValue;
   const min: string =
     minValue !== undefined
       ? `.min(${minValue})`
@@ -492,8 +447,8 @@ function ZodBigIntConstraints(
   minBasic: bigint | undefined,
   maxBasic: bigint | undefined,
 ): string {
-  const minValue = props.constrains.find((c) => c.kind === "MinValue")?.value;
-  const maxValue = props.constrains.find((c) => c.kind === "MaxValue")?.value;
+  const minValue = props.constraints.minValue;
+  const maxValue = props.constraints.maxValue;
   const min: string =
     minValue !== undefined
       ? `.gte(${minValue}n)`
@@ -511,8 +466,8 @@ function ZodBigIntConstraints(
 }
 
 function ZodStringConstraints(props: ZodTypeProps): string {
-  const minLength = props.constrains.find((c) => c.kind === "MinLength")?.value;
-  const maxLength = props.constrains.find((c) => c.kind === "MaxLength")?.value;
+  const minLength = props.constraints.minLength;
+  const maxLength = props.constraints.maxLength;
   const min: string = minLength !== undefined ? `.min(${minLength})` : "";
   const max: string = maxLength !== undefined ? `.max(${maxLength})` : "";
   const minmax = min + max;
@@ -520,8 +475,8 @@ function ZodStringConstraints(props: ZodTypeProps): string {
 }
 
 function ZodArrayConstraints(props: ZodTypeProps): string {
-  const minItems = props.constrains.find((c) => c.kind === "MinItems")?.value;
-  const maxItems = props.constrains.find((c) => c.kind === "MaxItems")?.value;
+  const minItems = props.constraints.minItems;
+  const maxItems = props.constraints.maxItems;
   const min: string = minItems !== undefined ? `.min(${minItems})` : "";
   const max: string = maxItems !== undefined ? `.max(${maxItems})` : "";
   const minmax = min + max;
