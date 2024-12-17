@@ -15,7 +15,6 @@ import { JDK_NOT_FOUND_MESSAGE, validateDependencies } from "./validate.js";
 
 export interface EmitterOptions {
   namespace?: string;
-  "output-dir"?: string;
   "package-dir"?: string;
 
   flavor?: string;
@@ -43,7 +42,6 @@ export interface EmitterOptions {
 
   "enable-subclient"?: boolean;
 
-  "advanced-versioning"?: boolean;
   "api-version"?: string;
   "service-version-exclude-preview"?: boolean;
 
@@ -51,18 +49,23 @@ export interface EmitterOptions {
 }
 
 export interface DevOptions {
+  "advanced-versioning"?: boolean;
   "generate-code-model"?: boolean;
   debug?: boolean;
   loglevel?: "off" | "debug" | "info" | "warn" | "error";
   "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
 }
 
+type CodeModelEmitterOptions = EmitterOptions & {
+  "output-dir": string;
+  arm?: boolean;
+};
+
 const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   additionalProperties: true,
   properties: {
     namespace: { type: "string", nullable: true },
-    "output-dir": { type: "string", nullable: true },
     "package-dir": { type: "string", nullable: true },
 
     flavor: { type: "string", nullable: true },
@@ -94,7 +97,6 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 
     "enable-subclient": { type: "boolean", nullable: true, default: false },
 
-    "advanced-versioning": { type: "boolean", nullable: true, default: false },
     "api-version": { type: "string", nullable: true },
     "service-version-exclude-preview": { type: "boolean", nullable: true, default: false },
 
@@ -129,10 +131,13 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       const __dirname = dirname(fileURLToPath(import.meta.url));
       const moduleRoot = resolvePath(__dirname, "..", "..");
 
-      const outputPath = options["output-dir"] ?? context.emitterOutputDir;
-      options["output-dir"] = getNormalizedAbsolutePath(outputPath, undefined);
+      const outputPath = context.emitterOutputDir;
+      (options as CodeModelEmitterOptions)["output-dir"] = getNormalizedAbsolutePath(
+        outputPath,
+        undefined,
+      );
 
-      (options as any)["arm"] = codeModel.arm;
+      (options as CodeModelEmitterOptions).arm = codeModel.arm;
 
       const codeModelFileName = resolvePath(outputPath, "./code-model.yaml");
 

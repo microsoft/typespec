@@ -767,7 +767,9 @@ export class CodeModelBuilder {
    * Whether we support advanced versioning in non-breaking fashion.
    */
   private supportsAdvancedVersioning(): boolean {
-    return Boolean(this.options["advanced-versioning"]);
+    return Boolean(
+      this.options["dev-options"] && this.options["dev-options"]["advanced-versioning"],
+    );
   }
 
   private getOperationExample(
