@@ -58,6 +58,7 @@ scalar string50 extends string;
 
 @jsonSchema
 model User {
+  nullableString: string | null;
   constrainedScalar: string50;
 
   myPetRecord: Record<integer>;

@@ -52,6 +52,7 @@ avagadro = 6.022e+23
 
 export const user = z.object(
 {
+nullableString: z.any(),
 constrainedScalar: z.string().min(1).max(50),
 myPetRecord: z.record(z.string(),z.number()),
 constrainedArray: z.array(z.string().min(1).max(50)),
@@ -108,21 +109,21 @@ export const todoItem = z.object(
 id: z.number().safe(),
 title: z.string().max(255),
 createdBy: z.any(),
-assignedTo: z.any(),
-description: z.string(),
+assignedTo: z.any().optional(),
+description: z.string().optional(),
 status: z.any(),
 createdAt: z.string().datetime(),
 updatedAt: z.string().datetime(),
-completedAt: z.string().datetime(),
-labels: z.any(),
-_dummy: z.string()
+completedAt: z.string().datetime().optional(),
+labels: z.any().optional(),
+_dummy: z.string().optional()
 }
 );
 
 export const todoLabelRecord = z.object(
 {
 name: z.string(),
-color: z.string()
+color: z.string().optional()
 }
 );
 
@@ -162,6 +163,7 @@ statusCode: z.number().min(500).max(599)
 
 export const userCreatedResponse = z.object(
 {
+nullableString: z.any(),
 constrainedScalar: z.string().min(1).max(50),
 myPetRecord: z.record(z.string(),z.number()),
 constrainedArray: z.array(z.string().min(1).max(50)),
@@ -229,8 +231,8 @@ code: z.string()
 
 export const paginationControls = z.object(
 {
-limit: z.number().min(-2147483648).max(2147483647),
-offset: z.number().min(-2147483648).max(2147483647)
+limit: z.number().min(-2147483648).max(2147483647).optional(),
+offset: z.number().min(-2147483648).max(2147483647).optional()
 }
 );
 
@@ -239,19 +241,19 @@ export const todoPage = z.object(
 items: z.array(z.any()),
 pageSize: z.number().min(-2147483648).max(2147483647),
 totalSize: z.number().min(-2147483648).max(2147483647),
-limit: z.number().min(-2147483648).max(2147483647),
-offset: z.number().min(-2147483648).max(2147483647),
-prevLink: z.string().url(),
-nextLink: z.string().url()
+limit: z.number().min(-2147483648).max(2147483647).optional(),
+offset: z.number().min(-2147483648).max(2147483647).optional(),
+prevLink: z.string().url().optional(),
+nextLink: z.string().url().optional()
 }
 );
 
 export const todoItemPatch = z.object(
 {
-title: z.any(),
-assignedTo: z.any(),
-description: z.any(),
-status: z.any()
+title: z.any().optional(),
+assignedTo: z.any().optional(),
+description: z.any().optional(),
+status: z.any().optional()
 }
 );
 
