@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import semver from "semver";
 import logger from "./log/logger.js";
 import { ExecOutput, executionEvents, loadModule, promisifySpawn } from "./utils.js";
 
@@ -8,6 +9,12 @@ export enum InstallationAction {
   Upgrade = "Upgrade",
   Skip = "Skip",
   Cancel = "Cancel",
+}
+
+export enum npmDependencyType {
+  dependencies = "dependencies",
+  peerDependencies = "peerDependencies",
+  devDependencies = "devDependencies",
 }
 
 export interface NpmPackageInfo {
@@ -36,17 +43,69 @@ export class NpmUtil {
   public async ensureNpmPackageInstall(
     packageName: string,
     version?: string,
-  ): Promise<{ action: InstallationAction; version: string }> {
+  ): Promise<{ action: InstallationAction; version?: string }> {
     const { installed: isPackageInstalled, version: installedVersion } =
       await this.isPackageInstalled(packageName);
     if (isPackageInstalled) {
       if (version && installedVersion !== version) {
         return { action: InstallationAction.Upgrade, version: version };
       }
-      return { action: InstallationAction.Cancel, version: installedVersion ?? "" };
+      return { action: InstallationAction.Cancel, version: installedVersion };
     } else {
-      return { action: InstallationAction.Install, version: version ?? "" };
+      return { action: InstallationAction.Install, version: version };
     }
+  }
+
+  public async ensureNpmPackageDependencyInstall(
+    packageName: string,
+    version?: string,
+    dependencyType: npmDependencyType = npmDependencyType.dependencies,
+    options: any = {},
+    on?: executionEvents,
+  ): Promise<string[]> {
+    const dependenciesToInstall: string[] = [];
+    let packageFullName = packageName;
+    if (version) {
+      packageFullName = `${packageName}@${version}`;
+    }
+
+    /* get dependencies. */
+    const dependenciesResult = await promisifySpawn(
+      "npm",
+      ["view", packageFullName, dependencyType],
+      { cwd: this.cwd },
+      on,
+    );
+
+    if (dependenciesResult.exitCode === 0) {
+      try {
+        // Remove all newline characters
+        let dependenciesJsonStr = dependenciesResult.stdout.trim();
+        dependenciesJsonStr = dependenciesJsonStr.replace(/\n/g, "");
+
+        // Change single quotes to double quotes
+        dependenciesJsonStr = dependenciesJsonStr.replace(/'/g, '"');
+        const json = JSON.parse(dependenciesJsonStr);
+        for (const [key, value] of Object.entries(json)) {
+          const { installed, version: installedVersion } = await this.isPackageInstalled(key);
+          if (installed && installedVersion) {
+            if (!this.isValidVersion(installedVersion, value as string)) {
+              dependenciesToInstall.push(`${key}@latest`);
+            }
+          }
+        }
+      } catch (err) {
+        if (on && on.onError) {
+          on.onError(err, "", "");
+        }
+      }
+    }
+
+    return dependenciesToInstall;
+  }
+
+  private isValidVersion(version: string, range: string): boolean {
+    return semver.satisfies(version, range);
   }
 
   private async isPackageInstalled(

@@ -3,7 +3,7 @@ import path, { dirname } from "path";
 import vscode, { Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "../log/logger.js";
-import { InstallationAction, NpmUtil } from "../npm-utils.js";
+import { InstallationAction, npmDependencyType, NpmUtil } from "../npm-utils.js";
 import {
   getMainTspFile,
   resolveTypeSpecCli,
@@ -95,44 +95,69 @@ export async function doEmit(
   });
 
   const npmUtil = new NpmUtil(baseDir);
-
   const packagesToInstall: string[] = [];
+  const packagesToVerify: { package: string; version?: string }[] = [];
+  // packagesToVerify.push({ package: "@typespec/compiler" });
   /* install emitter package. */
   logger.info(`select ${selectedEmitter.package}`);
-  const { action, version } = await npmUtil.ensureNpmPackageInstall(
-    selectedEmitter.package,
-    selectedEmitter.version,
-  );
-  /* TODO: check the dependent compiler version. */
-  if (action === InstallationAction.Upgrade) {
-    logger.info(`Upgrading ${selectedEmitter.package} to version ${version}`);
-    const options = {
-      ok: `OK (install ${selectedEmitter.package}@${version} by 'npm install'`,
-      recheck: `Check again (install ${selectedEmitter.package} manually)`,
-      ignore: `Ignore emitter ${selectedEmitter.label}`,
-      cancel: "Cancel",
-    };
-    const selected = await vscode.window.showQuickPick(Object.values(options), {
-      canPickMany: false,
-      ignoreFocusOut: true,
-      placeHolder: `Package '${selectedEmitter.package}' needs to be installed for emitting`,
-      title: `TypeSpec Emit...`,
-    });
-    if (selected === options.ok) {
-      packagesToInstall.push(`${selectedEmitter.package}@${version}`);
+  packagesToVerify.push({ package: selectedEmitter.package, version: selectedEmitter.version });
+  for (const p of packagesToVerify) {
+    const { action, version } = await npmUtil.ensureNpmPackageInstall(p.package, p.version);
+    /* TODO: check the dependent compiler version. */
+    if (action === InstallationAction.Upgrade) {
+      logger.info(`Upgrading ${p.package} to version ${version}`);
+      const options = {
+        ok: `OK (install ${p.package}@${version} by 'npm install'`,
+        recheck: `Check again (install ${p.package} manually)`,
+        ignore: `Ignore emitter ${p.package}`,
+        cancel: "Cancel",
+      };
+      const selected = await vscode.window.showQuickPick(Object.values(options), {
+        canPickMany: false,
+        ignoreFocusOut: true,
+        placeHolder: `Package '${p.package}' needs to be installed for emitting`,
+        title: `TypeSpec Emit...`,
+      });
+      if (selected === options.ok) {
+        packagesToInstall.push(`${p.package}@${version}`);
+      }
+    } else if (action === InstallationAction.Install) {
+      let packageFullName = p.package;
+      if (version) {
+        packageFullName = `${p.package}@${version}`;
+      }
+      logger.info(`Installing ${packageFullName}`);
+      /* verify dependency packages. */
+      const dependenciesToInstall = await npmUtil.ensureNpmPackageDependencyInstall(
+        p.package,
+        version,
+        npmDependencyType.peerDependencies,
+      );
+      logger.info(`${dependenciesToInstall}`);
+      for (const dependency of dependenciesToInstall) {
+        const options = {
+          ok: `OK (Upgrade ${dependency} by 'npm install'`,
+          recheck: `Check again (install ${p.package} manually)`,
+          ignore: `Ignore emitter ${p.package}`,
+          cancel: "Cancel",
+        };
+        const selected = await vscode.window.showQuickPick(Object.values(options), {
+          canPickMany: false,
+          ignoreFocusOut: true,
+          placeHolder: `Package '${dependency}' needs to be upgraded for emitting`,
+          title: `TypeSpec Emit...`,
+        });
+        if (selected === options.ok) {
+          packagesToInstall.push(dependency);
+        }
+      }
+      packagesToInstall.push(`${packageFullName}`);
     }
-  } else if (action === InstallationAction.Install) {
-    let packageFullName = selectedEmitter.package;
-    if (selectedEmitter.version) {
-      packageFullName = `${selectedEmitter.package}@${selectedEmitter.version}`;
-    }
-    logger.info(`Installing ${packageFullName}`);
-    packagesToInstall.push(`${packageFullName}`);
   }
 
   /* npm install packages. */
   if (packagesToInstall.length > 0) {
-    logger.info(`Installing ${packagesToInstall.join("\n\n")}`, [], {
+    logger.info(`Installing ${packagesToInstall.join("\n\n")}, baseDir: ${baseDir}`, [], {
       showOutput: true,
       showPopup: true,
       progress: overallProgress,
@@ -182,10 +207,10 @@ export async function doEmit(
   const options: Record<string, string> = {};
   options["emitter-output-dir"] = outputDir;
   logger.info(
-    `Generate ${selectedEmitter.language} ${selectedEmitter.kind} code under ${outputDir}...`,
+    `Generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code under ${outputDir}...`,
     [],
     {
-      showOutput: false,
+      showOutput: true,
       showPopup: true,
       progress: overallProgress,
     },
@@ -193,7 +218,7 @@ export async function doEmit(
   const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
   if (compileResult.exitCode !== 0) {
     logger.error(
-      `Failed to generate ${selectedEmitter.language} ${selectedEmitter.kind} code.`,
+      `Failed to generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
       [],
       {
         showOutput: true,
@@ -203,7 +228,7 @@ export async function doEmit(
     );
   } else {
     logger.info(
-      `complete generating ${selectedEmitter.language} ${selectedEmitter.kind} code.`,
+      `complete generating ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
       [],
       {
         showOutput: true,
