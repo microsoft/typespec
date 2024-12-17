@@ -474,7 +474,7 @@ function createVisibilityFilterMutator(
   const mpMutator: Mutator = {
     name: "VisibilityFilterProperty",
     ModelProperty: {
-      filter: () => MutatorFlow.DoNotRecurse,
+      filter: () => MutatorFlow.DoNotRecur,
       mutate: (prop, clone, program) => {
         // We need to create a copy of the decorators array to avoid modifying the original.
         // Decorators are _NOT_ cloned by the type kit, so we have to be careful not to modify the decorator arguments
@@ -520,7 +520,7 @@ function createVisibilityFilterMutator(
   const self: Mutator = {
     name: "VisibilityFilter",
     Union: {
-      filter: () => MutatorFlow.DoNotRecurse,
+      filter: () => MutatorFlow.DoNotRecur,
       mutate: (union, clone, program) => {
         for (const [key, member] of union.variants) {
           if (member.type.kind === "Model" || member.type.kind === "Union") {
@@ -534,7 +534,7 @@ function createVisibilityFilterMutator(
       },
     },
     Model: {
-      filter: () => MutatorFlow.DoNotRecurse,
+      filter: () => MutatorFlow.DoNotRecur,
       mutate: (model, clone, program, realm) => {
         for (const [key, prop] of model.properties) {
           if (!isVisible(program, prop, filter)) {
@@ -554,7 +554,7 @@ function createVisibilityFilterMutator(
       },
     },
     ModelProperty: {
-      filter: () => MutatorFlow.DoNotRecurse,
+      filter: () => MutatorFlow.DoNotRecur,
       mutate: (prop, clone, program) => {
         if (isMutableType(prop.type)) {
           clone.type = mutateSubgraph(program, [self], prop.type).type;
@@ -562,7 +562,7 @@ function createVisibilityFilterMutator(
       },
     },
     Tuple: {
-      filter: () => MutatorFlow.DoNotRecurse,
+      filter: () => MutatorFlow.DoNotRecur,
       mutate: (tuple, clone, program) => {
         for (const [index, element] of tuple.values.entries()) {
           if (isMutableType(element)) {

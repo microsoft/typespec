@@ -663,7 +663,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      * @return Whether the type is predefined.
      */
     protected boolean isPredefinedModel(ClassType compositeType) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
+        if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isBranded()) {
             // see ObjectMapper.mapPredefinedModel
             // this might be too simplified, and Android might require a different implementation
             return compositeType.getPackage().startsWith(ExternalPackage.CORE.getPackageName() + ".");

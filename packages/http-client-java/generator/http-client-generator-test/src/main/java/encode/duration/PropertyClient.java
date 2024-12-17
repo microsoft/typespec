@@ -16,12 +16,12 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import encode.duration.implementation.PropertiesImpl;
-import encode.duration.models.DefaultDurationProperty;
-import encode.duration.models.Float64SecondsDurationProperty;
-import encode.duration.models.FloatSecondsDurationArrayProperty;
-import encode.duration.models.FloatSecondsDurationProperty;
-import encode.duration.models.ISO8601DurationProperty;
-import encode.duration.models.Int32SecondsDurationProperty;
+import encode.duration.property.models.DefaultDurationProperty;
+import encode.duration.property.models.Float64SecondsDurationProperty;
+import encode.duration.property.models.FloatSecondsDurationArrayProperty;
+import encode.duration.property.models.FloatSecondsDurationProperty;
+import encode.duration.property.models.ISO8601DurationProperty;
+import encode.duration.property.models.Int32SecondsDurationProperty;
 
 /**
  * Initializes a new instance of the synchronous DurationClient type.

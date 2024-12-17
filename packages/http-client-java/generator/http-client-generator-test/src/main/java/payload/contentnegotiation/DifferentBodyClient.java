@@ -15,8 +15,8 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import payload.contentnegotiation.differentbody.models.PngImageAsJson;
 import payload.contentnegotiation.implementation.DifferentBodiesImpl;
-import payload.contentnegotiation.models.PngImageAsJson;
 
 /**
  * Initializes a new instance of the synchronous ContentNegotiationClient type.

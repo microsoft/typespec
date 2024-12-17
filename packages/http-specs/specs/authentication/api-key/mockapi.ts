@@ -7,7 +7,7 @@ Scenarios.Authentication_ApiKey_invalid = passOnCode(403, {
   method: `get`,
   request: {
     headers: {
-      "x-ms-api-key": "valid-key",
+      "x-ms-api-key": "invalid-key",
     },
     status: 403,
   },

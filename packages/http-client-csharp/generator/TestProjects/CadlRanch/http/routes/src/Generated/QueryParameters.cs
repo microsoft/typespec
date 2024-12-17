@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Routes
@@ -18,25 +19,25 @@ namespace Routes
 
         public virtual Task<ClientResult> TemplateOnlyAsync(string @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult TemplateOnly(string @param) => throw null;
+        public virtual ClientResult TemplateOnly(string @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> TemplateOnlyAsync(string @param) => throw null;
+        public virtual Task<ClientResult> TemplateOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Explicit(string @param, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ExplicitAsync(string @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult Explicit(string @param) => throw null;
+        public virtual ClientResult Explicit(string @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ExplicitAsync(string @param) => throw null;
+        public virtual Task<ClientResult> ExplicitAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult AnnotationOnly(string @param, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult AnnotationOnly(string @param) => throw null;
+        public virtual ClientResult AnnotationOnly(string @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> AnnotationOnlyAsync(string @param) => throw null;
+        public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual QueryParametersQueryExpansion GetQueryParametersQueryExpansionClient() => throw null;
 

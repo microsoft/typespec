@@ -9,7 +9,7 @@ import com.azure.core.util.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
-import payload.contentnegotiation.models.PngImageAsJson;
+import payload.contentnegotiation.differentbody.models.PngImageAsJson;
 
 public class SharedRouteTests {
 

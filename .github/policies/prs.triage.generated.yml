@@ -104,6 +104,13 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
+                    - packages/graphql/**/*
+            then:
+              - addLabel:
+                  label: emitter:graphql
+          - if:
+              - includesModifiedFiles:
+                  files:
                     - packages/json-schema/**/*
             then:
               - addLabel:

@@ -52,12 +52,12 @@
     "client.naming.UnionEnumClient.unionEnumMemberNameWithResponse": "Client.Naming.UnionEnum.unionEnumMemberName",
     "client.naming.UnionEnumClient.unionEnumName": "Client.Naming.UnionEnum.unionEnumName",
     "client.naming.UnionEnumClient.unionEnumNameWithResponse": "Client.Naming.UnionEnum.unionEnumName",
-    "client.naming.models.ClientExtensibleEnum": "Client.Naming.UnionEnum.ServerExtensibleEnum",
-    "client.naming.models.ClientModel": "Client.Naming.Model.ModelWithClientClientName",
-    "client.naming.models.ClientNameAndJsonEncodedNameModel": "Client.Naming.Property.ClientNameAndJsonEncodedNameModel",
-    "client.naming.models.ClientNameModel": "Client.Naming.Property.ClientNameModel",
-    "client.naming.models.ExtensibleEnum": "Client.Naming.UnionEnum.ExtensibleEnum",
-    "client.naming.models.JavaModel": "Client.Naming.Model.ModelWithLanguageClientName",
-    "client.naming.models.LanguageClientNameModel": "Client.Naming.Property.LanguageClientNameModel"
+    "client.naming.model.models.ClientModel": "Client.Naming.Model.ModelWithClientClientName",
+    "client.naming.model.models.JavaModel": "Client.Naming.Model.ModelWithLanguageClientName",
+    "client.naming.property.models.ClientNameAndJsonEncodedNameModel": "Client.Naming.Property.ClientNameAndJsonEncodedNameModel",
+    "client.naming.property.models.ClientNameModel": "Client.Naming.Property.ClientNameModel",
+    "client.naming.property.models.LanguageClientNameModel": "Client.Naming.Property.LanguageClientNameModel",
+    "client.naming.unionenum.models.ClientExtensibleEnum": "Client.Naming.UnionEnum.ServerExtensibleEnum",
+    "client.naming.unionenum.models.ExtensibleEnum": "Client.Naming.UnionEnum.ExtensibleEnum"
   }
 }

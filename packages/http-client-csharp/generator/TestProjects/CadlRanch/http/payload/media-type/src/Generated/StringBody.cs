@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Payload.MediaType
@@ -18,32 +19,32 @@ namespace Payload.MediaType
 
         public virtual Task<ClientResult> SendAsTextAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SendAsText(string text) => throw null;
+        public virtual ClientResult SendAsText(string text, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SendAsTextAsync(string text) => throw null;
+        public virtual Task<ClientResult> SendAsTextAsync(string text, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetAsText(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> GetAsTextAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<string> GetAsText() => throw null;
+        public virtual ClientResult<string> GetAsText(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<string>> GetAsTextAsync() => throw null;
+        public virtual Task<ClientResult<string>> GetAsTextAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult SendAsJson(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> SendAsJsonAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SendAsJson(string text) => throw null;
+        public virtual ClientResult SendAsJson(string text, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SendAsJsonAsync(string text) => throw null;
+        public virtual Task<ClientResult> SendAsJsonAsync(string text, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetAsJson(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> GetAsJsonAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<string> GetAsJson() => throw null;
+        public virtual ClientResult<string> GetAsJson(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<string>> GetAsJsonAsync() => throw null;
+        public virtual Task<ClientResult<string>> GetAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

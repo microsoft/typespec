@@ -16,8 +16,8 @@
     "encode.numeric.NumericClient.uint8AsString": "Encode.Numeric.Property.uint8AsString",
     "encode.numeric.NumericClient.uint8AsStringWithResponse": "Encode.Numeric.Property.uint8AsString",
     "encode.numeric.NumericClientBuilder": "Encode.Numeric",
-    "encode.numeric.models.SafeintAsStringProperty": "Encode.Numeric.Property.SafeintAsStringProperty",
-    "encode.numeric.models.Uint32AsStringProperty": "Encode.Numeric.Property.Uint32AsStringProperty",
-    "encode.numeric.models.Uint8AsStringProperty": "Encode.Numeric.Property.Uint8AsStringProperty"
+    "encode.numeric.property.models.SafeintAsStringProperty": "Encode.Numeric.Property.SafeintAsStringProperty",
+    "encode.numeric.property.models.Uint32AsStringProperty": "Encode.Numeric.Property.Uint32AsStringProperty",
+    "encode.numeric.property.models.Uint8AsStringProperty": "Encode.Numeric.Property.Uint8AsStringProperty"
   }
 }

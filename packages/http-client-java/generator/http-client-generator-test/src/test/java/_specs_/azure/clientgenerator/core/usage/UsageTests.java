@@ -3,10 +3,10 @@
 
 package _specs_.azure.clientgenerator.core.usage;
 
-import _specs_.azure.clientgenerator.core.usage.models.InputModel;
-import _specs_.azure.clientgenerator.core.usage.models.OutputModel;
-import _specs_.azure.clientgenerator.core.usage.models.ResultModel;
-import _specs_.azure.clientgenerator.core.usage.models.RoundTripModel;
+import _specs_.azure.clientgenerator.core.usage.modelinoperation.models.InputModel;
+import _specs_.azure.clientgenerator.core.usage.modelinoperation.models.OutputModel;
+import _specs_.azure.clientgenerator.core.usage.modelinoperation.models.ResultModel;
+import _specs_.azure.clientgenerator.core.usage.modelinoperation.models.RoundTripModel;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import org.junit.jupiter.api.Assertions;

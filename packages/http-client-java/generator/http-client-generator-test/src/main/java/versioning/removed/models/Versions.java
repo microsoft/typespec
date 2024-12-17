@@ -14,6 +14,11 @@ public enum Versions {
     V1("v1"),
 
     /**
+     * The V2 Preview version.
+     */
+    V2PREVIEW("v2preview"),
+
+    /**
      * The version v2.
      */
     V2("v2");

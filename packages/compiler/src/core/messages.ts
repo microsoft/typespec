@@ -150,12 +150,6 @@ const diagnostics = {
       typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
-  "trailing-token": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Trailing ${"token"}`,
-    },
-  },
   "unknown-directive": {
     severity: "error",
     messages: {
@@ -787,6 +781,13 @@ const diagnostics = {
   /**
    * Decorator
    */
+  "invalid-pattern-regex": {
+    severity: "warning",
+    messages: {
+      default: "@pattern decorator expects a valid regular expression pattern.",
+    },
+  },
+
   "decorator-wrong-target": {
     severity: "error",
     messages: {

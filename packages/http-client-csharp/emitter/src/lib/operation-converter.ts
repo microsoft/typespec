@@ -35,12 +35,11 @@ import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { fromSdkType } from "./converter.js";
+import { fromSdkModelType, fromSdkType } from "./converter.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
-import { getInputType } from "./model.js";
-import { capitalize, isSdkPathParameter } from "./utils.js";
+import { isSdkPathParameter } from "./utils.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -151,6 +150,14 @@ function fromSdkOperationParameters(
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
+    if (p.kind === "cookie") {
+      Logger.getInstance().error(
+        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
+      );
+      throw new Error(
+        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
+      );
+    }
     const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeMap);
     parameters.set(p, param);
   }
@@ -207,36 +214,19 @@ function loadLongRunningOperation(
   if (method.kind !== "lro") {
     return undefined;
   }
-  /* Remove this workaround when https://github.com/Azure/typespec-azure/issues/1538 is resolved */
-  if (
-    method.__raw_lro_metadata.finalEnvelopeResult &&
-    method.__raw_lro_metadata.finalEnvelopeResult !== "void" &&
-    method.__raw_lro_metadata.finalEnvelopeResult.name === ""
-  ) {
-    method.__raw_lro_metadata.finalEnvelopeResult = {
-      ...method.__raw_lro_metadata.finalEnvelopeResult,
-      name: capitalize(`${method.name}Response`),
-    };
-  }
   return {
-    FinalStateVia: convertLroFinalStateVia(method.__raw_lro_metadata.finalStateVia),
+    FinalStateVia: convertLroFinalStateVia(method.lroMetadata.finalStateVia),
     FinalResponse: {
       // in swagger, we allow delete to return some meaningful body content
       // for now, let assume we don't allow return type
       StatusCodes: method.operation.verb === "delete" ? [204] : [200],
       BodyType:
-        method.__raw_lro_metadata.finalEnvelopeResult &&
-        method.__raw_lro_metadata.finalEnvelopeResult !== "void"
-          ? getInputType(
-              sdkContext,
-              method.__raw_lro_metadata.finalEnvelopeResult,
-              typeMap,
-              method.operation.__raw.operation,
-            )
+        method.lroMetadata.finalResponse?.envelopeResult !== undefined
+          ? fromSdkModelType(method.lroMetadata.finalResponse.envelopeResult, sdkContext, typeMap)
           : undefined,
       BodyMediaType: BodyMediaType.Json,
     } as OperationResponse,
-    ResultPath: method.__raw_lro_metadata.finalResultPath,
+    ResultPath: method.lroMetadata.finalResponse?.resultPath,
   };
 }
 
@@ -337,7 +327,7 @@ function getMediaTypes(type: SdkType): string[] {
 function loadOperationPaging(
   method: SdkServiceMethod<SdkHttpOperation>,
 ): OperationPaging | undefined {
-  if (method.kind !== "paging") {
+  if (method.kind !== "paging" || method.__raw_paged_metadata === undefined) {
     return undefined;
   }
 
@@ -347,7 +337,7 @@ function loadOperationPaging(
   };
 }
 
-// TODO: https://github.com/Azure/typespec-azure/issues/981
+// TODO: https://github.com/Azure/typespec-azure/issues/1441
 function getParameterLocation(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined,
 ): RequestLocation {

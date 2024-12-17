@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SpecialWords
@@ -18,264 +19,264 @@ namespace SpecialWords
 
         public virtual Task<ClientResult> AndAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult And() => throw null;
+        public virtual ClientResult And(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> AndAsync() => throw null;
+        public virtual Task<ClientResult> AndAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult As(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> AsAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult As() => throw null;
+        public virtual ClientResult As(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> AsAsync() => throw null;
+        public virtual Task<ClientResult> AsAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Assert(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> AssertAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Assert() => throw null;
+        public virtual ClientResult Assert(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> AssertAsync() => throw null;
+        public virtual Task<ClientResult> AssertAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Async(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> AsyncAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Async() => throw null;
+        public virtual ClientResult Async(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> AsyncAsync() => throw null;
+        public virtual Task<ClientResult> AsyncAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Await(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> AwaitAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Await() => throw null;
+        public virtual ClientResult Await(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> AwaitAsync() => throw null;
+        public virtual Task<ClientResult> AwaitAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Break(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> BreakAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Break() => throw null;
+        public virtual ClientResult Break(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> BreakAsync() => throw null;
+        public virtual Task<ClientResult> BreakAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Class(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ClassAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Class() => throw null;
+        public virtual ClientResult Class(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ClassAsync() => throw null;
+        public virtual Task<ClientResult> ClassAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Constructor(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ConstructorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Constructor() => throw null;
+        public virtual ClientResult Constructor(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ConstructorAsync() => throw null;
+        public virtual Task<ClientResult> ConstructorAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Continue(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ContinueAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Continue() => throw null;
+        public virtual ClientResult Continue(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ContinueAsync() => throw null;
+        public virtual Task<ClientResult> ContinueAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Def(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> DefAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Def() => throw null;
+        public virtual ClientResult Def(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> DefAsync() => throw null;
+        public virtual Task<ClientResult> DefAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Del(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> DelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Del() => throw null;
+        public virtual ClientResult Del(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> DelAsync() => throw null;
+        public virtual Task<ClientResult> DelAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Elif(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ElifAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Elif() => throw null;
+        public virtual ClientResult Elif(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ElifAsync() => throw null;
+        public virtual Task<ClientResult> ElifAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Else(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ElseAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Else() => throw null;
+        public virtual ClientResult Else(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ElseAsync() => throw null;
+        public virtual Task<ClientResult> ElseAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Except(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ExceptAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Except() => throw null;
+        public virtual ClientResult Except(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ExceptAsync() => throw null;
+        public virtual Task<ClientResult> ExceptAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Exec(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ExecAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Exec() => throw null;
+        public virtual ClientResult Exec(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ExecAsync() => throw null;
+        public virtual Task<ClientResult> ExecAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Finally(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> FinallyAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Finally() => throw null;
+        public virtual ClientResult Finally(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FinallyAsync() => throw null;
+        public virtual Task<ClientResult> FinallyAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult For(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ForAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult For() => throw null;
+        public virtual ClientResult For(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ForAsync() => throw null;
+        public virtual Task<ClientResult> ForAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult From(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> FromAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult From() => throw null;
+        public virtual ClientResult From(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FromAsync() => throw null;
+        public virtual Task<ClientResult> FromAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Global(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> GlobalAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Global() => throw null;
+        public virtual ClientResult Global(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> GlobalAsync() => throw null;
+        public virtual Task<ClientResult> GlobalAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult If(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> IfAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult If() => throw null;
+        public virtual ClientResult If(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> IfAsync() => throw null;
+        public virtual Task<ClientResult> IfAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Import(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ImportAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Import() => throw null;
+        public virtual ClientResult Import(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ImportAsync() => throw null;
+        public virtual Task<ClientResult> ImportAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult In(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> InAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult In() => throw null;
+        public virtual ClientResult In(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> InAsync() => throw null;
+        public virtual Task<ClientResult> InAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Is(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> IsAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Is() => throw null;
+        public virtual ClientResult Is(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> IsAsync() => throw null;
+        public virtual Task<ClientResult> IsAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Lambda(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> LambdaAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Lambda() => throw null;
+        public virtual ClientResult Lambda(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> LambdaAsync() => throw null;
+        public virtual Task<ClientResult> LambdaAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Not(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> NotAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Not() => throw null;
+        public virtual ClientResult Not(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> NotAsync() => throw null;
+        public virtual Task<ClientResult> NotAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Or(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> OrAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Or() => throw null;
+        public virtual ClientResult Or(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> OrAsync() => throw null;
+        public virtual Task<ClientResult> OrAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Pass(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> PassAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Pass() => throw null;
+        public virtual ClientResult Pass(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PassAsync() => throw null;
+        public virtual Task<ClientResult> PassAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Raise(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> RaiseAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Raise() => throw null;
+        public virtual ClientResult Raise(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RaiseAsync() => throw null;
+        public virtual Task<ClientResult> RaiseAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Return(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> ReturnAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Return() => throw null;
+        public virtual ClientResult Return(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ReturnAsync() => throw null;
+        public virtual Task<ClientResult> ReturnAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Try(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> TryAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Try() => throw null;
+        public virtual ClientResult Try(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> TryAsync() => throw null;
+        public virtual Task<ClientResult> TryAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult While(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> WhileAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult While() => throw null;
+        public virtual ClientResult While(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WhileAsync() => throw null;
+        public virtual Task<ClientResult> WhileAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult With(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> WithAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult With() => throw null;
+        public virtual ClientResult With(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithAsync() => throw null;
+        public virtual Task<ClientResult> WithAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Yield(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> YieldAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Yield() => throw null;
+        public virtual ClientResult Yield(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> YieldAsync() => throw null;
+        public virtual Task<ClientResult> YieldAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

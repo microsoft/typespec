@@ -18,6 +18,12 @@ import java.io.IOException;
 @Immutable
 public final class WriteDog implements JsonSerializable<WriteDog> {
     /*
+     * The secretName property.
+     */
+    @Generated
+    private final String secretName;
+
+    /*
      * The name property.
      */
     @Generated
@@ -26,11 +32,23 @@ public final class WriteDog implements JsonSerializable<WriteDog> {
     /**
      * Creates an instance of WriteDog class.
      * 
+     * @param secretName the secretName value to set.
      * @param name the name value to set.
      */
     @Generated
-    public WriteDog(String name) {
+    public WriteDog(String secretName, String name) {
+        this.secretName = secretName;
         this.name = name;
+    }
+
+    /**
+     * Get the secretName property: The secretName property.
+     * 
+     * @return the secretName value.
+     */
+    @Generated
+    public String getSecretName() {
+        return this.secretName;
     }
 
     /**
@@ -50,6 +68,7 @@ public final class WriteDog implements JsonSerializable<WriteDog> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
+        jsonWriter.writeStringField("secretName", this.secretName);
         jsonWriter.writeStringField("name", this.name);
         return jsonWriter.writeEndObject();
     }
@@ -66,18 +85,21 @@ public final class WriteDog implements JsonSerializable<WriteDog> {
     @Generated
     public static WriteDog fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
+            String secretName = null;
             String name = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("name".equals(fieldName)) {
+                if ("secretName".equals(fieldName)) {
+                    secretName = reader.getString();
+                } else if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new WriteDog(name);
+            return new WriteDog(secretName, name);
         });
     }
 }
