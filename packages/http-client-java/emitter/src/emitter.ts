@@ -118,8 +118,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
   if (!program.hasError()) {
     const options = context.options;
     if (!options["flavor"]) {
-      if (options["package-dir"]?.toLocaleLowerCase().startsWith("azure")) {
-        // Azure package
+      if ($lib.name === "@azure-tools/typespec-java") {
         options["flavor"] = "azure";
       }
     }
