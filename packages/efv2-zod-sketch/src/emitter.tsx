@@ -5,7 +5,6 @@
  * - (3) Add support for nullable (which turns out to be a kind of union)
  * 
  * Lower priority:
- * - Clean up unnecessary interfaces
  * - Consider supporting "scalar foo extends bar" by creating a TypeScript type for those and using that for properties
  *   instead of just (for example) putting bounds on the scalar as I am doing now.
  * */
