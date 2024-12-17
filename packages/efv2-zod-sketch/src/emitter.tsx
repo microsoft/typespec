@@ -3,11 +3,7 @@
  * - (1) Add support for references to other models, including internal properties (fix any output which is currently z.any())
  * - (2) Add support for unions
  * - (3) Add support for nullable (which turns out to be a kind of union)
- * 
- * Lower priority:
- * - Consider supporting "scalar foo extends bar" by creating a TypeScript type for those and using that for properties
- *   instead of just (for example) putting bounds on the scalar as I am doing now.
- * */
+  * */
 
 /* Key scripts 
 Build from the root of the project:
