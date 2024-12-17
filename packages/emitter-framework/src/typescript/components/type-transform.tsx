@@ -1,6 +1,6 @@
 import { Children, code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Model, ModelProperty, Scalar, Type, Union } from "@typespec/compiler";
+import { Discriminator, Model, ModelProperty, Scalar, Type, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import {
   ArraySerializerRefkey,
@@ -8,6 +8,7 @@ import {
   DateRfc3339SerializerRefkey,
   RecordSerializerRefkey,
 } from "./static-serializers.jsx";
+import { reportDiagnostic } from "../../lib.js";
 
 
 export interface TypeTransformProps {
@@ -27,21 +28,34 @@ function UnionTransformExpression(props: UnionTransformProps) {
 
   if(!discriminator) {
     // TODO: Handle non-discriminated unions
+    reportDiagnostic($.program, {
+      code: "typescript-unsupported-nondiscriminated-union",
+      target: props.type,
+    })
     return null;
   }
 
-  const blocks: Children[] = []
+  return <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} />;
+}
 
-  for(const variant of props.type.variants.values()) {
-    const block = code`
-    if(item.${discriminator.propertyName} === ${JSON.stringify(variant.name)}) {
+interface DiscriminateExpressionProps {
+  type: Union | Model;
+  discriminator: Discriminator;
+  target: "application" | "transport";
+}
+
+function DiscriminateExpression(props: DiscriminateExpressionProps) {
+  
+  const discriminatedUnion = $.type.getDiscriminatedUnion(props.type)!;
+
+  return mapJoin(discriminatedUnion.variants, (name, variant) => {
+    return code`
+    if(item.${props.discriminator.propertyName} === ${JSON.stringify(name)}) {
       return ${<TypeTransformCall type={variant.type} target={props.target} itemPath={["item"]}/>}
     }
-    `;
-    blocks.push(block);
-  }
+    `
+  }, { joiner: "\n" });
 
-  return mapJoin(blocks, block => block, { joiner: "\n" });
 }
 
 /**
@@ -63,9 +77,22 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
   const functionName = props.name ? props.name : `${baseName}${functionSuffix}`;
   const itemType = props.target === "application" ? "any" : <ts.Reference refkey={refkey(props.type)} />;
 
-  const TransformExpression = $.model.is(props.type) 
-    ? <>return <ModelTransformExpression  type={props.type} itemPath={["item"]} target={props.target} />;</> 
-    : <UnionTransformExpression type={props.type} target={props.target} />;
+  let transformExpression: Children;
+  if($.model.is(props.type)) {
+    const discriminator = $.type.getDiscriminator(props.type);
+  
+      transformExpression = discriminator ?
+       <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} /> : 
+      <>return <ModelTransformExpression  type={props.type} itemPath={["item"]} target={props.target} />;</> 
+  } else if($.union.is(props.type)) {
+  transformExpression = <UnionTransformExpression type={props.type} target={props.target} />;
+  } else {
+    reportDiagnostic($.program, {
+      code: "typescript-unsupported-type-transform",
+      target: props.type,
+    }) 
+  }
+
 
   return (
     <ts.FunctionDeclaration
@@ -74,7 +101,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
       refkey={getTypeTransformerRefkey(props.type, props.target)}
       parameters={{ item: itemType }}
     >
-      {TransformExpression}
+      {transformExpression}
     </ts.FunctionDeclaration>
   );
 }
@@ -255,6 +282,7 @@ export function TypeTransformCall(props: TypeTransformCallProps) {
   if ($.model.is(transformType)) {
     if($.model.isExpresion(transformType)) {
       const effectiveModel = $.model.getEffectiveModel(transformType);
+      
       return <ModelTransformExpression type={effectiveModel} itemPath={itemPath} target={props.target} optionsBagName={props.optionsBagName} />;
     }
     return <ts.FunctionCallExpression refkey={ getTypeTransformerRefkey(transformType, props.target)} args={[itemName]} />

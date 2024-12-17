@@ -44,12 +44,6 @@ export function TypeExpression({ type }: TypeExpressionProps) {
           ))}]
         </>
       );
-    case "EnumMember":
-      return (
-        <>
-          {type.enum.name}.{type.name}
-        </>
-      );
     case "ModelProperty": 
       return <TypeExpression type={type.type} />;
     case "Model":
@@ -66,7 +60,7 @@ export function TypeExpression({ type }: TypeExpressionProps) {
       return <InterfaceExpression type={type} />;
 
     default:
-      reportDiagnostic($.program, {code: "unsupported-type", target: type });
+      reportDiagnostic($.program, {code: "typescript-unsupported-type", target: type });
       return "any";
   }
 }
@@ -138,7 +132,7 @@ function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | nu
   const tsType = intrinsicNameToTSType.get(intrinsicName);
 
   if (!tsType) {
-    reportDiagnostic($.program, {code: "unsupported-scalar", target: type });
+    reportDiagnostic($.program, {code: "typescript-unsupported-scalar", target: type });
     return "any";
   }
   

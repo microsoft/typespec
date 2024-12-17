@@ -65,7 +65,10 @@ export function isDeclaration(type: Type): type is TypeSpecDeclaration | Namespa
     case "Interface":
     case "Enum":
     case "Operation":
+    case "EnumMember":
       return true;
+    case "UnionVariant":
+      return false;
 
     case "Model":
       return type.name ? type.name !== "" && type.name !== "Array" : false;
