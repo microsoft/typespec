@@ -3,7 +3,6 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from itertools import chain
 from typing import (
     Dict,
     List,
@@ -14,7 +13,6 @@ from typing import (
     Generic,
     TypeVar,
     cast,
-    Sequence,
 )
 
 from .request_builder_parameter import RequestBuilderParameter
@@ -201,17 +199,13 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         exception_schema = default_exceptions[0].type
         if isinstance(exception_schema, ModelType):
             return exception_schema.type_annotation(skip_quote=True)
-        # in this case, it's just an AnyType
-        return "'object'"
+        return None if self.code_model.options["models_mode"] == "dpg" else "'object'"
 
     @property
     def non_default_errors(self) -> List[Response]:
-        return [e for e in self.exceptions if "default" not in e.status_codes]
-
-    @property
-    def non_default_error_status_codes(self) -> List[Union[str, int]]:
-        """Actually returns all of the status codes from exceptions (besides default)"""
-        return list(chain.from_iterable([error.status_codes for error in self.non_default_errors]))
+        return [
+            e for e in self.exceptions if "default" not in e.status_codes and e.type and isinstance(e.type, ModelType)
+        ]
 
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:  # pylint: disable=unused-argument
         file_import = FileImport(self.code_model)
@@ -344,19 +338,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             file_import.add_submodule_import("exceptions", error, ImportType.SDKCORE)
         if self.code_model.options["azure_arm"]:
             file_import.add_submodule_import("azure.mgmt.core.exceptions", "ARMErrorFormat", ImportType.SDKCORE)
-        if self.non_default_errors:
-            file_import.add_submodule_import(
-                "typing",
-                "Type",
-                ImportType.STDLIB,
-            )
         file_import.add_mutable_mapping_import()
-        if self.non_default_error_status_codes:
-            file_import.add_submodule_import(
-                "typing",
-                "cast",
-                ImportType.STDLIB,
-            )
 
         if self.has_kwargs_to_pop_with_default(
             self.parameters.kwargs_to_pop, ParameterLocation.HEADER  # type: ignore
@@ -436,7 +418,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             elif any(r.type for r in self.responses):
                 file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
             if self.default_error_deserialization or self.non_default_errors:
-                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
+                file_import.add_submodule_import(
+                    f"{relative_path}_model_base", "_failsafe_deserialize", ImportType.LOCAL
+                )
         return file_import
 
     def get_response_from_status(self, status_code: Optional[Union[str, int]]) -> ResponseType:
@@ -446,7 +430,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             raise ValueError(f"Incorrect status code {status_code}, operation {self.name}") from exc
 
     @property
-    def success_status_codes(self) -> Sequence[Union[str, int]]:
+    def success_status_codes(self) -> List[Union[int, str, List[int]]]:
         """The list of all successfull status code."""
         return sorted([code for response in self.responses for code in response.status_codes])
 

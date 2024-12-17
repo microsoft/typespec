@@ -150,6 +150,14 @@ function fromSdkOperationParameters(
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
+    if (p.kind === "cookie") {
+      Logger.getInstance().error(
+        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
+      );
+      throw new Error(
+        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
+      );
+    }
     const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeMap);
     parameters.set(p, param);
   }
@@ -319,7 +327,7 @@ function getMediaTypes(type: SdkType): string[] {
 function loadOperationPaging(
   method: SdkServiceMethod<SdkHttpOperation>,
 ): OperationPaging | undefined {
-  if (method.kind !== "paging") {
+  if (method.kind !== "paging" || method.__raw_paged_metadata === undefined) {
     return undefined;
   }
 
@@ -329,7 +337,7 @@ function loadOperationPaging(
   };
 }
 
-// TODO: https://github.com/Azure/typespec-azure/issues/981
+// TODO: https://github.com/Azure/typespec-azure/issues/1441
 function getParameterLocation(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined,
 ): RequestLocation {

@@ -54,7 +54,6 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHeaderParameter,
   SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpResponse,
@@ -64,7 +63,6 @@ import {
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
-  SdkQueryParameter,
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
@@ -155,6 +153,7 @@ import {
 } from "./type-utils.js";
 import {
   getNamespace,
+  logError,
   logWarning,
   pascalCase,
   removeClientSuffix,
@@ -163,12 +162,14 @@ import {
 } from "./utils.js";
 const { isEqual } = pkg;
 
+type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
+
 export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
   private namespace: string;
-  private baseJavaNamespace: string = ""; // it will be set at the start of "build" function
-  private legacyJavaNamespace: boolean = false; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
+  private baseJavaNamespace!: string;
+  private legacyJavaNamespace!: boolean; // backward-compatible mode, that emitter ignores clientNamespace from TCGC
   private sdkContext!: SdkContext;
   private options: EmitterOptions;
   private codeModel: CodeModel;
@@ -201,11 +202,11 @@ export class CodeModelBuilder {
 
     const service = listServices(this.program)[0];
     if (!service) {
-      throw Error("TypeSpec for HTTP must define a service.");
+      this.logWarning("TypeSpec for HTTP client should define a service.");
     }
-    this.serviceNamespace = service.type;
+    this.serviceNamespace = service?.type ?? this.program.getGlobalNamespaceType();
 
-    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Client";
 
     const namespace1 = this.namespace;
     this.typeNameOptions = {
@@ -237,6 +238,10 @@ export class CodeModelBuilder {
   }
 
   public async build(): Promise<CodeModel> {
+    if (this.program.hasError()) {
+      return this.codeModel;
+    }
+
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
@@ -256,9 +261,8 @@ export class CodeModelBuilder {
 
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
 
-    // TODO: reportDiagnostics from TCGC temporary disabled
-    // issue https://github.com/Azure/typespec-azure/issues/1675
-    // this.program.reportDiagnostics(this.sdkContext.diagnostics);
+    // potential problem https://github.com/Azure/typespec-azure/issues/1675
+    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // auth
     // TODO: it is not very likely, but different client could have different auth
@@ -386,7 +390,7 @@ export class CodeModelBuilder {
   }
 
   private isBranded(): boolean {
-    return !this.options["flavor"] || this.options["flavor"].toLocaleLowerCase() === "azure";
+    return this.options["flavor"]?.toLocaleLowerCase() === "azure";
   }
 
   private processModels() {
@@ -555,7 +559,7 @@ export class CodeModelBuilder {
       } else {
         this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
         if (!this.apiVersion) {
-          throw new Error("Unrecognized api-version: " + this.sdkContext.apiVersion);
+          this.logError("Unrecognized api-version: " + this.sdkContext.apiVersion);
         }
       }
 
@@ -587,7 +591,7 @@ export class CodeModelBuilder {
               }
             }
           } else if (initializationProperty.type.variantTypes.length > 2) {
-            throw new Error("Multiple server url defined for one client is not supported yet.");
+            this.logError("Multiple server url defined for one client is not supported yet.");
           }
         } else if (initializationProperty.type.kind === "endpoint") {
           sdkPathParameters = initializationProperty.type.templateArguments;
@@ -957,26 +961,30 @@ export class CodeModelBuilder {
     responses: SdkHttpResponse[],
     sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
+    if (!this.isBranded()) {
+      // TODO: currently unbranded does not support paged operation
+      return;
+    }
+
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
       for (const response of responses) {
         const bodyType = response.type;
         if (bodyType && bodyType.kind === "model") {
           const itemName = sdkMethod.response.resultPath;
           const nextLinkName = sdkMethod.nextLinkPath;
-          if (itemName && nextLinkName) {
-            op.extensions = op.extensions ?? {};
-            op.extensions["x-ms-pageable"] = {
-              itemName: itemName,
-              nextLinkName: nextLinkName,
-            };
 
-            op.responses?.forEach((r) => {
-              if (r instanceof SchemaResponse) {
-                this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
-              }
-            });
-            break;
-          }
+          op.extensions = op.extensions ?? {};
+          op.extensions["x-ms-pageable"] = {
+            itemName: itemName,
+            nextLinkName: nextLinkName,
+          };
+
+          op.responses?.forEach((r) => {
+            if (r instanceof SchemaResponse) {
+              this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+            }
+          });
+          break;
         }
       }
     }
@@ -1089,7 +1097,7 @@ export class CodeModelBuilder {
 
   private processParameter(
     op: CodeModelOperation,
-    param: SdkQueryParameter | SdkPathParameter | SdkHeaderParameter,
+    param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
     if (clientContext.apiVersions && isApiVersion(this.sdkContext, param)) {
@@ -1583,11 +1591,7 @@ export class CodeModelBuilder {
   }
 
   private addParameterOrBodyPropertyToCodeModelRequest(
-    opParameter:
-      | SdkPathParameter
-      | SdkHeaderParameter
-      | SdkQueryParameter
-      | SdkBodyModelPropertyType,
+    opParameter: SdkHttpOperationParameterType | SdkBodyModelPropertyType,
     op: CodeModelOperation,
     request: Request,
     schema: ObjectSchema,
@@ -1758,6 +1762,12 @@ export class CodeModelBuilder {
 
       if (response instanceof SchemaResponse) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
+
+        if (trackConvenienceApi && !this.isBranded()) {
+          this.trackSchemaUsage(response.schema, {
+            usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+          });
+        }
       }
     } else {
       op.addResponse(response);
@@ -1831,7 +1841,9 @@ export class CodeModelBuilder {
           }
       }
     }
-    throw new Error(`Unrecognized type: '${type.kind}'.`);
+    const errorMsg = `Unrecognized type: '${type.kind}'.`;
+    this.logError(errorMsg);
+    throw new Error(errorMsg);
   }
 
   private processBuiltInType(type: SdkBuiltInType, nameHint: string): Schema {
@@ -2258,7 +2270,7 @@ export class CodeModelBuilder {
 
   private processUnionSchema(type: SdkUnionType, name: string): Schema {
     if (!(type.__raw && type.__raw.kind === "Union")) {
-      throw new Error(`Invalid type for union: '${type.kind}'.`);
+      this.logError(`Invalid type for union: '${type.kind}'.`);
     }
     const rawUnionType: Union = type.__raw as Union;
     const namespace = getNamespace(rawUnionType);
@@ -2311,7 +2323,8 @@ export class CodeModelBuilder {
 
   private getUnionVariantName(type: Type | undefined, option: any): string {
     if (type === undefined) {
-      throw new Error("type is undefined.");
+      this.logError("type is undefined.");
+      return "UnionVariant";
     }
     switch (type.kind) {
       case "Scalar": {
@@ -2363,7 +2376,8 @@ export class CodeModelBuilder {
       case "UnionVariant":
         return (typeof type.name === "string" ? type.name : undefined) ?? "UnionVariant";
       default:
-        throw new Error(`Unrecognized type for union variable: '${type.kind}'.`);
+        this.logError(`Unrecognized type for union variable: '${type.kind}'.`);
+        return "UnionVariant";
     }
   }
 
@@ -2410,7 +2424,9 @@ export class CodeModelBuilder {
         },
       );
     } else {
-      throw new Error(`Invalid type for multipart form data: '${property.type.kind}'.`);
+      const errorMsg = `Invalid type for multipart form data: '${property.type.kind}'.`;
+      this.logError(errorMsg);
+      throw new Error(errorMsg);
     }
   }
 
@@ -2524,25 +2540,33 @@ export class CodeModelBuilder {
     // clientNamespace from TCGC
     const clientNamespace: string | undefined = type?.clientNamespace;
 
-    if (this.isBranded() && type) {
-      // special handling for namespace of model that cannot be mapped to azure-core
-      if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
-        // TypeSpec.Http.File
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
-        // Azure.Core.OperationState
-        return this.baseJavaNamespace;
-      } else if (
-        type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
-        type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
-      ) {
-        // Azure.Core.ResourceOperationStatus<>
-        // Azure.Core.Foundations.OperationStatus<>
-        // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
-        // models in Azure.ResourceManager
-        return this.baseJavaNamespace;
+    if (type) {
+      if (this.isBranded()) {
+        // special handling for namespace of model that cannot be mapped to azure-core
+        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
+          // Azure.Core.OperationState
+          return this.baseJavaNamespace;
+        } else if (
+          type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
+          type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
+        ) {
+          // Azure.Core.ResourceOperationStatus<>
+          // Azure.Core.Foundations.OperationStatus<>
+          // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
+          // models in Azure.ResourceManager
+          return this.baseJavaNamespace;
+        }
+      } else {
+        // special handling for namespace of model in TypeSpec.Rest.Resource
+        if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+          // models in TypeSpec.Rest.Resource
+          return this.baseJavaNamespace;
+        }
       }
     }
 
@@ -2551,6 +2575,10 @@ export class CodeModelBuilder {
     } else {
       return clientNamespace.toLowerCase();
     }
+  }
+
+  private logError(msg: string) {
+    logError(this.program, msg);
   }
 
   private logWarning(msg: string) {
