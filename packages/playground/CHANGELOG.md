@@ -1,5 +1,9 @@
 # Change Log - @typespec/playground
 
+## 0.6.1
+
+No changes, version bump only.
+
 ## 0.6.0
 
 ### Bug Fixes
