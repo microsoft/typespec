@@ -1,4 +1,4 @@
--r ../../requirements.txt
+setuptools==69.2.0
 -e ../../
 aiohttp;python_full_version>="3.5.2"
 requests==2.32.2
