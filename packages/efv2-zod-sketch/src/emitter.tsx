@@ -2,7 +2,7 @@
  * Known remaining TODO items:
  * - (1) Add support for references to other models, including internal properties (fix any output which is currently z.any())
  * - (2) Add support for unions
- * - (3) Add support for nullable
+ * - (3) Add support for nullable (which turns out to be a kind of union)
  * 
  * Lower priority:
  * - Clean up unnecessary interfaces
@@ -79,15 +79,40 @@ interface EnumProps {
   enum: Enum;
 }
 
-
-type Constraints = {
+type NumericConstraints = {
   minValue?: number;
   maxValue?: number;
   minLength?: number;
   maxLength?: number;
   minItems?: number;
   maxItems?: number;
+}
+
+type Constraints = NumericConstraints & {
   itemOptional?: boolean;
+}
+
+function updateConstraint<T>(constraint: T | undefined, newValue: T | undefined, comparator: (a: T, b: T) => boolean): T | undefined {
+  if (newValue !== undefined && (constraint === undefined || comparator(newValue, constraint))) {
+    return newValue;
+  }
+  return constraint;
+}
+
+type ConstraintKey = keyof NumericConstraints;
+function getLocalPropertyConstraints(type: Type, constraints: Constraints) {
+  const constraintTypes: { key: ConstraintKey; value: number | undefined; comparator: (a: number, b: number) => boolean }[] = [
+    { key: 'minItems', value: $.type.minItems(type), comparator: (a, b) => a > b },
+    { key: 'maxItems', value: $.type.maxItems(type), comparator: (a, b) => a < b },
+    { key: 'minValue', value: $.type.minValue(type), comparator: (a, b) => a > b },
+    { key: 'maxValue', value: $.type.maxValue(type), comparator: (a, b) => a < b },
+    { key: 'minLength', value: $.type.minLength(type), comparator: (a, b) => a > b },
+    { key: 'maxLength', value: $.type.maxLength(type), comparator: (a, b) => a < b },
+  ];
+
+  constraintTypes.forEach(({ key, value, comparator }) => {
+    constraints[key] = updateConstraint(constraints[key], value, comparator);
+  });
 }
 /**
  * Component that represents a collection of Zod Model properties
@@ -133,34 +158,6 @@ function getAllPropertyConstraints(type: Type): Constraints {
   return constraints;
 }
 
-function getLocalPropertyConstraints(type: Type, constraints: Constraints) {
-    const maxItems = $.type.maxItems(type);
-    const minItems = $.type.minItems(type);
-    const minValue = $.type.minValue(type);
-    const maxValue = $.type.maxValue(type);
-    const minLength = $.type.minLength(type);
-    const maxLength = $.type.maxLength(type);
-
-    // Aim for most restrictive criteria:
-    if (maxItems !== undefined && (constraints.maxItems === undefined || maxItems < constraints.maxItems)) {
-      constraints.maxItems = maxItems;
-    }
-    if (minItems !== undefined && (constraints.minItems === undefined || minItems > constraints.minItems)) {
-      constraints.minItems = minItems;
-    }
-    if (minValue !== undefined && (constraints.minValue === undefined || minValue > constraints.minValue)) {
-      constraints.minValue = minValue;
-    }
-    if (maxValue !== undefined && (constraints.maxValue === undefined || maxValue < constraints.maxValue)) {
-      constraints.maxValue = maxValue;
-    }
-    if (minLength !== undefined && (constraints.minLength === undefined || minLength > constraints.minLength)) {
-      constraints.minLength = minLength;
-    }
-    if (maxLength !== undefined && (constraints.maxLength === undefined || maxLength < constraints.maxLength)) {
-      constraints.maxLength = maxLength;
-    }
- }
 
 
 interface ZodTypeProps {
@@ -173,7 +170,7 @@ interface ZodTypeProps {
  */
 function ZodType(props: ZodTypeProps) {
  
-  // TODO:  Nullable
+  // TODO:  Nullable (which is a kind of union)
   let optString = "";
   if (props.constraints.itemOptional) {
     optString = ".optional()";
