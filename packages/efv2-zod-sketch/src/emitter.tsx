@@ -168,6 +168,9 @@ interface ZodTypeProps {
  * Component that translates a TypeSpec type into the Zod type
  */
 function ZodType(props: ZodTypeProps) {
+ 
+  // TODO:  Nullable
+
   switch (props.type.kind) {
     case "Scalar":
     case "Intrinsic":
@@ -178,7 +181,14 @@ function ZodType(props: ZodTypeProps) {
       return <>{zod.z}.string()</>;
     case "Number":
       return <>{zod.z}.number()</>;
-    case "Model":
+    }    
+    
+    if ($.model.is(props.type)) {
+      if ($.model.isExpresion(props.type)) {
+          // Need to print out something like foo: z.object({a1: z.number(), a2: z.string()}),
+          return <ZodNestedModel model={props.type} />
+        }
+
       switch (props.type.name) {
         case "Array":
           if (props.type.indexer !== undefined) {
@@ -203,20 +213,16 @@ function ZodType(props: ZodTypeProps) {
             }
           }
           break;
-        case "":
-        {
-          // Need to print out something like foo: z.object({a1: z.number(), a2: z.string()}),
-          return <ZodNestedModel model={props.type} />
-        }
-        break;
         default:
           return <>{zod.z}.any()</>;
-          }
-      break;
-    default:
-      return <>{zod.z}.any()</>;
+      }
+    } 
+
+    // TODO:
+    // Unions
+    // References to another model (the model directly or things inside it)
+    return <>{zod.z}.any()</>;
   }
-}
 
 function ZodNestedModel(props: ModelProps) {
   const namePolicy = ts.useTSNamePolicy();
