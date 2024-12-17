@@ -3,7 +3,6 @@
  * - Add support for unions
  * - Add support for references to other models, including internal properties
  * - Add support for nullable
- * - Add support for record and array element constraints
  * - Clean up unnecessary interfaces
  * */
 
@@ -16,6 +15,7 @@ import {
   Model,
   ModelProperty,
   navigateType,
+  Scalar,
   Type,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
@@ -137,33 +137,22 @@ function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
   }
 
   if (modelProperty.type.kind === "Scalar") {
-    const minValue = $.type.minValue(modelProperty);
-    const maxValue = $.type.maxValue(modelProperty);
-    if (minValue !== undefined) {
-      constrains.push({ kind: "MinValue", value: minValue });
-    }
-    if (maxValue !== undefined) {
-      constrains.push({ kind: "MaxValue", value: maxValue });
-    }
-
-    const minLength = $.type.minLength(modelProperty);
-    const maxLength = $.type.maxLength(modelProperty);
-    if (minLength !== undefined) {
-      constrains.push({ kind: "MinLength", value: minLength });
-    }
-    if (maxLength !== undefined) {
-      constrains.push({ kind: "MaxLength", value: maxLength });
-    }
-  }
+    getScalarTypePropertyConstrains(modelProperty, constrains);  }
   else if (modelProperty.type.kind === "Model") {
-    const maxItems = $.type.maxItems(modelProperty);
-    const minItems = $.type.minItems(modelProperty);
-    if (maxItems !== undefined) {
-      constrains.push({ kind: "MaxItems", value: maxItems });
-    }
-    if (minItems !== undefined) {
-      constrains.push({ kind: "MinItems", value: minItems });
-    }
+    getNestedModelPropertyConstraints(modelProperty, constrains);
+  }
+
+  return constrains;
+}
+
+// This signature might need to be updated to include the Type property
+function getTypePropertyConstrains(type: Type): Constrain[] {
+  const constrains: Constrain[] = [];
+   if (type.kind === "Scalar") {
+    getScalarTypePropertyConstrains(type, constrains);
+  }
+  else if (type.kind === "Model") {
+    getNestedModelPropertyConstraints(type, constrains);
   }
 
   return constrains;
@@ -172,6 +161,37 @@ function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
 interface ZodTypeProps {
   type: Type;
   constrains: Constrain[];
+}
+
+function getNestedModelPropertyConstraints(type: Type, constrains: Constrain[]) {
+  const maxItems = $.type.maxItems(type);
+  const minItems = $.type.minItems(type);
+  if (maxItems !== undefined) {
+    constrains.push({ kind: "MaxItems", value: maxItems });
+  }
+  if (minItems !== undefined) {
+    constrains.push({ kind: "MinItems", value: minItems });
+  }
+}
+
+function getScalarTypePropertyConstrains(type: Type, constrains: Constrain[]) {
+  const minValue = $.type.minValue(type);
+  const maxValue = $.type.maxValue(type);
+  if (minValue !== undefined) {
+    constrains.push({ kind: "MinValue", value: minValue });
+  }
+  if (maxValue !== undefined) {
+    constrains.push({ kind: "MaxValue", value: maxValue });
+  }
+
+  const minLength = $.type.minLength(type);
+  const maxLength = $.type.maxLength(type);
+  if (minLength !== undefined) {
+    constrains.push({ kind: "MinLength", value: minLength });
+  }
+  if (maxLength !== undefined) {
+    constrains.push({ kind: "MaxLength", value: maxLength });
+  }
 }
 
 /**
@@ -201,8 +221,7 @@ function ZodType(props: ZodTypeProps) {
     if ($.array.is(props.type)) {
       if (props.type.indexer !== undefined) {
         const elementType = props.type.indexer.value;
-        // TODO: Swap to this once I know how to get the ModelProperty of the element type
-        const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
+        const elementConstrains: Constrain[] = getTypePropertyConstrains(elementType);
         const arrayConstraints = ZodArrayConstraints(props);
         return (
           <>{zod.z}.array(<ZodType type={elementType} constrains={elementConstrains} />){arrayConstraints}</>
@@ -214,8 +233,7 @@ function ZodType(props: ZodTypeProps) {
     {
       if (props.type.indexer !== undefined) {
         const elementType = props.type.indexer.value;
-        // TODO: Swap to this once I know how to get the ModelProperty of the element type
-        const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
+        const elementConstrains: Constrain[] = getTypePropertyConstrains(elementType);
         return (
           <>{zod.z}.record(z.string(),<ZodType type={elementType} constrains={elementConstrains} />)</>
         );
@@ -250,16 +268,126 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
 
   if ($.scalar.is(props.type)) {
     // Types with parity in Zod
-    if ($.scalar.isBoolean(props.type)) {
+    if ($.scalar.isBoolean(props.type) || $.scalar.extendsBoolean(props.type)) {
       return <>{zod.z}.boolean()</>;
     }
 
-    if ($.scalar.isBytes(props.type)) {
+    if ($.scalar.isBytes(props.type) || $.scalar.extendsBytes(props.type)) {
       return <>{zod.z}.string()</>;
     }
 
     // Numbers
-    if ($.scalar.isDecimal(props.type)) {
+    // Bit limitations don't translate very well, since they really
+    // affect precision and not min/max values (i.e. a mismatch won't
+    // cause an overflow but just a truncation in accuracy).  We will leave these as
+    // numbers.
+    if ($.scalar.isFloat(props.type) || $.scalar.extendsFloat(props.type)) {
+      return (
+        <>
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
+        </>
+      );
+    }
+    if ($.scalar.isFloat32(props.type) || $.scalar.extendsFloat32(props.type)) {
+      return (
+        <>
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
+        </>
+      );
+    }
+    if ($.scalar.isFloat64(props.type) || $.scalar.extendsFloat64(props.type)) {
+      return (
+        <>
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
+        </>
+      );
+    }
+
+    if ($.scalar.isInt8(props.type) || $.scalar.extendsInt8(props.type)) {
+      return (
+        <>
+          {zod.z}.number(){ZodNumericConstraints(props, -128, 127)}
+        </>
+      );
+    }
+    if ($.scalar.isInt16(props.type) || $.scalar.extendsInt16(props.type)) {
+      return (
+        <>
+          {zod.z}.number(){ZodNumericConstraints(props, -32768, 32767)}
+        </>
+      );
+    }
+    if ($.scalar.isInt32(props.type) || $.scalar.extendsInt32(props.type)) {
+      return (
+        <>
+          {zod.z}.number(){ZodNumericConstraints(props, -2147483648, 2147483647)}
+        </>
+      );
+    }
+    if ($.scalar.isSafeint(props.type) || $.scalar.extendsSafeint(props.type)) {
+      return (
+        <>
+          {zod.z}.number().safe(){ZodNumericConstraints(props, undefined, undefined)}
+        </>
+      );
+    }
+    if ($.scalar.isInt64(props.type) || $.scalar.extendsInt64(props.type)) {
+      return (
+        <>
+          {zod.z}.bigint(){ZodBigIntConstraints(props, -9223372036854775808n, 9223372036854775807n)}
+        </>
+      );
+    }
+    if ($.scalar.isUint8(props.type) || $.scalar.extendsUint8(props.type)) {
+      return (
+        <>
+          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 255)}
+        </>
+      );
+    }
+    if ($.scalar.isUint16(props.type) || $.scalar.extendsUint16(props.type)) {
+      return (
+        <>
+          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 65535)}
+        </>
+      );
+    }
+    if ($.scalar.isUint32(props.type) ||  $.scalar.extendsUint32(props.type)) {
+      return (
+        <>
+          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 4294967295)}
+        </>
+      );
+    }
+    if ($.scalar.isUint64(props.type) || $.scalar.extendsUint64(props.type)) {
+      return (
+        <>
+          {zod.z}.bigint().nonnegative(){ZodBigIntConstraints(props, undefined, 18446744073709551615n)}
+        </>
+      );
+    }
+    // With integers, we completely understand the range and can parse to it.
+    if ($.scalar.isInteger(props.type) || $.scalar.extendsInteger(props.type)) {
+      return (
+        <>
+          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
+        </>
+      );
+    }
+
+    if ($.scalar.isUrl(props.type) || $.scalar.extendsUrl(props.type)) {
+      return <>{zod.z}.string().url()</>;
+    }
+
+    if ($.scalar.isString(props.type) || $.scalar.extendsString(props.type)) {
+      return (
+        <>
+          {zod.z}.string(){ZodStringConstraints(props)}
+        </>
+      );
+    }
+
+    if ($.scalar.isDecimal(props.type) || $.scalar.extendsDecimal(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
@@ -272,7 +400,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     // makes no sense if this is a floating point number.  We will leave this as a number.
     // Since Decimal128 is a 128-bit floating point number, we'll take the hit in
     // precision if an integer.
-    if ($.scalar.isDecimal128(props.type)) {
+    if ($.scalar.isDecimal128(props.type) || $.scalar.extendsDecimal128(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
@@ -280,124 +408,12 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       );
     }
 
-    // Bit limitations don't translate very well, since they really
-    // affect precision and not min/max values (i.e. a mismatch won't
-    // cause an overflow but just a truncation in accuracy).  We will leave these as
-    // numbers.
-    if ($.scalar.isFloat(props.type)) {
+    if ($.scalar.isNumeric(props.type) || $.scalar.extendsNumeric(props.type)) {
       return (
         <>
           {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
         </>
       );
-    }
-    if ($.scalar.isFloat32(props.type)) {
-      return (
-        <>
-          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
-        </>
-      );
-    }
-    if ($.scalar.isFloat64(props.type)) {
-      return (
-        <>
-          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
-        </>
-      );
-    }
-
-    // With integers, we completely understand the range and can parse to it.
-    if ($.scalar.isInteger(props.type)) {
-      return (
-        <>
-          {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
-        </>
-      );
-    }
-    if ($.scalar.isInt8(props.type)) {
-      return (
-        <>
-          {zod.z}.number(){ZodNumericConstraints(props, -128, 127)}
-        </>
-      );
-    }
-    if ($.scalar.isInt16(props.type)) {
-      return (
-        <>
-          {zod.z}.number(){ZodNumericConstraints(props, -32768, 32767)}
-        </>
-      );
-    }
-    if ($.scalar.isInt32(props.type)) {
-      return (
-        <>
-          {zod.z}.number(){ZodNumericConstraints(props, -2147483648, 2147483647)}
-        </>
-      );
-    }
-    if ($.scalar.isInt64(props.type)) {
-      return (
-        <>
-          {zod.z}.bigint(){ZodBigIntConstraints(props, -9223372036854775808n, 9223372036854775807n)}
-        </>
-      );
-    }
-    if ($.scalar.isSafeint(props.type)) {
-      return (
-        <>
-          {zod.z}.number().safe(){ZodNumericConstraints(props, undefined, undefined)}
-        </>
-      );
-    }
-    if ($.scalar.isUint8(props.type)) {
-      return (
-        <>
-          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 255)}
-        </>
-      );
-    }
-    if ($.scalar.isUint16(props.type)) {
-      return (
-        <>
-          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 65535)}
-        </>
-      );
-    }
-    if ($.scalar.isUint32(props.type)) {
-      return (
-        <>
-          {zod.z}.number().nonnegative(){ZodNumericConstraints(props, undefined, 4294967295)}
-        </>
-      );
-    }
-    if ($.scalar.isUint64(props.type)) {
-      return (
-        <>
-          {zod.z}.bigint().nonnegative()
-          {ZodBigIntConstraints(props, undefined, 18446744073709551615n)}
-        </>
-      );
-    }
-
-    if ($.scalar.isString(props.type)) {
-      return (
-        <>
-          {zod.z}.string(){ZodStringConstraints(props)}
-        </>
-      );
-    }
-    if ($.scalar.isUrl(props.type)) {
-      return <>{zod.z}.string().url()</>;
-    }
-
-    if ($.scalar.isNumeric(props.type)) {
-      if ($.scalar.extendsNumeric(props.type)) {
-        return (
-          <>
-            {zod.z}.number(){ZodNumericConstraints(props, undefined, undefined)}
-          </>
-        );
-      }
     }
 
     //Dates and times
@@ -415,13 +431,13 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       }
       return <>{zod.z}.string().datetime( &#123;offset: true&#125;)</>;
     }
-    if ($.scalar.isDuration(props.type)) {
+    if ($.scalar.isDuration(props.type) || $.scalar.extendsDuration(props.type)) {
       return <>{zod.z}.string().duration()</>;
     }
-    if ($.scalar.isPlainDate(props.type)) {
+    if ($.scalar.isPlainDate(props.type) || $.scalar.extendsPlainDate(props.type)) {
       return <>{zod.z}.string().date()</>;
     }
-    if ($.scalar.isPlainTime(props.type)) {
+    if ($.scalar.isPlainTime(props.type) || $.scalar.extendsPlainTime(props.type)) {
       return <>{zod.z}.string().time()</>;
     }
   }

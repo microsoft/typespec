@@ -76,7 +76,7 @@ model User {
   @minLength(2)
   @maxLength(50)
   username: string;
-
+  
   /** The user's email address */
   // @format("email") - crashes emitters for now
   email: string;

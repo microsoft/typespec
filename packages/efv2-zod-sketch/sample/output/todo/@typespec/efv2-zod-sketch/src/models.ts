@@ -53,7 +53,7 @@ avagadro = 6.022e+23
 export const user = z.object(
 {
 myPetRecord: z.record(z.string(),z.number()),
-constrainedArray: z.array(z.string()),
+constrainedArray: z.array(z.string().min(1).max(50)),
 petRecord:  z.object(
 {
   name: z.string(),
@@ -83,8 +83,7 @@ safeint1: z.number().safe(),
 uint1: z.number().nonnegative().max(255),
 uint2: z.number().nonnegative().max(65535),
 uint3: z.number().nonnegative().max(4294967295),
-uint4: z.bigint().nonnegative()
-.lte(18446744073709551615n),
+uint4: z.bigint().nonnegative().lte(18446744073709551615n),
 url1: z.string().url(),
 utcDateTime1: z.string().datetime(),
 numeric1: z.number(),
@@ -163,7 +162,7 @@ statusCode: z.number().min(500).max(599)
 export const userCreatedResponse = z.object(
 {
 myPetRecord: z.record(z.string(),z.number()),
-constrainedArray: z.array(z.string()),
+constrainedArray: z.array(z.string().min(1).max(50)),
 petRecord:  z.object(
 {
   name: z.string(),
@@ -193,8 +192,7 @@ safeint1: z.number().safe(),
 uint1: z.number().nonnegative().max(255),
 uint2: z.number().nonnegative().max(65535),
 uint3: z.number().nonnegative().max(4294967295),
-uint4: z.bigint().nonnegative()
-.lte(18446744073709551615n),
+uint4: z.bigint().nonnegative().lte(18446744073709551615n),
 url1: z.string().url(),
 utcDateTime1: z.string().datetime(),
 numeric1: z.number(),
