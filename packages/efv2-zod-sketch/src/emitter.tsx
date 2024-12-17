@@ -1,3 +1,12 @@
+/**
+ * Known remaining TODO items:
+ * - Add support for unions
+ * - Add support for references to other models, including internal properties
+ * - Add support for nullable
+ * - Add support for record and array element constraints
+ * - Clean up unnecessary interfaces
+ * */
+
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
@@ -120,6 +129,7 @@ function ZodModelProperties(props: ZodModelPropertiesProps) {
   );
 }
 
+// This signature might need to be updated to include the Type property
 function getModelPropertyConstrains(modelProperty: ModelProperty): Constrain[] {
   const constrains: Constrain[] = [];
   if (modelProperty.optional) {
@@ -181,48 +191,42 @@ function ZodType(props: ZodTypeProps) {
       return <>{zod.z}.string()</>;
     case "Number":
       return <>{zod.z}.number()</>;
-    }    
-    
-    if ($.model.is(props.type)) {
-      if ($.model.isExpresion(props.type)) {
-          // Need to print out something like foo: z.object({a1: z.number(), a2: z.string()}),
+  }    
+  
+  if ($.model.is(props.type)) {
+    if ($.model.isExpresion(props.type)) {
           return <ZodNestedModel model={props.type} />
-        }
-
-      switch (props.type.name) {
-        case "Array":
-          if (props.type.indexer !== undefined) {
-          const elementType = props.type.indexer.value;
-          // TODO: Swap to this once I know how to get the ModelProperty of the element type
-          const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
-          const arrayConstraints = ZodArrayConstraints(props);
-          return (
-            <>{zod.z}.array(<ZodType type={elementType} constrains={elementConstrains} />){arrayConstraints}</>
-          );
-          }
-          break;
-        case "Record":
-          {
-            if (props.type.indexer !== undefined) {
-              const elementType = props.type.indexer.value;
-           // TODO: Swap to this once I know how to get the ModelProperty of the element type
-           const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
-              return (
-                <>{zod.z}.record(z.string(),<ZodType type={elementType} constrains={elementConstrains} />)</>
-              );
-            }
-          }
-          break;
-        default:
-          return <>{zod.z}.any()</>;
       }
-    } 
 
-    // TODO:
-    // Unions
-    // References to another model (the model directly or things inside it)
-    return <>{zod.z}.any()</>;
+    if ($.array.is(props.type)) {
+      if (props.type.indexer !== undefined) {
+        const elementType = props.type.indexer.value;
+        // TODO: Swap to this once I know how to get the ModelProperty of the element type
+        const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
+        const arrayConstraints = ZodArrayConstraints(props);
+        return (
+          <>{zod.z}.array(<ZodType type={elementType} constrains={elementConstrains} />){arrayConstraints}</>
+        );
+      }
+    }
+
+    if ($.record.is(props.type))
+    {
+      if (props.type.indexer !== undefined) {
+        const elementType = props.type.indexer.value;
+        // TODO: Swap to this once I know how to get the ModelProperty of the element type
+        const elementConstrains: Constrain[] = []; // getModelPropertyConstrains(elementType.getModelProperty());
+        return (
+          <>{zod.z}.record(z.string(),<ZodType type={elementType} constrains={elementConstrains} />)</>
+        );
+      }
+    }
   }
+  // TODO:
+  // Unions
+  // References to another model (the model directly or things inside it)
+  return <>{zod.z}.any()</>;
+}
 
 function ZodNestedModel(props: ModelProps) {
   const namePolicy = ts.useTSNamePolicy();
