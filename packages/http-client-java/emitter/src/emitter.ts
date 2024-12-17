@@ -42,6 +42,7 @@ export interface EmitterOptions {
 
   "enable-subclient"?: boolean;
 
+  "advanced-versioning"?: boolean;
   "api-version"?: string;
   "service-version-exclude-preview"?: boolean;
 
@@ -49,7 +50,6 @@ export interface EmitterOptions {
 }
 
 export interface DevOptions {
-  "advanced-versioning"?: boolean;
   "generate-code-model"?: boolean;
   debug?: boolean;
   loglevel?: "off" | "debug" | "info" | "warn" | "error";
@@ -97,6 +97,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 
     "enable-subclient": { type: "boolean", nullable: true, default: false },
 
+    "advanced-versioning": { type: "boolean", nullable: true, default: false },
     "api-version": { type: "string", nullable: true },
     "service-version-exclude-preview": { type: "boolean", nullable: true, default: false },
 

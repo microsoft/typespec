@@ -203,6 +203,7 @@ export class CodeModelBuilder {
     const service = listServices(this.program)[0];
     if (!service) {
       this.logError("TypeSpec for HTTP must define a service.");
+      return;
     }
     this.serviceNamespace = service.type;
 
@@ -238,6 +239,10 @@ export class CodeModelBuilder {
   }
 
   public async build(): Promise<CodeModel> {
+    if (this.program.hasError()) {
+      return this.codeModel;
+    }
+
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
@@ -767,9 +772,7 @@ export class CodeModelBuilder {
    * Whether we support advanced versioning in non-breaking fashion.
    */
   private supportsAdvancedVersioning(): boolean {
-    return Boolean(
-      this.options["dev-options"] && this.options["dev-options"]["advanced-versioning"],
-    );
+    return Boolean(this.options["advanced-versioning"]);
   }
 
   private getOperationExample(
