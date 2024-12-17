@@ -53,7 +53,7 @@ export function ClientClass(props: ClientClassProps) {
     <ClientConstructor client={props.client} />
     {ay.mapJoin(operations, op => {
       const clientOperation = prepareOperation(op);
-      const args = [...clientOperation.parameters.properties.keys()];
+      const args = [...clientOperation.parameters.properties.values()].map(p => ay.refkey(p));
       return <ClassMethod async type={clientOperation} returnType={null}>
           return <ts.FunctionCallExpression refkey={ay.refkey(clientOperation)} args={[contextMemberRef, ...args]}/>;
       </ClassMethod>
@@ -86,30 +86,39 @@ function ClientConstructor(props: ClientConstructorProps) {
   const clientContextFieldRef = getClientContextFieldRef(props.client);
   const clientContextFactoryRef = getClientContextFactoryRef(props.client);
   const constructorParameters = buildClientParameters(props.client);
-  const args = Object.keys(constructorParameters);
+  const args = Object.values(constructorParameters).map((p) => p.refkey);
 
   return <ts.ClassMethod name="constructor" parameters={constructorParameters}>
     {clientContextFieldRef} = <ts.FunctionCallExpression refkey={clientContextFactoryRef}  args={args}/>;
     {ay.mapJoin(subClients, subClient => {
       const subClientFieldRef = getSubClientClassFieldRef(subClient);
+      const subClientArgs = calculateSubClientArgs(subClient, constructorParameters);
       return <>
-        {subClientFieldRef} = <NewClientExpression client={subClient} />;
+        {subClientFieldRef} = <NewClientExpression client={subClient} args={subClientArgs}/>;
       </>
     }, {joiner: "\n"})}
   </ts.ClassMethod>;
 }
 
+function calculateSubClientArgs(
+  subClient: cl.Client,
+  parentParams: Record<string, ts.ParameterDescriptor>,
+) {
+  const subClientParams = buildClientParameters(subClient);
+  return Object.entries(parentParams)
+    .filter(([name]) => Object.keys(subClientParams).includes(name))
+    .map(([_, p]) => p.refkey);
+}
+
 export interface NewClientExpressionProps {
   client: cl.Client;
+  args: ay.Refkey[];
 }
 
 function NewClientExpression(props: NewClientExpressionProps) {
   const clientConstructorRef = getClientClassRef(props.client);
-  const clientParams = buildClientParameters(props.client);
-
-  const args = Object.keys(clientParams);
 
   return <>
-    new <ts.FunctionCallExpression refkey={clientConstructorRef} args={args} />
+    new <ts.FunctionCallExpression refkey={clientConstructorRef} args={props.args} />
   </>;
 }

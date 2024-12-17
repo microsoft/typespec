@@ -5,8 +5,6 @@ http/azure/resource-manager/resources
 
 
 # Emitter Errors
-# return Request not using right name policy, can we reference parameters?
-http/client/naming
 # Unresolved symbol for client?
 http/client/structure/client-operation-group
 http/client/structure/default
@@ -17,7 +15,7 @@ http/client/structure/two-operation-group
 # Unresolved Symbol api-version
 http/server/path/multiple
 # Unresolved Symbol version
-#http/versioning/added
+http/versioning/added
 http/versioning/madeOptional
 http/versioning/removed
 http/versioning/renamedFrom
