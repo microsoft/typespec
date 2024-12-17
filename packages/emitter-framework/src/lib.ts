@@ -9,6 +9,13 @@ export const $lib = createTypeSpecLibrary({
         default: "Unsupported scalar type, falling back to any",
       },
     },
+    "unsupported-type": {
+      severity: "error", // TODO: Warning for release and error for debug
+      messages: {
+        default: "Unsupported type, falling back to any",
+      },
+      description: "This type is not supported by the emitter",
+    },
   },
 });
 

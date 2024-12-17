@@ -21,6 +21,7 @@ export function TypeExpression({ type }: TypeExpressionProps) {
     //throw new Error("Reference not implemented");
   }
 
+  // TODO: Make sure this is an exhaustive switch, including EnumMember and such
   switch (type.kind) {
     case "Scalar":
     case "Intrinsic":
@@ -31,6 +32,8 @@ export function TypeExpression({ type }: TypeExpressionProps) {
       return <ValueExpression jsValue={type.value} />;
     case "Union":
       return <UnionExpression type={type} />;
+    case "UnionVariant": 
+      return <TypeExpression type={type.type} />;
     case "Tuple":
       return (
         <>
@@ -63,7 +66,8 @@ export function TypeExpression({ type }: TypeExpressionProps) {
       return <InterfaceExpression type={type} />;
 
     default:
-      console.warn("TypeExpression: unhandled type", type.kind);
+      reportDiagnostic($.program, {code: "unsupported-type", target: type });
+      return "any";
   }
 }
 
