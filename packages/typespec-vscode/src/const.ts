@@ -1,9 +1,4 @@
-export const enum SettingName {
-  TspServerPath = "typespec.tsp-server.path",
-  ClientEmitter = "typespec.client.emitter",
-  ServerEmitter = "typespec.server.emitter",
-  SchemaEmitter = "typespec.schema.emitter",
-}
+import { SettingName } from "./types.js";
 
 export const EmitterSettingName: Record<string, string> = {
   client: SettingName.ClientEmitter,

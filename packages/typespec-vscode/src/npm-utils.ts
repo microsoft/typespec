@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import semver from "semver";
 import logger from "./log/logger.js";
-import { ExecOutput, executionEvents, loadModule, promisifySpawn } from "./utils.js";
+import { ExecOutput, loadModule, spawnExecution, spawnExecutionEvents } from "./utils.js";
 
 export enum InstallationAction {
   Install = "Install",
@@ -35,9 +35,9 @@ export class NpmUtil {
   public async npmInstallPackages(
     packages: string[] = [],
     options: any = {},
-    on?: executionEvents,
+    on?: spawnExecutionEvents,
   ): Promise<ExecOutput> {
-    return promisifySpawn("npm", ["install", ...packages], { cwd: this.cwd }, on);
+    return spawnExecution("npm", ["install", ...packages], this.cwd, on);
   }
 
   public async ensureNpmPackageInstall(
@@ -61,7 +61,7 @@ export class NpmUtil {
     version?: string,
     dependencyType: npmDependencyType = npmDependencyType.dependencies,
     options: any = {},
-    on?: executionEvents,
+    on?: spawnExecutionEvents,
   ): Promise<string[]> {
     const dependenciesToInstall: string[] = [];
     let packageFullName = packageName;
@@ -70,10 +70,10 @@ export class NpmUtil {
     }
 
     /* get dependencies. */
-    const dependenciesResult = await promisifySpawn(
+    const dependenciesResult = await spawnExecution(
       "npm",
       ["view", packageFullName, dependencyType],
-      { cwd: this.cwd },
+      this.cwd ,
       on,
     );
 

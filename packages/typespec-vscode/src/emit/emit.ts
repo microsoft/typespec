@@ -11,7 +11,7 @@ import {
   toOutput,
   TraverseMainTspFileInWorkspace,
 } from "../typespec-utils.js";
-import { ExecOutput, isFile, promisifySpawn } from "../utils.js";
+import { ExecOutput, isFile, spawnExecution } from "../utils.js";
 import { EmitQuickPickItem, TypeSpecProjectPickItem } from "./emit-quick-pick-item.js";
 import { Emitter, EmitterKind, getRegisterEmitters } from "./emitter.js";
 
@@ -357,14 +357,10 @@ export async function compile(
     args.push("--option", `${emitter}.${key}=${value}`);
   }
 
-  return await promisifySpawn(
-    cli.command,
-    args,
-    {
-      cwd: dirname(startFile),
-    },
-    { onStdioOut: toOutput, onStdioError: toError },
-  );
+  return await spawnExecution(cli.command, args, dirname(startFile), {
+    onStdioOut: toOutput,
+    onStdioError: toError,
+  });
 }
 
 export async function check(startFile: string): Promise<{
