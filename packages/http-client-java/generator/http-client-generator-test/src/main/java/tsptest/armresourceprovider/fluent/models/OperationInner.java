@@ -32,7 +32,7 @@ public final class OperationInner {
     /*
      * Localized display information for this particular operation.
      */
-    @JsonProperty(value = "display", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "display")
     private OperationDisplay display;
 
     /*
@@ -45,7 +45,7 @@ public final class OperationInner {
     /*
      * Extensible enum. Indicates the action type. "Internal" refers to actions that are for internal only APIs.
      */
-    @JsonProperty(value = "actionType")
+    @JsonProperty(value = "actionType", access = JsonProperty.Access.WRITE_ONLY)
     private ActionType actionType;
 
     /**
