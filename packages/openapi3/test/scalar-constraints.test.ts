@@ -1,5 +1,5 @@
 /* eslint-disable vitest/no-identical-title */
-import { strictEqual } from "assert";
+import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { worksFor } from "./works-for.js";
 
@@ -170,6 +170,46 @@ describe("string constraints", () => {
       );
 
       assertStringConstraints(schemas.schemas.Test);
+    });
+  });
+
+  worksFor(["3.1.0"], ({ oapiForModel }) => {
+    const jsonSchemaDecorators = `
+      @JsonSchema.contentEncoding("base64url")
+      @JsonSchema.contentMediaType("application/jwt")
+      @JsonSchema.contentSchema(JwtToken)
+    `;
+
+    function assertJsonSchemaStringConstraints(schema: any) {
+      strictEqual(schema.contentEncoding, "base64url");
+      strictEqual(schema.contentMediaType, "application/jwt");
+      deepStrictEqual(schema.contentSchema, { $ref: "#/components/schemas/JwtToken" });
+    }
+
+    it("on scalar declaration", async () => {
+      const schemas = await oapiForModel(
+        "Test",
+        `
+      ${jsonSchemaDecorators}
+      scalar Test extends string;
+      model JwtToken is Array<Record<string>>;
+    `,
+      );
+
+      assertJsonSchemaStringConstraints(schemas.schemas.Test);
+    });
+
+    it("on union declaration", async () => {
+      const schemas = await oapiForModel(
+        "Test",
+        `
+      ${jsonSchemaDecorators}
+      union Test {string, int32, null};
+      model JwtToken is Array<Record<string>>;
+    `,
+      );
+
+      assertJsonSchemaStringConstraints(schemas.schemas.Test);
     });
   });
 });

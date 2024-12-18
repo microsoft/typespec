@@ -154,10 +154,10 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
     const res = await oapiForModel(
       "Pets",
       `
-      @uniqueItems
+      @JsonSchema.uniqueItems
       model Pets is Array<Pet>;
       model Pet {
-        @uniqueItems
+        @JsonSchema.uniqueItems
         x: string[];
       }
       `,
@@ -288,6 +288,74 @@ worksFor(["3.0.0"], ({ oapiForModel }) => {
 });
 
 worksFor(["3.1.0"], ({ oapiForModel }) => {
+  it("works with contains, minContains, and maxContains", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @JsonSchema.contains(string)
+      @JsonSchema.minContains(1)
+      @JsonSchema.maxContains(2)
+      model Foo is Array<Bar>;
+      model Bar {
+        @JsonSchema.contains(string)
+        @JsonSchema.minContains(1)
+        @JsonSchema.maxContains(2)
+        x: string[];
+      }
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Foo, {
+      type: "array",
+      items: {
+        $ref: "#/components/schemas/Bar",
+      },
+      contains: {
+        type: "string",
+      },
+      minContains: 1,
+      maxContains: 2,
+    });
+
+    deepStrictEqual(res.schemas.Bar.properties.x, {
+      type: "array",
+      items: {
+        type: "string",
+      },
+      contains: {
+        type: "string",
+      },
+      minContains: 1,
+      maxContains: 2,
+    });
+  });
+
+  it("works with prefixItems", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @JsonSchema.prefixItems([string, { x?: string }, Foo])
+      model Foo is Array<Bar>;
+      model Bar {
+        @JsonSchema.prefixItems([string, { x?: string }, Foo])
+        x: string[];
+      }
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Foo.prefixItems, [
+      { type: "string" },
+      { properties: { x: { type: "string" } }, type: "object" },
+      { $ref: "#/components/schemas/Foo" },
+    ]);
+
+    deepStrictEqual(res.schemas.Bar.properties.x.prefixItems, [
+      { type: "string" },
+      { properties: { x: { type: "string" } }, type: "object" },
+      { $ref: "#/components/schemas/Foo" },
+    ]);
+  });
+
   it("can specify tuple defaults using tuple syntax (prefix items)", async () => {
     const res = await oapiForModel(
       "Pet",
