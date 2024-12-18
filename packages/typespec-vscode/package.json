@@ -109,7 +109,7 @@
             "default": "off",
             "description": "Define whether/how the TypeSpec language server should send traces to client. For the traces to show properly in vscode Output, make sure 'Log Level' is also set to 'Trace' so that they won't be filtered at client side, which can be set through 'Developer: Set Log Level...' command."
           },
-          "typespec.client.emitter": {
+          "typespec.emitters": {
             "scope": "window",
             "type": "array",
             "items": {
@@ -122,99 +122,65 @@
                     "Java",
                     "JavaScript",
                     "Python",
-                    "Go"
+                    "Go",
+                    "OpenAPI3",
+                    "ProtoBuf",
+                    "JsonSchema"
                   ],
                   "description": "Define the language the emitter will emit."
                 },
                 "package": {
                   "type": "string",
                   "description": "Define the emitter package.\n\nExample (with version): @typespec/http-client-csharp@1.0.0\n\nExample (without version): @typespec/http-client-csharp"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "client",
+                    "server",
+                    "schema"
+                  ],
+                  "description": "Define the emitter kind."
                 }
               }
             },
             "default": [
               {
                 "language": "DotNet",
-                "package": "@typespec/http-client-csharp"
+                "package": "@typespec/http-client-csharp",
+                "kind": "client"
               },
               {
                 "language": "Java",
-                "package": "@typespec/http-client-java"
+                "package": "@typespec/http-client-java",
+                "kind": "client"
               },
               {
                 "language": "JavaScript",
-                "package": "@azure-tools/typespec-ts"
+                "package": "@azure-tools/typespec-ts",
+                "kind": "client"
               },
               {
                 "language": "Python",
-                "package": "@typespec/http-client-python"
-              }
-            ],
-            "description": "Define the emitter for a language client sdk generation."
-          },
-          "typespec.server.emitter": {
-            "scope": "window",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "language": {
-                  "type": "string",
-                  "enum": [
-                    "DotNet",
-                    "Java",
-                    "JavaScript",
-                    "Python",
-                    "Go"
-                  ],
-                  "description": "Define the language for the emitter."
-                },
-                "package": {
-                  "type": "string",
-                  "description": "Define the emitter package.\n\nExample (with version): @typespec/http-server-csharp@1.0.0\n\nExample (without version): @typespec/http-server-csharp"
-                }
-              }
-            },
-            "default": [
+                "package": "@typespec/http-client-python",
+                "kind": "client"
+              },
               {
                 "language": "DotNet",
-                "package": "@typespec/http-server-csharp"
+                "package": "@typespec/http-server-csharp",
+                "kind": "server"
               },
               {
                 "language": "JavaScript",
-                "package": "@typespec/http-server-javascript"
-              }
-            ],
-            "description": "Define the emitter for server code generation."
-          },
-          "typespec.schema.emitter": {
-            "scope": "window",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "language": {
-                  "type": "string",
-                  "enum": [
-                    "OpenAPI3",
-                    "ProtoBuf",
-                    "JsonSchema"
-                  ],
-                  "description": "Define the language for the emitter."
-                },
-                "package": {
-                  "type": "string",
-                  "description": "Define the emitter package.\n\nExample (with version): @typespec/openapi3@1.0.0\n\nExample (without version): @typespec/openapi3"
-                }
-              }
-            },
-            "default": [
+                "package": "@typespec/http-server-javascript",
+                "kind": "server"
+              },
               {
                 "language": "OpenAPI3",
-                "package": "@typespec/openapi3"
+                "package": "@typespec/openapi3",
+                "kind": "schema"
               }
-            ],
-            "description": "Define the emitter for a schema."
+            ]
           }
         }
       }
@@ -249,8 +215,8 @@
         "category": "TypeSpec"
       },
       {
-        "command": "typespec.emit",
-        "title": "TypeSpec: Emit Code",
+        "command": "typespec.generate",
+        "title": "Generate from TypeSpec",
         "category": "TypeSpec"
       },
       {
@@ -267,14 +233,14 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "typespec.emit",
+          "command": "typespec.generate",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
           "group": "code_generation"
         }
       ],
       "editor/context": [
         {
-          "command": "typespec.emit",
+          "command": "typespec.generate",
           "when": "resourceLangId == typespec",
           "group": "code_generation"
         }

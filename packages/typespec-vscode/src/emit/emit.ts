@@ -24,7 +24,7 @@ export async function doEmit(
 ) {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
     logger.info(
-      "Invalid typespec project. There is no main tsp file in the project. Emit canceled.",
+      "Invalid typespec project. There is no main tsp file in the project. Generating Cancelled.",
       [],
       { showOutput: false, showPopup: true, progress: overallProgress },
     );
@@ -50,16 +50,16 @@ export async function doEmit(
   const all = [...registerEmitters].map((e) => toQuickPickItem(e));
 
   const selectedEmitter = await vscode.window.showQuickPick<EmitQuickPickItem>(all, {
-    title: "Select the Language",
+    title: "Select a Language",
     canPickMany: false,
     placeHolder: "Pick a Language",
     ignoreFocusOut: true,
   });
 
   if (!selectedEmitter) {
-    logger.info("No emitters selected. Emit canceled.", [], {
+    logger.info("No emitter selected. Generating Cancelled.", [], {
       showOutput: false,
-      showPopup: true,
+      showPopup: false,
       progress: overallProgress,
     });
     return;
@@ -77,7 +77,7 @@ export async function doEmit(
       )
       .then((selection) => {
         if (selection === "OK") {
-          logger.info("Emit canceled.", [], {
+          logger.info("Generating Cancelled.", [], {
             showOutput: false,
             showPopup: true,
             progress: overallProgress,
@@ -113,20 +113,20 @@ export async function doEmit(
     const selected = await vscode.window.showQuickPick(Object.values(options), {
       canPickMany: false,
       ignoreFocusOut: true,
-      placeHolder: `Package '${selectedEmitter.package}' needs to be upgraded for emitting`,
-      title: `TypeSpec Emit...`,
+      placeHolder: `Package '${selectedEmitter.package}' needs to be upgraded for generating`,
+      title: `TypeSpec Generating...`,
     });
     if (selected === options.ok) {
       packagesToInstall.push(`${selectedEmitter.package}@${version}`);
     } else if (selected === options.ignore) {
-      logger.info(`Ignore upgrading emitter ${selectedEmitter.package} for emitting`, [], {
+      logger.info(`Ignore upgrading emitter ${selectedEmitter.package} for generating`, [], {
         showOutput: false,
         showPopup: false,
         progress: overallProgress,
       });
     } else {
       logger.info(
-        `Need to manually install the package ${selectedEmitter.package}@${version}. Emit canceled.`,
+        `Need to manually install the package ${selectedEmitter.package}@${version}. Generating Cancelled.`,
         [],
         {
           showOutput: false,
@@ -157,14 +157,14 @@ export async function doEmit(
       const selected = await vscode.window.showQuickPick(Object.values(options), {
         canPickMany: false,
         ignoreFocusOut: true,
-        placeHolder: `Package '${dependency}' needs to be upgraded for emitting`,
-        title: `TypeSpec Emit...`,
+        placeHolder: `Package '${dependency}' needs to be upgraded for generating`,
+        title: `TypeSpec Generate...`,
       });
       if (selected === options.ok) {
         packagesToInstall.push(dependency);
       } else {
         logger.info(
-          `Need to manually install the dependency package ${dependency}@latest. Emit canceled.`,
+          `Need to manually install the dependency package ${dependency}@latest. Generating Cancelled.`,
           [],
           {
             showOutput: false,
@@ -210,7 +210,7 @@ export async function doEmit(
   }
 
   /* emit */
-  logger.info("Emit code ...", [], {
+  logger.info("Generating ...", [], {
     showOutput: false,
     showPopup: false,
     progress: overallProgress,
@@ -218,11 +218,15 @@ export async function doEmit(
 
   const cli = await resolveTypeSpecCli(baseDir);
   if (!cli) {
-    logger.error("Cannot find TypeSpec CLI. Please install @typespec/compiler. Cancel emit.", [], {
-      showOutput: true,
-      showPopup: true,
-      progress: overallProgress,
-    });
+    logger.error(
+      "Cannot find TypeSpec CLI. Please install @typespec/compiler. Generating Cancelled.",
+      [],
+      {
+        showOutput: true,
+        showPopup: true,
+        progress: overallProgress,
+      },
+    );
     return;
   }
   const outputDir = path.resolve(baseDir, selectedEmitter.emitterKind, selectedEmitter.language);
@@ -242,7 +246,7 @@ export async function doEmit(
     const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
     if (compileResult.exitCode !== 0) {
       logger.error(
-        `Failed to generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
+        `Failed to generate ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}.`,
         [],
         {
           showOutput: true,
@@ -252,7 +256,7 @@ export async function doEmit(
       );
     } else {
       logger.info(
-        `complete generating ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
+        `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Succeeded`,
         [],
         {
           showOutput: true,
@@ -263,7 +267,7 @@ export async function doEmit(
     }
   } catch (err) {
     logger.error(
-      `Exception occurred when generating ${selectedEmitter.language} ${selectedEmitter.emitterKind} code.`,
+      `Exception occurred when generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}.`,
       [err],
       {
         showOutput: true,
@@ -286,7 +290,7 @@ export async function emitCode(
     const targetPathes = await TraverseMainTspFileInWorkspace();
     logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
     if (targetPathes.length === 0) {
-      logger.info("No main tsp file found. Emit canceled.", [], {
+      logger.info("No main tsp file found. Generating Cancelled.", [], {
         showOutput: false,
         showPopup: true,
         progress: overallProgress,
@@ -307,13 +311,13 @@ export async function emitCode(
       toProjectPickItem(filePath),
     );
     const selectedProjectFile = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
-      title: "Select TypeSpec Project",
+      title: "Select a TypeSpec Project",
       canPickMany: false,
       placeHolder: "Pick a project",
       ignoreFocusOut: true,
     });
     if (!selectedProjectFile) {
-      logger.info("No project selected. Emit canceled.", [], {
+      logger.info("No project selected. Generating Cancelled.", [], {
         showOutput: false,
         showPopup: true,
         progress: overallProgress,
@@ -340,34 +344,34 @@ export async function emitCode(
 
   const codesToEmit = [
     {
-      label: "Client SDK",
-      detail: "Generate client SDK library from typespec.",
+      label: "Protocol Schema",
+      detail: "Generating Protocol schema (OpenAPI for example) from TypeSpec",
+      iconPath: Uri.file(context.asAbsolutePath(`./icons/schema.svg`)),
+      emitterKind: EmitterKind.Schema,
+    },
+    {
+      label: "Client Code",
+      detail: "Generating Client Code from TypeSpec.",
       iconPath: Uri.file(context.asAbsolutePath(`./icons/sdk.svg`)),
       emitterKind: EmitterKind.Client,
     },
     {
-      label: "Server Stub",
-      detail: "Generate server codes from typespec",
+      label: "<PREVIEW> Server Stub",
+      detail: "Generating Server Stub from TypeSpec",
       iconPath: Uri.file(context.asAbsolutePath(`./icons/serverstub.svg`)),
       emitterKind: EmitterKind.Server,
     },
-    {
-      label: "Protocol Schema",
-      detail: "Generate protocol schema (e.g. OpenAPI, Protobuf) from typespec",
-      iconPath: Uri.file(context.asAbsolutePath(`./icons/schema.svg`)),
-      emitterKind: EmitterKind.Schema,
-    },
   ];
   const codeType = await vscode.window.showQuickPick<EmitTypeQuickPickItem>(codesToEmit, {
-    title: "Emit Code",
+    title: "Select an Emitter Type",
     canPickMany: false,
-    placeHolder: "Select an option",
+    placeHolder: "Select an emitter type",
     ignoreFocusOut: true,
   });
   if (!codeType) {
-    logger.info("No emitters selected. Emit canceled.", [], {
+    logger.info("No emitter Type selected. Generating Cancelled.", [], {
       showOutput: false,
-      showPopup: true,
+      showPopup: false,
       progress: overallProgress,
     });
     return;
