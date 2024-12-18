@@ -175,7 +175,7 @@
      "enumType": {
       "$ref": "18"
      },
-     "doc": "The original version v1.",
+     "doc": "The version v1.",
      "decorators": []
     }
    ],

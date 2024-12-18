@@ -7,8 +7,9 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 Refresh-Build
 
-$specsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'cadl-ranch-specs'
-$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
+$specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs' 'specs'
+$azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
+$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 'http'
 $directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
@@ -33,6 +34,12 @@ foreach ($directory in $directories) {
     if (-not (Test-Path $specFile)) {
         $specFile = Join-Path $specsDirectory $subPath "main.tsp"
     }
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $azureSpecsDirectory $subPath "client.tsp"
+    }
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $azureSpecsDirectory $subPath "main.tsp"
+    }
     
     if ($subPath.Contains("versioning")) {
         if ($subPath.Contains("v1")) {
@@ -45,7 +52,7 @@ foreach ($directory in $directories) {
     if ($subPath.Contains("srv-driven")) {
         if ($subPath.Contains("v1")) {
             # this will generate v1 and v2 so we only need to call it once for one of the versions
-            Generate-Srv-Driven ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+            Generate-Srv-Driven ($(Join-Path $azureSpecsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
         }
         continue
     }
