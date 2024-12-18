@@ -149,31 +149,12 @@ export async function doEmit(
       npmDependencyType.peerDependencies,
     );
     logger.info(`${dependenciesToInstall}`);
-    for (const dependency of dependenciesToInstall) {
-      const options = {
-        ok: `OK (Upgrade ${dependency} by 'npm install)'`,
-        recheck: `Check again (install ${dependency} manually)`,
-      };
-      const selected = await vscode.window.showQuickPick(Object.values(options), {
-        canPickMany: false,
-        ignoreFocusOut: true,
-        placeHolder: `Package '${dependency}' needs to be upgraded for generating`,
-        title: `TypeSpec Generate...`,
-      });
-      if (selected === options.ok) {
-        packagesToInstall.push(dependency);
-      } else {
-        logger.info(
-          `Need to manually install the dependency package ${dependency}@latest. Generating Cancelled.`,
-          [],
-          {
-            showOutput: false,
-            showPopup: true,
-            progress: overallProgress,
-          },
-        );
-        return;
-      }
+    if (dependenciesToInstall.length > 0) {
+      vscode.window.showInformationMessage(
+        `Need to manually upgrade following dependency packages: ${dependenciesToInstall.join("\\n")}. \nGenerating Cancelled`,
+        "OK",
+      );
+      return;
     }
     packagesToInstall.push(`${packageFullName}`);
   }
