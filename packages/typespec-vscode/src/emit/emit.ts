@@ -108,17 +108,22 @@ export async function doEmit(
     const options = {
       ok: `OK (install ${selectedEmitter.package}@${version} by 'npm install'`,
       recheck: `Check again (install ${selectedEmitter.package} manually)`,
-      ignore: `Ignore emitter ${selectedEmitter.package}`,
-      cancel: "Cancel",
+      ignore: `Ignore (don't upgrade emitter ${selectedEmitter.package})`,
     };
     const selected = await vscode.window.showQuickPick(Object.values(options), {
       canPickMany: false,
       ignoreFocusOut: true,
-      placeHolder: `Package '${selectedEmitter.package}' needs to be installed for emitting`,
+      placeHolder: `Package '${selectedEmitter.package}' needs to be upgraded for emitting`,
       title: `TypeSpec Emit...`,
     });
     if (selected === options.ok) {
       packagesToInstall.push(`${selectedEmitter.package}@${version}`);
+    } else if (selected === options.ignore) {
+      logger.info(`Ignore upgrading emitter ${selectedEmitter.package} for emitting`, [], {
+        showOutput: false,
+        showPopup: false,
+        progress: overallProgress,
+      });
     } else {
       logger.info(
         `Need to manually install the package ${selectedEmitter.package}@${version}. Emit canceled.`,
@@ -146,10 +151,8 @@ export async function doEmit(
     logger.info(`${dependenciesToInstall}`);
     for (const dependency of dependenciesToInstall) {
       const options = {
-        ok: `OK (Upgrade ${dependency} by 'npm install'`,
+        ok: `OK (Upgrade ${dependency} by 'npm install)'`,
         recheck: `Check again (install ${dependency} manually)`,
-        ignore: `Ignore ${dependency}`,
-        cancel: "Cancel",
       };
       const selected = await vscode.window.showQuickPick(Object.values(options), {
         canPickMany: false,
