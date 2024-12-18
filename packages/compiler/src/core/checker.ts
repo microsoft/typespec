@@ -2928,24 +2928,30 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
-      if (base) {
-        if (base.flags & SymbolFlags.Alias) {
-          base = getAliasedSymbol(base, undefined);
-        }
-        if (base && (base.exports || base.members)) {
-          addCompletions(base.exports ?? base.members);
-        } else if (base?.node === undefined && base?.declarations) {
+
+      if (identifier.parent.selector === "::") {
+        if (base?.node === undefined && base?.declarations) {
           // Process meta properties separately, such as `::parameters`, `::returnType`
-          const [nodeModels] = Object.values(base?.declarations);
-          if (nodeModels.kind === SyntaxKind.OperationStatement) {
-            const operation = nodeModels as OperationStatementNode;
-            addCompletion("parameters", operation.symbol);
-            addCompletion("returnType", operation.symbol);
+          for (const nodeModels of Object.values(base?.declarations)) {
+            if (nodeModels.kind === SyntaxKind.OperationStatement) {
+              const operation = nodeModels as OperationStatementNode;
+              addCompletion("parameters", operation.symbol);
+              addCompletion("returnType", operation.symbol);
+            }
           }
         } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
           // Process meta properties separately, such as `::type`
           const metaProperty = base.node as ModelPropertyNode;
           addCompletion("type", metaProperty.symbol);
+        }
+      } else {
+        if (base) {
+          if (base.flags & SymbolFlags.Alias) {
+            base = getAliasedSymbol(base, undefined);
+          }
+          if (base) {
+            addCompletions(base.exports ?? base.members);
+          }
         }
       }
     } else {

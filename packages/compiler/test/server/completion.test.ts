@@ -479,6 +479,67 @@ describe("identifiers", () => {
     ]);
   });
 
+  it("completes meta property '::type' on model property", async () => {
+    const completions = await complete(
+      `
+      model A{
+        name: string;
+      }
+
+      model B{
+          a: A;
+      }
+
+      model C {
+          ...B.a::┆;
+      }
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "type",
+        insertText: "type",
+        kind: CompletionItemKind.Field,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(model property)\n```typespec\nB.a: A\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes meta property '::parameters' and '::returnType' on operation", async () => {
+    const completions = await complete(
+      `
+      op a(@doc("base doc") one: string): void;
+      op b is a;
+      @@doc(b::par┆, "override for b");
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "parameters",
+        insertText: "parameters",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop b(one: string): void\n```",
+        },
+      },
+      {
+        label: "returnType",
+        insertText: "returnType",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop b(one: string): void\n```",
+        },
+      },
+    ]);
+  });
+
   it("completes partial identifiers", async () => {
     const completions = await complete(
       `
