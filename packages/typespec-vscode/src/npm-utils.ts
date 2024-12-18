@@ -63,7 +63,6 @@ export class NpmUtil {
     packageName: string,
     version?: string,
     dependencyType: npmDependencyType = npmDependencyType.dependencies,
-    options: any = {},
     on?: spawnExecutionEvents,
   ): Promise<string[]> {
     const dependenciesToInstall: string[] = [];
