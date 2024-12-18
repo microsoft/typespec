@@ -85,7 +85,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     return {
       Name: getClientName(client, parentNames),
-      Description: client.summary ?? client.doc,
+      Summary: client.summary,
+      Doc: client.doc,
       Operations: client.methods
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
@@ -156,7 +157,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,
-        Description: parameter.doc,
+        Summary: parameter.summary,
+        Doc: parameter.doc,
         // TODO: we should do the magic in generator
         Type: parameterType,
         Location: RequestLocation.Uri,
