@@ -10,6 +10,46 @@ import { getProgram } from "../test-host.js";
 describe("Typescript Interface", () => {
   describe("Interface bound to Typespec Types", () => {
     describe("Bound to Model", () => {
+      it("creates an interface that has additional properties", async () => {
+        const program = await getProgram(`
+          namespace DemoService;
+          model Widget extends Record<unknown> {
+            id: string;
+            weight: int32;
+            color: "blue" | "red";
+          }
+          `);
+  
+          const [namespace] = program.resolveTypeReference("DemoService");
+          const models = Array.from((namespace as Namespace).models.values());
+  
+          const res = render(
+            <Output>
+              <SourceFile path="test.ts">
+                {models.map((model) => (
+                  <InterfaceDeclaration export type={model} />
+                ))}
+              </SourceFile>
+            </Output>
+          );
+  
+          const testFile = res.contents.find((file) => file.path === "test.ts");
+          assert(testFile, "test.ts file not rendered");
+          const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+          const expectedContent = await format(
+            `export interface Widget extends Record<string, unknown> {
+            id: string;
+            weight: number;
+            color: "blue" | "red";
+          }`,
+            {
+              parser: "typescript",
+            }
+          );
+
+          expect(actualContent).toBe(expectedContent);
+      })
+      
       it("handles a type reference to a union variant", async () => {
         const program = await getProgram(`
           namespace DemoService;

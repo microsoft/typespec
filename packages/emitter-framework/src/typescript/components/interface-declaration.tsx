@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Interface, Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { InterfaceMember } from "./interface-member.js";
+import { TypeExpression } from "./type-expression.jsx";
 
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
@@ -32,7 +33,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   let extendsType = props.extends;
 
   if (!extendsType && $.model.is(props.type) && props.type.baseModel) {
-    extendsType = <ts.Reference refkey={getRefkey(props.type.baseModel)} />;
+    extendsType = <TypeExpression type={props.type.baseModel} />;
   }
 
   const members = props.type ? membersFromType(props.type) : [];
