@@ -3,17 +3,17 @@ import { Model, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface RecordKit {
-    /**
-     * Check if the given `type` is a Record.
-     *
-     * @param type The type to check.
-     */
-    is(type: Type): type is Model;
-    /**
-     *  Get the element type of a Record
-     * @param type a Record Model type
-     */
-    getElementType(type: Model): Type;
+  /**
+   * Check if the given `type` is a Record.
+   *
+   * @param type The type to check.
+   */
+  is(type: Type): type is Model;
+  /**
+   *  Get the element type of a Record
+   * @param type a Record Model type
+   */
+  getElementType(type: Model): Type;
 }
 
 interface TypekitExtension {
@@ -27,7 +27,9 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   record: {
     is(type) {
-      return type.kind === "Model" && isRecordModelType(this.program, type);
+      return (
+        type.kind === "Model" && type.name === "Record" && isRecordModelType(this.program, type)
+      );
     },
     getElementType(type) {
       if (!this.record.is(type)) {

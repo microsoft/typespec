@@ -1,10 +1,10 @@
 import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Interface, Model, ModelProperty, Operation, Type } from "@typespec/compiler";
+import {  Interface, Model, ModelIndexer, ModelProperty, Operation, RekeyableMap, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
-
+import {createRekeyableMap} from "@typespec/compiler/utils"
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
   name?: string;
@@ -33,7 +33,12 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
   let extendsType = props.extends;
 
   if (!extendsType && $.model.is(props.type) && props.type.baseModel) {
-    extendsType = <TypeExpression type={props.type.baseModel} />;
+    
+    if($.array.is(props.type.baseModel) || $.record.is(props.type.baseModel)) {
+      extendsType = <TypeExpression type={props.type.baseModel} />;
+    } else {
+      extendsType = getRefkey(props.type.baseModel)
+    }
   }
 
   const members = props.type ? membersFromType(props.type) : [];
@@ -84,14 +89,17 @@ export function InterfaceExpression({ type, children }: InterfaceExpressionProps
 }
 
 function membersFromType(type: Model | Interface) {
-  let typeMembers: IterableIterator<ModelProperty | Operation> | undefined;
+  let typeMembers: RekeyableMap<string, ModelProperty | Operation | ModelIndexer> | undefined;
   if ($.model.is(type)) {
-    typeMembers = type.properties.values();
+    typeMembers = type.properties
+    if(type.indexer) {
+      typeMembers.set("indexer", type.indexer)
+    }
   } else {
-    typeMembers = type.operations.values();
+    typeMembers = type.operations
   }
 
-  return mapJoin(Array.from(typeMembers), (prop) => <InterfaceMember type={prop} />, {
+  return mapJoin(typeMembers, (_, prop) => <InterfaceMember type={prop} />, {
     joiner: "\n",
   });
 }

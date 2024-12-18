@@ -3,8 +3,8 @@ import { Model, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface ArrayKit {
-    is(type: Type): type is Model;
-    getElementType(type: Model): Type;
+  is(type: Type): type is Model;
+  getElementType(type: Model): Type;
 }
 
 interface TypekitExtension {
@@ -18,7 +18,7 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   array: {
     is(type) {
-      return type.kind === "Model" && isArrayModelType(this.program, type);
+      return type.kind === "Model" && type.name === "Array" && isArrayModelType(this.program, type);
     },
     getElementType(type) {
       if (!this.array.is(type)) {

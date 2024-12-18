@@ -1,6 +1,6 @@
 import { InterfaceDeclaration } from "../../../src/typescript/components/interface-declaration.js";
 
-import { Output, render } from "@alloy-js/core";
+import { mapJoin, Output, render } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
@@ -10,6 +10,100 @@ import { getProgram } from "../test-host.js";
 describe("Typescript Interface", () => {
   describe("Interface bound to Typespec Types", () => {
     describe("Bound to Model", () => {
+      it("creates an interface that extends a model for Record spread", async () => {
+        const program = await getProgram(`
+          namespace DemoService;
+
+          model DifferentSpreadModelRecord {
+            knownProp: string;
+            ...Record<unknown>;
+          }
+          `);
+  
+          const [namespace] = program.resolveTypeReference("DemoService");
+          const models = Array.from((namespace as Namespace).models.values());
+  
+          const res = render(
+            <Output>
+              <SourceFile path="test.ts">
+                {models.map((model) => (
+                  <InterfaceDeclaration export type={model} />
+                ))}
+              </SourceFile>
+            </Output>
+          );
+  
+          const testFile = res.contents.find((file) => file.path === "test.ts");
+          assert(testFile, "test.ts file not rendered");
+          const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+          const expectedContent = await format(
+            `
+            export interface DifferentSpreadModelRecord {
+              knownProp: string;
+              [key: string]: unknown;
+            }
+            `,
+            {
+              parser: "typescript",
+            }
+          );
+
+          expect(actualContent).toBe(expectedContent);
+      })
+      it("creates an interface that extends an spread model", async () => {
+        const program = await getProgram(`
+          namespace DemoService;
+
+          model ModelForRecord {
+            state: string;
+          }
+
+          model DifferentSpreadModelRecord {
+            knownProp: string;
+            ...Record<ModelForRecord>;
+          }
+
+          model DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
+            derivedProp: ModelForRecord;
+          }
+          `);
+  
+          const [namespace] = program.resolveTypeReference("DemoService");
+          const models = ((namespace as Namespace).models);
+  
+          const res = render(
+            <Output>
+              <SourceFile path="test.ts">
+                {mapJoin(models, (name, model) => (
+                  <InterfaceDeclaration export type={model} />
+                ))}
+              </SourceFile>
+            </Output>
+          );
+  
+          const testFile = res.contents.find((file) => file.path === "test.ts");
+          assert(testFile, "test.ts file not rendered");
+          const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+          const expectedContent = await format(
+            `export interface ModelForRecord {
+              state: string;
+            }
+            export interface DifferentSpreadModelRecord {
+              knownProp: string;
+              [key: string]: unknown;
+            }
+            export interface DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
+              derivedProp: ModelForRecord;
+            }
+            `,
+            {
+              parser: "typescript",
+            }
+          );
+
+          expect(actualContent).toBe(expectedContent);
+      });
+
       it("creates an interface that has additional properties", async () => {
         const program = await getProgram(`
           namespace DemoService;

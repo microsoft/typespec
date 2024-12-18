@@ -1,18 +1,25 @@
 import { useTSNamePolicy } from "@alloy-js/typescript";
-import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
-import { isModelProperty, isOperation } from "../../core/utils/typeguards.js";
+import { isNeverType, ModelIndexer, ModelProperty, Operation } from "@typespec/compiler";
+import { isOperation } from "../../core/utils/typeguards.js";
 import { FunctionDeclaration } from "./function-declaration.js";
 import { TypeExpression } from "./type-expression.js";
+import { $ } from "@typespec/compiler/experimental/typekit";
 
 export interface InterfaceMemberProps {
-  type: ModelProperty | Operation;
+  type: ModelProperty | Operation | ModelIndexer;
   optional?: boolean;
 }
 
 export function InterfaceMember({ type, optional  }: InterfaceMemberProps) {
+
+  if(isModelIndexer(type)) {
+    return <>[key: {<TypeExpression type={type.key} />}]: unknown</>
+  }
+
   const namer = useTSNamePolicy();
-  const name = namer.getName(type.name, "object-member-getter");
-  if (isModelProperty(type)) {
+  const name = namer.getName(type.name, "object-member-getter")
+
+  if ($.modelProperty.is(type)) {
     const optionality = type.optional ?? optional ? "?" : "";
 
     if(isNeverType(type.type)) {
@@ -35,4 +42,8 @@ export function InterfaceMember({ type, optional  }: InterfaceMemberProps) {
       </>
     );
   }
+}
+
+function isModelIndexer(type: any): type is ModelIndexer {
+  return !("type" in type);
 }
