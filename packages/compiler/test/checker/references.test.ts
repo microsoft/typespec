@@ -12,7 +12,7 @@ import {
 describe("compiler: references", () => {
   let testHost: TestHost;
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   function itCanReference({

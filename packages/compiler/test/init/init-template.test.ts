@@ -11,7 +11,7 @@ import { TestHost, createTestHost, resolveVirtualPath } from "../../src/testing/
 describe("compiler: init: templates", () => {
   let testHost: TestHost;
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
   });
 
   function getOutputFile(path: string): string | undefined {

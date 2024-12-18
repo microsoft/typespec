@@ -28,7 +28,7 @@ describe("compiler: libraries", () => {
   }
 
   it("detects compiler version mismatches", async () => {
-    const testHost = await createTestHost();
+    const testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     testHost.addTypeSpecFile("main.tsp", "");
     testHost.addTypeSpecFile(
       "./node_modules/@typespec/compiler/package.json",
@@ -48,7 +48,7 @@ describe("compiler: libraries", () => {
   });
 
   it("allows compiler install to mismatch if the version are the same", async () => {
-    const testHost = await createTestHost();
+    const testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     testHost.addTypeSpecFile("main.tsp", "");
     testHost.addTypeSpecFile(
       "./node_modules/@typespec/compiler/package.json",
@@ -60,7 +60,7 @@ describe("compiler: libraries", () => {
   });
 
   it("report errors in js files", async () => {
-    const testHost = await createTestHost();
+    const testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     testHost.addJsFile("lib1.js", { $myDec: () => null });
     testHost.addJsFile("lib2.js", { $myDec: () => null });
     testHost.addTypeSpecFile(

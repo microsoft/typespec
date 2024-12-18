@@ -15,6 +15,7 @@ import { getDirectoryPath } from "./path-utils.js";
 import { createSourceFile } from "./source-file.js";
 import {
   DiagnosticTarget,
+  ImportStatementNode,
   ModuleLibraryMetadata,
   NodeFlags,
   NoTarget,
@@ -36,6 +37,8 @@ export interface SourceResolution {
   /** Javascript source files(Entrypoint only) */
   readonly jsSourceFiles: Map<string, JsSourceFileNode>;
 
+  /** How source files are imported. NoTarget means the file is entrypoint or imported from cli/configuration directly */
+  readonly sourceFileImportedBy: Map<string, Set<ImportStatementNode | typeof NoTarget>>;
   readonly locationContexts: WeakMap<SourceFile, LocationContext>;
   readonly loadedLibraries: Map<string, TypeSpecLibraryReference>;
 
@@ -85,6 +88,7 @@ export async function createSourceLoader(
   const sourceFiles = new Map<string, TypeSpecScriptNode>();
   const jsSourceFiles = new Map<string, JsSourceFileNode>();
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
+  const sourceFileImportedBy = new Map<string, Set<ImportStatementNode | typeof NoTarget>>();
 
   async function importFile(
     path: string,
@@ -117,6 +121,7 @@ export async function createSourceLoader(
     resolution: {
       sourceFiles,
       jsSourceFiles,
+      sourceFileImportedBy,
       locationContexts: sourceFileLocationContexts,
       loadedLibraries: loadedLibraries,
       diagnostics: diagnostics.diagnostics,
@@ -129,6 +134,10 @@ export async function createSourceLoader(
     diagnosticTarget: DiagnosticTarget | typeof NoTarget,
   ) {
     if (seenSourceFiles.has(path)) {
+      const file = sourceFiles.get(path);
+      if (file) {
+        updateImportedBy(file, diagnosticTarget);
+      }
       return;
     }
     seenSourceFiles.add(path);
@@ -139,7 +148,8 @@ export async function createSourceLoader(
 
     if (file) {
       sourceFileLocationContexts.set(file, locationContext);
-      await loadTypeSpecScript(file);
+      const tss = await loadTypeSpecScript(file);
+      updateImportedBy(tss, diagnosticTarget);
     }
   }
 
@@ -287,15 +297,27 @@ export async function createSourceLoader(
   ) {
     const sourceFile = jsSourceFiles.get(path);
     if (sourceFile !== undefined) {
+      updateImportedBy(sourceFile, diagnosticTarget);
       return sourceFile;
     }
 
     const file = diagnostics.pipe(await loadJsFile(host, path, diagnosticTarget));
     if (file !== undefined) {
       sourceFileLocationContexts.set(file.file, locationContext);
+      updateImportedBy(file, diagnosticTarget);
       jsSourceFiles.set(path, file);
     }
     return file;
+  }
+
+  function updateImportedBy(
+    file: JsSourceFileNode | TypeSpecScriptNode,
+    target: DiagnosticTarget | typeof NoTarget,
+  ) {
+    if (target === NoTarget || ("kind" in target && target.kind === SyntaxKind.ImportStatement)) {
+      sourceFileImportedBy.get(file.file.path)?.add(target) ??
+        sourceFileImportedBy.set(file.file.path, new Set([target]));
+    }
   }
 
   function getResolveModuleHost(): ResolveModuleHost {

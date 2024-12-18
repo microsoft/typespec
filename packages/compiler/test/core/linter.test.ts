@@ -34,7 +34,7 @@ describe("compiler: linter", () => {
     code: string | Record<string, string>,
     linterDef: LinterDefinition,
   ): Promise<Linter> {
-    const host = await createTestHost();
+    const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     if (typeof code === "string") {
       host.addTypeSpecFile("main.tsp", code);
     } else {
@@ -151,7 +151,7 @@ describe("compiler: linter", () => {
       const files = {
         "main.tsp": `
           import "my-lib";
-          model Bar {}
+          model Bar extends Foo {}
         `,
         "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
         "node_modules/my-lib/main.tsp": "model Foo {}",
@@ -166,7 +166,7 @@ describe("compiler: linter", () => {
       const files = {
         "main.tsp": `
           import "my-lib";
-          model Foo {}
+          model Foo extends Bar {}
         `,
         "node_modules/my-lib/package.json": JSON.stringify({ name: "my-lib", tspMain: "main.tsp" }),
         "node_modules/my-lib/main.tsp": "model Bar {}",
@@ -174,11 +174,13 @@ describe("compiler: linter", () => {
       const linter = await createTestLinterAndEnableRules(files, {
         rules: [noModelFoo],
       });
-      expectDiagnostics(linter.lint(), {
-        severity: "warning",
-        code: "@typespec/test-linter/no-model-foo",
-        message: `Cannot call model 'Foo'`,
-      });
+      expectDiagnostics(linter.lint(), [
+        {
+          severity: "warning",
+          code: "@typespec/test-linter/no-model-foo",
+          message: `Cannot call model 'Foo'`,
+        },
+      ]);
     });
   });
 
@@ -252,7 +254,7 @@ describe("compiler: linter", () => {
 
   describe("(integration) loading in program", () => {
     async function diagnoseReal(code: string) {
-      const host = await createTestHost();
+      const host = await createTestHost({ checkUnnecessaryDiagnostics: true });
       host.addTypeSpecFile("main.tsp", code);
       host.addTypeSpecFile(
         "node_modules/my-lib/package.json",

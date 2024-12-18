@@ -191,7 +191,7 @@ describe("compiler: checker: deprecation", () => {
     });
 
     it("emits deprecation for use of deprecated decorator signatures", async () => {
-      const testHost: TestHost = await createTestHost();
+      const testHost: TestHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
       testHost.addJsFile("test.js", { $testDec: () => {} });
       const runner = createTestWrapper(testHost);
 

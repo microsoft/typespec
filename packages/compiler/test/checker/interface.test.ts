@@ -16,7 +16,7 @@ describe("compiler: interfaces", () => {
   let runner: BasicTestRunner;
 
   beforeEach(async () => {
-    testHost = await createTestHost();
+    testHost = await createTestHost({ checkUnnecessaryDiagnostics: true });
     runner = await createTestRunner(testHost);
   });
 

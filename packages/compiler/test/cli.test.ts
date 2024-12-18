@@ -18,7 +18,7 @@ describe("compiler: cli", () => {
   const cwd = resolveVirtualPath("ws");
 
   beforeEach(async () => {
-    host = await createTestHost();
+    host = await createTestHost({ checkUnnecessaryDiagnostics: true });
     host.addTypeSpecFile("ws/main.tsp", "");
   });
 
