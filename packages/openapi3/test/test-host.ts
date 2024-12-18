@@ -6,6 +6,7 @@ import {
   resolveVirtualPath,
 } from "@typespec/compiler/testing";
 import { HttpTestLibrary } from "@typespec/http/testing";
+import { JsonSchemaTestLibrary } from "@typespec/json-schema/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
@@ -19,6 +20,7 @@ export async function createOpenAPITestHost() {
   return createTestHost({
     libraries: [
       HttpTestLibrary,
+      JsonSchemaTestLibrary,
       RestTestLibrary,
       VersioningTestLibrary,
       XmlTestLibrary,
@@ -36,6 +38,7 @@ export async function createOpenAPITestRunner({
   const importAndUsings = `
   import "@typespec/http";
   import "@typespec/rest";
+  import "@typespec/json-schema";
   import "@typespec/openapi";
   import "@typespec/openapi3"; 
   import "@typespec/xml";
@@ -94,7 +97,7 @@ export async function openApiFor(
   const outPath = resolveVirtualPath("{version}.openapi.json");
   host.addTypeSpecFile(
     "./main.tsp",
-    `import "@typespec/http"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3";import "@typespec/xml"; ${
+    `import "@typespec/http"; import "@typespec/json-schema"; import "@typespec/rest"; import "@typespec/openapi"; import "@typespec/openapi3";import "@typespec/xml"; ${
       versions ? `import "@typespec/versioning"; using TypeSpec.Versioning;` : ""
     }using TypeSpec.Rest;using TypeSpec.Http;using TypeSpec.OpenAPI;using TypeSpec.Xml;${code}`,
   );
