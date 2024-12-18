@@ -62,13 +62,13 @@
   {
    "$id": "8",
    "Name": "RepeatabilityClient",
-   "Description": "Illustrates OASIS repeatability headers",
+   "Doc": "Illustrates OASIS repeatability headers",
    "Operations": [
     {
      "$id": "9",
      "Name": "immediateSuccess",
      "ResourceName": "Repeatability",
-     "Description": "Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.",
+     "Doc": "Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -134,7 +134,7 @@
          "$id": "16",
          "Name": "repeatabilityResult",
          "NameInResponse": "Repeatability-Result",
-         "Description": "Indicates whether the repeatable request was accepted or rejected.",
+         "Doc": "Indicates whether the repeatable request was accepted or rejected.",
          "Type": {
           "$ref": "2"
          }
@@ -162,7 +162,7 @@
      "$id": "18",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "19",
       "kind": "url",
