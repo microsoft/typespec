@@ -10,6 +10,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Utilities;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -33,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
+            Description = DocHelpers.GetFormattableDescription(inputModel.Summary, inputModel.Doc) ?? $"The {Name}.";
 
             if (inputModel.BaseModel is not null)
             {

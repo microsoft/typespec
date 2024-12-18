@@ -31,7 +31,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Monday.",
+     "doc": "Monday.",
      "decorators": []
     },
     {
@@ -49,7 +49,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Tuesday.",
+     "doc": "Tuesday.",
      "decorators": []
     },
     {
@@ -67,7 +67,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Wednesday.",
+     "doc": "Wednesday.",
      "decorators": []
     },
     {
@@ -85,7 +85,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Thursday.",
+     "doc": "Thursday.",
      "decorators": []
     },
     {
@@ -103,7 +103,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Friday.",
+     "doc": "Friday.",
      "decorators": []
     },
     {
@@ -121,7 +121,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Saturday.",
+     "doc": "Saturday.",
      "decorators": []
     },
     {
@@ -139,11 +139,11 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Sunday.",
+     "doc": "Sunday.",
      "decorators": []
     }
    ],
-   "description": "Days of the week",
+   "doc": "Days of the week",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -164,7 +164,7 @@
      "$id": "20",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "21",
       "kind": "url",
@@ -202,7 +202,7 @@
      "$id": "25",
      "Name": "getKnownValue",
      "ResourceName": "String",
-     "Description": "getKnownValue",
+     "Doc": "getKnownValue",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -264,14 +264,14 @@
      "$id": "30",
      "Name": "putKnownValue",
      "ResourceName": "String",
-     "Description": "putKnownValue",
+     "Doc": "putKnownValue",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "31",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "32",
         "kind": "constant",
@@ -299,7 +299,7 @@
        "$id": "34",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "_",
+       "Doc": "_",
        "Type": {
         "$ref": "2"
        },
@@ -342,14 +342,14 @@
      "$id": "36",
      "Name": "putUnknownValue",
      "ResourceName": "String",
-     "Description": "putUnknownValue",
+     "Doc": "putUnknownValue",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "37",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "38",
         "kind": "constant",
@@ -377,7 +377,7 @@
        "$id": "40",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "_",
+       "Doc": "_",
        "Type": {
         "$ref": "2"
        },
@@ -426,7 +426,7 @@
      "$id": "43",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "44",
       "kind": "url",
