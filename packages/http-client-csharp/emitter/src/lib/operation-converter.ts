@@ -189,7 +189,8 @@ function fromSdkHttpOperationParameter(
 
   // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the style for
   // any path expansion to ensure the parameter values are delimited correctly during serialization.
-  const explode = (parameterType.kind === "array" || parameterType.kind === "dict") && isExplodedParameter(p);
+  const explode =
+    (parameterType.kind === "array" || parameterType.kind === "dict") && isExplodedParameter(p);
 
   return {
     Name: p.name,
