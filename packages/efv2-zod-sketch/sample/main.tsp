@@ -57,7 +57,48 @@ enum InterestingNumbers {
 scalar string50 extends string;
 
 @jsonSchema
+model TodoItem {
+  /** The item's unique id */
+  @visibility("read") @key id: safeint;
+
+  /** The item's title */
+  @maxLength(255)
+  title: string;
+
+  /** User that created the todo */
+  @visibility("read") createdBy: User.id;
+
+  /** User that the todo is assigned to */
+  assignedTo?: User.id;
+
+  /** A longer description of the todo item in markdown format */
+  description?: string;
+
+  /** The status of the todo item */
+  status: "NotStarted" | "InProgress" | "Completed";
+
+  /** When the todo item was created. */
+  @visibility("read") createdAt: utcDateTime;
+
+  /** When the todo item was last updated */
+  @visibility("read") updatedAt: utcDateTime;
+
+  /** When the todo item was marked as completed */
+  @visibility("read") completedAt?: utcDateTime;
+
+  // Want the read form to be normalized to TodoLabelRecord[], but can't
+  // https://github.com/microsoft/typespec/issues/2926
+  labels?: TodoLabels;
+
+  // hack to get a different schema for create
+  // (fastify glue doesn't support readonly)
+  @visibility("create") _dummy?: string;
+}
+
+@jsonSchema
 model User {
+  items: TodoItem[];
+  xRef?: TodoItem.title;
   nullableOptionalValue?: string50 | url | null;
   constrainedScalar: string50;
 
@@ -150,44 +191,6 @@ model User {
   @visibility("none") validated: boolean;
 }
 
-@jsonSchema
-model TodoItem {
-  /** The item's unique id */
-  @visibility("read") @key id: safeint;
-
-  /** The item's title */
-  @maxLength(255)
-  title: string;
-
-  /** User that created the todo */
-  @visibility("read") createdBy: User.id;
-
-  /** User that the todo is assigned to */
-  assignedTo?: User.id;
-
-  /** A longer description of the todo item in markdown format */
-  description?: string;
-
-  /** The status of the todo item */
-  status: "NotStarted" | "InProgress" | "Completed";
-
-  /** When the todo item was created. */
-  @visibility("read") createdAt: utcDateTime;
-
-  /** When the todo item was last updated */
-  @visibility("read") updatedAt: utcDateTime;
-
-  /** When the todo item was marked as completed */
-  @visibility("read") completedAt?: utcDateTime;
-
-  // Want the read form to be normalized to TodoLabelRecord[], but can't
-  // https://github.com/microsoft/typespec/issues/2926
-  labels?: TodoLabels;
-
-  // hack to get a different schema for create
-  // (fastify glue doesn't support readonly)
-  @visibility("create") _dummy?: string;
-}
 
 @jsonSchema
 union TodoLabels {

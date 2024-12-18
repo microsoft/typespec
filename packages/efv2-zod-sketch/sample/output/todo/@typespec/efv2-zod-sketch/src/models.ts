@@ -50,8 +50,33 @@ avagadro = 6.022e+23
 };
 
 
+export const todoItem = z.object(
+{
+id: z.number().safe(),
+title: z.string().max(255),
+createdBy: z.number().safe(),
+assignedTo: z.number().safe().optional(),
+description: z.string().optional(),
+status: z.union([ z.string(), z.string(), z.string() ]),
+createdAt: z.string().datetime(),
+updatedAt: z.string().datetime(),
+completedAt: z.string().datetime().optional(),
+labels: z.union([ z.string(), z.array(z.string()), todoLabelRecord, z.array(todoLabelRecord) ]).optional(),
+_dummy: z.string().optional()
+}
+);
+
+export const todoLabelRecord = z.object(
+{
+name: z.string(),
+color: z.string().optional()
+}
+);
+
 export const user = z.object(
 {
+items: z.array(todoItem),
+xRef: z.string().max(255).optional(),
 nullableOptionalValue: z.union([ z.string().min(1).max(50), z.string().url(), z.null() ]).optional(),
 constrainedScalar: z.string().min(1).max(50),
 myPetRecord: z.record(z.string(),z.number()),
@@ -104,29 +129,6 @@ validated: z.boolean()
 
 
 
-export const todoItem = z.object(
-{
-id: z.number().safe(),
-title: z.string().max(255),
-createdBy: z.any(),
-assignedTo: z.any().optional(),
-description: z.string().optional(),
-status: z.union([ z.string(), z.string(), z.string() ]),
-createdAt: z.string().datetime(),
-updatedAt: z.string().datetime(),
-completedAt: z.string().datetime().optional(),
-labels: z.union([ z.string(), z.array(z.string()), z.any(), z.array(z.any()) ]).optional(),
-_dummy: z.string().optional()
-}
-);
-
-export const todoLabelRecord = z.object(
-{
-name: z.string(),
-color: z.string().optional()
-}
-);
-
 export const todoFileAttachment = z.object(
 {
 filename: z.string().max(255),
@@ -163,6 +165,8 @@ statusCode: z.number().min(500).max(599)
 
 export const userCreatedResponse = z.object(
 {
+items: z.array(todoItem),
+xRef: z.string().max(255).optional(),
 nullableOptionalValue: z.union([ z.string().min(1).max(50), z.string().url(), z.null() ]).optional(),
 constrainedScalar: z.string().min(1).max(50),
 myPetRecord: z.record(z.string(),z.number()),
@@ -238,7 +242,7 @@ offset: z.number().min(-2147483648).max(2147483647).optional()
 
 export const todoPage = z.object(
 {
-items: z.array(z.any()),
+items: z.array(todoItem),
 pageSize: z.number().min(-2147483648).max(2147483647),
 totalSize: z.number().min(-2147483648).max(2147483647),
 limit: z.number().min(-2147483648).max(2147483647).optional(),
@@ -250,9 +254,9 @@ nextLink: z.string().url().optional()
 
 export const todoItemPatch = z.object(
 {
-title: z.any().optional(),
-assignedTo: z.union([ z.any().optional(), z.null() ]).optional(),
-description: z.union([ z.any().optional(), z.null() ]).optional(),
+title: z.string().max(255).optional(),
+assignedTo: z.union([ z.number().safe().optional().optional(), z.null() ]).optional(),
+description: z.union([ z.string().optional().optional(), z.null() ]).optional(),
 status: z.union([ z.string(), z.string(), z.string() ]).optional()
 }
 );
@@ -277,6 +281,6 @@ statusCode: z.number()
 
 export const page = z.object(
 {
-items: z.array(z.union([ z.any(), z.any() ]))
+items: z.array(z.union([ todoFileAttachment, todoUrlAttachment ]))
 }
 );

@@ -1,6 +1,22 @@
 /**
  * Known remaining TODO items:
- * - (1) Add support for references to other models, including internal properties (fix any output which is currently z.any())
+ * - (1) Need a way to acquire models in reference-order, so that we can emit models that reference other models.
+ *       without getting errors in the emit code.  For example, consider the following models:
+ *        model A {
+ *          prop1: B[]
+ *        }
+ *        model B {
+ *          prop2: string
+ *        }
+ *   This is perfectly legal TypeSpec, because TypeSpec is not order-dependent.  However, when we emit the models in Zod
+ *   (i.e. TypeScript), we need to emit B before A, because A references B:
+ *        export const A = z.object({
+ *          prop1: z.array(B) // ERROR!  B is not defined yet!
+ *        });
+ *        export const B = z.object({
+ *          prop2: z.string()
+ *        });
+ * 
   * */
 
 /* Key scripts 
@@ -207,7 +223,12 @@ function ZodType(props: ZodTypeProps) {
         );
       }
     }
-  }
+
+    // Just a plain-old model - reference it instead of emitting it inline
+    const namePolicy = ts.useTSNamePolicy();
+    const modelName = namePolicy.getName(props.type.name, "variable"); 
+    return (<>{modelName}</>)
+    }
 
   // Unions
   if ($.union.is(props.type)) { 
@@ -225,7 +246,15 @@ function ZodType(props: ZodTypeProps) {
     return <>{zod.z}.union([ {unionTypeNames} ]){optString}</>;
   }
 
-  // References to another model (the model directly or things inside it)
+  // Reference to another model property
+  if ($.modelProperty.is(props.type)) {
+    const propConstrains = getAllPropertyConstraints(props.type);
+    return (
+      <>
+        <ZodType type={props.type.type} constraints={propConstrains} />{optString}
+      </>
+    );
+  }
   return <>{zod.z}.any(){optString}</>;
 }
 
