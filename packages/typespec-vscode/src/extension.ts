@@ -47,7 +47,7 @@ export async function activate(context: ExtensionContext) {
 
   /* emit command. */
   context.subscriptions.push(
-    commands.registerCommand("typespec.emit", async (uri: vscode.Uri) => {
+    commands.registerCommand(CommandName.EmitCode, async (uri: vscode.Uri) => {
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
