@@ -66,6 +66,7 @@ import {
 import { attachExtensions } from "./attach-extensions.js";
 import { getOneOf, getRef } from "./decorators.js";
 import { applyEncoding } from "./encoding.js";
+import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
@@ -88,19 +89,22 @@ export class OpenAPI3SchemaEmitterBase<
   protected _metadataInfo: MetadataInfo;
   protected _visibilityUsage: VisibilityUsageTracker;
   protected _options: ResolvedOpenAPI3EmitterOptions;
+  protected _jsonSchemaModule: JsonSchemaModule | undefined;
   protected _xmlModule: XmlModule | undefined;
+
   constructor(
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
     options: ResolvedOpenAPI3EmitterOptions,
-    xmlModule: XmlModule | undefined,
+    optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
   ) {
     super(emitter);
     this._metadataInfo = metadataInfo;
     this._visibilityUsage = visibilityUsage;
     this._options = options;
-    this._xmlModule = xmlModule;
+    this._jsonSchemaModule = optionalDependencies.jsonSchemaModule;
+    this._xmlModule = optionalDependencies.xmlModule;
   }
 
   modelDeclarationReferenceContext(model: Model, name: string): Context {
@@ -628,6 +632,15 @@ export class OpenAPI3SchemaEmitterBase<
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");
+
+    // apply json schema decorators
+    const jsonSchemaModule = this._jsonSchemaModule;
+    if (jsonSchemaModule) {
+      applyConstraint(jsonSchemaModule.getMultipleOf, "multipleOf");
+      applyConstraint(jsonSchemaModule.getUniqueItems, "uniqueItems");
+      applyConstraint(jsonSchemaModule.getMinProperties, "minProperties");
+      applyConstraint(jsonSchemaModule.getMaxProperties, "maxProperties");
+    }
 
     if (isSecret(program, type)) {
       schema.format = "password";

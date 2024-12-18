@@ -150,6 +150,32 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
     });
   });
 
+  it("can specify uniqueItems using @JsonSchema.uniqueItems decorator", async () => {
+    const res = await oapiForModel(
+      "Pets",
+      `
+      @uniqueItems
+      model Pets is Array<Pet>;
+      model Pet {
+        @uniqueItems
+        x: string[];
+      }
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pets, {
+      type: "array",
+      uniqueItems: true,
+      items: { $ref: "#/components/schemas/Pet" },
+    });
+
+    deepStrictEqual(res.schemas.Pet.properties.x, {
+      type: "array",
+      uniqueItems: true,
+      items: { type: "string" },
+    });
+  });
+
   it("can specify array defaults using tuple syntax", async () => {
     const res = await oapiForModel(
       "Pet",

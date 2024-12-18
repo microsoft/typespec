@@ -26,6 +26,7 @@ import {
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
+import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
@@ -39,11 +40,11 @@ function createWrappedSchemaEmitterClass(
   metadataInfo: MetadataInfo,
   visibilityUsage: VisibilityUsageTracker,
   options: ResolvedOpenAPI3EmitterOptions,
-  xmlModule: XmlModule | undefined,
+  optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
 ): typeof TypeEmitter<Record<string, any>, OpenAPI3EmitterOptions> {
   return class extends OpenAPI31SchemaEmitter {
     constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-      super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
+      super(emitter, metadataInfo, visibilityUsage, options, optionalDependencies);
     }
   };
 }
@@ -55,7 +56,7 @@ export const createSchemaEmitter3_1: CreateSchemaEmitter = ({ program, context, 
       rest.metadataInfo,
       rest.visibilityUsage,
       rest.options,
-      rest.xmlModule,
+      rest.optionalDependencies,
     ),
     context,
   );
