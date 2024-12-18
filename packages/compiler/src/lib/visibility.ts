@@ -46,6 +46,7 @@ import {
 } from "../core/visibility/core.js";
 import {
   getLifecycleVisibilityEnum,
+  normalizeLegacyLifecycleVisibilityString,
   normalizeVisibilityToLegacyLifecycleString,
 } from "../core/visibility/lifecycle.js";
 import { isMutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
@@ -180,6 +181,9 @@ export const $parameterVisibility: ParameterVisibilityDecorator = (
 /**
  * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
  *
+ * @deprecated Use `getParameterVisibilityFilter` instead.
+ *
+ * @see {@link getParameterVisibilityFilter}
  * @see {@link $parameterVisibility}
  */
 export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
@@ -188,6 +192,33 @@ export function getParameterVisibility(program: Program, entity: Operation): str
       typeof p === "string" ? p : normalizeVisibilityToLegacyLifecycleString(program, p),
     )
     .filter((p) => !!p) as string[];
+}
+
+/**
+ * Get the visibility filter that should apply to the parameters of the given operation, or `undefined` if no parameter
+ * visibility is set.
+ *
+ * @param program - the Program in which the operation is defined
+ * @param operation - the Operation to get the parameter visibility filter for
+ * @returns a visibility filter for the parameters of the operation, or `undefined` if no parameter visibility is set
+ */
+export function getParameterVisibilityFilter(
+  program: Program,
+  operation: Operation,
+): VisibilityFilter | undefined {
+  const visibilityConfig = getOperationVisibilityConfig(program, operation);
+
+  if (!visibilityConfig.parameters) return undefined;
+
+  return {
+    any: new Set(
+      visibilityConfig.parameters
+        .map((v) =>
+          typeof v === "string" ? normalizeLegacyLifecycleVisibilityString(program, v) : v,
+        )
+        .filter((v) => !!v),
+    ),
+  };
 }
 
 export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
@@ -218,6 +249,9 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
 /**
  * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
  *
+ * @deprecated Use `getReturnTypeVisibilityFilter` instead.
+ *
+ * @see {@link getReturnTypeVisibilityFilter}
  * @see {@link $returnTypeVisibility}
  */
 export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
@@ -226,6 +260,33 @@ export function getReturnTypeVisibility(program: Program, entity: Operation): st
       typeof p === "string" ? p : normalizeVisibilityToLegacyLifecycleString(program, p),
     )
     .filter((p) => !!p) as string[];
+}
+
+/**
+ * Get the visibility filter that should apply to the return type of the given operation, or `undefined` if no return
+ * type visibility is set.
+ *
+ * @param program - the Program in which the operation is defined
+ * @param operation - the Operation to get the return type visibility filter for
+ * @returns a visibility filter for the return type of the operation, or `undefined` if no return type visibility is set
+ */
+export function getReturnTypeVisibilityFilter(
+  program: Program,
+  operation: Operation,
+): VisibilityFilter | undefined {
+  const visibilityConfig = getOperationVisibilityConfig(program, operation);
+
+  if (!visibilityConfig.returnType) return undefined;
+
+  return {
+    any: new Set(
+      visibilityConfig.returnType
+        .map((v) =>
+          typeof v === "string" ? normalizeLegacyLifecycleVisibilityString(program, v) : v,
+        )
+        .filter((v) => !!v),
+    ),
+  };
 }
 
 // #endregion

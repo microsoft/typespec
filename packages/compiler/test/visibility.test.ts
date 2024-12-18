@@ -299,7 +299,7 @@ describe("compiler: visibility core", () => {
 
       const resetVisibility = getVisibilityForClass(runner.program, x, Lifecycle);
 
-      strictEqual(resetVisibility.size, 3);
+      strictEqual(resetVisibility.size, 5);
 
       for (const member of Lifecycle.members.values()) {
         ok(resetVisibility.has(member));

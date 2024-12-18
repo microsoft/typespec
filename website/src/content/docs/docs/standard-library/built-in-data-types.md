@@ -60,6 +60,9 @@ None
 A copy of the input model `T` with only the properties that are visible during the
 "Create" or "Update" resource lifecycle phases.
 
+The "CreateOrUpdate" lifecycle phase is used by default for properties passed as parameters to operations
+that can create _or_ update data, like HTTP PUT operations.
+
 This transformation is recursive, and will include only properties that have the
 `Lifecycle.Create` or `Lifecycle.Update` visibility modifier.
 
@@ -104,6 +107,45 @@ model DefaultKeyVisibility<Source, Visibility>
 | Source | An object whose properties are spread. |
 | Visibility | The visibility to apply to all properties. |
 
+
+#### Properties
+None
+
+### `Delete` {#Delete}
+
+A copy of the input model `T` with only the properties that are visible during the
+"Delete" resource lifecycle phase.
+
+The "Delete" lifecycle phase is used for properties passed as parameters to operations
+that delete data, like HTTP DELETE operations.
+
+This transformation is recursive, and will include only properties that have the
+`Lifecycle.Delete` visibility modifier.
+
+If a `NameTemplate` is provided, the new model will be named according to the template.
+The template uses the same syntax as the `@friendlyName` decorator.
+```typespec
+model Delete<T, NameTemplate>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| T | The model to transform. |
+| NameTemplate | The name template to use for the new model.<br /><br />* |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  name: string;
+}
+
+model DeleteDog is Delete<Dog>;
+```
 
 #### Properties
 None
@@ -216,10 +258,52 @@ model PickProperties<Source, Keys>
 #### Properties
 None
 
+### `Query` {#Query}
+
+A copy of the input model `T` with only the properties that are visible during the
+"Query" resource lifecycle phase.
+
+The "Query" lifecycle phase is used for properties passed as parameters to operations
+that read data, like HTTP GET or HEAD operations.
+
+This transformation is recursive, and will include only properties that have the
+`Lifecycle.Query` visibility modifier.
+
+If a `NameTemplate` is provided, the new model will be named according to the template.
+The template uses the same syntax as the `@friendlyName` decorator.
+```typespec
+model Query<T, NameTemplate>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| T | The model to transform. |
+| NameTemplate | The name template to use for the new model.<br /><br />* |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  name: string;
+}
+
+model QueryDog is Query<Dog>;
+```
+
+#### Properties
+None
+
 ### `Read` {#Read}
 
 A copy of the input model `T` with only the properties that are visible during the
 "Read" resource lifecycle phase.
+
+The "Read" lifecycle phase is used for properties returned by operations that read data, like
+HTTP GET operations.
 
 This transformation is recursive, and will include only properties that have the
 `Lifecycle.Read` visibility modifier.
@@ -287,6 +371,9 @@ model ServiceOptions
 
 A copy of the input model `T` with only the properties that are visible during the
 "Update" resource lifecycle phase.
+
+The "Update" lifecycle phase is used for properties passed as parameters to operations
+that update data, like HTTP PATCH operations.
 
 This transformation will include only the properties that have the `Lifecycle.Update`
 visibility modifier, and the types of all properties will be replaced with the
@@ -414,17 +501,18 @@ enum DurationKnownEncoding
 
 A visibility class for resource lifecycle phases.
 
-These visibilities control whether a property is visible during the create, read, and update phases of a resource's
-lifecycle.
+These visibilities control whether a property is visible during the various phases of a resource's lifecycle.
 ```typespec
 enum Lifecycle
 ```
 
 | Name | Value | Description |
 |------|-------|-------------|
-| Create |  |  |
-| Read |  |  |
-| Update |  |  |
+| Create |  | The property is visible when a resource is being created. |
+| Read |  | The property is visible when a resource is being read. |
+| Update |  | The property is visible when a resource is being updated. |
+| Delete |  | The property is visible when a resource is being deleted. |
+| Query |  | The property is visible when a resource is being queried.<br /><br />In HTTP APIs, this visibility applies to parameters of GET or HEAD operations. |
 #### Examples
 
 ```typespec

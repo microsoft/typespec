@@ -54,6 +54,10 @@ export function normalizeLegacyLifecycleVisibilityString(
       return lifecycle.members.get("Read")!;
     case "update":
       return lifecycle.members.get("Update")!;
+    case "delete":
+      return lifecycle.members.get("Delete")!;
+    case "query":
+      return lifecycle.members.get("Query")!;
     default:
       return undefined;
   }
@@ -83,6 +87,10 @@ export function normalizeVisibilityToLegacyLifecycleString(
       return "read";
     case "Update":
       return "update";
+    case "Delete":
+      return "delete";
+    case "Query":
+      return "query";
     default:
       return undefined;
   }
