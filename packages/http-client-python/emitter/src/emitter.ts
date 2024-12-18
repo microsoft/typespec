@@ -192,9 +192,6 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
 async function setupPyodideCall(root: string) {
   const pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
   pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "." }, ".");
-  await pyodide.loadPackage("setuptools");
-  await pyodide.loadPackage("tomli");
-  await pyodide.loadPackage("docutils");
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
   await micropip.install("emfs:generator/dist/pygen-0.1.0-py3-none-any.whl");
