@@ -75,10 +75,11 @@ color: z.string().optional()
 
 export const user = z.object(
 {
-items: z.array(todoItem),
+items: z.array(todoItem).optional(),
 xRef: z.string().max(255).optional(),
 nullableOptionalValue: z.union([ z.string().min(1).max(50), z.string().url(), z.null() ]).optional(),
 constrainedScalar: z.string().min(1).max(50),
+anotherItem: todoItem.optional(),
 myPetRecord: z.record(z.string(),z.number()),
 constrainedArray: z.array(z.string().min(1).max(50)),
 petRecord:  z.object(
@@ -165,10 +166,11 @@ statusCode: z.number().min(500).max(599)
 
 export const userCreatedResponse = z.object(
 {
-items: z.array(todoItem),
+items: z.array(todoItem).optional(),
 xRef: z.string().max(255).optional(),
 nullableOptionalValue: z.union([ z.string().min(1).max(50), z.string().url(), z.null() ]).optional(),
 constrainedScalar: z.string().min(1).max(50),
+anotherItem: todoItem.optional(),
 myPetRecord: z.record(z.string(),z.number()),
 constrainedArray: z.array(z.string().min(1).max(50)),
 petRecord:  z.object(

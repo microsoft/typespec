@@ -225,7 +225,7 @@ function ZodType(props: ZodTypeProps) {
     // Just a plain-old model - reference it instead of emitting it inline
     const namePolicy = ts.useTSNamePolicy();
     const modelName = namePolicy.getName(props.type.name, "variable"); 
-    return (<>{modelName}</>)
+    return (<>{modelName}{optString}</>)
     }
 
   // Unions

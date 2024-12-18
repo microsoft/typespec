@@ -97,10 +97,11 @@ model TodoItem {
 
 @jsonSchema
 model User {
-  items: TodoItem[];
+  items?: TodoItem[];
   xRef?: TodoItem.title;
   nullableOptionalValue?: string50 | url | null;
   constrainedScalar: string50;
+  anotherItem?: TodoItem;
 
   myPetRecord: Record<integer>;
     
