@@ -178,9 +178,7 @@ interface ZodTypeProps {
  * Component that translates a TypeSpec type into the Zod type
  */
 function ZodType(props: ZodTypeProps) {
- 
-  // TODO:  Nullable (which is a kind of union)
-  let optString = "";
+   let optString = "";
   if (props.constraints.itemOptional) {
     optString = ".optional()";
   }
