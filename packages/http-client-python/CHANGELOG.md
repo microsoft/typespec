@@ -2,7 +2,7 @@
 
 ## 0.5.0
 
-### Bug Fixes
+### Features
 
 - Add support for generation in enviroments without a Python installation
 
