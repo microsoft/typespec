@@ -5,6 +5,8 @@ trigger:
       # For patch releases
       - release/*
 
+pr: none
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
