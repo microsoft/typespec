@@ -19,9 +19,9 @@ export function createModelToObjectValueCodeFix(node: ModelExpressionNode) {
 
       function createChildModelToObjValCodeFix(node: ModelExpressionNode) {
         for (const prop of node.properties.values()) {
-          if ("value" in prop) {
+          if (prop.kind === SyntaxKind.ModelProperty) {
             const childNode = prop.value;
-            if (childNode.pos > node.pos && childNode.kind === SyntaxKind.ModelExpression) {
+            if (childNode.kind === SyntaxKind.ModelExpression) {
               const locationChild = getSourceLocation(childNode);
               result.push(context.prependText(locationChild, "#"));
               createChildModelToObjValCodeFix(childNode);
