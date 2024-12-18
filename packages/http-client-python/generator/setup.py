@@ -48,9 +48,17 @@ setup(
         ]
     ),
     install_requires=[
-        "Jinja2 >= 2.11",  # I need "include" and auto-context + blank line are not indented by default
-        "pyyaml",
-        "m2r2",
-        "black",
+        "black==24.8.0",
+        "click==8.1.7",
+        "docutils==0.21.1",
+        "Jinja2==3.1.3",
+        "m2r2==0.3.3.post2",
+        "MarkupSafe==2.1.5",
+        "mistune==0.8.4",
+        "pathspec==0.12.1",
+        "platformdirs==4.3.6",
+        "PyYAML==6.0.1",
+        "tomli==2.0.1",
+        "setuptools==69.5.1",
     ],
 )
