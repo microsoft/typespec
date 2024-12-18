@@ -4,15 +4,16 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from payload.pageable import PageableClient
+from specs.azure.payload.pageable.aio import PageableClient
 
 
 @pytest.fixture
-def client():
-    with PageableClient(endpoint="http://localhost:3000") as client:
+async def client():
+    async with PageableClient(endpoint="http://localhost:3000") as client:
         yield client
 
 
-def test_list(client: PageableClient):
-    result = list(client.list(maxpagesize=3))
+@pytest.mark.asyncio
+async def test_list(client: PageableClient):
+    result = [p async for p in client.list(maxpagesize=3)]
     assert len(result) == 4
