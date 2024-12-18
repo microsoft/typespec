@@ -1,8 +1,8 @@
+import fs from "fs";
 import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { runPython3 } from "./run-python3.js";
-import fs from "fs";
 
 async function main() {
   try {
