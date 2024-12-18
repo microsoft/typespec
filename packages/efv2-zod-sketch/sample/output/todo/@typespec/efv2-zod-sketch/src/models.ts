@@ -50,6 +50,13 @@ avagadro = 6.022e+23
 };
 
 
+export const todoLabelRecord = z.object(
+{
+name: z.string(),
+color: z.string().optional()
+}
+);
+
 export const todoItem = z.object(
 {
 id: z.number().safe(),
@@ -63,13 +70,6 @@ updatedAt: z.string().datetime(),
 completedAt: z.string().datetime().optional(),
 labels: z.union([ z.string(), z.array(z.string()), todoLabelRecord, z.array(todoLabelRecord) ]).optional(),
 _dummy: z.string().optional()
-}
-);
-
-export const todoLabelRecord = z.object(
-{
-name: z.string(),
-color: z.string().optional()
 }
 );
 

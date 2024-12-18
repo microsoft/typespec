@@ -57,6 +57,14 @@ enum InterestingNumbers {
 scalar string50 extends string;
 
 @jsonSchema
+model TodoLabelRecord {
+  name: string;
+
+  @pattern("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
+  color?: string;
+}
+
+@jsonSchema
 model TodoItem {
   /** The item's unique id */
   @visibility("read") @key id: safeint;
@@ -192,21 +200,12 @@ model User {
   @visibility("none") validated: boolean;
 }
 
-
 @jsonSchema
 union TodoLabels {
   string,
   string[],
   TodoLabelRecord,
   TodoLabelRecord[],
-}
-
-@jsonSchema
-model TodoLabelRecord {
-  name: string;
-
-  @pattern("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")
-  color?: string;
 }
 
 union TodoAttachment {
