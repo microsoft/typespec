@@ -10,7 +10,7 @@
    "name": "VisibilityModel",
    "crossLanguageDefinitionId": "Type.Model.Visibility.VisibilityModel",
    "usage": "Input,Output,Json",
-   "description": "Output model with visibility properties.",
+   "doc": "Output model with visibility properties.",
    "decorators": [],
    "properties": [
     {
@@ -18,7 +18,7 @@
      "kind": "property",
      "name": "readProp",
      "serializedName": "readProp",
-     "description": "Required string, illustrating a readonly property.",
+     "doc": "Required string, illustrating a readonly property.",
      "type": {
       "$id": "4",
       "kind": "string",
@@ -38,7 +38,7 @@
      "kind": "property",
      "name": "queryProp",
      "serializedName": "queryProp",
-     "description": "Required int32, illustrating a query property.",
+     "doc": "Required int32, illustrating a query property.",
      "type": {
       "$id": "6",
       "kind": "int32",
@@ -58,7 +58,7 @@
      "kind": "property",
      "name": "createProp",
      "serializedName": "createProp",
-     "description": "Required string[], illustrating a create property.",
+     "doc": "Required string[], illustrating a create property.",
      "type": {
       "$id": "8",
       "kind": "array",
@@ -85,7 +85,7 @@
      "kind": "property",
      "name": "updateProp",
      "serializedName": "updateProp",
-     "description": "Required int32[], illustrating a update property.",
+     "doc": "Required int32[], illustrating a update property.",
      "type": {
       "$id": "11",
       "kind": "array",
@@ -112,7 +112,7 @@
      "kind": "property",
      "name": "deleteProp",
      "serializedName": "deleteProp",
-     "description": "Required bool, illustrating a delete property.",
+     "doc": "Required bool, illustrating a delete property.",
      "type": {
       "$id": "14",
       "kind": "boolean",
@@ -135,7 +135,7 @@
    "name": "ReadOnlyModel",
    "crossLanguageDefinitionId": "Type.Model.Visibility.ReadOnlyModel",
    "usage": "Input,Output,Json",
-   "description": "RoundTrip model with readonly optional properties.",
+   "doc": "RoundTrip model with readonly optional properties.",
    "decorators": [],
    "properties": [
     {
@@ -143,7 +143,7 @@
      "kind": "property",
      "name": "optionalNullableIntList",
      "serializedName": "optionalNullableIntList",
-     "description": "Optional readonly nullable int list.",
+     "doc": "Optional readonly nullable int list.",
      "type": {
       "$id": "17",
       "kind": "nullable",
@@ -174,7 +174,7 @@
      "kind": "property",
      "name": "optionalStringRecord",
      "serializedName": "optionalStringRecord",
-     "description": "Optional readonly string dictionary.",
+     "doc": "Optional readonly string dictionary.",
      "type": {
       "$id": "21",
       "kind": "dict",
@@ -208,7 +208,7 @@
   {
    "$id": "24",
    "Name": "VisibilityClient",
-   "Description": "Illustrates models with visibility properties.",
+   "Doc": "Illustrates models with visibility properties.",
    "Operations": [
     {
      "$id": "25",
@@ -220,7 +220,7 @@
        "$id": "26",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "27",
         "kind": "constant",
@@ -329,7 +329,7 @@
        "$id": "35",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "36",
         "kind": "constant",
@@ -405,7 +405,7 @@
        "$id": "41",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "42",
         "kind": "constant",
@@ -481,7 +481,7 @@
        "$id": "47",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "48",
         "kind": "constant",
@@ -557,7 +557,7 @@
        "$id": "53",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "54",
         "kind": "constant",
@@ -633,7 +633,7 @@
        "$id": "59",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "60",
         "kind": "constant",
@@ -709,7 +709,7 @@
        "$id": "65",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "66",
         "kind": "constant",
@@ -817,7 +817,7 @@
      "$id": "74",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "75",
       "kind": "url",
