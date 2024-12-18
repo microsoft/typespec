@@ -1,3 +1,11 @@
+  /* Important notes:*/
+  
+  // Note: the Prettier extension for VS Code is not formatting the React fragments correctly.
+  // If you turn it on and save your file, it will insert newlines within the fragments, which results in
+  // incorrect Zod code being emitted.  Please don't use it in this file.
+  // You can turn off the Prettier extension for this file by adding  "files.exclude": { "**/efv2-zod-sketch/src/emitter.tsx": true } to your .vscode/settings.json file.
+  // You can also turn off the Prettier extension for all files by adding "editor.formatOnSave": false to your  .vscode/settings.json file.
+
 /**
  * Known remaining TODO items:
  * - (1) Need a way to acquire models in reference-order, so that we can emit models that reference other models.
@@ -17,9 +25,10 @@
  *          prop2: z.string()
  *        });
  * 
+ *   The efv2 folks are investigating a fix that will allow access to an ordered list of models.
   * */
 
-/* Key scripts 
+/* Key scripts for building and running this emitter
 Build from the root of the project:
   pnpm --filter efv2-zod-sketch... build
 
@@ -36,9 +45,7 @@ import {
   Enum,
   EnumMember,
   Model,
-  ModelProperty,
   navigateType,
-  Scalar,
   Type,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
@@ -133,10 +140,10 @@ function ZodModelProperties(props: ZodModelPropertiesProps) {
     props.model.properties,
     (name, prop) => {
       const propName = namePolicy.getName(name, "object-member-data");
-      const propConstrains = getAllPropertyConstraints(prop);
+      const propConstraints = getAllPropertyConstraints(prop);
       return (
         <>
-          {propName}: <ZodType type={prop.type} constraints={propConstrains} />
+          {propName}: <ZodType type={prop.type} constraints={propConstraints} />
         </>
       );
     },
@@ -166,8 +173,6 @@ function getAllPropertyConstraints(type: Type): Constraints {
   
   return constraints;
 }
-
-
 
 interface ZodTypeProps {
   type: Type;
@@ -203,10 +208,10 @@ function ZodType(props: ZodTypeProps) {
     if ($.array.is(props.type)) {
       if (props.type.indexer !== undefined) {
         const elementType = props.type.indexer.value;
-        const elementConstrains: Constraints = getAllPropertyConstraints(elementType);
+        const elementConstraints: Constraints = getAllPropertyConstraints(elementType);
         const arrayConstraints = ZodArrayConstraints(props);
         return (
-          <>{zod.z}.array(<ZodType type={elementType} constraints={elementConstrains} />){arrayConstraints}{optString}</>
+          <>{zod.z}.array(<ZodType type={elementType} constraints={elementConstraints} />){arrayConstraints}{optString}</>
         );
       }
     }
@@ -215,9 +220,9 @@ function ZodType(props: ZodTypeProps) {
     {
       if (props.type.indexer !== undefined) {
         const elementType = props.type.indexer.value;
-        const elementConstrains: Constraints = getAllPropertyConstraints(elementType);
+        const elementConstraints: Constraints = getAllPropertyConstraints(elementType);
         return (
-          <>{zod.z}.record(z.string(),<ZodType type={elementType} constraints={elementConstrains} />){optString}</>
+          <>{zod.z}.record(z.string(),<ZodType type={elementType} constraints={elementConstraints} />){optString}</>
         );
       }
     }
@@ -235,8 +240,8 @@ function ZodType(props: ZodTypeProps) {
     const unionTypeNames = ay.mapJoin(
       unionTypes,
       (name, entry) => {
-        const elementConstrains: Constraints = getAllPropertyConstraints(entry.type);
-        return <ZodType type={entry.type} constraints={elementConstrains} />;
+        const elementConstraints: Constraints = getAllPropertyConstraints(entry.type);
+        return <ZodType type={entry.type} constraints={elementConstraints} />;
       },
       { joiner: ", " },
     );
@@ -246,10 +251,10 @@ function ZodType(props: ZodTypeProps) {
 
   // Reference to another model property
   if ($.modelProperty.is(props.type)) {
-    const propConstrains = getAllPropertyConstraints(props.type);
+    const propConstraints = getAllPropertyConstraints(props.type);
     return (
       <>
-        <ZodType type={props.type.type} constraints={propConstrains} />{optString}
+        <ZodType type={props.type.type} constraints={propConstraints} />{optString}
       </>
     );
   }
@@ -271,10 +276,11 @@ function ZodNestedModel(props: ModelProps) {
 
 
 function getScalarIntrinsicZodType(props: ZodTypeProps): string {
-  // Note: the Prettier extension for VS Code is not formatting the fragments correctly.
-  // If you turn it on and save your file, it will insert newlines within the fragments, which results in
-  // incorrect Zod code being emitted.  You can turn off the Prettier extension for this file by adding  "files.exclude": { "**/efv2-zod-sketch/src/emitter.tsx": true } to your .vscode/settings.json file.
-  // You can also turn off the Prettier extension for all files by adding "editor.formatOnSave": false to your  .vscode/settings.json file.
+  // IMPORTANT:  Please note that all scalar handlers in this method must be organized from most narrow 
+  // to least narrow. This is because the scalar handlers are not mutually exclusive due to use of .extendsXXX(),
+  // and the first one that matches will be used, causing incorrect bit-limitation constraints to be applied
+  // (or skipped altogether).
+
   let optString = "";
   if (props.constraints.itemOptional) {
     optString = ".optional()";
@@ -301,7 +307,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
     }
 
     // Numbers
-    // Bit limitations don't translate very well, since they really
+    // Bit limitations don't translate very well for floats, since they really
     // affect precision and not min/max values (i.e. a mismatch won't
     // cause an overflow but just a truncation in accuracy).  We will leave these as
     // numbers.
@@ -327,6 +333,7 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
       );
     }
 
+    // With integers, though, we completely understand the range and can parse to it.
     if ($.scalar.extendsInt8(props.type)) {
       return (
         <>
@@ -390,7 +397,6 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
         </>
       );
     }
-    // With integers, we completely understand the range and can parse to it.
     if ($.scalar.extendsInteger(props.type)) {
       return (
         <>
@@ -537,6 +543,11 @@ function ZodArrayConstraints(props: ZodTypeProps): string {
  * @returns A collection of all defined models in the spec
  */
 function getModels() {
+  // This method is temporary until we have a way to get models in reference order from the efv2 team.
+  // Currently, the models are emitted in the order they are found in the spec, which can cause issues.
+  // In the interim, make sure to define models in the TypeSpec in reference-order or you may get errors
+  // when emitting the models.
+
   const models = new Set<Model>();
 
   const globalNs = $.program.getGlobalNamespaceType();
