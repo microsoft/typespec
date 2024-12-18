@@ -1,4 +1,5 @@
 import { runPython3 } from "./run-python3.js";
+
 async function main() {
   try {
     await runPython3("./eng/scripts/setup/prepare.py");

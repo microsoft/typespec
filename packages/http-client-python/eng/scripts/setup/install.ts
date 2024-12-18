@@ -2,6 +2,7 @@ import path, { dirname } from "path";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { runPython3 } from "./run-python3.js";
+import fs from "fs";
 
 async function main() {
   try {
@@ -20,19 +21,10 @@ async function installPyodideDeps() {
   const pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
-  await micropip.install([
-    "black",
-    "click",
-    "docutils==0.21.2",
-    "Jinja2==3.1.4",
-    "m2r2==0.3.3.post2",
-    "MarkupSafe",
-    "pathspec",
-    "platformdirs",
-    "pyyaml",
-    "tomli",
-    "setuptools",
-  ]);
+  const requirementsPath = path.join(root, "generator", "requirements.txt");
+  const requirementsText = fs.readFileSync(requirementsPath, "utf-8");
+  const requirementsArray = requirementsText.split("\n").filter((line) => line.trim() !== "");
+  await micropip.install(requirementsArray);
 }
 
 main();

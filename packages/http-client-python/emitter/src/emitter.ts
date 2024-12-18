@@ -119,31 +119,58 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   commandArgs["from-typespec"] = "true";
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
-    if (resolvedOptions["use-pyodide"] || !fs.existsSync(path.join(root, "venv"))) {
-      // here we run with pyodide, if there's no venv or if the user specifies to use pyodide
-      const outputFolder = path.relative(root, outputDir);
-      const pyodide = await setupPyodideCall(root, outputFolder);
-      const yamlRelativePath = path.relative(root, yamlPath);
-      const globals = pyodide.toPy({ outputFolder, yamlRelativePath, commandArgs });
+    // if not using pyodide and there's no venv, we try to create venv
+    if (!resolvedOptions["use-pyodide"] && !fs.existsSync(path.join(root, "venv"))) {
+      try {
+        await runPython3("./eng/scripts/setup/install.py");
+        await runPython3("./eng/scripts/setup/prepare.py");
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.includes("Failed to find compatible python version.")
+        ) {
+          // if we can't find python with compatible version, we use pyodide instead
+          resolvedOptions["use-pyodide"] = true;
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    if (resolvedOptions["use-pyodide"]) {
+      // here we run with pyodide
+      const pyodide = await setupPyodideCall(root);
+      // create the output folder if not exists
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      // mount output folder to pyodide
+      pyodide.FS.mkdirTree("/output");
+      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: outputDir }, "/output");
+      // mount yaml file to pyodide
+      pyodide.FS.mkdirTree("/yaml");
+      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
+      const globals = pyodide.toPy({
+        outputFolder: "/output",
+        yamlFile: `/yaml/${path.basename(yamlPath)}`,
+        commandArgs,
+      });
       const pythonCode = `
         async def main():
           import warnings
           with warnings.catch_warnings():
             warnings.simplefilter("ignore", SyntaxWarning) # bc of m2r2 dep issues
             from pygen import m2r, preprocess, codegen, black
-          m2r.M2R(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
-          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
-          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlRelativePath, **commandArgs).process()
+          m2r.M2R(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
           black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
     
         await main()`;
       await pyodide.runPythonAsync(pythonCode, { globals });
     } else {
+      // here we run with native python
       let venvPath = path.join(root, "venv");
-      if (!fs.existsSync(venvPath)) {
-        await runPython3("./eng/scripts/setup/install.py");
-        await runPython3("./eng/scripts/setup/prepare.py");
-      }
       if (fs.existsSync(path.join(venvPath, "bin"))) {
         venvPath = path.join(venvPath, "bin", "python");
       } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
@@ -162,10 +189,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   }
 }
 
-async function setupPyodideCall(root: string, outputFolder: string) {
-  if (!fs.existsSync(outputFolder)) {
-    fs.mkdirSync(outputFolder, { recursive: true });
-  }
+async function setupPyodideCall(root: string) {
   const pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
   pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: "." }, ".");
   await pyodide.loadPackage("setuptools");
