@@ -1,8 +1,6 @@
 /**
  * Known remaining TODO items:
  * - (1) Add support for references to other models, including internal properties (fix any output which is currently z.any())
- * - (2) Add support for unions
- * - (3) Add support for nullable (which turns out to be a kind of union)
   * */
 
 /* Key scripts 
@@ -210,8 +208,23 @@ function ZodType(props: ZodTypeProps) {
       }
     }
   }
-  // TODO:
+
   // Unions
+  if ($.union.is(props.type)) { 
+    const unionTypes = props.type.variants;
+
+    const unionTypeNames = ay.mapJoin(
+      unionTypes,
+      (name, entry) => {
+        const elementConstrains: Constraints = getAllPropertyConstraints(entry.type);
+        return <ZodType type={entry.type} constraints={elementConstrains} />;
+      },
+      { joiner: ", " },
+    );
+
+    return <>{zod.z}.union([ {unionTypeNames} ]){optString}</>;
+  }
+
   // References to another model (the model directly or things inside it)
   return <>{zod.z}.any(){optString}</>;
 }
@@ -238,6 +251,16 @@ function getScalarIntrinsicZodType(props: ZodTypeProps): string {
   let optString = "";
   if (props.constraints.itemOptional) {
     optString = ".optional()";
+  }
+  
+  // In TypeSpec, null is an intrinsic type (typically used in a union) rather than a qualifier on a type,
+  // like the decorator "@optional".  This means it's easier for us to emit the Zod version as z.null() instead of 
+  // appending .nullable to the z.union() (etc.) element; the alternative would be to add a special case inside the union
+  // handlng code -- specifically in the ay.mapJoin() sub-call in the ZodType() function where we'd have to
+  // ignore the null type when emitting the union but keep track of having seen it so we can append .nullable() to the
+  // Not worth it, since the current way still creates legal Zod code without any special casing.
+  if (props.type.kind === "Intrinsic" && props.type.name === "null") {
+    return <>{zod.z}.null(){optString}</>;
   }
 
   if ($.scalar.is(props.type)) {

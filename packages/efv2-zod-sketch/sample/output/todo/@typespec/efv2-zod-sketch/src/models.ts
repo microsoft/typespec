@@ -52,7 +52,7 @@ avagadro = 6.022e+23
 
 export const user = z.object(
 {
-nullableString: z.any(),
+nullableOptionalValue: z.union([ z.string().min(1).max(50), z.string().url(), z.null() ]).optional(),
 constrainedScalar: z.string().min(1).max(50),
 myPetRecord: z.record(z.string(),z.number()),
 constrainedArray: z.array(z.string().min(1).max(50)),
@@ -111,11 +111,11 @@ title: z.string().max(255),
 createdBy: z.any(),
 assignedTo: z.any().optional(),
 description: z.string().optional(),
-status: z.any(),
+status: z.union([ z.string(), z.string(), z.string() ]),
 createdAt: z.string().datetime(),
 updatedAt: z.string().datetime(),
 completedAt: z.string().datetime().optional(),
-labels: z.any().optional(),
+labels: z.union([ z.string(), z.array(z.string()), z.any(), z.array(z.any()) ]).optional(),
 _dummy: z.string().optional()
 }
 );
@@ -163,7 +163,7 @@ statusCode: z.number().min(500).max(599)
 
 export const userCreatedResponse = z.object(
 {
-nullableString: z.any(),
+nullableOptionalValue: z.union([ z.string().min(1).max(50), z.string().url(), z.null() ]).optional(),
 constrainedScalar: z.string().min(1).max(50),
 myPetRecord: z.record(z.string(),z.number()),
 constrainedArray: z.array(z.string().min(1).max(50)),
@@ -251,9 +251,9 @@ nextLink: z.string().url().optional()
 export const todoItemPatch = z.object(
 {
 title: z.any().optional(),
-assignedTo: z.any().optional(),
-description: z.any().optional(),
-status: z.any().optional()
+assignedTo: z.union([ z.any().optional(), z.null() ]).optional(),
+description: z.union([ z.any().optional(), z.null() ]).optional(),
+status: z.union([ z.string(), z.string(), z.string() ]).optional()
 }
 );
 
@@ -277,6 +277,6 @@ statusCode: z.number()
 
 export const page = z.object(
 {
-items: z.array(z.any())
+items: z.array(z.union([ z.any(), z.any() ]))
 }
 );
