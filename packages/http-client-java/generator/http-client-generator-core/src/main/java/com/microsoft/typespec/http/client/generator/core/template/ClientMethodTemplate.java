@@ -768,32 +768,56 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String serviceMethodCall
                 = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
             function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
-            function.line("return new PagedResponseBase<>(");
-            function.line("res.getRequest(),");
-            function.line("res.getStatusCode(),");
-            function.line("res.getHeaders(),");
-            if (settings.isDataPlaneClient()) {
-                function.line("getValues(res.getValue(), \"%s\"),",
-                    clientMethod.getMethodPageDetails().getSerializedItemName());
-            } else {
-                function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
-                    .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
-            }
-            if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+            if (settings.isBranded()) {
+                function.line("return new PagedResponseBase<>(");
+                function.line("res.getRequest(),");
+                function.line("res.getStatusCode(),");
+                function.line("res.getHeaders(),");
                 if (settings.isDataPlaneClient()) {
-                    function.line("getNextLink(res.getValue(), \"%s\"),",
-                        clientMethod.getMethodPageDetails().getSerializedNextLinkName());
+                    function.line("getValues(res.getValue(), \"%s\"),",
+                        clientMethod.getMethodPageDetails().getSerializedItemName());
                 } else {
-                    function.line(nextLinkLine(clientMethod));
+                    function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
+                        .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+                }
+                if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+                    if (settings.isDataPlaneClient()) {
+                        function.line("getNextLink(res.getValue(), \"%s\"),",
+                            clientMethod.getMethodPageDetails().getSerializedNextLinkName());
+                    } else {
+                        function.line(nextLinkLine(clientMethod));
+                    }
+                } else {
+                    function.line("null,");
+                }
+
+                if (responseTypeHasDeserializedHeaders(clientMethod.getProxyMethod().getReturnType())) {
+                    function.line("res.getDeserializedHeaders());");
+                } else {
+                    function.line("null);");
                 }
             } else {
-                function.line("null,");
-            }
-
-            if (responseTypeHasDeserializedHeaders(clientMethod.getProxyMethod().getReturnType())) {
-                function.line("res.getDeserializedHeaders());");
-            } else {
-                function.line("null);");
+                function.line("return new PagedResponse<>(");
+                function.line("res.getRequest(),");
+                function.line("res.getStatusCode(),");
+                function.line("res.getHeaders(),");
+                if (settings.isDataPlaneClient()) {
+                    function.line("getValues(res.getValue(), \"%s\"),",
+                        clientMethod.getMethodPageDetails().getSerializedItemName());
+                } else {
+                    function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
+                        .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+                }
+                if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+                    if (settings.isDataPlaneClient()) {
+                        function.line("getNextLink(res.getValue(), \"%s\"),",
+                            clientMethod.getMethodPageDetails().getSerializedNextLinkName());
+                    } else {
+                        function.line(nextLinkLine(clientMethod));
+                    }
+                } else {
+                    function.line("null);");
+                }
             }
         });
     }
