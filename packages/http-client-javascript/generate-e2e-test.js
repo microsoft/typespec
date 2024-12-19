@@ -2,6 +2,7 @@
 
 import chalk from "chalk";
 import { execa } from "execa";
+import { lstat, rm, symlink } from "fs/promises";
 import { globby } from "globby";
 import inquirer from "inquirer";
 import { dirname, join } from "path";
@@ -43,6 +44,11 @@ const argv = yargs(hideBin(process.argv))
     type: "string",
     array: true,
     default: [],
+  })
+  .option("build", {
+    type: "boolean",
+    describe: "Build the generated projects",
+    default: false,
   })
   .help().argv;
 
@@ -111,16 +117,41 @@ async function runCommand(command, args) {
   await execa(command, args, { stdio: "inherit" });
 }
 
+async function createSymlink(target, linkPath) {
+  try {
+    // Remove existing symlink or directory if it exists
+    if (await pathExists(linkPath)) {
+      const stats = await lstat(linkPath);
+      if (stats.isSymbolicLink() || stats.isDirectory()) {
+        await rm(linkPath, { recursive: true });
+      }
+    }
+    // Create symlink
+    await symlink(target, linkPath, "dir");
+    console.log(chalk.green(`Created symlink: ${linkPath} -> ${target}`));
+  } catch (error) {
+    console.error(chalk.red(`Failed to create symlink: ${linkPath} -> ${target}`), error);
+    throw error;
+  }
+}
+
 // Process files with interactive mode
 async function processFiles(files, options) {
-  const { interactive, generateReport } = options;
+  const { interactive, generateReport, build } = options;
   const succeeded = [];
   const failed = [];
+  // const sharedNodeModules = join(__dirname, "test", "e2e", "generated", "node_modules");
+
+  // Ensure shared_node_modules directory exists
+  // if (!(await pathExists(sharedNodeModules))) {
+  //   console.log(chalk.blue("Creating shared node_modules directory..."));
+  //   await mkdir(sharedNodeModules, { recursive: true });
+  // }
 
   for (let i = 0; i < files.length; i++) {
     const { fullPath, relativePath } = files[i];
     console.log(chalk.blue(`Processing: ${relativePath}`));
-    const outputDir = join("test", "e2e", "snapshot", dirname(relativePath));
+    const outputDir = join("test", "e2e", "generated", dirname(relativePath));
 
     try {
       await runCommand("npx", [
@@ -141,6 +172,16 @@ async function processFiles(files, options) {
         ".ts,.tsx",
       ]);
       await runCommand("npx", ["prettier", outputDir, "--write"]);
+
+      if (build) {
+        // Create a symlink to the shared node_modules directory
+        // const projectNodeModules = join(outputDir, "node_modules");
+        // await createSymlink(sharedNodeModules, projectNodeModules);
+
+        await runCommand("npm", ["install"], { cwd: outputDir });
+        await runCommand("npm", ["run", "build"], { cwd: outputDir });
+      }
+
       console.log(chalk.green(`Finished processing: ${relativePath}`));
       succeeded.push(relativePath);
     } catch {
@@ -215,5 +256,6 @@ async function processFiles(files, options) {
   await processFiles(files, {
     interactive: argv.interactive,
     generateReport: argv.report,
+    build: argv.build,
   });
 })();
