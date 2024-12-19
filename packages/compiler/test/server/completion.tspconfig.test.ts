@@ -246,11 +246,15 @@ describe("Test completion items for linter", () => {
     },
     {
       config: `linter:\n  extends:\n    - "┆`,
-      expected: ["fake-linter-no-schema", "fake-linter/recommended"],
+      expected: ["fake-linter-no-schema", "fake-linter/recommended", "fake-linter"],
     },
     {
       config: `linter:\n  extends:\n    - "fake-linter/recommended"\n    - "┆`,
-      expected: ["fake-linter-no-schema"],
+      expected: ["fake-linter-no-schema", "fake-linter"],
+    },
+    {
+      config: `linter:\n  extends:\n    - "fake-linter"\n  enable:\n    "┆`,
+      expected: ["fake-linter/casing", "fake-linter/no-model-doc", "fake-linter/testing"],
     },
     {
       config: `linter:\n  extends:\n    - "fake-linter/recommended"\n  enable:\n    "┆`,
@@ -331,6 +335,10 @@ describe("Test completion items that use parameters and environment variables an
       expected: [],
     },
     {
+      config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: "outdir/{env.}/my┆Dir"`,
+      expected: [],
+    },
+    {
       config: `environment-variables:\n  BASE_DIR:\n    default: "{cwd}"\n  test-env:\n    default: ""\noutput-dir: "{ abcenv.┆}"`,
       expected: ["cwd", "project-root"],
     },
@@ -357,6 +365,10 @@ describe("Test completion items that use parameters and environment variables an
     {
       config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "outDir/{cw┆}/myDir"`,
       expected: ["cwd", "project-root", "base-dir", "test-param"],
+    },
+    {
+      config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noptions:\n  emitter-sub-folder:\n    sub-folder: "{cw┆}/myDir"`,
+      expected: ["cwd", "project-root", "base-dir", "test-param", "output-dir", "emitter-name"],
     },
     {
       config: `parameters:\n  base-dir:\n    default: "{cwd}"\n  test-param:    default: ""\noutput-dir: "{env.┆}"`,
@@ -436,7 +448,7 @@ describe("Test completion items for imports", () => {
     },
     {
       config: `imports:\n  - "./demo_tsp"\n  - "./┆`,
-      expected: ["demo_yaml", "demo_tsp"],
+      expected: ["demo_yaml"],
     },
     {
       config: `imports:\n  - "./demo_tsp/┆`,
@@ -444,7 +456,7 @@ describe("Test completion items for imports", () => {
     },
     {
       config: `imports:\n  - "./demo_tsp/test1.tsp"\n  - "./demo_tsp/┆`,
-      expected: ["test1.tsp", "test3.tsp"],
+      expected: ["test3.tsp"],
     },
     {
       config: `imports:\n  - "Z:/test/workspace/┆`,

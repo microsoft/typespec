@@ -33,25 +33,25 @@ export interface YamlScalarTarget {
    */
   source: string;
   /**
-   * The siblings of the target node
-   */
-  siblings: string[];
-  /**
    *  The input quotes (double quotes or single quotes)
    */
   sourceType: Scalar.Type;
+  /**
+   * The position range of the text in the document, such as [startPos, endPos], see {@link TextRange}
+   */
+  sourceRange: TextRange | undefined;
+  /**
+   * The siblings of the target node
+   */
+  siblings: string[];
   /**
    * The parsed yaml document
    */
   yamlDoc: Document<Node, true>;
   /**
-   * The position range of the text in the document, such as [startPos, endPos], see {@link TextRange}
-   */
-  nodePostionRange: TextRange;
-  /**
    * The cursor current position
    */
-  curPos: number;
+  cursorPosition: number;
 }
 
 interface YamlVisitScalarNode {
@@ -105,8 +105,8 @@ export function resolveYamlScalarTarget(
         sourceType: "PLAIN",
         siblings: rootProperties,
         yamlDoc,
-        nodePostionRange: { pos: 0, end: 0 },
-        curPos: pos,
+        sourceRange: undefined,
+        cursorPosition: pos,
       };
     }
     for (let i = position.line - 1; i >= 0; i--) {
@@ -155,8 +155,8 @@ export function resolveYamlScalarTarget(
             sourceType: "PLAIN",
             siblings: [...yp.siblings, yp.source],
             yamlDoc,
-            nodePostionRange: yp.nodePostionRange,
-            curPos: pos,
+            sourceRange: yp.sourceRange,
+            cursorPosition: pos,
           };
         }
         break;
@@ -202,8 +202,8 @@ export function resolveYamlScalarTarget(
               ? (last.value?.items.map((item) => (item.key as any).source ?? "") ?? [])
               : [],
             yamlDoc,
-            nodePostionRange: yp.nodePostionRange,
-            curPos: pos,
+            sourceRange: yp.sourceRange,
+            cursorPosition: pos,
           };
         }
         break;
@@ -261,7 +261,12 @@ function createYamlPathFromVisitScalarNode(
   }
 
   const last = nodePath[nodePath.length - 1];
-  const [startPos, endPos] = n.range ?? [];
+  let curSourceRange = undefined;
+  if (n.range) {
+    const [startPos, endPos] = n.range;
+    curSourceRange = { pos: startPos, end: endPos };
+  }
+
   if (isDocument(last)) {
     // we are at the root and the content is a pure text (otherwise there should be a Map under document node first)
     return {
@@ -271,8 +276,8 @@ function createYamlPathFromVisitScalarNode(
       sourceType: n.type ?? "PLAIN",
       siblings: [],
       yamlDoc,
-      nodePostionRange: { pos: startPos ?? 0, end: endPos ?? 0 },
-      curPos: offset,
+      sourceRange: curSourceRange,
+      cursorPosition: offset,
     };
   } else if (isPair(last)) {
     if (nodePath.length < 2) {
@@ -295,8 +300,8 @@ function createYamlPathFromVisitScalarNode(
         sourceType: n.type ?? "PLAIN",
         siblings: [],
         yamlDoc,
-        nodePostionRange: { pos: startPos ?? 0, end: endPos ?? 0 },
-        curPos: offset,
+        sourceRange: curSourceRange,
+        cursorPosition: offset,
       };
     } else {
       const parent = nodePath.length >= 2 ? nodePath[nodePath.length - 2] : undefined;
@@ -311,8 +316,8 @@ function createYamlPathFromVisitScalarNode(
         siblings: targetSiblings,
         sourceType: n.type ?? "PLAIN",
         yamlDoc,
-        nodePostionRange: { pos: startPos ?? 0, end: endPos ?? 0 },
-        curPos: offset,
+        sourceRange: curSourceRange,
+        cursorPosition: offset,
       };
     }
   } else if (isSeq(last)) {
@@ -325,8 +330,8 @@ function createYamlPathFromVisitScalarNode(
         .filter((i) => i !== n)
         .map((item) => (isScalar(item) ? (item.source ?? "") : "")),
       yamlDoc,
-      nodePostionRange: { pos: startPos ?? 0, end: endPos ?? 0 },
-      curPos: offset,
+      sourceRange: curSourceRange,
+      cursorPosition: offset,
     };
   } else {
     log({

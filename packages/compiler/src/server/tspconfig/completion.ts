@@ -49,7 +49,7 @@ export async function provideTspconfigCompletionItems(
   const variableInterpolationItems = resolveVariableInterpolationCompleteItems(
     target.yamlDoc,
     target.path,
-    tspConfigDoc.getText().slice(target.nodePostionRange.pos, target.curPos),
+    tspConfigDoc.getText().slice(target.sourceRange?.pos, target.cursorPosition),
   );
   if (variableInterpolationItems.length > 0) {
     return variableInterpolationItems;
@@ -93,7 +93,9 @@ export async function provideTspconfigCompletionItems(
             tspConfigPosition,
             target,
           );
-          items.push(item);
+          if (item) {
+            items.push(item);
+          }
         }
       }
       return items;
@@ -142,10 +144,11 @@ export async function provideTspconfigCompletionItems(
                   tspConfigPosition,
                   target,
                 );
-                items.push(item);
+                if (item) {
+                  items.push(item);
+                }
               }
             }
-            continue;
           }
 
           // If there is no corresponding ruleSet in the library, add the library name directly.
@@ -156,7 +159,9 @@ export async function provideTspconfigCompletionItems(
               tspConfigPosition,
               target,
             );
-            items.push(item);
+            if (item) {
+              items.push(item);
+            }
           }
         }
       } else if (extendKeyWord === "enable" || extendKeyWord === "disable") {
@@ -175,14 +180,16 @@ export async function provideTspconfigCompletionItems(
                 tspConfigPosition,
                 target,
               );
-              items.push(item);
+              if (item) {
+                items.push(item);
+              }
             }
           }
         }
       } else {
         log({
           level: "warning",
-          message: "Unknown linter keyword",
+          message: "Unknown linter keyword, it should be 'extends', 'enable' or 'disable'",
         });
       }
       return items;
@@ -197,7 +204,7 @@ export async function provideTspconfigCompletionItems(
         ".yaml",
         [normalizeSlashes(tspConfigFile)],
       );
-      return getFilePathCompletionItems(relativeFiles, siblings);
+      return getFilePathCompletionItems(relativeFiles, siblings, source);
     } else if (nodePath.length >= CONFIG_PATH_LENGTH_FOR_IMPORTS && nodePath[0] === "imports") {
       const currentFolder = getDirectoryPath(tspConfigFile);
       const newFolderPath = joinPaths(currentFolder, source);
@@ -209,7 +216,7 @@ export async function provideTspconfigCompletionItems(
         ".tsp",
         [joinPaths(currentFolder, "main.tsp")],
       );
-      return getFilePathCompletionItems(relativeFiles, siblings);
+      return getFilePathCompletionItems(relativeFiles, siblings, source);
     } else {
       const schema = TypeSpecConfigJsonSchema;
       return schema ? resolveCompleteItems(schema, target) : [];
@@ -357,21 +364,24 @@ function createContainingQuatedValCompetionItem(
   description: string,
   tspConfigPosition: Position,
   target: YamlScalarTarget,
-): CompletionItem {
+): CompletionItem | undefined {
   if (
-    target.curPos >= target.nodePostionRange.pos &&
-    target.curPos <= target.nodePostionRange.end
+    target.sourceRange &&
+    target.cursorPosition >= target.sourceRange.pos &&
+    target.cursorPosition <= target.sourceRange.end
   ) {
+    // If it is a quoted string, the relative position needs to be reduced by 1
+    const relativePos =
+      target.sourceType === "QUOTE_SINGLE" || target.sourceType === "QUOTE_DOUBLE"
+        ? target.cursorPosition - target.sourceRange.pos - 1
+        : target.cursorPosition - target.sourceRange.pos;
     return {
       label: labelName,
       kind: CompletionItemKind.Field,
       documentation: description,
       textEdit: TextEdit.replace(
         Range.create(
-          Position.create(
-            tspConfigPosition.line,
-            tspConfigPosition.character - target.source.length,
-          ),
+          Position.create(tspConfigPosition.line, tspConfigPosition.character - relativePos),
           Position.create(tspConfigPosition.line, tspConfigPosition.character),
         ),
         target.sourceType === "QUOTE_SINGLE" || target.sourceType === "QUOTE_DOUBLE"
@@ -379,9 +389,9 @@ function createContainingQuatedValCompetionItem(
           : `"${labelName}"`,
       ),
     };
-  } else {
-    return { label: "" };
   }
+
+  return undefined;
 }
 
 /**
@@ -405,14 +415,16 @@ async function findFilesOrDirsWithSameExtension(
     // When reading the content under the path, an error may be reported if the path is incorrect.
     const dirs = await compilerHost.readDir(rootPath);
     for (const d of dirs) {
-      if (
-        ((await compilerHost.stat(joinPaths(rootPath, d))).isDirectory() ||
-          ((await compilerHost.stat(joinPaths(rootPath, d))).isFile() &&
-            d.endsWith(fileExtension))) &&
-        !exclude.includes(d) &&
-        !excludeFiles.includes(getNormalizedAbsolutePath(d, rootPath))
-      ) {
-        files.push(d);
+      if (!exclude.includes(d) && !excludeFiles.includes(getNormalizedAbsolutePath(d, rootPath))) {
+        try {
+          const stat = await compilerHost.stat(joinPaths(rootPath, d));
+          if (stat.isDirectory() || (stat.isFile() && d.endsWith(fileExtension))) {
+            files.push(d);
+          }
+        } catch {
+          // If the path is incorrect, the error is ignored
+          continue;
+        }
       }
     }
   } catch {
@@ -425,22 +437,22 @@ async function findFilesOrDirsWithSameExtension(
  * Get the CompletionItem object array of the relative path of the file
  * @param relativeFiles File relative path array
  * @param siblings Sibling node array
+ * @param source The input source of the current node
  * @returns CompletionItem object array
  */
-function getFilePathCompletionItems(relativeFiles: string[], siblings: string[]): CompletionItem[] {
-  const items: CompletionItem[] = [];
-  if (relativeFiles.length > 0) {
-    for (const file of relativeFiles) {
-      if (!siblings.includes(file)) {
-        const item: CompletionItem = {
-          label: file,
-          kind: CompletionItemKind.File,
-        };
-        items.push(item);
-      }
-    }
-  }
-  return items;
+function getFilePathCompletionItems(
+  relativeFiles: string[],
+  siblings: string[],
+  source: string,
+): CompletionItem[] {
+  return relativeFiles
+    .filter((file) => !siblings.includes(joinPaths(source, file)))
+    .map((file) => {
+      return {
+        label: file,
+        kind: CompletionItemKind.File,
+      };
+    });
 }
 
 /**
@@ -455,7 +467,7 @@ function resolveVariableInterpolationCompleteItems(
   path: string[],
   curText: string,
 ): CompletionItem[] {
-  if (/{ *env\./g.test(curText)) {
+  if (/{\s*env\.[^}]*$/.test(curText)) {
     // environment-variables
     return getVariableCompletionItem(
       yamlDocNodes,
@@ -510,21 +522,18 @@ function getVariableCompletionItem(
 ): CompletionItem[] {
   const result: CompletionItem[] = [];
   if (isMap(yamlDoc.contents)) {
-    yamlDoc.contents.items
-      .filter((item) => (<any>item.key).source === filterName)
-      .map((item) => {
-        if (item.value !== null && isMap(item.value)) {
-          item.value.items.forEach((i) => {
-            if (isPair(i)) {
-              result.push({
-                label: (i.key as any).source ?? "",
-                kind: CompletionItemKind.Value,
-                documentation: description,
-              });
-            }
+    const yamlMap = yamlDoc.contents.items.find((item) => (<any>item.key).source === filterName);
+    if (yamlMap && yamlMap.value !== null && isMap(yamlMap.value)) {
+      yamlMap.value.items.forEach((i) => {
+        if (isPair(i)) {
+          result.push({
+            label: (i.key as any).source ?? "",
+            kind: CompletionItemKind.Value,
+            documentation: description,
           });
         }
       });
+    }
   }
 
   return result;
