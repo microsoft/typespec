@@ -512,6 +512,36 @@ describe("identifiers", () => {
   it("completes meta property '::parameters' and '::returnType' on operation", async () => {
     const completions = await complete(
       `
+      op base(one: string): void;    
+      @@doc(base::par┆, "Override");
+      `,
+    );
+
+    check(completions, [
+      {
+        label: "parameters",
+        insertText: "parameters",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop base(one: string): void\n```",
+        },
+      },
+      {
+        label: "returnType",
+        insertText: "returnType",
+        kind: CompletionItemKind.Method,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nop base(one: string): void\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes meta property '::parameters' and '::returnType' using alias on operation", async () => {
+    const completions = await complete(
+      `
       op a(@doc("base doc") one: string): void;
       op b is a;
       @@doc(b::par┆, "override for b");

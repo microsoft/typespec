@@ -2929,27 +2929,27 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
 
-      if (identifier.parent.selector === "::") {
-        if (base?.node === undefined && base?.declarations) {
-          // Process meta properties separately, such as `::parameters`, `::returnType`
-          for (const nodeModels of Object.values(base?.declarations)) {
-            if (nodeModels.kind === SyntaxKind.OperationStatement) {
-              const operation = nodeModels as OperationStatementNode;
-              addCompletion("parameters", operation.symbol);
-              addCompletion("returnType", operation.symbol);
-            }
-          }
-        } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
-          // Process meta properties separately, such as `::type`
-          const metaProperty = base.node as ModelPropertyNode;
-          addCompletion("type", metaProperty.symbol);
+      if (base) {
+        if (base.flags & SymbolFlags.Alias) {
+          base = getAliasedSymbol(base, undefined);
         }
-      } else {
+
         if (base) {
-          if (base.flags & SymbolFlags.Alias) {
-            base = getAliasedSymbol(base, undefined);
-          }
-          if (base) {
+          if (identifier.parent.selector === "::") {
+            if (base?.node === undefined && base?.declarations && base.declarations.length > 0) {
+              // Process meta properties separately, such as `::parameters`, `::returnType`
+              const nodeModels = base?.declarations[0];
+              if (nodeModels.kind === SyntaxKind.OperationStatement) {
+                const operation = nodeModels as OperationStatementNode;
+                addCompletion("parameters", operation.symbol);
+                addCompletion("returnType", operation.symbol);
+              }
+            } else if (base?.node?.kind === SyntaxKind.ModelProperty) {
+              // Process meta properties separately, such as `::type`
+              const metaProperty = base.node as ModelPropertyNode;
+              addCompletion("type", metaProperty.symbol);
+            }
+          } else {
             addCompletions(base.exports ?? base.members);
           }
         }
