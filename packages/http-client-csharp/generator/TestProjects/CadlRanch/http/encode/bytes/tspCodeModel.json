@@ -144,7 +144,7 @@
   {
    "$id": "16",
    "Name": "BytesClient",
-   "Description": "Test for encode decorator on bytes.",
+   "Doc": "Test for encode decorator on bytes.",
    "Operations": [],
    "Protocol": {
     "$id": "17"
@@ -154,7 +154,7 @@
      "$id": "18",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "19",
       "kind": "url",
@@ -414,7 +414,7 @@
      "$id": "42",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "43",
       "kind": "url",
@@ -458,7 +458,7 @@
        "$id": "48",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "49",
         "kind": "constant",
@@ -567,7 +567,7 @@
        "$id": "57",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "58",
         "kind": "constant",
@@ -676,7 +676,7 @@
        "$id": "66",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "67",
         "kind": "constant",
@@ -785,7 +785,7 @@
        "$id": "75",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "76",
         "kind": "constant",
@@ -894,7 +894,7 @@
      "$id": "84",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "85",
       "kind": "url",
@@ -1154,7 +1154,7 @@
      "$id": "108",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "109",
       "kind": "url",
@@ -1198,7 +1198,7 @@
        "$id": "114",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "115",
         "kind": "constant",
@@ -1437,7 +1437,7 @@
        "$id": "135",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "136",
         "kind": "constant",
@@ -1518,7 +1518,7 @@
        "$id": "142",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "143",
         "kind": "constant",
@@ -1599,7 +1599,7 @@
      "$id": "149",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "150",
       "kind": "url",
@@ -2017,7 +2017,7 @@
      "$id": "192",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "193",
       "kind": "url",
