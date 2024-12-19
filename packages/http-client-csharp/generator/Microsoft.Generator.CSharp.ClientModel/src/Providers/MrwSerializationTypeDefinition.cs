@@ -842,7 +842,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (_additionalBinaryDataProperty != null)
             {
-                var binaryDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(
+                var binaryDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.DeserializeForType(
                     _additionalBinaryDataProperty.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
@@ -850,7 +850,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                var rawDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.DeserializeForType(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -1267,11 +1267,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    ClientModelPlugin.Instance.TypeFactory.DeserializeForType(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.FrameworkType, jsonElement, serializationFormat),
+                    ClientModelPlugin.Instance.TypeFactory.DeserializeForType(valueType.FrameworkType, jsonElement, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(ClientModelPlugin.Instance.TypeFactory.GetValueTypeDeserializationExpression(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
+                    valueType.ToEnum(ClientModelPlugin.Instance.TypeFactory.DeserializeForType(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
 
@@ -1584,8 +1584,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             SerializationFormat serializationFormat,
             ValueExpression value)
         {
+            value = value.NullableStructValue(type);
+
             if (type.IsFrameworkType)
-                return ClientModelPlugin.Instance.TypeFactory.SerializeValueType(type, serializationFormat, value, type.FrameworkType, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet);
+                return ClientModelPlugin.Instance.TypeFactory.SerializeForType(type.FrameworkType, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
 
             if (!type.IsEnum)
                 return _utf8JsonWriterSnippet.WriteObjectValue(value.As(type), options: _mrwOptionsParameterSnippet);
@@ -1612,20 +1614,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         internal static MethodBodyStatement SerializeValueTypeCore(
-            CSharpType type,
-            SerializationFormat serializationFormat,
-            ValueExpression value,
             Type valueType,
+            ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
-            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat serializationFormat)
         {
-            if (valueType == typeof(Nullable<>))
-            {
-                valueType = type.Arguments[0].FrameworkType;
-            }
-
-            value = value.NullableStructValue(type);
-
             return valueType switch
             {
                 var t when t == typeof(JsonElement) =>
