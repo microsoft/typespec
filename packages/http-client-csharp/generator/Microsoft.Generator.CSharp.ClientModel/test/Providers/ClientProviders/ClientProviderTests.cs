@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -65,6 +66,32 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 oauth2Auth: oauth2Auth,
                 clients: clients,
                 clientPipelineApi: TestClientPipelineApi.Instance);
+        }
+
+        [Test]
+        public async Task TestEmptyClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client]);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNull(clientProvider);
+        }
+
+        [Test]
+        public async Task TestEmptySubClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [], [], client.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client, subClient]);
+
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
+            Assert.IsNull(subClientProvider);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNull(clientProvider);
         }
 
         [Test]
