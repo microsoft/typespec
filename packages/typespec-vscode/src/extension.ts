@@ -54,7 +54,7 @@ export async function activate(context: ExtensionContext) {
           title: "Generate from TypeSpec...",
           cancellable: false,
         },
-        async (progress) => await emitCode(context, uri, progress),
+        async (progress) => await emitCode(context, uri),
       );
     }),
   );

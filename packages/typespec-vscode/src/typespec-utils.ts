@@ -1,18 +1,18 @@
 import { readdir } from "fs";
 import path, { dirname } from "path";
 import vscode from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
-import { isFile, loadModule, normalizeSlash } from "./utils.js";
+import { normalizeSlashes } from "./path-utils.js";
+import { isFile } from "./utils.js";
 
-export const toOutput = (str: string) => {
+export const onStdioOut = (str: string) => {
   str
     .trim()
     .split("\n")
     .forEach((line) => logger.info(line));
 };
-export const toError = (str: string) => {
+export const onStdioError = (str: string) => {
   str
     .trim()
     .split("\n")
@@ -24,22 +24,7 @@ export const toError = (str: string) => {
     );
 };
 
-export async function resolveTypeSpecCli(absolutePath: string): Promise<Executable | undefined> {
-  if (!path.isAbsolute(absolutePath) || (await isFile(absolutePath))) {
-    return undefined;
-  }
-  const modelInfo = await loadModule(absolutePath, "@typespec/compiler");
-  if (modelInfo) {
-    const cmdPath = path.resolve(modelInfo.path, "cmd/tsp.js");
-    return {
-      command: "node",
-      args: [cmdPath],
-    };
-  }
-  return undefined;
-}
-
-export async function getMainTspFile(tspPath: string): Promise<string | undefined> {
+export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
   const baseDir = isFilePath ? dirname(tspPath) : tspPath;
   const mainTspFile = path.resolve(baseDir, StartFileName);
@@ -72,11 +57,11 @@ export async function getMainTspFile(tspPath: string): Promise<string | undefine
 }
 
 export async function TraverseMainTspFileInWorkspace() {
-  return await vscode.workspace
+  return vscode.workspace
     .findFiles(`**/${StartFileName}`, "**/node_modules/**")
     .then((uris) =>
       uris
         .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
-        .map((uri) => normalizeSlash(uri.fsPath)),
+        .map((uri) => normalizeSlashes(uri.fsPath)),
     );
 }

@@ -130,7 +130,7 @@ export class NpmUtil {
         const packageJson = JSON.parse(data);
         version = packageJson.version;
       } catch (error) {
-        logger.error(`Error reading package.json: ${error}`);
+        logger.error("Error reading package.json.", [error]);
       }
       return {
         name: packageName,

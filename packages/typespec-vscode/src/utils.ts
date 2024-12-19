@@ -7,11 +7,6 @@ import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 import { isUrl } from "./path-utils.js";
 
-/** normalize / and \\ to / */
-export function normalizeSlash(str: string): string {
-  return str.replaceAll(/\\/g, "/");
-}
-
 export async function isFile(path: string) {
   try {
     const stats = await stat(path);

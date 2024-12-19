@@ -1,4 +1,5 @@
 import vscode from "vscode";
+import logger from "../log/logger.js";
 import { SettingName } from "../types.js";
 
 export enum EmitterKind {
@@ -14,10 +15,12 @@ export interface Emitter {
   kind: EmitterKind;
 }
 
-const extensionConfig = vscode.workspace.getConfiguration();
-
-function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter {
-  const packageFullName: string = emitter.package ?? "";
+function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter | undefined {
+  const packageFullName: string = emitter.package;
+  if (!packageFullName) {
+    logger.error("Emitter package name is required.");
+    return undefined;
+  }
   const index = packageFullName.lastIndexOf("@");
   let version = undefined;
   let packageName = packageFullName;
@@ -35,8 +38,10 @@ function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter {
 }
 
 export function getRegisterEmitters(kind: EmitterKind): ReadonlyArray<Emitter> {
+  const extensionConfig = vscode.workspace.getConfiguration();
   const emitters: ReadonlyArray<Emitter> = extensionConfig.get(SettingName.Emitters) ?? [];
   return emitters
     .filter((emitter) => emitter.kind === kind)
-    .map((emitter) => getEmitter(kind, emitter));
+    .map((emitter) => getEmitter(kind, emitter))
+    .filter((emitter) => emitter !== undefined) as Emitter[];
 }
