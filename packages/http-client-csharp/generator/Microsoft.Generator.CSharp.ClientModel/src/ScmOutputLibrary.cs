@@ -16,6 +16,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
             foreach (var inputClient in inputClients)
             {
                 var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+                if (client.Methods.Count == 0)
+                {
+                    continue;
+                }
                 clients.Add(client);
                 clients.Add(client.RestClient);
                 var clientOptions = client.ClientOptions;
