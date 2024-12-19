@@ -4,6 +4,7 @@ import {
   getDoc,
   getService,
   getSummary,
+  isArrayModelType,
   Model,
   Namespace,
   Operation,
@@ -25,7 +26,8 @@ import {
 } from "../generated-defs/TypeSpec.OpenAPI.js";
 import { isOpenAPIExtensionKey, validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
-import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
+import { AdditionalInfo, ExtensionKey, ExternalDocs, SchemaExtensionKey } from "./types.js";
+const schemaExtensions = ["minProperties", "maxProperties", "uniqueItems", "multipleOf"];
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**
@@ -58,19 +60,110 @@ export const $extension: ExtensionDecorator = (
   extensionName: string,
   value: TypeSpecValue,
 ) => {
+  // Convert the TypeSpec value to JSON and collect any diagnostics
+  const [data, diagnostics] = typespecTypeToJson(value, entity);
+  const isModelProperty = entity.kind === "ModelProperty";
+  const isMode = entity.kind === "Model";
+  const isScalar = entity.kind === "Scalar";
+
+  // Handle the "uniqueItems" extension
+  if (extensionName === "uniqueItems") {
+    // Check invalid target
+    if (
+      !(
+        isModelProperty &&
+        entity.type.kind === "Model" &&
+        isArrayModelType(context.program, entity.type)
+      )
+    ) {
+      // Report diagnostic if the target is invalid for "uniqueItems"
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-target",
+        messageId: "uniqueItems",
+        format: { paramName: entity.kind },
+        target: entity,
+      });
+      return;
+    }
+
+    // Check invalid data, Report diagnostic if the extension value is not a boolean
+    if (data !== true && data !== false) {
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-value",
+        messageId: "uniqueItems",
+        format: { extensionName: extensionName },
+        target: entity,
+      });
+      return;
+    }
+    // Set the extension for "uniqueItems"
+    setExtension(context.program, entity, extensionName, data);
+    return;
+  }
+
+  // Handle other schema extensions
+  if (schemaExtensions.includes(extensionName) && extensionName !== "uniqueItems") {
+    // Handle the "multipleOf" extension
+    const isNumber = (name: string) => name !== "string" && name !== "boolean";
+    if (extensionName === "multipleOf") {
+      if (
+        isMode ||
+        (isScalar && !isNumber(entity.name)) ||
+        (isModelProperty && !(entity.type.kind === "Scalar" && isNumber(entity.type.name)))
+      ) {
+        reportDiagnostic(context.program, {
+          code: "invalid-extension-target",
+          messageId: "multipleOf",
+          format: { paramName: entity.kind },
+          target: entity,
+        });
+        return;
+      }
+    } else {
+      // Handle the "minProperties/maxProperties" extension
+      if (!isMode) {
+        reportDiagnostic(context.program, {
+          code: "invalid-extension-target",
+          format: { paramName: entity.kind },
+          target: entity,
+        });
+        return;
+      }
+    }
+
+    // Check invalid data, Report diagnostic if the extension value is not a number
+    if (isNaN(Number(data))) {
+      reportDiagnostic(context.program, {
+        code: "invalid-extension-value",
+        format: { extensionName: extensionName },
+        target: entity,
+      });
+      return;
+    }
+    // Set the extension for the schema extension
+    setExtension(context.program, entity, extensionName as SchemaExtensionKey, Number(data));
+    return;
+  }
+
+  // Check if the extensionName is a valid OpenAPI extension
   if (!isOpenAPIExtensionKey(extensionName)) {
     reportDiagnostic(context.program, {
       code: "invalid-extension-key",
+      messageId: "decorator",
       format: { value: extensionName },
       target: entity,
     });
+    return;
   }
 
-  const [data, diagnostics] = typespecTypeToJson(value, entity);
+  // Report diagnostics if invalid data is found
   if (diagnostics.length > 0) {
     context.program.reportDiagnostics(diagnostics);
+    return;
   }
-  setExtension(context.program, entity, extensionName as ExtensionKey, data);
+
+  // Set the extension for valid OpenAPI extensions
+  setExtension(context.program, entity, extensionName, data);
 };
 
 /**
@@ -97,7 +190,7 @@ export function setInfo(
 export function setExtension(
   program: Program,
   entity: Type,
-  extensionName: ExtensionKey,
+  extensionName: ExtensionKey | SchemaExtensionKey,
   data: unknown,
 ) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
@@ -112,7 +205,38 @@ export function setExtension(
  * @param entity Type
  */
 export function getExtensions(program: Program, entity: Type): ReadonlyMap<ExtensionKey, any> {
-  return program.stateMap(openApiExtensionKey).get(entity) ?? new Map<ExtensionKey, any>();
+  const allExtensions = program.stateMap(openApiExtensionKey).get(entity);
+  return allExtensions
+    ? filterSchemaExtensions<ExtensionKey>(allExtensions, false)
+    : new Map<ExtensionKey, any>();
+}
+
+/**
+ * Get schema extensions set for the given type.
+ * @param program Program
+ * @param entity Type
+ */
+export function getSchemaExtensions(
+  program: Program,
+  entity: Type,
+): ReadonlyMap<SchemaExtensionKey, any> {
+  const allExtensions = program.stateMap(openApiExtensionKey).get(entity);
+  return allExtensions
+    ? filterSchemaExtensions<SchemaExtensionKey>(allExtensions, true)
+    : new Map<SchemaExtensionKey, any>();
+}
+
+function filterSchemaExtensions<T>(
+  extensions: Map<ExtensionKey | SchemaExtensionKey, any>,
+  isSchema: boolean,
+): ReadonlyMap<T, any> {
+  const result = new Map<T, any>();
+  for (const [key, value] of extensions) {
+    if (schemaExtensions.includes(key) === isSchema) {
+      result.set(key as T, value);
+    }
+  }
+  return result;
 }
 
 /**
