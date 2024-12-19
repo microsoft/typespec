@@ -2,7 +2,7 @@
 
 import chalk from "chalk";
 import { execa } from "execa";
-import { lstat, rm, symlink } from "fs/promises";
+import { lstat, mkdir, rm, symlink } from "fs/promises";
 import { globby } from "globby";
 import inquirer from "inquirer";
 import { dirname, join } from "path";
@@ -112,9 +112,9 @@ async function processPaths(paths, ignoreList, mainOnly) {
 }
 
 // Run a shell command using execa
-async function runCommand(command, args) {
+async function runCommand(command, args, options = {}) {
   console.log(chalk.cyan(`Executing: ${command} ${args.join(" ")}`));
-  await execa(command, args, { stdio: "inherit" });
+  await execa(command, args, { stdio: "inherit", ...options });
 }
 
 async function createSymlink(target, linkPath) {
@@ -140,13 +140,13 @@ async function processFiles(files, options) {
   const { interactive, generateReport, build } = options;
   const succeeded = [];
   const failed = [];
-  // const sharedNodeModules = join(__dirname, "test", "e2e", "generated", "node_modules");
+  const sharedNodeModules = join(__dirname, "test", "e2e", "generated", "node_modules");
 
   // Ensure shared_node_modules directory exists
-  // if (!(await pathExists(sharedNodeModules))) {
-  //   console.log(chalk.blue("Creating shared node_modules directory..."));
-  //   await mkdir(sharedNodeModules, { recursive: true });
-  // }
+  if (!(await pathExists(sharedNodeModules))) {
+    console.log(chalk.blue("Creating shared node_modules directory..."));
+    await mkdir(sharedNodeModules, { recursive: true });
+  }
 
   for (let i = 0; i < files.length; i++) {
     const { fullPath, relativePath } = files[i];
@@ -174,12 +174,14 @@ async function processFiles(files, options) {
       await runCommand("npx", ["prettier", outputDir, "--write"]);
 
       if (build) {
+        const generatedProject = join(outputDir, "http-client-javascript");
         // Create a symlink to the shared node_modules directory
-        // const projectNodeModules = join(outputDir, "node_modules");
-        // await createSymlink(sharedNodeModules, projectNodeModules);
-
-        await runCommand("npm", ["install"], { cwd: outputDir });
-        await runCommand("npm", ["run", "build"], { cwd: outputDir });
+        const projectNodeModules = join(generatedProject, "node_modules");
+        await createSymlink(sharedNodeModules, projectNodeModules);
+        await runCommand("npm", ["install", "--loglevel=verbose"], {
+          cwd: generatedProject,
+        });
+        await runCommand("npm", ["run", "build"], { cwd: generatedProject });
       }
 
       console.log(chalk.green(`Finished processing: ${relativePath}`));
