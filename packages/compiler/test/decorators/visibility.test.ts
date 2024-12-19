@@ -43,11 +43,19 @@ describe("visibility", function () {
       Read: LifecycleEnum.members.get("Read")!,
       Create: LifecycleEnum.members.get("Create")!,
       Update: LifecycleEnum.members.get("Update")!,
+      Delete: LifecycleEnum.members.get("Delete")!,
+      Query: LifecycleEnum.members.get("Query")!,
     };
 
     assertSetsEqual(
       getVisibilityForClass(runner.program, name, LifecycleEnum),
-      new Set([Lifecycle.Read, Lifecycle.Create, Lifecycle.Update]),
+      new Set([
+        Lifecycle.Read,
+        Lifecycle.Create,
+        Lifecycle.Update,
+        Lifecycle.Delete,
+        Lifecycle.Query,
+      ]),
     );
 
     assertSetsEqual(
