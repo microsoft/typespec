@@ -9,14 +9,17 @@ import {
   addVisibilityModifiers,
   clearVisibilityModifiersForClass,
   DecoratorContext,
+  EmptyVisibilityProvider,
   Enum,
   getLifecycleVisibilityEnum,
+  getParameterVisibilityFilter,
   getVisibilityForClass,
   hasVisibility,
   isSealed,
   isVisible,
   Model,
   ModelProperty,
+  Operation,
   removeVisibilityModifiers,
   resetVisibilityModifiersForClass,
   sealVisibilityModifiers,
@@ -568,6 +571,83 @@ describe("compiler: visibility core", () => {
         }),
         true,
       );
+    });
+
+    describe("parameter visibility filters", () => {
+      it("correctly provides empty default visibility filter", async () => {
+        const { Example, foo } = (await runner.compile(`
+          @test model Example {
+            @visibility(Lifecycle.Create)
+            x: string;
+          }
+
+          @test op foo(example: Example): void;
+        `)) as { Example: Model; foo: Operation };
+
+        const x = Example.properties.get("x")!;
+
+        const filter = getParameterVisibilityFilter(runner.program, foo, EmptyVisibilityProvider);
+
+        strictEqual(filter.all, undefined);
+        strictEqual(filter.any, undefined);
+        strictEqual(filter.none, undefined);
+
+        strictEqual(isVisible(runner.program, x, filter), true);
+      });
+
+      it("correctly provides visibility filter from operation", async () => {
+        const { Example, foo } = (await runner.compile(`
+          @test model Example {
+            @visibility(Lifecycle.Create)
+            x: string;
+          }
+
+          @parameterVisibility(Lifecycle.Update)
+          @test op foo(
+            example: Example
+          ): void;
+        `)) as { Example: Model; foo: Operation };
+
+        const x = Example.properties.get("x")!;
+
+        const filter = getParameterVisibilityFilter(runner.program, foo, EmptyVisibilityProvider);
+
+        const Lifecycle = getLifecycleVisibilityEnum(runner.program);
+
+        strictEqual(filter.all, undefined);
+        strictEqual(filter.any?.size, 1);
+        strictEqual(filter.any.has(Lifecycle.members.get("Update")!), true);
+        strictEqual(filter.none, undefined);
+
+        strictEqual(isVisible(runner.program, x, filter), false);
+      });
+
+      it("correctly coerces legacy string in visibility filter", async () => {
+        const { Example, foo } = (await runner.compile(`
+          @test model Example {
+            @visibility(Lifecycle.Create)
+            x: string;
+          }
+
+          @parameterVisibility("update")
+          @test op foo(
+            example: Example
+          ): void;
+        `)) as { Example: Model; foo: Operation };
+
+        const x = Example.properties.get("x")!;
+
+        const filter = getParameterVisibilityFilter(runner.program, foo, EmptyVisibilityProvider);
+
+        const Lifecycle = getLifecycleVisibilityEnum(runner.program);
+
+        strictEqual(filter.all, undefined);
+        strictEqual(filter.any?.size, 1);
+        strictEqual(filter.any.has(Lifecycle.members.get("Update")!), true);
+        strictEqual(filter.none, undefined);
+
+        strictEqual(isVisible(runner.program, x, filter), false);
+      });
     });
   });
 

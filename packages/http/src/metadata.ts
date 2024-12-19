@@ -1,7 +1,9 @@
 import {
   compilerAssert,
+  EnumMember,
   getEffectiveModelType,
-  getParameterVisibility,
+  getLifecycleVisibilityEnum,
+  getParameterVisibilityFilter,
   isVisible as isVisibleCore,
   Model,
   ModelProperty,
@@ -9,9 +11,12 @@ import {
   Program,
   Type,
   Union,
+  type VisibilityFilter,
+  VisibilityProvider,
 } from "@typespec/compiler";
 import { TwoLevelMap } from "@typespec/compiler/utils";
 import {
+  getOperationVerb,
   includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
@@ -23,7 +28,7 @@ import {
   isQueryParam,
   isStatusCode,
 } from "./decorators.js";
-import { HttpVerb } from "./types.js";
+import { HttpVerb, OperationParameterOptions } from "./types.js";
 
 /**
  * Flags enum representation of well-known visibilities that are used in
@@ -84,33 +89,117 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
 
   return result;
 }
-function arrayToVisibility(array: readonly string[] | undefined): Visibility | undefined {
-  if (!array) {
-    return undefined;
-  }
+
+function filterToVisibility(program: Program, filter: VisibilityFilter): Visibility {
+  const Lifecycle = getLifecycleVisibilityEnum(program);
   let value = Visibility.None;
-  for (const item of array) {
-    switch (item) {
-      case "read":
-        value |= Visibility.Read;
-        break;
-      case "create":
-        value |= Visibility.Create;
-        break;
-      case "update":
-        value |= Visibility.Update;
-        break;
-      case "delete":
-        value |= Visibility.Delete;
-        break;
-      case "query":
-        value |= Visibility.Query;
-        break;
-      default:
-        return undefined;
+
+  compilerAssert(
+    !filter.all,
+    "Unexpected: `all` constraint in visibility filter passed to filterToVisibility",
+  );
+  compilerAssert(
+    !filter.none,
+    "Unexpected: `none` constraint in visibility filter passed to filterToVisibility",
+  );
+
+  if (filter.any) {
+    for (const item of filter.any ?? []) {
+      if (item.enum !== Lifecycle) continue;
+      switch (item.name) {
+        case "Read":
+          value |= Visibility.Read;
+          break;
+        case "Create":
+          value |= Visibility.Create;
+          break;
+        case "Update":
+          value |= Visibility.Update;
+          break;
+        case "Delete":
+          value |= Visibility.Delete;
+          break;
+        case "Query":
+          value |= Visibility.Query;
+          break;
+        default:
+          compilerAssert(
+            false,
+            `Unreachable: unrecognized Lifecycle visibility member: '${item.name}'`,
+          );
+      }
     }
+
+    return value;
+  } else {
+    return Visibility.All;
   }
-  return value;
+}
+
+const VISIBILITY_FILTER_CACHE_MAP = new WeakMap<Program, Map<Visibility, VisibilityFilter>>();
+
+function getVisibilityFilterCache(program: Program): Map<Visibility, VisibilityFilter> {
+  let cache = VISIBILITY_FILTER_CACHE_MAP.get(program);
+  if (!cache) {
+    cache = new Map();
+    VISIBILITY_FILTER_CACHE_MAP.set(program, cache);
+  }
+  return cache;
+}
+
+/**
+ * Convert an HTTP visibility to a visibility filter that can be used to test core visibility and applied to a model.
+ *
+ * The Item and Patch visibility flags are ignored.
+ *
+ * @param program - the Program we're working in
+ * @param visibility - the visibility to convert to a filter
+ * @returns a VisibilityFilter object that selects properties having any of the given visibility flags
+ */
+function visibilityToFilter(program: Program, visibility: Visibility): VisibilityFilter {
+  const cache = getVisibilityFilterCache(program);
+  let filter = cache.get(visibility);
+
+  if (!filter) {
+    // Item and Patch flags are not real visibilities.
+    visibility &= ~(Visibility.Item | Visibility.Patch);
+
+    const LifecycleEnum = getLifecycleVisibilityEnum(program);
+
+    const Lifecycle = {
+      Create: LifecycleEnum.members.get("Create")!,
+      Read: LifecycleEnum.members.get("Read")!,
+      Update: LifecycleEnum.members.get("Update")!,
+      Delete: LifecycleEnum.members.get("Delete")!,
+      Query: LifecycleEnum.members.get("Query")!,
+    } as const;
+
+    const any = new Set<EnumMember>();
+
+    if (visibility & Visibility.Read) {
+      any.add(Lifecycle.Read);
+    }
+    if (visibility & Visibility.Create) {
+      any.add(Lifecycle.Create);
+    }
+    if (visibility & Visibility.Update) {
+      any.add(Lifecycle.Update);
+    }
+    if (visibility & Visibility.Delete) {
+      any.add(Lifecycle.Delete);
+    }
+    if (visibility & Visibility.Query) {
+      any.add(Lifecycle.Query);
+    }
+
+    compilerAssert(any.size > 0 || visibility === Visibility.None, "invalid visibility");
+
+    filter = { any };
+
+    cache.set(visibility, filter);
+  }
+
+  return filter;
 }
 
 /**
@@ -130,7 +219,7 @@ function arrayToVisibility(array: readonly string[] | undefined): Visibility | u
  *  */
 export function getVisibilitySuffix(
   visibility: Visibility,
-  canonicalVisibility: Visibility | undefined = Visibility.None,
+  canonicalVisibility: Visibility = Visibility.None,
 ) {
   let suffix = "";
 
@@ -168,8 +257,7 @@ function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
     case "delete":
       return Visibility.Delete;
     default:
-      const _assertNever: never = verb;
-      compilerAssert(false, "unreachable");
+      compilerAssert(false, `Unreachable: unrecognized HTTP verb: '${verb satisfies never}'`);
   }
 }
 
@@ -196,6 +284,71 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
 }
 
 /**
+ * A visibility provider for HTTP operations. Pass this value as a provider to the `getParameterVisibilityFilter` and
+ * `getReturnTypeVisibilityFilter` functions in the TypeSpec core to get the applicable parameter and return type
+ * visibility filters for an HTTP operation.
+ *
+ * When created with a verb, this provider will use the default visibility for that verb.
+ *
+ * @param verb - the HTTP verb for the operation
+ *
+ * @see {@link VisibilityProvider}
+ * @see {@link getParameterVisibilityFilter}
+ * @see {@link getReturnTypeVisibilityFilter}
+ */
+export function HttpVisibilityProvider(verb: HttpVerb): VisibilityProvider;
+/**
+ * A visibility provider for HTTP operations. Pass this value as a provider to the `getParameterVisibilityFilter` and
+ * `getReturnTypeVisibilityFilter` functions in the TypeSpec core to get the applicable parameter and return type
+ * visibility filters for an HTTP operation.
+ *
+ * When created with an options object, this provider will use the `verbSelector` function to determine the verb for the
+ * operation and use the default visibility for that verb, or the configured HTTP verb for the operation, and finally
+ * the GET verb if the verbSelector function is not defined and no HTTP verb is configured.
+ *
+ * @param options - an options object with a `verbSelector` function that returns the HTTP verb for the operation
+ *
+ * @see {@link VisibilityProvider}
+ * @see {@link getParameterVisibilityFilter}
+ * @see {@link getReturnTypeVisibilityFilter}
+ */
+export function HttpVisibilityProvider(options: OperationParameterOptions): VisibilityProvider;
+/**
+ * A visibility provider for HTTP operations. Pass this value as a provider to the `getParameterVisibilityFilter` and
+ * `getReturnTypeVisibilityFilter` functions in the TypeSpec core to get the applicable parameter and return type
+ * visibility filters for an HTTP operation.
+ *
+ * When created without any arguments, this provider will use the configured verb for the operation or the GET verb if
+ * no HTTP verb is configured and use the default visibility for that selected verb.
+ *
+ * @see {@link VisibilityProvider}
+ * @see {@link getParameterVisibilityFilter}
+ * @see {@link getReturnTypeVisibilityFilter}
+ */
+export function HttpVisibilityProvider(): VisibilityProvider;
+export function HttpVisibilityProvider(
+  verbOrParameterOptions?: HttpVerb | OperationParameterOptions,
+): VisibilityProvider {
+  const hasVerb = typeof verbOrParameterOptions === "string";
+
+  return {
+    parameters: (program, operation) => {
+      const verb = hasVerb
+        ? (verbOrParameterOptions as HttpVerb)
+        : (verbOrParameterOptions?.verbSelector?.(program, operation) ??
+          getOperationVerb(program, operation) ??
+          "get");
+      return visibilityToFilter(program, getDefaultVisibilityForVerb(verb));
+    },
+    returnType: (program, _) => {
+      const Read = getLifecycleVisibilityEnum(program).members.get("Read")!;
+      // For return types, we always use Read visibility in HTTP.
+      return { any: new Set([Read]) };
+    },
+  };
+}
+
+/**
  * Returns the applicable parameter visibility or visibilities for the request if `@requestVisibility` was used.
  * Otherwise, returns the default visibility based on the HTTP verb for the operation.
  * @param operation The TypeSpec Operation for the request.
@@ -207,10 +360,12 @@ export function resolveRequestVisibility(
   operation: Operation,
   verb: HttpVerb,
 ): Visibility {
-  const parameterVisibility = getParameterVisibility(program, operation);
-  const parameterVisibilityArray = arrayToVisibility(parameterVisibility);
-  const defaultVisibility = getDefaultVisibilityForVerb(verb);
-  let visibility = parameterVisibilityArray ?? defaultVisibility;
+  const parameterVisibilityFilter = getParameterVisibilityFilter(
+    program,
+    operation,
+    HttpVisibilityProvider(verb),
+  );
+  let visibility = filterToVisibility(program, parameterVisibilityFilter);
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it
   if (verb === "patch") {
@@ -237,8 +392,7 @@ export function isMetadata(program: Program, property: ModelProperty) {
  * Determines if the given property is visible with the given visibility.
  */
 export function isVisible(program: Program, property: ModelProperty, visibility: Visibility) {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  return isVisibleCore(program, property, visibilityToArray(visibility));
+  return isVisibleCore(program, property, visibilityToFilter(program, visibility));
 }
 
 /**
