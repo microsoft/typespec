@@ -699,7 +699,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
                 function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
                 function.line(
-                    "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);");
+                    "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                        + TemplateUtil.getContextNone() + ");");
 
                 function.line("return new PagedIterable<>(");
                 function.indent(() -> {
@@ -768,32 +769,49 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String serviceMethodCall
                 = checkAndReplaceParamNameCollision(clientMethod, restAPIMethod, requestOptionsLocal, settings);
             function.line(String.format("%s res = %s;", restAPIMethod.getReturnType(), serviceMethodCall));
-            function.line("return new PagedResponseBase<>(");
-            function.line("res.getRequest(),");
-            function.line("res.getStatusCode(),");
-            function.line("res.getHeaders(),");
-            if (settings.isDataPlaneClient()) {
-                function.line("getValues(res.getValue(), \"%s\"),",
-                    clientMethod.getMethodPageDetails().getSerializedItemName());
-            } else {
-                function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
-                    .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
-            }
-            if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+            if (settings.isBranded()) {
+                function.line("return new PagedResponseBase<>(");
+                function.line("res.getRequest(),");
+                function.line("res.getStatusCode(),");
+                function.line("res.getHeaders(),");
                 if (settings.isDataPlaneClient()) {
-                    function.line("getNextLink(res.getValue(), \"%s\"),",
-                        clientMethod.getMethodPageDetails().getSerializedNextLinkName());
+                    function.line("getValues(res.getValue(), \"%s\"),",
+                        clientMethod.getMethodPageDetails().getSerializedItemName());
                 } else {
-                    function.line(nextLinkLine(clientMethod));
+                    function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
+                        .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+                }
+                if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+                    if (settings.isDataPlaneClient()) {
+                        function.line("getNextLink(res.getValue(), \"%s\"),",
+                            clientMethod.getMethodPageDetails().getSerializedNextLinkName());
+                    } else {
+                        function.line(nextLinkLine(clientMethod));
+                    }
+                } else {
+                    function.line("null,");
+                }
+
+                if (responseTypeHasDeserializedHeaders(clientMethod.getProxyMethod().getReturnType())) {
+                    function.line("res.getDeserializedHeaders());");
+                } else {
+                    function.line("null);");
                 }
             } else {
-                function.line("null,");
-            }
-
-            if (responseTypeHasDeserializedHeaders(clientMethod.getProxyMethod().getReturnType())) {
-                function.line("res.getDeserializedHeaders());");
-            } else {
-                function.line("null);");
+                function.line("return new PagedResponse<>(");
+                function.line("res.getRequest(),");
+                function.line("res.getStatusCode(),");
+                function.line("res.getHeaders(),");
+                function.line("res.getBody(),");
+                function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
+                    .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+                if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
+                    String nextLinkLine = nextLinkLine(clientMethod);
+                    nextLinkLine = nextLinkLine.substring(0, nextLinkLine.length() - 1);
+                    function.line(nextLinkLine + ");");
+                } else {
+                    function.line("null);");
+                }
             }
         });
     }
@@ -816,7 +834,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 if (settings.isDataPlaneClient()) {
                     function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
                     function.line(
-                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);");
+                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                            + TemplateUtil.getContextNone() + ");");
                 }
                 function.line("return new PagedIterable<>(");
 
@@ -826,12 +845,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .replace("requestOptions", "requestOptionsForNextPage");
                 String firstPageArgs = clientMethod.getArgumentList();
                 if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
-                    nextMethodArgs = nextMethodArgs.replace("context", "Context.NONE");
+                    nextMethodArgs = nextMethodArgs.replace("context", TemplateUtil.getContextNone());
                     if (!CoreUtils.isNullOrEmpty(firstPageArgs)) {
-                        firstPageArgs = firstPageArgs + ", Context.NONE";
+                        firstPageArgs = firstPageArgs + ", " + TemplateUtil.getContextNone();
                     } else {
                         // If there are no first page arguments don't include a leading comma.
-                        firstPageArgs = "Context.NONE";
+                        firstPageArgs = TemplateUtil.getContextNone();
                     }
                 }
                 String effectiveNextMethodArgs = nextMethodArgs;
@@ -856,10 +875,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 String firstPageArgs = clientMethod.getArgumentList();
                 if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
                     if (!CoreUtils.isNullOrEmpty(firstPageArgs)) {
-                        firstPageArgs = firstPageArgs + ", Context.NONE";
+                        firstPageArgs = firstPageArgs + ", " + TemplateUtil.getContextNone();
                     } else {
                         // If there are no first page arguments don't include a leading comma.
-                        firstPageArgs = "Context.NONE";
+                        firstPageArgs = TemplateUtil.getContextNone();
                     }
                 }
                 String effectiveFirstPageArgs = firstPageArgs;
@@ -881,7 +900,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 if (settings.isDataPlaneClient()) {
                     function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
                     function.line(
-                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);");
+                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                            + TemplateUtil.getContextNone() + ");");
                 }
                 function.line("return new PagedFlux<>(");
                 function.indent(() -> {
@@ -955,10 +975,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String argumentList = clientMethod.getArgumentList();
             if (CoreUtils.isNullOrEmpty(argumentList)) {
                 // If there are no arguments the argument is Context.NONE
-                argumentList = "Context.NONE";
+                argumentList = TemplateUtil.getContextNone();
             } else if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
                 // If the arguments don't contain Context append Context.NONE
-                argumentList += ", Context.NONE";
+                argumentList += ", " + TemplateUtil.getContextNone();
             }
 
             if (ClassType.STREAM_RESPONSE.equals(clientMethod.getReturnValue().getType())) {
@@ -981,10 +1001,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String argumentList = clientMethod.getArgumentList();
             if (CoreUtils.isNullOrEmpty(argumentList)) {
                 // If there are no arguments the argument is Context.NONE
-                argumentList = "Context.NONE";
+                argumentList = TemplateUtil.getContextNone();
             } else if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
                 // If the arguments don't contain Context append Context.NONE
-                argumentList += ", Context.NONE";
+                argumentList += ", " + TemplateUtil.getContextNone();
             }
 
             if (clientMethod.getReturnValue().getType().equals(PrimitiveType.VOID)) {
@@ -1225,7 +1245,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     function.line("res.getRequest(),");
                     function.line("res.getStatusCode(),");
                     function.line("res.getHeaders(),");
-                    if (settings.isDataPlaneClient()) {
+                    if (settings.isDataPlaneClient() && settings.isBranded()) {
                         function.line("getValues(res.getValue(), \"%s\"),",
                             clientMethod.getMethodPageDetails().getSerializedItemName());
                     } else {
@@ -1233,7 +1253,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                     }
                     if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                        if (settings.isDataPlaneClient()) {
+                        if (settings.isDataPlaneClient() && settings.isBranded()) {
                             function.line("getNextLink(res.getValue(), \"%s\"),",
                                 clientMethod.getMethodPageDetails().getSerializedNextLinkName());
                         } else {
@@ -1319,7 +1339,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         // which isn't 'Context'. This can be done by looking for the 'ProxyMethodParameter' with the
                         // matching name and checking if it's the 'Context' parameter.
                         parameterName = (parameter == null && "context".equals(proxyMethodArgument))
-                            ? "Context.NONE"
+                            ? TemplateUtil.getContextNone()
                             : proxyMethodArgument;
                     }
                 }
@@ -1422,7 +1442,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         if (clientMethod.getParameters().stream().anyMatch(p -> p.getClientType().equals(ClassType.CONTEXT))) {
             contextParam = "context";
         } else {
-            contextParam = "Context.NONE";
+            contextParam = TemplateUtil.getContextNone();
         }
         String pollingStrategy = getPollingStrategy(clientMethod, contextParam);
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
@@ -1471,17 +1491,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         if (clientMethod.getParameters().stream().anyMatch(p -> p.getClientType().equals(ClassType.CONTEXT))) {
             contextParam = "context";
         } else {
-            contextParam = "Context.NONE";
+            contextParam = TemplateUtil.getContextNone();
         }
         String pollingStrategy = getSyncPollingStrategy(clientMethod, contextParam);
 
         String argumentList = clientMethod.getArgumentList();
         if (CoreUtils.isNullOrEmpty(argumentList)) {
             // If there are no arguments the argument is Context.NONE
-            argumentList = "Context.NONE";
+            argumentList = TemplateUtil.getContextNone();
         } else if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
             // If the arguments don't contain Context append Context.NONE
-            argumentList += ", Context.NONE";
+            argumentList += ", " + TemplateUtil.getContextNone();
         }
 
         String effectiveArgumentList = argumentList;
@@ -1502,7 +1522,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     private void generateProtocolLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock) {
         String contextParam
-            = "requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE";
+            = "requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                + TemplateUtil.getContextNone();
         String pollingStrategy = getSyncPollingStrategy(clientMethod, contextParam);
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
