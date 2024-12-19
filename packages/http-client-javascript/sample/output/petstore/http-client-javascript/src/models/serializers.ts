@@ -1,4 +1,12 @@
-import { Error, OkResponse, Pet, PetResponsePage, Toy, ToyResponsePage } from "./models.js";
+import {
+  ConstructorParameters,
+  ConstructorParameters_2,
+  ConstructorParameters_3,
+  Pet,
+  PetResponsePage,
+  Toy,
+  ToyResponsePage,
+} from "./models.js";
 
 export function recordSerializer(
   record: Record<string, any>,
@@ -46,52 +54,34 @@ export function dateUnixTimestampSerializer(date: Date): number {
 export function dateUnixTimestampDeserializer(date: number): Date {
   return new Date(date * 1000);
 }
-export function okResponseToTransport(item: OkResponse) {
+export function constructorParametersToTransport(item: ConstructorParameters) {
   return {
-    statusCode: item.statusCode,
+    endpoint: item.endpoint,
   };
 }
-export function okResponseToApplication(item: any) {
+export function constructorParametersToApplication(item: any) {
   return {
-    statusCode: item.statusCode,
+    endpoint: item.endpoint,
   };
 }
-export function errorToTransport(item: Error) {
+export function constructorParametersToTransport_2(item: ConstructorParameters_2) {
   return {
-    code: item.code,
-    message: item.message,
+    endpoint: item.endpoint,
   };
 }
-export function errorToApplication(item: any) {
+export function constructorParametersToApplication_2(item: any) {
   return {
-    code: item.code,
-    message: item.message,
+    endpoint: item.endpoint,
   };
 }
-export function petResponsePageToTransport(item: PetResponsePage) {
+export function constructorParametersToTransport_3(item: ConstructorParameters_3) {
   return {
-    items: arraySerializer(item.items, petToTransport),
-    nextLink: item.nextLink,
+    endpoint: item.endpoint,
   };
 }
-export function petResponsePageToApplication(item: any) {
+export function constructorParametersToApplication_3(item: any) {
   return {
-    items: arraySerializer(item.items, petToApplication),
-    nextLink: item.nextLink,
-  };
-}
-export function petToTransport(item: Pet) {
-  return {
-    name: item.name,
-    tag: item.tag,
-    age: item.age,
-  };
-}
-export function petToApplication(item: any) {
-  return {
-    name: item.name,
-    tag: item.tag,
-    age: item.age,
+    endpoint: item.endpoint,
   };
 }
 export function toyResponsePageToTransport(item: ToyResponsePage) {
@@ -118,5 +108,31 @@ export function toyToApplication(item: any) {
     id: item.id,
     petId: item.petId,
     name: item.name,
+  };
+}
+export function petResponsePageToTransport(item: PetResponsePage) {
+  return {
+    items: arraySerializer(item.items, petToTransport),
+    nextLink: item.nextLink,
+  };
+}
+export function petResponsePageToApplication(item: any) {
+  return {
+    items: arraySerializer(item.items, petToApplication),
+    nextLink: item.nextLink,
+  };
+}
+export function petToTransport(item: Pet) {
+  return {
+    name: item.name,
+    tag: item.tag,
+    age: item.age,
+  };
+}
+export function petToApplication(item: any) {
+  return {
+    name: item.name,
+    tag: item.tag,
+    age: item.age,
   };
 }

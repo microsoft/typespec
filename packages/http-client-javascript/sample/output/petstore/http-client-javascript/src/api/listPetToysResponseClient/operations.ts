@@ -1,11 +1,10 @@
 import { parse } from "uri-template";
 import { ToyResponsePage } from "../../models/models.js";
 import { toyResponsePageToApplication } from "../../models/serializers.js";
-import { httpFetch } from "../../utilities/http-fetch.js";
-import { PetStoreContext } from "../clientContext.js";
+import { ListPetToysResponseClientContext } from "./clientContext.js";
 
 export async function list(
-  client: PetStoreContext,
+  client: ListPetToysResponseClientContext,
   nameFilter: string,
   petId: string,
 ): Promise<ToyResponsePage> {
@@ -14,17 +13,13 @@ export async function list(
     nameFilter: nameFilter,
   });
 
-  const url = `${client.endpoint.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
-
   const httpRequestOptions = {
-    method: "get",
     headers: {},
   };
 
-  const response = await httpFetch(url, httpRequestOptions);
-  if (response.status === 200) {
-    const bodyJson = await response.json();
-    return toyResponsePageToApplication(bodyJson);
+  const response = await client.path(path).get(httpRequestOptions);
+  if (+response.status === 200) {
+    return toyResponsePageToApplication(response.body);
   }
 
   throw new Error("Unhandled response");

@@ -1,25 +1,17 @@
-export interface OkResponse {
-  statusCode: 200;
+export interface ConstructorParameters {
+  endpoint: string;
 }
 
-export interface Error {
-  code: number;
-  message: string;
+export interface ConstructorParameters_2 {
+  endpoint: string;
 }
 
-export interface PetResponsePage {
-  items: Pet[];
-  nextLink?: string;
-}
-
-export interface Pet {
-  name: string;
-  tag?: string;
-  age: number;
+export interface ConstructorParameters_3 {
+  endpoint: string;
 }
 
 export interface ToyResponsePage {
-  items: Toy[];
+  items: Array<Toy>;
   nextLink?: string;
 }
 
@@ -27,4 +19,15 @@ export interface Toy {
   id: bigint;
   petId: bigint;
   name: string;
+}
+
+export interface PetResponsePage {
+  items: Array<Pet>;
+  nextLink?: string;
+}
+
+export interface Pet {
+  name: string;
+  tag?: string;
+  age: number;
 }

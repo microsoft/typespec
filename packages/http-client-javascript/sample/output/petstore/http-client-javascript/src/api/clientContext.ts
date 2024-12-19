@@ -1,14 +1,9 @@
-export interface PetStoreContext {
-  endpoint: string;
-}
-export interface PetStoreOptions {
+import { Client, ClientOptions, getClient } from "@typespec/ts-http-runtime";
+
+export interface PetStoreClientContext extends Client {}
+export interface PetStoreClientOptions extends ClientOptions {
   endpoint?: string;
 }
-export function createPetStoreContext(
-  endpoint: string,
-  options?: PetStoreOptions,
-): PetStoreContext {
-  return {
-    endpoint,
-  };
+export function createPetStoreClientContext(endpoint: string): PetStoreClientContext {
+  return getClient(endpoint, { allowInsecureConnection: true });
 }
