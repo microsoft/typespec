@@ -1,4 +1,4 @@
-import { Diagnostic, interpolatePath } from "@typespec/compiler";
+import { Diagnostic, interpolatePath, resolvePath } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
@@ -29,8 +29,9 @@ export async function createOpenAPITestHost() {
 }
 
 export async function createOpenAPITestRunner({
+  emitterOptions,
   withVersioning,
-}: { withVersioning?: boolean } = {}) {
+}: { withVersioning?: boolean; emitterOptions?: OpenAPI3EmitterOptions } = {}) {
   const host = await createOpenAPITestHost();
   const importAndUsings = `
   import "@typespec/http";
@@ -49,6 +50,9 @@ export async function createOpenAPITestRunner({
     wrapper: (code) => `${importAndUsings} ${code}`,
     compilerOptions: {
       emit: ["@typespec/openapi3"],
+      options: {
+        "@typespec/openapi3": { ...emitterOptions },
+      },
     },
   });
 }
@@ -112,20 +116,32 @@ export async function openApiFor(
   }
 }
 
-export async function checkFor(code: string) {
+export async function checkFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const host = await createOpenAPITestRunner();
-  return await host.diagnose(code);
+  return await host.diagnose(code, {
+    noEmit: true,
+    emit: ["@typespec/openapi3"],
+    options: { "@typespec/openapi3": { ...options } },
+  });
 }
 
-export async function oapiForModel(name: string, modelDef: string) {
-  const oapi = await openApiFor(`
+export async function oapiForModel(
+  name: string,
+  modelDef: string,
+  options: OpenAPI3EmitterOptions = {},
+) {
+  const oapi = await openApiFor(
+    `
     ${modelDef};
     @service({title: "Testing model"})
     @route("/")
     namespace root {
       op read(): { @body body: ${name} };
     }
-  `);
+  `,
+    undefined,
+    options,
+  );
 
   const useSchema = oapi.paths["/"].get.responses[200].content["application/json"].schema;
 
@@ -134,4 +150,24 @@ export async function oapiForModel(name: string, modelDef: string) {
     useSchema,
     schemas: oapi.components.schemas || {},
   };
+}
+
+export async function openapiWithOptions(
+  code: string,
+  options: OpenAPI3EmitterOptions,
+): Promise<OpenAPI3Document> {
+  const runner = await createOpenAPITestRunner();
+
+  const outPath = resolvePath("/openapi.json");
+
+  const diagnostics = await runner.diagnose(code, {
+    noEmit: false,
+    emit: ["@typespec/openapi3"],
+    options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
+  });
+
+  expectDiagnosticEmpty(diagnostics);
+
+  const content = runner.fs.get(outPath)!;
+  return JSON.parse(content);
 }
