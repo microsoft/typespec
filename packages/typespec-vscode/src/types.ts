@@ -1,6 +1,7 @@
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
   InitTemplatesUrls = "typespec.initTemplatesUrls",
+  Emitters = "typespec.emitters",
 }
 
 export const enum CommandName {
@@ -9,6 +10,7 @@ export const enum CommandName {
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",
   OpenUrl = "typespec.openUrl",
+  Generate = "typespec.generate",
 }
 
 export interface InstallGlobalCliCommandArgs {
