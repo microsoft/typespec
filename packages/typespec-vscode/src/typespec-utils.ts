@@ -1,18 +1,18 @@
-import { readdir } from "fs";
-import path, { dirname } from "path";
+import { readdir } from "node:fs/promises";
+import path from "path";
 import vscode from "vscode";
-import { Executable } from "vscode-languageclient/node.js";
 import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
-import { isFile, loadModule, normalizeSlash } from "./utils.js";
+import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
+import { isFile } from "./utils.js";
 
-export const toOutput = (str: string) => {
+export const onStdioOut = (str: string) => {
   str
     .trim()
     .split("\n")
     .forEach((line) => logger.info(line));
 };
-export const toError = (str: string) => {
+export const onStdioError = (str: string) => {
   str
     .trim()
     .split("\n")
@@ -24,24 +24,9 @@ export const toError = (str: string) => {
     );
 };
 
-export async function resolveTypeSpecCli(absolutePath: string): Promise<Executable | undefined> {
-  if (!path.isAbsolute(absolutePath) || (await isFile(absolutePath))) {
-    return undefined;
-  }
-  const modelInfo = await loadModule(absolutePath, "@typespec/compiler");
-  if (modelInfo) {
-    const cmdPath = path.resolve(modelInfo.path, "cmd/tsp.js");
-    return {
-      command: "node",
-      args: [cmdPath],
-    };
-  }
-  return undefined;
-}
-
-export async function getMainTspFile(tspPath: string): Promise<string | undefined> {
+export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
-  const baseDir = isFilePath ? dirname(tspPath) : tspPath;
+  const baseDir = isFilePath ? getDirectoryPath(tspPath) : tspPath;
   const mainTspFile = path.resolve(baseDir, StartFileName);
   if (await isFile(mainTspFile)) {
     return mainTspFile;
@@ -52,19 +37,12 @@ export async function getMainTspFile(tspPath: string): Promise<string | undefine
   }
 
   try {
-    const files = await new Promise<string[]>((resolve, reject) => {
-      readdir(baseDir, (err, files) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(files);
-        }
-      });
-    });
-    if (files.length === 1 && files[0].endsWith(".tsp")) {
+    const files = await readdir(baseDir);
+    if (files && files.length === 1 && files[0].endsWith(".tsp")) {
       return path.resolve(baseDir, files[0]);
     }
-  } catch (error) {
+  } catch (err) {
+    logger.error("Error reading directory", [err]);
     return undefined;
   }
 
@@ -72,11 +50,11 @@ export async function getMainTspFile(tspPath: string): Promise<string | undefine
 }
 
 export async function TraverseMainTspFileInWorkspace() {
-  return await vscode.workspace
+  return vscode.workspace
     .findFiles(`**/${StartFileName}`, "**/node_modules/**")
     .then((uris) =>
       uris
         .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
-        .map((uri) => normalizeSlash(uri.fsPath)),
+        .map((uri) => normalizeSlashes(uri.fsPath)),
     );
 }

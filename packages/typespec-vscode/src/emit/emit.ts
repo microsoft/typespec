@@ -1,37 +1,42 @@
-// import { TypeSpecConfig } from "@typespec/compiler";
-import path, { dirname } from "path";
+import path from "path";
 import vscode, { Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import { StartFileName } from "../const.js";
 import logger from "../log/logger.js";
 import { InstallationAction, npmDependencyType, NpmUtil } from "../npm-utils.js";
+import { getDirectoryPath } from "../path-utils.js";
+import { resolveTypeSpecCli } from "../tsp-executable-resolver.js";
 import {
-  getMainTspFile,
-  resolveTypeSpecCli,
-  toError,
-  toOutput,
+  getEntrypointTspFile,
+  onStdioError,
+  onStdioOut,
   TraverseMainTspFileInWorkspace,
 } from "../typespec-utils.js";
 import { ExecOutput, isFile, spawnExecution } from "../utils.js";
-import { EmitQuickPickItem, TypeSpecProjectPickItem } from "./emit-quick-pick-item.js";
-import { Emitter, EmitterKind, getRegisterEmitters } from "./emitter.js";
+import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
+import {
+  Emitter,
+  EmitterKind,
+  getRegisterEmitters,
+  getRegisterEmitterTypes,
+  PreDefinedEmitterPickItems,
+} from "./emitter.js";
 
 export async function doEmit(
   context: vscode.ExtensionContext,
   mainTspFile: string,
   kind: EmitterKind,
-  overallProgress: vscode.Progress<{ message?: string; increment?: number }>,
 ) {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
     logger.info(
       "Invalid typespec project. There is no main tsp file in the project. Generating Cancelled.",
       [],
-      { showOutput: false, showPopup: true, progress: overallProgress },
+      { showOutput: false, showPopup: true },
     );
     return;
   }
 
-  const baseDir = dirname(mainTspFile);
+  const baseDir = getDirectoryPath(mainTspFile);
 
   const toQuickPickItem = (e: Emitter): EmitQuickPickItem => {
     return {
@@ -60,37 +65,13 @@ export async function doEmit(
     logger.info("No emitter selected. Generating Cancelled.", [], {
       showOutput: false,
       showPopup: false,
-      progress: overallProgress,
     });
-    return;
-  }
-
-  /* TODO: verify the sdk runtime installation. */
-  /* inform to install needed runtime. */
-  const { valid, required } = await check(`${baseDir}/${StartFileName}`, selectedEmitter.package);
-  if (!valid) {
-    const toInstall = required.map((e) => e.name).join(", ");
-    await vscode.window
-      .showInformationMessage(
-        `Please install the required runtime for the selected emitters\n\n. ${toInstall}`,
-        "OK",
-      )
-      .then((selection) => {
-        if (selection === "OK") {
-          logger.info("Generating Cancelled.", [], {
-            showOutput: false,
-            showPopup: true,
-            progress: overallProgress,
-          });
-        }
-      });
     return;
   }
 
   logger.info("npm install...", [], {
     showOutput: false,
     showPopup: false,
-    progress: overallProgress,
   });
 
   const npmUtil = new NpmUtil(baseDir);
@@ -98,7 +79,7 @@ export async function doEmit(
 
   /* install emitter package. */
   logger.info(`select ${selectedEmitter.package}`);
-  const { action, version } = await npmUtil.ensureNpmPackageInstall(
+  const { action, version } = await npmUtil.ensureNpmPackageInstallAction(
     selectedEmitter.package,
     selectedEmitter.version,
   );
@@ -122,7 +103,6 @@ export async function doEmit(
       logger.info(`Ignore upgrading emitter ${selectedEmitter.package} for generating`, [], {
         showOutput: false,
         showPopup: false,
-        progress: overallProgress,
       });
     } else {
       logger.info(
@@ -131,7 +111,6 @@ export async function doEmit(
         {
           showOutput: false,
           showPopup: true,
-          progress: overallProgress,
         },
       );
       return;
@@ -143,7 +122,7 @@ export async function doEmit(
     }
     logger.info(`Installing ${packageFullName}`);
     /* verify dependency packages. */
-    const dependenciesToInstall = await npmUtil.ensureNpmPackageDependencyInstall(
+    const dependenciesToInstall = await npmUtil.ensureNpmPackageDependencyToUpgrade(
       selectedEmitter.package,
       version,
       npmDependencyType.peerDependencies,
@@ -164,18 +143,16 @@ export async function doEmit(
     logger.info(`Installing ${packagesToInstall.join("\n\n")} under ${baseDir}`, [], {
       showOutput: true,
       showPopup: true,
-      progress: overallProgress,
     });
     try {
       const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall, undefined, {
-        onStdioOut: toOutput,
-        onStdioError: toError,
+        onStdioOut: onStdioOut,
+        onStdioError: onStdioError,
       });
       if (npmInstallResult.exitCode !== 0) {
         logger.error(`Error occurred when installing packages.`, [`${npmInstallResult.stderr}`], {
           showOutput: true,
           showPopup: true,
-          progress: overallProgress,
         });
         return;
       }
@@ -184,7 +161,6 @@ export async function doEmit(
       logger.error(`Exception occurred when installing packages.`, [err], {
         showOutput: true,
         showPopup: true,
-        progress: overallProgress,
       });
       return;
     }
@@ -194,7 +170,6 @@ export async function doEmit(
   logger.info("Generating ...", [], {
     showOutput: false,
     showPopup: false,
-    progress: overallProgress,
   });
 
   const cli = await resolveTypeSpecCli(baseDir);
@@ -205,7 +180,6 @@ export async function doEmit(
       {
         showOutput: true,
         showPopup: true,
-        progress: overallProgress,
       },
     );
     return;
@@ -220,7 +194,6 @@ export async function doEmit(
     {
       showOutput: true,
       showPopup: false,
-      progress: overallProgress,
     },
   );
   try {
@@ -232,7 +205,6 @@ export async function doEmit(
         {
           showOutput: true,
           showPopup: true,
-          progress: overallProgress,
         },
       );
     } else {
@@ -242,7 +214,6 @@ export async function doEmit(
         {
           showOutput: true,
           showPopup: true,
-          progress: overallProgress,
         },
       );
     }
@@ -253,19 +224,12 @@ export async function doEmit(
       {
         showOutput: true,
         showPopup: true,
-        progress: overallProgress,
       },
     );
   }
-
-  /*TODO: build sdk. */
 }
 
-export async function emitCode(
-  context: vscode.ExtensionContext,
-  uri: vscode.Uri,
-  overallProgress: vscode.Progress<{ message?: string; increment?: number }>,
-) {
+export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri) {
   let tspProjectFile: string = "";
   if (!uri) {
     const targetPathes = await TraverseMainTspFileInWorkspace();
@@ -274,11 +238,10 @@ export async function emitCode(
       logger.info("No main tsp file found. Generating Cancelled.", [], {
         showOutput: false,
         showPopup: true,
-        progress: overallProgress,
       });
       return;
     }
-    const toProjectPickItem = (filePath: string): TypeSpecProjectPickItem => {
+    const toProjectPickItem = (filePath: string): any => {
       return {
         label: filePath,
         path: filePath,
@@ -288,7 +251,7 @@ export async function emitCode(
         },
       };
     };
-    const typespecProjectQuickPickItems: TypeSpecProjectPickItem[] = targetPathes.map((filePath) =>
+    const typespecProjectQuickPickItems: any[] = targetPathes.map((filePath) =>
       toProjectPickItem(filePath),
     );
     const selectedProjectFile = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
@@ -301,49 +264,38 @@ export async function emitCode(
       logger.info("No project selected. Generating Cancelled.", [], {
         showOutput: false,
         showPopup: true,
-        progress: overallProgress,
       });
       return;
     }
     tspProjectFile = selectedProjectFile.path;
   } else {
-    const tspStartFile = await getMainTspFile(uri.fsPath);
+    const tspStartFile = await getEntrypointTspFile(uri.fsPath);
     if (!tspStartFile) {
       logger.info("No main file. Invalid typespec project.", [], {
         showOutput: false,
         showPopup: true,
-        progress: overallProgress,
       });
       return;
     }
     tspProjectFile = tspStartFile;
   }
 
-  interface EmitTypeQuickPickItem extends vscode.QuickPickItem {
-    emitterKind: EmitterKind;
-  }
+  logger.info(`Generate from entrypoint file: ${tspProjectFile}`, [], {
+    showOutput: false,
+    showPopup: false,
+  });
 
-  const codesToEmit = [
-    {
-      label: "Protocol Schema",
-      detail: "Generating Protocol schema (OpenAPI for example) from TypeSpec",
-      iconPath: Uri.file(context.asAbsolutePath(`./icons/schema.svg`)),
-      emitterKind: EmitterKind.Schema,
-    },
-    {
-      label: "Client Code",
-      detail: "Generating Client Code from TypeSpec.",
-      iconPath: Uri.file(context.asAbsolutePath(`./icons/sdk.svg`)),
-      emitterKind: EmitterKind.Client,
-    },
-    {
-      label: "<PREVIEW> Server Stub",
-      detail: "Generating Server Stub from TypeSpec",
-      iconPath: Uri.file(context.asAbsolutePath(`./icons/serverstub.svg`)),
-      emitterKind: EmitterKind.Server,
-    },
-  ];
-  const codeType = await vscode.window.showQuickPick<EmitTypeQuickPickItem>(codesToEmit, {
+  const emitterKinds = getRegisterEmitterTypes();
+  const toEitTypeQuickPickItem = (kind: EmitterKind): any => {
+    return {
+      label: PreDefinedEmitterPickItems[kind]?.label ?? kind,
+      detail: PreDefinedEmitterPickItems[kind]?.detail ?? `Generate ${kind} code from TypeSpec`,
+      emitterKind: kind,
+      iconPath: Uri.file(context.asAbsolutePath(`./icons/${kind.toLowerCase()}.svg`)),
+    };
+  };
+  const codesToEmit = emitterKinds.map((kind) => toEitTypeQuickPickItem(kind));
+  const codeType = await vscode.window.showQuickPick(codesToEmit, {
     title: "Select an Emitter Type",
     canPickMany: false,
     placeHolder: "Select an emitter type",
@@ -353,11 +305,10 @@ export async function emitCode(
     logger.info("No emitter Type selected. Generating Cancelled.", [], {
       showOutput: false,
       showPopup: false,
-      progress: overallProgress,
     });
     return;
   }
-  await doEmit(context, tspProjectFile, codeType.emitterKind, overallProgress);
+  await doEmit(context, tspProjectFile, codeType.emitterKind);
 }
 
 export async function compile(
@@ -377,19 +328,8 @@ export async function compile(
     args.push("--option", `${emitter}.${key}=${value}`);
   }
 
-  return await spawnExecution(cli.command, args, dirname(startFile), {
-    onStdioOut: toOutput,
-    onStdioError: toError,
+  return await spawnExecution(cli.command, args, getDirectoryPath(startFile), {
+    onStdioOut: onStdioOut,
+    onStdioError: onStdioError,
   });
-}
-
-export async function check(
-  startFile: string,
-  emitter: string,
-): Promise<{
-  valid: boolean;
-  required: { name: string; version: string }[];
-}> {
-  /* TODO: check the runtime. */
-  return { valid: true, required: [] };
 }

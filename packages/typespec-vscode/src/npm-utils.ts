@@ -1,4 +1,4 @@
-import fs from "fs";
+import { readFile } from "fs/promises";
 import path from "path";
 import semver from "semver";
 import logger from "./log/logger.js";
@@ -40,7 +40,8 @@ export class NpmUtil {
     return spawnExecution("npm", ["install", ...packages], this.cwd, on);
   }
 
-  public async ensureNpmPackageInstall(
+  /* identify the action to take for a package. install or skip or cancel or upgrade */
+  public async ensureNpmPackageInstallAction(
     packageName: string,
     version?: string,
   ): Promise<{ action: InstallationAction; version?: string }> {
@@ -48,10 +49,14 @@ export class NpmUtil {
       await this.isPackageInstalled(packageName);
     if (isPackageInstalled) {
       if (version && installedVersion !== version) {
-        return {
-          action: InstallationAction.Upgrade,
-          version: version,
-        };
+        if (semver.gt(version, installedVersion!)) {
+          return { action: InstallationAction.Upgrade, version: version };
+        } else {
+          logger.info(
+            "The version to intall is less than the installed version. Skip installation.",
+          );
+          return { action: InstallationAction.Skip, version: installedVersion };
+        }
       }
       return { action: InstallationAction.Skip, version: installedVersion };
     } else {
@@ -59,7 +64,8 @@ export class NpmUtil {
     }
   }
 
-  public async ensureNpmPackageDependencyInstall(
+  /* identify the dependency packages need to be upgraded */
+  public async ensureNpmPackageDependencyToUpgrade(
     packageName: string,
     version?: string,
     dependencyType: npmDependencyType = npmDependencyType.dependencies,
@@ -72,15 +78,15 @@ export class NpmUtil {
     }
 
     /* get dependencies. */
-    const dependenciesResult = await spawnExecution(
-      "npm",
-      ["view", packageFullName, dependencyType],
-      this.cwd,
-      on,
-    );
+    try {
+      const dependenciesResult = await spawnExecution(
+        "npm",
+        ["view", packageFullName, dependencyType],
+        this.cwd,
+        on,
+      );
 
-    if (dependenciesResult.exitCode === 0) {
-      try {
+      if (dependenciesResult.exitCode === 0) {
         // Remove all newline characters
         let dependenciesJsonStr = dependenciesResult.stdout.trim();
         dependenciesJsonStr = dependenciesJsonStr.replace(/\n/g, "");
@@ -96,11 +102,12 @@ export class NpmUtil {
             }
           }
         }
-      } catch (err) {
-        if (on && on.onError) {
-          on.onError(err, "", "");
-        }
       }
+    } catch (err) {
+      if (on && on.onError) {
+        on.onError(err, "", "");
+      }
+      logger.error("Error getting dependencies.", [err]);
     }
 
     return dependenciesToInstall;
@@ -126,11 +133,11 @@ export class NpmUtil {
       /* get the package version. */
       let version;
       try {
-        const data = fs.readFileSync(packageJsonPath, "utf-8");
+        const data = await readFile(packageJsonPath, { encoding: "utf-8" });
         const packageJson = JSON.parse(data);
         version = packageJson.version;
       } catch (error) {
-        logger.error(`Error reading package.json: ${error}`);
+        logger.error("Error reading package.json.", [error]);
       }
       return {
         name: packageName,
