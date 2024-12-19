@@ -123,7 +123,7 @@
      "enumType": {
       "$ref": "12"
      },
-     "doc": "The original version v1.",
+     "doc": "The version v1.",
      "decorators": []
     },
     {

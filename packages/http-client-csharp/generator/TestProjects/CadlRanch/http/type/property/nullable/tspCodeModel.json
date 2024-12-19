@@ -71,7 +71,7 @@
    "kind": "model",
    "name": "CollectionsModelProperty",
    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModelProperty",
-   "usage": "Output,Json",
+   "usage": "Input,Output,JsonMergePatch,Json",
    "doc": "Model with collection models properties",
    "decorators": [],
    "properties": [
@@ -113,7 +113,7 @@
         "kind": "model",
         "name": "InnerModel",
         "crossLanguageDefinitionId": "Type.Property.Nullable.InnerModel",
-        "usage": "Output,Json",
+        "usage": "Input,Output,JsonMergePatch,Json",
         "doc": "Inner model used in collections model property",
         "decorators": [],
         "properties": [
@@ -160,7 +160,7 @@
    "kind": "model",
    "name": "CollectionsByteProperty",
    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByteProperty",
-   "usage": "Output,Json",
+   "usage": "Input,Output,JsonMergePatch,Json",
    "doc": "Model with collection bytes properties",
    "decorators": [],
    "properties": [
@@ -223,7 +223,7 @@
    "kind": "model",
    "name": "DurationProperty",
    "crossLanguageDefinitionId": "Type.Property.Nullable.DurationProperty",
-   "usage": "Output,Json",
+   "usage": "Input,Output,JsonMergePatch,Json",
    "doc": "Model with a duration property",
    "decorators": [],
    "properties": [
@@ -286,7 +286,7 @@
    "kind": "model",
    "name": "DatetimeProperty",
    "crossLanguageDefinitionId": "Type.Property.Nullable.DatetimeProperty",
-   "usage": "Output,Json",
+   "usage": "Input,Output,JsonMergePatch,Json",
    "doc": "Model with a datetime property",
    "decorators": [],
    "properties": [
@@ -349,7 +349,7 @@
    "kind": "model",
    "name": "BytesProperty",
    "crossLanguageDefinitionId": "Type.Property.Nullable.BytesProperty",
-   "usage": "Output,Json",
+   "usage": "Input,Output,JsonMergePatch,Json",
    "doc": "Template type for testing models with nullable property. Pass in the type of the property you are looking for",
    "decorators": [],
    "properties": [
@@ -405,7 +405,7 @@
    "kind": "model",
    "name": "StringProperty",
    "crossLanguageDefinitionId": "Type.Property.Nullable.StringProperty",
-   "usage": "Output,Json",
+   "usage": "Input,Output,JsonMergePatch,Json",
    "doc": "Template type for testing models with nullable property. Pass in the type of the property you are looking for",
    "decorators": [],
    "properties": [
