@@ -188,10 +188,16 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
 }
 
 async function setupPyodideCall(root: string) {
-  const pyodide = await loadPyodide({ indexURL: path.dirname(fileURLToPath(import.meta.resolve("pyodide"))) });
+  const pyodide = await loadPyodide({
+    indexURL: path.dirname(fileURLToPath(import.meta.resolve("pyodide"))),
+  });
   // mount generator to pyodide
   pyodide.FS.mkdirTree("/generator");
-  pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.join(root, "generator") }, "/generator");
+  pyodide.FS.mount(
+    pyodide.FS.filesystems.NODEFS,
+    { root: path.join(root, "generator") },
+    "/generator",
+  );
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
   await micropip.install("emfs:/generator/dist/pygen-0.1.0-py3-none-any.whl");
