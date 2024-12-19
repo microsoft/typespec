@@ -9,7 +9,7 @@ import { MANIFEST } from "../manifest.js";
 import { readUrlOrPath } from "../utils/misc.js";
 import { getTypeSpecCoreTemplates } from "./core-templates.js";
 import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
-import { InitTemplate, InitTemplateLibrarySpec } from "./init-template.js";
+import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "./init-template.js";
 import { makeScaffoldingConfig, normalizeLibrary, scaffoldNewProject } from "./scaffold.js";
 
 export interface InitTypeSpecProjectOptions {
@@ -66,6 +66,7 @@ export async function initTypeSpecProject(
   ]);
 
   const libraries = await selectLibraries(template);
+  const emitters = await selectEmitters(template);
   const parameters = await promptCustomParameters(template);
   const scaffoldingConfig = makeScaffoldingConfig(template, {
     baseUri: result.baseUri,
@@ -75,6 +76,7 @@ export async function initTypeSpecProject(
     folderName,
     parameters,
     includeGitignore,
+    emitters,
   });
 
   await scaffoldNewProject(host, scaffoldingConfig);
@@ -86,6 +88,18 @@ export async function initTypeSpecProject(
 
   // eslint-disable-next-line no-console
   console.log(pc.green("Project created successfully."));
+
+  if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
+    // eslint-disable-next-line no-console
+    console.log(pc.yellow("\nPlease review following messages from emitters:"));
+
+    for (const key of Object.keys(emitters)) {
+      if (emitters[key].message) {
+        // eslint-disable-next-line no-console
+        console.log(`  ${key}: \n\t${emitters[key].message}`);
+      }
+    }
+  }
 }
 
 async function promptCustomParameters(template: InitTemplate): Promise<Record<string, any>> {
@@ -233,6 +247,33 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
     );
   }
   return true;
+}
+
+async function selectEmitters(template: InitTemplate): Promise<Record<string, EmitterTemplate>> {
+  if (!template.emitters) {
+    return {};
+  }
+
+  const promptList = [...Object.entries(template.emitters)].map(([name, emitter]) => {
+    return {
+      title: name,
+      description: emitter.description,
+      selected: emitter.selected ?? false,
+    };
+  });
+
+  const { emitters } = await prompts({
+    type: "multiselect",
+    name: "emitters",
+    message: "Select emitters?",
+    choices: promptList,
+  });
+
+  const selectedEmitters = [...Object.entries(template.emitters)].filter((_, index) =>
+    emitters.includes(index),
+  );
+
+  return Object.fromEntries(selectedEmitters);
 }
 
 async function selectLibraries(template: InitTemplate): Promise<InitTemplateLibrarySpec[]> {
