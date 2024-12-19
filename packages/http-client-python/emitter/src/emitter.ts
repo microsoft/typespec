@@ -123,8 +123,8 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     // if not using pyodide and there's no venv, we try to create venv
     if (!resolvedOptions["use-pyodide"] && !fs.existsSync(path.join(root, "venv"))) {
       try {
-        await runPython3("./eng/scripts/setup/install.py");
-        await runPython3("./eng/scripts/setup/prepare.py");
+        await runPython3(path.join(root, "/eng/scripts/setup/install.py"));
+        await runPython3(path.join(root, "/eng/scripts/setup/prepare.py"));
       } catch (error) {
         if (error instanceof Error && error.message.includes(pythonVersionErrorMsg)) {
           // if we can't find python with compatible version, we use pyodide instead
