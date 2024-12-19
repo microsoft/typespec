@@ -26,9 +26,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputOperation _inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [_inputOperation], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [_inputOperation], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [_inputOperation], [], _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
