@@ -911,8 +911,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         return {};
       case "null":
         return { nullable: true };
-      case "void":
-        return {};
     }
 
     reportDiagnostic(this.emitter.getProgram(), {
