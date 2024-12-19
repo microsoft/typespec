@@ -1,5 +1,5 @@
 import vscode from "vscode";
-import { EmitterSettingName } from "../const.js";
+import { SettingName } from "../types.js";
 
 export enum EmitterKind {
   Schema = "schema",
@@ -35,8 +35,8 @@ function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter {
 }
 
 export function getRegisterEmitters(kind: EmitterKind): ReadonlyArray<Emitter> {
-  const emitters: ReadonlyArray<Emitter> =
-    extensionConfig.get(EmitterSettingName[kind] ?? "") ?? [];
-
-  return emitters.map((emitter) => getEmitter(kind, emitter));
+  const emitters: ReadonlyArray<Emitter> = extensionConfig.get(SettingName.Emitters) ?? [];
+  return emitters
+    .filter((emitter) => emitter.kind === kind)
+    .map((emitter) => getEmitter(kind, emitter));
 }

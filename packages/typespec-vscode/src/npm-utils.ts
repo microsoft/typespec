@@ -48,9 +48,12 @@ export class NpmUtil {
       await this.isPackageInstalled(packageName);
     if (isPackageInstalled) {
       if (version && installedVersion !== version) {
-        return { action: InstallationAction.Upgrade, version: version };
+        return {
+          action: InstallationAction.Upgrade,
+          version: version,
+        };
       }
-      return { action: InstallationAction.Cancel, version: installedVersion };
+      return { action: InstallationAction.Skip, version: installedVersion };
     } else {
       return { action: InstallationAction.Install, version: version };
     }
@@ -60,7 +63,6 @@ export class NpmUtil {
     packageName: string,
     version?: string,
     dependencyType: npmDependencyType = npmDependencyType.dependencies,
-    options: any = {},
     on?: spawnExecutionEvents,
   ): Promise<string[]> {
     const dependenciesToInstall: string[] = [];
@@ -73,7 +75,7 @@ export class NpmUtil {
     const dependenciesResult = await spawnExecution(
       "npm",
       ["view", packageFullName, dependencyType],
-      this.cwd ,
+      this.cwd,
       on,
     );
 

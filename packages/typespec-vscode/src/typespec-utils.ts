@@ -30,7 +30,6 @@ export async function resolveTypeSpecCli(absolutePath: string): Promise<Executab
   }
   const modelInfo = await loadModule(absolutePath, "@typespec/compiler");
   if (modelInfo) {
-    //const cli = modelInfo.executables.find((exe) => exe.name === "tsp");
     const cmdPath = path.resolve(modelInfo.path, "cmd/tsp.js");
     return {
       command: "node",
