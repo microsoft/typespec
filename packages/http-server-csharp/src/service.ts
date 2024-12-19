@@ -811,7 +811,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           code`${this.emitter.emitTypeReference(
             this.#metaInfo.getEffectivePayloadType(
               bodyParam.type,
-              Visibility.Create & Visibility.Update,
+              Visibility.Create | Visibility.Update,
             ),
           )} body`,
         );
