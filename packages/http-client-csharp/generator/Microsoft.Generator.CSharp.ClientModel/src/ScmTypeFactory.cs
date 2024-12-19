@@ -119,7 +119,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
         }
 
         public virtual ValueExpression DeserializeForType(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
-            => MrwSerializationTypeDefinition.GetValueTypeDeserializationExpressionCore(valueType, element, format);
+            => MrwSerializationTypeDefinition.DeserializeForTypeCore(valueType, element, format);
 
         public virtual MethodBodyStatement SerializeForType(
             Type valueType,

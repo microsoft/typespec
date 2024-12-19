@@ -1584,32 +1584,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             SerializationFormat serializationFormat,
             ValueExpression value)
         {
+            // append the `.Value` if needed (when the type is nullable and a value type)
             value = value.NullableStructValue(type);
 
+            // now we just need to focus on how we serialize a value
             if (type.IsFrameworkType)
                 return ClientModelPlugin.Instance.TypeFactory.SerializeForType(type.FrameworkType, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
 
             if (!type.IsEnum)
                 return _utf8JsonWriterSnippet.WriteObjectValue(value.As(type), options: _mrwOptionsParameterSnippet);
 
-            var enumerableSnippet = value.NullableStructValue(type).As(type);
             if (type.IsStruct) //is extensible
             {
                 if (type.UnderlyingEnumType.Equals(typeof(string)))
-                    return _utf8JsonWriterSnippet.WriteStringValue(enumerableSnippet.Invoke(nameof(ToString)));
+                    return _utf8JsonWriterSnippet.WriteStringValue(value.Invoke(nameof(ToString)));
 
-                return _utf8JsonWriterSnippet.WriteNumberValue(enumerableSnippet.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
+                return _utf8JsonWriterSnippet.WriteNumberValue(value.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
             }
             else
             {
                 if (type.UnderlyingEnumType.Equals(typeof(int)))
                     // when the fixed enum is implemented as int, we cast to the value
-                    return _utf8JsonWriterSnippet.WriteNumberValue(enumerableSnippet.CastTo(type.UnderlyingEnumType));
+                    return _utf8JsonWriterSnippet.WriteNumberValue(value.CastTo(type.UnderlyingEnumType));
 
                 if (type.UnderlyingEnumType.Equals(typeof(string)))
-                    return _utf8JsonWriterSnippet.WriteStringValue(enumerableSnippet.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
+                    return _utf8JsonWriterSnippet.WriteStringValue(value.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
 
-                return _utf8JsonWriterSnippet.WriteNumberValue(enumerableSnippet.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
+                return _utf8JsonWriterSnippet.WriteNumberValue(value.Invoke($"ToSerial{type.UnderlyingEnumType.Name}"));
             }
         }
 
@@ -1650,7 +1651,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
         }
 
-        internal static ValueExpression GetValueTypeDeserializationExpressionCore(
+        internal static ValueExpression DeserializeForTypeCore(
             Type valueType,
             ScopedApi<JsonElement> element,
             SerializationFormat format)
