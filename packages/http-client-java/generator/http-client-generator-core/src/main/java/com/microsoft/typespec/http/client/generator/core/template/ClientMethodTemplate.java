@@ -699,7 +699,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
                 function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
                 function.line(
-                    "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);");
+                    "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                        + TemplateUtil.getContextNone() + ");");
 
                 function.line("return new PagedIterable<>(");
                 function.indent(() -> {
@@ -833,7 +834,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 if (settings.isDataPlaneClient()) {
                     function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
                     function.line(
-                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);");
+                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                            + TemplateUtil.getContextNone() + ");");
                 }
                 function.line("return new PagedIterable<>(");
 
@@ -843,12 +845,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .replace("requestOptions", "requestOptionsForNextPage");
                 String firstPageArgs = clientMethod.getArgumentList();
                 if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
-                    nextMethodArgs = nextMethodArgs.replace("context", "Context.NONE");
+                    nextMethodArgs = nextMethodArgs.replace("context", TemplateUtil.getContextNone());
                     if (!CoreUtils.isNullOrEmpty(firstPageArgs)) {
-                        firstPageArgs = firstPageArgs + ", Context.NONE";
+                        firstPageArgs = firstPageArgs + ", " + TemplateUtil.getContextNone();
                     } else {
                         // If there are no first page arguments don't include a leading comma.
-                        firstPageArgs = "Context.NONE";
+                        firstPageArgs = TemplateUtil.getContextNone();
                     }
                 }
                 String effectiveNextMethodArgs = nextMethodArgs;
@@ -873,10 +875,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 String firstPageArgs = clientMethod.getArgumentList();
                 if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
                     if (!CoreUtils.isNullOrEmpty(firstPageArgs)) {
-                        firstPageArgs = firstPageArgs + ", Context.NONE";
+                        firstPageArgs = firstPageArgs + ", " + TemplateUtil.getContextNone();
                     } else {
                         // If there are no first page arguments don't include a leading comma.
-                        firstPageArgs = "Context.NONE";
+                        firstPageArgs = TemplateUtil.getContextNone();
                     }
                 }
                 String effectiveFirstPageArgs = firstPageArgs;
@@ -898,7 +900,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 if (settings.isDataPlaneClient()) {
                     function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
                     function.line(
-                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);");
+                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                            + TemplateUtil.getContextNone() + ");");
                 }
                 function.line("return new PagedFlux<>(");
                 function.indent(() -> {
@@ -972,10 +975,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String argumentList = clientMethod.getArgumentList();
             if (CoreUtils.isNullOrEmpty(argumentList)) {
                 // If there are no arguments the argument is Context.NONE
-                argumentList = "Context.NONE";
+                argumentList = TemplateUtil.getContextNone();
             } else if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
                 // If the arguments don't contain Context append Context.NONE
-                argumentList += ", Context.NONE";
+                argumentList += ", " + TemplateUtil.getContextNone();
             }
 
             if (ClassType.STREAM_RESPONSE.equals(clientMethod.getReturnValue().getType())) {
@@ -998,10 +1001,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             String argumentList = clientMethod.getArgumentList();
             if (CoreUtils.isNullOrEmpty(argumentList)) {
                 // If there are no arguments the argument is Context.NONE
-                argumentList = "Context.NONE";
+                argumentList = TemplateUtil.getContextNone();
             } else if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
                 // If the arguments don't contain Context append Context.NONE
-                argumentList += ", Context.NONE";
+                argumentList += ", " + TemplateUtil.getContextNone();
             }
 
             if (clientMethod.getReturnValue().getType().equals(PrimitiveType.VOID)) {
@@ -1336,7 +1339,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         // which isn't 'Context'. This can be done by looking for the 'ProxyMethodParameter' with the
                         // matching name and checking if it's the 'Context' parameter.
                         parameterName = (parameter == null && "context".equals(proxyMethodArgument))
-                            ? "Context.NONE"
+                            ? TemplateUtil.getContextNone()
                             : proxyMethodArgument;
                     }
                 }
@@ -1439,7 +1442,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         if (clientMethod.getParameters().stream().anyMatch(p -> p.getClientType().equals(ClassType.CONTEXT))) {
             contextParam = "context";
         } else {
-            contextParam = "Context.NONE";
+            contextParam = TemplateUtil.getContextNone();
         }
         String pollingStrategy = getPollingStrategy(clientMethod, contextParam);
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
@@ -1488,17 +1491,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         if (clientMethod.getParameters().stream().anyMatch(p -> p.getClientType().equals(ClassType.CONTEXT))) {
             contextParam = "context";
         } else {
-            contextParam = "Context.NONE";
+            contextParam = TemplateUtil.getContextNone();
         }
         String pollingStrategy = getSyncPollingStrategy(clientMethod, contextParam);
 
         String argumentList = clientMethod.getArgumentList();
         if (CoreUtils.isNullOrEmpty(argumentList)) {
             // If there are no arguments the argument is Context.NONE
-            argumentList = "Context.NONE";
+            argumentList = TemplateUtil.getContextNone();
         } else if (clientMethod.getParameters().stream().noneMatch(p -> p.getClientType() == ClassType.CONTEXT)) {
             // If the arguments don't contain Context append Context.NONE
-            argumentList += ", Context.NONE";
+            argumentList += ", " + TemplateUtil.getContextNone();
         }
 
         String effectiveArgumentList = argumentList;
@@ -1519,7 +1522,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     private void generateProtocolLongRunningBeginSync(ClientMethod clientMethod, JavaType typeBlock) {
         String contextParam
-            = "requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE";
+            = "requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                + TemplateUtil.getContextNone();
         String pollingStrategy = getSyncPollingStrategy(clientMethod, contextParam);
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {

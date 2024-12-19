@@ -451,7 +451,9 @@ public class ClassType implements IType {
     public static final ClassType INPUT_STREAM = new ClassType.Builder(false).knownClass(InputStream.class).build();
 
     public static final ClassType CONTEXT = ClassType.getClassTypeBuilder(Context.class)
-        .defaultValueExpressionConverter(epr -> "com.azure.core.util.Context.NONE")
+        .defaultValueExpressionConverter(epr -> JavaSettings.getInstance().isBranded()
+            ? "com.azure.core.util.Context.NONE"
+            : "io.clientcore.core.util.Context.none()")
         .build();
 
     public static final ClassType ANDROID_CONTEXT

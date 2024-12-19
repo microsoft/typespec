@@ -370,4 +370,8 @@ public class TemplateUtil {
         builder.append(str, last, str.length());
         return builder.toString();
     }
+
+    public static String getContextNone() {
+        return JavaSettings.getInstance().isBranded() ? "Context.NONE" : "Context.none()";
+    }
 }
