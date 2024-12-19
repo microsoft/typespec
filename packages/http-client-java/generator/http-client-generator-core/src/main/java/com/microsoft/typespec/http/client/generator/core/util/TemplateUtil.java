@@ -161,7 +161,9 @@ public class TemplateUtil {
         }
 
         // helper methods for LLC
-        if (settings.isDataPlaneClient() && clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
+        if (settings.isDataPlaneClient()
+            && settings.isBranded()
+            && clientMethods.stream().anyMatch(m -> m.getMethodPageDetails() != null)) {
             writePagingHelperMethods(classBlock);
         }
     }

@@ -801,20 +801,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("res.getRequest(),");
                 function.line("res.getStatusCode(),");
                 function.line("res.getHeaders(),");
-                if (settings.isDataPlaneClient()) {
-                    function.line("getValues(res.getValue(), \"%s\"),",
-                        clientMethod.getMethodPageDetails().getSerializedItemName());
-                } else {
-                    function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
-                        .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
-                }
+                function.line("res.getBody(),");
+                function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
+                    .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                    if (settings.isDataPlaneClient()) {
-                        function.line("getNextLink(res.getValue(), \"%s\"),",
-                            clientMethod.getMethodPageDetails().getSerializedNextLinkName());
-                    } else {
-                        function.line(nextLinkLine(clientMethod));
-                    }
+                    String nextLinkLine = nextLinkLine(clientMethod);
+                    nextLinkLine = nextLinkLine.substring(0, nextLinkLine.length() - 1);
+                    function.line(nextLinkLine + ");");
                 } else {
                     function.line("null);");
                 }
@@ -1249,7 +1242,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     function.line("res.getRequest(),");
                     function.line("res.getStatusCode(),");
                     function.line("res.getHeaders(),");
-                    if (settings.isDataPlaneClient()) {
+                    if (settings.isDataPlaneClient() && settings.isBranded()) {
                         function.line("getValues(res.getValue(), \"%s\"),",
                             clientMethod.getMethodPageDetails().getSerializedItemName());
                     } else {
@@ -1257,7 +1250,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                     }
                     if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
-                        if (settings.isDataPlaneClient()) {
+                        if (settings.isDataPlaneClient() && settings.isBranded()) {
                             function.line("getNextLink(res.getValue(), \"%s\"),",
                                 clientMethod.getMethodPageDetails().getSerializedNextLinkName());
                         } else {
