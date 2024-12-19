@@ -1,8 +1,8 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
-import { oapiForModel } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: Additional properties", () => {
+worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
   describe("extends Record<T>", () => {
     it("doesn't set additionalProperties on model itself", async () => {
       const res = await oapiForModel("Pet", `model Pet extends Record<unknown> {};`);
