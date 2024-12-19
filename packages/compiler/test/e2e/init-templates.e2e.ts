@@ -6,7 +6,7 @@ import { resolve } from "path/posix";
 import { fileURLToPath } from "url";
 import { beforeAll, describe, it } from "vitest";
 import { NodeHost } from "../../src/index.js";
-import { TypeSpecCoreTemplates } from "../../src/init/core-templates.js";
+import { getTypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -64,7 +64,8 @@ describe("Init templates e2e tests", () => {
   });
 
   async function scaffoldTemplateTo(name: string, targetFolder: string) {
-    const template = TypeSpecCoreTemplates.templates[name];
+    const typeSpecCoreTemplates = await getTypeSpecCoreTemplates(NodeHost);
+    const template = typeSpecCoreTemplates.templates[name];
     ok(template, `Template '${name}' not found`);
     await scaffoldNewProject(
       NodeHost,
@@ -72,7 +73,7 @@ describe("Init templates e2e tests", () => {
         name,
         folderName: name,
         directory: targetFolder,
-        baseUri: TypeSpecCoreTemplates.baseUri,
+        baseUri: typeSpecCoreTemplates.baseUri,
       }),
     );
   }

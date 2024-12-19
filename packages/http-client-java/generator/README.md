@@ -11,7 +11,7 @@ The **Microsoft Java client generator** tool generates client libraries for acce
 ## Prerequisites
 
 - [Java 17 or above](https://docs.microsoft.com/java/openjdk/download)
-- [Maven](https://maven.apache.org/install.html)
+- [Maven](https://maven.apache.org/download.cgi)
 
 ## Build
 

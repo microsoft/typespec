@@ -4,12 +4,12 @@ import prompts from "prompts";
 import * as semver from "semver";
 import { createDiagnostic } from "../core/messages.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
-import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { MANIFEST } from "../manifest.js";
 import { readUrlOrPath } from "../utils/misc.js";
-import { TypeSpecCoreTemplates } from "./core-templates.js";
-import { InitTemplate, InitTemplateLibrarySpec, InitTemplateSchema } from "./init-template.js";
+import { getTypeSpecCoreTemplates } from "./core-templates.js";
+import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
+import { InitTemplate, InitTemplateLibrarySpec } from "./init-template.js";
 import { makeScaffoldingConfig, normalizeLibrary, scaffoldNewProject } from "./scaffold.js";
 
 export interface InitTypeSpecProjectOptions {
@@ -30,15 +30,16 @@ export async function initTypeSpecProject(
 
   // Download template configuration and prompt user to select a template
   // No validation is done until one has been selected
+  const typeSpecCoreTemplates = await getTypeSpecCoreTemplates(host);
   const result =
     options.templatesUrl === undefined
-      ? (TypeSpecCoreTemplates as LoadedTemplate)
+      ? (typeSpecCoreTemplates as LoadedTemplate)
       : await downloadTemplates(host, options.templatesUrl);
   const templateName = options.template ?? (await promptTemplateSelection(result.templates));
 
   // Validate minimum compiler version for non built-in templates
   if (
-    result !== TypeSpecCoreTemplates &&
+    result !== typeSpecCoreTemplates &&
     !(await validateTemplate(result.templates[templateName], result))
   ) {
     return;
@@ -193,11 +194,6 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
   return templateName;
 }
 
-type ValidationResult = {
-  valid: boolean;
-  diagnostics: readonly Diagnostic[];
-};
-
 async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<boolean> {
   // After selection, validate the template definition
   const currentCompilerVersion = MANIFEST.version;
@@ -276,18 +272,6 @@ export class InitTemplateError extends Error {
   constructor(public diagnostics: readonly Diagnostic[]) {
     super();
   }
-}
-
-function validateTemplateDefinitions(
-  template: unknown,
-  templateName: SourceFile,
-  strictValidation: boolean,
-): ValidationResult {
-  const validator = createJSONSchemaValidator(InitTemplateSchema, {
-    strict: strictValidation,
-  });
-  const diagnostics = validator.validate(template, templateName);
-  return { valid: diagnostics.length === 0, diagnostics };
 }
 
 function logDiagnostics(diagnostics: readonly Diagnostic[]): void {
