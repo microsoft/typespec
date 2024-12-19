@@ -28,6 +28,7 @@ import {
   isQueryParam,
   isStatusCode,
 } from "./decorators.js";
+import { getHttpOperation } from "./operations.js";
 import { HttpVerb, OperationParameterOptions } from "./types.js";
 
 /**
@@ -333,11 +334,17 @@ export function HttpVisibilityProvider(
 
   return {
     parameters: (program, operation) => {
-      const verb = hasVerb
+      let verb = hasVerb
         ? (verbOrParameterOptions as HttpVerb)
         : (verbOrParameterOptions?.verbSelector?.(program, operation) ??
-          getOperationVerb(program, operation) ??
-          "get");
+          getOperationVerb(program, operation));
+
+      if (!verb) {
+        const [httpOperation] = getHttpOperation(program, operation);
+
+        verb = httpOperation.verb;
+      }
+
       return visibilityToFilter(program, getDefaultVisibilityForVerb(verb));
     },
     returnType: (program, _) => {
@@ -360,6 +367,10 @@ export function resolveRequestVisibility(
   operation: Operation,
   verb: HttpVerb,
 ): Visibility {
+  // WARNING: This is the only place where we call HttpVisibilityProvider _WITHIN_ the HTTP implementation itself. We
+  // _must_ provide the verb directly to the function as the first argument. If the verb is not provided directly, the
+  // provider calls getHttpOperation to resolve the verb. Since the current function is called from getHttpOperation, it
+  // will cause a stack overflow if the version of HttpVisibilityProvider we use here has to resolve the verb itself.
   const parameterVisibilityFilter = getParameterVisibilityFilter(
     program,
     operation,
