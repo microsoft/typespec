@@ -162,7 +162,7 @@ public class Main {
         }
 
         boolean includeApiViewProperties
-            = emitterOptions.includeApiViewProperties() != null && emitterOptions.includeApiViewProperties();
+            = emitterOptions.getIncludeApiViewProperties() != null && emitterOptions.getIncludeApiViewProperties();
         if (includeApiViewProperties && !CoreUtils.isNullOrEmpty(typeSpecPlugin.getCrossLanguageDefinitionMap())) {
             String flavor = emitterOptions.getFlavor() == null ? "azure" : emitterOptions.getFlavor();
             StringBuilder sb
