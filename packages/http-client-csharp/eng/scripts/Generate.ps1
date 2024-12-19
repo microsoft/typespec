@@ -37,7 +37,8 @@ if (-not $LaunchOnly) {
     }
 }
 
-$specsDirectory = "$packageRoot/node_modules/@azure-tools/cadl-ranch-specs"
+$specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
+$azureSpecsDirectory = "$packageRoot/node_modules/@azure-tools/azure-http-specs"
 $cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
 
 function IsSpecDir {
@@ -50,37 +51,47 @@ function IsSpecDir {
 
 $failingSpecs = @(
     Join-Path 'http' 'payload' 'pageable'
-    Join-Path 'http' 'special-headers' 'conditional-request'
+    Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'templated'
+)
+
+$azureAllowSpecs = @(
+    Join-Path 'http' 'client' 'naming'
+    Join-Path 'http' 'client' 'structure' 'client-operation-group'
+    Join-Path 'http' 'client' 'structure' 'default'
+    Join-Path 'http' 'client' 'structure' 'multi-client'
+    Join-Path 'http' 'client' 'structure' 'renamed-operation'
+    Join-Path 'http' 'client' 'structure' 'two-operation-group'
+    Join-Path 'http' 'resiliency' 'srv-driven'
 )
 
 $cadlRanchLaunchProjects = @{}
 
 # Loop through all directories and subdirectories of the cadl ranch specs
-$directories = Get-ChildItem -Path "$specsDirectory/http" -Directory -Recurse
+$directories = @(Get-ChildItem -Path "$specsDirectory/specs" -Directory -Recurse)
+$directories += @(Get-ChildItem -Path "$azureSpecsDirectory/specs" -Directory -Recurse)
 foreach ($directory in $directories) {
     if (-not (IsSpecDir $directory.FullName)) {
         continue
     }
 
+    $fromAzure = $directory.FullName.Contains("azure-http-specs")
+
     $specFile = Join-Path $directory.FullName "client.tsp"
     if (-not (Test-Path $specFile)) {
         $specFile = Join-Path $directory.FullName "main.tsp"
     }
-    $subPath = $directory.FullName.Substring($specsDirectory.Length + 1)
+    $subPath = if ($fromAzure) {$directory.FullName.Substring($azureSpecsDirectory.Length + 1)} else {$directory.FullName.Substring($specsDirectory.Length + 1)}
+    $subPath = $subPath -replace '^specs', 'http' # Keep consistent with the previous folder name because 'http' makes more sense then current 'specs'
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
 
-    if ($folders.Contains("azure")) {
+    if ($fromAzure -eq $true -and !$azureAllowSpecs.Contains($subPath)) {
         continue
-    }
-
-    if ($folders.Contains("versioning")) {
-        continue # TODO: adopt versioning cadl ranch specs https://github.com/microsoft/typespec/issues/3965
     }
 
     if ($failingSpecs.Contains($subPath)) {
@@ -97,22 +108,33 @@ foreach ($directory in $directories) {
     if (-not (Test-Path $generationDir)) {
         New-Item -ItemType Directory -Path $generationDir | Out-Null
     }
+    
+    if ($folders.Contains("versioning")) {
+        Generate-Versioning $directory.FullName $generationDir -generateStub $stubbed
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
+        continue
+    }
+
+    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
+    if ($folders.Contains("srv-driven")) {
+        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
+        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
+        continue
+    }
 
     $cadlRanchLaunchProjects.Add(($folders -join "-"), ("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
     if ($LaunchOnly) {
         continue
     }
+    
     Write-Host "Generating $subPath" -ForegroundColor Cyan
     Invoke (Get-TspCommand $specFile $generationDir $stubbed)
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
-    }
-
-    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
-    if ($folders.Contains("srv-driven")) {
-        Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
     }
 
     # TODO need to build but depends on https://github.com/Azure/autorest.csharp/issues/4463

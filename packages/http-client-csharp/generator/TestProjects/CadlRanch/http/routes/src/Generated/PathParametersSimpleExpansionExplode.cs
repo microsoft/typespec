@@ -20,7 +20,7 @@ namespace Routes
 
         public virtual Task<ClientResult> PrimitiveAsync(string @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult Primitive(string @param) => throw null;
+        public virtual ClientResult Primitive(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PrimitiveAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Routes
 
         public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult Array(IEnumerable<string> @param) => throw null;
+        public virtual ClientResult Array(IEnumerable<string> @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> @param, CancellationToken cancellationToken = default) => throw null;
 
@@ -36,7 +36,7 @@ namespace Routes
 
         public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult Record(IDictionary<string, int> @param) => throw null;
+        public virtual ClientResult Record(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
     }

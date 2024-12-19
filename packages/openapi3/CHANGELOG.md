@@ -1,5 +1,17 @@
 # Change Log - @typespec/openapi3
 
+## 0.63.0
+
+### Bug Fixes
+
+- [#5006](https://github.com/microsoft/typespec/pull/5006) Illegal characters in component keys
+- [#5274](https://github.com/microsoft/typespec/pull/5274) Added missing peer dependency "openapi-types"
+
+### Features
+
+- [#5029](https://github.com/microsoft/typespec/pull/5029) Add support for `#deprecated` for OpenAPI3Parameter
+
+
 ## 0.62.0
 
 ### Bug Fixes

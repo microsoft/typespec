@@ -1,4 +1,15 @@
 import { NoTarget, Program, Type } from "@typespec/compiler";
+import { spawn, SpawnOptions } from "child_process";
+
+export function logError(program: Program, msg: string) {
+  trace(program, msg);
+  program.reportDiagnostic({
+    code: "http-client-java",
+    severity: "error",
+    message: msg,
+    target: NoTarget,
+  });
+}
 
 export function logWarning(program: Program, msg: string) {
   trace(program, msg);
@@ -52,4 +63,63 @@ export function stringArrayContainsIgnoreCase(stringList: string[], str: string)
 export function removeClientSuffix(clientName: string): string {
   const clientSuffix = "Client";
   return clientName.endsWith(clientSuffix) ? clientName.slice(0, -clientSuffix.length) : clientName;
+}
+
+export type SpawnReturns = {
+  stdout: string;
+  stderr: string;
+};
+
+export async function spawnAsync(
+  command: string,
+  args: readonly string[],
+  options: SpawnOptions,
+): Promise<SpawnReturns> {
+  return new Promise<SpawnReturns>((resolve, reject) => {
+    const childProcess = spawn(command, args, options);
+
+    let error: Error | undefined = undefined;
+
+    // std
+    const stdout: string[] = [];
+    const stderr: string[] = [];
+    if (childProcess.stdout) {
+      childProcess.stdout.on("data", (data) => {
+        stdout.push(data.toString());
+      });
+    }
+    if (childProcess.stderr) {
+      childProcess.stderr.on("data", (data) => {
+        stderr.push(data.toString());
+      });
+    }
+
+    // failed to spawn the process
+    childProcess.on("error", (e) => {
+      error = e;
+    });
+
+    // process exits with error
+    childProcess.on("exit", (code, signal) => {
+      if (code !== 0) {
+        if (code) {
+          error = new Error(`${command} ended with code '${code}'.`);
+        } else {
+          error = new Error(`${command} terminated by signal '${signal}'.`);
+        }
+      }
+    });
+
+    // close and complete Promise
+    childProcess.on("close", () => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({
+          stdout: stdout.join(""),
+          stderr: stderr.join(""),
+        });
+      }
+    });
+  });
 }

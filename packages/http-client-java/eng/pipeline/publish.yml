@@ -30,3 +30,4 @@ extends:
           LanguageShortName: "java"
           HasNugetPackages: false
           CadlRanchName: "@typespec/http-client-java"
+          EnableCadlRanchReport: false
