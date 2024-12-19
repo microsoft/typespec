@@ -1,4 +1,5 @@
 import { Enum, Model, Scalar, Type, Union, navigateType } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { Client } from "../interfaces.js";
 
 export type DataType = Model | Union | Enum | Scalar;
@@ -7,38 +8,14 @@ export function discoverDataTypes(client: Client) {
   const types = new Set<DataType>();
   const ns = client.type;
 
+  const constructor = $.client.getConstructor(client);
+
+  discover(constructor.parameters, types);
   navigateType(
     ns,
     {
       operation(o) {
-        navigateType(
-          o,
-          {
-            model(m) {
-              trackType(types, m);
-            },
-            modelProperty(p) {
-              trackType(types, p.type);
-            },
-            scalar(s) {
-              if (s.namespace?.name !== "TypeSpec") {
-                return;
-              }
-
-              trackType(types, s);
-            },
-            enum(e) {
-              trackType(types, e);
-            },
-            union(u) {
-              trackType(types, u);
-            },
-            unionVariant(v) {
-              trackType(types, v.type);
-            },
-          },
-          { includeTemplateDeclaration: false },
-        );
+        discover(o, types);
       },
     },
     { includeTemplateDeclaration: false },
@@ -47,6 +24,37 @@ export function discoverDataTypes(client: Client) {
   const dataTypes = Array.from(types);
 
   return dataTypes;
+}
+
+function discover(type: Type, types: Set<DataType>) {
+  navigateType(
+    type,
+    {
+      model(m) {
+        trackType(types, m);
+      },
+      modelProperty(p) {
+        trackType(types, p.type);
+      },
+      scalar(s) {
+        if (s.namespace?.name !== "TypeSpec") {
+          return;
+        }
+
+        trackType(types, s);
+      },
+      enum(e) {
+        trackType(types, e);
+      },
+      union(u) {
+        trackType(types, u);
+      },
+      unionVariant(v) {
+        trackType(types, v.type);
+      },
+    },
+    { includeTemplateDeclaration: false },
+  );
 }
 
 function isDataType(type: Type): type is DataType {

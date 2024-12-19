@@ -141,6 +141,9 @@ export function collectTypes(client: Client, options: TypeCollectorOptions = {})
   $.client.flat(client).forEach((c) => {
     const ops = $.client.listServiceOperations(c);
     operations.push(...ops);
+
+    const params = $.client.getConstructor(c).parameters;
+    collectDataType(params, dataTypes, options);
   });
 
   for (const operation of operations) {

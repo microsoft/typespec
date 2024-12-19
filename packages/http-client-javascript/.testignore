@@ -6,39 +6,6 @@ http/azure/resource-manager/resources
 
 # Emitter Errors
 
-# Unresolved symbol for client?
-
-http/client/structure/client-operation-group
-http/client/structure/default
-http/client/structure/multi-client
-http/client/structure/renamed-operation
-http/client/structure/two-operation-group
-
-# Unresolved Symbol api-version
-
-http/server/path/multiple
-
-# Unresolved Symbol version
-
-http/versioning/added
-http/versioning/madeOptional
-http/versioning/removed
-http/versioning/renamedFrom
-http/versioning/returnTypeChangedFrom
-http/versioning/typeChangedFrom
-
-# Not handling reserved words ka.a await as parameter name
-
 # Alloy PR https://github.com/alloy-framework/alloy/pull/45
 
 http/special-words
-
-# Unresolved Symbol for response type, discriminator?
-
-http/type/model/inheritance/enum-discriminator
-http/type/model/inheritance/recursive
-http/type/model/inheritance/nested-discriminator
-http/type/model/inheritance/single-discriminator
-http/type/property/additional-properties
-http/azure/client-generator-core/access
-http/type/property/optionality
