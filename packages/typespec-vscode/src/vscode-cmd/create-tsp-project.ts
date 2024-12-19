@@ -22,6 +22,7 @@ import {
   ExecOutput,
   isFile,
   isWhitespaceStringOrUndefined,
+  spawnExecutionAndLogToOutput,
   tryParseJson,
   tryReadFileOrUrl,
 } from "../utils.js";
@@ -71,7 +72,7 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
       const folderName = getBaseFileName(selectedRootFolder);
 
       if (!client || client.state !== State.Running) {
-        const r = await InstallCompilerAndRestartLSPClient();
+        const r = await CheckCompilerAndRestartLSPClient();
         if (r === undefined) {
           logger.info("Creating TypeSpec Project cancelled when installing Compiler/CLI");
           return;
@@ -637,21 +638,27 @@ async function checkProjectRootFolderEmpty(selectedFolder: string): Promise<bool
   }
 }
 
-async function InstallCompilerAndRestartLSPClient(): Promise<TspLanguageClient | undefined> {
-  const igcArgs: InstallGlobalCliCommandArgs = {
-    confirm: true,
-    confirmTitle: "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
-    confirmPlaceholder:
-      "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
-  };
-  const result = await vscode.commands.executeCommand<boolean>(
-    CommandName.InstallGlobalCompilerCli,
-    igcArgs,
-  );
-  if (!result) {
-    return undefined;
+async function CheckCompilerAndRestartLSPClient(): Promise<TspLanguageClient | undefined> {
+  // language server may not be started because no workspace is opened or failed to start for some reason
+  // so before trying to start it, let's try to check whether global compiler is available first
+  // to avoid unnecessary error notification when starting LSP which would be confusing.
+  const isGlobalCompilerAvailable = await IsGlobalCompilerAvailable();
+  if (!isGlobalCompilerAvailable) {
+    const igcArgs: InstallGlobalCliCommandArgs = {
+      confirm: true,
+      confirmTitle: "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
+      confirmPlaceholder:
+        "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
+    };
+    const result = await vscode.commands.executeCommand<boolean>(
+      CommandName.InstallGlobalCompilerCli,
+      igcArgs,
+    );
+    if (!result) {
+      return undefined;
+    }
   }
-  logger.info("Try to restart lsp client after installing compiler.");
+  logger.info("Try to restart lsp client.");
   const rsArgs: RestartServerCommandArgs = {
     forceRecreate: false,
     popupRecreateLspError: true,
@@ -661,4 +668,15 @@ async function InstallCompilerAndRestartLSPClient(): Promise<TspLanguageClient |
     rsArgs,
   );
   return newClient;
+}
+
+async function IsGlobalCompilerAvailable(): Promise<boolean> {
+  try {
+    await spawnExecutionAndLogToOutput("tsp", ["--version"], process.cwd());
+    logger.debug("Global compiler is available by checking 'tsp --version'");
+    return true;
+  } catch (e) {
+    logger.debug("Global compiler is not available by checking 'tsp --version'", [e]);
+    return false;
+  }
 }
