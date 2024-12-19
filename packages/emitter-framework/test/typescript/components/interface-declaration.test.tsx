@@ -38,9 +38,8 @@ describe("Typescript Interface", () => {
           const actualContent = await format(testFile.contents as string, { parser: "typescript" });
           const expectedContent = await format(
             `
-            export interface DifferentSpreadModelRecord {
+            export interface DifferentSpreadModelRecord extends Record<string, unknown> {
               knownProp: string;
-              [key: string]: unknown;
             }
             `,
             {
@@ -50,6 +49,116 @@ describe("Typescript Interface", () => {
 
           expect(actualContent).toBe(expectedContent);
       })
+      it("creates an interface for a model that 'is' an array ", async () => {
+        const program = await getProgram(`
+          namespace DemoService;
+
+          model Foo is Array<string>;
+          `);
+  
+          const [namespace] = program.resolveTypeReference("DemoService");
+          const models = ((namespace as Namespace).models);
+
+          
+          const res = render(
+            <Output>
+              <SourceFile path="test.ts">
+                {mapJoin(models, (name, model) => (
+                  <InterfaceDeclaration export  type={model} />
+                ))}
+              </SourceFile>
+            </Output>
+          );
+  
+          const testFile = res.contents.find((file) => file.path === "test.ts");
+          assert(testFile, "test.ts file not rendered");
+          const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+          const expectedContent = await format(
+            `export interface Foo extends Array<string> { }
+            `,
+            {
+              parser: "typescript",
+            }
+          );
+
+          expect(actualContent).toBe(expectedContent);
+  
+      })
+
+      it("creates an interface for a model that 'is' a record ", async () => {
+        const program = await getProgram(`
+          namespace DemoService;
+
+          model Foo is Record<string>;
+          `);
+  
+          const [namespace] = program.resolveTypeReference("DemoService");
+          const models = ((namespace as Namespace).models);
+
+          
+          const res = render(
+            <Output>
+              <SourceFile path="test.ts">
+                {mapJoin(models, (name, model) => (
+                  <InterfaceDeclaration export  type={model} />
+                ))}
+              </SourceFile>
+            </Output>
+          );
+  
+          const testFile = res.contents.find((file) => file.path === "test.ts");
+          assert(testFile, "test.ts file not rendered");
+          const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+          const expectedContent = await format(
+            `export interface Foo extends Record<string, string> { }
+            `,
+            {
+              parser: "typescript",
+            }
+          );
+
+          expect(actualContent).toBe(expectedContent);
+  
+      })
+
+      it("creates an interface of a model that spreads a Record", async () => {
+        const program = await getProgram(`
+          namespace DemoService;
+
+          model Foo {
+            ...Record<string>
+          }
+          `);
+  
+          const [namespace] = program.resolveTypeReference("DemoService");
+          const models = ((namespace as Namespace).models);
+  
+          const res = render(
+            <Output>
+              <SourceFile path="test.ts">
+                {mapJoin(models, (name, model) => (
+                  <InterfaceDeclaration export type={model} />
+                ))}
+              </SourceFile>
+            </Output>
+          );
+  
+          const testFile = res.contents.find((file) => file.path === "test.ts");
+          assert(testFile, "test.ts file not rendered");
+          const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+          const expectedContent = await format(
+            `
+            export interface Foo extends Record<string, string> { }
+            `,
+            {
+              parser: "typescript",
+            }
+          );
+
+          expect(actualContent).toBe(expectedContent);
+      });
+
+
       it("creates an interface that extends an spread model", async () => {
         const program = await getProgram(`
           namespace DemoService;
@@ -88,9 +197,8 @@ describe("Typescript Interface", () => {
             `export interface ModelForRecord {
               state: string;
             }
-            export interface DifferentSpreadModelRecord {
+            export interface DifferentSpreadModelRecord extends Record<string, ModelForRecord> {
               knownProp: string;
-              [key: string]: unknown;
             }
             export interface DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
               derivedProp: ModelForRecord;

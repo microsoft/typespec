@@ -1,5 +1,5 @@
 export interface TodoPage {
-  items: TodoItem[];
+  items: Array<TodoItem>;
   pagination: {
     pageSize: number;
     totalSize: number;
@@ -24,7 +24,7 @@ export interface TodoItem {
   _dummy?: string;
 }
 
-export type TodoLabels = string | string[] | TodoLabelRecord | TodoLabelRecord[];
+export type TodoLabels = string | Array<string> | TodoLabelRecord | Array<TodoLabelRecord>;
 
 export interface TodoLabelRecord {
   name: string;
@@ -52,7 +52,7 @@ export interface TodoItemPatch {
 }
 
 export interface AttachmentPage {
-  items: TodoAttachment[];
+  items: Array<TodoAttachment>;
   pagination: {
     pageSize: number;
     totalSize: number;

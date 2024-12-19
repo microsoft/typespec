@@ -5,6 +5,7 @@ import { defineKit } from "../define-kit.js";
 export interface ArrayKit {
   is(type: Type): type is Model;
   getElementType(type: Model): Type;
+  create(elementType: Type): Model;
 }
 
 interface TypekitExtension {
@@ -18,13 +19,25 @@ declare module "../define-kit.js" {
 defineKit<TypekitExtension>({
   array: {
     is(type) {
-      return type.kind === "Model" && type.name === "Array" && isArrayModelType(this.program, type);
+      return (
+        type.kind === "Model" && isArrayModelType(this.program, type) && type.properties.size === 0
+      );
     },
     getElementType(type) {
       if (!this.array.is(type)) {
         throw new Error("Type is not an array.");
       }
       return type.indexer!.value;
+    },
+    create(elementType) {
+      return this.model.create({
+        name: "Array",
+        properties: {},
+        indexer: {
+          key: this.builtin.integer,
+          value: elementType,
+        },
+      });
     },
   },
 });

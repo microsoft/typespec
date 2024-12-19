@@ -43,7 +43,7 @@ export async function create(
   item: TodoItem,
   contentType: "application/json",
   options?: {
-    attachments?: TodoAttachment[];
+    attachments?: Array<TodoAttachment>;
   },
 ): Promise<{
   id: number;

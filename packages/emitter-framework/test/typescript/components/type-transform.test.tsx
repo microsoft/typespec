@@ -175,9 +175,9 @@ describe("Typescript Type Transform", () => {
           export interface Widget {
             "id": string;
             "myColor": "blue" | "red";
-            "simple"?: (string)[];
-            "complex": (Widget)[];
-            "nested": ((Widget)[])[];
+            "simple"?: Array<string>;
+            "complex": Array<Widget>;
+            "nested": Array<Array<Widget>>;
             "optionalString"?: string;
           }
           export function widgetToApplication(item: any) {
@@ -235,6 +235,7 @@ describe("Typescript Type Transform", () => {
         const actualContent = testFile.contents;
         const expectedContent = d`
           import { recordSerializer } from "./serializers.js";
+          
           export interface Widget {
             "id": string;
             "myColor": "blue" | "red";
@@ -424,11 +425,9 @@ describe("Typescript Type Transform", () => {
       export interface Pet {
         "kind": string;
       }
-
       export interface Dog extends Pet {
         "kind": "dog";
       }
-      
       export interface Cat extends Pet {
         "kind": "cat";
       }
@@ -513,11 +512,9 @@ describe("Typescript Type Transform", () => {
       const actualContent = testFile.contents;
       const expectedContent = d`
       export type Pet = Cat | Dog;
-
       export interface Dog {
         "kind": "dog";
       }
-      
       export interface Cat {
         "kind": "cat";
       }

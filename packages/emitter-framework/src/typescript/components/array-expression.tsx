@@ -9,7 +9,7 @@ export function ArrayExpression({ elementType }: ArrayExpressionProps) {
 
   return (
     <>
-      (<TypeExpression type={elementType} />)[]
+      Array{"<"}<TypeExpression type={elementType} />{">"} 
     </>
   );
 }

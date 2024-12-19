@@ -7,7 +7,7 @@ import {ArrayExpression} from "./array-expression.js";
 import { RecordExpression } from "./record-expression.js";
 import { InterfaceExpression } from "./interface-declaration.js";
 import { $ } from "@typespec/compiler/typekit";
-import { reportDiagnostic } from "../../lib.js";
+import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 
 export interface TypeExpressionProps {
   type: Type;
@@ -60,7 +60,7 @@ export function TypeExpression({ type }: TypeExpressionProps) {
       return <InterfaceExpression type={type} />;
 
     default:
-      reportDiagnostic($.program, {code: "typescript-unsupported-type", target: type });
+      reportTypescriptDiagnostic($.program, {code: "typescript-unsupported-type", target: type });
       return "any";
   }
 }
@@ -132,7 +132,7 @@ function getScalarIntrinsicExpression(type: Scalar | IntrinsicType): string | nu
   const tsType = intrinsicNameToTSType.get(intrinsicName);
 
   if (!tsType) {
-    reportDiagnostic($.program, {code: "typescript-unsupported-scalar", target: type });
+    reportTypescriptDiagnostic($.program, {code: "typescript-unsupported-scalar", target: type });
     return "any";
   }
   

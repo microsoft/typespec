@@ -39,7 +39,7 @@ export class TodoItemsClient {
     item: TodoItem,
     contentType: "application/json",
     options?: {
-      attachments?: TodoAttachment[];
+      attachments?: Array<TodoAttachment>;
     },
   ) {
     return create(this.#context, item, contentType, options);

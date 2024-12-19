@@ -144,41 +144,51 @@ export function collectTypes(client: Client, options: TypeCollectorOptions = {})
   });
 
   for (const operation of operations) {
-    navigateType(
-      operation,
-      {
-        model(m) {
-          trackType(dataTypes, m);
-        },
-        modelProperty(p) {
-          trackType(dataTypes, p.type);
-        },
-        scalar(s) {
-          if (s.namespace?.name !== "TypeSpec") {
-            return;
-          }
-
-          trackType(dataTypes, s);
-        },
-        enum(e) {
-          trackType(dataTypes, e);
-        },
-        union(u) {
-          u.variants;
-          trackType(dataTypes, u);
-        },
-        unionVariant(v) {
-          trackType(dataTypes, v.type);
-        },
-      },
-      { includeTemplateDeclaration: options.includeTemplateDeclaration },
-    );
+    collectDataType(operation, dataTypes, options);
   }
 
   return {
     dataTypes: [...dataTypes],
     operations: [...operations],
   };
+}
+
+function collectDataType(
+  type: Type,
+  dataTypes: Set<Model | Enum | Union>,
+  options: TypeCollectorOptions = {},
+) {
+  navigateType(
+    type,
+    {
+      model(m) {
+        trackType(dataTypes, m);
+        m.derivedModels
+          .filter((dm) => !dataTypes.has(dm))
+          .forEach((dm) => collectDataType(dm, dataTypes, options));
+      },
+      modelProperty(p) {
+        trackType(dataTypes, p.type);
+      },
+      scalar(s) {
+        if (s.namespace?.name !== "TypeSpec") {
+          return;
+        }
+
+        trackType(dataTypes, s);
+      },
+      enum(e) {
+        trackType(dataTypes, e);
+      },
+      union(u) {
+        trackType(dataTypes, u);
+      },
+      unionVariant(v) {
+        trackType(dataTypes, v.type);
+      },
+    },
+    { includeTemplateDeclaration: options.includeTemplateDeclaration },
+  );
 }
 
 type DataType = Model | Union | Enum | Scalar;

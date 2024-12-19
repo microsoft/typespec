@@ -3,6 +3,7 @@
 import chalk from "chalk";
 import { execa } from "execa";
 import { globby } from "globby";
+import inquirer from "inquirer";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { hideBin } from "yargs/helpers";
@@ -110,13 +111,14 @@ async function runCommand(command, args) {
   await execa(command, args, { stdio: "inherit" });
 }
 
-// Process files
+// Process files with interactive mode
 async function processFiles(files, options) {
   const { interactive, generateReport } = options;
   const succeeded = [];
   const failed = [];
 
-  for (const { fullPath, relativePath } of files) {
+  for (let i = 0; i < files.length; i++) {
+    const { fullPath, relativePath } = files[i];
     console.log(chalk.blue(`Processing: ${relativePath}`));
     const outputDir = join("test", "e2e", "snapshot", dirname(relativePath));
 
@@ -144,7 +146,37 @@ async function processFiles(files, options) {
     } catch {
       console.error(chalk.red(`Failed to process: ${relativePath}`));
       failed.push(relativePath);
-      if (!interactive) break;
+
+      if (interactive) {
+        // Prompt user for action
+        const { action } = await inquirer.prompt([
+          {
+            type: "list",
+            name: "action",
+            message: `Processing failed for ${relativePath}. What would you like to do?`,
+            choices: [
+              { name: "Retry", value: "retry" },
+              { name: "Skip to next file", value: "next" },
+              { name: "Abort processing", value: "abort" },
+            ],
+          },
+        ]);
+
+        if (action === "retry") {
+          console.log(chalk.blue("Retrying..."));
+          i--; // Decrement index to retry the same file
+          continue;
+        } else if (action === "next") {
+          console.log(chalk.yellow("Skipping to next file..."));
+          continue;
+        } else if (action === "abort") {
+          console.log(chalk.red("Aborting processing."));
+          break;
+        }
+      } else {
+        console.error(chalk.red("Non-interactive mode: exiting on failure."));
+        break;
+      }
     }
   }
 

@@ -14,6 +14,11 @@ export interface RecordKit {
    * @param type a Record Model type
    */
   getElementType(type: Model): Type;
+  /**
+   * Create a Record Model type
+   * @param elementType The type of the elements in the record
+   */
+  create(elementType: Type): Model;
 }
 
 interface TypekitExtension {
@@ -28,7 +33,7 @@ defineKit<TypekitExtension>({
   record: {
     is(type) {
       return (
-        type.kind === "Model" && type.name === "Record" && isRecordModelType(this.program, type)
+        type.kind === "Model" && isRecordModelType(this.program, type) && type.properties.size === 0
       );
     },
     getElementType(type) {
@@ -36,6 +41,16 @@ defineKit<TypekitExtension>({
         throw new Error("Type is not a record.");
       }
       return type.indexer!.value;
+    },
+    create(elementType) {
+      return this.model.create({
+        name: "Record",
+        properties: {},
+        indexer: {
+          key: this.builtin.string,
+          value: elementType,
+        },
+      });
     },
   },
 });

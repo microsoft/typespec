@@ -6,16 +6,11 @@ import { TypeExpression } from "./type-expression.js";
 import { $ } from "@typespec/compiler/experimental/typekit";
 
 export interface InterfaceMemberProps {
-  type: ModelProperty | Operation | ModelIndexer;
+  type: ModelProperty | Operation;
   optional?: boolean;
 }
 
 export function InterfaceMember({ type, optional  }: InterfaceMemberProps) {
-
-  if(isModelIndexer(type)) {
-    return <>[key: {<TypeExpression type={type.key} />}]: unknown</>
-  }
-
   const namer = useTSNamePolicy();
   const name = namer.getName(type.name, "object-member-getter")
 
@@ -42,8 +37,4 @@ export function InterfaceMember({ type, optional  }: InterfaceMemberProps) {
       </>
     );
   }
-}
-
-function isModelIndexer(type: any): type is ModelIndexer {
-  return !("type" in type);
 }

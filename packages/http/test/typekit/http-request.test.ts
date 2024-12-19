@@ -12,6 +12,25 @@ beforeEach(async () => {
 });
 
 describe("HttpRequest Body Parameters", () => {
+  it("should handle model is array response", async () => {
+    const { get } = (await runner.compile(`
+    model EmbeddingVector<Element extends numeric = float32> is Array<Element>;
+
+    model AzureEmbeddingModel {
+      embedding: EmbeddingVector<int32>;
+    }
+
+    @test op get(): EmbeddingVector<int32>;
+    `)) as { get: Operation; Foo: Model };
+
+    const httpOperation = $.httpOperation.get(get);
+    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    expect(body).toBeDefined();
+    expect($.model.is(body)).toBe(true);
+    expect($.model.isExpresion(body as Model)).toBe(true);
+    expect((body as Model).properties.size).toBe(3);
+  });
+
   it("should get the body parameters model when spread", async () => {
     const { createFoo } = (await runner.compile(`
       @test model Foo {

@@ -8,7 +8,7 @@ import {
   DateRfc3339SerializerRefkey,
   RecordSerializerRefkey,
 } from "./static-serializers.jsx";
-import { reportDiagnostic } from "../../lib.js";
+import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 
 
 export interface TypeTransformProps {
@@ -28,7 +28,7 @@ function UnionTransformExpression(props: UnionTransformProps) {
 
   if(!discriminator) {
     // TODO: Handle non-discriminated unions
-    reportDiagnostic($.program, {
+    reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-nondiscriminated-union",
       target: props.type,
     })
@@ -87,7 +87,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
   } else if($.union.is(props.type)) {
   transformExpression = <UnionTransformExpression type={props.type} target={props.target} />;
   } else {
-    reportDiagnostic($.program, {
+    reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-type-transform",
       target: props.type,
     }) 
@@ -129,6 +129,19 @@ export interface ModelTransformExpressionProps {
  * Component that represents an object expression that transforms a model to a transport or application model.
  */
 export function ModelTransformExpression(props: ModelTransformExpressionProps) {
+  if(props.type.baseModel) {
+    reportTypescriptDiagnostic($.program, {
+      code: "typescript-extended-model-transform-nyi",
+      target: props.type,
+    })
+  }
+
+  if($.model.getSpreadType(props.type)) { 
+    reportTypescriptDiagnostic($.program, {
+      code: "typescript-spread-model-transofrmation-nyi",
+      target: props.type,
+    })
+  }
   const namePolicy = ts.useTSNamePolicy();
   return (
     <ts.ObjectExpression>

@@ -1,10 +1,10 @@
-import { refkey as getRefkey, mapJoin } from "@alloy-js/core";
+import { Child, Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {  Interface, Model, ModelIndexer, ModelProperty, Operation, RekeyableMap, Type } from "@typespec/compiler";
+import {  Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
+import {createRekeyableMap} from "@typespec/compiler/utils"
 import { $ } from "@typespec/compiler/typekit";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
-import {createRekeyableMap} from "@typespec/compiler/utils"
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
   name?: string;
@@ -30,16 +30,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const refkey = props.refkey ?? getRefkey(props.type);
 
-  let extendsType = props.extends;
-
-  if (!extendsType && $.model.is(props.type) && props.type.baseModel) {
-    
-    if($.array.is(props.type.baseModel) || $.record.is(props.type.baseModel)) {
-      extendsType = <TypeExpression type={props.type.baseModel} />;
-    } else {
-      extendsType = getRefkey(props.type.baseModel)
-    }
-  }
+  const extendsType = props.extends ?? getExtendsType(props.type);
 
   const members = props.type ? membersFromType(props.type) : [];
 
@@ -88,15 +79,39 @@ export function InterfaceExpression({ type, children }: InterfaceExpressionProps
   );
 }
 
-function membersFromType(type: Model | Interface) {
-  let typeMembers: RekeyableMap<string, ModelProperty | Operation | ModelIndexer> | undefined;
-  if ($.model.is(type)) {
-    typeMembers = type.properties
-    if(type.indexer) {
-      typeMembers.set("indexer", type.indexer)
+function getExtendsType(type: Model | Interface): Children | undefined {
+  if(!$.model.is(type)) { 
+    return undefined;
+  }
+
+  const extending: Children[] = [];
+
+  if (type.baseModel) {
+    if($.array.is(type.baseModel) || $.record.is(type.baseModel)) {
+      extending.push(<TypeExpression type={type.baseModel} />)
+    } else {
+      extending.push(getRefkey(type.baseModel))
     }
+  }
+
+  const spreadType = $.model.getSpreadType(type);
+  if(spreadType) {
+    extending.push(<TypeExpression type={spreadType} />);
+  }
+
+  if(extending.length === 0) {
+    return undefined;
+  }
+
+  return mapJoin(extending, (ext) => ext, {joiner: ","} );
+}
+
+function membersFromType(type: Model | Interface) {
+  let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
+  if ($.model.is(type)) {
+    typeMembers = createRekeyableMap(type.properties);
   } else {
-    typeMembers = type.operations
+    typeMembers = createRekeyableMap(type.operations)
   }
 
   return mapJoin(typeMembers, (_, prop) => <InterfaceMember type={prop} />, {

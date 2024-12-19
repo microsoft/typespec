@@ -1,5 +1,5 @@
 import { getEffectiveModelType } from "../../../core/checker.js";
-import type { Model, ModelProperty, SourceModel, Type } from "../../../core/types.js";
+import type { Model, ModelIndexer, ModelProperty, SourceModel, Type } from "../../../core/types.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
@@ -31,6 +31,10 @@ interface ModelDescriptor {
    * Models that this model extends.
    */
   sourceModels?: SourceModel[];
+  /**
+   * The indexer property of the model.
+   */
+  indexer?: ModelIndexer;
 }
 
 export interface ModelKit {
@@ -73,6 +77,12 @@ export interface ModelKit {
    * properties.
    */
   getEffectiveModel(model: Model, filter?: (property: ModelProperty) => boolean): Model;
+
+  /**
+   * Given a model, return the type that is spread
+   * @returns the type that is spread or undefined if no spread
+   */
+  getSpreadType: (model: Model) => Type | undefined;
 }
 
 interface TypekitExtension {
@@ -104,6 +114,7 @@ defineKit<TypekitExtension>({
         node: undefined as any,
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
+        indexer: desc.indexer,
       });
 
       this.program.checker.finishType(model);
@@ -119,6 +130,21 @@ defineKit<TypekitExtension>({
     },
     getEffectiveModel(model, filter?: (property: ModelProperty) => boolean) {
       return getEffectiveModelType(this.program, model, filter);
+    },
+    getSpreadType(model) {
+      if (!model.indexer) {
+        return undefined;
+      }
+
+      if (model.indexer.key.name === "string") {
+        return this.record.create(model.indexer.value);
+      }
+
+      if (model.indexer.key.name === "integer") {
+        return this.array.create(model.indexer.value);
+      }
+
+      return undefined;
     },
   },
 });
