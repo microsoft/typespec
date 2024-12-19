@@ -162,6 +162,7 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         return;
       }
 
+      // TODO: add support for emitters picking
       const initTemplateConfig: InitProjectConfig = {
         template: info.template!,
         directory: selectedRootFolder,
@@ -171,6 +172,7 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         parameters: inputs ?? {},
         includeGitignore: includeGitignore,
         libraries: librariesToInclude,
+        emitters: {},
       };
       const initResult = await initProject(client, initTemplateConfig);
       if (!initResult) {
