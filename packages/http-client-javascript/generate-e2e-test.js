@@ -2,7 +2,7 @@
 
 import chalk from "chalk";
 import { execa } from "execa";
-import { lstat, mkdir, rm, symlink } from "fs/promises";
+import { lstat, rm, symlink } from "fs/promises";
 import { globby } from "globby";
 import inquirer from "inquirer";
 import { dirname, join } from "path";
@@ -140,13 +140,6 @@ async function processFiles(files, options) {
   const { interactive, generateReport, build } = options;
   const succeeded = [];
   const failed = [];
-  const sharedNodeModules = join(__dirname, "test", "e2e", "generated", "node_modules");
-
-  // Ensure shared_node_modules directory exists
-  if (!(await pathExists(sharedNodeModules))) {
-    console.log(chalk.blue("Creating shared node_modules directory..."));
-    await mkdir(sharedNodeModules, { recursive: true });
-  }
 
   for (let i = 0; i < files.length; i++) {
     const { fullPath, relativePath } = files[i];
@@ -175,12 +168,6 @@ async function processFiles(files, options) {
 
       if (build) {
         const generatedProject = join(outputDir, "http-client-javascript");
-        // Create a symlink to the shared node_modules directory
-        const projectNodeModules = join(generatedProject, "node_modules");
-        await createSymlink(sharedNodeModules, projectNodeModules);
-        await runCommand("npm", ["install", "--loglevel=verbose"], {
-          cwd: generatedProject,
-        });
         await runCommand("npm", ["run", "build"], { cwd: generatedProject });
       }
 
@@ -217,8 +204,8 @@ async function processFiles(files, options) {
           break;
         }
       } else {
-        console.error(chalk.red("Non-interactive mode: exiting on failure."));
-        break;
+        console.error(chalk.red("Non-interactive mode: continuing."));
+        continue;
       }
     }
   }
