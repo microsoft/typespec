@@ -91,7 +91,7 @@ export async function initTypeSpecProject(
 
   if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
     // eslint-disable-next-line no-console
-    console.log(pc.yellow("\nPlease review following messages from emitters:"));
+    console.log(pc.yellow("\nPlease review the following messages from emitters:"));
 
     for (const key of Object.keys(emitters)) {
       if (emitters[key].message) {
