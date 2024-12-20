@@ -8,20 +8,20 @@
   {
    "$id": "2",
    "Name": "ConditionalRequestClient",
-   "Description": "Illustrates conditional request headers",
+   "Doc": "Illustrates conditional request headers",
    "Operations": [
     {
      "$id": "3",
      "Name": "postIfMatch",
      "ResourceName": "ConditionalRequest",
-     "Description": "Check when only If-Match in header is defined.",
+     "Doc": "Check when only If-Match in header is defined.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "4",
        "Name": "ifMatch",
        "NameInRequest": "If-Match",
-       "Description": "The request should only proceed if an entity matches this string.",
+       "Doc": "The request should only proceed if an entity matches this string.",
        "Type": {
         "$id": "5",
         "kind": "string",
@@ -65,14 +65,14 @@
      "$id": "7",
      "Name": "postIfNoneMatch",
      "ResourceName": "ConditionalRequest",
-     "Description": "Check when only If-None-Match in header is defined.",
+     "Doc": "Check when only If-None-Match in header is defined.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "8",
        "Name": "ifNoneMatch",
        "NameInRequest": "If-None-Match",
-       "Description": "The request should only proceed if no entity matches this string.",
+       "Doc": "The request should only proceed if no entity matches this string.",
        "Type": {
         "$id": "9",
         "kind": "string",
@@ -116,14 +116,14 @@
      "$id": "11",
      "Name": "headIfModifiedSince",
      "ResourceName": "ConditionalRequest",
-     "Description": "Check when only If-Modified-Since in header is defined.",
+     "Doc": "Check when only If-Modified-Since in header is defined.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "12",
        "Name": "ifModifiedSince",
        "NameInRequest": "If-Modified-Since",
-       "Description": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nbeen modified since the specified time.",
+       "Doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nbeen modified since the specified time.",
        "Type": {
         "$id": "13",
         "kind": "utcDateTime",
@@ -175,14 +175,14 @@
      "$id": "16",
      "Name": "postIfUnmodifiedSince",
      "ResourceName": "ConditionalRequest",
-     "Description": "Check when only If-Unmodified-Since in header is defined.",
+     "Doc": "Check when only If-Unmodified-Since in header is defined.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "17",
        "Name": "ifUnmodifiedSince",
        "NameInRequest": "If-Unmodified-Since",
-       "Description": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nnot been modified since the specified time.",
+       "Doc": "A timestamp indicating the last modified time of the resource known to the\nclient. The operation will be performed only if the resource on the service has\nnot been modified since the specified time.",
        "Type": {
         "$id": "18",
         "kind": "utcDateTime",
@@ -239,7 +239,7 @@
      "$id": "22",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "23",
       "kind": "url",

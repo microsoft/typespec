@@ -5,6 +5,8 @@ trigger:
       # For patch releases
       - release/*
 
+pr: none
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
@@ -38,5 +40,5 @@ extends:
                   scriptLocation: "inlineScript"
                   inlineScript: |
                     echo "Uploading files to Azure Blob Storage..."
-                    az storage blob upload-batch --source packages/spec-dashboard/dist/ --destination '$web' --overwrite
+                    az storage blob upload-batch --account-name specdashboard --source packages/spec-dashboard/dist/ --destination '$web' --overwrite
                   displayName: "Upload files to Azure Blob Storage"
