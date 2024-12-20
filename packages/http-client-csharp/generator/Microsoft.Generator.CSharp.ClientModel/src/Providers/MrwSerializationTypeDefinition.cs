@@ -842,7 +842,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             if (_additionalBinaryDataProperty != null)
             {
-                var binaryDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.DeserializeForType(
+                var binaryDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(
                     _additionalBinaryDataProperty.Type.ElementType.FrameworkType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
@@ -850,7 +850,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.DeserializeForType(elementType, jsonProperty.Value(), SerializationFormat.Default);
+                var rawDataDeserializationValue = ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -1267,11 +1267,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ClientModelPlugin.Instance.TypeFactory.DeserializeForType(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
+                    ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ClientModelPlugin.Instance.TypeFactory.DeserializeForType(valueType.FrameworkType, jsonElement, serializationFormat),
+                    ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(ClientModelPlugin.Instance.TypeFactory.DeserializeForType(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
+                    valueType.ToEnum(ClientModelPlugin.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, serializationFormat)),
                 _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
             };
 
@@ -1589,7 +1589,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             // now we just need to focus on how we serialize a value
             if (type.IsFrameworkType)
-                return ClientModelPlugin.Instance.TypeFactory.SerializeForType(type.FrameworkType, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
+                return ClientModelPlugin.Instance.TypeFactory.SerializeJsonValue(type.FrameworkType, value, _utf8JsonWriterSnippet, _mrwOptionsParameterSnippet, serializationFormat);
 
             if (!type.IsEnum)
                 return _utf8JsonWriterSnippet.WriteObjectValue(value.As(type), options: _mrwOptionsParameterSnippet);
@@ -1614,7 +1614,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
         }
 
-        internal static MethodBodyStatement SerializeValueTypeCore(
+        internal static MethodBodyStatement SerializeJsonValueCore(
             Type valueType,
             ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
@@ -1651,7 +1651,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
         }
 
-        internal static ValueExpression DeserializeForTypeCore(
+        internal static ValueExpression DeserializeJsonValueCore(
             Type valueType,
             ScopedApi<JsonElement> element,
             SerializationFormat format)

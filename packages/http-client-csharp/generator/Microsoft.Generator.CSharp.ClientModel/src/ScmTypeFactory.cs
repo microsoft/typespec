@@ -118,15 +118,15 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return methods;
         }
 
-        public virtual ValueExpression DeserializeForType(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
-            => MrwSerializationTypeDefinition.DeserializeForTypeCore(valueType, element, format);
+        public virtual ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, format);
 
-        public virtual MethodBodyStatement SerializeForType(
+        public virtual MethodBodyStatement SerializeJsonValue(
             Type valueType,
             ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
-            => MrwSerializationTypeDefinition.SerializeValueTypeCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+            => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
     }
 }
