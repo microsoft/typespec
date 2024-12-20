@@ -12,6 +12,75 @@ beforeEach(async () => {
   runner = await createTypespecHttpClientLibraryTestRunner();
 });
 
+describe("isSameConstructor", () => {
+  it("should return true for the same client", async () => {
+    const { DemoService } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService;
+      `)) as { DemoService: Namespace };
+
+    const client = $.client.getClient(DemoService);
+
+    expect($.client.haveSameConstructor(client, client)).toBeTruthy();
+  });
+
+  it("should return false for the clients with different constructors", async () => {
+    const { DemoService, SubClient } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService {
+        @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
+        @test namespace SubClient {
+        }
+      }
+      `)) as { DemoService: Namespace; SubClient: Namespace };
+
+    const client = $.client.getClient(DemoService);
+    const subClient = $.client.getClient(SubClient);
+
+    expect($.client.haveSameConstructor(client, subClient)).toBeFalsy();
+  });
+
+  it("should return false for the subclient overriding the parents constructor", async () => {
+    const { DemoService, SubClient } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
+      @test namespace DemoService {
+        @useAuth(NoAuth)
+        @test namespace SubClient {
+        }
+      }
+      `)) as { DemoService: Namespace; SubClient: Namespace };
+
+    const client = $.client.getClient(DemoService);
+    const subClient = $.client.getClient(SubClient);
+
+    expect($.client.haveSameConstructor(client, subClient)).toBeFalsy();
+  });
+
+  it("should return false for the clients with different constructor", async () => {
+    const { DemoService, SubClient } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @test namespace DemoService {
+        @test namespace SubClient {
+        }
+      }
+      `)) as { DemoService: Namespace; SubClient: Namespace };
+
+    const client = $.client.getClient(DemoService);
+    const subClient = $.client.getClient(SubClient);
+
+    expect($.client.haveSameConstructor(client, subClient)).toBeTruthy();
+  });
+});
+
 describe("getClient", () => {
   it("should get the client", async () => {
     const { DemoService } = (await runner.compile(`

@@ -59,6 +59,10 @@ interface ClientKit extends NameKit<Client> {
    * @param namespace namespace to get the data types of
    */
   listDataTypes(client: Client): Type[];
+  /**
+   * Determines is both clients have the same constructor
+   */
+  haveSameConstructor(a: Client, b: Client): Boolean;
 }
 
 interface TypeKit {
@@ -191,6 +195,25 @@ defineKit<TypeKit>({
     },
     listDataTypes(client) {
       return discoverDataTypes(client);
+    },
+    haveSameConstructor(a, b) {
+      const aConstructor = this.client.getConstructor(a);
+      const bConstructor = this.client.getConstructor(b);
+
+      const bparams = [...bConstructor.parameters.properties.values()];
+      const aparams = [...aConstructor.parameters.properties.values()];
+
+      if (bparams.length !== aparams.length) {
+        return false;
+      }
+
+      for (let i = 0; i < aparams.length; i++) {
+        if (bparams[i].type !== aparams[i].type) {
+          return false;
+        }
+      }
+
+      return true;
     },
   },
 });
