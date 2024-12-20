@@ -2562,8 +2562,11 @@ export class CodeModelBuilder {
           return this.baseJavaNamespace;
         }
       } else {
-        // special handling for namespace of model in TypeSpec.Rest.Resource
-        if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+        // special handling for namespace of model in TypeSpec
+        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
           // models in TypeSpec.Rest.Resource
           return this.baseJavaNamespace;
         }
