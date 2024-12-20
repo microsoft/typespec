@@ -1,6 +1,6 @@
 import vscode, { QuickPickItem } from "vscode";
 import logger from "../log/logger.js";
-import { InstallGlobalCliCommandArgs } from "../types.js";
+import { InstallGlobalCliCommandArgs, Result, ResultCode } from "../types.js";
 import { createPromiseWithCancelAndTimeout, spawnExecutionAndLogToOutput } from "../utils.js";
 
 const COMPILER_REQUIREMENT =
@@ -8,7 +8,9 @@ const COMPILER_REQUIREMENT =
 
 export async function installCompilerGlobally(
   args: InstallGlobalCliCommandArgs | undefined,
-): Promise<boolean> {
+): Promise<Result<void>> {
+  const showOutput = !(args?.silentMode ?? false);
+  const showPopup = !(args?.silentMode ?? false);
   // confirm with end user by default
   if (args?.confirm !== false) {
     const yes: QuickPickItem = {
@@ -24,14 +26,14 @@ export async function installCompilerGlobally(
     });
     if (confirm !== yes) {
       logger.info("User cancelled the installation of TypeSpec Compiler/CLI");
-      return false;
+      return { code: ResultCode.Cancelled };
     } else {
       logger.info("User confirmed the installation of TypeSpec Compiler/CLI");
     }
   } else {
     logger.info("Installing TypeSpec Compiler/CLI with confirmation disabled explicitly...");
   }
-  return await vscode.window.withProgress<boolean>(
+  return await vscode.window.withProgress<Result<void>>(
     {
       title: "Installing TypeSpec Compiler/CLI...",
       location: vscode.ProgressLocation.Notification,
@@ -53,23 +55,32 @@ export async function installCompilerGlobally(
           logger.error(
             "Failed to install TypeSpec CLI. Please check the previous log for details",
             [output],
-            { showOutput: true, showPopup: true },
+            { showOutput, showPopup },
           );
-          return false;
+          return {
+            code: ResultCode.Fail,
+            details: output,
+          };
         } else {
           logger.info("TypeSpec CLI installed successfully");
-          return true;
+          return { code: ResultCode.Success };
         }
       } catch (e) {
-        if (e === "cancelled") {
+        if (e === ResultCode.Cancelled) {
           logger.info("Installation of TypeSpec Compiler/CLI is cancelled by user");
-          return false;
-        } else if (e === "timeout") {
-          logger.error(`Installation of TypeSpec Compiler/CLI is timeout after ${TIMEOUT}ms`);
-          return false;
+          return { code: ResultCode.Cancelled };
+        } else if (e === ResultCode.Timeout) {
+          logger.error(`Installation of TypeSpec Compiler/CLI is timeout after ${TIMEOUT}ms`, [e], {
+            showOutput,
+            showPopup,
+          });
+          return { code: ResultCode.Timeout };
         } else {
-          logger.error("Unexpected error when installing TypeSpec Compiler/CLI", [e]);
-          return false;
+          logger.error("Unexpected error when installing TypeSpec Compiler/CLI", [e], {
+            showOutput,
+            showPopup,
+          });
+          return { code: ResultCode.Fail, details: e };
         }
       }
     },

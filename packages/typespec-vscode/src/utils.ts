@@ -6,6 +6,7 @@ import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
 import { isUrl } from "./path-utils.js";
+import { ResultCode } from "./types.js";
 
 export async function isFile(path: string) {
   try {
@@ -278,8 +279,8 @@ export function spawnExecution(
 }
 
 /**
- * if the operation is cancelled, the promise will be rejected with reason==="cancelled"
- * if the operation is timeout, the promise will be rejected with reason==="timeout"
+ * if the operation is cancelled, the promise will be rejected with @{link ResultCode.Cancelled}
+ * if the operation is timeout, the promise will be rejected with @{link ResultCode.Timeout}
  *
  * @param action
  * @param token
@@ -293,10 +294,10 @@ export function createPromiseWithCancelAndTimeout<T>(
 ) {
   return new Promise<T>((resolve, reject) => {
     token.onCancellationRequested(() => {
-      reject("cancelled");
+      reject(ResultCode.Cancelled);
     });
     setTimeout(() => {
-      reject("timeout");
+      reject(ResultCode.Timeout);
     }, timeoutInMs);
     action.then(resolve, reject);
   });

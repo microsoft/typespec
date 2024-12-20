@@ -6,7 +6,7 @@ import type {
 import { TIMEOUT } from "dns";
 import { readdir } from "fs/promises";
 import * as semver from "semver";
-import vscode, { OpenDialogOptions, QuickPickItem } from "vscode";
+import vscode, { OpenDialogOptions, QuickPickItem, window } from "vscode";
 import { State } from "vscode-languageclient";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
@@ -15,6 +15,8 @@ import {
   CommandName,
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
+  Result,
+  ResultCode,
   SettingName,
 } from "../types.js";
 import {
@@ -72,13 +74,27 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
       const folderName = getBaseFileName(selectedRootFolder);
 
       if (!client || client.state !== State.Running) {
-        const r = await CheckCompilerAndRestartLSPClient();
-        if (r === undefined) {
+        const r = await CheckCompilerAndStartLSPClient(selectedRootFolder);
+        if (r.code === ResultCode.Cancelled) {
           logger.info("Creating TypeSpec Project cancelled when installing Compiler/CLI");
           return;
-        } else {
-          client = r;
         }
+        if (
+          r.code !== ResultCode.Success ||
+          r.value === undefined ||
+          r.value.state !== State.Running
+        ) {
+          logger.error(
+            "Unexpected Error when checking Compiler/CLI. Please check the previous log for details.",
+            [],
+            {
+              showOutput: true,
+              showPopup: true,
+            },
+          );
+          return;
+        }
+        client = r.value;
       }
 
       const isSupport = await isCompilerSupport(client);
@@ -220,12 +236,12 @@ async function tspInstall(
         );
         return result;
       } catch (e) {
-        if (e === "cancelled") {
+        if (e === ResultCode.Cancelled) {
           logger.info(
             "Installation of TypeSpec project dependencies by 'tsp install' is cancelled by user",
           );
           return undefined;
-        } else if (e === "timeout") {
+        } else if (e === ResultCode.Timeout) {
           logger.error(
             `Installation of TypeSpec project dependencies by 'tsp install' is timeout after ${TIMEOUT}ms`,
           );
@@ -274,9 +290,9 @@ async function initProject(
         logger.info("Creating TypeSpec project completed. ");
         return true;
       } catch (e) {
-        if (e === "cancelled") {
+        if (e === ResultCode.Cancelled) {
           logger.info("Creating TypeSpec project cancelled by user.");
-        } else if (e === "timeout") {
+        } else if (e === ResultCode.Timeout) {
           logger.error(`Creating TypeSpec project timed out (${TIMEOUT}ms).`);
         } else {
           logger.error("Error when creating TypeSpec project", [e], {
@@ -638,45 +654,77 @@ async function checkProjectRootFolderEmpty(selectedFolder: string): Promise<bool
   }
 }
 
-async function CheckCompilerAndRestartLSPClient(): Promise<TspLanguageClient | undefined> {
+async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<TspLanguageClient>> {
   // language server may not be started because no workspace is opened or failed to start for some reason
   // so before trying to start it, let's try to check whether global compiler is available first
   // to avoid unnecessary error notification when starting LSP which would be confusing.
-  const isGlobalCompilerAvailable = await IsGlobalCompilerAvailable();
-  if (!isGlobalCompilerAvailable) {
+  const r = await IsGlobalCompilerAvailable(folder);
+  if (r.code !== ResultCode.Success || r.value === undefined) {
+    return { code: r.code, details: r.details };
+  }
+  if (!r.value) {
     const igcArgs: InstallGlobalCliCommandArgs = {
       confirm: true,
       confirmTitle: "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
       confirmPlaceholder:
         "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
+      silentMode: true,
     };
-    const result = await vscode.commands.executeCommand<boolean>(
+    const result = await vscode.commands.executeCommand<Result<void>>(
       CommandName.InstallGlobalCompilerCli,
       igcArgs,
     );
-    if (!result) {
-      return undefined;
+    if (result.code !== ResultCode.Success) {
+      return { code: result.code, details: result.details };
     }
   }
   logger.info("Try to restart lsp client.");
   const rsArgs: RestartServerCommandArgs = {
     forceRecreate: false,
-    popupRecreateLspError: true,
+    notificationMessage: "Start TypeSpec language service...",
   };
   const newClient = await vscode.commands.executeCommand<TspLanguageClient>(
     CommandName.RestartServer,
     rsArgs,
   );
-  return newClient;
+  return { code: ResultCode.Success, value: newClient };
 }
 
-async function IsGlobalCompilerAvailable(): Promise<boolean> {
-  try {
-    await spawnExecutionAndLogToOutput("tsp", ["--version"], process.cwd());
-    logger.debug("Global compiler is available by checking 'tsp --version'");
-    return true;
-  } catch (e) {
-    logger.debug("Global compiler is not available by checking 'tsp --version'", [e]);
-    return false;
-  }
+async function IsGlobalCompilerAvailable(folder: string): Promise<Result<boolean>> {
+  const TIMEOUT = 120000; // set timeout to 2 minutes which should be enough for checking compiler
+  return await window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: "Checking TypeSpec compiler...",
+      cancellable: true,
+    },
+    async (_progress, token) => {
+      try {
+        await createPromiseWithCancelAndTimeout(
+          spawnExecutionAndLogToOutput("tsp", ["--version"], folder),
+          token,
+          TIMEOUT,
+        );
+        logger.debug("Global compiler is available by checking 'tsp --version'");
+        return { code: ResultCode.Success, value: true };
+      } catch (e) {
+        if (e && typeof e === "object" && "code" in e && e.code === "ENOENT") {
+          logger.error("Cannot find global tsp by checking 'tsp --version'", [e]);
+          return { code: ResultCode.Success, value: false };
+        }
+        if (e === ResultCode.Cancelled) {
+          logger.info("Checking compiler is cancelled by user.");
+          return { code: ResultCode.Cancelled };
+        } else if (e === ResultCode.Timeout) {
+          logger.debug(`Checking compiler is timeout after ${TIMEOUT}ms.`);
+          return { code: ResultCode.Timeout };
+        } else {
+          logger.debug("Error occurs when checking global compiler by checking 'tsp --version'", [
+            e,
+          ]);
+          return { code: ResultCode.Fail, details: e };
+        }
+      }
+    },
+  );
 }
