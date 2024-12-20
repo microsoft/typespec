@@ -51,6 +51,7 @@ import {
   createMetadataInfo,
   getHeaderFieldName,
   getHttpOperation,
+  getHttpPart,
   isHeader,
   isStatusCode,
 } from "@typespec/http";
@@ -233,6 +234,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     modelDeclaration(model: Model, name: string): EmitterOutput<string> {
+      const parts = this.#getMultipartParts(model);
+      if (parts.length > 0) {
+        parts.forEach((p) => this.emitter.emitType(p));
+        return "";
+      }
       const className = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const namespace = this.emitter.getContext().namespace;
       const doc = getDoc(this.emitter.getProgram(), model);
@@ -259,6 +265,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     modelDeclarationContext(model: Model, name: string): Context {
+      if (this.#isMultipartModel(model)) return {};
       const modelName = ensureCSharpIdentifier(this.emitter.getProgram(), model, name);
       const modelFile = this.emitter.createSourceFile(`models/${modelName}.cs`);
       modelFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
@@ -267,6 +274,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     modelInstantiationContext(model: Model): Context {
+      if (this.#isMultipartModel(model)) return {};
       const modelName: string = getModelInstantiationName(
         this.emitter.getProgram(),
         model,
@@ -281,6 +289,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     modelInstantiation(model: Model, name: string): EmitterOutput<string> {
+      const parts = this.#getMultipartParts(model);
+      if (parts.length > 0) {
+        parts.forEach((p) => this.emitter.emitType(p));
+        return "";
+      }
       const program = this.emitter.getProgram();
       const recordType = getRecordType(program, model);
       if (recordType !== undefined) {
@@ -290,6 +303,22 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const context = this.emitter.getContext();
       const className = context.instantiationName ?? name;
       return this.modelDeclaration(model, className);
+    }
+
+    #getMultipartParts(model: Model): Type[] {
+      const parts: Type[] = [...model.properties.values()]
+        .flatMap((p) => getHttpPart(this.emitter.getProgram(), p.type)?.type)
+        .filter((t) => t !== undefined);
+      if (model.baseModel) {
+        return parts.concat(this.#getMultipartParts(model.baseModel));
+      }
+
+      return parts;
+    }
+
+    #isMultipartModel(model: Model): boolean {
+      const multipartTypes = this.#getMultipartParts(model);
+      return multipartTypes.length > 0;
     }
 
     modelProperties(model: Model): EmitterOutput<string> {
@@ -378,6 +407,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const body = operation.parameters.body;
       if (body === undefined) return false;
       return body.bodyKind === "multipart";
+    }
+
+    #hasMultipartOperation(iface: Interface): boolean {
+      for (const [_, operation] of iface.operations) {
+        const [httpOp, _] = getHttpOperation(this.emitter.getProgram(), operation);
+        if (this.#isMultipartRequest(httpOp)) return true;
+      }
+
+      return false;
     }
 
     #getTypeInfoForUnion(
@@ -545,6 +583,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       ]);
       context.file.imports.set("System.Threading.Tasks", ["System.Threading.Tasks"]);
       context.file.imports.set("Microsoft.AspNetCore.Mvc", ["Microsoft.AspNetCore.Mvc"]);
+      if (this.#hasMultipartOperation(iface)) {
+        context.file.imports.set("Microsoft.AspNetCore.WebUtilities", [
+          "Microsoft.AspNetCore.WebUtilities",
+        ]);
+      }
       context.file.imports.set(modelNamespace, [modelNamespace]);
       return context;
     }
@@ -609,11 +652,23 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         name,
         NameCasingType.Method,
       );
+
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
-      const declParams = !this.#isMultipartRequest(httpOperation)
+      const multipart: boolean = this.#isMultipartRequest(httpOperation);
+      const declParams = !multipart
         ? this.#emitHttpOperationParameters(httpOperation)
         : "HttpRequest request, Stream body";
+
+      if (multipart) {
+        const context = this.emitter.getContext();
+        context.file.imports.set("Microsoft.AspNetCore.WebUtilities", [
+          "Microsoft.AspNetCore.WebUtilities",
+        ]);
+        context.file.imports.set("Microsoft.AspNetCore.Http.Extensions", [
+          "Microsoft.AspNetCore.Http.Extensions",
+        ]);
+      }
       const responseInfo = this.#getOperationResponse(httpOperation);
       let status: string = "200";
       let response: CSharpType = new CSharpType({
