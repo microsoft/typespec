@@ -10,6 +10,7 @@ import { dump } from "js-yaml";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
+import { CodeModel } from "./common/code-model.js";
 import { logError, spawnAsync } from "./utils.js";
 import { JDK_NOT_FOUND_MESSAGE, validateDependencies } from "./validate.js";
 
@@ -125,10 +126,16 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         options["flavor"] = "azure";
       }
     }
-    const builder = new CodeModelBuilder(program, context);
-    const codeModel = await builder.build();
 
-    if (!program.hasError() && !program.compilerOptions.noEmit) {
+    let codeModel: CodeModel | undefined;
+    try {
+      const builder = new CodeModelBuilder(program, context);
+      codeModel = await builder.build();
+    } catch (error: any) {
+      logError(program, error.message);
+    }
+
+    if (codeModel && !program.hasError() && !program.compilerOptions.noEmit) {
       const __dirname = dirname(fileURLToPath(import.meta.url));
       const moduleRoot = resolvePath(__dirname, "..", "..");
 
