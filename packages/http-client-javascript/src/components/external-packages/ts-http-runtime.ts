@@ -2,7 +2,7 @@ import { createPackage } from "@alloy-js/typescript";
 
 export const httpRuntimeTemplateLib = createPackage({
   name: "@typespec/ts-http-runtime",
-  version: "1.0.0-alpha.20240611.3",
+  version: "0.1.0",
   descriptor: {
     ".": {
       named: [

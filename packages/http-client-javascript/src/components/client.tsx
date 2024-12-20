@@ -70,6 +70,13 @@ function getSubClientClassFieldRef(client: cl.Client) {
 }
 
 function SubClientClassField(props: SubClientClassFieldProps) {
+  const parent = $.client.getParent(props.client);
+  // If sub client has different parameters than client, don't add it as a subclass field
+  // Todo: We need to detect the extra parameters and make this field a factory for the subclient
+  if (parent && !$.client.haveSameConstructor(props.client, parent)) {
+    return null;
+  }
+
   const namePolicy = ts.useTSNamePolicy();
   const fieldName = namePolicy.getName($.client.getName(props.client), "class");
   const subClientClassRef = getClientClassRef(props.client);
@@ -82,7 +89,9 @@ interface ClientConstructorProps {
 }
 
 function ClientConstructor(props: ClientConstructorProps) {
-  const subClients = $.clientLibrary.listClients(props.client);
+  const subClients = $.clientLibrary
+    .listClients(props.client)
+    .filter((sc) => $.client.haveSameConstructor(sc, props.client));
   const clientContextFieldRef = getClientContextFieldRef(props.client);
   const clientContextFactoryRef = getClientContextFactoryRef(props.client);
   const constructorParameters = buildClientParameters(props.client);

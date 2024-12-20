@@ -6,22 +6,37 @@ import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript
 import { HttpAuth } from "@typespec/http";
 import * as cl from "@typespec/http-client-library";
 import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
+import { getClientContextOptionsRef } from "../components/client-context/client-context-options.jsx";
 
 export function buildClientParameters(client: cl.Client): Record<string, ts.ParameterDescriptor> {
   const clientConstructor = $.client.getConstructor(client);
   const parameters = $.operation.getClientSignature(client, clientConstructor);
-  return parameters.reduce(
+  const params = parameters.reduce(
     (acc, param) => {
       const paramsDescriptor = buildClientParameterDescriptor(param);
       if (!paramsDescriptor) {
         return acc;
       }
       const [name, descriptor] = paramsDescriptor;
-      acc[name] = descriptor;
+
+      if (!descriptor.optional) {
+        acc[name] = descriptor;
+      }
+
       return acc;
     },
     {} as Record<string, ts.ParameterDescriptor>,
   );
+
+  if (!params["options"]) {
+    params["options"] = {
+      refkey: ay.refkey(),
+      optional: true,
+      type: getClientContextOptionsRef(client),
+    };
+  }
+
+  return params;
 }
 
 function buildClientParameterDescriptor(

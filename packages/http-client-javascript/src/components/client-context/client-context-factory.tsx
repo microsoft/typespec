@@ -25,7 +25,11 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   const clientConstructor = $.client.getConstructor(props.client);
   const parameters = buildClientParameters(props.client);
 
-  const args = Object.keys(parameters).join(", ");
+  // Filter out optional parameters, they will be passed as options
+  const args = Object.entries(parameters)
+    .filter(([n, p]) => !p.optional)
+    .map(([name]) => name)
+    .join(", ");
 
   return <FunctionDeclaration
   export
@@ -36,6 +40,6 @@ export function ClientContextFactoryDeclaration(props: ClientContextFactoryProps
   parametersMode="replace"
   parameters={parameters}
 >
-  return {httpRuntimeTemplateLib.getClient}({args}, {code`{allowInsecureConnection: true}`});
+  return {httpRuntimeTemplateLib.getClient}({args}, {code`{allowInsecureConnection: true, ...options}`});
 </FunctionDeclaration>;
 }

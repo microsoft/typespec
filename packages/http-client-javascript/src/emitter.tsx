@@ -19,7 +19,7 @@ export async function $onEmit(context: EmitContext) {
   const dataTypes = $.clientLibrary.listDataTypes(topLevelClient);
 
   return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib, httpRuntimeTemplateLib]}>
-        <ts.PackageDirectory name="test-package" version="1.0.0" path=".">
+        <ts.PackageDirectory name="test-package" version="1.0.0" path="." scripts={{ "build": "tsc" }}>
           <ay.SourceDirectory path="src">
             <ts.BarrelFile export="." />
             <Client client={topLevelClient} />
@@ -29,7 +29,6 @@ export async function $onEmit(context: EmitContext) {
               <ModelSerializers types={dataTypes} />
             </ay.SourceDirectory>
             <ay.SourceDirectory path="api">
-              <ts.BarrelFile export="api" />
               {ay.mapJoin(flatClients, (client) => (
                 <ClientDirectory client={client}>
                   <ClientOperations client={client} />
