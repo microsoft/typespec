@@ -50,13 +50,13 @@ export async function activate(context: ExtensionContext) {
       async (args: RestartServerCommandArgs | undefined): Promise<TspLanguageClient> => {
         return vscode.window.withProgress(
           {
-            title: "Restarting TypeSpec language service...",
+            title: args?.notificationMessage ?? "Restarting TypeSpec language service...",
             location: vscode.ProgressLocation.Notification,
           },
           async () => {
             if (args?.forceRecreate === true) {
               logger.info("Forcing to recreate TypeSpec LSP server...");
-              return await recreateLSPClient(context, args?.popupRecreateLspError);
+              return await recreateLSPClient(context);
             }
             if (client && client.state === State.Running) {
               await client.restart();
@@ -65,7 +65,7 @@ export async function activate(context: ExtensionContext) {
               logger.info(
                 "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
               );
-              return recreateLSPClient(context, args?.popupRecreateLspError);
+              return recreateLSPClient(context);
             }
           },
         );
@@ -97,26 +97,33 @@ export async function activate(context: ExtensionContext) {
     }),
   );
 
-  return await vscode.window.withProgress(
-    {
-      title: "Launching TypeSpec language service...",
-      location: vscode.ProgressLocation.Notification,
-    },
-    async () => {
-      await recreateLSPClient(context);
-    },
-  );
+  // Only try to start language server when some workspace has been opened
+  // because the LanguageClient class will popup error notification in vscode directly if failing to start
+  // which will be confusing to user if no workspace is opened (i.e. in Create TypeSpec project scenario)
+  if ((vscode.workspace.workspaceFolders?.length ?? 0) > 0) {
+    return await vscode.window.withProgress(
+      {
+        title: "Launching TypeSpec language service...",
+        location: vscode.ProgressLocation.Notification,
+      },
+      async () => {
+        await recreateLSPClient(context);
+      },
+    );
+  } else {
+    logger.info("No workspace opened, Skip starting TypeSpec language service.");
+  }
 }
 
 export async function deactivate() {
   await client?.stop();
 }
 
-async function recreateLSPClient(context: ExtensionContext, showPopupWhenError?: boolean) {
+async function recreateLSPClient(context: ExtensionContext) {
   logger.info("Recreating TypeSpec LSP server...");
   const oldClient = client;
   client = await TspLanguageClient.create(context, outputChannel);
   await oldClient?.stop();
-  await client.start(showPopupWhenError ?? (vscode.workspace.workspaceFolders?.length ?? 0) > 0);
+  await client.start();
   return client;
 }

@@ -142,9 +142,10 @@ export class TspLanguageClient {
     }
   }
 
-  async start(showPopupWhenError: boolean): Promise<void> {
+  async start(): Promise<void> {
     try {
       if (this.client.needsStart()) {
+        // please be aware that this method would popup error notification in vscode directly
         await this.client.start();
         logger.info("TypeSpec server started");
       } else {
@@ -162,13 +163,13 @@ export class TspLanguageClient {
             " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
           ].join("\n"),
           [],
-          { showOutput: false, showPopup: showPopupWhenError },
+          { showOutput: false, showPopup: true },
         );
         logger.error("Error detail", [e]);
       } else {
         logger.error("Unexpected error when starting TypeSpec server", [e], {
           showOutput: false,
-          showPopup: showPopupWhenError,
+          showPopup: true,
         });
       }
     }
