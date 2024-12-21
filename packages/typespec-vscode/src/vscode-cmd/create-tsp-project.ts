@@ -683,7 +683,7 @@ async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<Ts
   logger.info("Try to restart lsp client.");
   const rsArgs: RestartServerCommandArgs = {
     forceRecreate: false,
-    notificationMessage: "Start TypeSpec language service...",
+    notificationMessage: "Launching TypeSpec language service...",
   };
   const newClient = await vscode.commands.executeCommand<TspLanguageClient>(
     CommandName.RestartServer,
@@ -710,10 +710,6 @@ async function IsGlobalCompilerAvailable(folder: string): Promise<Result<boolean
         logger.debug("Global compiler is available by checking 'tsp --version'");
         return { code: ResultCode.Success, value: true };
       } catch (e) {
-        if (e && typeof e === "object" && "code" in e && e.code === "ENOENT") {
-          logger.error("Cannot find global tsp by checking 'tsp --version'", [e]);
-          return { code: ResultCode.Success, value: false };
-        }
         if (e === ResultCode.Cancelled) {
           logger.info("Checking compiler is cancelled by user.");
           return { code: ResultCode.Cancelled };
@@ -721,10 +717,11 @@ async function IsGlobalCompilerAvailable(folder: string): Promise<Result<boolean
           logger.debug(`Checking compiler is timeout after ${TIMEOUT}ms.`);
           return { code: ResultCode.Timeout };
         } else {
-          logger.debug("Error occurs when checking global compiler by checking 'tsp --version'", [
-            e,
-          ]);
-          return { code: ResultCode.Fail, details: e };
+          logger.debug(
+            "Global compiler is not available by check 'tsp --version' command which reported error",
+            [e],
+          );
+          return { code: ResultCode.Success, details: e };
         }
       }
     },
