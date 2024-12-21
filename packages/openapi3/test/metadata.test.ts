@@ -1,8 +1,8 @@
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { openApiFor } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: metadata", () => {
+worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
   it("will expose all properties on unreferenced models but filter properties on referenced models", async () => {
     const res = await openApiFor(`
       model M {
