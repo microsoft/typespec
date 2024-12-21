@@ -145,7 +145,7 @@ export class TspLanguageClient {
   async start(): Promise<void> {
     try {
       if (this.client.needsStart()) {
-        // please be aware that this method may also popup error notification directly in vscode
+        // please be aware that this method would popup error notification in vscode directly
         await this.client.start();
         logger.info("TypeSpec server started");
       } else {

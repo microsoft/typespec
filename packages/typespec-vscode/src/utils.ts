@@ -279,8 +279,8 @@ export function spawnExecution(
 }
 
 /**
- * if the operation is cancelled, the promise will be rejected with @{link ResultCode.Cancelled}
- * if the operation is timeout, the promise will be rejected with @{link ResultCode.Timeout}
+ * if the operation is cancelled, the promise will be rejected with {@link ResultCode.Cancelled}
+ * if the operation is timeout, the promise will be rejected with {@link ResultCode.Timeout}
  *
  * @param action
  * @param token

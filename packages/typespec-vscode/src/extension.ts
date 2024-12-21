@@ -98,10 +98,10 @@ export async function activate(context: ExtensionContext) {
   );
 
   // Only try to start language server when some workspace has opened
-  // because the LSP client will popup error notification in vscode directly if failed to start (not our code, but in LanguageClient class...)
-  // which will be confusing to user if no workspace is opened (i.e. create TypeSpec project scenario)
+  // because the LanguageClient class will popup error notification in vscode directly if failing to start
+  // which will be confusing to user if no workspace is opened (i.e. in Create TypeSpec project scenario)
   if ((vscode.workspace.workspaceFolders?.length ?? 0) > 0) {
-    await vscode.window.withProgress(
+    return await vscode.window.withProgress(
       {
         title: "Launching TypeSpec language service...",
         location: vscode.ProgressLocation.Notification,

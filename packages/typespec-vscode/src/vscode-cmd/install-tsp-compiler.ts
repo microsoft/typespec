@@ -9,8 +9,6 @@ const COMPILER_REQUIREMENT =
 export async function installCompilerGlobally(
   args: InstallGlobalCliCommandArgs | undefined,
 ): Promise<Result<void>> {
-  const showOutput = !(args?.silentMode ?? false);
-  const showPopup = !(args?.silentMode ?? false);
   // confirm with end user by default
   if (args?.confirm !== false) {
     const yes: QuickPickItem = {
@@ -55,7 +53,7 @@ export async function installCompilerGlobally(
           logger.error(
             "Failed to install TypeSpec CLI. Please check the previous log for details",
             [output],
-            { showOutput, showPopup },
+            { showOutput: true, showPopup: true },
           );
           return {
             code: ResultCode.Fail,
@@ -71,14 +69,14 @@ export async function installCompilerGlobally(
           return { code: ResultCode.Cancelled };
         } else if (e === ResultCode.Timeout) {
           logger.error(`Installation of TypeSpec Compiler/CLI is timeout after ${TIMEOUT}ms`, [e], {
-            showOutput,
-            showPopup,
+            showOutput: true,
+            showPopup: true,
           });
           return { code: ResultCode.Timeout };
         } else {
           logger.error("Unexpected error when installing TypeSpec Compiler/CLI", [e], {
-            showOutput,
-            showPopup,
+            showOutput: true,
+            showPopup: true,
           });
           return { code: ResultCode.Fail, details: e };
         }

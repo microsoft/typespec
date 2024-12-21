@@ -659,7 +659,8 @@ async function checkProjectRootFolderEmpty(selectedFolder: string): Promise<bool
 async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<TspLanguageClient>> {
   // language server may not be started because no workspace is opened or failed to start for some reason
   // so before trying to start it, let's try to check whether global compiler is available first
-  // to avoid unnecessary error notification when starting LSP which would be confusing.
+  // to avoid unnecessary error notification when starting LSP which would be confusing (we can't avoid it which
+  // is from base LanguageClient class...).
   const r = await IsGlobalCompilerAvailable(folder);
   if (r.code !== ResultCode.Success || r.value === undefined) {
     return { code: r.code, details: r.details };
@@ -670,7 +671,6 @@ async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<Ts
       confirmTitle: "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
       confirmPlaceholder:
         "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
-      silentMode: true,
     };
     const result = await vscode.commands.executeCommand<Result<void>>(
       CommandName.InstallGlobalCompilerCli,

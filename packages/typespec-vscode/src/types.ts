@@ -19,10 +19,6 @@ export interface InstallGlobalCliCommandArgs {
   confirm: boolean;
   confirmTitle?: string;
   confirmPlaceholder?: string;
-  /**
-   * The command won't show output window or popup notification in silent mode
-   */
-  silentMode?: boolean;
 }
 
 export interface RestartServerCommandArgs {
