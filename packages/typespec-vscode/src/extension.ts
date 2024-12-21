@@ -97,7 +97,7 @@ export async function activate(context: ExtensionContext) {
     }),
   );
 
-  // Only try to start language server when some workspace has opened
+  // Only try to start language server when some workspace has been opened
   // because the LanguageClient class will popup error notification in vscode directly if failing to start
   // which will be confusing to user if no workspace is opened (i.e. in Create TypeSpec project scenario)
   if ((vscode.workspace.workspaceFolders?.length ?? 0) > 0) {
