@@ -92,7 +92,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
   let _unionCounter: number = 0;
   const controllers = new Map<string, ControllerContext>();
   const NoResourceContext: string = "RPCOperations";
-  const doNotEmit: boolean = context.options["no-emit"] || false;
+  const doNotEmit: boolean = context.program.compilerOptions.noEmit || false;
 
   class CSharpCodeEmitter extends CodeTypeEmitter {
     #metadateMap: Map<Type, CSharpTypeMetadata> = new Map<Type, CSharpTypeMetadata>();

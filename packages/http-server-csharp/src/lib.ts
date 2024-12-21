@@ -5,8 +5,6 @@ export interface CSharpServiceEmitterOptions {
   "skip-format"?: boolean;
   /** Choose which service artifacts to emit.  Default is 'all'.*/
   "output-type"?: "models" | "all";
-  /** Do not emit */
-  "no-emit"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
@@ -26,12 +24,6 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
       default: "all",
       description:
         "Chooses which service artifacts to emit. choices include 'models' or 'all' artifacts.",
-    },
-    "no-emit": {
-      type: "boolean",
-      nullable: true,
-      default: false,
-      description: "Do not emit code",
     },
   },
   required: [],
