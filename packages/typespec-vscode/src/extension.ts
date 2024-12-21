@@ -1,6 +1,7 @@
 import vscode, { commands, ExtensionContext } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
+import { emitCode } from "./emit/emit.js";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
@@ -41,6 +42,20 @@ export async function activate(context: ExtensionContext) {
       } catch (error) {
         logger.error(`Failed to open URL: ${url}`, [error as any]);
       }
+    }),
+  );
+
+  /* emit command. */
+  context.subscriptions.push(
+    commands.registerCommand(CommandName.GenerateCode, async (uri: vscode.Uri) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Window,
+          title: "Generate from TypeSpec...",
+          cancellable: false,
+        },
+        async () => await emitCode(context, uri),
+      );
     }),
   );
 
