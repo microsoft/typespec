@@ -73,9 +73,19 @@ HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOpti
     return <></>;
   }
 
+  let optional = null;
+  if (collapse) {
+    const collapsedBody = [...body.properties.values()][0];
+    if (collapsedBody.optional) {
+      optional = `options?.${collapsedBody.name} && `;
+    }
+  }
+
   // The transformer to apply to the body.
   const bodyTransform =
-    <ef.TypeTransformCall type={body} target="transport" collapse={collapse} optionsBagName="options"/>;
+    <>
+      {optional}<ef.TypeTransformCall type={body} target="transport" collapse={collapse} optionsBagName="options"/>
+  </>;
 
   return <>
     <ts.ObjectProperty name="body" value={bodyTransform} />,

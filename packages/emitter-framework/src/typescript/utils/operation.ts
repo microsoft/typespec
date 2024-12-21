@@ -31,7 +31,8 @@ export function buildParameterDescriptors(
   }
   const operationParams: Record<string, Children | ts.ParameterDescriptor> = {};
 
-  for (const prop of type.properties.values()) {
+  const modelProperties = $.model.getProperties(type);
+  for (const prop of modelProperties.values()) {
     const [paramName, paramDescriptor] = buildParameterDescriptor(prop);
     operationParams[paramName] = paramDescriptor;
   }

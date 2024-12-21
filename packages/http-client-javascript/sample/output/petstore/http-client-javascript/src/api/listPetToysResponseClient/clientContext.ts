@@ -6,6 +6,7 @@ export interface ListPetToysResponseClientOptions extends ClientOptions {
 }
 export function createListPetToysResponseClientContext(
   endpoint: string,
+  options?: ListPetToysResponseClientOptions,
 ): ListPetToysResponseClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true });
+  return getClient(endpoint, { allowInsecureConnection: true, ...options });
 }

@@ -1,3 +1,21 @@
+export interface ConstructorParameters {
+  endpoint: string;
+  credential: "http" | "apiKey";
+}
+
+export interface ConstructorParameters_2 {
+  endpoint: string;
+}
+
+export interface ConstructorParameters_3 {
+  endpoint: string;
+}
+
+export interface ConstructorParameters_4 {
+  endpoint: string;
+  credential: "noAuth";
+}
+
 export interface TodoPage {
   items: Array<TodoItem>;
   pagination: {

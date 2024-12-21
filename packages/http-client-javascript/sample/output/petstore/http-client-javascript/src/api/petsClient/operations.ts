@@ -18,7 +18,7 @@ export async function delete_(client: PetsClientContext, petId: number): Promise
 
   const response = await client.path(path).delete(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
-    return;
+    return response.body;
   }
 
   throw new Error("Unhandled response");

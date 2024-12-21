@@ -4,6 +4,9 @@ export interface PetStoreClientContext extends Client {}
 export interface PetStoreClientOptions extends ClientOptions {
   endpoint?: string;
 }
-export function createPetStoreClientContext(endpoint: string): PetStoreClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true });
+export function createPetStoreClientContext(
+  endpoint: string,
+  options?: PetStoreClientOptions,
+): PetStoreClientContext {
+  return getClient(endpoint, { allowInsecureConnection: true, ...options });
 }

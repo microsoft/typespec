@@ -28,7 +28,7 @@ export function HttpResponses(props: HttpResponsesProps) {
     $.httpOperation
       .getResponses(props.operation)
       .filter((r) => !$.httpResponse.isErrorResponse(r.responseContent)),
-    ({ statusCode, contentType, responseContent }) => {
+    ({ statusCode, contentType, responseContent, type }) => {
       const body = responseContent.body;
 
       let expression = code`return;`;
@@ -41,10 +41,10 @@ export function HttpResponses(props: HttpResponsesProps) {
         contentTypeCheck = "";
       }
 
-      if (body && body.bodyKind === "single") {
+      if ((body && body.bodyKind === "single") || type) {
         expression =
           <>
-      return <TypeTransformCall type={body.type} target="application" itemPath={["response", "body"]} />;
+      return <TypeTransformCall type={body?.type ?? type} target="application" itemPath={["response", "body"]} />;
       </>;
       }
 

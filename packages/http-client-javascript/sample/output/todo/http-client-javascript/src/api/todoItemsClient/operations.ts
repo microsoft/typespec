@@ -133,7 +133,7 @@ export async function get(
   }
 
   if (+response.status === 204 && !response.body) {
-    return;
+    return response.body;
   }
 
   throw new Error("Unhandled response");
@@ -197,7 +197,7 @@ export async function delete_(client: TodoItemsClientContext, id: number): Promi
 
   const response = await client.path(path).delete(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
-    return;
+    return response.body;
   }
 
   throw new Error("Unhandled response");

@@ -2,23 +2,37 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { $ } from "@typespec/compiler/typekit";
 import * as cl from "@typespec/http-client-library";
+import { ClientContext } from "./client-context/client-context.jsx";
+import { ClientOperations } from "./client-operation.jsx";
 
-export interface ClientDirectoryProps {
+export interface OperationsDirectoryProps {
   client: cl.Client;
   children?: ay.Children;
 }
 
-export function ClientDirectory(props: ClientDirectoryProps) {
+export function OperationsDirectory(props: OperationsDirectoryProps) {
   // If it is the root client, we don't need to create a directory
-  if (!$.client.getParent(props.client)) {
-    return props.children;
-  }
+  return <>
+       <ClientOperations client={props.client} />
+       <ClientContext client={props.client} />
+       <SubClients client={props.client} />
+    </>;
+}
 
-  const namePolicy = ts.useTSNamePolicy();
-  const clientName = namePolicy.getName(props.client.name, "variable");
+export interface SubClientsProps {
+  client: cl.Client;
+}
 
-  return <ay.SourceDirectory path={clientName}>
-    <ts.BarrelFile export={clientName} />
-    {props.children}
-  </ay.SourceDirectory>;
+export function SubClients(props: SubClientsProps) {
+  const subClients = $.clientLibrary.listClients(props.client);
+
+  return ay.mapJoin(subClients, (subClient) => {
+    const namePolicy = ts.useTSNamePolicy();
+    const subClientName = namePolicy.getName(subClient.name, "variable");
+    return <ay.SourceDirectory path={subClientName}>
+        <ClientOperations client={subClient} />
+        <ClientContext client={subClient} />
+        <SubClients client={subClient} />
+    </ay.SourceDirectory>;
+  });
 }

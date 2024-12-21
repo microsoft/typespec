@@ -7,6 +7,7 @@ export interface TodoClientOptions extends ClientOptions {
 export function createTodoClientContext(
   endpoint: string,
   credential: KeyCredential | KeyCredential,
+  options?: TodoClientOptions,
 ): TodoClientContext {
-  return getClient(endpoint, credential, { allowInsecureConnection: true });
+  return getClient(endpoint, credential, { allowInsecureConnection: true, ...options });
 }

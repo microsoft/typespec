@@ -2,9 +2,7 @@ import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { EmitContext } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { ClientContext } from "./components/client-context/client-context.jsx";
-import { ClientDirectory } from "./components/client-directory.jsx";
-import { ClientOperations } from "./components/client-operation.jsx";
+import { OperationsDirectory } from "./components/client-directory.jsx";
 import { Client } from "./components/client.jsx";
 import { httpRuntimeTemplateLib } from "./components/external-packages/ts-http-runtime.js";
 import { uriTemplateLib } from "./components/external-packages/uri-template.js";
@@ -15,7 +13,6 @@ export async function $onEmit(context: EmitContext) {
   const tsNamePolicy = ts.createTSNamePolicy();
   const rootNs = $.clientLibrary.listNamespaces()[0]; // TODO: Handle multiple namespaces
   const topLevelClient = $.client.getClient(rootNs); // TODO: Handle multiple clients
-  const flatClients = $.client.flat(topLevelClient);
   const dataTypes = $.clientLibrary.listDataTypes(topLevelClient);
 
   return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib, httpRuntimeTemplateLib]}>
@@ -29,12 +26,7 @@ export async function $onEmit(context: EmitContext) {
               <ModelSerializers types={dataTypes} />
             </ay.SourceDirectory>
             <ay.SourceDirectory path="api">
-              {ay.mapJoin(flatClients, (client) => (
-                <ClientDirectory client={client}>
-                  <ClientOperations client={client} />
-                  <ClientContext client={client} />
-                </ClientDirectory>
-              ))}
+                <OperationsDirectory client={topLevelClient} />
             </ay.SourceDirectory>
           </ay.SourceDirectory>
         </ts.PackageDirectory>

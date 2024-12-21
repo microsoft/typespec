@@ -1,8 +1,15 @@
 import { getEffectiveModelType } from "../../../core/checker.js";
-import type { Model, ModelIndexer, ModelProperty, SourceModel, Type } from "../../../core/types.js";
+import type {
+  Model,
+  ModelIndexer,
+  ModelProperty,
+  RekeyableMap,
+  SourceModel,
+  Type,
+} from "../../../core/types.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
-import { decoratorApplication, DecoratorArgs } from "../utils.js";
+import { copyMap, decoratorApplication, DecoratorArgs } from "../utils.js";
 
 /** @experimental */
 interface ModelDescriptor {
@@ -83,6 +90,11 @@ export interface ModelKit {
    * @returns the type that is spread or undefined if no spread
    */
   getSpreadType: (model: Model) => Type | undefined;
+  /**
+   * Gets all properties from a model, explicitly defined, implicitly defined.
+   * @param model model to get the properties from
+   */
+  getProperties(model: Model): RekeyableMap<string, ModelProperty>;
 }
 
 interface TypekitExtension {
@@ -145,6 +157,23 @@ defineKit<TypekitExtension>({
       }
 
       return undefined;
+    },
+    getProperties(model) {
+      // Add explicitly defined properties
+      const properties = copyMap(model.properties);
+
+      // Add discriminator property if it exists
+      const discriminator = this.type.getDiscriminator(model);
+      if (discriminator) {
+        const discriminatorName = discriminator.propertyName;
+        properties.set(
+          discriminatorName,
+          this.modelProperty.create({ name: discriminatorName, type: this.builtin.string }),
+        );
+      }
+
+      // TODO: Add Spread?
+      return properties;
     },
   },
 });

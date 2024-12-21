@@ -1,36 +1,56 @@
 import { KeyCredential } from "@typespec/ts-http-runtime";
 import {
+  TodoClientContext,
+  TodoClientOptions,
+  createTodoClientContext,
+} from "./api/clientContext.js";
+import {
   AttachmentsClientContext,
+  AttachmentsClientOptions,
   createAttachmentsClientContext,
-} from "./api/attachmentsClient/clientContext.js";
-import { createAttachment, list as list_2 } from "./api/attachmentsClient/operations.js";
-import { TodoClientContext, createTodoClientContext } from "./api/clientContext.js";
+} from "./api/todoItemsClient/attachmentsClient/clientContext.js";
+import {
+  createAttachment,
+  list as list_2,
+} from "./api/todoItemsClient/attachmentsClient/operations.js";
 import {
   TodoItemsClientContext,
+  TodoItemsClientOptions,
   createTodoItemsClientContext,
 } from "./api/todoItemsClient/clientContext.js";
-import { create, delete_, get, list, update } from "./api/todoItemsClient/operations.js";
-import { UsersClientContext, createUsersClientContext } from "./api/usersClient/clientContext.js";
-import { create as create_2 } from "./api/usersClient/operations.js";
+import {
+  create as create_2,
+  delete_,
+  get,
+  list,
+  update,
+} from "./api/todoItemsClient/operations.js";
+import {
+  UsersClientContext,
+  UsersClientOptions,
+  createUsersClientContext,
+} from "./api/usersClient/clientContext.js";
+import { create } from "./api/usersClient/operations.js";
 import { TodoAttachment, TodoItem, TodoItemPatch, User } from "./models/models.js";
 
 export class TodoClient {
   #context: TodoClientContext;
-  usersClient: UsersClient;
-  todoItemsClient: TodoItemsClient;
-  constructor(endpoint: string, credential: KeyCredential | KeyCredential) {
-    this.#context = createTodoClientContext(endpoint, credential);
-    this.usersClient = new UsersClient(endpoint);
-    this.todoItemsClient = new TodoItemsClient(endpoint);
+
+  constructor(
+    endpoint: string,
+    credential: KeyCredential | KeyCredential,
+    options?: TodoClientOptions,
+  ) {
+    this.#context = createTodoClientContext(endpoint, credential, options);
   }
 }
 
 export class TodoItemsClient {
   #context: TodoItemsClientContext;
   attachmentsClient: AttachmentsClient;
-  constructor(endpoint: string) {
-    this.#context = createTodoItemsClientContext(endpoint);
-    this.attachmentsClient = new AttachmentsClient(endpoint);
+  constructor(endpoint: string, options?: TodoItemsClientOptions) {
+    this.#context = createTodoItemsClientContext(endpoint, options);
+    this.attachmentsClient = new AttachmentsClient(endpoint, options);
   }
   async list(options?: { limit?: number; offset?: number }) {
     return list(this.#context, options);
@@ -42,7 +62,7 @@ export class TodoItemsClient {
       attachments?: Array<TodoAttachment>;
     },
   ) {
-    return create(this.#context, item, contentType, options);
+    return create_2(this.#context, item, contentType, options);
   }
   async get(id: number) {
     return get(this.#context, id);
@@ -58,8 +78,8 @@ export class TodoItemsClient {
 export class AttachmentsClient {
   #context: AttachmentsClientContext;
 
-  constructor(endpoint: string) {
-    this.#context = createAttachmentsClientContext(endpoint);
+  constructor(endpoint: string, options?: AttachmentsClientOptions) {
+    this.#context = createAttachmentsClientContext(endpoint, options);
   }
   async list(itemId: number) {
     return list_2(this.#context, itemId);
@@ -72,10 +92,10 @@ export class AttachmentsClient {
 export class UsersClient {
   #context: UsersClientContext;
 
-  constructor(endpoint: string) {
-    this.#context = createUsersClientContext(endpoint);
+  constructor(endpoint: string, options?: UsersClientOptions) {
+    this.#context = createUsersClientContext(endpoint, options);
   }
   async create(user: User) {
-    return create_2(this.#context, user);
+    return create(this.#context, user);
   }
 }

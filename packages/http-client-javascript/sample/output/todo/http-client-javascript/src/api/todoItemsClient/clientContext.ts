@@ -4,6 +4,9 @@ export interface TodoItemsClientContext extends Client {}
 export interface TodoItemsClientOptions extends ClientOptions {
   endpoint?: string;
 }
-export function createTodoItemsClientContext(endpoint: string): TodoItemsClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true });
+export function createTodoItemsClientContext(
+  endpoint: string,
+  options?: TodoItemsClientOptions,
+): TodoItemsClientContext {
+  return getClient(endpoint, { allowInsecureConnection: true, ...options });
 }

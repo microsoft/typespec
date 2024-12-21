@@ -48,13 +48,15 @@ function DiscriminateExpression(props: DiscriminateExpressionProps) {
   
   const discriminatedUnion = $.type.getDiscriminatedUnion(props.type)!;
 
+  const unhandledVariant = `\n\nthrow new Error(\`Unexpected discriminated variant $\{item.${props.discriminator.propertyName}}\`);`;
+
   return mapJoin(discriminatedUnion.variants, (name, variant) => {
     return code`
     if(item.${props.discriminator.propertyName} === ${JSON.stringify(name)}) {
-      return ${<TypeTransformCall type={variant.type} target={props.target} itemPath={["item"]}/>}
+      return ${<TypeTransformCall type={variant.type} target={props.target} castInput itemPath={["item"]}/>}
     }
     `
-  }, { joiner: "\n" });
+  }, { joiner: "\n\n", ender: unhandledVariant });
 
 }
 
@@ -93,6 +95,8 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
     }) 
   }
 
+  const returnType = props.target === "application" ? refkey(props.type) : "any";
+
 
   return (
     <ts.FunctionDeclaration
@@ -100,6 +104,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
       name={functionName}
       refkey={getTypeTransformerRefkey(props.type, props.target)}
       parameters={{ item: itemType }}
+      returnType={returnType}
     >
       {transformExpression}
     </ts.FunctionDeclaration>
@@ -143,10 +148,18 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
     })
   }
   const namePolicy = ts.useTSNamePolicy();
+  const modelProperties = $.model.getProperties(props.type);
+  
+  let baseModelTransform: Children = null;
+  if(props.type.baseModel) {
+    baseModelTransform = code`...${<TypeTransformCall type={props.type.baseModel} itemPath={props.itemPath} target={props.target} optionsBagName={props.optionsBagName} />},\n`
+  }
+  
   return (
     <ts.ObjectExpression>
+      {baseModelTransform}
       {mapJoin(
-        props.type.properties,
+        modelProperties,
         (_, property) => {
           // assume "transport" target
           let targetPropertyName = property.name;
@@ -235,6 +248,10 @@ export interface TypeTransformCallProps {
    */
   type: Type;
   /**
+   * 
+   */
+  castInput?: boolean;
+  /**
    * Transformation target
    */
   target: "application" | "transport";
@@ -262,7 +279,13 @@ function needsTransform(type: Type): boolean {
 export function TypeTransformCall(props: TypeTransformCallProps) {
   const collapsedProperty = getCollapsedProperty(props.type, props.collapse ?? false);
   const itemPath = collapsedProperty ? [...(props.itemPath ?? []), collapsedProperty.name] : props.itemPath ?? [];
-  const itemName = itemPath.join(".");
+  if(collapsedProperty?.optional) {
+    itemPath.unshift(`${props.optionsBagName}?`);
+  }
+  let itemName: Children = itemPath.join(".");
+  if(props.castInput) {
+    itemName = code`${itemName} as ${refkey(props.type)}`;
+  }
   const transformType = collapsedProperty?.type ?? props.type;
   if ($.array.is(transformType)) {
     return (
@@ -309,8 +332,9 @@ function getCollapsedProperty(model: Type, collapse: boolean): ModelProperty | u
     return undefined;
   }
 
-  if (collapse && model.properties.size === 1) {
-    return Array.from(model.properties.values())[0];
+  const modelProperties = $.model.getProperties(model);
+  if (collapse && modelProperties.size === 1) {
+    return Array.from(modelProperties.values())[0];
   }
   return undefined;
 }

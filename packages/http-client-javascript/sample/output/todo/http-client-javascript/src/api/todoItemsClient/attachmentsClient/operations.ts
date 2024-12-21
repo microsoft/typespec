@@ -1,6 +1,6 @@
 import { parse } from "uri-template";
-import { AttachmentPage, TodoAttachment } from "../../models/models.js";
-import { attachmentPageToApplication } from "../../models/serializers.js";
+import { AttachmentPage, TodoAttachment } from "../../../models/models.js";
+import { attachmentPageToApplication } from "../../../models/serializers.js";
 import { AttachmentsClientContext } from "./clientContext.js";
 
 export async function list(
@@ -21,7 +21,7 @@ export async function list(
   }
 
   if (+response.status === 204 && !response.body) {
-    return;
+    return response.body;
   }
 
   throw new Error("Unhandled response");
@@ -44,7 +44,7 @@ export async function createAttachment(
 
   const response = await client.path(path).post(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
-    return;
+    return response.body;
   }
 
   throw new Error("Unhandled response");

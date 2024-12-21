@@ -109,7 +109,7 @@ function getExtendsType(type: Model | Interface): Children | undefined {
 function membersFromType(type: Model | Interface) {
   let typeMembers: RekeyableMap<string, ModelProperty | Operation> | undefined;
   if ($.model.is(type)) {
-    typeMembers = createRekeyableMap(type.properties);
+    typeMembers = $.model.getProperties(type);
   } else {
     typeMembers = createRekeyableMap(type.operations)
   }

@@ -4,6 +4,9 @@ export interface UsersClientContext extends Client {}
 export interface UsersClientOptions extends ClientOptions {
   endpoint?: string;
 }
-export function createUsersClientContext(endpoint: string): UsersClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true });
+export function createUsersClientContext(
+  endpoint: string,
+  options?: UsersClientOptions,
+): UsersClientContext {
+  return getClient(endpoint, { allowInsecureConnection: true, ...options });
 }

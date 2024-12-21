@@ -1,5 +1,9 @@
 import {
   AttachmentPage,
+  ConstructorParameters,
+  ConstructorParameters_2,
+  ConstructorParameters_3,
+  ConstructorParameters_4,
   TodoFileAttachment,
   TodoItem,
   TodoItemPatch,
@@ -11,14 +15,14 @@ import {
 
 export function recordSerializer(
   record: Record<string, any>,
-  convertFn: (item: any) => any,
+  convertFn?: (item: any) => any,
 ): Record<string, any> {
   const output: Record<string, any> = {};
 
   for (const key in record) {
     if (Object.prototype.hasOwnProperty.call(record, key)) {
       const item = record[key];
-      output[key] = convertFn(item);
+      output[key] = convertFn ? convertFn(item) : item;
     }
   }
 
@@ -55,7 +59,51 @@ export function dateUnixTimestampSerializer(date: Date): number {
 export function dateUnixTimestampDeserializer(date: number): Date {
   return new Date(date * 1000);
 }
-export function todoPageToTransport(item: TodoPage) {
+export function constructorParametersToTransport(item: ConstructorParameters): any {
+  return {
+    endpoint: item.endpoint,
+    credential: item.credential,
+  };
+}
+export function constructorParametersToApplication(item: any): ConstructorParameters {
+  return {
+    endpoint: item.endpoint,
+    credential: item.credential,
+  };
+}
+export function constructorParametersToTransport_2(item: ConstructorParameters_2): any {
+  return {
+    endpoint: item.endpoint,
+  };
+}
+export function constructorParametersToApplication_2(item: any): ConstructorParameters_2 {
+  return {
+    endpoint: item.endpoint,
+  };
+}
+export function constructorParametersToTransport_3(item: ConstructorParameters_3): any {
+  return {
+    endpoint: item.endpoint,
+  };
+}
+export function constructorParametersToApplication_3(item: any): ConstructorParameters_3 {
+  return {
+    endpoint: item.endpoint,
+  };
+}
+export function constructorParametersToTransport_4(item: ConstructorParameters_4): any {
+  return {
+    endpoint: item.endpoint,
+    credential: item.credential,
+  };
+}
+export function constructorParametersToApplication_4(item: any): ConstructorParameters_4 {
+  return {
+    endpoint: item.endpoint,
+    credential: item.credential,
+  };
+}
+export function todoPageToTransport(item: TodoPage): any {
   return {
     items: arraySerializer(item.items, todoItemToTransport),
     pagination: {
@@ -68,7 +116,7 @@ export function todoPageToTransport(item: TodoPage) {
     },
   };
 }
-export function todoPageToApplication(item: any) {
+export function todoPageToApplication(item: any): TodoPage {
   return {
     items: arraySerializer(item.items, todoItemToApplication),
     pagination: {
@@ -81,7 +129,7 @@ export function todoPageToApplication(item: any) {
     },
   };
 }
-export function todoItemToTransport(item: TodoItem) {
+export function todoItemToTransport(item: TodoItem): any {
   return {
     id: item.id,
     title: item.title,
@@ -96,7 +144,7 @@ export function todoItemToTransport(item: TodoItem) {
     _dummy: item._dummy,
   };
 }
-export function todoItemToApplication(item: any) {
+export function todoItemToApplication(item: any): TodoItem {
   return {
     id: item.id,
     title: item.title,
@@ -111,45 +159,45 @@ export function todoItemToApplication(item: any) {
     _dummy: item._dummy,
   };
 }
-export function todoLabelRecordToTransport(item: TodoLabelRecord) {
+export function todoLabelRecordToTransport(item: TodoLabelRecord): any {
   return {
     name: item.name,
     color: item.color,
   };
 }
-export function todoLabelRecordToApplication(item: any) {
+export function todoLabelRecordToApplication(item: any): TodoLabelRecord {
   return {
     name: item.name,
     color: item.color,
   };
 }
-export function todoFileAttachmentToTransport(item: TodoFileAttachment) {
+export function todoFileAttachmentToTransport(item: TodoFileAttachment): any {
   return {
     filename: item.filename,
     mediaType: item.mediaType,
     contents: item.contents,
   };
 }
-export function todoFileAttachmentToApplication(item: any) {
+export function todoFileAttachmentToApplication(item: any): TodoFileAttachment {
   return {
     filename: item.filename,
     mediaType: item.mediaType,
     contents: item.contents,
   };
 }
-export function todoUrlAttachmentToTransport(item: TodoUrlAttachment) {
+export function todoUrlAttachmentToTransport(item: TodoUrlAttachment): any {
   return {
     description: item.description,
     url: item.url,
   };
 }
-export function todoUrlAttachmentToApplication(item: any) {
+export function todoUrlAttachmentToApplication(item: any): TodoUrlAttachment {
   return {
     description: item.description,
     url: item.url,
   };
 }
-export function todoItemPatchToTransport(item: TodoItemPatch) {
+export function todoItemPatchToTransport(item: TodoItemPatch): any {
   return {
     title: item.title,
     assignedTo: item.assignedTo,
@@ -157,7 +205,7 @@ export function todoItemPatchToTransport(item: TodoItemPatch) {
     status: item.status,
   };
 }
-export function todoItemPatchToApplication(item: any) {
+export function todoItemPatchToApplication(item: any): TodoItemPatch {
   return {
     title: item.title,
     assignedTo: item.assignedTo,
@@ -165,7 +213,7 @@ export function todoItemPatchToApplication(item: any) {
     status: item.status,
   };
 }
-export function attachmentPageToTransport(item: AttachmentPage) {
+export function attachmentPageToTransport(item: AttachmentPage): any {
   return {
     items: arraySerializer(item.items),
     pagination: {
@@ -178,7 +226,7 @@ export function attachmentPageToTransport(item: AttachmentPage) {
     },
   };
 }
-export function attachmentPageToApplication(item: any) {
+export function attachmentPageToApplication(item: any): AttachmentPage {
   return {
     items: arraySerializer(item.items),
     pagination: {
@@ -191,7 +239,7 @@ export function attachmentPageToApplication(item: any) {
     },
   };
 }
-export function userToTransport(item: User) {
+export function userToTransport(item: User): any {
   return {
     id: item.id,
     username: item.username,
@@ -200,7 +248,7 @@ export function userToTransport(item: User) {
     validated: item.validated,
   };
 }
-export function userToApplication(item: any) {
+export function userToApplication(item: any): User {
   return {
     id: item.id,
     username: item.username,
