@@ -131,8 +131,7 @@ class CredentialType(Generic[CredentialPolicyType], BaseType):
     def docstring_text(self, **kwargs: Any) -> str:
         return "credential"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return self.docstring_type()
 
     @classmethod

@@ -199,3 +199,26 @@ export function isAzureCoreErrorResponse(t: SdkType | undefined): boolean {
 export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
+
+export function getClientNamespace<TServiceOperation extends SdkServiceOperation>(
+  context: PythonSdkContext<TServiceOperation>,
+  clientNamespace: string,
+) {
+  const rootNamespace = removeUnderscoresFromNamespace(
+    context.sdkPackage.rootNamespace,
+  ).toLowerCase();
+  const options = context.emitContext.options;
+  if ([undefined, false].includes(options["enable-typespec-namespace"])) {
+    return rootNamespace;
+  }
+  if (
+    ["azure.core", "azure.resourcemanager"].some((item) =>
+      clientNamespace.toLowerCase().startsWith(item),
+    )
+  ) {
+    return rootNamespace;
+  }
+  return clientNamespace === ""
+    ? rootNamespace
+    : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+}

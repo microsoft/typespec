@@ -34,14 +34,13 @@ class DictionaryType(BaseType):
     def encode(self) -> Optional[str]:
         return self.element_type.encode if hasattr(self.element_type, "encode") else None  # type: ignore
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         """Returns the serialization value for msrest.
 
         :return: The serialization value for msrest
         :rtype: str
         """
-        return f"{{{self.element_type.serialization_type}}}"
+        return f"{{{self.element_type.serialization_type(**kwargs)}}}"
 
     def type_annotation(self, **kwargs: Any) -> str:
         """The python type used for type annotation

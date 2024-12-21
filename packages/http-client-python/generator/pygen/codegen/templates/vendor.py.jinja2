@@ -3,7 +3,7 @@
 
 {{ imports }}
 
-{% if code_model.need_mixin_abc %}
+{% if code_model.need_vendored_mixin(client_namespace) %}
     {% for client in clients | selectattr("has_mixin") %}
 {% set pylint_disable = "# pylint: disable=name-too-long" if (client.name | length) + ("MixinABC" | length) > 40 else "" %}
 class {{ client.name }}MixinABC(  {{ pylint_disable }}
@@ -16,7 +16,7 @@ class {{ client.name }}MixinABC(  {{ pylint_disable }}
     _deserialize: "Deserializer"
     {% endfor %}
 {% endif %}
-{% if code_model.has_abstract_operations %}
+{% if code_model.need_vendored_abstract(client_namespace) %}
 
 def raise_if_not_implemented(cls, abstract_methods):
     not_implemented = [f for f in abstract_methods if not callable(getattr(cls, f, None))]
@@ -27,7 +27,7 @@ def raise_if_not_implemented(cls, abstract_methods):
         )
 {% endif %}
 
-{% if code_model.has_etag %}
+{% if code_model.need_vendored_etag(client_namespace) %}
 def quote_etag(etag: Optional[str]) -> Optional[str]:
     if not etag or etag == "*":
         return etag
@@ -57,7 +57,7 @@ def prep_if_none_match(etag: Optional[str], match_condition: Optional[MatchCondi
         return "*"
     return None
 {% endif %}
-{% if code_model.has_form_data and code_model.options["models_mode"] == "dpg" and not async_mode  %}
+{% if code_model.need_vendored_form_data(async_mode, client_namespace)  %}
 # file-like tuple could be `(filename, IO (or bytes))` or `(filename, IO (or bytes), content_type)`
 FileContent = Union[str, bytes, IO[str], IO[bytes]]
 
