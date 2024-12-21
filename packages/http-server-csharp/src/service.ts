@@ -1554,10 +1554,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           entityKind: "Type",
           isFinished: true,
         });
-        for (const [_, op] of nsOps) {
-          op.interface = iface;
+
+        try {
+          for (const [_, op] of nsOps) {
+            op.interface = iface;
+          }
+          emitter.emitType(iface);
+        } finally {
+          for (const [_, op] of nsOps) {
+            op.interface = undefined;
+          }
+          target.interfaces.delete(iface.name);
         }
-        emitter.emitType(iface);
       }
 
       for (const [_, sub] of target.namespaces) {
