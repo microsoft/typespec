@@ -2,7 +2,7 @@
 
 import chalk from "chalk";
 import { execa } from "execa";
-import { lstat, rm, symlink } from "fs/promises";
+import { rm } from "fs/promises";
 import { globby } from "globby";
 import inquirer from "inquirer";
 import { dirname, join } from "path";
@@ -117,24 +117,6 @@ async function runCommand(command, args, options = {}) {
   await execa(command, args, { stdio: "inherit", ...options });
 }
 
-async function createSymlink(target, linkPath) {
-  try {
-    // Remove existing symlink or directory if it exists
-    if (await pathExists(linkPath)) {
-      const stats = await lstat(linkPath);
-      if (stats.isSymbolicLink() || stats.isDirectory()) {
-        await rm(linkPath, { recursive: true });
-      }
-    }
-    // Create symlink
-    await symlink(target, linkPath, "dir");
-    console.log(chalk.green(`Created symlink: ${linkPath} -> ${target}`));
-  } catch (error) {
-    console.error(chalk.red(`Failed to create symlink: ${linkPath} -> ${target}`), error);
-    throw error;
-  }
-}
-
 // Process files with interactive mode
 async function processFiles(files, options) {
   const { interactive, generateReport, build } = options;
@@ -147,6 +129,12 @@ async function processFiles(files, options) {
     const outputDir = join("test", "e2e", "generated", dirname(relativePath));
 
     try {
+      // Clear the target directory if it exists
+      if (await pathExists(outputDir)) {
+        console.log(chalk.yellow(`Clearing directory: ${outputDir}`));
+        await rm(outputDir, { recursive: true, force: true });
+      }
+
       await runCommand("npx", [
         "tsp",
         "compile",

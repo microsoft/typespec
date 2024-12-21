@@ -66,6 +66,11 @@ function DiscriminateExpression(props: DiscriminateExpressionProps) {
 export function TypeTransformDeclaration(props: TypeTransformProps) {
   const namePolicy = ts.useTSNamePolicy();
 
+  // Record and array have their general serializers
+  if($.array.is(props.type) || $.record.is(props.type)) {
+    return null;
+  }
+
   // TODO: Handle other type of declarations
   if (!$.model.is(props.type) && !$.union.is(props.type)) {
     return null;

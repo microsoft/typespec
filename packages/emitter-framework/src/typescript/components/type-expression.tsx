@@ -47,13 +47,13 @@ export function TypeExpression({ type }: TypeExpressionProps) {
     case "ModelProperty": 
       return <TypeExpression type={type.type} />;
     case "Model":
-      if (isArray(type)) {
-        const elementType = type.indexer.value;
+      if ($.array.is(type)) {
+        const elementType = type.indexer!.value;
         return <ArrayExpression elementType={elementType} />;
       }
 
-      if (isRecord(type)) {
-        const elementType = type.indexer.value;
+      if ($.record.is(type)) {
+        const elementType = (type as Model).indexer!.value;
         return <RecordExpression elementType={elementType} />;
       }
 
