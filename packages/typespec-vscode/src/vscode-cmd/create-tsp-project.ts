@@ -662,7 +662,7 @@ async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<Ts
   // to avoid unnecessary error notification when starting LSP which would be confusing (we can't avoid it which
   // is from base LanguageClient class...).
   const r = await IsGlobalCompilerAvailable(folder);
-  if (r.code !== ResultCode.Success || r.value === undefined) {
+  if (r.code !== ResultCode.Success) {
     return { code: r.code, details: r.details };
   }
   if (!r.value) {
@@ -721,7 +721,7 @@ async function IsGlobalCompilerAvailable(folder: string): Promise<Result<boolean
             "Global compiler is not available by check 'tsp --version' command which reported error",
             [e],
           );
-          return { code: ResultCode.Success, details: e };
+          return { code: ResultCode.Success, value: false };
         }
       }
     },

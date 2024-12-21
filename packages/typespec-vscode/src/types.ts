@@ -36,8 +36,15 @@ export const enum ResultCode {
   Timeout = "timeout",
 }
 
-export interface Result<T> {
-  code: ResultCode;
-  value?: T;
+interface SuccessResult<T> {
+  code: ResultCode.Success;
+  value: T;
   details?: any;
 }
+
+interface UnsuccessResult {
+  code: ResultCode.Fail | ResultCode.Cancelled | ResultCode.Timeout;
+  details?: any;
+}
+
+export type Result<T> = SuccessResult<T> | UnsuccessResult;

@@ -61,7 +61,7 @@ export async function installCompilerGlobally(
           };
         } else {
           logger.info("TypeSpec CLI installed successfully");
-          return { code: ResultCode.Success };
+          return { code: ResultCode.Success, value: undefined };
         }
       } catch (e) {
         if (e === ResultCode.Cancelled) {
