@@ -34,6 +34,11 @@ export interface InitTemplate {
   libraries?: InitTemplateLibrary[];
 
   /**
+   * List of emitters to include
+   */
+  emitters?: Record<string, EmitterTemplate>;
+
+  /**
    * Config
    */
   config?: TypeSpecRawConfig;
@@ -53,6 +58,22 @@ export interface InitTemplate {
    * List of files to copy.
    */
   files?: InitTemplateFile[];
+}
+
+/**
+ * Describes emitter dependencies that will be added to the generated project.
+ */
+export interface EmitterTemplate {
+  /** Emitter Selection Description */
+  description?: string;
+  /** Whether emitter is selected by default in the list */
+  selected?: boolean;
+  /** Optional emitter Options to populate the tspconfig.yaml */
+  options?: any;
+  /** Optional message to display to the user post creation */
+  message?: string;
+  /** Optional specific emitter version. `latest` if not specified */
+  version?: string;
 }
 
 /**
@@ -98,6 +119,22 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
         oneOf: [{ type: "string" }, InitTemplateLibrarySpecSchema],
       },
       nullable: true,
+    },
+    emitters: {
+      type: "object",
+      nullable: true,
+      additionalProperties: {
+        type: "object",
+        properties: {
+          description: { type: "string", nullable: true },
+          selected: { type: "boolean", nullable: true },
+          options: {} as any,
+          message: { type: "string", nullable: true },
+          version: { type: "string", nullable: true },
+        },
+        required: [],
+      },
+      required: [],
     },
     skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...TypeSpecConfigJsonSchema },

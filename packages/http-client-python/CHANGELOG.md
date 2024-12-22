@@ -1,5 +1,40 @@
 # Change Log - @typespec/http-client-python
 
+## 0.4.4
+
+### Bug Fixes
+
+- `:code:` in docstring should always be preceded by `\`
+
+## 0.4.3
+
+### Bump dependencies
+
+- Bump `@typespec/*` 0.63.0 and `@azure-tools/*` 0.49.0
+
+## 0.4.2
+
+### Bug Fixes
+
+- Ignore models/enum only used as LRO envelope results
+- Refine exception handling logic to keep compatibility for legacy SDK
+
+## 0.4.1
+
+### Bug Fixes
+
+- Ignore models only used as LRO envelope results because we don't do anything with them
+
+## 0.4.0
+
+### Features
+
+- Refine exception handling logic and support exception with ranged status code (#5270)
+
+### Bug Fixes
+
+- Filter out credential that python does not support for now (#5282)
+
 ## 0.3.12
 
 ### Other Changes

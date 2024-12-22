@@ -33,11 +33,11 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "The version v1.",
+     "doc": "The version v1.",
      "decorators": []
     }
    ],
-   "description": "The version of the API.",
+   "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,ApiVersionEnum",
@@ -98,7 +98,7 @@
   {
    "$id": "11",
    "Name": "MadeOptionalClient",
-   "Description": "Test for the `@madeOptional` decorator.",
+   "Doc": "Test for the `@madeOptional` decorator.",
    "Operations": [
     {
      "$id": "12",
@@ -131,7 +131,7 @@
        "$id": "15",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "16",
         "kind": "constant",
@@ -239,7 +239,7 @@
      "$id": "24",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "25",
       "kind": "url",
@@ -260,7 +260,7 @@
      "$id": "26",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
      "Type": {
       "$ref": "2"
      },

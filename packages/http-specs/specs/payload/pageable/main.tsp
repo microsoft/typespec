@@ -47,6 +47,7 @@ namespace ServerDrivenPagination {
     ```
     """)
   @route("/link")
+  @list
   op link(): {
     @pageItems
     pets: Pet[];

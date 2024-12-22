@@ -34,7 +34,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "The version v1.",
+     "doc": "The version v1.",
      "decorators": []
     },
     {
@@ -52,11 +52,11 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "The version v2.",
+     "doc": "The version v2.",
      "decorators": []
     }
    ],
-   "description": "The version of the API.",
+   "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,ApiVersionEnum",
@@ -117,7 +117,7 @@
   {
    "$id": "13",
    "Name": "TypeChangedFromClient",
-   "Description": "Test for the `@typeChangedFrom` decorator.",
+   "Doc": "Test for the `@typeChangedFrom` decorator.",
    "Operations": [
     {
      "$id": "14",
@@ -150,7 +150,7 @@
        "$id": "17",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "18",
         "kind": "constant",
@@ -258,7 +258,7 @@
      "$id": "26",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "27",
       "kind": "url",
@@ -279,7 +279,7 @@
      "$id": "28",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
      "Type": {
       "$ref": "2"
      },

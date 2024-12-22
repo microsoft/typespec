@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
@@ -25,6 +24,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -86,7 +86,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
 
             // Response body
             IType responseBodyType;
-            if (JavaSettings.getInstance().isDataPlaneClient()) {
+            if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isBranded()) {
                 // special handling for paging method
                 if (clientMethod.getType().isPaging()) {
                     String itemName = clientMethod.getMethodPageDetails().getItemName();
@@ -136,7 +136,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         }
 
         clientMethod.getParameters()
-            .forEach(p -> commentBlock.param(p.getName(), methodParameterDescriptionOrDefault(p)));
+            .forEach(p -> commentBlock.param(p.getName(), MethodUtil.methodParameterDescriptionOrDefault(p)));
         if (clientMethod.getProxyMethod() != null) {
             generateJavadocExceptions(clientMethod, commentBlock, false);
         }
@@ -351,14 +351,6 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             }
         }
         return description;
-    }
-
-    private static String methodParameterDescriptionOrDefault(ClientMethodParameter p) {
-        String doc = p.getDescription();
-        if (CoreUtils.isNullOrEmpty(doc)) {
-            doc = String.format("The %1$s parameter", p.getName());
-        }
-        return doc;
     }
 
     private static String appendOptionalOrRequiredAttribute(boolean isRequired, boolean isRequiredForCreate,

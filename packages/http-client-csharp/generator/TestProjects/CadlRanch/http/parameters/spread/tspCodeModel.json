@@ -104,7 +104,7 @@
      "kind": "property",
      "name": "requiredString",
      "serializedName": "requiredString",
-     "description": "required string",
+     "doc": "required string",
      "type": {
       "$id": "13",
       "kind": "string",
@@ -124,7 +124,7 @@
      "kind": "property",
      "name": "optionalInt",
      "serializedName": "optionalInt",
-     "description": "optional int",
+     "doc": "optional int",
      "type": {
       "$id": "15",
       "kind": "int32",
@@ -144,7 +144,7 @@
      "kind": "property",
      "name": "requiredIntList",
      "serializedName": "requiredIntList",
-     "description": "required int",
+     "doc": "required int",
      "type": {
       "$id": "17",
       "kind": "array",
@@ -171,7 +171,7 @@
      "kind": "property",
      "name": "optionalStringList",
      "serializedName": "optionalStringList",
-     "description": "optional string",
+     "doc": "optional string",
      "type": {
       "$id": "20",
       "kind": "array",
@@ -208,7 +208,7 @@
      "kind": "property",
      "name": "name",
      "serializedName": "name",
-     "description": "name of the Thing",
+     "doc": "name of the Thing",
      "type": {
       "$id": "24",
       "kind": "string",
@@ -228,7 +228,7 @@
      "kind": "property",
      "name": "age",
      "serializedName": "age",
-     "description": "age of the Thing",
+     "doc": "age of the Thing",
      "type": {
       "$id": "26",
       "kind": "int32",
@@ -251,7 +251,7 @@
    "name": "BodyParameter",
    "crossLanguageDefinitionId": "Parameters.Spread.Model.BodyParameter",
    "usage": "Input,Spread,Json",
-   "description": "This is a simple model.",
+   "doc": "This is a simple model.",
    "decorators": [],
    "properties": [
     {
@@ -309,7 +309,7 @@
   {
    "$id": "33",
    "Name": "SpreadClient",
-   "Description": "Test for the spread operator.",
+   "Doc": "Test for the spread operator.",
    "Operations": [],
    "Protocol": {
     "$id": "34"
@@ -319,7 +319,7 @@
      "$id": "35",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "36",
       "kind": "url",
@@ -363,7 +363,7 @@
        "$id": "41",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "42",
         "kind": "constant",
@@ -439,7 +439,7 @@
        "$id": "47",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "48",
         "kind": "constant",
@@ -627,7 +627,7 @@
        "$id": "63",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "64",
         "kind": "constant",
@@ -745,7 +745,7 @@
        "$id": "73",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "74",
         "kind": "constant",
@@ -821,7 +821,7 @@
      "$id": "79",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "80",
       "kind": "url",
@@ -865,7 +865,7 @@
        "$id": "85",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "86",
         "kind": "constant",
@@ -983,7 +983,7 @@
        "$id": "95",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "96",
         "kind": "constant",
@@ -1101,7 +1101,7 @@
        "$id": "105",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "106",
         "kind": "constant",
@@ -1219,7 +1219,7 @@
        "$id": "115",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "116",
         "kind": "constant",
@@ -1289,7 +1289,7 @@
      "$id": "120",
      "Name": "spreadParameterWithInnerAlias",
      "ResourceName": "Alias",
-     "Description": "spread an alias with contains another alias property as body.",
+     "Doc": "spread an alias with contains another alias property as body.",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1338,7 +1338,7 @@
        "$id": "125",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "126",
         "kind": "constant",
@@ -1414,7 +1414,7 @@
      "$id": "131",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "132",
       "kind": "url",

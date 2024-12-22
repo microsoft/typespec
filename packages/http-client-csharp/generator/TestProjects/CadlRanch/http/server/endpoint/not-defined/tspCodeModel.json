@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "NotDefinedClient",
-   "Description": "Illustrates server doesn't define endpoint. Client should automatically add an endpoint to let user pass in.",
+   "Doc": "Illustrates server doesn't define endpoint. Client should automatically add an endpoint to let user pass in.",
    "Operations": [
     {
      "$id": "3",
@@ -46,7 +46,7 @@
      "$id": "6",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "7",
       "kind": "url",

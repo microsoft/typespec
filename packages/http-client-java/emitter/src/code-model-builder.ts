@@ -54,7 +54,6 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHeaderParameter,
   SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpResponse,
@@ -64,7 +63,6 @@ import {
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
-  SdkQueryParameter,
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
@@ -164,6 +162,8 @@ import {
 } from "./utils.js";
 const { isEqual } = pkg;
 
+type SdkHttpOperationParameterType = SdkHttpOperation["parameters"][number];
+
 export class CodeModelBuilder {
   private program: Program;
   private typeNameOptions: TypeNameOptions;
@@ -202,11 +202,11 @@ export class CodeModelBuilder {
 
     const service = listServices(this.program)[0];
     if (!service) {
-      this.logError("TypeSpec for HTTP must define a service.");
+      this.logWarning("TypeSpec for HTTP client should define a service.");
     }
-    this.serviceNamespace = service.type;
+    this.serviceNamespace = service?.type ?? this.program.getGlobalNamespaceType();
 
-    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Client";
 
     const namespace1 = this.namespace;
     this.typeNameOptions = {
@@ -238,6 +238,10 @@ export class CodeModelBuilder {
   }
 
   public async build(): Promise<CodeModel> {
+    if (this.program.hasError()) {
+      return this.codeModel;
+    }
+
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
@@ -257,9 +261,8 @@ export class CodeModelBuilder {
 
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
 
-    // TODO: reportDiagnostics from TCGC temporary disabled
-    // issue https://github.com/Azure/typespec-azure/issues/1675
-    // this.program.reportDiagnostics(this.sdkContext.diagnostics);
+    // potential problem https://github.com/Azure/typespec-azure/issues/1675
+    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // auth
     // TODO: it is not very likely, but different client could have different auth
@@ -969,20 +972,19 @@ export class CodeModelBuilder {
         if (bodyType && bodyType.kind === "model") {
           const itemName = sdkMethod.response.resultPath;
           const nextLinkName = sdkMethod.nextLinkPath;
-          if (itemName && nextLinkName) {
-            op.extensions = op.extensions ?? {};
-            op.extensions["x-ms-pageable"] = {
-              itemName: itemName,
-              nextLinkName: nextLinkName,
-            };
 
-            op.responses?.forEach((r) => {
-              if (r instanceof SchemaResponse) {
-                this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
-              }
-            });
-            break;
-          }
+          op.extensions = op.extensions ?? {};
+          op.extensions["x-ms-pageable"] = {
+            itemName: itemName,
+            nextLinkName: nextLinkName,
+          };
+
+          op.responses?.forEach((r) => {
+            if (r instanceof SchemaResponse) {
+              this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+            }
+          });
+          break;
         }
       }
     }
@@ -1095,7 +1097,7 @@ export class CodeModelBuilder {
 
   private processParameter(
     op: CodeModelOperation,
-    param: SdkQueryParameter | SdkPathParameter | SdkHeaderParameter,
+    param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
     if (clientContext.apiVersions && isApiVersion(this.sdkContext, param)) {
@@ -1589,11 +1591,7 @@ export class CodeModelBuilder {
   }
 
   private addParameterOrBodyPropertyToCodeModelRequest(
-    opParameter:
-      | SdkPathParameter
-      | SdkHeaderParameter
-      | SdkQueryParameter
-      | SdkBodyModelPropertyType,
+    opParameter: SdkHttpOperationParameterType | SdkBodyModelPropertyType,
     op: CodeModelOperation,
     request: Request,
     schema: ObjectSchema,
@@ -2542,25 +2540,36 @@ export class CodeModelBuilder {
     // clientNamespace from TCGC
     const clientNamespace: string | undefined = type?.clientNamespace;
 
-    if (this.isBranded() && type) {
-      // special handling for namespace of model that cannot be mapped to azure-core
-      if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
-        // TypeSpec.Http.File
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
-        // Azure.Core.OperationState
-        return this.baseJavaNamespace;
-      } else if (
-        type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
-        type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
-      ) {
-        // Azure.Core.ResourceOperationStatus<>
-        // Azure.Core.Foundations.OperationStatus<>
-        // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
-        // models in Azure.ResourceManager
-        return this.baseJavaNamespace;
+    if (type) {
+      if (this.isBranded()) {
+        // special handling for namespace of model that cannot be mapped to azure-core
+        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
+          // Azure.Core.OperationState
+          return this.baseJavaNamespace;
+        } else if (
+          type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
+          type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
+        ) {
+          // Azure.Core.ResourceOperationStatus<>
+          // Azure.Core.Foundations.OperationStatus<>
+          // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
+          // models in Azure.ResourceManager
+          return this.baseJavaNamespace;
+        }
+      } else {
+        // special handling for namespace of model in TypeSpec
+        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+          // models in TypeSpec.Rest.Resource
+          return this.baseJavaNamespace;
+        }
       }
     }
 
