@@ -1,4 +1,4 @@
-import { Child, Children, refkey as getRefkey, mapJoin } from "@alloy-js/core";
+import { Children, code, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {  Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
 import {createRekeyableMap} from "@typespec/compiler/utils"
@@ -86,9 +86,14 @@ function getExtendsType(type: Model | Interface): Children | undefined {
 
   const extending: Children[] = [];
 
+  const recordExtends = code`Record<string, unknown>`;
+
   if (type.baseModel) {
-    if($.array.is(type.baseModel) || $.record.is(type.baseModel)) {
+    if($.array.is(type.baseModel)) {
       extending.push(<TypeExpression type={type.baseModel} />)
+    } else if($.record.is(type.baseModel)){
+      extending.push(recordExtends);
+      // When extending a record we need to override the element type to be unknown to avoid type errors
     } else {
       extending.push(getRefkey(type.baseModel))
     }
@@ -96,7 +101,12 @@ function getExtendsType(type: Model | Interface): Children | undefined {
 
   const spreadType = $.model.getSpreadType(type);
   if(spreadType) {
-    extending.push(<TypeExpression type={spreadType} />);
+    // When extending a record we need to override the element type to be unknown to avoid type errors
+    if($.record.is(spreadType)) {
+      extending.push(recordExtends);
+    } else {
+      extending.push(<TypeExpression type={spreadType} />);
+    }
   }
 
   if(extending.length === 0) {

@@ -11,7 +11,7 @@ import {
   getMinValue,
   getMinValueExclusive,
 } from "../../../core/intrinsic-type-state.js";
-import { isErrorType } from "../../../core/type-utils.js";
+import { isErrorType, isNeverType } from "../../../core/type-utils.js";
 import { Enum, Model, Scalar, Union, type Namespace, type Type } from "../../../core/types.js";
 import { getDoc, getSummary } from "../../../lib/decorators.js";
 import { resolveEncodedName } from "../../../lib/encoded-names.js";
@@ -114,6 +114,10 @@ export interface TypeTypeKit {
    * @param type type to get the minimum number of items for
    */
   minItems(type: Type): number | undefined;
+  /**
+   * Checks if the given type is a never type.
+   */
+  isNever(type: Type): boolean;
 }
 
 interface TypekitExtension {
@@ -280,6 +284,9 @@ defineKit<TypekitExtension>({
     },
     minItems(type) {
       return getMinItems(this.program, type);
+    },
+    isNever(type) {
+      return isNeverType(type);
     },
   },
 });

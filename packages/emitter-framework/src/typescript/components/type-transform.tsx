@@ -1,7 +1,8 @@
 import { Children, code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Discriminator, Model, ModelProperty, Scalar, Type, Union } from "@typespec/compiler";
+import { Discriminator, Model, ModelProperty, RekeyableMap, Scalar, Type, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import {createRekeyableMap} from "@typespec/compiler/utils"
 import {
   ArraySerializerRefkey,
   DateDeserializerRefkey,
@@ -153,7 +154,15 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
     })
   }
   const namePolicy = ts.useTSNamePolicy();
-  const modelProperties = $.model.getProperties(props.type);
+  const modelProperties: RekeyableMap<string, ModelProperty> = createRekeyableMap();
+  
+  $.model.getProperties(props.type).forEach(property => {
+    if($.type.isNever(property.type)) {
+      return;
+    }
+
+    modelProperties.set(property.name, property);
+  })
   
   let baseModelTransform: Children = null;
   if(props.type.baseModel) {
