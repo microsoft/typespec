@@ -196,7 +196,7 @@ const NumericPrototype = {
   },
   asBigInt: function (this: Numeric) {
     if (!this.isInteger) {
-      return null
+      return null;
     }
 
     const { s, n } = this[InternalDataSym];
