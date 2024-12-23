@@ -76,13 +76,17 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
   if (serverPath) {
     logger.info(`Server path loaded from TypeSpec extension configuration: ${serverPath}`);
   } else {
-    logger.info("Server path not configured in TypeSpec extension configuration, trying to resolve locally within current workspace.");
+    logger.info(
+      "Server path not configured in TypeSpec extension configuration, trying to resolve locally within current workspace.",
+    );
     serverPath = await resolveLocalCompiler(workspaceFolder);
   }
 
   if (!serverPath) {
     const executable = process.platform === "win32" ? "tsp-server.cmd" : "tsp-server";
-    logger.warning(`Can't resolve server path from either TypeSpec extension configuration or workspace, try to use default value ${executable}.`);
+    logger.warning(
+      `Can't resolve server path from either TypeSpec extension configuration or workspace, try to use default value ${executable}.`,
+    );
     return useShellInExec({ command: executable, args, options });
   }
   const variableResolver = new VSCodeVariableResolver({
