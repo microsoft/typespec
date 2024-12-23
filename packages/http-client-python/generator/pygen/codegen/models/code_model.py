@@ -92,10 +92,23 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         ]
         self.cross_language_package_id = self.yaml_data.get("crossLanguagePackageId")
         self.for_test: bool = False
+        # key is typespec namespace, value is models/clients/opeartion_groups/enums cache in the namespace
         self._client_namespace_types: Dict[str, ClientNamespaceType] = {}
         self.has_subnamespace = False
         self._operations_folder_name: Dict[str, str] = {}
         self._relative_import_path: Dict[str, str] = {}
+
+    @staticmethod
+    def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:
+        return imported_namespace + (".aio" if async_mode else "")
+
+    @staticmethod
+    def get_imported_namespace_for_model(imported_namespace: str) -> str:
+        return imported_namespace + ".models"
+
+    def get_imported_namespace_for_operation(self, imported_namespace: str, async_mode: bool = False) -> str:
+        module_namespace = f".{self.operations_folder_name(imported_namespace)}"
+        return self.get_imported_namespace_for_client(imported_namespace, async_mode) + module_namespace
 
     # | serialize_namespace  | imported_namespace   | relative_import_path |
     # |----------------------|----------------------|----------------------|
@@ -110,23 +123,10 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self,
         serialize_namespace: str,
         imported_namespace: Optional[str] = None,
-        *,
-        imported_namespace_type: NamespaceType = NamespaceType.CLIENT,
-        async_mode: bool = False,
-        filename: str = "",
         module_name: Optional[str] = None,
     ) -> str:
         if imported_namespace is None:
             imported_namespace = self.namespace
-        else:
-            async_namespace = ".aio" if async_mode else ""
-            if imported_namespace_type == NamespaceType.MODEL:
-                module_namespace = ".models"
-            elif imported_namespace_type == NamespaceType.OPERATION:
-                module_namespace = f".{self.operations_folder_name(imported_namespace)}"
-            else:
-                module_namespace = ""
-            imported_namespace = imported_namespace + async_namespace + module_namespace + filename
 
         key = f"{serialize_namespace}-{imported_namespace}"
         if key not in self._relative_import_path:
@@ -153,7 +153,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         if not self.need_unique_model_alias:
             return "_models"
         relative_path = self.get_relative_import_path(
-            serialize_namespace, imported_namespace, imported_namespace_type=NamespaceType.MODEL
+            serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
         )
         dot_num = max(relative_path.count(".") - 1, 0)
         parts = [""] + [p for p in relative_path.split(".") if p]

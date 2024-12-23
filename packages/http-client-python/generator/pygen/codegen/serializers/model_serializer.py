@@ -257,8 +257,7 @@ class DpgModelSerializer(_ModelSerializer):
                     file_import.add_submodule_import(
                         self.code_model.get_relative_import_path(
                             self.serialize_namespace,
-                            parent.client_namespace,
-                            imported_namespace_type=NamespaceType.MODEL,
+                            self.code_model.get_imported_namespace_for_model(parent.client_namespace),
                         ),
                         parent.name,
                         ImportType.LOCAL,

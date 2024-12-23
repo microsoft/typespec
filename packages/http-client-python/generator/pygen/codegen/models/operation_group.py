@@ -109,9 +109,7 @@ class OperationGroup(BaseModel):
                 file_import.add_submodule_import(
                     self.code_model.get_relative_import_path(
                         serialize_namespace,
-                        self.client_namespace,
-                        imported_namespace_type=NamespaceType.OPERATION,
-                        async_mode=async_mode,
+                        self.code_model.get_imported_namespace_for_operation(self.client_namespace, async_mode),
                     ),
                     og.class_name,
                     ImportType.LOCAL,
@@ -125,11 +123,9 @@ class OperationGroup(BaseModel):
                     file_import.add_submodule_import(
                         self.code_model.get_relative_import_path(
                             serialize_namespace,
-                            og.client_namespace,
-                            imported_namespace_type=NamespaceType.OPERATION,
-                            async_mode=async_mode,
-                            filename=f".{og.filename}",
-                        ),
+                            self.code_model.get_imported_namespace_for_operation(og.client_namespace, async_mode),
+                        )
+                        + f".{og.class_name}",
                         og.class_name,
                         ImportType.LOCAL,
                     )
@@ -149,7 +145,9 @@ class OperationGroup(BaseModel):
             file_import.add_submodule_import(
                 # XxxMixinABC is always defined in _vendor of client namespace
                 self.code_model.get_relative_import_path(
-                    serialize_namespace, self.client.client_namespace, module_name="_vendor", async_mode=async_mode
+                    serialize_namespace,
+                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
+                    module_name="_vendor",
                 ),
                 f"{self.client.name}MixinABC",
                 ImportType.LOCAL,
@@ -158,7 +156,9 @@ class OperationGroup(BaseModel):
             file_import.add_submodule_import(
                 # raise_if_not_implemented is always defined in _vendor of top namespace
                 self.code_model.get_relative_import_path(
-                    serialize_namespace, self.code_model.namespace, module_name="_vendor", async_mode=async_mode
+                    serialize_namespace,
+                    self.code_model.get_imported_namespace_for_client(self.code_model.namespace, async_mode),
+                    module_name="_vendor",
                 ),
                 "raise_if_not_implemented",
                 ImportType.LOCAL,

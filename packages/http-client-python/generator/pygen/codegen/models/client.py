@@ -307,9 +307,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
-                    og.client_namespace,
-                    async_mode=async_mode,
-                    imported_namespace_type=NamespaceType.OPERATION,
+                    self.code_model.get_imported_namespace_for_operation(og.client_namespace, async_mode),
                 ),
                 og.class_name,
                 ImportType.LOCAL,

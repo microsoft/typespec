@@ -304,8 +304,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             file_import.add_submodule_import(
                 self.code_model.get_relative_import_path(
                     serialize_namespace,
-                    self.client_namespace,
-                    imported_namespace_type=NamespaceType.OPERATION,
+                    self.code_model.get_imported_namespace_for_operation(self.client_namespace),
                     module_name=self.filename,
                 ),
                 request_builder.name,

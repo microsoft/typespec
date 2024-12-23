@@ -80,8 +80,7 @@ class EnumValue(BaseType):
         file_import.add_submodule_import(
             self.code_model.get_relative_import_path(
                 serialize_namespace,
-                self.enum_type.client_namespace,
-                imported_namespace_type=NamespaceType.MODEL,
+                self.code_model.get_imported_namespace_for_model(self.enum_type.client_namespace),
                 module_name=self.code_model.enums_filename,
             ),
             self.enum_type.name,
