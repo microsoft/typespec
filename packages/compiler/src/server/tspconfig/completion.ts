@@ -46,13 +46,15 @@ export async function provideTspconfigCompletionItems(
   }
 
   // Variable interpolation
-  const variableInterpolationItems = resolveVariableInterpolationCompleteItems(
-    target.yamlDoc,
-    target.path,
-    tspConfigDoc.getText().slice(target.sourceRange?.pos, target.cursorPosition),
-  );
-  if (variableInterpolationItems.length > 0) {
-    return variableInterpolationItems;
+  if (target.sourceRange) {
+    const variableInterpolationItems = resolveVariableInterpolationCompleteItems(
+      target.yamlDoc,
+      target.path,
+      tspConfigDoc.getText().slice(target.sourceRange.pos, target.cursorPosition),
+    );
+    if (variableInterpolationItems.length > 0) {
+      return variableInterpolationItems;
+    }
   }
 
   const items = resolveTspConfigCompleteItems(
@@ -87,7 +89,7 @@ export async function provideTspconfigCompletionItems(
       const items: CompletionItem[] = [];
       for (const [name, pkg] of Object.entries(emitters)) {
         if (!siblings.includes(name)) {
-          const item = createContainingQuatedValCompetionItem(
+          const item = createCompletionItemWithQuote(
             name,
             (await pkg.getPackageJsonData())?.description ?? `Emitter from ${name}`,
             tspConfigPosition,
@@ -138,7 +140,7 @@ export async function provideTspconfigCompletionItems(
             for (const [ruleSet] of Object.entries(exports?.$linter?.ruleSets)) {
               const labelName = `${name}/${ruleSet}`;
               if (!siblings.includes(labelName)) {
-                const item = createContainingQuatedValCompetionItem(
+                const item = createCompletionItemWithQuote(
                   labelName,
                   (await pkg.getPackageJsonData())?.description ?? `Linters from ${labelName}`,
                   tspConfigPosition,
@@ -151,9 +153,9 @@ export async function provideTspconfigCompletionItems(
             }
           }
 
-          // If there is no corresponding ruleSet in the library, add the library name directly.
+          // Add the library name directly.
           if (!siblings.includes(name)) {
-            const item = createContainingQuatedValCompetionItem(
+            const item = createCompletionItemWithQuote(
               name,
               (await pkg.getPackageJsonData())?.description ?? `Linters from ${name}`,
               tspConfigPosition,
@@ -174,7 +176,7 @@ export async function provideTspconfigCompletionItems(
               exports?.$linter?.rules,
             )) {
               const labelName = `${name}/${rule.name}`;
-              const item = createContainingQuatedValCompetionItem(
+              const item = createCompletionItemWithQuote(
                 labelName,
                 rule.description,
                 tspConfigPosition,
@@ -359,7 +361,7 @@ export async function provideTspconfigCompletionItems(
  * @param target The target object of the current configuration file, see {@link YamlScalarTarget}
  * @returns CompletionItem object
  */
-function createContainingQuatedValCompetionItem(
+function createCompletionItemWithQuote(
   labelName: string,
   description: string,
   tspConfigPosition: Position,
@@ -371,7 +373,7 @@ function createContainingQuatedValCompetionItem(
     target.cursorPosition <= target.sourceRange.end
   ) {
     // If it is a quoted string, the relative position needs to be reduced by 1
-    const relativePos =
+    const lenRelativeToStartPos =
       target.sourceType === "QUOTE_SINGLE" || target.sourceType === "QUOTE_DOUBLE"
         ? target.cursorPosition - target.sourceRange.pos - 1
         : target.cursorPosition - target.sourceRange.pos;
@@ -381,7 +383,10 @@ function createContainingQuatedValCompetionItem(
       documentation: description,
       textEdit: TextEdit.replace(
         Range.create(
-          Position.create(tspConfigPosition.line, tspConfigPosition.character - relativePos),
+          Position.create(
+            tspConfigPosition.line,
+            tspConfigPosition.character - lenRelativeToStartPos,
+          ),
           Position.create(tspConfigPosition.line, tspConfigPosition.character),
         ),
         target.sourceType === "QUOTE_SINGLE" || target.sourceType === "QUOTE_DOUBLE"
