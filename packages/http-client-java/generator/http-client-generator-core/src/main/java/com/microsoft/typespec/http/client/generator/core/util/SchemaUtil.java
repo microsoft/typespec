@@ -271,11 +271,11 @@ public class SchemaUtil {
                 if (Objects.equals(namespace, "Azure.Core.Foundations")) {
                     // https://github.com/Azure/azure-sdk-for-java/blob/main/sdk/core/azure-core/src/main/java/com/azure/core/models/ResponseError.java
                     if (Objects.equals(name, "Error")
-                        || (Objects.equals(compositeType.getCrossLanguageDefinitionId(),
+                        || (Objects.equals(SchemaUtil.getCrossLanguageDefinitionId(compositeType),
                             "Azure.Core.Foundations.Error"))) {
                         classType = ClassType.RESPONSE_ERROR;
                     } else if (Objects.equals(name, "InnerError")
-                        || (Objects.equals(compositeType.getCrossLanguageDefinitionId(),
+                        || (Objects.equals(SchemaUtil.getCrossLanguageDefinitionId(compositeType),
                             "Azure.Core.Foundations.InnerError"))) {
                         // InnerError is not public, but usually it is only referenced from Error
                         classType = ClassType.RESPONSE_INNER_ERROR;
@@ -341,6 +341,13 @@ public class SchemaUtil {
             return null;
         }
         return m.getLanguage().getDefault().getName();
+    }
+
+    public static String getCrossLanguageDefinitionId(Metadata m) {
+        if (m.getLanguage() == null || m.getLanguage().getDefault() == null) {
+            return null;
+        }
+        return m.getLanguage().getDefault().getCrossLanguageDefinitionId();
     }
 
     public static String getJavaName(Metadata m) {
