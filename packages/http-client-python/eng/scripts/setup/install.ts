@@ -18,7 +18,9 @@ async function main() {
 
 async function installPyodideDeps() {
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-  const pyodide = await loadPyodide({ indexURL: path.join(root, "node_modules", "pyodide") });
+  const pyodide = await loadPyodide({
+    indexURL: path.dirname(fileURLToPath(import.meta.resolve("pyodide"))),
+  });
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
   const requirementsPath = path.join(root, "generator", "requirements.txt");
