@@ -287,9 +287,9 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     await regenerate({ ...flags, flavor: "unbranded" });
   } else {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
-    const subdirectories1 = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
-    const subdirectories2 = await getSubdirectories(HTTP_SPECS, flagsResolved);
-    const subdirectories = [...subdirectories1, ...subdirectories2];
+    const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
+    const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);
+    const subdirectories = [...subdirectoriesForAzure, ...subdirectoriesForNonAzure];
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
       _getCmdList(subdirectory, flagsResolved),
     );
