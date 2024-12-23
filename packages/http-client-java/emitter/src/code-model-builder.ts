@@ -202,11 +202,11 @@ export class CodeModelBuilder {
 
     const service = listServices(this.program)[0];
     if (!service) {
-      this.logError("TypeSpec for HTTP must define a service.");
+      this.logWarning("TypeSpec for HTTP client should define a service.");
     }
-    this.serviceNamespace = service.type;
+    this.serviceNamespace = service?.type ?? this.program.getGlobalNamespaceType();
 
-    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Client";
 
     const namespace1 = this.namespace;
     this.typeNameOptions = {
@@ -238,6 +238,10 @@ export class CodeModelBuilder {
   }
 
   public async build(): Promise<CodeModel> {
+    if (this.program.hasError()) {
+      return this.codeModel;
+    }
+
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
@@ -257,9 +261,8 @@ export class CodeModelBuilder {
 
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
 
-    // TODO: reportDiagnostics from TCGC temporary disabled
-    // issue https://github.com/Azure/typespec-azure/issues/1675
-    // this.program.reportDiagnostics(this.sdkContext.diagnostics);
+    // potential problem https://github.com/Azure/typespec-azure/issues/1675
+    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // auth
     // TODO: it is not very likely, but different client could have different auth
@@ -2559,8 +2562,11 @@ export class CodeModelBuilder {
           return this.baseJavaNamespace;
         }
       } else {
-        // special handling for namespace of model in TypeSpec.Rest.Resource
-        if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+        // special handling for namespace of model in TypeSpec
+        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
           // models in TypeSpec.Rest.Resource
           return this.baseJavaNamespace;
         }
