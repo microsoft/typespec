@@ -36,11 +36,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [Test]
         public void ServiceClientWithSubClient()
         {
-            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
-            [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
-            ]);
-            var client = InputFactory.Client(TestClientName, []);
+            var client = InputFactory.Client(TestClientName);
             string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToCleanName()}Client"];
             var clientProvider = new MockClientProvider(client, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
