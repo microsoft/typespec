@@ -29,31 +29,31 @@ try {
 
         Write-Host "Updated PATH: $env:PATH"
         
-        # cadl-ranch tests (unit tests included in java/typescript package build)
+        # Run Spector tests (unit tests included in java/typescript package build)
         try {
             $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-test'
             Push-Location $generatorTestDir
             try {
                 & ./Setup.ps1
-                & ./CadlRanch-Tests.ps1
+                & ./Spector-Tests.ps1
                 Set-Location $packageRoot
-                Write-Host 'Cadl ranch tests passed'
+                Write-Host "Spector tests passed"
             }
             finally {
                 Pop-Location
             }
         } 
         catch {
-            Write-Error "Cadl ranch tests failed:  $_"
+            Write-Error "Spector tests failed: $_"
         }
-        # copy coverage report to artifacts dir
+        # Copy coverage report to artifacts directory
         try {
             $coverageReportDir = Join-Path $packageRoot 'generator/artifacts/coverage'
             if (!(Test-Path $coverageReportDir)) {
                 New-Item -ItemType Directory -Path $coverageReportDir
 
-                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-test/cadl-ranch-coverage-java-standard.json'
-                $targetFile = Join-Path $coverageReportDir 'cadl-ranch-coverage-java-standard.json'
+                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-test/tsp-spector-coverage-java-standard.json'
+                $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
                 Copy-Item $sourceFile -Destination $targetFile
             }
         } catch {
@@ -62,11 +62,12 @@ try {
     }
     if ($GenerationChecks) {
         Set-StrictMode -Version 1
-        # run E2E Test for TypeSpec emitter
+        # Generate code for Spector tests
         Write-Host "Generating test projects ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
         Write-Host 'Code generation is completed.'
 
+        # Check difference between code in branch, and code just generated
         try {
             Write-Host 'Checking for differences in generated code...'
             & "$packageRoot/eng/scripts/Check-GitChanges.ps1"
