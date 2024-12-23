@@ -1,10 +1,10 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "payload.pageable.PageableAsyncClient": "null",
+    "payload.pageable.PageableAsyncClient": "Payload.Pageable.ServerDrivenPagination",
     "payload.pageable.PageableAsyncClient.link": "Payload.Pageable.ServerDrivenPagination.link",
     "payload.pageable.PageableAsyncClient.linkWithResponse": "Payload.Pageable.ServerDrivenPagination.link",
-    "payload.pageable.PageableClient": "null",
+    "payload.pageable.PageableClient": "Payload.Pageable.ServerDrivenPagination",
     "payload.pageable.PageableClient.link": "Payload.Pageable.ServerDrivenPagination.link",
     "payload.pageable.PageableClient.linkWithResponse": "Payload.Pageable.ServerDrivenPagination.link",
     "payload.pageable.PageableClientBuilder": "Payload.Pageable",

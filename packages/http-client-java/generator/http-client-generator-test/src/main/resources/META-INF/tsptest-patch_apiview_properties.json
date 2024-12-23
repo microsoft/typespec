@@ -1,14 +1,14 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "tsptest.patch.PatchAsyncClient": "null",
+    "tsptest.patch.PatchAsyncClient": "TspTest.Patch.Patch",
     "tsptest.patch.PatchAsyncClient.createOrUpdateFish": "TspTest.Patch.Patch.createOrUpdateFish",
     "tsptest.patch.PatchAsyncClient.createOrUpdateFishWithResponse": "TspTest.Patch.Patch.createOrUpdateFish",
     "tsptest.patch.PatchAsyncClient.createOrUpdateOptionalResource": "TspTest.Patch.Patch.createOrUpdateOptionalResource",
     "tsptest.patch.PatchAsyncClient.createOrUpdateOptionalResourceWithResponse": "TspTest.Patch.Patch.createOrUpdateOptionalResource",
     "tsptest.patch.PatchAsyncClient.createOrUpdateResource": "TspTest.Patch.Patch.createOrUpdateResource",
     "tsptest.patch.PatchAsyncClient.createOrUpdateResourceWithResponse": "TspTest.Patch.Patch.createOrUpdateResource",
-    "tsptest.patch.PatchClient": "null",
+    "tsptest.patch.PatchClient": "TspTest.Patch.Patch",
     "tsptest.patch.PatchClient.createOrUpdateFish": "TspTest.Patch.Patch.createOrUpdateFish",
     "tsptest.patch.PatchClient.createOrUpdateFishWithResponse": "TspTest.Patch.Patch.createOrUpdateFish",
     "tsptest.patch.PatchClient.createOrUpdateOptionalResource": "TspTest.Patch.Patch.createOrUpdateOptionalResource",
