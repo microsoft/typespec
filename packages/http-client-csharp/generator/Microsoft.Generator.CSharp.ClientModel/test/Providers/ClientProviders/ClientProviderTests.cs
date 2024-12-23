@@ -80,6 +80,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [Test]
+        public async Task TestNonEmptySubClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [_inputOperation], [], client.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client, subClient]);
+
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
+            Assert.IsNotNull(subClientProvider);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNotNull(clientProvider);
+        }
+
+        [Test]
         public async Task TestEmptySubClient()
         {
             var client = InputFactory.Client(TestClientName);
