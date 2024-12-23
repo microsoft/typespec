@@ -193,12 +193,10 @@ export const patchPythonPath = async (
   const [_, ...args] = command;
   const resolution = await resolvePythonRequirement(requirement);
   if ("error" in resolution) {
-    throw new Error(`${pythonVersionErrorMsg} ${resolution.message}`);
+    throw new Error(`Failed to find compatible python version. ${resolution.message}`);
   }
   return [resolution.command, ...(resolution.additionalArgs ?? []), ...args];
 };
-
-export const pythonVersionErrorMsg = "Failed to find compatible python version.";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TYPES

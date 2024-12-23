@@ -14,7 +14,6 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
-import { pythonVersionErrorMsg } from "./system-requirements.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
@@ -126,12 +125,8 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
         await runPython3(path.join(root, "/eng/scripts/setup/install.py"));
         await runPython3(path.join(root, "/eng/scripts/setup/prepare.py"));
       } catch (error) {
-        if (error instanceof Error && error.message.includes(pythonVersionErrorMsg)) {
-          // if we can't find python with compatible version, we use pyodide instead
-          resolvedOptions["use-pyodide"] = true;
-        } else {
-          throw error;
-        }
+        // if the python env is not ready, we use pyodide instead
+        resolvedOptions["use-pyodide"] = true;
       }
     }
 
