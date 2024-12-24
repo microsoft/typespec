@@ -8,8 +8,8 @@ import { getDirectoryPath } from "../../path-utils.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import {
   getEntrypointTspFile,
-  onStdioError,
-  onStdioOut,
+  logStderrorLineByLineCallBack,
+  logStdoutLineByLineCallBack,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
 import { ExecOutput, isFile, spawnExecution } from "../../utils.js";
@@ -88,10 +88,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     if (selected === options.ok) {
       packagesToInstall.push(`${selectedEmitter.package}@${version}`);
     } else if (selected === options.ignore) {
-      logger.info(`Ignore upgrading emitter ${selectedEmitter.package} for generating`, [], {
-        showOutput: false,
-        showPopup: false,
-      });
+      logger.info(`Ignore upgrading emitter ${selectedEmitter.package} for generating`);
     } else {
       logger.info(
         `Need to manually install the package ${selectedEmitter.package}@${version}. Generating Cancelled.`,
@@ -138,8 +135,8 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
       async () => {
         try {
           const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall, undefined, {
-            onStdioOut: onStdioOut,
-            onStdioError: onStdioError,
+            onStdioOut: logStdoutLineByLineCallBack,
+            onStdioError: logStderrorLineByLineCallBack,
           });
           if (npmInstallResult.exitCode !== 0) {
             logger.error(
@@ -152,7 +149,6 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
             );
             return;
           }
-          logger.info("completed install...");
         } catch (err) {
           logger.error(`Exception occurred when installing packages.`, [err], {
             showOutput: true,
@@ -233,7 +229,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
     if (targetPathes.length === 0) {
       logger.info("No main tsp file found. Generating Cancelled.", [], {
-        showOutput: false,
+        showOutput: true,
         showPopup: true,
       });
       return;
@@ -259,7 +255,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     });
     if (!selectedProjectFile) {
       logger.info("No project selected. Generating Cancelled.", [], {
-        showOutput: false,
+        showOutput: true,
         showPopup: true,
       });
       return;
@@ -269,7 +265,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     const tspStartFile = await getEntrypointTspFile(uri.fsPath);
     if (!tspStartFile) {
       logger.info("No main file. Invalid typespec project.", [], {
-        showOutput: false,
+        showOutput: true,
         showPopup: true,
       });
       return;
@@ -277,10 +273,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     tspProjectFile = tspStartFile;
   }
 
-  logger.info(`Generate from entrypoint file: ${tspProjectFile}`, [], {
-    showOutput: false,
-    showPopup: false,
-  });
+  logger.info(`Generate from entrypoint file: ${tspProjectFile}`);
 
   const emitterKinds = getRegisterEmitterTypes();
   const toEmitterTypeQuickPickItem = (kind: EmitterKind): any => {
@@ -299,10 +292,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     ignoreFocusOut: true,
   });
   if (!codeType) {
-    logger.info("No emitter Type selected. Generating Cancelled.", [], {
-      showOutput: false,
-      showPopup: false,
-    });
+    logger.info("No emitter Type selected. Generating Cancelled.");
     return;
   }
   await doEmit(context, tspProjectFile, codeType.emitterKind);
@@ -326,7 +316,7 @@ async function compile(
   }
 
   return await spawnExecution(cli.command, args, getDirectoryPath(startFile), {
-    onStdioOut: onStdioOut,
-    onStdioError: onStdioError,
+    onStdioOut: logStdoutLineByLineCallBack,
+    onStdioError: logStderrorLineByLineCallBack,
   });
 }

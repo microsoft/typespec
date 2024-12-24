@@ -6,22 +6,17 @@ import logger from "./log/logger.js";
 import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
 import { isFile } from "./utils.js";
 
-export const onStdioOut = (str: string) => {
+export const logStdoutLineByLineCallBack = (str: string) => {
   str
     .trim()
     .split("\n")
     .forEach((line) => logger.info(line));
 };
-export const onStdioError = (str: string) => {
+export const logStderrorLineByLineCallBack = (str: string) => {
   str
     .trim()
     .split("\n")
-    .forEach((line) =>
-      logger.error(line, [], {
-        showOutput: true,
-        showPopup: false,
-      }),
-    );
+    .forEach((line) => logger.error(line));
 };
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
