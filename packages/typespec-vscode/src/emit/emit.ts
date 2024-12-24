@@ -128,30 +128,40 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
 
   /* npm install packages. */
   if (packagesToInstall.length > 0) {
-    logger.info(`Installing ${packagesToInstall.join("\n\n")} under ${baseDir}`, [], {
-      showOutput: true,
-      showPopup: true,
-    });
-    try {
-      const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall, undefined, {
-        onStdioOut: onStdioOut,
-        onStdioError: onStdioError,
-      });
-      if (npmInstallResult.exitCode !== 0) {
-        logger.error(`Error occurred when installing packages.`, [`${npmInstallResult.stderr}`], {
-          showOutput: true,
-          showPopup: true,
-        });
-        return;
-      }
-      logger.info("completed install...");
-    } catch (err) {
-      logger.error(`Exception occurred when installing packages.`, [err], {
-        showOutput: true,
-        showPopup: true,
-      });
-      return;
-    }
+    logger.info(`Installing ${packagesToInstall.join("\n\n")} under ${baseDir}`);
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "Installing packages...",
+        cancellable: false,
+      },
+      async () => {
+        try {
+          const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall, undefined, {
+            onStdioOut: onStdioOut,
+            onStdioError: onStdioError,
+          });
+          if (npmInstallResult.exitCode !== 0) {
+            logger.error(
+              `Error occurred when installing packages.`,
+              [`${npmInstallResult.stderr}`],
+              {
+                showOutput: true,
+                showPopup: true,
+              },
+            );
+            return;
+          }
+          logger.info("completed install...");
+        } catch (err) {
+          logger.error(`Exception occurred when installing packages.`, [err], {
+            showOutput: true,
+            showPopup: true,
+          });
+          return;
+        }
+      },
+    );
   }
 
   /* emit */
@@ -173,43 +183,47 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   options["emitter-output-dir"] = outputDir;
   logger.info(
     `Start to generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code under ${outputDir}...`,
-    [],
+  );
+  await vscode.window.withProgress(
     {
-      showOutput: true,
-      showPopup: false,
+      location: vscode.ProgressLocation.Notification,
+      title: `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...`,
+      cancellable: false,
+    },
+    async () => {
+      try {
+        const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
+        if (compileResult.exitCode !== 0) {
+          logger.error(
+            `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Failed`,
+            [],
+            {
+              showOutput: true,
+              showPopup: true,
+            },
+          );
+        } else {
+          logger.info(
+            `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Succeeded`,
+            [],
+            {
+              showOutput: true,
+              showPopup: true,
+            },
+          );
+        }
+      } catch (err) {
+        logger.error(
+          `Exception occurred when generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}.`,
+          [err],
+          {
+            showOutput: true,
+            showPopup: true,
+          },
+        );
+      }
     },
   );
-  try {
-    const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
-    if (compileResult.exitCode !== 0) {
-      logger.error(
-        `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Failed`,
-        [],
-        {
-          showOutput: true,
-          showPopup: true,
-        },
-      );
-    } else {
-      logger.info(
-        `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Succeeded`,
-        [],
-        {
-          showOutput: true,
-          showPopup: true,
-        },
-      );
-    }
-  } catch (err) {
-    logger.error(
-      `Exception occurred when generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}.`,
-      [err],
-      {
-        showOutput: true,
-        showPopup: true,
-      },
-    );
-  }
 }
 
 export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri) {
