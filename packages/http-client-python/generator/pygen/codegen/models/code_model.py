@@ -156,8 +156,8 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
             serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
         )
         dot_num = max(relative_path.count(".") - 1, 0)
-        parts = [""] + [p for p in relative_path.split(".") if p]
-        return "_".join(parts) + str(dot_num)
+        parts = [""] + ([p for p in relative_path.split(".") if p] or ["models"])
+        return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
 
     @property
     def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:

@@ -125,7 +125,7 @@ class OperationGroup(BaseModel):
                             serialize_namespace,
                             self.code_model.get_imported_namespace_for_operation(og.client_namespace, async_mode),
                         )
-                        + f".{og.class_name}",
+                        + f".{og.filename}",
                         og.class_name,
                         ImportType.LOCAL,
                     )
