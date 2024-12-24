@@ -81,19 +81,13 @@ export class NpmUtil {
     try {
       const dependenciesResult = await spawnExecution(
         "npm",
-        ["view", packageFullName, dependencyType],
+        ["view", packageFullName, dependencyType, "--json"],
         this.cwd,
         on,
       );
 
       if (dependenciesResult.exitCode === 0) {
-        // Remove all newline characters
-        let dependenciesJsonStr = dependenciesResult.stdout.trim();
-        dependenciesJsonStr = dependenciesJsonStr.replace(/\n/g, "");
-
-        // Change single quotes to double quotes
-        dependenciesJsonStr = dependenciesJsonStr.replace(/'/g, '"');
-        const json = JSON.parse(dependenciesJsonStr);
+        const json = JSON.parse(dependenciesResult.stdout);
         for (const [key, value] of Object.entries(json)) {
           const { installed, version: installedVersion } = await this.isPackageInstalled(key);
           if (installed && installedVersion) {
@@ -102,6 +96,8 @@ export class NpmUtil {
             }
           }
         }
+      } else {
+        logger.error("Error getting dependencies.", [dependenciesResult.stderr]);
       }
     } catch (err) {
       if (on && on.onError) {

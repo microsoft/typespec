@@ -8,6 +8,8 @@ export enum EmitterKind {
   Server = "server",
 }
 
+export type InstallActions = "schema" | "client" | "server";
+
 export interface Emitter {
   language: string;
   package: string;
@@ -17,8 +19,8 @@ export interface Emitter {
 
 export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = {
   schema: {
-    label: "Protocol Schema",
-    detail: "Generating Protocol schema (OpenAPI for example) from TypeSpec",
+    label: "OpenAPI",
+    detail: "Generating OpenAPI from TypeSpec",
   },
   client: {
     label: "Client Code",

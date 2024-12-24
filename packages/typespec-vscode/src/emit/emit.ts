@@ -22,13 +22,9 @@ import {
   PreDefinedEmitterPickItems,
 } from "./emitter.js";
 
-export async function doEmit(
-  context: vscode.ExtensionContext,
-  mainTspFile: string,
-  kind: EmitterKind,
-) {
+async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kind: EmitterKind) {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
-    logger.info(
+    logger.error(
       "Invalid typespec project. There is no main tsp file in the project. Generating Cancelled.",
       [],
       { showOutput: false, showPopup: true },
@@ -62,17 +58,9 @@ export async function doEmit(
   });
 
   if (!selectedEmitter) {
-    logger.info("No emitter selected. Generating Cancelled.", [], {
-      showOutput: false,
-      showPopup: false,
-    });
+    logger.info("No emitter selected. Generating Cancelled.");
     return;
   }
-
-  logger.info("npm install...", [], {
-    showOutput: false,
-    showPopup: false,
-  });
 
   const npmUtil = new NpmUtil(baseDir);
   const packagesToInstall: string[] = [];
@@ -167,11 +155,6 @@ export async function doEmit(
   }
 
   /* emit */
-  logger.info("Generating ...", [], {
-    showOutput: false,
-    showPopup: false,
-  });
-
   const cli = await resolveTypeSpecCli(baseDir);
   if (!cli) {
     logger.error(
@@ -200,7 +183,7 @@ export async function doEmit(
     const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
     if (compileResult.exitCode !== 0) {
       logger.error(
-        `Failed to generate ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}.`,
+        `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Failed`,
         [],
         {
           showOutput: true,
@@ -286,7 +269,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
   });
 
   const emitterKinds = getRegisterEmitterTypes();
-  const toEitTypeQuickPickItem = (kind: EmitterKind): any => {
+  const toEmitterTypeQuickPickItem = (kind: EmitterKind): any => {
     return {
       label: PreDefinedEmitterPickItems[kind]?.label ?? kind,
       detail: PreDefinedEmitterPickItems[kind]?.detail ?? `Generate ${kind} code from TypeSpec`,
@@ -294,7 +277,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       iconPath: Uri.file(context.asAbsolutePath(`./icons/${kind.toLowerCase()}.svg`)),
     };
   };
-  const codesToEmit = emitterKinds.map((kind) => toEitTypeQuickPickItem(kind));
+  const codesToEmit = emitterKinds.map((kind) => toEmitterTypeQuickPickItem(kind));
   const codeType = await vscode.window.showQuickPick(codesToEmit, {
     title: "Select an Emitter Type",
     canPickMany: false,
@@ -311,7 +294,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
   await doEmit(context, tspProjectFile, codeType.emitterKind);
 }
 
-export async function compile(
+async function compile(
   cli: Executable,
   startFile: string,
   emitter: string,
