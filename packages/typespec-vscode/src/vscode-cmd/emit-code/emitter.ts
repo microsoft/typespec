@@ -17,7 +17,7 @@ export interface Emitter {
 
 export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = {
   schema: {
-    label: "OpenAPI",
+    label: "OpenAPI/protoBuf",
     detail: "Generating OpenAPI from TypeSpec",
   },
   client: {
