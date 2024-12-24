@@ -88,14 +88,20 @@ export function* emitModel(
 }
 
 export function emitModelLiteral(ctx: JsContext, model: Model, module: Module): string {
-  const properties = [...model.properties.values()].map((prop) => {
-    const nameCase = parseCase(prop.name);
-    const questionMark = prop.optional ? "?" : "";
+  const properties = [...model.properties.values()]
+    .map((prop) => {
+      if (isUnspeakable(prop.name)) {
+        return undefined;
+      }
 
-    const name = KEYWORDS.has(nameCase.camelCase) ? `_${nameCase.camelCase}` : nameCase.camelCase;
+      const nameCase = parseCase(prop.name);
+      const questionMark = prop.optional ? "?" : "";
 
-    return `${name}${questionMark}: ${emitTypeReference(ctx, prop.type, prop, module)}`;
-  });
+      const name = KEYWORDS.has(nameCase.camelCase) ? `_${nameCase.camelCase}` : nameCase.camelCase;
+
+      return `${name}${questionMark}: ${emitTypeReference(ctx, prop.type, prop, module)}`;
+    })
+    .filter((p) => !!p);
 
   return `{ ${properties.join("; ")} }`;
 }
@@ -105,7 +111,7 @@ export function emitModelLiteral(ctx: JsContext, model: Model, module: Module): 
  */
 export function isWellKnownModel(ctx: JsContext, type: Model): boolean {
   const fullName = getFullyQualifiedTypeName(type);
-  return fullName === "TypeSpec.Record" || fullName === "TypeSpec.Array";
+  return ["TypeSpec.Record", "TypeSpec.Array", "TypeSpec.Http.HttpPart"].includes(fullName);
 }
 
 /**
@@ -122,19 +128,31 @@ export function emitWellKnownModel(
   module: Module,
   preferredAlternativeName?: string,
 ): string {
-  const arg = type.indexer!.value;
   switch (type.name) {
     case "Record": {
+      const arg = type.indexer!.value;
       return `{ [k: string]: ${emitTypeReference(ctx, arg, type, module, {
         altName: preferredAlternativeName && getRecordValueName(preferredAlternativeName),
       })} }`;
     }
     case "Array": {
+      const arg = type.indexer!.value;
       return asArrayType(
         emitTypeReference(ctx, arg, type, module, {
           altName: preferredAlternativeName && getArrayElementName(preferredAlternativeName),
         }),
       );
+    }
+    case "HttpPart": {
+      const argument = type.templateMapper!.args[0];
+
+      if (!(argument.entityKind === "Type" && argument.kind === "Model")) {
+        throw new Error("UNREACHABLE: HttpPart must have a Model argument");
+      }
+
+      return emitTypeReference(ctx, argument, type, module, {
+        altName: preferredAlternativeName && `${preferredAlternativeName}HttpPart`,
+      });
     }
     default:
       throw new Error(`UNREACHABLE: ${type.name}`);

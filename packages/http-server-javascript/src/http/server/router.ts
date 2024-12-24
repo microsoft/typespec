@@ -137,28 +137,38 @@ function* emitRouterDefinition(
   yield `  }> = {}`;
   yield `): ${routerName} {`;
 
+  const [onRequestNotFound, onInvalidRequest, onInternalError] = [
+    "onRequestNotFound",
+    "onInvalidRequest",
+    "onInternalError",
+  ].map(ctx.gensym);
+
   // Router error case handlers
-  yield `  const onRouteNotFound = options.onRequestNotFound ?? ((request, response) => {`;
-  yield `    response.statusCode = 404;`;
-  yield `    response.setHeader("Content-Type", "text/plain");`;
-  yield `    response.end("Not Found");`;
+  yield `  const ${onRequestNotFound} = options.onRequestNotFound ?? ((ctx) => {`;
+  yield `    ctx.response.statusCode = 404;`;
+  yield `    ctx.response.setHeader("Content-Type", "text/plain");`;
+  yield `    ctx.response.end("Not Found");`;
   yield `  });`;
   yield "";
-  yield `  const onInvalidRequest = options.onInvalidRequest ?? ((request, response, route, error) => {`;
-  yield `    response.statusCode = 400;`;
-  yield `    response.setHeader("Content-Type", "application/json");`;
-  yield `    response.end(JSON.stringify({ error }));`;
+  yield `  const ${onInvalidRequest} = options.onInvalidRequest ?? ((ctx, route, error) => {`;
+  yield `    ctx.response.statusCode = 400;`;
+  yield `    ctx.response.setHeader("Content-Type", "application/json");`;
+  yield `    ctx.response.end(JSON.stringify({ error }));`;
   yield `  });`;
   yield "";
-  yield `  const onInternalError = options.onInternalError ?? ((error, request, response) => {`;
-  yield `    response.statusCode = 500;`;
-  yield `    response.setHeader("Content-Type", "text/plain");`;
-  yield `    response.end("Internal server error.");`;
+  yield `  const ${onInternalError} = options.onInternalError ?? ((ctx, error) => {`;
+  yield `    ctx.response.statusCode = 500;`;
+  yield `    ctx.response.setHeader("Content-Type", "text/plain");`;
+  yield `    ctx.response.end("Internal server error.");`;
   yield `  });`;
   yield "";
-  yield `  const routePolicies = options.routePolicies ?? {};`;
+
+  const routePolicies = ctx.gensym("routePolicies");
+  const routeHandlers = ctx.gensym("routeHandlers");
+
+  yield `  const ${routePolicies} = options.routePolicies ?? {};`;
   yield "";
-  yield `  const routeHandlers = {`;
+  yield `  const ${routeHandlers} = {`;
 
   // Policy chains for each operation
   for (const operation of service.operations) {
@@ -167,7 +177,7 @@ function* emitRouterDefinition(
 
     yield `    ${containerName.snakeCase}_${operationName.snakeCase}: createPolicyChainForRoute(`;
     yield `      "${containerName.camelCase + operationName.pascalCase + "Dispatch"}",`;
-    yield `      routePolicies,`;
+    yield `      ${routePolicies},`;
     yield `      "${containerName.camelCase}",`;
     yield `      "${operationName.camelCase}",`;
     yield `      serverRaw.${containerName.snakeCase}_${operationName.snakeCase},`;
@@ -178,23 +188,45 @@ function* emitRouterDefinition(
   yield "";
 
   // Core routing function definition
-  yield `  const dispatch = createPolicyChain("${routerName}Dispatch", options.policies ?? [], async function(ctx, request, response, onRouteNotFound) {`;
+  yield `  const dispatch = createPolicyChain("${routerName}Dispatch", options.policies ?? [], async function(ctx, request, response) {`;
   yield `    const url = new URL(request.url!, \`http://\${request.headers.host}\`);`;
   yield `    let path = url.pathname;`;
   yield "";
 
-  yield* indent(indent(emitRouteHandler(ctx, routeTree, backends, module)));
+  yield* indent(indent(emitRouteHandler(ctx, routeHandlers, routeTree, backends, module)));
 
   yield "";
 
-  yield `    return onRouteNotFound(request, response);`;
+  yield `    return ${onRequestNotFound}(ctx);`;
   yield `  });`;
   yield "";
+
+  const errorHandlers = ctx.gensym("errorHandlers");
+
+  yield `  const ${errorHandlers} = {`;
+  yield `    onRequestNotFound: ${onRequestNotFound},`;
+  yield `    onInvalidRequest: ${onInvalidRequest},`;
+  yield `    onInternalError: ${onInternalError},`;
+  yield `  };`;
+
   yield `  return {`;
-  yield `    dispatch(request, response) { return dispatch({ request, response }, request, response, onRouteNotFound).catch((e) => onInternalError(e, request, response)); },`;
+  yield `    dispatch(request, response) {`;
+  yield `      const ctx = { request, response, errorHandlers: ${errorHandlers} };`;
+  yield `      return dispatch(ctx, request, response).catch((e) => ${onInternalError}(ctx, e));`;
+  yield `    },`;
 
   if (ctx.options.express) {
-    yield `    expressMiddleware: function (request, response, next) { void dispatch({ request, response }, request, response, function () { next(); }).catch((e) => onInternalError(e, request, response)); },`;
+    yield `    expressMiddleware: function (request, response, next) {`;
+    yield `      const ctx = { request, response, errorHandlers: ${errorHandlers} };`;
+    yield `      void dispatch(`;
+    yield `        { request, response, errorHandlers: {`;
+    yield `          ...${errorHandlers},`;
+    yield `          onRequestNotFound: function () { next() }`;
+    yield `        }},`;
+    yield `        request,`;
+    yield `        response`;
+    yield `      ).catch((e) => ${onInternalError}(ctx, e));`;
+    yield `    },`;
   }
 
   yield "  }";
@@ -211,25 +243,28 @@ function* emitRouterDefinition(
  */
 function* emitRouteHandler(
   ctx: HttpContext,
+  routeHandlers: string,
   routeTree: RouteTree,
   backends: Map<OperationContainer, [ReCase, string]>,
   module: Module,
 ): Iterable<string> {
   const mustTerminate = routeTree.edges.length === 0 && !routeTree.bind;
 
+  const onRouteNotFound = "ctx.errorHandlers.onRequestNotFound";
+
   yield `if (path.length === 0) {`;
   if (routeTree.operations.size > 0) {
-    yield* indent(emitRouteOperationDispatch(ctx, routeTree.operations, backends));
+    yield* indent(emitRouteOperationDispatch(ctx, routeHandlers, routeTree.operations, backends));
   } else {
     // Not found
-    yield `  return onRouteNotFound(request, response);`;
+    yield `  return ${onRouteNotFound}(ctx);`;
   }
   yield `}`;
 
   if (mustTerminate) {
     // Not found
     yield "else {";
-    yield `  return onRouteNotFound(request, response);`;
+    yield `  return ${onRouteNotFound}(ctx);`;
     yield `}`;
     return;
   }
@@ -238,7 +273,7 @@ function* emitRouteHandler(
     const edgePattern = edge.length === 1 ? `'${edge}'` : JSON.stringify(edge);
     yield `else if (path.startsWith(${edgePattern})) {`;
     yield `  path = path.slice(${edge.length});`;
-    yield* indent(emitRouteHandler(ctx, nextTree, backends, module));
+    yield* indent(emitRouteHandler(ctx, routeHandlers, nextTree, backends, module));
     yield "}";
   }
 
@@ -258,7 +293,7 @@ function* emitRouteHandler(
         yield `  const ${parseCase(p).camelCase} = param;`;
       }
     }
-    yield* indent(emitRouteHandler(ctx, nextTree, backends, module));
+    yield* indent(emitRouteHandler(ctx, routeHandlers, nextTree, backends, module));
 
     yield `}`;
   }
@@ -273,6 +308,7 @@ function* emitRouteHandler(
  */
 function* emitRouteOperationDispatch(
   ctx: HttpContext,
+  routeHandlers: string,
   operations: Map<HttpVerb, RouteOperation[]>,
   backends: Map<OperationContainer, [ReCase, string]>,
 ): Iterable<string> {
@@ -293,19 +329,21 @@ function* emitRouteOperationDispatch(
           : "";
 
       yield `  case ${JSON.stringify(verb.toUpperCase())}:`;
-      yield `    return routeHandlers.${operationName}(ctx, request, response, ${backendMemberName}${parameters});`;
+      yield `    return ${routeHandlers}.${operationName}(ctx, ${backendMemberName}${parameters});`;
     } else {
       // Shared route
       const route = getHttpOperation(ctx.program, operationList[0].operation)[0].path;
       yield `  case ${JSON.stringify(verb.toUpperCase())}:`;
       yield* indent(
-        indent(emitRouteOperationDispatchMultiple(ctx, operationList, route, backends)),
+        indent(
+          emitRouteOperationDispatchMultiple(ctx, routeHandlers, operationList, route, backends),
+        ),
       );
     }
   }
 
   yield `  default:`;
-  yield `    return onRouteNotFound(request, response);`;
+  yield `    return ctx.errorHandlers.onRequestNotFound(ctx);`;
 
   yield "}";
 }
@@ -319,6 +357,7 @@ function* emitRouteOperationDispatch(
  */
 function* emitRouteOperationDispatchMultiple(
   ctx: HttpContext,
+  routeHandlers: string,
   operations: RouteOperation[],
   route: string,
   backends: Map<OperationContainer, [ReCase, string]>,
@@ -350,8 +389,7 @@ function* emitRouteOperationDispatchMultiple(
     contentTypeMap.set(operation, operationContentType.value);
   }
 
-  yield `const contentType = request.headers["content-type"];`;
-  yield `switch (contentType) {`;
+  yield `switch (request.headers["content-type"]) {`;
 
   for (const [operation, contentType] of contentTypeMap.entries()) {
     const [backend] = backends.get(operation.container)!;
@@ -367,11 +405,11 @@ function* emitRouteOperationDispatchMultiple(
         : "";
 
     yield `  case ${JSON.stringify(contentType)}:`;
-    yield `    return routeHandlers.${operationName}(ctx, request, response, ${backendMemberName}${parameters});`;
+    yield `    return ${routeHandlers}.${operationName}(ctx, ${backendMemberName}${parameters});`;
   }
 
   yield `  default:`;
-  yield `    return onInvalidRequest(request, response, ${JSON.stringify(route)}, \`No operation in route '${route}' matched content-type "\${contentType}"\`);`;
+  yield `    return ctx.errorHandlers.onInvalidRequest(ctx, ${JSON.stringify(route)}, \`No operation in route '${route}' matched content-type "\${contentType}"\`);`;
   yield "}";
 }
 
