@@ -95,9 +95,7 @@ export async function provideTspconfigCompletionItems(
             tspConfigPosition,
             target,
           );
-          if (item) {
-            items.push(item);
-          }
+          items.push(item);
         }
       }
       return items;
@@ -146,9 +144,7 @@ export async function provideTspconfigCompletionItems(
                   tspConfigPosition,
                   target,
                 );
-                if (item) {
-                  items.push(item);
-                }
+                items.push(item);
               }
             }
           }
@@ -161,9 +157,7 @@ export async function provideTspconfigCompletionItems(
               tspConfigPosition,
               target,
             );
-            if (item) {
-              items.push(item);
-            }
+            items.push(item);
           }
         }
       } else if (extendKeyWord === "enable" || extendKeyWord === "disable") {
@@ -182,9 +176,7 @@ export async function provideTspconfigCompletionItems(
                 tspConfigPosition,
                 target,
               );
-              if (item) {
-                items.push(item);
-              }
+              items.push(item);
             }
           }
         }
