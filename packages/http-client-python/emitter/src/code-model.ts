@@ -198,7 +198,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
         propertyName: operationGroup.name,
         operations: operations,
         operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
-        clientNamespace: getClientNamespace(context, client.clientNamespace),
+        clientNamespace: getClientNamespace(context, operationGroup.clientNamespace),
       });
     }
   }
