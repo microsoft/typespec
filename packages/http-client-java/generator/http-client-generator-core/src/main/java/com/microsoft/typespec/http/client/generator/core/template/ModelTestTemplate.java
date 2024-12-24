@@ -35,6 +35,9 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
     @Override
     public void write(ClientModel model, JavaFile javaFile) {
 
+        // TODO: there is still possible "code too large" error
+        // example: https://github.com/Azure/azure-rest-api-specs/tree/main/specification/logic/resource-manager
+
         final boolean immutableOutputModel = JavaSettings.getInstance().isOutputModelImmutable()
             && model.getImplementationDetails() != null
             && !model.getImplementationDetails().isInput();
@@ -66,7 +69,7 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             classBlock.annotation("org.junit.jupiter.api.Test");
             classBlock.publicMethod("void testDeserialize() throws Exception", methodBlock -> {
                 methodBlock.line(String.format("%1$s model = BinaryData.fromString(%2$s).toObject(%1$s.class);",
-                    model.getName(), ClassType.STRING.defaultValueExpression(jsonStr)));
+                    model.getName(), getJavaStringExpression(jsonStr)));
                 writer.writeAssertion(methodBlock);
             });
 
@@ -87,5 +90,26 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 }
             }
         });
+    }
+
+    private static String getJavaStringExpression(String jsonStr) {
+        // 2^16, but half the size, for there maybe lots of `\"` in JSON
+        final int maxConstantStringLength = 65536 / 2;
+        if (jsonStr.length() < maxConstantStringLength) {
+            return ClassType.STRING.defaultValueExpression(jsonStr);
+        } else {
+            // avoid "constant string too long"
+            StringBuilder sb = new StringBuilder("String.join(\"\"");
+            String remains = jsonStr;
+            String.join("", "", "");
+            while (remains.length() >= maxConstantStringLength) {
+                String current = remains.substring(0, maxConstantStringLength - 1);
+                remains = remains.substring(maxConstantStringLength - 1);
+
+                sb.append(", ").append(ClassType.STRING.defaultValueExpression(current));
+            }
+            sb.append(")");
+            return sb.toString();
+        }
     }
 }
