@@ -47,6 +47,16 @@ try {
             Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate.ps1'
         }
 
+        try {
+          # Run test
+          Write-Host 'Running tests based on generated code with pyodide'
+          & npm run ci
+          Write-Host 'All tests passed'
+        } 
+        catch {
+            Write-Error "Tests failed:  $_"
+        }
+
         Write-Host "Generating test projects with venv ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
         Write-Host 'Code generation is completed.'
@@ -61,15 +71,13 @@ try {
         }
 
         try {
-            Write-Host "Pip List" 
-            & pip list
-            # Run tox
-            Write-Host 'Running tests'
+            # Run test
+            Write-Host 'Running tests based on generated code with venv'
             & npm run ci
-            Write-Host 'tox tests passed'
+            Write-Host 'All tests passed'
         } 
         catch {
-            Write-Error "Cadl ranch tests failed:  $_"
+            Write-Error "Tests failed:  $_"
         }
     }
 }
