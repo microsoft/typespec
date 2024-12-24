@@ -42,7 +42,7 @@ export async function installCompilerGlobally(
     async (_progress, token) => {
       const TIMEOUT = 300000; // set timeout to 5 minutes which should be enough for installing compiler
       try {
-        const output = await createPromiseWithCancelAndTimeout(
+        await createPromiseWithCancelAndTimeout(
           spawnExecutionAndLogToOutput(
             "npm",
             ["install", "-g", "@typespec/compiler"],
@@ -59,7 +59,6 @@ export async function installCompilerGlobally(
         return { code: ResultCode.Success, value: undefined };
       } catch (e: any) {
         if (e === ResultCode.Cancelled) {
-          logger.info("Installation of TypeSpec Compiler/CLI is cancelled by user");
           return { code: ResultCode.Cancelled };
         } else if (e === ResultCode.Timeout) {
           logger.error(`Installation of TypeSpec Compiler/CLI is timeout after ${TIMEOUT}ms`, [e], {
