@@ -1,14 +1,12 @@
 import vscode from "vscode";
-import logger from "../log/logger.js";
-import { SettingName } from "../types.js";
+import logger from "../../log/logger.js";
+import { SettingName } from "../../types.js";
 
 export enum EmitterKind {
   Schema = "schema",
   Client = "client",
   Server = "server",
 }
-
-export type InstallActions = "schema" | "client" | "server";
 
 export interface Emitter {
   language: string;

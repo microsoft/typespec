@@ -1,7 +1,6 @@
 import vscode, { commands, ExtensionContext } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
-import { emitCode } from "./emit/emit.js";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
@@ -14,6 +13,7 @@ import {
   SettingName,
 } from "./types.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
+import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
 
 let client: TspLanguageClient | undefined;

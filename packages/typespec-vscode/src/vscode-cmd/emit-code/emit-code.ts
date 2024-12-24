@@ -1,18 +1,18 @@
 import path from "path";
 import vscode, { Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
-import { StartFileName } from "../const.js";
-import logger from "../log/logger.js";
-import { InstallationAction, npmDependencyType, NpmUtil } from "../npm-utils.js";
-import { getDirectoryPath } from "../path-utils.js";
-import { resolveTypeSpecCli } from "../tsp-executable-resolver.js";
+import { StartFileName } from "../../const.js";
+import logger from "../../log/logger.js";
+import { InstallationAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
+import { getDirectoryPath } from "../../path-utils.js";
+import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import {
   getEntrypointTspFile,
   onStdioError,
   onStdioOut,
   TraverseMainTspFileInWorkspace,
-} from "../typespec-utils.js";
-import { ExecOutput, isFile, spawnExecution } from "../utils.js";
+} from "../../typespec-utils.js";
+import { ExecOutput, isFile, spawnExecution } from "../../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import {
   Emitter,
@@ -177,7 +177,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     );
     return;
   }
-  const outputDir = path.resolve(baseDir, selectedEmitter.emitterKind, selectedEmitter.language);
+  const outputDir = path.join(baseDir, selectedEmitter.emitterKind, selectedEmitter.language);
 
   const options: Record<string, string> = {};
   options["emitter-output-dir"] = outputDir;
