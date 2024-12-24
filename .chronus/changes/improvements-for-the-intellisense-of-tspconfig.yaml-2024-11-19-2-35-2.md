@@ -6,4 +6,4 @@ packages:
 ---
 
 Fix bug in tspconfig.yaml
-- Fix the issue that emitter option auto complete while inside "" will add extra ""`
+- Fix the issue that extra " will be added when auto completing emitter options inside ""
