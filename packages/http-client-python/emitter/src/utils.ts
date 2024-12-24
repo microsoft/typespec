@@ -212,9 +212,14 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
     return rootNamespace;
   }
   if (
-    ["azure.core", "azure.resourcemanager"].some((item) =>
-      clientNamespace.toLowerCase().startsWith(item),
-    )
+    [
+      "azure.core",
+      "azure.resourcemanager",
+      "azure.clientgenerator.core",
+      "typespec.rest",
+      "typespec.http",
+      "typespec.versioning",
+    ].some((item) => clientNamespace.toLowerCase().startsWith(item))
   ) {
     return rootNamespace;
   }
