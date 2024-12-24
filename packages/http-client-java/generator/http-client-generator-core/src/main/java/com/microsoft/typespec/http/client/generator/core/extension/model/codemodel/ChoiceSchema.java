@@ -18,7 +18,6 @@ public class ChoiceSchema extends ValueSchema {
     private Schema choiceType;
     private List<ChoiceValue> choices = new ArrayList<>();
     private String summary;
-    private String crossLanguageDefinitionId;
 
     /**
      * Creates a new instance of the ChoiceSchema class.
@@ -73,24 +72,6 @@ public class ChoiceSchema extends ValueSchema {
         this.summary = summary;
     }
 
-    /**
-     * Gets the cross-language definition id.
-     *
-     * @return The cross-language definition id.
-     */
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
-    }
-
-    /**
-     * Sets the cross-language definition id.
-     *
-     * @param crossLanguageDefinitionId The cross-language definition id.
-     */
-    public void setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
-    }
-
     @Override
     public String toString() {
         return sharedToString(this, ChoiceSchema.class.getName());
@@ -137,8 +118,7 @@ public class ChoiceSchema extends ValueSchema {
     JsonWriter writeParentProperties(JsonWriter jsonWriter) throws IOException {
         return super.writeParentProperties(jsonWriter).writeJsonField("choiceType", choiceType)
             .writeArrayField("choices", choices, JsonWriter::writeJson)
-            .writeStringField("summary", summary)
-            .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId);
+            .writeStringField("summary", summary);
     }
 
     /**
@@ -167,9 +147,6 @@ public class ChoiceSchema extends ValueSchema {
             return true;
         } else if ("summary".equals(fieldName)) {
             schema.summary = reader.getString();
-            return true;
-        } else if ("crossLanguageDefinitionId".equals(fieldName)) {
-            schema.crossLanguageDefinitionId = reader.getString();
             return true;
         }
 
