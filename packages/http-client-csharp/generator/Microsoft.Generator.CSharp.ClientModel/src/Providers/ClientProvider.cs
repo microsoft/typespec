@@ -229,7 +229,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // add sub-client caching fields
             foreach (var subClient in SubClients)
             {
-                if (subClient.Value._clientCachingField != null)
+                if (subClient.Value.Methods.Count != 0 && subClient.Value._clientCachingField != null)
                 {
                     fields.Add(subClient.Value._clientCachingField);
                 }
@@ -479,7 +479,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             foreach (var subClient in SubClients)
             {
                 var subClientInstance = subClient.Value;
-                if (subClientInstance._clientCachingField is null)
+                if (subClientInstance._clientCachingField is null || subClientInstance.Methods.Count == 0)
                 {
                     continue;
                 }
