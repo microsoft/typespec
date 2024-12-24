@@ -366,7 +366,7 @@ function createCompletionItemWithQuote(
   description: string,
   tspConfigPosition: Position,
   target: YamlScalarTarget,
-): CompletionItem | undefined {
+): CompletionItem {
   if (
     target.sourceRange &&
     target.cursorPosition >= target.sourceRange.pos &&
@@ -396,7 +396,12 @@ function createCompletionItemWithQuote(
     };
   }
 
-  return undefined;
+  return {
+    label: labelName,
+    kind: CompletionItemKind.Field,
+    documentation: description,
+    insertText: `"${labelName}"`,
+  };
 }
 
 /**
