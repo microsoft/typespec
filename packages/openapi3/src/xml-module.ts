@@ -136,8 +136,10 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
           scalarSchema.xml = { name: propXmlName };
           refSchema.items = scalarSchema;
         } else {
+          const items = new ArrayBuilder();
+          items.push(refSchema.items);
           refSchema.items = new ObjectBuilder({
-            allOf: new ArrayBuilder(refSchema.items as any),
+            allOf: items,
             xml: { name: propXmlName },
           });
         }
@@ -149,7 +151,8 @@ export async function resolveXmlModule(): Promise<XmlModule | undefined> {
       }
 
       if (!isArrayProperty && !refSchema.type && !isAttribute) {
-        emitObject.allOf = new ArrayBuilder(refSchema as any);
+        emitObject.allOf = new ArrayBuilder();
+        emitObject.allOf.push(refSchema);
         xmlObject.name = xmlName;
       }
 

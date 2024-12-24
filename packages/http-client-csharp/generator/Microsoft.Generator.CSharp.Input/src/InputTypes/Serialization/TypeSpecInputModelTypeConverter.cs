@@ -38,7 +38,8 @@ namespace Microsoft.Generator.CSharp.Input
                 crossLanguageDefinitionId: null!,
                 access: null,
                 deprecation: null,
-                description: null,
+                summary: null,
+                doc: null,
                 usage: InputModelTypeUsage.None,
                 properties: [],
                 baseModel: null,
@@ -53,7 +54,8 @@ namespace Microsoft.Generator.CSharp.Input
             string? crossLanguageDefinitionId = null;
             string? accessibility = null;
             string? deprecation = null;
-            string? description = null;
+            string? summary = null;
+            string? doc = null;
             string? usageString = null;
             InputModelProperty? discriminatorProperty = null;
             string? discriminatorValue = null;
@@ -71,7 +73,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("access", ref accessibility)
                     || reader.TryReadString("deprecation", ref deprecation)
-                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadString("summary", ref doc)
+                    || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("usage", ref usageString)
                     || reader.TryReadWithConverter("discriminatorProperty", options, ref discriminatorProperty)
                     || reader.TryReadString("discriminatorValue", ref discriminatorValue)
@@ -92,7 +95,8 @@ namespace Microsoft.Generator.CSharp.Input
             model.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             model.Access = accessibility;
             model.Deprecation = deprecation;
-            model.Description = description;
+            model.Summary = summary;
+            model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
             // TO-DO: Manually add JSON usage flag for now until support for parsing this is added to the TSP https://github.com/microsoft/typespec/issues/3392
             parsedUsage |= InputModelTypeUsage.Json;
@@ -108,6 +112,10 @@ namespace Microsoft.Generator.CSharp.Input
             if (discriminatedSubtypes != null)
             {
                 model.DiscriminatedSubtypes = discriminatedSubtypes;
+            }
+            else if (model.DiscriminatorProperty != null)
+            {
+                model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
             }
             model.ModelAsStruct = modelAsStruct;
             if (decorators != null)

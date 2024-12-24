@@ -316,12 +316,14 @@ Area of the codebase
 | `emitter:client:csharp`      | #e1b300 | Issue for the C# client emitter: @typespec/http-client-csharp     |
 | `emitter:client:java`        | #e1b300 | Issue for the Java client emitter: @typespec/http-client-java     |
 | `emitter:client:python`      | #e1b300 | Issue for the Python client emitter: @typespec/http-client-python |
+| `emitter:graphql`            | #957300 | Issues for @typespec/graphql emitter                              |
 | `emitter:json-schema`        | #957300 |                                                                   |
 | `emitter:protobuf`           | #957300 | The protobuf emitter                                              |
 | `emitter:openapi3`           | #957300 | Issues for @typespec/openapi3 emitter                             |
 | `openapi3:converter`         | #957300 | Issues for @typespec/openapi3 openapi to typespec converter       |
 | `emitter:service:csharp`     | #967200 |                                                                   |
 | `emitter:service:js`         | #967200 |                                                                   |
+| `emitter:service:java`       | #967200 | Issue for Java service emitter                                    |
 | `eng`                        | #65bfff |                                                                   |
 | `ui:playground`              | #3256a8 |                                                                   |
 | `ui:type-graph-viewer`       | #3256a8 |                                                                   |
@@ -364,16 +366,18 @@ Process labels
 | -------------- | ------- | --------------------------------------------------------------------------------- |
 | `needs-area`   | #ffffff |                                                                                   |
 | `needs-info`   | #ffffff | Mark an issue that needs reply from the author or it will be closed automatically |
+| `stale`        | #ffffff | Mark a PR that hasn't been recently updated and will be closed.                   |
 | `triaged:core` | #5319e7 |                                                                                   |
 
 #### misc
 
 Misc labels
 
-| Name                       | Color   | Description        |
-| -------------------------- | ------- | ------------------ |
-| `Client Emitter Migration` | #FD92F0 |                    |
-| `good first issue`         | #7057ff | Good for newcomers |
+| Name                       | Color   | Description           |
+| -------------------------- | ------- | --------------------- |
+| `Client Emitter Migration` | #FD92F0 |                       |
+| `good first issue`         | #7057ff | Good for newcomers    |
+| `mq`                       | #0969da | Good candidate for MQ |
 
 <!-- LABEL GENERATED REF END -->
 

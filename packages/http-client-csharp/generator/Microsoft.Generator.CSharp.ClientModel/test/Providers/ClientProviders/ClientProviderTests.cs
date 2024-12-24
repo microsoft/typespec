@@ -6,6 +6,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -22,10 +24,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
     public class ClientProviderTests
     {
         private const string SubClientsCategory = "WithSubClients";
+        private const string KeyAuthCategory = "WithKeyAuth";
+        private const string OAuth2Category = "WithOAuth2";
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputOperation _inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [_inputOperation], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [_inputOperation], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [_inputOperation], [], _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -34,22 +42,71 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 InputFactory.Property("p1", InputPrimitiveType.String, isRequired: true),
             ]);
 
+        private bool _containsSubClients;
+        private bool _hasKeyAuth;
+        private bool _hasOAuth2;
+        private bool _hasAuth;
+
         [SetUp]
         public void SetUp()
         {
             var categories = TestContext.CurrentContext.Test?.Properties["Category"];
-            bool containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
+            _containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
+            _hasKeyAuth = categories?.Contains(KeyAuthCategory) ?? false;
+            _hasOAuth2 = categories?.Contains(OAuth2Category) ?? false;
+            _hasAuth = _hasKeyAuth || _hasOAuth2;
 
-            if (containsSubClients)
-            {
-                MockHelpers.LoadMockPlugin(
-                    apiKeyAuth: () => new InputApiKeyAuth("mock", null),
-                    clients: () => [_animalClient, _dogClient, _huskyClient]);
-            }
-            else
-            {
-                MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null));
-            }
+            Func<IReadOnlyList<InputClient>>? clients = _containsSubClients ?
+                () => [_animalClient, _dogClient, _huskyClient] :
+                null;
+            Func<InputApiKeyAuth>? apiKeyAuth = _hasKeyAuth ? () => new InputApiKeyAuth("mock", null) : null;
+            Func<InputOAuth2Auth>? oauth2Auth = _hasOAuth2 ? () => new InputOAuth2Auth(["mock"]) : null;
+            MockHelpers.LoadMockPlugin(
+                apiKeyAuth: apiKeyAuth,
+                oauth2Auth: oauth2Auth,
+                clients: clients,
+                clientPipelineApi: TestClientPipelineApi.Instance);
+        }
+
+        [Test]
+        public async Task TestEmptyClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client]);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNull(clientProvider);
+        }
+
+        [Test]
+        public async Task TestNonEmptySubClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [_inputOperation], [], client.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client, subClient]);
+
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
+            Assert.IsNotNull(subClientProvider);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNotNull(clientProvider);
+        }
+
+        [Test]
+        public async Task TestEmptySubClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [], [], client.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client, subClient]);
+
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
+            Assert.IsNull(subClientProvider);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNull(clientProvider);
         }
 
         [Test]
@@ -73,81 +130,133 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [TestCaseSource(nameof(BuildFieldsTestCases))]
-        public void TestBuildFields(List<InputParameter> inputParameters, bool containsAdditionalParams)
+        public void TestBuildFields(List<InputParameter> inputParameters, List<ExpectedFieldProvider> expectedFields)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
 
-            // validate the fields
-            var fields = clientProvider.Fields;
-            if (containsAdditionalParams)
-            {
-                Assert.AreEqual(6, fields.Count);
+            AssertHasFields(clientProvider, expectedFields);
+        }
 
+        [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = KeyAuthCategory)]
+        [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = OAuth2Category)]
+        [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
+        public void TestBuildAuthFields_WithAuth(List<InputParameter> inputParameters)
+        {
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            if (_hasKeyAuth)
+            {
+                // key auth should have the following fields: AuthorizationHeader, _keyCredential
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                });
             }
-            else
+            if (_hasOAuth2)
             {
-                Assert.AreEqual(4, fields.Count);
-            }
-
-            // validate the endpoint field
-            if (inputParameters.Any(p => p.IsEndpoint))
-            {
-                var endpointField = fields.FirstOrDefault(f => f.Name == "_endpoint");
-                Assert.IsNotNull(endpointField);
-                Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
-            }
-
-            // validate other parameters as fields
-            if (containsAdditionalParams)
-            {
-                var optionalParamField = fields.FirstOrDefault(f => f.Name == "_optionalNullableParam");
-                Assert.IsNotNull(optionalParamField);
-                Assert.AreEqual(new CSharpType(typeof(string), isNullable: true), optionalParamField?.Type);
-
-                var requiredParam2Field = fields.FirstOrDefault(f => f.Name == "_requiredParam2");
-                Assert.IsNotNull(requiredParam2Field);
-                Assert.AreEqual(new CSharpType(typeof(string), isNullable: false), requiredParam2Field?.Type);
-
-                var requiredParam3Field = fields.FirstOrDefault(f => f.Name == "_requiredParam3");
-                Assert.IsNotNull(requiredParam3Field);
-                Assert.AreEqual(new CSharpType(typeof(long), isNullable: false), requiredParam3Field?.Type);
+                // oauth2 auth should have the following fields: AuthorizationScopes, _tokenCredential
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
+                });
             }
         }
 
+        [TestCaseSource(nameof(BuildAuthFieldsTestCases))]
+        public void TestBuildAuthFields_NoAuth(List<InputParameter> inputParameters)
+        {
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            // fields here should not have anything related with auth
+            bool authFieldFound = false;
+            foreach (var field in clientProvider.Fields)
+            {
+                if (field.Name.EndsWith("Credential") || field.Name.Contains("Authorization"))
+                {
+                    authFieldFound = true;
+                }
+            }
+
+            Assert.IsFalse(authFieldFound);
+        }
+
         // validates the fields are built correctly when a client has sub-clients
-        [TestCaseSource(nameof(SubClientTestCases), Category = SubClientsCategory)]
-        public void TestBuildFields_WithSubClients(InputClient client, bool hasSubClients)
+        [TestCaseSource(nameof(SubClientFieldsTestCases), Category = SubClientsCategory)]
+        public void TestBuildFields_WithSubClients(InputClient client, List<ExpectedFieldProvider> expectedFields)
         {
             var clientProvider = new ClientProvider(client);
 
             Assert.IsNotNull(clientProvider);
 
-            // validate the fields
-            var fields = clientProvider.Fields;
+            AssertHasFields(clientProvider, expectedFields);
+        }
 
-            // validate the endpoint field
-            var endpointField = fields.FirstOrDefault(f => f.Name == "_endpoint");
-            Assert.IsNotNull(endpointField);
-            Assert.AreEqual(new CSharpType(typeof(Uri)), endpointField?.Type);
+        // validates the credential fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = SubClientsCategory)]
+        public void TestBuildAuthFields_WithSubClients_NoAuth(InputClient client)
+        {
+            var clientProvider = new ClientProvider(client);
 
-            // there should be n number of caching client fields for every direct sub-client + endpoint field + auth fields
-            if (hasSubClients)
+            Assert.IsNotNull(clientProvider);
+
+            // fields here should not have anything related with auth
+            bool authFieldFound = false;
+            foreach (var field in clientProvider.Fields)
             {
-                Assert.AreEqual(4, fields.Count);
-                var cachedClientFields = fields.Where(f => f.Name.StartsWith("_cached"));
-                Assert.AreEqual(1, cachedClientFields.Count());
+                if (field.Name.EndsWith("Credential") || field.Name.Contains("Authorization"))
+                {
+                    authFieldFound = true;
+                }
             }
-            else
+
+            Assert.IsFalse(authFieldFound);
+        }
+
+        // validates the credential fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
+        public void TestBuildAuthFields_WithSubClients_WithAuth(InputClient client)
+        {
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            if (_hasKeyAuth)
             {
-                // The 3 fields are _endpoint, AuthorizationHeader, and _keyCredential
-                Assert.AreEqual(3, fields.Count);
+                // key auth should have the following fields: AuthorizationHeader, _keyCredential
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Const, new CSharpType(typeof(string)), "AuthorizationHeader"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(ApiKeyCredential)), "_keyCredential")
+                });
+            }
+            if (_hasOAuth2)
+            {
+                // oauth2 auth should have the following fields: AuthorizationScopes, _tokenCredential
+                AssertHasFields(clientProvider, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
+                });
             }
         }
 
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = KeyAuthCategory)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2Category)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
         public void TestBuildConstructors_PrimaryConstructor(List<InputParameter> inputParameters)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
@@ -156,14 +265,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(clientProvider);
 
             var constructors = clientProvider.Constructors;
-            Assert.AreEqual(3, constructors.Count);
 
-            var primaryPublicConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
-            ValidatePrimaryConstructor(primaryPublicConstructor, inputParameters);
+            var primaryPublicConstructors = constructors.Where(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
+
+            // for no auth or one auth case, this should be 1
+            // for both auth case, this should be 2
+            var expectedPrimaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            Assert.AreEqual(expectedPrimaryCtorCount, primaryPublicConstructors.Length);
+
+            for (int i = 0; i < primaryPublicConstructors.Length; i++)
+            {
+                ValidatePrimaryConstructor(primaryPublicConstructors[i], inputParameters, i);
+            }
         }
 
         [TestCaseSource(nameof(BuildConstructorsTestCases))]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = KeyAuthCategory)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2Category)]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
         public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
@@ -173,19 +293,23 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             var constructors = clientProvider.Constructors;
 
-            Assert.AreEqual(3, constructors.Count);
-            var primaryPublicConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
+            var primaryPublicConstructors = constructors.Where(
+                c => c.Signature?.Initializer == null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
+            var secondaryPublicConstructors = constructors.Where(
+                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
 
-            Assert.IsNotNull(primaryPublicConstructor);
-
-            var secondaryPublicConstructor = constructors.FirstOrDefault(
-                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public);
-            ValidateSecondaryConstructor(primaryPublicConstructor, secondaryPublicConstructor, inputParameters);
+            // for no auth or one auth case, this should be 1
+            // for both auth case, this should be 2
+            var expectedSecondaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            Assert.AreEqual(expectedSecondaryCtorCount, secondaryPublicConstructors.Length);
+            foreach (var secondaryPublicConstructor in secondaryPublicConstructors)
+            {
+                ValidateSecondaryConstructor(primaryPublicConstructors, secondaryPublicConstructor, inputParameters);
+            }
         }
 
-        [Test]
-        public void TestBuildConstructors_ForSubClient()
+        [TestCase]
+        public void TestBuildConstructors_ForSubClient_NoAuth()
         {
             var clientProvider = new ClientProvider(_animalClient);
 
@@ -197,6 +321,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
+            // in the no auth case, the ctor no longer has the credentail parameter therefore here we expect 2 parameters.
+            var ctorParams = internalConstructor?.Signature?.Parameters;
+            Assert.AreEqual(2, ctorParams?.Count);
+
+            var mockingConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
+            Assert.IsNotNull(mockingConstructor);
+        }
+
+        [TestCase(Category = KeyAuthCategory)]
+        [TestCase(Category = OAuth2Category)]
+        public void TestBuildConstructors_ForSubClient_KeyAuthOrOAuth2Auth()
+        {
+            var clientProvider = new ClientProvider(_animalClient);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            Assert.AreEqual(2, constructors.Count);
+            var internalConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
+            Assert.IsNotNull(internalConstructor);
+            // when there is only one approach of auth, we have 3 parameters in the ctor.
             var ctorParams = internalConstructor?.Signature?.Parameters;
             Assert.AreEqual(3, ctorParams?.Count);
 
@@ -205,22 +353,46 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(mockingConstructor);
         }
 
-        private void ValidatePrimaryConstructor(
-            ConstructorProvider? primaryPublicConstructor,
-            List<InputParameter> inputParameters)
+        [TestCase(Category = $"{KeyAuthCategory},{OAuth2Category}")]
+        public void TestBuildConstructors_ForSubClient_BothAuth()
         {
-            Assert.IsNotNull(primaryPublicConstructor);
+            var clientProvider = new ClientProvider(_animalClient);
 
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            Assert.AreEqual(2, constructors.Count);
+            var internalConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
+            Assert.IsNotNull(internalConstructor);
+            // when we have both auths, we have 4 parameters in the ctor, because now we should have two credential parameters
+            var ctorParams = internalConstructor?.Signature?.Parameters;
+            Assert.AreEqual(4, ctorParams?.Count);
+
+            var mockingConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
+            Assert.IsNotNull(mockingConstructor);
+        }
+
+        private void ValidatePrimaryConstructor(
+            ConstructorProvider primaryPublicConstructor,
+            List<InputParameter> inputParameters,
+            int ctorIndex,
+            [CallerMemberName] string method = "",
+            [CallerFilePath] string filePath = "")
+        {
             var primaryCtorParams = primaryPublicConstructor?.Signature?.Parameters;
-            var expectedPrimaryCtorParamCount = 3;
+            // in no auth case, the ctor only have two parameters: endpoint and options
+            // in other cases, the ctor should have three parameters: endpoint, credential, options
+            // specifically, in both auth cases, we should have two ctors corresponding to each credential type as the second parameter
+            var expectedPrimaryCtorParamCount = !_hasKeyAuth && !_hasOAuth2 ? 2 : 3;
 
             Assert.AreEqual(expectedPrimaryCtorParamCount, primaryCtorParams?.Count);
 
-            // validate the order of the parameters (endpoint, credential, client options)
+            // the first should be endpoint
             var endpointParam = primaryCtorParams?[0];
             Assert.AreEqual(KnownParameters.Endpoint.Name, endpointParam?.Name);
-            Assert.AreEqual("keyCredential", primaryCtorParams?[1].Name);
-            Assert.AreEqual("options", primaryCtorParams?[2].Name);
 
             if (endpointParam?.DefaultValue != null)
             {
@@ -229,41 +401,79 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 Assert.AreEqual(Literal(parsedValue), endpointParam?.InitializationValue);
             }
 
+            // the last parameter should be the options
+            var optionsParam = primaryCtorParams?[^1];
+            Assert.AreEqual("options", optionsParam?.Name);
+
+            if (_hasAuth)
+            {
+                // when there is any auth, the second should be auth parameter
+                var authParam = primaryCtorParams?[1];
+                Assert.IsNotNull(authParam);
+                if (authParam?.Name == "keyCredential")
+                {
+                    Assert.AreEqual(new CSharpType(typeof(ApiKeyCredential)), authParam?.Type);
+                }
+                else if (authParam?.Name == "tokenCredential")
+                {
+                    Assert.AreEqual(new CSharpType(typeof(FakeTokenCredential)), authParam?.Type);
+                }
+                else
+                {
+                    Assert.Fail("Unexpected auth parameter");
+                }
+            }
+
             // validate the body of the primary ctor
+            var caseName = TestContext.CurrentContext.Test.Properties.Get("caseName");
+            var expected = Helpers.GetExpectedFromFile($"{caseName},{_hasKeyAuth},{_hasOAuth2},{ctorIndex}", method, filePath);
             var primaryCtorBody = primaryPublicConstructor?.BodyStatements;
             Assert.IsNotNull(primaryCtorBody);
+            Assert.AreEqual(expected, primaryCtorBody?.ToDisplayString());
         }
 
         private void ValidateSecondaryConstructor(
-            ConstructorProvider? primaryConstructor,
-            ConstructorProvider? secondaryPublicConstructor,
+            IReadOnlyList<ConstructorProvider> primaryConstructors,
+            ConstructorProvider secondaryPublicConstructor,
             List<InputParameter> inputParameters)
         {
-            Assert.IsNotNull(secondaryPublicConstructor);
-            var ctorParams = secondaryPublicConstructor?.Signature?.Parameters;
+            var ctorParams = secondaryPublicConstructor.Signature?.Parameters;
 
-            // secondary ctor should consist of all required parameters + auth parameter
+            // secondary ctor should consist of all required parameters + auth parameter (when present)
             var requiredParams = inputParameters.Where(p => p.IsRequired).ToList();
-            Assert.AreEqual(requiredParams.Count + 1, ctorParams?.Count);
+            var authParameterCount = _hasAuth ? 1 : 0;
+            Assert.AreEqual(requiredParams.Count + authParameterCount, ctorParams?.Count);
             var endpointParam = ctorParams?.FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
 
             if (requiredParams.Count == 0)
             {
-                // auth should be the only parameter if endpoint is optional
-                Assert.AreEqual("keyCredential", ctorParams?[0].Name);
+                // auth should be the only parameter if endpoint is optional when there is auth
+                if (_hasAuth)
+                {
+                    Assert.IsTrue(ctorParams?[0].Name.EndsWith("Credential"));
+                }
+                else
+                {
+                    // when there is no auth, the ctor should not have parameters
+                    Assert.AreEqual(0, ctorParams?.Count);
+                }
             }
             else
             {
                 // otherwise, it should only consist of the auth parameter
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
-                Assert.AreEqual("keyCredential", ctorParams?[1].Name);
+                if (_hasAuth)
+                {
+                    Assert.IsTrue(ctorParams?[1].Name.EndsWith("Credential"));
+                }
             }
 
             Assert.AreEqual(MethodBodyStatement.Empty, secondaryPublicConstructor?.BodyStatements);
 
             // validate the initializer
             var initializer = secondaryPublicConstructor?.Signature?.Initializer;
-            Assert.AreEqual(primaryConstructor?.Signature?.Parameters?.Count, initializer?.Arguments?.Count);
+            Assert.NotNull(initializer);
+            Assert.IsTrue(primaryConstructors.Any(pc => pc.Signature.Parameters.Count == initializer?.Arguments.Count));
         }
 
         [TestCaseSource(nameof(EndpointParamInitializationValueTestCases))]
@@ -309,7 +519,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
-        [TestCaseSource(nameof(SubClientTestCases), Category = SubClientsCategory)]
+        [TestCaseSource(nameof(SubClientFactoryMethodTestCases), Category = SubClientsCategory)]
         public void TestSubClientAccessorFactoryMethods(InputClient client, bool hasSubClients)
         {
             var clientProvider = new ClientProvider(client);
@@ -341,7 +551,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             {
                 Assert.AreEqual(0, subClientAccessorFactoryMethods.Count);
             }
-
         }
 
         [Test]
@@ -361,17 +570,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(2, methods.Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.IsFrameworkType && p.Type.FrameworkType == typeof(string))).Count());
         }
 
-        [Test]
-        public void ValidateQueryParamWriterDiff()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateQueryParamWriterDiff(bool isAsync)
         {
             MockHelpers.LoadMockPlugin(
-                createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client));
+                createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client, isAsync));
 
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
 
             TypeProviderWriter writer = new(clientProvider);
             var codeFile = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), codeFile.Content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(isAsync.ToString()), codeFile.Content);
         }
 
         [Test]
@@ -415,17 +625,59 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(2, protocolMethods[1].Signature.Parameters.Count);
 
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[0].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[0].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[0].Signature.Parameters[1].Type);
             Assert.AreEqual(new CSharpType(typeof(BinaryContent)), protocolMethods[1].Signature.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(RequestOptions)), protocolMethods[1].Signature.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(RequestOptions), true), protocolMethods[1].Signature.Parameters[1].Type);
 
             var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Equals(typeof(string)))).ToList();
             Assert.AreEqual(2, convenienceMethods.Count);
-            Assert.AreEqual(1, convenienceMethods[0].Signature.Parameters.Count);
+            Assert.AreEqual(2, convenienceMethods[0].Signature.Parameters.Count);
 
             Assert.AreEqual(new CSharpType(typeof(string)), convenienceMethods[0].Signature.Parameters[0].Type);
             Assert.AreEqual("p1", convenienceMethods[0].Signature.Parameters[0].Name);
+        }
 
+        [TestCaseSource(nameof(RequestOptionsParameterInSignatureTestCases))]
+        public void TestRequestOptionsParameterInSignature(InputOperation inputOperation, bool shouldBeOptional, bool hasOptionalParameter)
+        {
+            var client = InputFactory.Client(TestClientName, operations: [inputOperation]);
+            var clientProvider = new ClientProvider(client);
+            var protocolMethods = clientProvider.Methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Name == "RequestOptions")).ToList();
+            var syncMethod = protocolMethods.FirstOrDefault(m => !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(syncMethod);
+
+            var requestOptionsParameterInSyncMethod = syncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
+            Assert.IsNotNull(requestOptionsParameterInSyncMethod);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInSyncMethod!.Type.IsNullable);
+
+            var asyncMethod = protocolMethods.FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(asyncMethod);
+
+            var requestOptionsParameterInAsyncMethod = asyncMethod!.Signature.Parameters.FirstOrDefault(p => p.Type.Name == "RequestOptions");
+            Assert.IsNotNull(requestOptionsParameterInAsyncMethod);
+            Assert.AreEqual(shouldBeOptional, requestOptionsParameterInAsyncMethod!.Type.IsNullable);
+
+            // request options should always be last parameter
+            Assert.AreEqual("RequestOptions", syncMethod.Signature.Parameters[^1].Type.Name);
+            Assert.AreEqual("RequestOptions", asyncMethod.Signature.Parameters[^1].Type.Name);
+
+            if (shouldBeOptional)
+            {
+                Assert.IsNotNull(requestOptionsParameterInSyncMethod.DefaultValue);
+                Assert.IsNotNull(requestOptionsParameterInAsyncMethod.DefaultValue);
+            }
+
+            if (shouldBeOptional && hasOptionalParameter)
+            {
+                var optionalParameter = syncMethod.Signature.Parameters[^2];
+                // The optional parameter should be required in protocol method
+                Assert.IsNull(optionalParameter.DefaultValue);
+                // It should also be nullable for value types
+                if (optionalParameter.Type.IsValueType)
+                {
+                    Assert.IsTrue(optionalParameter.Type.IsNullable);
+                }
+            }
         }
 
         [Test]
@@ -531,14 +783,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
         private class ValidateQueryParamDiffClientProvider : ClientProvider
         {
-            public ValidateQueryParamDiffClientProvider(InputClient client)
+            private readonly bool _isAsync;
+
+            public ValidateQueryParamDiffClientProvider(InputClient client, bool isAsync = false)
                 : base(client)
             {
+                _isAsync = isAsync;
             }
 
             protected override MethodProvider[] BuildMethods()
             {
-                var method = base.BuildMethods().Where(m => m.Signature.Parameters.Any(p => p.Name == "queryParam" && p.Type.Name == "InputEnum" && !m.Signature.Name.EndsWith("Async"))).First();
+                var method = base.BuildMethods().First(m => m.Signature.Parameters.Any(p =>
+                    p is { Name: "queryParam", Type.Name: "InputEnum" } &&
+                    ((_isAsync && m.Signature.Name.EndsWith("Async")) || (!_isAsync && !m.Signature.Name.EndsWith("Async")))));
                 method.Update(xmlDocProvider: new XmlDocProvider()); // null out the docs
                 return [method];
             }
@@ -548,7 +805,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             protected override PropertyProvider[] BuildProperties() => [];
         }
 
-        public static IEnumerable<TestCaseData> BuildFieldsTestCases
+        public static IEnumerable<TestCaseData> BuildAuthFieldsTestCases
         {
             get
             {
@@ -565,7 +822,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         location:RequestLocation.None,
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                }, false);
+                });
                 yield return new TestCaseData(new List<InputParameter>
                 {
                     // have to explicitly set isRequired because we now call CreateParameter in buildFields
@@ -597,18 +854,110 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         defaultValue: null,
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                }, true);
+                });
             }
         }
 
-        public static IEnumerable<TestCaseData> SubClientTestCases
+        public static IEnumerable<TestCaseData> BuildFieldsTestCases
         {
             get
             {
-                yield return new TestCaseData(InputFactory.Client(TestClientName), true);
-                yield return new TestCaseData(_animalClient, true);
-                yield return new TestCaseData(_dogClient, true);
-                yield return new TestCaseData(_huskyClient, false);
+                yield return new TestCaseData(new List<InputParameter>
+                {
+                    InputFactory.Parameter(
+                        "optionalParam",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client),
+                    InputFactory.Parameter(
+                        KnownParameters.Endpoint.Name,
+                        InputPrimitiveType.String,
+                        location:RequestLocation.None,
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true)
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), true), "_optionalParam")
+                }
+                );
+                yield return new TestCaseData(new List<InputParameter>
+                {
+                    // have to explicitly set isRequired because we now call CreateParameter in buildFields
+                    InputFactory.Parameter(
+                        "optionalNullableParam",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.String("someValue"),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: false),
+                    InputFactory.Parameter(
+                        "requiredParam2",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.String("someValue"),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true),
+                    InputFactory.Parameter(
+                        "requiredParam3",
+                        InputPrimitiveType.Int64,
+                        location: RequestLocation.None,
+                        defaultValue: InputFactory.Constant.Int64(2),
+                        kind: InputOperationParameterKind.Client,
+                        isRequired: true),
+                    InputFactory.Parameter(
+                        KnownParameters.Endpoint.Name,
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        defaultValue: null,
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true)
+                },
+                new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), true), "_optionalNullableParam"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(string), false), "_requiredParam2"),
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(long), false), "_requiredParam3")
+                });
+            }
+        }
+
+        public static IEnumerable<TestCaseData> SubClientAuthFieldsTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(InputFactory.Client(TestClientName));
+                yield return new TestCaseData(_animalClient);
+                yield return new TestCaseData(_dogClient);
+                yield return new TestCaseData(_huskyClient);
+            }
+        }
+
+        public static IEnumerable<TestCaseData> SubClientFieldsTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(InputFactory.Client(TestClientName), new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Animal", "Sample", false), "_cachedAnimal"),
+                });
+                yield return new TestCaseData(_animalClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Dog", "Sample", false), "_cachedDog"),
+                });
+                yield return new TestCaseData(_dogClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint"),
+                    new(FieldModifiers.Private, new ExpectedCSharpType("Husky", "Sample", false), "_cachedHusky"),
+                });
+                yield return new TestCaseData(_huskyClient, new List<ExpectedFieldProvider>
+                {
+                    new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(Uri)), "_endpoint")
+                });
             }
         }
 
@@ -635,6 +984,17 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
+        public static IEnumerable<TestCaseData> SubClientFactoryMethodTestCases
+        {
+            get
+            {
+                yield return new TestCaseData(InputFactory.Client(TestClientName), true);
+                yield return new TestCaseData(_animalClient, true);
+                yield return new TestCaseData(_dogClient, true);
+                yield return new TestCaseData(_huskyClient, false);
+            }
+        }
+
         public static IEnumerable<TestCaseData> BuildConstructorsTestCases
         {
             get
@@ -653,7 +1013,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         defaultValue: InputFactory.Constant.String("someValue"),
                         kind: InputOperationParameterKind.Client,
                         isEndpoint: true)
-                });
+                }).SetProperty("caseName", "WithDefault");
                 // scenario where endpoint is required
                 yield return new TestCaseData(new List<InputParameter>
                 {
@@ -669,96 +1029,322 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         InputPrimitiveType.String,
                         location: RequestLocation.None,
                         kind: InputOperationParameterKind.Client)
-                });
+                }).SetProperty("caseName", "WithRequired");
             }
         }
 
-        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases()
+        public static IEnumerable<TestCaseData> RequestOptionsParameterInSignatureTestCases
         {
-            // string primitive type
-            yield return new TestCaseData(
-                InputFactory.Parameter(
-                    "param",
-                    InputPrimitiveType.String,
-                    location: RequestLocation.None,
-                    kind: InputOperationParameterKind.Client,
-                    isEndpoint: true,
-                    defaultValue: InputFactory.Constant.String("mockValue")),
-                New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
+            get
+            {
+                // Protocol & convenience methods will have the same parameters, so RequestOptions should be required.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputPrimitiveType.Int64,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                        ]), false, false);
+
+                // Protocol & convenience methods will have the same parameters.
+                // One of the parameter is optional, so it should be made required in the protocol method.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: false),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputPrimitiveType.Int64,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                        ]), false, true);
+
+                // Protocol & convenience methods will have the same parameters.
+                // One of the parameter is optional value type, so it should be made nullable required in the protocol method, and RequestOptions can be optional.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.Int32,
+                                location: RequestLocation.None,
+                                isRequired: false),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputPrimitiveType.Int64,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                        ]), false, true);
+
+                // convenience method only has a body param, so RequestOptions should be optional in protocol method.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                             InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.Body),
+                        ]), true, false);
+
+                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputFactory.Model("SampleModel"),
+                                location: RequestLocation.Body,
+                                isRequired: true),
+                        ]), true, false);
+
+                // Protocol & convenience methods will have different parameters since there is a model body param, so RequestOptions should be optional.
+                // One parameter is optional
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "p1",
+                                InputPrimitiveType.String,
+                                location: RequestLocation.None,
+                                isRequired: true),
+                            InputFactory.Parameter(
+                                "p2",
+                                InputFactory.Model("SampleModel"),
+                                location: RequestLocation.Body,
+                                isRequired: false),
+                        ]), true, true);
+
+                // Convenience method has no parameters, RequestOptions should be required in protocol method.
+                yield return new TestCaseData(
+                    InputFactory.Operation(
+                        "TestOperation",
+                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
+                        parameters: []),
+                    false, false);
+            }
         }
 
-        private static IEnumerable<TestCaseData> ValidateApiVersionPathParameterTestCases()
+        private static IEnumerable<TestCaseData> EndpointParamInitializationValueTestCases
         {
-            InputParameter endpointParameter = InputFactory.Parameter(
-                "endpoint",
-                InputPrimitiveType.String,
-                location: RequestLocation.Uri,
-                isRequired: true,
-                kind: InputOperationParameterKind.Client,
-                isEndpoint: true,
-                isApiVersion: false);
+            get
+            {
+                // string primitive type
+                yield return new TestCaseData(
+                    InputFactory.Parameter(
+                        "param",
+                        InputPrimitiveType.String,
+                        location: RequestLocation.None,
+                        kind: InputOperationParameterKind.Client,
+                        isEndpoint: true,
+                        defaultValue: InputFactory.Constant.String("mockValue")),
+                    New.Instance(KnownParameters.Endpoint.Type, Literal("mockvalue")));
+            }
+        }
 
-            InputParameter stringApiVersionParameter = InputFactory.Parameter(
-                "apiVersion",
-                InputPrimitiveType.String,
-                location: RequestLocation.Uri,
-                isRequired: true,
-                kind: InputOperationParameterKind.Client,
-                isApiVersion: true);
-
-            InputParameter enumApiVersionParameter = InputFactory.Parameter(
-                "apiVersion",
-                InputFactory.Enum(
-                    "InputEnum",
+        private static IEnumerable<TestCaseData> ValidateApiVersionPathParameterTestCases
+        {
+            get
+            {
+                InputParameter endpointParameter = InputFactory.Parameter(
+                    "endpoint",
                     InputPrimitiveType.String,
-                    usage: InputModelTypeUsage.Input,
-                    isExtensible: true,
-                    values:
-                    [
-                        InputFactory.EnumMember.String("value1", "value1"),
+                    location: RequestLocation.Uri,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Client,
+                    isEndpoint: true,
+                    isApiVersion: false);
+
+                InputParameter stringApiVersionParameter = InputFactory.Parameter(
+                    "apiVersion",
+                    InputPrimitiveType.String,
+                    location: RequestLocation.Uri,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Client,
+                    isApiVersion: true);
+
+                InputParameter enumApiVersionParameter = InputFactory.Parameter(
+                    "apiVersion",
+                    InputFactory.Enum(
+                        "InputEnum",
+                        InputPrimitiveType.String,
+                        usage: InputModelTypeUsage.Input,
+                        isExtensible: true,
+                        values:
+                        [
+                            InputFactory.EnumMember.String("value1", "value1"),
                         InputFactory.EnumMember.String("value2", "value2")
-                    ]),
-                location: RequestLocation.Uri,
-                isRequired: true,
-                kind: InputOperationParameterKind.Client,
-                isApiVersion: true);
+                        ]),
+                    location: RequestLocation.Uri,
+                    isRequired: true,
+                    kind: InputOperationParameterKind.Client,
+                    isApiVersion: true);
 
-            yield return new TestCaseData(
-                InputFactory.Client(
-                    "TestClient",
-                    operations:
-                    [
-                        InputFactory.Operation(
+                yield return new TestCaseData(
+                    InputFactory.Client(
+                        "TestClient",
+                        operations:
+                        [
+                            InputFactory.Operation(
                             "TestOperation",
-                            uri: "{endpoint}/{apiVersion}",
-                            parameters:
-                            [
-                                endpointParameter,
-                                stringApiVersionParameter
-                            ])
-                    ],
-                    parameters: [
-                        endpointParameter,
-                        stringApiVersionParameter
-                    ]));
-
-            yield return new TestCaseData(
-                InputFactory.Client(
-                    "TestClient",
-                    operations:
-                    [
-                        InputFactory.Operation(
-                        "TestOperation",
+                            uri: "{endpoint}/{apiVersion}")
+                        ],
                         parameters: [
                             endpointParameter,
-                            enumApiVersionParameter
-                        ],
+                        stringApiVersionParameter
+                        ]));
+
+                yield return new TestCaseData(
+                    InputFactory.Client(
+                        "TestClient",
+                        operations:
+                        [
+                            InputFactory.Operation(
+                        "TestOperation",
                         uri: "{endpoint}/{apiVersion}")
-                    ],
-                    parameters: [
-                        endpointParameter,
+                        ],
+                        parameters: [
+                            endpointParameter,
                         enumApiVersionParameter
-                    ]));
+                        ]));
+            }
+        }
+
+        // TODO -- this is temporary here before System.ClientModel officially supports OAuth2 auth
+        private record TestClientPipelineApi : ClientPipelineProvider
+        {
+            private static ClientPipelineApi? _instance;
+            internal new static ClientPipelineApi Instance => _instance ??= new TestClientPipelineApi(Empty);
+
+            public TestClientPipelineApi(ValueExpression original) : base(original)
+            {
+            }
+
+            public override CSharpType TokenCredentialType => typeof(FakeTokenCredential);
+
+            public override ClientPipelineApi FromExpression(ValueExpression expression)
+                => new TestClientPipelineApi(expression);
+                
+            public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
+                => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
+
+            public override ClientPipelineApi ToExpression() => this;
+        }
+
+        internal class FakeTokenCredential { }
+
+        public record ExpectedCSharpType
+        {
+            public string Name { get; }
+
+            public string Namespace { get; }
+
+            public bool IsFrameworkType { get; }
+
+            public Type FrameworkType => _frameworkType ?? throw new InvalidOperationException();
+
+            public bool IsNullable { get; }
+
+            private readonly Type? _frameworkType;
+
+            public ExpectedCSharpType(Type frameworkType, bool isNullable)
+            {
+                _frameworkType = frameworkType;
+                IsFrameworkType = true;
+                IsNullable = isNullable;
+                Name = frameworkType.Name;
+                Namespace = frameworkType.Namespace!;
+            }
+
+            public ExpectedCSharpType(string name, string ns, bool isNullable)
+            {
+                IsFrameworkType = false;
+                IsNullable = isNullable;
+                Name = name;
+                Namespace = ns;
+            }
+
+            public static implicit operator ExpectedCSharpType(CSharpType type)
+            {
+                if (type.IsFrameworkType)
+                {
+                    return new(type.FrameworkType, type.IsNullable);
+                }
+                else
+                {
+                    return new(type.Name, type.Namespace, type.IsNullable);
+                }
+            }
+        }
+
+        public record ExpectedFieldProvider(FieldModifiers Modifiers, ExpectedCSharpType Type, string Name);
+
+        private static void AssertCSharpTypeAreEqual(ExpectedCSharpType expected, CSharpType type)
+        {
+            if (expected.IsFrameworkType)
+            {
+                Assert.IsTrue(type.IsFrameworkType);
+                Assert.AreEqual(expected.FrameworkType, type.FrameworkType);
+            }
+            else
+            {
+                Assert.IsFalse(type.IsFrameworkType);
+                Assert.AreEqual(expected.Name, type.Name);
+                Assert.AreEqual(expected.Namespace, type.Namespace);
+            }
+            Assert.AreEqual(expected.IsNullable, type.IsNullable);
+        }
+
+        private static void AssertFieldAreEqual(ExpectedFieldProvider expected, FieldProvider field)
+        {
+            Assert.AreEqual(expected.Name, field.Name);
+            AssertCSharpTypeAreEqual(expected.Type, field.Type);
+            Assert.AreEqual(expected.Modifiers, field.Modifiers);
+        }
+
+        private static void AssertHasFields(TypeProvider provider, IReadOnlyList<ExpectedFieldProvider> expectedFields)
+        {
+            var fields = provider.Fields;
+
+            // validate the length of the result
+            Assert.GreaterOrEqual(fields.Count, expectedFields.Count);
+
+            // validate each of them
+            var fieldDict = fields.ToDictionary(f => f.Name);
+            for (int i = 0; i < expectedFields.Count; i++)
+            {
+                var expected = expectedFields[i];
+
+                Assert.IsTrue(fieldDict.TryGetValue(expected.Name, out var actual), $"Field {expected.Name} not present");
+                AssertFieldAreEqual(expected, actual!);
+            }
         }
     }
 }

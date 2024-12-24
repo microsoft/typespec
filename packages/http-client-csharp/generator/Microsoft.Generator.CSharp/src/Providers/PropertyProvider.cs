@@ -9,6 +9,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Utilities;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -85,15 +86,17 @@ namespace Microsoft.Generator.CSharp.Providers
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
-            Name = inputProperty.Name.ToCleanName();
+            Name = inputProperty.Name == enclosingType.Name
+                ? $"{inputProperty.Name.ToCleanName()}Property"
+                : inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
-            Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
+            Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
             IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty);
+            InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
         }
 
         public PropertyProvider(
@@ -158,7 +161,17 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
+            // Output-only properties don't need setters.
             if (!inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Input))
+            {
+                return false;
+            }
+
+            // At this point, we know that we are dealing with an Input model.
+            // If the property is required and is not on a round-trip model, it doesn't need a setter as it can just be set via
+            // constructor.
+            // Round-trip models need setters so that a model returned from a service method can be modified.
+            if (inputProperty.IsRequired && !inputProperty.EnclosingType!.Usage.HasFlag(InputModelTypeUsage.Output))
             {
                 return false;
             }
@@ -168,7 +181,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 return false;
             }
 
-            if (type.IsCollection && !type.IsReadOnlyMemory)
+            if (type is { IsCollection: true, IsReadOnlyMemory: false })
             {
                 return type.IsNullable;
             }

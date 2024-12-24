@@ -1,1 +1,2 @@
 <in core> - error @typespec/protobuf/nested-array: nested arrays are not supported by the Protobuf emitter
+  /test/main.tsp:14:29 - occurred while instantiating template

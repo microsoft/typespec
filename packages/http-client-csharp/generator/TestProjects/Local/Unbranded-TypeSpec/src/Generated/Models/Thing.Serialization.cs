@@ -321,6 +321,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="thing"> The <see cref="Thing"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(Thing thing)
         {
+            if (thing == null)
+            {
+                return null;
+            }
             return BinaryContent.Create(thing, ModelSerializationExtensions.WireOptions);
         }
 

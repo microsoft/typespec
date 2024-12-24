@@ -217,7 +217,8 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                         && definedByModel
                         && streamStyle
                         && !property.isPolymorphicDiscriminator()
-                        && !modelIsJsonMergePatch) {
+                        && !modelIsJsonMergePatch
+                        && !property.isConstant()) {
                         generateSetterJavadoc(classBlock, model, property);
                         addGeneratedAnnotation(classBlock);
                         classBlock.method(JavaVisibility.PackagePrivate, null,
@@ -306,7 +307,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                         });
 
                     // setter
-                    if (!propertyIsReadOnly) {
+                    if (!propertyIsReadOnly && !property.isConstant()) {
                         generateSetterJavadoc(classBlock, model, property);
                         addGeneratedAnnotation(classBlock);
                         ClientModelPropertyReference propertyReferenceFinal = propertyReference;
@@ -621,7 +622,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         addGeneratedAnnotation(classBlock);
         addFieldAnnotations(model, property, classBlock, settings);
 
-        if (ClientModelUtil.includePropertyInConstructor(property, settings)) {
+        if (ClientModelUtil.includePropertyInConstructor(property, settings) || property.isConstant()) {
             classBlock.privateFinalMemberVariable(fieldSignature);
         } else {
             classBlock.privateMemberVariable(fieldSignature);

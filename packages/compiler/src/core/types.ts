@@ -89,7 +89,13 @@ export interface TypeMapper {
   partial: boolean;
   getMappedType(type: TemplateParameter): Type | Value | IndeterminateEntity;
   args: readonly (Type | Value | IndeterminateEntity)[];
-  /** @internal */ map: Map<TemplateParameter, Type | Value | IndeterminateEntity>;
+  /** @internal Node used to create this type mapper. */
+  readonly source: {
+    readonly node: Node;
+    readonly mapper: TypeMapper | undefined;
+  };
+  /** @internal */
+  map: Map<TemplateParameter, Type | Value | IndeterminateEntity>;
 }
 
 export interface TemplatedTypeBase {
@@ -254,10 +260,28 @@ export type IntrinsicScalarName =
   | "boolean"
   | "url";
 
-export type NeverIndexer = { key: NeverType; value: undefined };
+/**
+ * Valid keys when looking up meta members for a particular type.
+ * Array is a special case because it doesn't have a unique type, but does
+ * carry unique meta-members.
+ */
+export type MetaMemberKey = Type["kind"] | "Array";
+
+/**
+ * A table to ease lookup of meta member interfaces during identifier resolution.
+ * Only `type` exists today, but `value` will be added in the future.
+ */
+export interface MetaMembersTable {
+  type: Partial<Record<MetaMemberKey, Sym>>;
+}
+export type NeverIndexer = {
+  readonly key: NeverType;
+  readonly value: undefined;
+};
+
 export type ModelIndexer = {
-  key: Scalar;
-  value: Type;
+  readonly key: Scalar;
+  readonly value: Type;
 };
 
 export interface ArrayModelType extends Model {
@@ -509,6 +533,12 @@ export interface Enum extends BaseType, DecoratedType {
    * obtained via `...` are inserted where the spread appears in source.
    */
   members: RekeyableMap<string, EnumMember>;
+
+  /**
+   * Late-bound symbol of this enum type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface EnumMember extends BaseType, DecoratedType {
@@ -746,9 +776,14 @@ export interface Sym {
   readonly flags: SymbolFlags;
 
   /**
-   * Nodes which contribute to this declaration
+   * Nodes which contribute to this declaration, present if SymbolFlags.Declaration is set.
    */
   readonly declarations: readonly Node[];
+
+  /**
+   * Node which resulted in this symbol, present if SymbolFlags.Declaration is not set.
+   */
+  readonly node: Node;
 
   /**
    * The name of the symbol
@@ -810,6 +845,100 @@ export interface SymbolLinks {
 
   /** For const statements the value of the const */
   value?: Value | null;
+
+  /**
+   * When a symbol contains unknown members, symbol lookup during
+   * name resolution should always return unknown if it can't definitely
+   * find a member.
+   */
+  hasUnknownMembers?: boolean;
+
+  /**
+   * True if we have completed the early binding of member symbols for this model during
+   * the name resolution phase.
+   */
+  membersBound?: boolean;
+
+  /**
+   * The symbol aliased by an alias symbol. When present, guaranteed to be a
+   * non-alias symbol. Will not be present when the name resolver could not
+   * determine a symbol for the alias, e.g. when it is a computed type.
+   */
+  aliasedSymbol?: Sym;
+
+  /**
+   * The result of resolving the aliased reference. When resolved, aliasedSymbol
+   * will contain the resolved symbol. Otherwise, aliasedSymbol may be present
+   * if the alias is a type literal with a symbol, otherwise it will be
+   * undefined.
+   */
+  aliasResolutionResult?: ResolutionResultFlags;
+
+  // TODO: any better idea?
+  aliasResolutionIsTemplate?: boolean;
+
+  /**
+   * The symbol for the constraint of a type parameter. Will not be present when
+   * the name resolver could not determine a symbol for the constraint, e.g.
+   * when it is a computed type.
+   */
+  constraintSymbol?: Sym;
+
+  /**
+   * The result of resolving the type parameter constraint. When resolved,
+   * constraintSymbol will contain the resolved symbol. Otherwise,
+   * constraintSymbol may be present if the constraint is a type literal with a
+   * symbol, otherwise it will be undefined.
+   */
+  constraintResolutionResult?: ResolutionResultFlags;
+}
+
+export interface ResolutionResult {
+  resolutionResult: ResolutionResultFlags;
+  isTemplateInstantiation?: boolean;
+  resolvedSymbol: Sym | undefined;
+  finalSymbol: Sym | undefined;
+  ambiguousSymbols?: Sym[];
+}
+
+export interface NodeLinks {
+  /** the result of type checking this node */
+  resolvedType?: Type;
+
+  /**The syntax symbol resolved by this node. */
+  resolvedSymbol?: Sym;
+
+  /** If the resolvedSymbol is an alias point to the symbol the alias reference(recursively), otherwise is the same as resolvedSymbol */
+  finalSymbol?: Sym | undefined;
+
+  /**
+   * If the link involve template argument.
+   * Note that this only catch if template arguments are used. If referencing the default instance(e.g Foo for Foo<string = "abc">) this will not be set to true.
+   * This is by design as the symbol reference has different meaning depending on the context:
+   * - For augment decorator it would reference the template declaration
+   * - For type references it would reference the default instance.
+   */
+  isTemplateInstantiation?: boolean;
+
+  /**
+   * The result of resolution of this reference node.
+   *
+   * When the the result is `Resolved`, `resolvedSymbol` contains the result.
+   **/
+  resolutionResult?: ResolutionResultFlags;
+
+  /** If the resolution result is Ambiguous list of symbols that are */
+  ambiguousSymbols?: Sym[];
+}
+
+export enum ResolutionResultFlags {
+  None = 0,
+  Resolved = 1 << 1,
+  Unknown = 1 << 2,
+  Ambiguous = 1 << 3,
+  NotFound = 1 << 4,
+
+  ResolutionFailed = Unknown | Ambiguous | NotFound,
 }
 
 /**
@@ -822,47 +951,62 @@ export interface SymbolTable extends ReadonlyMap<string, Sym> {
   readonly duplicates: ReadonlyMap<Sym, ReadonlySet<Sym>>;
 }
 
+export interface MutableSymbolTable extends SymbolTable {
+  set(key: string, value: Sym): void;
+
+  /**
+   * Put the symbols in the source table into this table.
+   * @param source table to copy
+   * @param parentSym Parent symbol that the source symbol should update to.
+   */
+  include(source: SymbolTable, parentSym?: Sym): void;
+}
+
 // prettier-ignore
 export const enum SymbolFlags {
   None                  = 0,
   Model                 = 1 << 1,
-  ModelProperty         = 1 << 2,
-  Scalar                = 1 << 3,
-  Operation             = 1 << 4,
-  Enum                  = 1 << 5,
-  EnumMember            = 1 << 6,
-  Interface             = 1 << 7,
-  InterfaceMember       = 1 << 8,
-  Union                 = 1 << 9,
-  UnionVariant          = 1 << 10,
-  Alias                 = 1 << 11,
-  Namespace             = 1 << 12,
-  Projection            = 1 << 13,
-  Decorator             = 1 << 14,
-  TemplateParameter     = 1 << 15,
-  ProjectionParameter   = 1 << 16,
-  Function              = 1 << 17,
-  FunctionParameter     = 1 << 18,
-  Using                 = 1 << 19,
-  DuplicateUsing        = 1 << 20,
-  SourceFile            = 1 << 21,
-  Declaration           = 1 << 22,
-  Implementation        = 1 << 23,
-  Const                 = 1 << 24,
-  ScalarMember          = 1 << 25,
+  Scalar                = 1 << 2,
+  Operation             = 1 << 3,
+  Enum                  = 1 << 4,
+  Interface             = 1 << 5,
+  Union                 = 1 << 6,
+  Alias                 = 1 << 7,
+  Namespace             = 1 << 8,
+  Projection            = 1 << 9,
+  Decorator             = 1 << 10,
+  TemplateParameter     = 1 << 11,
+  ProjectionParameter   = 1 << 12,
+  Function              = 1 << 13,
+  FunctionParameter     = 1 << 14,
+  Using                 = 1 << 15,
+  DuplicateUsing        = 1 << 16,
+  SourceFile            = 1 << 17,
+  Member                = 1 << 18,
+  Const                 = 1 << 19,
+
+
+  /**
+   * A symbol which represents a declaration. Such symbols will have at least
+   * one entry in the `declarations[]` array referring to a node with an `id`.
+   * 
+   * Symbols which do not represent declarations 
+   */
+  Declaration           = 1 << 20,
+
+  Implementation        = 1 << 21,
   
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 26,
+  LateBound = 1 << 22,
 
   ExportContainer = Namespace | SourceFile,
   /**
    * Symbols whose members will be late bound (and stored on the type)
    */
   MemberContainer = Model | Enum | Union | Interface | Scalar,
-  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember | ScalarMember,
 }
 
 /**
@@ -1040,6 +1184,8 @@ export interface BaseNode extends TextRange {
    * you will likely only access symbol in cases where you know the node has a symbol.
    */
   readonly symbol: Sym;
+  /** Unique id across the process used to look up NodeLinks */
+  _id?: number;
 }
 
 export interface TemplateDeclarationNode {
@@ -1153,6 +1299,7 @@ export type MemberContainerNode =
   | InterfaceStatementNode
   | EnumStatementNode
   | UnionStatementNode
+  | IntersectionExpressionNode
   | ScalarStatementNode;
 
 export type MemberNode =
@@ -2141,7 +2288,16 @@ export interface SourceLocation extends TextRange {
 export const NoTarget = Symbol.for("NoTarget");
 
 /** Diagnostic target that can be used when working with TypeSpec types.  */
-export type TypeSpecDiagnosticTarget = Node | Entity | Sym;
+export type TypeSpecDiagnosticTarget = Node | Entity | Sym | TemplateInstanceTarget;
+
+/** Represent a diagnostic target that happens in a template instance context.  */
+export interface TemplateInstanceTarget {
+  /** Node target */
+  readonly node: Node;
+  /** Template mapper used. */
+  readonly templateMapper: TypeMapper;
+}
+
 export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
 export type DiagnosticSeverity = "error" | "warning";
@@ -2708,7 +2864,18 @@ export interface ProcessedLog {
   code?: string;
   /** Documentation for the error code. */
   url?: string;
+
+  /** Log location */
   sourceLocation?: SourceLocation;
+
+  /** @internal */
+  related?: RelatedSourceLocation[];
+}
+
+/** @internal */
+export interface RelatedSourceLocation {
+  readonly message: string;
+  readonly location: SourceLocation;
 }
 
 export interface LogSink {

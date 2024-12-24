@@ -24,6 +24,7 @@ namespace _Type.Property.Optional.Models
 
         public bool Equals(IntLiteralPropertyProperty other) => throw null;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

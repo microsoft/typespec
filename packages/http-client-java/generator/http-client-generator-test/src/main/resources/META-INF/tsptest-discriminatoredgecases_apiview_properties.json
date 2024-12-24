@@ -1,0 +1,21 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient.getChildNewDiscrim": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildNewDiscrim",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient.getChildNewDiscrimWithResponse": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildNewDiscrim",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient.getChildRequiredDiscrim": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildRequiredDiscrim",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesAsyncClient.getChildRequiredDiscrimWithResponse": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildRequiredDiscrim",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesClient": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesClient.getChildNewDiscrim": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildNewDiscrim",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesClient.getChildNewDiscrimWithResponse": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildNewDiscrim",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesClient.getChildRequiredDiscrim": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildRequiredDiscrim",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesClient.getChildRequiredDiscrimWithResponse": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp.getChildRequiredDiscrim",
+    "tsptest.discriminatoredgecases.DiscriminatorEdgeCasesClientBuilder": "TspTest.DiscriminatorEdgeCases.DiscriminatorEdgeCasesOp",
+    "tsptest.discriminatoredgecases.models.ChildWithAnotherDiscriminator": "TspTest.DiscriminatorEdgeCases.ChildWithAnotherDiscriminator",
+    "tsptest.discriminatoredgecases.models.ChildWithRequiredPropertyAsDiscriminator": "TspTest.DiscriminatorEdgeCases.ChildWithRequiredPropertyAsDiscriminator",
+    "tsptest.discriminatoredgecases.models.GrandChildWithAnotherDiscriminator": "TspTest.DiscriminatorEdgeCases.GrandChildWithAnotherDiscriminator",
+    "tsptest.discriminatoredgecases.models.GrandChildWithRequiredProperty": "TspTest.DiscriminatorEdgeCases.GrandChildWithRequiredProperty",
+    "tsptest.discriminatoredgecases.models.ParentWithRequiredProperty": "TspTest.DiscriminatorEdgeCases.ParentWithRequiredProperty"
+  }
+}

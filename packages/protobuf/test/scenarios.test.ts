@@ -107,7 +107,7 @@ describe("protobuf scenarios", function () {
           // Fix the start of lines on Windows
           const processedDiagnostics =
             process.platform === "win32"
-              ? emitResult.diagnostics.map((d) => d.replace(/^Z:/, ""))
+              ? emitResult.diagnostics.map((d) => d.replaceAll(/^(\s*)Z:/gm, "$1"))
               : emitResult.diagnostics;
 
           const diagnostics = removeCoreDiagnostics(processedDiagnostics).join("\n") + "\n";
@@ -168,7 +168,7 @@ async function doEmit(
         .filter(([name]) => name.startsWith(baseOutputPath))
         .map(([name, value]) => [name.replace(baseOutputPath, ""), value]),
     ),
-    diagnostics: diagnostics.map(formatDiagnostic),
+    diagnostics: diagnostics.map((x) => formatDiagnostic(x)),
   };
 }
 

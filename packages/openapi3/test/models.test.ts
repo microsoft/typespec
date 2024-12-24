@@ -102,6 +102,60 @@ describe("openapi3: models", () => {
     ]);
   });
 
+  describe("errors on invalid model names", () => {
+    const symbols = [
+      "!",
+      "@",
+      "#",
+      "$",
+      "%",
+      "^",
+      "&",
+      "*",
+      "(",
+      ")",
+      "=",
+      "+",
+      "[",
+      "]",
+      "{",
+      "}",
+      "|",
+      ";",
+      ":",
+      "<",
+      ">",
+      ",",
+      "/",
+      "?",
+      "~",
+    ];
+    it.each(symbols)("%sName01", async (model) => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `
+        model \`${model}Name01\` { name: string; }
+       `,
+      );
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/openapi3/invalid-component-fixed-field-key",
+        },
+      ]);
+    });
+  });
+
+  describe("no errors on valid model names", () => {
+    const symbols = [".", "-", "_"];
+    it.each(symbols)("%sName01", async (model) => {
+      const diagnostics = await diagnoseOpenApiFor(
+        `
+        model \`${model}Name01\` { name: string; }
+       `,
+      );
+      expectDiagnostics(diagnostics, []);
+    });
+  });
+
   it("doesn't define anonymous models", async () => {
     const res = await oapiForModel("{ x: int32 }", "");
 

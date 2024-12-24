@@ -163,7 +163,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
 
             using var codeWriter = new CodeWriter();
             codeWriter.WriteMethod(method);
-            var declScopes = GetDeclarationScopes(param.AsExpression.Declaration);
+            var declScopes = GetDeclarationScopes(param.AsExpression().Declaration);
             Assert.AreEqual(2, declScopes.Count);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), codeWriter.ToString(false));
         }

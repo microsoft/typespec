@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from .code_model import CodeModel
 
 
-class RawString(object):
+class RawString:
     def __init__(self, string: str) -> None:
         self.string = string
 
@@ -340,7 +340,7 @@ class StringType(PrimitiveType):
         return validation or None
 
     def get_declaration(self, value) -> str:
-        return f'"{value}"'
+        return f"'{value}'" if value == '"' else f'"{value}"'
 
     @property
     def serialization_type(self) -> str:

@@ -14,7 +14,7 @@ export function expectDiagnosticEmpty(diagnostics: readonly Diagnostic[]) {
 }
 
 function formatDiagnostics(diagnostics: readonly Diagnostic[]) {
-  return diagnostics.map(formatDiagnostic).join("\n");
+  return diagnostics.map((x) => formatDiagnostic(x)).join("\n");
 }
 /**
  * Condition to match

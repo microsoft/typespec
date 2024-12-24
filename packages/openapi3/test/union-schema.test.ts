@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
@@ -575,6 +575,23 @@ describe("openapi3: union type", () => {
           },
         ],
       },
+    });
+  });
+
+  describe("null and another single variant produce allOf", () => {
+    it.each([
+      ["model", "model Other {}"],
+      ["enum", "enum Other {a, b}"],
+    ])("%s variant", async (_, code) => {
+      const openApi = await openApiFor(`
+        union Test { Other, null }
+        ${code}
+        `);
+
+      expect(openApi.components.schemas.Test).toMatchObject({
+        allOf: [{ $ref: "#/components/schemas/Other" }],
+        nullable: true,
+      });
     });
   });
 });

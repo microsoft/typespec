@@ -576,7 +576,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
               ...additionalProps,
             });
           } else {
-            return new ObjectBuilder({ oneOf: B.array([schema]), ...additionalProps });
+            return new ObjectBuilder({ allOf: B.array([schema]), ...additionalProps });
           }
         } else {
           const merged = new ObjectBuilder<OpenAPI3Schema>(schema);

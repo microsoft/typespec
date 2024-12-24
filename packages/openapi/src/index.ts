@@ -14,6 +14,7 @@ export {
   getExternalDocs,
   getInfo,
   getOperationId,
+  getTagsMetadata,
   isDefaultResponse,
   resolveInfo,
   setExtension,

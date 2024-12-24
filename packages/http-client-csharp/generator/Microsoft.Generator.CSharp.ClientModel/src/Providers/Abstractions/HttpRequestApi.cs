@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -15,11 +16,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
         }
 
-        public abstract AssignmentExpression SetMethod(string httpMethod);
-
-        public abstract AssignmentExpression SetUri(ValueExpression uri);
-
-        public abstract InvokeMethodExpression SetHeaders(IReadOnlyList<ValueExpression> arguments);
+        public abstract Type UriBuilderType { get; }
+        public abstract MethodBodyStatement SetMethod(string httpMethod);
+        public abstract MethodBodyStatement SetUri(ValueExpression uri);
+        public abstract MethodBodyStatement SetHeaders(IReadOnlyList<ValueExpression> arguments);
 
         public abstract ValueExpression Content();
         public abstract HttpRequestApi FromExpression(ValueExpression original);

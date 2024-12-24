@@ -42,13 +42,19 @@ export function transformPaths(
       const responseModels = collectOperationResponses(operation.operationId!, operationResponses);
       models.push(...responseModels);
 
+      const decorators = [
+        ...getExtensions(operation),
+        { name: "route", args: [route] },
+        { name: verb, args: [] },
+      ];
+
+      if (operation.summary) {
+        decorators.push({ name: "summary", args: [operation.summary] });
+      }
+
       operations.push({
         ...getScopeAndName(operation.operationId!),
-        decorators: [
-          ...getExtensions(operation),
-          { name: "route", args: [route] },
-          { name: verb, args: [] },
-        ],
+        decorators,
         parameters: dedupeParameters([...routeParameters, ...parameters]),
         doc: operation.description,
         operationId: operation.operationId,

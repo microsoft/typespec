@@ -9,7 +9,9 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Utilities;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -49,11 +51,12 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterProvider(InputParameter inputParameter)
         {
             Name = inputParameter.Name;
-            Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
+            Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             if (!inputParameter.IsRequired && !type.IsCollection)
             {
                 type = type.WithNullable(true);
+                DefaultValue = Snippet.Null;
             }
             Type = type;
             Validation = inputParameter.IsRequired && !Type.IsValueType && !Type.IsNullable
@@ -119,7 +122,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 wireInfo: WireInfo,
                 validation: Validation)
             {
-                _asVariable = AsExpression
+                _asVariable = AsExpression,
+                SpreadSource = SpreadSource
             };
         }
 
@@ -175,7 +179,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private VariableExpression? _asVariable;
-        public VariableExpression AsExpression => _asVariable ??= this;
+        private VariableExpression AsExpression => _asVariable ??= this;
 
         public TypeProvider? SpreadSource { get; set; }
 

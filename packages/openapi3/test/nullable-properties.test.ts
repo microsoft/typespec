@@ -34,7 +34,7 @@ describe("openapi3: nullable properties", () => {
         }
         `,
     );
-    deepStrictEqual(res.schemas.X.properties.prop.oneOf, [
+    deepStrictEqual(res.schemas.X.properties.prop.allOf, [
       {
         $ref: "#/components/schemas/A",
       },

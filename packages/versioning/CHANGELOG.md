@@ -1,5 +1,19 @@
 # Change Log - @typespec/versioning
 
+## 0.63.0
+
+### Bug Fixes
+
+- [#5262](https://github.com/microsoft/typespec/pull/5262) Fixes diagnostics for @typeChangedFrom to properly detect when an incompatible version is referenced inside of a template, union, or tuple.
+
+
+## 0.62.0
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+
 ## 0.61.0
 
 ### Bump dependencies

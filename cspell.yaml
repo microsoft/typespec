@@ -95,8 +95,10 @@ words:
   - itor
   - ivar
   - Jacoco
+  - javac
   - jdwp
   - jobject
+  - Johan
   - jsyaml
   - keyer
   - killpg

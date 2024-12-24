@@ -6,7 +6,6 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 {
@@ -32,7 +31,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             Assert.IsNotNull(method);
             Assert.IsNotNull(method!.BodyStatements);
-            var test = method!.BodyStatements!.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), method!.BodyStatements!.ToDisplayString());
         }
 
@@ -55,14 +53,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             public override CSharpType HttpMessageType => typeof(string);
 
-            public override MethodBodyStatement Apply(ValueExpression options)
-                => Original.Invoke("GetFakeApply", [options]).Terminate();
+            public override MethodBodyStatement ApplyRequestOptions(HttpRequestOptionsApi options)
+                => Original.Invoke("GetFakeSetRequestContext", [options]).Terminate();
 
             public override ValueExpression BufferResponse()
                 => Original.Invoke("GetFakeBufferResponse");
-
-            public override MethodBodyStatement[] ExtractResponse()
-                => [Return(Original.Invoke("GetFakeExtractResponse"))];
 
             public override HttpMessageApi FromExpression(ValueExpression original)
                 => new TestHttpMessageApi(original);
@@ -73,8 +68,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override HttpResponseApi Response()
                 => Original.Invoke("GetFakeResponse").ToApi<HttpResponseApi>();
 
-            public override ValueExpression ResponseClassifier()
-                => Original.Invoke("GetFakeResponseClassifier");
+            public override MethodBodyStatement ApplyResponseClassifier(StatusCodeClassifierApi statusCodeClassifier)
+                => Original.Invoke("GetFakeAssignResponseClassifier", [statusCodeClassifier]).Terminate();
 
             public override HttpMessageApi ToExpression() => this;
         }

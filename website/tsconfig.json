@@ -4,9 +4,7 @@
     "baseUrl": "./",
     "noImplicitAny": false,
     "paths": {
-      "@site/*": ["*"],
-      "@docusaurus/*": ["src/components/docusaurus/core/*"],
-      "@theme/*": ["src/components/docusaurus/theme/*"]
+      "@site/*": ["*"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"

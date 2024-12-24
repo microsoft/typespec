@@ -2,27 +2,17 @@
 import react from "@astrojs/react";
 import starlight from "@astrojs/starlight";
 import tailwind from "@astrojs/tailwind";
+import { TypeSpecLang } from "@typespec/astro-utils/shiki";
+import { processSidebar } from "@typespec/astro-utils/sidebar";
 import astroExpressiveCode from "astro-expressive-code";
 import rehypeAstroRelativeMarkdownLinks from "astro-rehype-relative-markdown-links";
 import { defineConfig } from "astro/config";
-import { readFile } from "fs/promises";
 import { resolve } from "path";
 import rehypeMermaid from "rehype-mermaid";
 import remarkHeadingID from "remark-heading-id";
-import { resolveSideBars } from "./sidebars";
+import current from "./src/content/current-sidebar";
 
 const base = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
-
-const grammarPath = resolve(import.meta.dirname, "../grammars/typespec.json");
-const tspGrammar = JSON.parse((await readFile(grammarPath)).toString());
-
-const typespecLang = {
-  ...tspGrammar,
-  id: "typespec",
-  scopeName: "source.tsp",
-  path: grammarPath,
-  aliases: ["typespec", "tsp"],
-};
 
 // https://astro.build/config
 export default defineConfig({
@@ -33,7 +23,11 @@ export default defineConfig({
     astroExpressiveCode(),
     starlight({
       title: "TypeSpec",
-      sidebar: await resolveSideBars(),
+      sidebar: await processSidebar(
+        resolve(import.meta.dirname, "src/content/docs"),
+        "docs",
+        current,
+      ),
       favicon: "/img/favicon.svg",
       customCss: ["./src/css/custom.css"],
       components: {
@@ -73,7 +67,7 @@ export default defineConfig({
       ],
     ],
     shikiConfig: {
-      langs: [typespecLang],
+      langs: [TypeSpecLang],
     },
   },
 });

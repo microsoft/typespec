@@ -635,6 +635,10 @@ namespace UnbrandedTypeSpec.Models
         /// <param name="roundTripModel"> The <see cref="RoundTripModel"/> to serialize into <see cref="BinaryContent"/>. </param>
         public static implicit operator BinaryContent(RoundTripModel roundTripModel)
         {
+            if (roundTripModel == null)
+            {
+                return null;
+            }
             return BinaryContent.Create(roundTripModel, ModelSerializationExtensions.WireOptions);
         }
 

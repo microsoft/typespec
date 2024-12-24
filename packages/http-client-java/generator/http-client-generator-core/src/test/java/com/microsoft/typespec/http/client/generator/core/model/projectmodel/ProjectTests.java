@@ -19,6 +19,6 @@ public class ProjectTests {
         List<String> dependencyIdentifiers = Project.findPomDependencies(pomPath);
 
         Assertions.assertTrue(
-            dependencyIdentifiers.contains("com.azure.resourcemanager:azure-resourcemanager-resources:2.42.0:test"));
+            dependencyIdentifiers.contains("com.azure.resourcemanager:azure-resourcemanager-resources:2.43.0:test"));
     }
 }

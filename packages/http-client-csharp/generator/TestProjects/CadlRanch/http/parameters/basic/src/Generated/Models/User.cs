@@ -8,10 +8,6 @@ namespace Parameters.Basic.Models
     {
         public User(string name) => throw null;
 
-        public string Name
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string Name => throw null;
     }
 }

@@ -14,16 +14,16 @@ namespace Payload.MultiPart
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult ImageJpegContentType(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual ClientResult ImageJpegContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> ImageJpegContentTypeAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ImageJpegContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult RequiredContentType(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual ClientResult RequiredContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> RequiredContentTypeAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> RequiredContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult OptionalContentType(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual ClientResult OptionalContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> OptionalContentTypeAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> OptionalContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
     }
 }

@@ -103,7 +103,7 @@ describe("compiler: models", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, [
       {
-        code: "unknown-identifier",
+        code: "invalid-ref",
         message: "Unknown identifier notValidType",
       },
     ]);
@@ -288,9 +288,7 @@ describe("compiler: models", () => {
       `,
     );
     const diagnostics = await testHost.diagnose("main.tsp");
-    expectDiagnostics(diagnostics, [
-      { code: "unknown-identifier", message: "Unknown identifier bool" },
-    ]);
+    expectDiagnostics(diagnostics, [{ code: "invalid-ref", message: "Unknown identifier bool" }]);
   });
 
   describe("link model with its properties", () => {
@@ -713,6 +711,67 @@ describe("compiler: models", () => {
       const diagnostics = await testHost.diagnose("main.tsp");
       strictEqual(diagnostics.length, 1);
       strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+    });
+
+    it("emit error when extends circular reference with alias - case 1", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A extends B {}
+        model C extends A {}
+        alias B = C;
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
+    });
+
+    it("emit error when extends circular reference with alias - case 2", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A extends B {}
+        alias B = A;
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
+    });
+
+    it("emit error when model is circular reference with alias", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A is B;
+        model C is A;
+        alias B = C;
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
+    });
+    it("emit error when model is circular reference with alias - case 2", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A is B;
+        alias B = A;
+        `,
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
     });
 
     it("emit no error when extends has property to base model", async () => {

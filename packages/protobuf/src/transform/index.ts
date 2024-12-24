@@ -380,7 +380,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     if (!emptyType) {
       throw new Error(
-        `Could not resolve the empty type: ${diagnostics.map(formatDiagnostic).join("\n")}`,
+        `Could not resolve the empty type: ${diagnostics.map((x) => formatDiagnostic(x)).join("\n")}`,
       );
     }
 
@@ -573,7 +573,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     if (isArray(valueType)) {
       reportDiagnostic(program, {
         code: "nested-array",
-        target: valueType,
+        target: t,
       });
       return ref("<unreachable>");
     }
@@ -609,7 +609,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
       for (const [[type, diagnostics]] of entries) {
         if (!type) {
-          const diagnosticString = diagnostics.map(formatDiagnostic).join("\n");
+          const diagnosticString = diagnostics.map((x) => formatDiagnostic(x)).join("\n");
           throw new Error(
             `Failed to construct TypeSpec -> Protobuf scalar map. Unexpected failure to resolve TypeSpec scalar: ${diagnosticString}`,
           );

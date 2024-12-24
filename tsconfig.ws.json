@@ -24,7 +24,8 @@
     { "path": "packages/best-practices/tsconfig.json" },
     { "path": "packages/xml/tsconfig.json" },
     { "path": "packages/http-server-javascript/tsconfig.json" },
-    { "path": "packages/http-server-csharp/tsconfig.json" }
+    { "path": "packages/http-server-csharp/tsconfig.json" },
+    { "path": "packages/astro-utils/tsconfig.build.json" }
   ],
   "files": []
 }

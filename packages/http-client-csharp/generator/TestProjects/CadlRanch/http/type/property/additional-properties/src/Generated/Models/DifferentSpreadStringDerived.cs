@@ -9,9 +9,9 @@ namespace _Type.Property.AdditionalProperties.Models
 {
     public partial class DifferentSpreadStringDerived : DifferentSpreadStringRecord
     {
-        public DifferentSpreadStringDerived(string derivedProp, float id) : base(id) => throw null;
+        public DifferentSpreadStringDerived(float id, string derivedProp) : base(id) => throw null;
 
-        internal DifferentSpreadStringDerived(string derivedProp, float id, IDictionary<string, string> additionalProperties, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(id, additionalProperties, additionalBinaryDataProperties) => throw null;
+        internal DifferentSpreadStringDerived(float id, IDictionary<string, string> additionalProperties, IDictionary<string, BinaryData> additionalBinaryDataProperties, string derivedProp) : base(id, additionalProperties, additionalBinaryDataProperties) => throw null;
 
         public string DerivedProp
         {

@@ -10,7 +10,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Snippets
 {
-    internal static class Utf8JsonWriterSnippets
+    public static class Utf8JsonWriterSnippets
     {
         public static ScopedApi<long> BytesCommitted(this ScopedApi<Utf8JsonWriter> writer) => writer.Property(nameof(Utf8JsonWriter.BytesCommitted)).As<long>();
         public static ScopedApi<long> BytesPending(this ScopedApi<Utf8JsonWriter> writer) => writer.Property(nameof(Utf8JsonWriter.BytesPending)).As<long>();

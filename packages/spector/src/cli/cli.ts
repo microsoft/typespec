@@ -92,13 +92,14 @@ async function main() {
     .command("server", "Server management", (cmd) => {
       cmd
         .command(
-          "start <scenariosPath>",
+          "start <scenariosPaths..>",
           "Start the server in the background.",
           (cmd) => {
             return cmd
-              .positional("scenariosPath", {
-                description: "Path to the scenarios and mock apis",
+              .positional("scenariosPaths", {
+                description: "Path(s) to the scenarios and mock apis",
                 type: "string",
+                array: true,
                 demandOption: true,
               })
               .option("port", {
@@ -115,7 +116,7 @@ async function main() {
           },
           async (args) =>
             startInBackground({
-              scenariosPath: resolve(process.cwd(), args.scenariosPath),
+              scenariosPath: args.scenariosPaths,
               port: args.port,
               coverageFile: args.coverageFile,
             }),
@@ -287,20 +288,30 @@ async function main() {
             array: true,
             demandOption: true,
           })
+          .option("setName", {
+            type: "string",
+            description: "Set used to generate the manifest.",
+            array: true,
+            demandOption: true,
+          })
           .option("storageAccountName", {
             type: "string",
             description: "Name of the storage account",
           })
+          .option("containerName", {
+            type: "string",
+            description: "Name of the Container",
+            demandOption: true,
+          })
           .demandOption("storageAccountName");
       },
       async (args) => {
-        for (const scenariosPath of args.scenariosPaths) {
-          logger.info(`Uploading scenario manifest for scenarios at ${scenariosPath}`);
-          await uploadScenarioManifest({
-            scenariosPath: resolve(process.cwd(), scenariosPath),
-            storageAccountName: args.storageAccountName,
-          });
-        }
+        await uploadScenarioManifest({
+          scenariosPaths: args.scenariosPaths,
+          storageAccountName: args.storageAccountName,
+          setNames: args.setName,
+          containerName: args.containerName,
+        });
       },
     )
     .command(
@@ -339,6 +350,11 @@ async function main() {
             type: "string",
             description: "Mode of generator to upload.",
           })
+          .option("containerName", {
+            type: "string",
+            description: "Name of the Container",
+            demandOption: true,
+          })
           .demandOption("generatorMode");
       },
       async (args) => {
@@ -349,6 +365,7 @@ async function main() {
           generatorVersion: args.generatorVersion,
           generatorCommit: args.generatorCommit ?? getCommit(process.cwd()),
           generatorMode: args.generatorMode,
+          containerName: args.containerName,
         });
       },
     )

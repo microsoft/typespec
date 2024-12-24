@@ -79,14 +79,36 @@ namespace Microsoft.Generator.CSharp.Providers
                 if (typeToInstantiate is null)
                     continue;
 
-                var modelCtor = modelProvider.FullConstructor;
+                var fullConstructor = modelProvider.FullConstructor;
+                var binaryDataParam = fullConstructor.Signature.Parameters.FirstOrDefault(p => p.Name.Equals(AdditionalBinaryDataParameterName));
+
+                // Use a custom constructor if the generated full constructor was suppressed or customized
+                if (!modelProvider.Constructors.Contains(fullConstructor))
+                {
+                    foreach (var constructor in modelProvider.CanonicalView.Constructors)
+                    {
+                        var customCtorParamCount = constructor.Signature.Parameters.Count;
+                        var fullCtorParamCount = fullConstructor.Signature.Parameters.Count;
+
+                        if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)
+                            && customCtorParamCount >= fullCtorParamCount)
+                        {
+                            binaryDataParam = constructor.Signature.Parameters
+                                .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
+
+                            fullConstructor = constructor;
+                            break;
+                        }
+                    }
+                }
+
                 var signature = new MethodSignature(
                     modelProvider.Name,
                     null,
                     MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
                     modelProvider.Type,
                     $"A new {modelProvider.Type:C} instance for mocking.",
-                    GetParameters(modelProvider));
+                    GetParameters(modelProvider, fullConstructor));
 
                 var docs = new XmlDocProvider();
                 docs.Summary = modelProvider.XmlDocs?.Summary;
@@ -100,7 +122,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 [
                     .. GetCollectionInitialization(signature),
                     MethodBodyStatement.EmptyLine,
-                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(modelProvider, signature)]))
+                    Return(New.Instance(typeToInstantiate.Type, [.. GetCtorArgs(modelProvider, signature, fullConstructor, binaryDataParam)]))
                 ]);
 
                 methods.Add(new MethodProvider(signature, statements, this, docs));
@@ -110,14 +132,22 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static IReadOnlyList<ValueExpression> GetCtorArgs(
             ModelProvider modelProvider,
-            MethodSignature factoryMethodSignature)
+            MethodSignature factoryMethodSignature,
+            ConstructorProvider fullConstructor,
+            ParameterProvider? binaryDataParameter)
         {
-            var modelCtorFullSignature = modelProvider.FullConstructor.Signature;
+            var modelCtorFullSignature = fullConstructor.Signature;
             var expressions = new List<ValueExpression>(modelCtorFullSignature.Parameters.Count);
 
             for (int i = 0; i < modelCtorFullSignature.Parameters.Count; i++)
             {
                 var ctorParam = modelCtorFullSignature.Parameters[i];
+                if (ReferenceEquals(ctorParam, binaryDataParameter) && !modelProvider.SupportsBinaryDataAdditionalProperties)
+                {
+                    expressions.Add(binaryDataParameter.PositionalReference(Null));
+                    continue;
+                }
+
                 var factoryParam = factoryMethodSignature.Parameters.FirstOrDefault(p => p.Name.Equals(ctorParam.Name));
 
                 if (factoryParam == null)
@@ -153,12 +183,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            if (modelCtorFullSignature.Parameters.Any(p => p.Name.Equals(AdditionalBinaryDataParameterName)) &&
-                !modelProvider.SupportsBinaryDataAdditionalProperties)
-            {
-                expressions.Add(Null);
-            }
-
             return [.. expressions];
         }
 
@@ -175,14 +199,22 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. statements];
         }
 
-        private static IReadOnlyList<ParameterProvider> GetParameters(ModelProvider modelProvider)
+        private static IReadOnlyList<ParameterProvider> GetParameters(
+            ModelProvider modelProvider,
+            ConstructorProvider fullConstructor)
         {
-            var modelCtorParams = modelProvider.FullConstructor.Signature.Parameters;
+            var modelCtorParams = fullConstructor.Signature.Parameters;
             var parameters = new List<ParameterProvider>(modelCtorParams.Count);
+            bool isCustomConstructor = fullConstructor != modelProvider.FullConstructor;
+
             foreach (var param in modelCtorParams)
             {
-                if (param.Name.Equals(AdditionalBinaryDataParameterName) && !modelProvider.SupportsBinaryDataAdditionalProperties)
+                bool isBinaryDataParam = param.Name.Equals(AdditionalBinaryDataParameterName)
+                    || (isCustomConstructor && param.Type.Equals(typeof(IDictionary<string, BinaryData>)));
+
+                if (isBinaryDataParam && !modelProvider.SupportsBinaryDataAdditionalProperties)
                     continue;
+
                 // skip discriminator parameters if the model has a discriminator value as those shouldn't be exposed in the factory methods
                 if (param.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValue != null)
                     continue;

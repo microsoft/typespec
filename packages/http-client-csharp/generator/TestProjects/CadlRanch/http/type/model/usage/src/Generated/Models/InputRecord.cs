@@ -8,10 +8,6 @@ namespace _Type.Model.Usage.Models
     {
         public InputRecord(string requiredProp) => throw null;
 
-        public string RequiredProp
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public string RequiredProp => throw null;
     }
 }

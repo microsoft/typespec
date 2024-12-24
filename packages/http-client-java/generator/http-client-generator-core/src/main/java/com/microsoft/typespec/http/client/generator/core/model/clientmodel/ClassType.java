@@ -22,10 +22,12 @@ import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.HttpRequest;
+import com.azure.core.http.HttpResponse;
 import com.azure.core.http.MatchConditions;
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.RequestConditions;
 import com.azure.core.http.policy.HttpLogOptions;
+import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.http.policy.KeyCredentialPolicy;
 import com.azure.core.http.policy.RedirectPolicy;
@@ -120,12 +122,16 @@ public class ClassType implements IType {
                 new ClassDetails(RetryPolicy.class, "io.clientcore.core.http.pipeline.HttpRetryPolicy"));
             put(RedirectPolicy.class,
                 new ClassDetails(RedirectPolicy.class, "io.clientcore.core.http.pipeline.HttpRedirectPolicy"));
+            put(HttpLoggingPolicy.class,
+                new ClassDetails(HttpLoggingPolicy.class, "io.clientcore.core.http.pipeline.HttpLoggingPolicy"));
             put(Configuration.class,
                 new ClassDetails(Configuration.class, "io.clientcore.core.util.configuration.Configuration"));
             put(HttpHeaders.class, new ClassDetails(HttpHeaders.class, "io.clientcore.core.models.Headers"));
             put(HttpHeaderName.class,
                 new ClassDetails(HttpHeaderName.class, "io.clientcore.core.http.models.HttpHeaderName"));
             put(HttpRequest.class, new ClassDetails(HttpRequest.class, "io.clientcore.core.http.models.HttpRequest"));
+            put(HttpResponse.class,
+                new ClassDetails(HttpResponse.class, "io.clientcore.core.http.models.HttpResponse"));
             put(RequestOptions.class,
                 new ClassDetails(RequestOptions.class, "io.clientcore.core.http.models.RequestOptions"));
             put(BinaryData.class, new ClassDetails(BinaryData.class, "io.clientcore.core.util.binarydata.BinaryData"));
@@ -137,6 +143,7 @@ public class ClassType implements IType {
             put(SimpleResponse.class, new ClassDetails(SimpleResponse.class, "io.clientcore.core.http.SimpleResponse"));
             put(ExpandableStringEnum.class,
                 new ClassDetails(ExpandableStringEnum.class, "io.clientcore.core.util.ExpandableEnum"));
+            put(ExpandableEnum.class, new ClassDetails(ExpandableEnum.class, "io.clientcore.core.util.ExpandableEnum"));
             put(HttpResponseException.class, new ClassDetails(HttpResponseException.class,
                 "io.clientcore.core.http.exception.HttpResponseException"));
             put(HttpTrait.class, new ClassDetails(HttpTrait.class, "io.clientcore.core.models.traits.HttpTrait"));
@@ -309,20 +316,26 @@ public class ClassType implements IType {
         .jsonToken("JsonToken.STRING")
         .serializationValueGetterModifier(valueGetter -> valueGetter
             + " == null ? null : DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(" + valueGetter + ")")
-        .jsonDeserializationMethod("getNullable(nonNullReader -> " + CORE_UTILS.getName()
-            + ".parseBestOffsetDateTime(nonNullReader.getString()))")
+        .jsonDeserializationMethod(JavaSettings.getInstance().isBranded()
+            ? ("getNullable(nonNullReader -> " + CORE_UTILS.getName()
+                + ".parseBestOffsetDateTime(nonNullReader.getString()))")
+            : ("getNullable(nonNullReader -> OffsetDateTime.parse(nonNullReader.getString()))"))
         .serializationMethodBase("writeString")
-        .xmlElementDeserializationMethod(
-            "getNullableElement(dateString -> " + CORE_UTILS.getName() + ".parseBestOffsetDateTime(dateString))")
-        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, dateString -> " + CORE_UTILS.getName()
-            + ".parseBestOffsetDateTime(dateString))")
+        .xmlElementDeserializationMethod(JavaSettings.getInstance().isBranded()
+            ? ("getNullableElement(dateString -> " + CORE_UTILS.getName() + ".parseBestOffsetDateTime(dateString))")
+            : ("getNullableElement(dateString -> OffsetDateTime.parse(dateString))"))
+        .xmlAttributeDeserializationTemplate(JavaSettings.getInstance().isBranded()
+            ? ("%s.getNullableAttribute(%s, %s, dateString -> " + CORE_UTILS.getName()
+                + ".parseBestOffsetDateTime(dateString))")
+            : ("%s.getNullableAttribute(%s, %s, dateString -> OffsetDateTime.parse(dateString))"))
         .build();
 
     public static final ClassType DURATION = new Builder(false).knownClass(Duration.class)
         .defaultValueExpressionConverter(defaultValueExpression -> "Duration.parse(\"" + defaultValueExpression + "\")")
         .jsonToken("JsonToken.STRING")
-        .serializationValueGetterModifier(
-            valueGetter -> CORE_UTILS.getName() + ".durationToStringWithDays(" + valueGetter + ")")
+        .serializationValueGetterModifier(valueGetter -> JavaSettings.getInstance().isBranded()
+            ? CORE_UTILS.getName() + ".durationToStringWithDays(" + valueGetter + ")"
+            : "Objects.toString(" + valueGetter + ", null)")
         .jsonDeserializationMethod("getNullable(nonNullReader -> Duration.parse(nonNullReader.getString()))")
         .serializationMethodBase("writeString")
         .xmlElementDeserializationMethod("getNullableElement(Duration::parse)")
@@ -438,7 +451,9 @@ public class ClassType implements IType {
     public static final ClassType INPUT_STREAM = new ClassType.Builder(false).knownClass(InputStream.class).build();
 
     public static final ClassType CONTEXT = ClassType.getClassTypeBuilder(Context.class)
-        .defaultValueExpressionConverter(epr -> "com.azure.core.util.Context.NONE")
+        .defaultValueExpressionConverter(
+            epr -> (JavaSettings.getInstance().isBranded() ? "com.azure.core.util." : "io.clientcore.core.util.")
+                + TemplateUtil.getContextNone())
         .build();
 
     public static final ClassType ANDROID_CONTEXT
@@ -477,6 +492,7 @@ public class ClassType implements IType {
 
     public static final ClassType RETRY_POLICY = getClassTypeBuilder(RetryPolicy.class).build();
     public static final ClassType REDIRECT_POLICY = getClassTypeBuilder(RedirectPolicy.class).build();
+    public static final ClassType HTTP_LOGGING_POLICY = getClassTypeBuilder(HttpLoggingPolicy.class).build();
 
     public static final ClassType RETRY_OPTIONS = getClassTypeBuilder(RetryOptions.class).build();
 
@@ -510,6 +526,7 @@ public class ClassType implements IType {
     public static final ClassType HTTP_REQUEST = getClassTypeBuilder(HttpRequest.class).build();
     public static final ClassType HTTP_HEADERS = getClassTypeBuilder(HttpHeaders.class).build();
     public static final ClassType HTTP_HEADER_NAME = getClassTypeBuilder(HttpHeaderName.class).build();
+    public static final ClassType HTTP_RESPONSE = getClassTypeBuilder(HttpResponse.class).build();
 
     // Java exception types
     public static final ClassType HTTP_RESPONSE_EXCEPTION = getClassTypeBuilder(HttpResponseException.class).build();

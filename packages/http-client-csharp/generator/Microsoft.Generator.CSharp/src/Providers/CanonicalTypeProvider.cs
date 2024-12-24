@@ -44,7 +44,11 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private protected override CanonicalTypeProvider GetCanonicalView() => this;
 
-        // TODO - Implement BuildMethods, BuildConstructors, etc as needed
+        // TODO - Implement BuildMethods, etc as needed
+        protected override ConstructorProvider[] BuildConstructors()
+        {
+            return [.. _generatedTypeProvider.Constructors, .. _generatedTypeProvider.CustomCodeView?.Constructors ?? []];
+        }
 
         protected override PropertyProvider[] BuildProperties()
         {

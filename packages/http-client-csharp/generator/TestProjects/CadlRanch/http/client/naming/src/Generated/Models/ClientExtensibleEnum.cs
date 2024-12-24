@@ -24,6 +24,7 @@ namespace Client.Naming.Models
 
         public bool Equals(ClientExtensibleEnum other) => throw null;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

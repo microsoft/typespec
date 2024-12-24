@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { $, defineKit } from "../../../src/experimental/typekit/define-kit.js";
+import { $, defineKit } from "../../../src/experimental/typekit/index.js";
 
 it("can define a kit", async () => {
   defineKit({

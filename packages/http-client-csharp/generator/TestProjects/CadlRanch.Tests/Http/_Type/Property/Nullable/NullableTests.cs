@@ -256,5 +256,54 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.Nullable
             var response = await new NullableClient(host, null).GetCollectionsModelClient().PatchNullAsync(BinaryContent.Create(BinaryData.FromString(value)), null);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
+
+        [CadlRanchTest]
+        public Task CollectionsStringGetNonNull() => Test(async (host) =>
+        {
+            var response = await new NullableClient(host, null).GetCollectionsStringClient().GetNonNullAsync();
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+            Assert.AreEqual("foo", response.Value.RequiredProperty);
+
+            var nullableProperty = response.Value.NullableProperty;
+            Assert.IsNotNull(nullableProperty);
+            Assert.AreEqual(2, nullableProperty.Count);
+            Assert.AreEqual("hello", response.Value.NullableProperty[0]);
+            Assert.AreEqual("world", response.Value.NullableProperty[1]);
+        });
+
+        [CadlRanchTest]
+        public Task CollectionsStringGetNull() => Test(async (host) =>
+        {
+            var response = await new NullableClient(host, null).GetCollectionsStringClient().GetNullAsync();
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+            Assert.AreEqual("foo", response.Value.RequiredProperty);
+
+            var nullableProperty = response.Value.NullableProperty;
+            Assert.IsTrue(nullableProperty is null or []);
+        });
+
+        [CadlRanchTest]
+        public Task CollectionsStringPatchNonNull() => Test(async (host) =>
+        {
+            var value = new
+            {
+                requiredProperty = "foo",
+                nullableProperty = new[]
+                {
+                    "hello",
+                    "world"
+                }
+            };
+            var response = await new NullableClient(host, null).GetCollectionsStringClient().PatchNonNullAsync(BinaryContent.Create(BinaryData.FromObjectAsJson(value)), null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task CollectionsStringPatchNull() => Test(async (host) =>
+        {
+            string value = "{ \"requiredProperty\": \"foo\", \"nullableProperty\": null }";
+            var response = await new NullableClient(host, null).GetCollectionsStringClient().PatchNullAsync(BinaryContent.Create(BinaryData.FromString(value)), null);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
     }
 }

@@ -2,6 +2,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 
@@ -28,7 +29,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             Assert.NotNull(method);
             Assert.NotNull(method!.BodyStatements);
-            var test = method?.BodyStatements?.ToDisplayString();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), method!.BodyStatements!.ToDisplayString());
         }
 
@@ -55,11 +55,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             public override CSharpType PipelinePolicyType => typeof(string);
 
+            public override CSharpType KeyCredentialType => typeof(object);
+
+            public override CSharpType TokenCredentialType => typeof(object);
+
             public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
                 => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
-
-            public override HttpMessageApi CreateMessage()
-                => Original.Invoke("GetFakeCreateMessage").ToApi<HttpMessageApi>();
 
             public override ValueExpression CreateMessage(HttpRequestOptionsApi requestOptions, ValueExpression responseClassifier)
                 => Original.Invoke("GetFakeCreateMessage", [requestOptions, responseClassifier]);
@@ -67,17 +68,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
 
-            public override ValueExpression PerRetryPolicy(params ValueExpression[] arguments)
-                => Original.Invoke("GetFakePerRetryPolicy", arguments);
+            public override ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
+                => Original.Invoke("GetFakeAuthorizationPolicy", keyPrefix == null ? [credential, headerName] : [credential, headerName, keyPrefix]);
 
-            public override InvokeMethodExpression Send(HttpMessageApi message)
-                => Original.Invoke("GetFakeSend", message);
-
-            public override InvokeMethodExpression SendAsync(HttpMessageApi message)
-                => Original.Invoke("GetFakeSendAsync", message);
+            public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
+                => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
 
             public override ClientPipelineApi ToExpression() => this;
+
+            public override MethodBodyStatement[] ProcessMessage(HttpMessageApi message, HttpRequestOptionsApi options)
+                => [Original.Invoke("GetFakeProcessMessage", [message, options]).Terminate()];
+
+            public override MethodBodyStatement[] ProcessMessageAsync(HttpMessageApi message, HttpRequestOptionsApi options)
+                => [Original.Invoke("GetFakeProcessMessageAsync", [message, options]).Terminate()];
         }
     }
-
 }

@@ -267,3 +267,39 @@ it("supports overriding common params with operation params", async () => {
   assert(idPut.returnType.kind === "Model", "Expected model return type");
   expect(idPut.returnType.name).toBe("idPut200ApplicationJsonResponse");
 });
+
+it("supports operation summary", async () => {
+  const serviceNamespace = await tspForOpenAPI3({
+    paths: {
+      "/": {
+        get: {
+          operationId: "rootGet",
+          summary: "Root Get Summary",
+          parameters: [],
+          responses: {
+            "200": response,
+          },
+        },
+      },
+    },
+  });
+
+  const operations = serviceNamespace.operations;
+
+  expect(operations.size).toBe(1);
+
+  /* @route("/") @get op rootGet(): rootGet200ApplicationJsonResponse; */
+  const rootGet = operations.get("rootGet");
+  assert(rootGet, "rootGet operation not found");
+
+  /* @get @route("/") @summary("Root Get Summary") */
+  expectDecorators(rootGet.decorators, [
+    { name: "summary", args: ["Root Get Summary"] },
+    { name: "get" },
+    { name: "route", args: ["/"] },
+  ]);
+  // verify no operation parameters
+  expect(rootGet.parameters.properties.size).toBe(0);
+  assert(rootGet.returnType.kind === "Model", "Expected model return type");
+  expect(rootGet.returnType.name).toBe("rootGet200ApplicationJsonResponse");
+});

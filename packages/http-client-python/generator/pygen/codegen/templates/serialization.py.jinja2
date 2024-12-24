@@ -309,7 +309,7 @@ def _create_xml_node(tag, prefix=None, ns=None):
     return ET.Element(tag)
 
 
-class Model(object):
+class Model:
     """Mixin for all client request body/response body models to support
     serialization and deserialization.
     """
@@ -562,7 +562,7 @@ def _decode_attribute_map_key(key):
     return key.replace("\\.", ".")
 
 
-class Serializer(object):  # pylint: disable=too-many-public-methods
+class Serializer:  # pylint: disable=too-many-public-methods
     """Request object model serializer."""
 
     basic_types = {str: "str", int: "int", bool: "bool", float: "float"}
@@ -1440,7 +1440,7 @@ def xml_key_extractor(attr, attr_desc, data):  # pylint: disable=unused-argument
     return children[0]
 
 
-class Deserializer(object):
+class Deserializer:
     """Response object model deserializer.
 
     :param dict classes: Class type dictionary for deserializing complex types.
@@ -1682,17 +1682,21 @@ class Deserializer(object):
             subtype = getattr(response, "_subtype_map", {})
             try:
                 readonly = [
-                    k for k, v in response._validation.items() if v.get("readonly")  # pylint: disable=protected-access
+                    k
+                    for k, v in response._validation.items()  # pylint: disable=protected-access  # type: ignore
+                    if v.get("readonly")
                 ]
                 const = [
-                    k for k, v in response._validation.items() if v.get("constant")  # pylint: disable=protected-access
+                    k
+                    for k, v in response._validation.items()  # pylint: disable=protected-access  # type: ignore
+                    if v.get("constant")
                 ]
                 kwargs = {k: v for k, v in attrs.items() if k not in subtype and k not in readonly + const}
                 response_obj = response(**kwargs)
                 for attr in readonly:
                     setattr(response_obj, attr, attrs.get(attr))
                 if additional_properties:
-                    response_obj.additional_properties = additional_properties
+                    response_obj.additional_properties = additional_properties  # type: ignore
                 return response_obj
             except TypeError as err:
                 msg = "Unable to deserialize {} into model {}. ".format(kwargs, response)  # type: ignore

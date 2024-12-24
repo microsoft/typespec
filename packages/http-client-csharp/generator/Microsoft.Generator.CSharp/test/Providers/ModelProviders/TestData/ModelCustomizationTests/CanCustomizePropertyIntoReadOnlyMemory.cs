@@ -15,7 +15,7 @@ namespace Sample.Models
         public static global::Sample.Models.MockInputModel MockInputModel(global::System.ReadOnlyMemory<byte> prop1 = default)
         {
 
-            return new global::Sample.Models.MockInputModel(prop1, null);
+            return new global::Sample.Models.MockInputModel(prop1, additionalBinaryDataProperties: null);
         }
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -9,17 +10,19 @@ namespace Microsoft.Generator.CSharp.Input
     [DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
     public class InputModelType : InputType
     {
+        private const string UnknownDiscriminatorValue = "unknown";
         private IReadOnlyList<InputModelProperty> _properties = [];
         private IList<InputModelType> _derivedModels = [];
 
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? description, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
+        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
             : base(name)
         {
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Access = access;
             Deprecation = deprecation;
-            Description = description;
+            Summary = summary;
+            Doc = doc;
             Usage = usage;
             Properties = properties;
             BaseModel = baseModel;
@@ -38,7 +41,7 @@ namespace Microsoft.Generator.CSharp.Input
             DiscriminatorProperty = discriminatorProperty;
             DiscriminatedSubtypes = discriminatedSubtypes!;
             AdditionalProperties = additionalProperties;
-            IsUnknownDiscriminatorModel = DiscriminatorValue == "unknown";
+            IsUnknownDiscriminatorModel = DiscriminatorValue == UnknownDiscriminatorValue;
             IsPropertyBag = false;
             ModelAsStruct = modelAsStruct;
         }
@@ -46,7 +49,8 @@ namespace Microsoft.Generator.CSharp.Input
         public string CrossLanguageDefinitionId { get; internal set; }
         public string? Access { get; internal set; }
         public string? Deprecation { get; internal set; }
-        public string? Description { get; internal set; }
+        public string? Summary { get; internal set; }
+        public string? Doc { get; internal set; }
         public InputModelTypeUsage Usage { get; internal set; }
 
         public IReadOnlyList<InputModelProperty> Properties
@@ -79,35 +83,38 @@ namespace Microsoft.Generator.CSharp.Input
             get => _discriminatedSubtypes ??= new Dictionary<string, InputModelType>();
             internal set
             {
-                if (value is null || value.Count == 0)
+                if (value is null || DiscriminatorProperty == null || DiscriminatorValue == UnknownDiscriminatorValue)
                     return;
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
+
                 var cleanBaseName = Name.ToCleanName();
-                _discriminatedSubtypes.Add("unknown",
-                    new InputModelType(
-                        $"Unknown{cleanBaseName}",
-                        $"Unknown{cleanBaseName}",
-                        "internal",
-                        null,
-                        $"Unknown variant of {cleanBaseName}",
-                        Usage | InputModelTypeUsage.Json,
-                        [],
-                        this,
-                        [],
-                        "unknown",
-                        new InputModelProperty(
-                            DiscriminatorProperty!.Name,
-                            DiscriminatorProperty.SerializedName,
-                            DiscriminatorProperty.Description,
-                            DiscriminatorProperty.Type,
-                            DiscriminatorProperty.IsRequired,
-                            DiscriminatorProperty.IsReadOnly,
-                            DiscriminatorProperty.IsDiscriminator),
-                        new Dictionary<string, InputModelType>(),
-                        null,
-                        false)
-                    );
+                _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
+                new InputModelType(
+                    $"Unknown{cleanBaseName}",
+                    $"Unknown{cleanBaseName}",
+                    "internal",
+                    null,
+                    null,
+                    $"Unknown variant of {cleanBaseName}",
+                    Usage | InputModelTypeUsage.Json,
+                    [],
+                    this,
+                    [],
+                    UnknownDiscriminatorValue,
+                    new InputModelProperty(
+                        DiscriminatorProperty!.Name,
+                        DiscriminatorProperty.SerializedName,
+                        DiscriminatorProperty.Summary,
+                        DiscriminatorProperty.Doc,
+                        DiscriminatorProperty.Type,
+                        DiscriminatorProperty.IsRequired,
+                        DiscriminatorProperty.IsReadOnly,
+                        DiscriminatorProperty.IsDiscriminator),
+                    new Dictionary<string, InputModelType>(),
+                    null,
+                    false)
+                );
             }
         }
         public InputType? AdditionalProperties { get; internal set; }

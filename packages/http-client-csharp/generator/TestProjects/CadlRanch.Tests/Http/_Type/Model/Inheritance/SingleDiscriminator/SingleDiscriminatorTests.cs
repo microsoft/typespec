@@ -51,7 +51,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.SingleDiscri
         [CadlRanchTest]
         public Task PutRecursiveModel() => Test(async (host) =>
         {
-            var body = new Eagle(new[] { new SeaGull(2) }, new Dictionary<string, Bird> { { "key3", new Sparrow(1) } }, new Goose(2), "eagle", 5, null);
+            var body = new Eagle("eagle", 5, null, new[] { new SeaGull(2) }, new Dictionary<string, Bird> { { "key3", new Sparrow(1) } }, new Goose(2));
             var response = await new SingleDiscriminatorClient(host, null).PutRecursiveModelAsync(body);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });

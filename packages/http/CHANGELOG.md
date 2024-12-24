@@ -1,5 +1,29 @@
 # Change Log - @typespec/http
 
+## 0.63.0
+
+### Bug Fixes
+
+- [#5016](https://github.com/microsoft/typespec/pull/5016) Uri template attributes were not extracted when parameter was explicitly mark with `@path` or `@query` as well
+
+
+## 0.62.0
+
+### Bug Fixes
+
+- [#4932](https://github.com/microsoft/typespec/pull/4932) [API] Fix: Generated `uriTemplate` correctly include `*` for explode query params
+- [#4804](https://github.com/microsoft/typespec/pull/4804) The description parameter of `@server` is now optional.
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+### Features
+
+- [#4761](https://github.com/microsoft/typespec/pull/4761) Add `@cookie` decorator to specify cookie parameters
+- [#4470](https://github.com/microsoft/typespec/pull/4470) Add new `LinkHeader` pagination type
+
+
 ## 0.61.0
 
 ### Bump dependencies

@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.AdditionalProperties.Models;
 
@@ -19,16 +20,16 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<SpreadModelRecord> Get() => throw null;
+        public virtual ClientResult<SpreadModelRecord> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<SpreadModelRecord>> GetAsync() => throw null;
+        public virtual Task<ClientResult<SpreadModelRecord>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(SpreadModelRecord body) => throw null;
+        public virtual ClientResult Put(SpreadModelRecord body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(SpreadModelRecord body) => throw null;
+        public virtual Task<ClientResult> PutAsync(SpreadModelRecord body, CancellationToken cancellationToken = default) => throw null;
     }
 }
