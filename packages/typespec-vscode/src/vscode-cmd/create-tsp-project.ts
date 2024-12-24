@@ -24,7 +24,7 @@ import {
   ExecOutput,
   isFile,
   isWhitespaceStringOrUndefined,
-  spawnExecutionAndLogToOutput,
+  spawnExecution,
   tryParseJson,
   tryReadFileOrUrl,
 } from "../utils.js";
@@ -571,42 +571,60 @@ async function loadInitTemplates(
     .getConfiguration()
     .get<InitTemplatesUrlSetting[]>(SettingName.InitTemplatesUrls);
   if (settings) {
-    for (const item of settings) {
-      const { content, url } = (await tryReadFileOrUrl(item.url)) ?? {
-        content: undefined,
-        url: item.url,
-      };
-      if (!content) {
-        logger.error(`Failed to read template from ${item.url}. The url will be skipped`, [], {
-          showOutput: true,
-          showPopup: false,
-        });
-        continue;
-      } else {
-        const json = tryParseJson(content);
-        if (!json) {
-          logger.error(
-            `Failed to parse templates content from ${item.url}. The url will be skipped`,
-            [],
-            { showOutput: true, showPopup: false },
-          );
+    const loadFromConfig = async () => {
+      for (const item of settings) {
+        const { content, url } = (await tryReadFileOrUrl(item.url)) ?? {
+          content: undefined,
+          url: item.url,
+        };
+        if (!content) {
+          logger.warning(`Failed to read template from ${item.url}. The url will be skipped`, [], {
+            showOutput: false,
+            showPopup: true,
+          });
           continue;
         } else {
-          for (const [key, value] of Object.entries(json)) {
-            if (value !== undefined) {
-              const info: InitTemplateInfo = {
-                source: item.name,
-                sourceType: "config",
-                baseUrl: getDirectoryPath(url),
-                name: key,
-                template: value as InitProjectTemplate,
-              };
-              templateInfoMap.get(item.name)?.push(info) ?? templateInfoMap.set(item.name, [info]);
+          const json = tryParseJson(content);
+          if (!json) {
+            logger.warning(
+              `Failed to parse templates content from ${item.url}. The url will be skipped`,
+              [],
+              { showOutput: false, showPopup: true },
+            );
+            continue;
+          } else {
+            for (const [key, value] of Object.entries(json)) {
+              if (value !== undefined) {
+                const info: InitTemplateInfo = {
+                  source: item.name,
+                  sourceType: "config",
+                  baseUrl: getDirectoryPath(url),
+                  name: key,
+                  template: value as InitProjectTemplate,
+                };
+                templateInfoMap.get(item.name)?.push(info) ??
+                  templateInfoMap.set(item.name, [info]);
+              }
             }
           }
         }
       }
-    }
+    };
+    // this may take long time if the network is slow or broken
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: "Loading init templates from config...",
+        cancellable: true,
+      },
+      async (_progress, token) => {
+        await createPromiseWithCancelAndTimeout(
+          loadFromConfig(),
+          token,
+          5 * 60 * 1000, // 5 minutes as timeout
+        );
+      },
+    );
   }
   logger.info(`${templateInfoMap.size} templates loaded.`);
   return templateInfoMap;
@@ -671,6 +689,7 @@ async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<Ts
       confirmTitle: "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
       confirmPlaceholder:
         "No TypeSpec Compiler/CLI found which is needed to create TypeSpec project.",
+      silentMode: true,
     };
     const result = await vscode.commands.executeCommand<Result<void>>(
       CommandName.InstallGlobalCompilerCli,
@@ -701,9 +720,11 @@ async function IsGlobalCompilerAvailable(folder: string): Promise<Result<boolean
       cancellable: true,
     },
     async (_progress, token) => {
+      let output;
       try {
-        await createPromiseWithCancelAndTimeout(
-          spawnExecutionAndLogToOutput("tsp", ["--version"], folder),
+        output = await createPromiseWithCancelAndTimeout(
+          // it's possible for the execution to fail, so don't log to output channel by default to avoid potential confusing
+          spawnExecution("tsp", ["--version"], folder),
           token,
           TIMEOUT,
         );
@@ -719,7 +740,7 @@ async function IsGlobalCompilerAvailable(folder: string): Promise<Result<boolean
         } else {
           logger.debug(
             "Global compiler is not available by check 'tsp --version' command which reported error",
-            [e],
+            [e, output],
           );
           return { code: ResultCode.Success, value: false };
         }

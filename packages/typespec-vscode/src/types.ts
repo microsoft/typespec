@@ -19,6 +19,10 @@ export interface InstallGlobalCliCommandArgs {
   confirm: boolean;
   confirmTitle?: string;
   confirmPlaceholder?: string;
+  /**
+   * set to true to disable popup notification and show output channel when running the command
+   */
+  silentMode?: boolean;
 }
 
 export interface RestartServerCommandArgs {

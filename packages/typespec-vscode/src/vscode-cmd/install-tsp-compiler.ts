@@ -9,6 +9,8 @@ const COMPILER_REQUIREMENT =
 export async function installCompilerGlobally(
   args: InstallGlobalCliCommandArgs | undefined,
 ): Promise<Result<void>> {
+  const showOutput = args?.silentMode !== true;
+  const showPopup = args?.silentMode !== true;
   // confirm with end user by default
   if (args?.confirm !== false) {
     const yes: QuickPickItem = {
@@ -49,35 +51,35 @@ export async function installCompilerGlobally(
           token,
           TIMEOUT,
         );
-        if (output.exitCode !== 0) {
-          logger.error(
-            "Failed to install TypeSpec CLI. Please check the previous log for details",
-            [output],
-            { showOutput: true, showPopup: true },
-          );
-          return {
-            code: ResultCode.Fail,
-            details: output,
-          };
-        } else {
-          logger.info("TypeSpec CLI installed successfully");
-          return { code: ResultCode.Success, value: undefined };
-        }
-      } catch (e) {
+
+        logger.info("TypeSpec Compiler/CLI installed successfully", [], {
+          showOutput: false,
+          showPopup,
+        });
+        return { code: ResultCode.Success, value: undefined };
+      } catch (e: any) {
         if (e === ResultCode.Cancelled) {
           logger.info("Installation of TypeSpec Compiler/CLI is cancelled by user");
           return { code: ResultCode.Cancelled };
         } else if (e === ResultCode.Timeout) {
           logger.error(`Installation of TypeSpec Compiler/CLI is timeout after ${TIMEOUT}ms`, [e], {
-            showOutput: true,
-            showPopup: true,
+            showOutput,
+            showPopup,
           });
           return { code: ResultCode.Timeout };
         } else {
-          logger.error("Unexpected error when installing TypeSpec Compiler/CLI", [e], {
-            showOutput: true,
-            showPopup: true,
-          });
+          logger.error(
+            `Installing TypeSpec Compiler/CLI failed. Please make sure the pre-requisites below has been installed properly. And you may check the previous log for more detail.\n` +
+              COMPILER_REQUIREMENT +
+              "\n" +
+              `More detail about typespec compiler: https://typespec.io/docs/\n` +
+              "More detail about nodejs: https://nodejs.org/en/download/package-manager\n",
+            [e],
+            {
+              showOutput,
+              showPopup,
+            },
+          );
           return { code: ResultCode.Fail, details: e };
         }
       }
