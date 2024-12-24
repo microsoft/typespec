@@ -19,6 +19,7 @@ public class Language implements JsonSerializable<Language> {
     private String description;
     private String summary;
     private String namespace;
+    private String crossLanguageDefinitionId;
     private String comment;
 
     /**
@@ -135,6 +136,24 @@ public class Language implements JsonSerializable<Language> {
         this.comment = comment;
     }
 
+    /**
+     * Gets the crossLanguageDefinitionId.
+     *
+     * @return The crossLanguageDefinitionId.
+     */
+    public String getCrossLanguageDefinitionId() {
+        return crossLanguageDefinitionId;
+    }
+
+    /**
+     * Sets the crossLanguageDefinitionId.
+     *
+     * @param crossLanguageDefinitionId The crossLanguageDefinitionId.
+     */
+    public void setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
+        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+    }
+
     @Override
     public String toString() {
         return "Language{name='" + name + "', serializedName='" + serializedName + "'}";
@@ -148,6 +167,7 @@ public class Language implements JsonSerializable<Language> {
             .writeStringField("description", description)
             .writeStringField("summary", summary)
             .writeStringField("namespace", namespace)
+            .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId)
             .writeStringField("comment", comment)
             .writeEndObject();
     }
@@ -171,6 +191,8 @@ public class Language implements JsonSerializable<Language> {
                 language.summary = reader.getString();
             } else if ("namespace".equals(fieldName)) {
                 language.namespace = reader.getString();
+            } else if ("crossLanguageDefinitionId".equals(fieldName)) {
+                language.crossLanguageDefinitionId = reader.getString();
             } else if ("comment".equals(fieldName)) {
                 language.comment = reader.getString();
             } else {
