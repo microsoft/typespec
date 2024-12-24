@@ -34,30 +34,7 @@ try {
         Set-StrictMode -Version 1
         
         # run E2E Test for TypeSpec emitter
-        Write-Host "Generating test projects with pyodide ..."
-        & "$packageRoot/eng/scripts/Generate-WithPyodide.ps1"
-        Write-Host 'Code generation is completed.'
-
-        try {
-          Write-Host 'Checking for differences in generated code...'
-          & "$packageRoot/eng/scripts/Check-GitChanges.ps1"
-          Write-Host 'Done. No code generation differences detected.'
-        }
-        catch {
-            Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate.ps1'
-        }
-
-        try {
-          # Run test
-          Write-Host 'Running tests based on generated code with pyodide'
-          & npm run ci
-          Write-Host 'All tests passed'
-        } 
-        catch {
-            Write-Error "Tests failed:  $_"
-        }
-
-        Write-Host "Generating test projects with venv ..."
+        Write-Host "Generating test projects ..."
         & "$packageRoot/eng/scripts/Generate.ps1"
         Write-Host 'Code generation is completed.'
 
@@ -67,17 +44,19 @@ try {
             Write-Host 'Done. No code generation differences detected.'
         }
         catch {
-            Write-Error 'Generated code is not up to date. Please run: eng/scripts/Generate.ps1'
+            Write-Error 'Generated code is not up to date. Please run: eng/Generate.ps1'
         }
 
         try {
-            # Run test
-            Write-Host 'Running tests based on generated code with venv'
+            Write-Host "Pip List" 
+            & pip list
+            # Run tox
+            Write-Host 'Running tests'
             & npm run ci
-            Write-Host 'All tests passed'
+            Write-Host 'tox tests passed'
         } 
         catch {
-            Write-Error "Tests failed:  $_"
+            Write-Error "Cadl ranch tests failed:  $_"
         }
     }
 }

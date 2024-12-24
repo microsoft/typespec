@@ -286,8 +286,8 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
 
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
-    await regenerate({ ...flags, flavor: "azure" });
-    await regenerate({ ...flags, flavor: "unbranded" });
+    await regenerate({ flavor: "azure", ...flags });
+    await regenerate({ flavor: "unbranded", pyodide: true, ...flags,  });
   } else {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
