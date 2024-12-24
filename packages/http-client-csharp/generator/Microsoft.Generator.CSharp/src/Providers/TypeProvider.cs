@@ -329,7 +329,8 @@ namespace Microsoft.Generator.CSharp.Providers
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
             XmlDocProvider? xmlDocs = null,
-            TypeSignatureModifiers? modifiers = null)
+            TypeSignatureModifiers? modifiers = null,
+            string? relativeFilePath = null)
         {
             if (methods != null)
             {
@@ -362,6 +363,10 @@ namespace Microsoft.Generator.CSharp.Providers
             if (modifiers != null)
             {
                 _declarationModifiers = modifiers;
+            }
+            if (relativeFilePath != null)
+            {
+                _relativeFilePath = relativeFilePath;
             }
         }
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
