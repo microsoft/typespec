@@ -17,7 +17,7 @@ export interface PythonEmitterOptions {
   debug?: boolean;
   flavor?: "azure";
   "examples-dir"?: string;
-  // If true, package namespace will respect the typespec namespace. Otherwise, 
+  // If true, package namespace will respect the typespec namespace. Otherwise,
   // package namespace is always aligned with package name.
   "enable-typespec-namespace"?: boolean;
   "use-pyodide"?: boolean;
