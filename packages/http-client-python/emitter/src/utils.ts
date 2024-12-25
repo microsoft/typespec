@@ -207,8 +207,7 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   const rootNamespace = removeUnderscoresFromNamespace(
     context.sdkPackage.rootNamespace,
   ).toLowerCase();
-  const options = context.emitContext.options;
-  if ([undefined, false].includes(options["enable-typespec-namespace"])) {
+  if ([undefined, false].includes(context.emitContext.options["enable-typespec-namespace"])) {
     return rootNamespace;
   }
   if (

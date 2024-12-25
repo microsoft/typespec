@@ -30,6 +30,10 @@ class BaseSerializer:
     def init_file_import(self) -> FileImport:
         return FileImport(self.code_model)
 
+    # get namespace of serialize file from client namespace.
+    # For async API, serialize namespace will have additional suffix '.aio' compared with client namespace;
+    # For models, there will be additional '.models';
+    # For operations, there will be additional '.operations' or '._operations';
     @property
     def serialize_namespace(self) -> str:
         return self.code_model.get_serialize_namespace(self.client_namespace, async_mode=self.async_mode)
