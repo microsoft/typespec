@@ -91,7 +91,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         this,
                         initializationValue: Literal(apiKey.Prefix)) :
                     null;
-                _apiKeyAuthFields = new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
+                // skip auth fields for sub-clients
+                _apiKeyAuthFields = ClientOptions is null ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
             }
             // in this plugin, the type of TokenCredential is null therefore these code will never be executed, but it should be invoked in other plugins that could support it.
             var tokenAuth = _inputAuth?.OAuth2;
@@ -110,7 +111,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     TokenCredentialScopesFieldName,
                     this,
                     initializationValue: New.Array(typeof(string), tokenAuth.Scopes.Select(Literal).ToArray()));
-                _oauth2Fields = new(tokenCredentialField, tokenCredentialScopesField);
+                // skip auth fields for sub-clients
+                _oauth2Fields = ClientOptions is null ? null : new(tokenCredentialField, tokenCredentialScopesField);
             }
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
@@ -150,6 +152,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 PipelineProperty.AsParameter
             };
 
+            if (_apiKeyAuthFields != null)
+            {
+                subClientParameters.Add(_apiKeyAuthFields.AuthField.AsParameter);
+            }
+            if (_oauth2Fields != null)
+            {
+                subClientParameters.Add(_oauth2Fields.AuthField.AsParameter);
+            }
             subClientParameters.Add(_endpointParameter);
             subClientParameters.AddRange(ClientParameters);
 
@@ -200,24 +210,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             List<FieldProvider> fields = [EndpointField];
 
-            // Skip auth fields for sub-clients
-            if (ClientOptions != null)
+            if (_apiKeyAuthFields != null)
             {
-                if (_apiKeyAuthFields != null)
+                fields.Add(_apiKeyAuthFields.AuthField);
+                fields.Add(_apiKeyAuthFields.AuthorizationHeaderField);
+                if (_apiKeyAuthFields.AuthorizationApiKeyPrefixField != null)
                 {
-                    fields.Add(_apiKeyAuthFields.AuthField);
-                    fields.Add(_apiKeyAuthFields.AuthorizationHeaderField);
-                    if (_apiKeyAuthFields.AuthorizationApiKeyPrefixField != null)
-                    {
-                        fields.Add(_apiKeyAuthFields.AuthorizationApiKeyPrefixField);
-                    }
+                    fields.Add(_apiKeyAuthFields.AuthorizationApiKeyPrefixField);
                 }
+            }
 
-                if (_oauth2Fields != null)
-                {
-                    fields.Add(_oauth2Fields.AuthField);
-                    fields.Add(_oauth2Fields.AuthorizationScopesField);
-                }
+            if (_oauth2Fields != null)
+            {
+                fields.Add(_oauth2Fields.AuthField);
+                fields.Add(_oauth2Fields.AuthorizationScopesField);
             }
 
             fields.AddRange(_additionalClientFields.Value);
