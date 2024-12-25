@@ -150,14 +150,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 PipelineProperty.AsParameter
             };
 
-            if (_apiKeyAuthFields != null)
-            {
-                subClientParameters.Add(_apiKeyAuthFields.AuthField.AsParameter);
-            }
-            if (_oauth2Fields != null)
-            {
-                subClientParameters.Add(_oauth2Fields.AuthField.AsParameter);
-            }
             subClientParameters.Add(_endpointParameter);
             subClientParameters.AddRange(ClientParameters);
 
@@ -208,20 +200,24 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             List<FieldProvider> fields = [EndpointField];
 
-            if (_apiKeyAuthFields != null)
+            // Skip auth fields for sub-clients
+            if (ClientOptions != null)
             {
-                fields.Add(_apiKeyAuthFields.AuthField);
-                fields.Add(_apiKeyAuthFields.AuthorizationHeaderField);
-                if (_apiKeyAuthFields.AuthorizationApiKeyPrefixField != null)
+                if (_apiKeyAuthFields != null)
                 {
-                    fields.Add(_apiKeyAuthFields.AuthorizationApiKeyPrefixField);
+                    fields.Add(_apiKeyAuthFields.AuthField);
+                    fields.Add(_apiKeyAuthFields.AuthorizationHeaderField);
+                    if (_apiKeyAuthFields.AuthorizationApiKeyPrefixField != null)
+                    {
+                        fields.Add(_apiKeyAuthFields.AuthorizationApiKeyPrefixField);
+                    }
                 }
-            }
 
-            if (_oauth2Fields != null)
-            {
-                fields.Add(_oauth2Fields.AuthField);
-                fields.Add(_oauth2Fields.AuthorizationScopesField);
+                if (_oauth2Fields != null)
+                {
+                    fields.Add(_oauth2Fields.AuthField);
+                    fields.Add(_oauth2Fields.AuthorizationScopesField);
+                }
             }
 
             fields.AddRange(_additionalClientFields.Value);
