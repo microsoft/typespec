@@ -20,6 +20,7 @@ export interface PythonEmitterOptions {
   // If true, package namespace will respect the typespec namespace. Otherwise, 
   // package namespace is always aligned with package name.
   "enable-typespec-namespace"?: boolean;
+  "use-pyodide"?: boolean;
 }
 
 export interface PythonSdkContext<TServiceOperation extends SdkServiceOperation>
@@ -47,6 +48,7 @@ const EmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
     flavor: { type: "string", nullable: true },
     "examples-dir": { type: "string", nullable: true, format: "absolute-path" },
     "enable-typespec-namespace": { type: "boolean", nullable: true },
+    "use-pyodide": { type: "boolean", nullable: true },
   },
   required: [],
 };
