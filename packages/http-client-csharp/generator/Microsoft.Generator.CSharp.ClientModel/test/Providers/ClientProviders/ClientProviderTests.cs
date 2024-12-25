@@ -949,9 +949,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             get
             {
                 yield return new TestCaseData(InputFactory.Client(TestClientName));
-                //yield return new TestCaseData(_animalClient);
-                //yield return new TestCaseData(_dogClient);
-                //yield return new TestCaseData(_huskyClient);
             }
         }
 
@@ -959,7 +956,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             get
             {
-                //yield return new TestCaseData(InputFactory.Client(TestClientName));
                 yield return new TestCaseData(_animalClient);
                 yield return new TestCaseData(_dogClient);
                 yield return new TestCaseData(_huskyClient);
