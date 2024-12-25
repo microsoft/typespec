@@ -287,7 +287,7 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
-    await regenerate({ flavor: "unbranded", pyodide: true, ...flags,  });
+    await regenerate({ flavor: "unbranded", pyodide: true, ...flags });
   } else {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
@@ -295,8 +295,14 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
       _getCmdList(subdirectory, flagsResolved),
     );
-    const PromiseCommands = cmdList.map((tspCommand) => executeCommand(tspCommand));
-    await Promise.all(PromiseCommands);
+    const chunks: TspCommand[][] = [];
+    for (let i = 0; i < cmdList.length; i += 10) {
+      chunks.push(cmdList.slice(i, i + 10));
+    }
+    for (const chunk of chunks) {
+      const promiseCommands = chunk.map((tspCommand) => executeCommand(tspCommand));
+      await Promise.all(promiseCommands);
+    }
   }
 }
 
