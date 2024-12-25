@@ -88,6 +88,9 @@ Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse
 # remove xml tests, emitter has not supported xml model
 Remove-Item ./specs/payload/xml -Recurse -Force
 
+# ServiceVersion not in core
+Remove-Item ./specs/versioning -Recurse -Force
+
 $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
 $job | Wait-Job -Timeout 1200
