@@ -67,7 +67,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
 
   /* install emitter package. */
   logger.info(`select ${selectedEmitter.package}`);
-  const { action, version } = await npmUtil.ensureNpmPackageInstallAction(
+  const { action, version } = await npmUtil.calculateNpmPackageInstallAction(
     selectedEmitter.package,
     selectedEmitter.version,
   );
@@ -105,9 +105,9 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     if (version) {
       packageFullName = `${selectedEmitter.package}@${version}`;
     }
-    logger.info(`Installing ${packageFullName}`);
+    logger.info(`To install ${packageFullName}`);
     /* verify dependency packages. */
-    const dependenciesToInstall = await npmUtil.ensureNpmPackageDependencyToUpgrade(
+    const dependenciesToInstall = await npmUtil.calculateNpmPackageDependencyToUpgrade(
       selectedEmitter.package,
       version,
       npmDependencyType.peerDependencies,
@@ -228,43 +228,46 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     const targetPathes = await TraverseMainTspFileInWorkspace();
     logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
     if (targetPathes.length === 0) {
-      logger.info("No main tsp file found. Generating Cancelled.", [], {
+      logger.info(`No entrypoint file (${StartFileName}) found. Generating Cancelled.`, [], {
         showOutput: true,
         showPopup: true,
       });
       return;
-    }
-    const toProjectPickItem = (filePath: string): any => {
-      return {
-        label: filePath,
-        path: filePath,
-        iconPath: {
-          light: Uri.file(context.asAbsolutePath(`./icons/tsp-file.light.svg`)),
-          dark: Uri.file(context.asAbsolutePath(`./icons/tsp-file.dark.svg`)),
-        },
+    } else if (targetPathes.length === 1) {
+      tspProjectFile = targetPathes[0];
+    } else {
+      const toProjectPickItem = (filePath: string): any => {
+        return {
+          label: filePath,
+          path: filePath,
+          iconPath: {
+            light: Uri.file(context.asAbsolutePath(`./icons/tsp-file.light.svg`)),
+            dark: Uri.file(context.asAbsolutePath(`./icons/tsp-file.dark.svg`)),
+          },
+        };
       };
-    };
-    const typespecProjectQuickPickItems: any[] = targetPathes.map((filePath) =>
-      toProjectPickItem(filePath),
-    );
-    const selectedProjectFile = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
-      title: "Select a TypeSpec Project",
-      canPickMany: false,
-      placeHolder: "Pick a project",
-      ignoreFocusOut: true,
-    });
-    if (!selectedProjectFile) {
-      logger.info("No project selected. Generating Cancelled.", [], {
-        showOutput: true,
-        showPopup: true,
+      const typespecProjectQuickPickItems: any[] = targetPathes.map((filePath) =>
+        toProjectPickItem(filePath),
+      );
+      const selectedProjectFile = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
+        title: "Select a TypeSpec Project",
+        canPickMany: false,
+        placeHolder: "Pick a project",
+        ignoreFocusOut: true,
       });
-      return;
+      if (!selectedProjectFile) {
+        logger.info("No project selected. Generating Cancelled.", [], {
+          showOutput: true,
+          showPopup: true,
+        });
+        return;
+      }
+      tspProjectFile = selectedProjectFile.path;
     }
-    tspProjectFile = selectedProjectFile.path;
   } else {
     const tspStartFile = await getEntrypointTspFile(uri.fsPath);
     if (!tspStartFile) {
-      logger.info("No main file. Invalid typespec project.", [], {
+      logger.info(`No entrypoint file (${StartFileName}). Invalid typespec project.`, [], {
         showOutput: true,
         showPopup: true,
       });

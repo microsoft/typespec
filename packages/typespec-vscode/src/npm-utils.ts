@@ -41,7 +41,7 @@ export class NpmUtil {
   }
 
   /* identify the action to take for a package. install or skip or cancel or upgrade */
-  public async ensureNpmPackageInstallAction(
+  public async calculateNpmPackageInstallAction(
     packageName: string,
     version?: string,
   ): Promise<{ action: InstallationAction; version?: string }> {
@@ -65,7 +65,7 @@ export class NpmUtil {
   }
 
   /* identify the dependency packages need to be upgraded */
-  public async ensureNpmPackageDependencyToUpgrade(
+  public async calculateNpmPackageDependencyToUpgrade(
     packageName: string,
     version?: string,
     dependencyType: npmDependencyType = npmDependencyType.dependencies,

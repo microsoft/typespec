@@ -1,4 +1,3 @@
-import { readdir } from "node:fs/promises";
 import path from "path";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
@@ -25,20 +24,6 @@ export async function getEntrypointTspFile(tspPath: string): Promise<string | un
   const mainTspFile = path.resolve(baseDir, StartFileName);
   if (await isFile(mainTspFile)) {
     return mainTspFile;
-  }
-
-  if (isFilePath && tspPath.endsWith(".tsp")) {
-    return tspPath;
-  }
-
-  try {
-    const files = await readdir(baseDir);
-    if (files && files.length === 1 && files[0].endsWith(".tsp")) {
-      return path.resolve(baseDir, files[0]);
-    }
-  } catch (err) {
-    logger.error("Error reading directory", [err]);
-    return undefined;
   }
 
   return undefined;
