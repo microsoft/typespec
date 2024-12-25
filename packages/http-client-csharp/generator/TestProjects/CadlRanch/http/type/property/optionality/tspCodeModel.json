@@ -51,6 +51,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -104,6 +105,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -157,6 +159,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -189,6 +192,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.Optional",
    "doc": "The FloatLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
@@ -222,6 +226,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.Optional",
    "doc": "The IntLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
@@ -255,6 +260,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.Optional",
    "doc": "The StringLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,

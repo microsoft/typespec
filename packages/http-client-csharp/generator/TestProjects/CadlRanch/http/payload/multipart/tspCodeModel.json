@@ -30,6 +30,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Payload.MultiPart",
    "doc": "The FileSpecificContentType_contentType",
    "isFixed": false,
    "isFlags": false,

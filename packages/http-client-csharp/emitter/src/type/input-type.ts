@@ -78,6 +78,7 @@ export interface InputUnionType extends InputTypeBase {
   kind: "union";
   name: string;
   variantTypes: InputType[];
+  clientNamespace: string;
 }
 
 export function isInputUnionType(type: InputType): type is InputUnionType {
@@ -91,6 +92,7 @@ export interface InputModelType extends InputTypeBase {
   crossLanguageDefinitionId: string;
   access?: AccessFlags;
   usage: UsageFlags;
+  clientNamespace: string;
   additionalProperties?: InputType;
   discriminatorValue?: string;
   discriminatedSubtypes?: Record<string, InputModelType>;
@@ -124,6 +126,7 @@ export interface InputEnumType extends InputTypeBase {
   isFlags: boolean;
   usage: UsageFlags;
   access?: AccessFlags;
+  clientNamespace: string;
 }
 
 export interface InputEnumTypeValue extends InputTypeBase {
@@ -137,6 +140,7 @@ export interface InputEnumTypeValue extends InputTypeBase {
 export interface InputNullableType extends InputTypeBase {
   kind: "nullable";
   type: InputType;
+  clientNamespace: string;
 }
 
 export function isInputEnumType(type: InputType): type is InputEnumType {

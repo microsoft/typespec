@@ -37,6 +37,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Server.Path.Multiple",
    "doc": "Service versions",
    "isFixed": true,
    "isFlags": false,

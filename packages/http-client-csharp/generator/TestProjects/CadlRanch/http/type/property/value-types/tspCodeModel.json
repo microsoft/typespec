@@ -34,6 +34,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Type.Property.ValueTypes",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -87,6 +88,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -140,6 +142,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -193,6 +196,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -225,6 +229,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.ValueTypes",
    "doc": "The FloatLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
@@ -258,6 +263,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.ValueTypes",
    "doc": "The IntLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
@@ -291,6 +297,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.ValueTypes",
    "doc": "The StringLiteralProperty_property",
    "isFixed": false,
    "isFlags": false,
@@ -347,6 +354,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Type.Property.ValueTypes",
    "doc": "Enum that will be used as a property for model EnumProperty. Extensible.",
    "isFixed": false,
    "isFlags": false,
@@ -403,6 +411,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Type.Property.ValueTypes",
    "doc": "Enum that will be used as a property for model EnumProperty. Non-extensible.",
    "isFixed": true,
    "isFlags": false,

@@ -37,6 +37,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.RenamedFrom",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -92,6 +93,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.RenamedFrom",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -174,6 +176,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "Versioning.RenamedFrom",
       "decorators": []
      },
      "optional": false,

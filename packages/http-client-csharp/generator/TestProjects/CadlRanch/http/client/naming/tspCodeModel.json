@@ -34,6 +34,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Client.Naming.UnionEnum",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Json",
@@ -87,6 +88,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Client.Naming.UnionEnum",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Json",

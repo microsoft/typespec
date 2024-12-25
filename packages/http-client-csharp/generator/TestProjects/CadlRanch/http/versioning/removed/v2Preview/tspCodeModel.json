@@ -37,6 +37,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Removed",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -90,6 +91,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Removed",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -145,6 +147,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Removed",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -220,6 +223,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "Versioning.Removed",
       "decorators": []
      },
      "optional": false,
@@ -331,6 +335,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "Versioning.Removed",
       "decorators": []
      },
      "optional": false,

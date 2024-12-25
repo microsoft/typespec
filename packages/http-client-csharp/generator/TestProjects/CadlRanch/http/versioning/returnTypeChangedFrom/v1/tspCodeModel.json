@@ -37,6 +37,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.ReturnTypeChangedFrom",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,

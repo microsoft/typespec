@@ -143,6 +143,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Type.Enum.Extensible",
    "doc": "Days of the week",
    "isFixed": false,
    "isFlags": false,

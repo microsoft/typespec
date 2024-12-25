@@ -54,6 +54,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Added",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -90,6 +91,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Added",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -145,6 +147,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Added",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -227,6 +230,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "Versioning.Added",
       "decorators": []
      },
      "optional": false,
@@ -305,6 +309,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "Versioning.Added",
       "decorators": []
      },
      "optional": false,

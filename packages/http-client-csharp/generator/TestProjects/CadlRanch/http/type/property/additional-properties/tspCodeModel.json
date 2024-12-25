@@ -30,6 +30,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData2_kind",
    "isFixed": false,
    "isFlags": false,
@@ -63,6 +64,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData1_kind",
    "isFixed": false,
    "isFlags": false,
@@ -96,6 +98,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData0_kind",
    "isFixed": false,
    "isFlags": false,
@@ -260,6 +263,7 @@
       ]
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -311,6 +315,7 @@
       "$ref": "19"
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -403,6 +408,7 @@
       "$ref": "19"
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -451,6 +457,7 @@
       "$ref": "19"
      }
     ],
+    "clientNamespace": "Type.Property.AdditionalProperties",
     "decorators": []
    },
    "properties": [
@@ -504,6 +511,7 @@
       "decorators": []
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -557,6 +565,7 @@
       "decorators": []
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [

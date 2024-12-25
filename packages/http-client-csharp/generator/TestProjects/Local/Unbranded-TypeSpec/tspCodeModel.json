@@ -33,6 +33,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "The Thing_requiredLiteralString",
    "isFixed": false,
    "isFlags": false,
@@ -66,6 +67,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "The Thing_requiredLiteralInt",
    "isFixed": false,
    "isFlags": false,
@@ -99,6 +101,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "The Thing_requiredLiteralFloat",
    "isFixed": false,
    "isFlags": false,
@@ -132,6 +135,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "The Thing_optionalLiteralString",
    "isFixed": false,
    "isFlags": false,
@@ -165,6 +169,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "The Thing_optionalLiteralInt",
    "isFixed": false,
    "isFlags": false,
@@ -198,6 +203,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "The Thing_optionalLiteralFloat",
    "isFixed": false,
    "isFlags": false,
@@ -269,6 +275,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "Simple enum",
    "isFixed": true,
    "isFlags": false,
@@ -340,6 +347,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "Extensible enum",
    "isFixed": false,
    "isFlags": false,
@@ -411,6 +419,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "Int based extensible enum",
    "isFixed": false,
    "isFlags": false,
@@ -482,6 +491,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "Float based extensible enum",
    "isFixed": false,
    "isFlags": false,
@@ -553,6 +563,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "float fixed enum",
    "isFixed": false,
    "isFlags": false,
@@ -624,6 +635,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "float fixed enum",
    "isFixed": true,
    "isFlags": false,
@@ -695,6 +707,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "float fixed enum",
    "isFixed": true,
    "isFlags": false,
@@ -766,6 +779,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "doc": "int fixed enum",
    "isFixed": true,
    "isFlags": false,
@@ -820,6 +834,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "UnbrandedTypeSpec",
    "isFixed": true,
    "isFlags": false,
    "usage": "ApiVersionEnum",
@@ -896,6 +911,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "",
       "decorators": []
      },
      "optional": false,
@@ -1131,7 +1147,8 @@
        },
        "crossLanguageDefinitionId": "TypeSpec.Array",
        "decorators": []
-      }
+      },
+      "clientNamespace": ""
      },
      "optional": true,
      "readOnly": false,
@@ -1162,7 +1179,8 @@
        },
        "crossLanguageDefinitionId": "TypeSpec.Array",
        "decorators": []
-      }
+      },
+      "clientNamespace": ""
      },
      "optional": false,
      "readOnly": false,
@@ -1692,7 +1710,8 @@
           "name": "int32",
           "crossLanguageDefinitionId": "TypeSpec.int32",
           "decorators": []
-         }
+         },
+         "clientNamespace": ""
         },
         "optional": false,
         "readOnly": false,
@@ -1712,7 +1731,8 @@
          "kind": "nullable",
          "type": {
           "$ref": "28"
-         }
+         },
+         "clientNamespace": ""
         },
         "optional": false,
         "readOnly": false,
@@ -1732,7 +1752,8 @@
          "kind": "nullable",
          "type": {
           "$ref": "20"
-         }
+         },
+         "clientNamespace": ""
         },
         "optional": false,
         "readOnly": false,
