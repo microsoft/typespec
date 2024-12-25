@@ -22,10 +22,10 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 }
                 clients.Add(client);
                 clients.Add(client.RestClient);
-                var clientOptions = client.ClientOptions;
+                var clientOptions = client.ClientOptions.Value;
                 if (clientOptions != null)
                 {
-                    clients.Add(clientOptions.Value);
+                    clients.Add(clientOptions);
                 }
             }
 

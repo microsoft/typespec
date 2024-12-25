@@ -46,10 +46,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputParameter[] _allClientParameters;
         private Lazy<List<FieldProvider>> _additionalClientFields;
 
-        private Lazy<ParameterProvider>? ClientOptionsParameter =>
-            ClientOptions != null
-            ? new Lazy<ParameterProvider>(() => ScmKnownParameters.ClientOptions(ClientOptions.Value.Type))
-            : null;
+        private Lazy<ParameterProvider?> ClientOptionsParameter =>
+            new Lazy<ParameterProvider?>(() => ClientOptions.Value != null ? ScmKnownParameters.ClientOptions(ClientOptions.Value.Type) : null);
         private IReadOnlyList<Lazy<ClientProvider>> SubClients => _subClients ??= GetSubClients();
 
         // for mocking
@@ -194,10 +192,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
-        internal Lazy<ClientOptionsProvider>? ClientOptions =>
-            _inputClient.Parent is null
-            ? new Lazy<ClientOptionsProvider>(() => new ClientOptionsProvider(_inputClient, this))
-            : null;
+        internal Lazy<ClientOptionsProvider?> ClientOptions =>
+            new Lazy<ClientOptionsProvider? >(() => _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null);
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
@@ -279,7 +275,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         {
             var mockingConstructor = ConstructorProviderHelper.BuildMockingConstructor(this);
             // handle sub-client constructors
-            if (ClientOptionsParameter is null)
+            if (ClientOptionsParameter.Value is null)
             {
                 List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
                 foreach (var p in _subClientInternalConstructorParams.Value)
@@ -373,7 +369,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields)
         {
-            if (ClientOptions is null || ClientOptionsParameter is null)
+            if (ClientOptions.Value is null || ClientOptionsParameter.Value is null)
             {
                 return [MethodBodyStatement.Empty];
             }
