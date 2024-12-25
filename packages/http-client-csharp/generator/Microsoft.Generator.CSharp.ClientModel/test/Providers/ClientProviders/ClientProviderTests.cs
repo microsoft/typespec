@@ -528,14 +528,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             var client = InputFactory.Client(TestClientName, parent: parentClientName);
             var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
 
             if (isSubClient)
             {
-                Assert.IsNull(clientProvider?.ClientOptions);
+                Assert.IsNull(clientProvider.ClientOptions.Value);
             }
             else
             {
-                Assert.IsNotNull(clientProvider?.ClientOptions);
+                Assert.IsNotNull(clientProvider.ClientOptions.Value);
             }
         }
 

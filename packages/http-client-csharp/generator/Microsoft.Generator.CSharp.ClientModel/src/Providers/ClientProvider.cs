@@ -46,8 +46,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputParameter[] _allClientParameters;
         private Lazy<List<FieldProvider>> _additionalClientFields;
 
-        private Lazy<ParameterProvider?> ClientOptionsParameter =>
-            new Lazy<ParameterProvider?>(() => ClientOptions.Value != null ? ScmKnownParameters.ClientOptions(ClientOptions.Value.Type) : null);
+        private Lazy<ParameterProvider?> ClientOptionsParameter { get; }
         private IReadOnlyList<Lazy<ClientProvider>> SubClients => _subClients ??= GetSubClients();
 
         // for mocking
@@ -63,6 +62,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _inputAuth = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
+            ClientOptions = new Lazy<ClientOptionsProvider?>(() => _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null);
+            ClientOptionsParameter = new Lazy<ParameterProvider?>(() => ClientOptions.Value != null ? ScmKnownParameters.ClientOptions(ClientOptions.Value.Type) : null);
 
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
@@ -89,7 +90,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         initializationValue: Literal(apiKey.Prefix)) :
                     null;
                 // skip auth fields for sub-clients
-                _apiKeyAuthFields = ClientOptions is null ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
+                _apiKeyAuthFields = ClientOptions.Value is null ? null : new(apiKeyAuthField, authorizationHeaderField, authorizationApiKeyPrefixField);
             }
             // in this plugin, the type of TokenCredential is null therefore these code will never be executed, but it should be invoked in other plugins that could support it.
             var tokenAuth = _inputAuth?.OAuth2;
@@ -109,7 +110,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     this,
                     initializationValue: New.Array(typeof(string), tokenAuth.Scopes.Select(Literal).ToArray()));
                 // skip auth fields for sub-clients
-                _oauth2Fields = ClientOptions is null ? null : new(tokenCredentialField, tokenCredentialScopesField);
+                _oauth2Fields = ClientOptions.Value is null ? null : new(tokenCredentialField, tokenCredentialScopesField);
             }
             EndpointField = new(
                 FieldModifiers.Private | FieldModifiers.ReadOnly,
@@ -192,8 +193,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
-        internal Lazy<ClientOptionsProvider?> ClientOptions =>
-            new Lazy<ClientOptionsProvider? >(() => _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null);
+        internal Lazy<ClientOptionsProvider?> ClientOptions { get; }
 
         public PropertyProvider PipelineProperty { get; }
         public FieldProvider EndpointField { get; }
