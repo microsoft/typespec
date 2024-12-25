@@ -42,14 +42,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private FieldProvider? _apiVersionField;
         private readonly Lazy<IReadOnlyList<ParameterProvider>> _subClientInternalConstructorParams;
         private IReadOnlyList<Lazy<ClientProvider>>? _subClients;
-        private ParameterProvider? _clientOptionsParameter;
-        private ClientOptionsProvider? _clientOptions;
         private RestClientProvider? _restClient;
         private readonly InputParameter[] _allClientParameters;
         private Lazy<List<FieldProvider>> _additionalClientFields;
 
-        private ParameterProvider? ClientOptionsParameter => _clientOptionsParameter ??= ClientOptions != null
-            ? ScmKnownParameters.ClientOptions(ClientOptions.Type)
+        private Lazy<ParameterProvider>? ClientOptionsParameter =>
+            ClientOptions != null
+            ? new Lazy<ParameterProvider>(() => ScmKnownParameters.ClientOptions(ClientOptions.Value.Type))
             : null;
         private IReadOnlyList<Lazy<ClientProvider>> SubClients => _subClients ??= GetSubClients();
 
@@ -195,8 +194,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
-        internal ClientOptionsProvider? ClientOptions => _clientOptions ??= _inputClient.Parent is null
-            ? new ClientOptionsProvider(_inputClient, this)
+        internal Lazy<ClientOptionsProvider>? ClientOptions =>
+            _inputClient.Parent is null
+            ? new Lazy<ClientOptionsProvider>(() => new ClientOptionsProvider(_inputClient, this))
             : null;
 
         public PropertyProvider PipelineProperty { get; }
@@ -325,7 +325,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             void AppendConstructors(AuthFields? authFields, List<ConstructorProvider> primaryConstructors, List<ConstructorProvider> secondaryConstructors)
             {
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);
-                ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter];
+                ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter.Value];
                 var primaryConstructor = new ConstructorProvider(
                     new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
                     BuildPrimaryConstructorBody(primaryConstructorParameters, authFields),
@@ -379,7 +379,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
 
             List<MethodBodyStatement> body = [
-                ClientOptionsParameter.Assign(ClientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
+                ClientOptionsParameter.Value.Assign(ClientOptionsParameter.Value.InitializationValue!, nullCoalesce: true).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 EndpointField.Assign(_endpointParameter).Terminate()
             ];
@@ -409,14 +409,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     break;
             }
 
-            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter, perRetryPolicies)).Terminate());
+            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter.Value, perRetryPolicies)).Terminate());
 
-            var clientOptionsPropertyDict = ClientOptions.Properties.ToDictionary(p => p.Name.ToCleanName());
+            var clientOptionsPropertyDict = ClientOptions.Value.Properties.ToDictionary(p => p.Name.ToCleanName());
             foreach (var f in Fields)
             {
-                if (f == _apiVersionField && ClientOptions.VersionProperty != null)
+                if (f == _apiVersionField && ClientOptions.Value.VersionProperty != null)
                 {
-                    body.Add(f.Assign(ClientOptionsParameter.Property(ClientOptions.VersionProperty.Name)).Terminate());
+                    body.Add(f.Assign(ClientOptionsParameter.Value.Property(ClientOptions.Value.VersionProperty.Name)).Terminate());
                 }
                 else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
                 {

@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 var clientOptions = client.ClientOptions;
                 if (clientOptions != null)
                 {
-                    clients.Add(clientOptions);
+                    clients.Add(clientOptions.Value);
                 }
             }
 
