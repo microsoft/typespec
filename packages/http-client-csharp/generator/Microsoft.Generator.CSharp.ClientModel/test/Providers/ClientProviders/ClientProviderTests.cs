@@ -386,7 +386,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when we have both auths, we still have 2 parameters in the ctor, because we should not have two credential parameters in sub-client
+            // when we have both auths, we still have 2 parameters in the ctor, because we should not have auth parameters in sub-client
             var ctorParams = internalConstructor?.Signature?.Parameters;
             Assert.AreEqual(2, ctorParams?.Count);
 
