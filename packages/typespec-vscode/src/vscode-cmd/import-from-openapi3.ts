@@ -332,7 +332,6 @@ async function installOpenApi3Package(
 
 function getTitle(step: "confirm-non-empty-folder" | "install-openapi3") {
   const title = "Import TypeSpec From OpenAPI3";
-  const totalStep = 2;
   switch (step) {
     case "confirm-non-empty-folder":
       return `${title} - Target folder not empty`;
