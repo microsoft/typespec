@@ -112,6 +112,14 @@
         }
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "typespec.importFromOpenApi3",
+          "group": "typespec@1"
+        }
+      ]
+    },
     "grammars": [
       {
         "language": "typespec",
@@ -149,6 +157,11 @@
       {
         "command": "typespec.installGlobalCompilerCli",
         "title": "Install TypeSpec Compiler/CLI globally",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.importFromOpenApi3",
+        "title": "Import TypeSpec from OpenApi3",
         "category": "TypeSpec"
       }
     ],

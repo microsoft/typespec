@@ -5,7 +5,9 @@ import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
-import { isUrl } from "./path-utils.js";
+import { getDirectoryPath, isUrl } from "./path-utils.js";
+
+const ERROR_CODE_ENOENT = "ENOENT";
 
 export async function isFile(path: string) {
   try {
@@ -172,7 +174,7 @@ export function spawnExecutionAndLogToOutput(
       logger.error(error.trim());
     },
     onError: (error) => {
-      if (error?.code === "ENOENT") {
+      if (error?.code === ERROR_CODE_ENOENT) {
         logger.error(`Cannot find ${exe} executable. Make sure it can be found in your path.`);
       }
     },
@@ -277,6 +279,21 @@ export function spawnExecution(
   });
 }
 
+export function isExecOutputCmdNotFound(output: ExecOutput): boolean {
+  // check whether this works for windows, linux and mac
+  if (output.exitCode === 0 || output.exitCode === null) {
+    return false;
+  }
+  if (output.error?.code === ERROR_CODE_ENOENT) {
+    return true;
+  }
+  if (output.spawnOptions.shell) {
+    // when starting with shell, our cmd will be wrapped so can't get the error code, so check the stderr
+    return output.stderr.includes("not recognized as an internal or external command");
+  }
+  return false;
+}
+
 /**
  * if the operation is cancelled, the promise will be rejected with reason==="cancelled"
  * if the operation is timeout, the promise will be rejected with reason==="timeout"
@@ -300,4 +317,17 @@ export function createPromiseWithCancelAndTimeout<T>(
     }, timeoutInMs);
     action.then(resolve, reject);
   });
+}
+
+export function* listParentFolders(from: string, includeSelf: boolean) {
+  if (includeSelf) {
+    yield from;
+  }
+  let last = from;
+  let current = getDirectoryPath(from);
+  while (current !== last) {
+    yield current;
+    last = current;
+    current = getDirectoryPath(current);
+  }
 }
