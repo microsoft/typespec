@@ -65,6 +65,28 @@ export default defineConfig([
     },
     plugins: [...plugins, ts("dist/test/web")],
   },
+  {
+    ...baseConfig,
+    input: "test/suite/extension.test.ts",
+    output: {
+      file: "dist/test/suite/extension.test.cjs",
+      format: "commonjs",
+      sourcemap: true,
+      inlineDynamicImports: true,
+    },
+    plugins: [...plugins, ts("dist/test/suite")],
+  },
+  {
+    ...baseConfig,
+    input: "test/unit/extension.test.ts",
+    output: {
+      file: "dist/test/unit/extension.test.cjs",
+      format: "commonjs",
+      sourcemap: true,
+      inlineDynamicImports: true,
+    },
+    plugins: [...plugins, ts("dist/test/unit")],
+  },
 ]);
 
 function ts(outDir: string) {

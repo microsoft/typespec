@@ -1,4 +1,4 @@
-import { assert } from "vitest";
+import assert from "assert";
 import * as vscode from "vscode";
 
 describe("Web Extension", () => {

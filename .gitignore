@@ -213,6 +213,9 @@ packages/*/etc/
 # VS Code test web temp files
 .vscode-test-web/
 
+# VS Code test temp files
+.vscode-test
+
 # csharp emitter
 !packages/http-client-csharp/package-lock.json
 packages/http-client-csharp/generator/artifacts/

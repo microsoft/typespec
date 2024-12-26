@@ -1,15 +1,8 @@
-import { assert, beforeAll, describe, it } from "vitest";
-import { ConsoleLogLogger } from "../../src/log/console-log-listener.js";
-import logger from "../../src/log/logger.js";
+import assert from "assert";
 
-beforeAll(() => {
-  // we don't have vscode in test env. Hook console log listener
-  logger.registerLogListener("test", new ConsoleLogLogger());
-});
-
-describe("Hello world test", () => {
-  it("should pass", () => {
-    assert(true, "test sample");
+suite("Unit test for vs-code", () => {
+  test("should return -1 when the value is not present", function () {
+    assert.equal([1, 2, 3].indexOf(4), -1);
   });
 
   // Add more unit test when needed
