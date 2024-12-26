@@ -8,10 +8,12 @@ import { EmitContext, NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
 import path, { dirname } from "path";
+import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
 import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
+import { runPython3 } from "./run-python3.js";
 import { removeUnderscoresFromNamespace } from "./utils.js";
 
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
@@ -85,51 +87,114 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     });
     return;
   }
-
-  addDefaultOptions(sdkContext);
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
-  let venvPath = path.join(root, "venv");
-  if (fs.existsSync(path.join(venvPath, "bin"))) {
-    venvPath = path.join(venvPath, "bin", "python");
-  } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
-    venvPath = path.join(venvPath, "Scripts", "python.exe");
-  } else {
-    throw new Error("Virtual environment doesn't exist.");
-  }
-  const commandArgs = [
-    venvPath,
-    `${root}/eng/scripts/setup/run_tsp.py`,
-    `--output-folder=${outputDir}`,
-    `--cadl-file=${yamlPath}`,
-  ];
+  addDefaultOptions(sdkContext);
   const resolvedOptions = sdkContext.emitContext.options;
+  const commandArgs: Record<string, string> = {};
   if (resolvedOptions["packaging-files-config"]) {
     const keyValuePairs = Object.entries(resolvedOptions["packaging-files-config"]).map(
       ([key, value]) => {
         return `${key}:${value}`;
       },
     );
-    commandArgs.push(`--packaging-files-config='${keyValuePairs.join("|")}'`);
+    commandArgs["packaging-files-config"] = keyValuePairs.join("|");
     resolvedOptions["packaging-files-config"] = undefined;
   }
   if (
     resolvedOptions["package-pprint-name"] !== undefined &&
     !resolvedOptions["package-pprint-name"].startsWith('"')
   ) {
-    resolvedOptions["package-pprint-name"] = `"${resolvedOptions["package-pprint-name"]}"`;
+    resolvedOptions["package-pprint-name"] = `${resolvedOptions["package-pprint-name"]}`;
   }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {
-    commandArgs.push(`--${key}=${value}`);
+    commandArgs[key] = value;
   }
   if (sdkContext.arm === true) {
-    commandArgs.push("--azure-arm=true");
+    commandArgs["azure-arm"] = "true";
   }
   if (resolvedOptions.flavor === "azure") {
-    commandArgs.push("--emit-cross-language-definition-file=true");
+    commandArgs["emit-cross-language-definition-file"] = "true";
   }
-  commandArgs.push("--from-typespec=true");
+  commandArgs["from-typespec"] = "true";
+
   if (!program.compilerOptions.noEmit && !program.hasError()) {
-    execSync(commandArgs.join(" "));
+    // if not using pyodide and there's no venv, we try to create venv
+    if (!resolvedOptions["use-pyodide"] && !fs.existsSync(path.join(root, "venv"))) {
+      try {
+        await runPython3(path.join(root, "/eng/scripts/setup/install.py"));
+        await runPython3(path.join(root, "/eng/scripts/setup/prepare.py"));
+      } catch (error) {
+        // if the python env is not ready, we use pyodide instead
+        resolvedOptions["use-pyodide"] = true;
+      }
+    }
+
+    if (resolvedOptions["use-pyodide"]) {
+      // here we run with pyodide
+      const pyodide = await setupPyodideCall(root);
+      // create the output folder if not exists
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      // mount output folder to pyodide
+      pyodide.FS.mkdirTree("/output");
+      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: outputDir }, "/output");
+      // mount yaml file to pyodide
+      pyodide.FS.mkdirTree("/yaml");
+      pyodide.FS.mount(pyodide.FS.filesystems.NODEFS, { root: path.dirname(yamlPath) }, "/yaml");
+      const globals = pyodide.toPy({
+        outputFolder: "/output",
+        yamlFile: `/yaml/${path.basename(yamlPath)}`,
+        commandArgs,
+      });
+      const pythonCode = `
+        async def main():
+          import warnings
+          with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning) # bc of m2r2 dep issues
+            from pygen import m2r, preprocess, codegen, black
+          m2r.M2R(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+          preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+          codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+          black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
+    
+        await main()`;
+      await pyodide.runPythonAsync(pythonCode, { globals });
+    } else {
+      // here we run with native python
+      let venvPath = path.join(root, "venv");
+      if (fs.existsSync(path.join(venvPath, "bin"))) {
+        venvPath = path.join(venvPath, "bin", "python");
+      } else if (fs.existsSync(path.join(venvPath, "Scripts"))) {
+        venvPath = path.join(venvPath, "Scripts", "python.exe");
+      } else {
+        throw new Error("Virtual environment doesn't exist.");
+      }
+      commandArgs["output-folder"] = outputDir;
+      commandArgs["cadl-file"] = yamlPath;
+      const commandFlags = Object.entries(commandArgs)
+        .map(([key, value]) => `--${key}=${value}`)
+        .join(" ");
+      const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
+      execSync(command);
+    }
   }
+}
+
+async function setupPyodideCall(root: string) {
+  const pyodide = await loadPyodide({
+    indexURL: path.dirname(fileURLToPath(import.meta.resolve("pyodide"))),
+  });
+  // mount generator to pyodide
+  pyodide.FS.mkdirTree("/generator");
+  pyodide.FS.mount(
+    pyodide.FS.filesystems.NODEFS,
+    { root: path.join(root, "generator") },
+    "/generator",
+  );
+  await pyodide.loadPackage("micropip");
+  const micropip = pyodide.pyimport("micropip");
+  await micropip.install("emfs:/generator/dist/pygen-0.1.0-py3-none-any.whl");
+  return pyodide;
 }

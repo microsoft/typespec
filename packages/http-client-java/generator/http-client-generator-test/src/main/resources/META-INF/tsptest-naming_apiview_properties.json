@@ -1,12 +1,12 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "tsptest.naming.NamingAsyncClient": "null",
+    "tsptest.naming.NamingAsyncClient": "TspTest.Naming.NamingOp",
     "tsptest.naming.NamingAsyncClient.getAnonymous": "TspTest.Naming.NamingOp.getAnonymous",
     "tsptest.naming.NamingAsyncClient.getAnonymousWithResponse": "TspTest.Naming.NamingOp.getAnonymous",
     "tsptest.naming.NamingAsyncClient.post": "TspTest.Naming.NamingOp.post",
     "tsptest.naming.NamingAsyncClient.postWithResponse": "TspTest.Naming.NamingOp.post",
-    "tsptest.naming.NamingClient": "null",
+    "tsptest.naming.NamingClient": "TspTest.Naming.NamingOp",
     "tsptest.naming.NamingClient.getAnonymous": "TspTest.Naming.NamingOp.getAnonymous",
     "tsptest.naming.NamingClient.getAnonymousWithResponse": "TspTest.Naming.NamingOp.getAnonymous",
     "tsptest.naming.NamingClient.post": "TspTest.Naming.NamingOp.post",

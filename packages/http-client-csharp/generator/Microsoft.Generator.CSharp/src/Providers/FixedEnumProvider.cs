@@ -8,6 +8,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.SourceInput;
+using Microsoft.Generator.CSharp.Utilities;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -98,7 +99,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     EnumUnderlyingType,
                     name,
                     this,
-                    inputValue.Description is null ? $"{name}" : FormattableStringHelpers.FromString(inputValue.Description),
+                    DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
                     initializationValue);
 
                 values[i] = new EnumTypeMember(name, field, inputValue.Value);

@@ -86,7 +86,7 @@ public class ClientModelUtil {
 
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
-                .crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
+                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client));
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
@@ -117,7 +117,8 @@ public class ClientModelUtil {
         for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
-                .methodGroupClient(methodGroupClient);
+                .methodGroupClient(methodGroupClient)
+                .crossLanguageDefinitionId(methodGroupClient.getCrossLanguageDefinitionId());
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()

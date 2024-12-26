@@ -120,7 +120,7 @@ public final class MapperUtils {
                 .implementationDetails(
                     new ImplementationDetails.Builder().usages(SchemaUtil.mapSchemaContext(enumType.getUsage()))
                         .build())
-                .crossLanguageDefinitionId(enumType.getCrossLanguageDefinitionId())
+                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(enumType))
                 .fromMethodName(deserializationMethodName)
                 .toMethodName(serializationMethodName)
                 .build();
