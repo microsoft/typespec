@@ -317,7 +317,7 @@ export function createServer(host: ServerHost): Server {
     if (!validationResult.valid) {
       for (const diag of validationResult.diagnostics) {
         log({
-          level: diag.severity,
+          level: diag.severity === "hint" ? "info" : diag.severity,
           message: diag.message,
           detail: {
             code: diag.code,
