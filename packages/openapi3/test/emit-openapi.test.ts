@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { emitOpenApiWithDiagnostics } from "./test-host.js";
 
 describe("Scalar formats of serialized document in YAML", () => {
-  it("should add single quote for y|Y|yes|Yes|YES|n|N|no|No|NO|true|True|TRUE|false|False|FALSE|on|On|ON|off|Off|OFF", async (c: TestCase) => {
+  it("should add single quote for y|Y|yes|Yes|YES|n|N|no|No|NO|true|True|TRUE|false|False|FALSE|on|On|ON|off|Off|OFF", async () => {
     const [_, __, content] = await emitOpenApiWithDiagnostics(`
       enum TestEnum {
         y: "y",
