@@ -22,12 +22,13 @@ import {
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
   getUseDependencies,
-  getVersion,
 } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
 import type { Version } from "./types.js";
+import { getVersionAdditionCodefixes, getVersionRemovalCodeFixes } from "./validate.codefix.js";
 import {
   Availability,
+  getAllVersions,
   getAvailabilityMap,
   getVersionDependencies,
   getVersions,
@@ -208,13 +209,6 @@ export function $onValidate(program: Program) {
   validateVersionedNamespaceUsage(program, namespaceDependencies);
 }
 
-function getAllVersions(p: Program, t: Type): Version[] | undefined {
-  const [namespace, _] = getVersions(p, t);
-  if (namespace === undefined) return undefined;
-
-  return getVersion(p, namespace)?.getVersions();
-}
-
 /**
  * Ensures that properties whose type has changed with versioning are valid.
  */
@@ -254,6 +248,7 @@ function validateTypeAvailability(
           version: prettyVersion(version),
         },
         target: source,
+        codefixes: getVersionAdditionCodefixes(version, type, program, options),
       });
     }
 
@@ -665,9 +660,10 @@ function validateTargetVersionCompatible(
   const [targetNamespace] = getVersions(program, targetAvailability.type);
   if (!targetAvailability.map || !targetNamespace) return;
 
+  let versionMap: Map<Version, Version> | Version | undefined;
   if (sourceNamespace !== targetNamespace) {
     const dependencies = sourceNamespace && getVersionDependencies(program, sourceNamespace);
-    const versionMap = dependencies?.get(targetNamespace);
+    versionMap = dependencies?.get(targetNamespace);
     if (versionMap === undefined) return;
 
     targetAvailability.map = translateAvailability(
@@ -697,6 +693,7 @@ function validateTargetVersionCompatible(
       targetAvailability.map,
       sourceAvailability.type,
       targetAvailability.type,
+      versionMap instanceof Map ? versionMap : undefined,
     );
   }
 }
@@ -728,6 +725,7 @@ function translateAvailability(
             targetAddedOn: addedAfter,
           },
           target: source,
+          codefixes: getVersionAdditionCodefixes(version, target, program),
         });
       }
       if (removedBefore) {
@@ -741,6 +739,7 @@ function translateAvailability(
             targetAddedOn: removedBefore,
           },
           target: source,
+          codefixes: getVersionAdditionCodefixes(version, target, program),
         });
       }
     }
@@ -799,6 +798,7 @@ function validateAvailabilityForRef(
   targetAvail: Map<string, Availability>,
   source: Type,
   target: Type,
+  versionMap?: Map<Version, Version>,
   sourceOptions?: TypeNameOptions,
   targetOptions?: TypeNameOptions,
 ) {
@@ -840,6 +840,10 @@ function validateAvailabilityForRef(
       [Availability.Removed, Availability.Unavailable].includes(targetVal)
     ) {
       const targetAddedOn = findAvailabilityAfterVersion(key, Availability.Added, targetAvail);
+      let targetVersion: Version | string = key;
+      if (versionMap) {
+        targetVersion = findMatchingTargetVersion(key, versionMap) ?? key;
+      }
 
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
@@ -851,6 +855,7 @@ function validateAvailabilityForRef(
           targetAddedOn: targetAddedOn!,
         },
         target: source,
+        codefixes: getVersionAdditionCodefixes(targetVersion, target, program, targetOptions),
       });
     }
     if (
@@ -862,6 +867,12 @@ function validateAvailabilityForRef(
         Availability.Removed,
         targetAvail,
       );
+
+      let targetVersion: Version | string = key;
+      if (versionMap) {
+        targetVersion = findMatchingTargetVersion(key, versionMap) ?? key;
+      }
+
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
         messageId: "removedBefore",
@@ -872,6 +883,7 @@ function validateAvailabilityForRef(
           targetRemovedOn: targetRemovedOn!,
         },
         target: source,
+        codefixes: getVersionAdditionCodefixes(targetVersion, target, program, targetOptions),
       });
     }
   }
@@ -934,6 +946,7 @@ function validateAvailabilityForContains(
           targetAddedOn: key,
         },
         target: target,
+        codefixes: getVersionAdditionCodefixes(key, source, program, targetOptions),
       });
     }
     if (
@@ -952,6 +965,7 @@ function validateAvailabilityForContains(
           targetRemovedOn: targetRemovedOn!,
         },
         target: target,
+        codefixes: getVersionRemovalCodeFixes(key, target, program, targetOptions),
       });
     }
   }
@@ -966,4 +980,16 @@ function isAvailableInAllVersion(avail: Map<string, Availability>): boolean {
 
 function prettyVersion(version: Version | undefined): string {
   return version?.value ?? "<n/a>";
+}
+
+function findMatchingTargetVersion(
+  sourceVersion: string,
+  versionMap: Map<Version, Version>,
+): Version | undefined {
+  for (const [source, target] of versionMap.entries()) {
+    if (source.value === sourceVersion) {
+      return target;
+    }
+  }
+  return undefined;
 }
