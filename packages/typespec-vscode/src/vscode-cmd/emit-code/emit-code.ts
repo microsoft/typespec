@@ -17,6 +17,7 @@ import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import {
   Emitter,
   EmitterKind,
+  getLanguageAlias,
   getRegisterEmitters,
   getRegisterEmitterTypes,
   PreDefinedEmitterPickItems,
@@ -35,15 +36,18 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   const baseDir = getDirectoryPath(mainTspFile);
 
   const toQuickPickItem = (e: Emitter): EmitQuickPickItem => {
+    const moreDetail = e.sourceRepo ? `[**More Detail**](${e.sourceRepo})` : "";
     return {
       language: e.language,
       package: e.package,
       emitterKind: e.kind,
       label: e.language,
-      detail: `Generate ${e.language} ${e.kind} code from ${e.package}`,
+      detail: `Generate ${e.kind} code for ${e.language} by TypeSpec library ${e.package}.${moreDetail}`,
       picked: false,
       fromConfig: false,
-      iconPath: Uri.file(context.asAbsolutePath(`./icons/${e.language.toLowerCase()}.svg`)),
+      iconPath: Uri.file(
+        context.asAbsolutePath(`./icons/${getLanguageAlias(e.language).toLowerCase()}.svg`),
+      ),
     };
   };
 
@@ -51,14 +55,14 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   const all = [...registerEmitters].map((e) => toQuickPickItem(e));
 
   const selectedEmitter = await vscode.window.showQuickPick<EmitQuickPickItem>(all, {
-    title: "Select a Language",
+    title: `Select a Language for ${kind} code generation`,
     canPickMany: false,
-    placeHolder: "Pick a Language",
+    placeHolder: `Select a Language for ${kind} code generation`,
     ignoreFocusOut: true,
   });
 
   if (!selectedEmitter) {
-    logger.info("No emitter selected. Generating Cancelled.");
+    logger.info("No language selected. Generating Cancelled.");
     return;
   }
 
@@ -173,7 +177,11 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     );
     return;
   }
-  const outputDir = path.join(baseDir, selectedEmitter.emitterKind, selectedEmitter.language);
+  const outputDir = path.join(
+    baseDir,
+    selectedEmitter.emitterKind,
+    getLanguageAlias(selectedEmitter.language),
+  );
 
   const options: Record<string, string> = {};
   options["emitter-output-dir"] = outputDir;
@@ -238,7 +246,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     } else {
       const toProjectPickItem = (filePath: string): any => {
         return {
-          label: filePath,
+          label: `Project: ${filePath}`,
           path: filePath,
           iconPath: {
             light: Uri.file(context.asAbsolutePath(`./icons/tsp-file.light.svg`)),
@@ -250,7 +258,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
         toProjectPickItem(filePath),
       );
       const selectedProjectFile = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
-        title: "Select a TypeSpec Project",
+        title: "Select a Project",
         canPickMany: false,
         placeHolder: "Pick a project",
         ignoreFocusOut: true,
@@ -280,9 +288,13 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
 
   const emitterKinds = getRegisterEmitterTypes();
   const toEmitterTypeQuickPickItem = (kind: EmitterKind): any => {
+    const registerEmitters = getRegisterEmitters(kind);
+    const supportedLanguages = registerEmitters.map((e) => e.language).join(", ");
     return {
       label: PreDefinedEmitterPickItems[kind]?.label ?? kind,
-      detail: PreDefinedEmitterPickItems[kind]?.detail ?? `Generate ${kind} code from TypeSpec`,
+      detail:
+        PreDefinedEmitterPickItems[kind]?.detail ??
+        `Generate ${kind} code from TypeSpec files. Supported languages are ${supportedLanguages}.`,
       emitterKind: kind,
       iconPath: Uri.file(context.asAbsolutePath(`./icons/${kind.toLowerCase()}.svg`)),
     };

@@ -3,7 +3,7 @@ import logger from "../../log/logger.js";
 import { SettingName } from "../../types.js";
 
 export enum EmitterKind {
-  Schema = "schema",
+  Schema = "openapi",
   Client = "client",
   Server = "server",
 }
@@ -12,21 +12,23 @@ export interface Emitter {
   language: string;
   package: string;
   version?: string;
+  sourceRepo?: string;
   kind: EmitterKind;
 }
 
 export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = {
-  schema: {
-    label: "OpenAPI",
-    detail: "Generating OpenAPI from TypeSpec",
+  openapi: {
+    label: "OpenAPI Document",
+    detail: "Generating OpenAPI3 Document from TypeSpec files.",
   },
   client: {
     label: "Client Code",
-    detail: "Generating Client Code from TypeSpec.",
+    detail:
+      "Generating Client Code from TypeSpec files. Supported languages are .NET, Python, Java, JavaScript.",
   },
   server: {
     label: "<PREVIEW> Server Stub",
-    detail: "Generating Server Stub from TypeSpec",
+    detail: "Generating Server Stub from TypeSpec files. Supported languages are .NET, JavaScript.",
   },
 };
 
@@ -49,6 +51,7 @@ function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter | undefined {
     language: emitter.language,
     package: packageName,
     version: version,
+    sourceRepo: emitter.sourceRepo,
     kind: kind,
   };
 }
@@ -68,4 +71,13 @@ export function getRegisterEmitterTypes(): ReadonlyArray<EmitterKind> {
   const emitters: ReadonlyArray<Emitter> =
     extensionConfig.get(SettingName.GenerateCodeEmitters) ?? [];
   return Array.from(new Set(emitters.map((emitter) => emitter.kind)));
+}
+
+const languageAlias: Record<string, string> = {
+  ".net": "dotnet",
+};
+
+/*return the alias of the language if it exists, otherwise return the original language. */
+export function getLanguageAlias(language: string): string {
+  return languageAlias[language] ?? language;
 }

@@ -118,7 +118,7 @@
                 "language": {
                   "type": "string",
                   "enum": [
-                    "DotNet",
+                    ".NET",
                     "Java",
                     "JavaScript",
                     "Python",
@@ -133,12 +133,16 @@
                   "type": "string",
                   "description": "Define the emitter package.\n\nExample (with version): @typespec/http-client-csharp@1.0.0\n\nExample (without version): @typespec/http-client-csharp"
                 },
+                "sourceRepo": {
+                  "type": "string",
+                  "description": "Define the source repository of the emitter package."
+                },
                 "kind": {
                   "type": "string",
                   "enum": [
                     "client",
                     "server",
-                    "schema"
+                    "openapi"
                   ],
                   "description": "Define the emitter kind."
                 }
@@ -146,39 +150,46 @@
             },
             "default": [
               {
-                "language": "DotNet",
+                "language": ".NET",
                 "package": "@typespec/http-client-csharp",
+                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-csharp",
                 "kind": "client"
               },
               {
                 "language": "Java",
                 "package": "@typespec/http-client-java",
+                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-java ",
                 "kind": "client"
               },
               {
                 "language": "JavaScript",
                 "package": "@azure-tools/typespec-ts",
+                "sourceRepo": "https://github.com/Azure/autorest.typescript/tree/main/packages/typespec-ts",
                 "kind": "client"
               },
               {
                 "language": "Python",
                 "package": "@typespec/http-client-python",
+                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-python",
                 "kind": "client"
               },
               {
-                "language": "DotNet",
+                "language": ".NET",
                 "package": "@typespec/http-server-csharp",
+                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-server-csharp",
                 "kind": "server"
               },
               {
                 "language": "JavaScript",
                 "package": "@typespec/http-server-javascript",
+                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-server-javascript",
                 "kind": "server"
               },
               {
                 "language": "OpenAPI3",
                 "package": "@typespec/openapi3",
-                "kind": "schema"
+                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/openapi3",
+                "kind": "openapi"
               }
             ]
           }
