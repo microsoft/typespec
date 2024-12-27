@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Microsoft.Generator.CSharp
+namespace Microsoft.Generator.CSharp.Input
 {
     public static class StringExtensions
     {
