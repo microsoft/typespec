@@ -10,6 +10,5 @@ using TypeSpec.Versioning;
 })
 @useDependency(Library.Versions.`1.0`)
 namespace VersionedApi;
-using TypeSpec.Http;
 
 op read(): Library.PetToy;

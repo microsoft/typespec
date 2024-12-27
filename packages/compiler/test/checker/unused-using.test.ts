@@ -849,4 +849,37 @@ describe("compiler: unused using statements", () => {
     const diagnostics = await testHost.diagnose("./", { nostdlib: true });
     expectDiagnosticEmpty(diagnostics);
   });
+
+  it("unused using when type referenced directly", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./other.tsp";
+      namespace Main {
+        using Other;
+
+        model MainModel {
+          a: Other.OtherModel;
+        }
+      }
+    `,
+    );
+    testHost.addTypeSpecFile(
+      "other.tsp",
+      `
+      namespace Other {
+        model OtherModel {
+        }
+      }
+    `,
+    );
+    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "unused-using",
+        message: "Unused using: using Other",
+        severity: "hint",
+      },
+    ]);
+  });
 });
