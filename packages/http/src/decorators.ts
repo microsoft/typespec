@@ -226,11 +226,7 @@ export const $path: PathDecorator = (
       ? paramNameOrOptions
       : (paramNameOrOptions?.name ?? entity.name);
 
-  const userOptions: PathOptions =
-    typeof paramNameOrOptions === "object"
-      ? paramNameOrOptions
-      : (getPathParamOptions(context.program, entity) ?? {});
-
+  const userOptions: PathOptions = typeof paramNameOrOptions === "object" ? paramNameOrOptions : {};
   const options: PathParameterOptions = {
     type: "path",
     explode: userOptions.explode ?? false,
