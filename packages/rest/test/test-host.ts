@@ -19,6 +19,7 @@ import { RestTestLibrary } from "../src/testing/index.js";
 export async function createRestTestHost(): Promise<TestHost> {
   return createTestHost({
     libraries: [HttpTestLibrary, RestTestLibrary],
+    diagnosticFilter: (diag) => diag.severity !== "hint",
   });
 }
 export async function createRestTestRunner(): Promise<BasicTestRunner> {

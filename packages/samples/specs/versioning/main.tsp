@@ -3,7 +3,6 @@ import "@typespec/rest";
 import "./library.tsp";
 
 using TypeSpec.Versioning;
-using TypeSpec.Rest;
 
 @service({
   title: "Pet Store Service",
