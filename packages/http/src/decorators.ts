@@ -221,14 +221,16 @@ export const $path: PathDecorator = (
   entity: ModelProperty,
   paramNameOrOptions?: string | PathOptions,
 ) => {
-  if (context.decoratorTarget === undefined) return;
-
   const paramName =
     typeof paramNameOrOptions === "string"
       ? paramNameOrOptions
       : (paramNameOrOptions?.name ?? entity.name);
 
-  const userOptions: PathOptions = typeof paramNameOrOptions === "object" ? paramNameOrOptions : {};
+  const userOptions: PathOptions =
+    typeof paramNameOrOptions === "object"
+      ? paramNameOrOptions
+      : (getPathParamOptions(context.program, entity) ?? {});
+
   const options: PathParameterOptions = {
     type: "path",
     explode: userOptions.explode ?? false,
