@@ -2,6 +2,7 @@ import { join } from "path";
 import { describe, expect, it } from "vitest";
 import { CompletionList } from "vscode-languageserver/node.js";
 import { createTestServerHost, extractCursor } from "../../src/testing/test-server-host.js";
+import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 
 const rootOptions = [
   "extends",
@@ -388,6 +389,7 @@ describe("Test completion items that use parameters and environment variables an
 });
 
 describe("Test completion items for extends", () => {
+  const path = resolveVirtualPath("Z:/test/workspace");
   it.each([
     {
       config: `extends:  "┆`,
@@ -402,7 +404,7 @@ describe("Test completion items for extends", () => {
       expected: ["tspconfigtest2.yaml"],
     },
     {
-      config: `extends:  "Z:/test/workspace┆"`,
+      config: `extends:  "${path}┆"`,
       expected: ["tspconfigtest0.yaml", "demo_yaml", "demo_tsp"],
     },
     {
@@ -432,7 +434,7 @@ describe("Test completion items for extends", () => {
       expected: [],
     },
     {
-      config: `extends:  "Z:/test/workspace/demo┆"`,
+      config: `extends:  "${path}/demo┆"`,
       expected: [],
     },
   ])("#%# Test addProp: $config", async ({ config, expected }) => {
@@ -441,6 +443,7 @@ describe("Test completion items for extends", () => {
 });
 
 describe("Test completion items for imports", () => {
+  const path = resolveVirtualPath("Z:/test/workspace/");
   it.each([
     {
       config: `imports:\n  - "./┆`,
@@ -459,7 +462,7 @@ describe("Test completion items for imports", () => {
       expected: ["test3.tsp"],
     },
     {
-      config: `imports:\n  - "Z:/test/workspace/┆`,
+      config: `imports:\n  - "${path}┆`,
       expected: ["demo_yaml", "demo_tsp"],
     },
     {
@@ -467,7 +470,7 @@ describe("Test completion items for imports", () => {
       expected: [],
     },
     {
-      config: `imports:\n  - "Z:/test/workspace/demo┆`,
+      config: `imports:\n  - "${path}demo┆`,
       expected: [],
     },
     {
