@@ -103,7 +103,7 @@ export async function getOperationsWithServiceNamespace(
     },
   );
   const [services] = getAllHttpServices(runner.program, routeOptions);
-  return [services[0].operations, runner.program.diagnostics];
+  return [services[0].operations, runner.program.diagnostics.filter((d) => d.severity !== "hint")];
 }
 
 export async function getOperations(code: string): Promise<HttpOperation[]> {
