@@ -18,6 +18,7 @@ import { HttpTestLibrary } from "../src/testing/index.js";
 export async function createHttpTestHost(): Promise<TestHost> {
   return createTestHost({
     libraries: [HttpTestLibrary],
+    diagnosticFilter: (diag) => diag.severity !== "hint",
   });
 }
 export async function createHttpTestRunner(): Promise<BasicTestRunner> {
