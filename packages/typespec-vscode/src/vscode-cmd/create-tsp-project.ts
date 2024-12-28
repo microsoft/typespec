@@ -3,7 +3,6 @@ import type {
   InitProjectTemplate,
   InitProjectTemplateLibrarySpec,
 } from "@typespec/compiler";
-import { TIMEOUT } from "dns";
 import { readdir } from "fs/promises";
 import * as semver from "semver";
 import vscode, { OpenDialogOptions, QuickPickItem, window } from "vscode";
@@ -271,8 +270,8 @@ async function initProject(
       cancellable: true,
     },
     async (_progress, token) => {
+      const TIMEOUT = 300000; // set timeout to 5 minutes which should be enough for init project
       try {
-        const TIMEOUT = 300000; // set timeout to 5 minutes which should be enough for init project
         const result = await createPromiseWithCancelAndTimeout(
           client.initProject(initTemplateConfig),
           token,
