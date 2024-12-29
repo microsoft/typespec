@@ -141,11 +141,13 @@ function getVSLocationWithTypeInfo(
   };
 }
 
-function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
+function convertSeverity(severity: "warning" | "error" | "hint"): DiagnosticSeverity {
   switch (severity) {
     case "warning":
       return DiagnosticSeverity.Warning;
     case "error":
       return DiagnosticSeverity.Error;
+    case "hint":
+      return DiagnosticSeverity.Hint;
   }
 }

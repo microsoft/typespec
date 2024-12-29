@@ -1108,7 +1108,30 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         );
       }
     }
-
+    const references = resolver.resolveTypeReference(node.id);
+    const properties =
+      parentNode.kind === SyntaxKind.ModelStatement
+        ? parentNode.properties.filter((p) => {
+            if (p.kind === SyntaxKind.ModelProperty) {
+              if (p.value?.kind === SyntaxKind.TypeReference) {
+                return (p.value?.target as IdentifierNode).sv === node.id.sv;
+              }
+            }
+            return false;
+          })
+        : [];
+    if (parentNode.kind === SyntaxKind.ModelStatement && properties.length === 0) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "unused-template-parameter",
+          format: {
+            parameterName: node.id.sv,
+            type: parentNode.symbol.name,
+          },
+          target: node,
+        }),
+      );
+    }
     return mapper ? mapper.getMappedType(type) : type;
   }
 
@@ -1531,6 +1554,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
 
       return errorType;
+    }
+
+    if (sym.flags & SymbolFlags.TemplateParameter) {
+      return checkTemplateParameterDeclaration(
+        getSymNode(sym) as TemplateParameterDeclarationNode,
+        mapper,
+      );
     }
 
     const argumentNodes = node.kind === SyntaxKind.TypeReference ? node.arguments : [];

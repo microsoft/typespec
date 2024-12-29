@@ -6,6 +6,7 @@ import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
+import { DiagnosticTag } from "vscode-languageserver";
 
 // prettier-ignore
 export type MarshalledValue<Value>  = 
@@ -2300,7 +2301,7 @@ export interface TemplateInstanceTarget {
 
 export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
-export type DiagnosticSeverity = "error" | "warning";
+export type DiagnosticSeverity = "error" | "warning" | "hint";
 
 export interface Diagnostic {
   code: string;
@@ -2529,8 +2530,9 @@ export interface DiagnosticDefinition<M extends DiagnosticMessages> {
    * Diagnostic severity.
    * - `warning` - Suppressable, should be used to represent potential issues but not blocking.
    * - `error` - Non-suppressable, should be used to represent failure to move forward.
+   * - `hint` - Suppressable, should be used to represent suggestions.
    */
-  readonly severity: "warning" | "error";
+  readonly severity: "warning" | "error" | "hint";
   /** Messages that can be reported with the diagnostic. */
   readonly messages: M;
   /** Short description of the diagnostic */

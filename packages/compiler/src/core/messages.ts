@@ -479,6 +479,12 @@ const diagnostics = {
       default: paramMessage`Object value may only specify known properties, and '${"propertyName"}' does not exist in type '${"type"}'.`,
     },
   },
+  "unused-template-parameter": {
+    severity: "hint",
+    messages: {
+      default: paramMessage`Template may only specify used argument, and '${"parameterName"}' does not exist in type '${"type"}'.`,
+    },
+  },
   "extends-interface": {
     severity: "error",
     messages: {
