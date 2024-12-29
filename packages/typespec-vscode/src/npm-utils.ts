@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import path from "path";
 import semver from "semver";
 import logger from "./log/logger.js";
-import { ExecOutput, loadModule, spawnExecution, spawnExecutionEvents } from "./utils.js";
+import { ExecOutput, loadModule, spawnExecutionAndLogToOutput } from "./utils.js";
 
 export enum InstallationAction {
   Install = "Install",
@@ -32,12 +32,8 @@ export class NpmUtil {
     this.cwd = cwd;
   }
 
-  public async npmInstallPackages(
-    packages: string[] = [],
-    options: any = {},
-    on?: spawnExecutionEvents,
-  ): Promise<ExecOutput> {
-    return spawnExecution("npm", ["install", ...packages], this.cwd, on);
+  public async npmInstallPackages(packages: string[] = [], options: any = {}): Promise<ExecOutput> {
+    return spawnExecutionAndLogToOutput("npm", ["install", ...packages], this.cwd);
   }
 
   /* identify the action to take for a package. install or skip or cancel or upgrade */
@@ -69,7 +65,6 @@ export class NpmUtil {
     packageName: string,
     version?: string,
     dependencyTypes: npmDependencyType[] = [npmDependencyType.dependencies],
-    on?: spawnExecutionEvents,
   ): Promise<string[]> {
     const dependenciesToInstall: string[] = [];
     let packageFullName = packageName;
@@ -84,11 +79,10 @@ export class NpmUtil {
     }
 
     try {
-      const dependenciesResult = await spawnExecution(
+      const dependenciesResult = await spawnExecutionAndLogToOutput(
         "npm",
         ["view", packageFullName, ...dependencyTypes, "--json"],
         this.cwd,
-        on,
       );
 
       if (dependenciesResult.exitCode === 0) {
@@ -112,9 +106,6 @@ export class NpmUtil {
         logger.error("Error getting dependencies.", [dependenciesResult.stderr]);
       }
     } catch (err) {
-      if (on && on.onError) {
-        on.onError(err, "", "");
-      }
       logger.error("Error getting dependencies.", [err]);
     }
 
@@ -131,8 +122,6 @@ export class NpmUtil {
       }
       return dependencies;
     }
-
-    logger.info("Finishing upgrade check.");
 
     return dependenciesToInstall;
   }

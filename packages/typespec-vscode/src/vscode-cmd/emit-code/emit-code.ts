@@ -6,13 +6,8 @@ import logger from "../../log/logger.js";
 import { InstallationAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
-import {
-  getEntrypointTspFile,
-  logStderrorLineByLineCallBack,
-  logStdoutLineByLineCallBack,
-  TraverseMainTspFileInWorkspace,
-} from "../../typespec-utils.js";
-import { ExecOutput, isFile, spawnExecution } from "../../utils.js";
+import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
+import { ExecOutput, isFile, spawnExecutionAndLogToOutput } from "../../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import {
   Emitter,
@@ -138,10 +133,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
       },
       async () => {
         try {
-          const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall, undefined, {
-            onStdioOut: logStdoutLineByLineCallBack,
-            onStdioError: logStderrorLineByLineCallBack,
-          });
+          const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall, undefined);
           if (npmInstallResult.exitCode !== 0) {
             logger.error(
               `Error occurred when installing packages.`,
@@ -330,8 +322,5 @@ async function compile(
     args.push("--option", `${emitter}.${key}=${value}`);
   }
 
-  return await spawnExecution(cli.command, args, getDirectoryPath(startFile), {
-    onStdioOut: logStdoutLineByLineCallBack,
-    onStdioError: logStderrorLineByLineCallBack,
-  });
+  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile));
 }

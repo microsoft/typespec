@@ -1,22 +1,8 @@
 import path from "path";
 import vscode from "vscode";
 import { StartFileName } from "./const.js";
-import logger from "./log/logger.js";
 import { getDirectoryPath, normalizeSlashes } from "./path-utils.js";
 import { isFile } from "./utils.js";
-
-export const logStdoutLineByLineCallBack = (str: string) => {
-  str
-    .trim()
-    .split("\n")
-    .forEach((line) => logger.info(line));
-};
-export const logStderrorLineByLineCallBack = (str: string) => {
-  str
-    .trim()
-    .split("\n")
-    .forEach((line) => logger.error(line));
-};
 
 export async function getEntrypointTspFile(tspPath: string): Promise<string | undefined> {
   const isFilePath = await isFile(tspPath);
