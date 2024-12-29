@@ -114,7 +114,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     const dependenciesToInstall = await npmUtil.calculateNpmPackageDependencyToUpgrade(
       selectedEmitter.package,
       version,
-      npmDependencyType.peerDependencies,
+      [npmDependencyType.dependencies, npmDependencyType.peerDependencies],
     );
     logger.info(`${dependenciesToInstall}`);
     if (dependenciesToInstall.length > 0) {

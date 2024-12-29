@@ -74,7 +74,7 @@ export function getRegisterEmitterTypes(): ReadonlyArray<EmitterKind> {
 }
 
 const languageAlias: Record<string, string> = {
-  ".net": "dotnet",
+  ".NET": "dotnet",
 };
 
 /*return the alias of the language if it exists, otherwise return the original language. */

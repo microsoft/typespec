@@ -68,7 +68,7 @@ export class NpmUtil {
   public async calculateNpmPackageDependencyToUpgrade(
     packageName: string,
     version?: string,
-    dependencyType: npmDependencyType = npmDependencyType.dependencies,
+    dependencyTypes: npmDependencyType[] = [npmDependencyType.dependencies],
     on?: spawnExecutionEvents,
   ): Promise<string[]> {
     const dependenciesToInstall: string[] = [];
@@ -78,20 +78,32 @@ export class NpmUtil {
     }
 
     /* get dependencies. */
+    if (dependencyTypes.length === 0) {
+      logger.info("No dependency to check.");
+      return dependenciesToInstall;
+    }
+
     try {
       const dependenciesResult = await spawnExecution(
         "npm",
-        ["view", packageFullName, dependencyType, "--json"],
+        ["view", packageFullName, ...dependencyTypes, "--json"],
         this.cwd,
         on,
       );
 
       if (dependenciesResult.exitCode === 0) {
         const json = JSON.parse(dependenciesResult.stdout);
-        for (const [key, value] of Object.entries(json)) {
+        const jsonDependencies: any[] = [];
+        if (dependencyTypes.length > 1) {
+          jsonDependencies.push(...Object.values(json));
+        } else {
+          jsonDependencies.push(json);
+        }
+        const dependencies = parseDependency(jsonDependencies);
+        for (const [key, value] of Object.entries(dependencies)) {
           const { installed, version: installedVersion } = await this.isPackageInstalled(key);
           if (installed && installedVersion) {
-            if (!this.isValidVersion(installedVersion, value as string)) {
+            if (!this.isValidVersion(installedVersion, value.join("||"))) {
               dependenciesToInstall.push(`${key}@latest`);
             }
           }
@@ -105,6 +117,22 @@ export class NpmUtil {
       }
       logger.error("Error getting dependencies.", [err]);
     }
+
+    function parseDependency(jsonDependencies: any[]): Record<string, string[]> {
+      const dependencies: Record<string, string[]> = {};
+      for (const dependency of jsonDependencies) {
+        for (const [key, value] of Object.entries(dependency)) {
+          if (dependencies[key]) {
+            dependencies[key].push(value as string);
+          } else {
+            dependencies[key] = [value as string];
+          }
+        }
+      }
+      return dependencies;
+    }
+
+    logger.info("Finishing upgrade check.");
 
     return dependenciesToInstall;
   }
