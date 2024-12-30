@@ -214,7 +214,13 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     },
     async () => {
       try {
-        const compileResult = await compile(cli, mainTspFile, selectedEmitter.package, options);
+        const compileResult = await compile(
+          cli,
+          mainTspFile,
+          selectedEmitter.package,
+          options,
+          false,
+        );
         if (compileResult.exitCode !== 0) {
           logger.error(
             `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Failed`,
@@ -336,12 +342,17 @@ async function compile(
   startFile: string,
   emitter: string,
   options: Record<string, string>,
+  logPretty?: boolean,
 ): Promise<ExecOutput> {
   const args: string[] = cli.args ?? [];
   args.push("compile");
   args.push(startFile);
   if (emitter) {
     args.push("--emit", emitter);
+  }
+  if (logPretty !== undefined) {
+    args.push("--pretty");
+    args.push(logPretty ? "true" : "false");
   }
 
   for (const [key, value] of Object.entries(options)) {
