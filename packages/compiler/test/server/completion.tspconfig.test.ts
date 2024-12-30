@@ -389,7 +389,7 @@ describe("Test completion items that use parameters and environment variables an
 });
 
 describe("Test completion items for extends", () => {
-  const path = resolveVirtualPath("Z:/test/workspace");
+  const path = resolveVirtualPath("workspace");
   it.each([
     {
       config: `extends:  "┆`,
@@ -443,7 +443,7 @@ describe("Test completion items for extends", () => {
 });
 
 describe("Test completion items for imports", () => {
-  const path = resolveVirtualPath("Z:/test/workspace/");
+  const path = resolveVirtualPath("workspace/");
   it.each([
     {
       config: `imports:\n  - "./┆`,
