@@ -799,8 +799,6 @@ function validateAvailabilityForRef(
   source: Type,
   target: Type,
   versionMap?: Map<Version, Version>,
-  sourceOptions?: TypeNameOptions,
-  targetOptions?: TypeNameOptions,
 ) {
   // if source is unversioned and target is versioned
   if (sourceAvail === undefined) {
@@ -842,6 +840,8 @@ function validateAvailabilityForRef(
       const targetAddedOn = findAvailabilityAfterVersion(key, Availability.Added, targetAvail);
       let targetVersion: Version | string = key;
       if (versionMap) {
+        // the `key` here could have already been converted to source version string, thus we need to find the
+        // original target version so that we can provide the correct codefix
         targetVersion = findMatchingTargetVersion(key, versionMap) ?? key;
       }
 
@@ -855,7 +855,7 @@ function validateAvailabilityForRef(
           targetAddedOn: targetAddedOn!,
         },
         target: source,
-        codefixes: getVersionAdditionCodefixes(targetVersion, target, program, targetOptions),
+        codefixes: getVersionAdditionCodefixes(targetVersion, target, program),
       });
     }
     if (
@@ -877,13 +877,13 @@ function validateAvailabilityForRef(
         code: "incompatible-versioned-reference",
         messageId: "removedBefore",
         format: {
-          sourceName: getTypeName(source, sourceOptions),
-          targetName: getTypeName(target, targetOptions),
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
           sourceRemovedOn: key,
           targetRemovedOn: targetRemovedOn!,
         },
         target: source,
-        codefixes: getVersionAdditionCodefixes(targetVersion, target, program, targetOptions),
+        codefixes: getVersionAdditionCodefixes(targetVersion, target, program),
       });
     }
   }
