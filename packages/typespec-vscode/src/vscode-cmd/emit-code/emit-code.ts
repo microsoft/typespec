@@ -35,6 +35,9 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     return {
       language: e.language,
       package: e.package,
+      version: e.version,
+      requisites: e.requisites,
+      sourceRepo: e.sourceRepo,
       emitterKind: e.kind,
       label: e.language,
       detail: `Generate ${e.kind} code for ${e.language} by TypeSpec library ${e.package}.${moreDetail}`,
@@ -71,89 +74,112 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     selectedEmitter.version,
   );
 
-  if (action === InstallationAction.Upgrade) {
-    logger.info(`Upgrading ${selectedEmitter.package} to version ${version}`);
-    const options = {
-      ok: `OK (install ${selectedEmitter.package}@${version} by 'npm install'`,
-      recheck: `Check again (install ${selectedEmitter.package} manually)`,
-      ignore: `Ignore (don't upgrade emitter ${selectedEmitter.package})`,
-    };
-    const selected = await vscode.window.showQuickPick(Object.values(options), {
-      canPickMany: false,
-      ignoreFocusOut: true,
-      placeHolder: `Package '${selectedEmitter.package}' needs to be upgraded for generating`,
-      title: `TypeSpec Generating...`,
-    });
-    if (selected === options.ok) {
-      packagesToInstall.push(`${selectedEmitter.package}@${version}`);
-    } else if (selected === options.ignore) {
-      logger.info(`Ignore upgrading emitter ${selectedEmitter.package} for generating`);
-    } else {
-      logger.info(
-        `Need to manually install the package ${selectedEmitter.package}@${version}. Generating Cancelled.`,
-        [],
-        {
-          showOutput: false,
-          showPopup: true,
-        },
-      );
-      return;
-    }
-  } else if (action === InstallationAction.Install) {
+  const typespecProjectQuickPickItems = [];
+  if (action === InstallationAction.Upgrade || action === InstallationAction.Install) {
+    const minimumRequisites = selectedEmitter.requisites
+      ? ` Minimum requisites: install ${selectedEmitter.requisites?.join(", ")}`
+      : "";
+    const moreDetail = selectedEmitter.sourceRepo
+      ? `[**More Detail**](${selectedEmitter.sourceRepo})`
+      : "";
     let packageFullName = selectedEmitter.package;
     if (version) {
       packageFullName = `${selectedEmitter.package}@${version}`;
     }
-    logger.info(`To install ${packageFullName}`);
-    /* verify dependency packages. */
-    const dependenciesToInstall = await npmUtil.calculateNpmPackageDependencyToUpgrade(
-      selectedEmitter.package,
-      version,
-      [npmDependencyType.dependencies, npmDependencyType.peerDependencies],
-    );
-    logger.info(`${dependenciesToInstall}`);
-    if (dependenciesToInstall.length > 0) {
-      vscode.window.showInformationMessage(
-        `Need to manually upgrade following dependency packages: ${dependenciesToInstall.join("\\n")}. \nGenerating Cancelled`,
-        "OK",
-      );
-      return;
-    }
-    packagesToInstall.push(`${packageFullName}`);
+    typespecProjectQuickPickItems.push({
+      label: `${selectedEmitter.package}`,
+      detail: `TypeSpec library for emitting ${selectedEmitter.language} from TypeSpec files.${minimumRequisites} ${moreDetail}`,
+      packageFullName: packageFullName,
+      picked: true,
+    });
+    packagesToInstall.push(packageFullName);
   }
 
-  /* npm install packages. */
-  if (packagesToInstall.length > 0) {
-    logger.info(`Installing ${packagesToInstall.join("\n\n")} under ${baseDir}`);
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: "Installing packages...",
-        cancellable: false,
-      },
-      async () => {
-        try {
-          const npmInstallResult = await npmUtil.npmInstallPackages(packagesToInstall, undefined);
-          if (npmInstallResult.exitCode !== 0) {
-            logger.error(
-              `Error occurred when installing packages.`,
-              [`${npmInstallResult.stderr}`],
-              {
-                showOutput: true,
-                showPopup: true,
-              },
-            );
-            return;
-          }
-        } catch (err) {
-          logger.error(`Exception occurred when installing packages.`, [err], {
-            showOutput: true,
-            showPopup: true,
+  for (const p of packagesToInstall) {
+    /* verify dependency packages. */
+    try {
+      const dependenciesToInstall = await npmUtil.calculateNpmPackageDependencyToUpgrade(
+        p,
+        version,
+        [npmDependencyType.dependencies, npmDependencyType.peerDependencies],
+      );
+      if (dependenciesToInstall.length > 0) {
+        packagesToInstall.push(...dependenciesToInstall.map((d) => `${d.name}@${d.version}`));
+        for (const dep of dependenciesToInstall) {
+          const packageFullName = `${dep.name}@${version ?? "latest"}`;
+          typespecProjectQuickPickItems.push({
+            label: `${dep.name}`,
+            detail: `Upgrade Dependency ${dep.name}.`,
+            packageFullName: packageFullName,
+            picked: true,
           });
-          return;
         }
-      },
-    );
+      }
+    } catch (err) {
+      logger.error(`Exception occurred when check dependency packages for ${p}.`);
+    }
+  }
+
+  if (typespecProjectQuickPickItems.length > 0) {
+    const selectedPackages = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
+      title: "Install or update libraries",
+      canPickMany: true,
+      placeHolder: "Here are libraries to install or update.",
+      ignoreFocusOut: true,
+    });
+    if (!selectedPackages || selectedPackages.length === 0) {
+      logger.info("No package selected. Generating Cancelled.", [], {
+        showOutput: true,
+        showPopup: true,
+      });
+      return;
+    }
+    /* npm install packages. */
+    if (selectedPackages.length > 0) {
+      const installPackages = selectedPackages.map((p) => p.packageFullName);
+      logger.info(`Install ${installPackages.join("\n\n")} under ${baseDir}`, [], {
+        showOutput: true,
+        showPopup: true,
+      });
+      const installResult = await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Installing packages...",
+          cancellable: false,
+        },
+        async () => {
+          try {
+            const npmInstallResult = await npmUtil.npmInstallPackages(installPackages, undefined);
+            if (npmInstallResult.exitCode !== 0) {
+              logger.error(
+                `Error occurred when installing packages.`,
+                [`${npmInstallResult.stderr}`],
+                {
+                  showOutput: true,
+                  showPopup: true,
+                },
+              );
+              return false;
+            } else {
+              return true;
+            }
+          } catch (err) {
+            logger.error(`Exception occurred when installing packages.`, [err], {
+              showOutput: true,
+              showPopup: true,
+            });
+            return false;
+          }
+        },
+      );
+      if (!installResult) {
+        logger.error(`Error occurred when installing packages. Generating Cancelled.`, [], {
+          showOutput: false,
+          showPopup: true,
+        });
+        return;
+      }
+    }
   }
 
   /* emit */

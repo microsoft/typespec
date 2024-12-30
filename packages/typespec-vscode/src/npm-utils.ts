@@ -65,8 +65,8 @@ export class NpmUtil {
     packageName: string,
     version?: string,
     dependencyTypes: npmDependencyType[] = [npmDependencyType.dependencies],
-  ): Promise<string[]> {
-    const dependenciesToInstall: string[] = [];
+  ): Promise<{ name: string; version: string }[]> {
+    const dependenciesToInstall: { name: string; version: string }[] = [];
     let packageFullName = packageName;
     if (version) {
       packageFullName = `${packageName}@${version}`;
@@ -98,7 +98,7 @@ export class NpmUtil {
           const { installed, version: installedVersion } = await this.isPackageInstalled(key);
           if (installed && installedVersion) {
             if (!this.isValidVersion(installedVersion, value.join("||"))) {
-              dependenciesToInstall.push(`${key}@latest`);
+              dependenciesToInstall.push({ name: key, version: "latest" });
             }
           }
         }

@@ -137,6 +137,13 @@
                   "type": "string",
                   "description": "Define the source repository of the emitter package."
                 },
+                "requisites": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Define the requisites of the emitter package."
+                },
                 "kind": {
                   "type": "string",
                   "enum": [
@@ -153,12 +160,19 @@
                 "language": ".NET",
                 "package": "@typespec/http-client-csharp",
                 "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-csharp",
+                "requisites": [
+                  ".NET 8.0 SDK"
+                ],
                 "kind": "client"
               },
               {
                 "language": "Java",
                 "package": "@typespec/http-client-java",
                 "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-java ",
+                "requisites": [
+                  "Java 17 or above",
+                  "Maven"
+                ],
                 "kind": "client"
               },
               {

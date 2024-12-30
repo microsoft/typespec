@@ -13,6 +13,7 @@ export interface Emitter {
   package: string;
   version?: string;
   sourceRepo?: string;
+  requisites?: string[];
   kind: EmitterKind;
 }
 
@@ -52,6 +53,7 @@ function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter | undefined {
     package: packageName,
     version: version,
     sourceRepo: emitter.sourceRepo,
+    requisites: emitter.requisites,
     kind: kind,
   };
 }
