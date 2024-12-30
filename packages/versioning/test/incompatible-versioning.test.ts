@@ -715,7 +715,8 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
-        message: "'TestService.{ param: TestService.Foo }.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+        message:
+          "'TestService.{ param: TestService.Foo }.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
     });
   });
@@ -772,7 +773,8 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
-        message: "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself."
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
       });
     });
 
