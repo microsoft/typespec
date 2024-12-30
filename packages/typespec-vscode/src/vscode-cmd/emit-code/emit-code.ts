@@ -137,7 +137,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     /* npm install packages. */
     if (selectedPackages.length > 0) {
       const installPackages = selectedPackages.map((p) => p.packageFullName);
-      logger.info(`Install ${installPackages.join("\n\n")} under ${baseDir}`, [], {
+      logger.info(`Install ${installPackages.join("\n\n")} under directory ${baseDir}`, [], {
         showOutput: true,
         showPopup: true,
       });
@@ -204,7 +204,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   const options: Record<string, string> = {};
   options["emitter-output-dir"] = outputDir;
   logger.info(
-    `Start to generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code under ${outputDir}...`,
+    `Start to generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code under directory ${outputDir}`,
   );
   await vscode.window.withProgress(
     {
