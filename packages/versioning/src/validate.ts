@@ -803,6 +803,11 @@ function validateAvailabilityForRef(
   // if source is unversioned and target is versioned
   if (sourceAvail === undefined) {
     if (!isAvailableInAllVersion(targetAvail)) {
+      const firstAvailableVersion = Array.from(targetAvail.entries())
+        .filter(([_, val]) => val === Availability.Available || val === Availability.Added)
+        .map(([key, _]) => key)
+        .sort()
+        .shift();
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
         messageId: "default",
@@ -811,6 +816,9 @@ function validateAvailabilityForRef(
           targetName: getTypeName(target),
         },
         target: source,
+        codefixes: firstAvailableVersion
+          ? getVersionAdditionCodefixes(firstAvailableVersion, source, program)
+          : undefined,
       });
     }
     return;
