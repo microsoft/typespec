@@ -74,54 +74,64 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     selectedEmitter.version,
   );
 
-  const typespecProjectQuickPickItems = [];
-  if (action === InstallationAction.Upgrade || action === InstallationAction.Install) {
-    const minimumRequisites = selectedEmitter.requisites
-      ? ` Minimum requisites: install ${selectedEmitter.requisites?.join(", ")}`
-      : "";
-    const moreDetail = selectedEmitter.sourceRepo
-      ? `[**More Detail**](${selectedEmitter.sourceRepo})`
-      : "";
-    let packageFullName = selectedEmitter.package;
-    if (version) {
-      packageFullName = `${selectedEmitter.package}@${version}`;
-    }
-    typespecProjectQuickPickItems.push({
-      label: `${selectedEmitter.package}`,
-      detail: `TypeSpec library for emitting ${selectedEmitter.language} from TypeSpec files.${minimumRequisites} ${moreDetail}`,
-      packageFullName: packageFullName,
-      picked: true,
-    });
-    packagesToInstall.push(packageFullName);
-  }
+  const installPackageQuickPickItems = await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: "Calculating packages to install or upgrade ...",
+      cancellable: false,
+    },
+    async () => {
+      const packageQuickPickItems = [];
+      if (action === InstallationAction.Upgrade || action === InstallationAction.Install) {
+        const minimumRequisites = selectedEmitter.requisites
+          ? ` Minimum requisites: install ${selectedEmitter.requisites?.join(", ")}`
+          : "";
+        const moreDetail = selectedEmitter.sourceRepo
+          ? `[**More Detail**](${selectedEmitter.sourceRepo})`
+          : "";
+        let packageFullName = selectedEmitter.package;
+        if (version) {
+          packageFullName = `${selectedEmitter.package}@${version}`;
+        }
+        packageQuickPickItems.push({
+          label: `${selectedEmitter.package}`,
+          detail: `TypeSpec library for emitting ${selectedEmitter.language} from TypeSpec files.${minimumRequisites} ${moreDetail}`,
+          packageFullName: packageFullName,
+          picked: true,
+        });
+        packagesToInstall.push(packageFullName);
+      }
 
-  for (const p of packagesToInstall) {
-    /* verify dependency packages. */
-    try {
-      const dependenciesToInstall = await npmUtil.calculateNpmPackageDependencyToUpgrade(
-        p,
-        version,
-        [npmDependencyType.dependencies, npmDependencyType.peerDependencies],
-      );
-      if (dependenciesToInstall.length > 0) {
-        packagesToInstall.push(...dependenciesToInstall.map((d) => `${d.name}@${d.version}`));
-        for (const dep of dependenciesToInstall) {
-          const packageFullName = `${dep.name}@${version ?? "latest"}`;
-          typespecProjectQuickPickItems.push({
-            label: `${dep.name}`,
-            detail: `Upgrade Dependency ${dep.name}.`,
-            packageFullName: packageFullName,
-            picked: true,
-          });
+      for (const p of packagesToInstall) {
+        /* verify dependency packages. */
+        try {
+          const dependenciesToInstall = await npmUtil.calculateNpmPackageDependencyToUpgrade(
+            p,
+            version,
+            [npmDependencyType.dependencies, npmDependencyType.peerDependencies],
+          );
+          if (dependenciesToInstall.length > 0) {
+            packagesToInstall.push(...dependenciesToInstall.map((d) => `${d.name}@${d.version}`));
+            for (const dep of dependenciesToInstall) {
+              const packageFullName = `${dep.name}@${version ?? "latest"}`;
+              packageQuickPickItems.push({
+                label: `${dep.name}`,
+                detail: `Upgrade Dependency ${dep.name}.`,
+                packageFullName: packageFullName,
+                picked: true,
+              });
+            }
+          }
+        } catch (err) {
+          logger.error(`Exception occurred when check dependency packages for ${p}.`);
         }
       }
-    } catch (err) {
-      logger.error(`Exception occurred when check dependency packages for ${p}.`);
-    }
-  }
+      return packageQuickPickItems;
+    },
+  );
 
-  if (typespecProjectQuickPickItems.length > 0) {
-    const selectedPackages = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
+  if (installPackageQuickPickItems.length > 0) {
+    const selectedPackages = await vscode.window.showQuickPick(installPackageQuickPickItems, {
       title: "Install or update libraries",
       canPickMany: true,
       placeHolder: "Here are libraries to install or update.",
