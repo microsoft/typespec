@@ -1866,6 +1866,10 @@ importers:
         version: link:../typespec-vscode
 
   packages/typespec-vscode:
+    dependencies:
+      '@vscode/l10n':
+        specifier: ^0.0.10
+        version: 0.0.10
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ~28.0.0
@@ -1897,6 +1901,9 @@ importers:
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
+      '@vscode/l10n-dev':
+        specifier: ^0.0.18
+        version: 0.0.18
       '@vscode/test-web':
         specifier: ^0.0.62
         version: 0.0.62
@@ -5795,6 +5802,13 @@ packages:
   '@vscode/emmet-helper@2.11.0':
     resolution: {integrity: sha512-QLxjQR3imPZPQltfbWRnHU6JecWTF1QSWhx3GAKQpslx7y3Dp6sIIXhKjiUJ/BR9FX8PVthjr9PD6pNwOJfAzw==}
 
+  '@vscode/l10n-dev@0.0.18':
+    resolution: {integrity: sha512-pEKLMnlg7hlxFrZLqcyJe08olmj6KVs2Rof7MVB5rN0D6NOKPBRtkQ176TuMUmW863EDV5WQUgNzOGa2nHBSSQ==}
+    hasBin: true
+
+  '@vscode/l10n@0.0.10':
+    resolution: {integrity: sha512-E1OCmDcDWa0Ya7vtSjp/XfHFGqYJfh+YPC1RkATU71fTac+j1JjCcB3qwSzmlKAighx2WxhLlfhS0RwAN++PFQ==}
+
   '@vscode/l10n@0.0.18':
     resolution: {integrity: sha512-KYSIHVmslkaCDyw013pphY+d7x1qV8IZupYfeIfzNA+nsaWHbn5uPuQRvdRFsa9zFzGeudPuoGoZ1Op4jrJXIQ==}
 
@@ -7021,6 +7035,10 @@ packages:
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
+  deepmerge-json@1.5.0:
+    resolution: {integrity: sha512-jZRrDmBKjmGcqMFEUJ14FjMJwm05Qaked+1vxaALRtF0UAl7lPU8OLWXFxvoeg3jbQM249VPFVn8g2znaQkEtA==}
+    engines: {node: '>=4.0.0'}
+
   deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
@@ -7763,6 +7781,10 @@ packages:
 
   get-source@2.0.12:
     resolution: {integrity: sha512-X5+4+iD+HoSeEED+uwrQ07BOQr0kEDFMVqqpBuI+RaZBpBpHCuXxo70bjar6f0b0u/DQJsJ7ssurpP0V60Az+w==}
+
+  get-stdin@7.0.0:
+    resolution: {integrity: sha512-zRKcywvrXlXsA0v0i9Io4KDRaAw7+a1ZpjRwl9Wox8PFlVCCHra7E9c4kqXCoCM9nR5tBkaTTZRBoCm60bFqTQ==}
+    engines: {node: '>=8'}
 
   get-stdin@9.0.0:
     resolution: {integrity: sha512-dVKBjfWisLAicarI2Sf+JuBE/DghV4UzNAVe9yhEJuzeREd3JhOTE9cUaJTeSa77fsbQUK3pcOpJfM59+VKZaA==}
@@ -9817,6 +9839,10 @@ packages:
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
+  pseudo-localization@2.4.0:
+    resolution: {integrity: sha512-ISYMOKY8+f+PmiXMFw2y6KLY74LBrv/8ml/VjjoVEV2k+MS+OJZz7ydciK5ntJwxPrKQPTU1+oXq9Mx2b0zEzg==}
+    hasBin: true
+
   psl@1.10.0:
     resolution: {integrity: sha512-KSKHEbjAnpUuAUserOq0FxGXCUrzC3WniuSJhvdbs102rL55266ZcHBqLWOsG30spQMlPdpy7icATiAQehg/iA==}
 
@@ -10907,6 +10933,11 @@ packages:
       typescript:
         optional: true
 
+  typescript@4.9.5:
+    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+
   typescript@5.4.2:
     resolution: {integrity: sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==}
     engines: {node: '>=14.17'}
@@ -11513,6 +11544,10 @@ packages:
   xml-name-validator@4.0.0:
     resolution: {integrity: sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw==}
     engines: {node: '>=12'}
+
+  xml2js@0.4.23:
+    resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
+    engines: {node: '>=4.0.0'}
 
   xml2js@0.5.0:
     resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
@@ -16510,6 +16545,17 @@ snapshots:
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.0.8
 
+  '@vscode/l10n-dev@0.0.18':
+    dependencies:
+      deepmerge-json: 1.5.0
+      glob: 8.1.0
+      pseudo-localization: 2.4.0
+      typescript: 4.9.5
+      xml2js: 0.4.23
+      yargs: 17.7.2
+
+  '@vscode/l10n@0.0.10': {}
+
   '@vscode/l10n@0.0.18': {}
 
   '@vscode/test-web@0.0.62':
@@ -18038,6 +18084,8 @@ snapshots:
 
   deep-is@0.1.4: {}
 
+  deepmerge-json@1.5.0: {}
+
   deepmerge@4.3.1: {}
 
   defaults@1.0.4:
@@ -18983,6 +19031,8 @@ snapshots:
     dependencies:
       data-uri-to-buffer: 2.0.2
       source-map: 0.6.1
+
+  get-stdin@7.0.0: {}
 
   get-stdin@9.0.0: {}
 
@@ -21588,6 +21638,13 @@ snapshots:
 
   proxy-from-env@1.1.0: {}
 
+  pseudo-localization@2.4.0:
+    dependencies:
+      flat: 5.0.2
+      get-stdin: 7.0.0
+      typescript: 4.9.5
+      yargs: 17.7.2
+
   psl@1.10.0:
     dependencies:
       punycode: 2.3.1
@@ -22935,6 +22992,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  typescript@4.9.5: {}
+
   typescript@5.4.2: {}
 
   typescript@5.6.3: {}
@@ -23548,6 +23607,11 @@ snapshots:
   xdg-basedir@5.1.0: {}
 
   xml-name-validator@4.0.0: {}
+
+  xml2js@0.4.23:
+    dependencies:
+      sax: 1.4.1
+      xmlbuilder: 11.0.1
 
   xml2js@0.5.0:
     dependencies:

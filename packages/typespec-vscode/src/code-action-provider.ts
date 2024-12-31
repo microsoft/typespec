@@ -56,10 +56,8 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     codeActionTitle: string,
   ): vscode.CodeAction {
     // 'vscode.CodeActionKind.Empty' does not generate a Code Action menu, You must use 'vscode.CodeActionKind.QuickFix'
-    const action = new vscode.CodeAction(
-      `See documentation for "${codeActionTitle}"`,
-      vscode.CodeActionKind.QuickFix,
-    );
+    const codefixTitle = vscode.l10n.t('See documentation for "{0}"', codeActionTitle);
+    const action = new vscode.CodeAction(codefixTitle, vscode.CodeActionKind.QuickFix);
     action.command = {
       command: OPEN_URL_COMMAND,
       title: diagnostic.message,

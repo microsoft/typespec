@@ -48,9 +48,10 @@ export async function activate(context: ExtensionContext) {
     }),
   );
 
+  const tipToolTitle = vscode.l10n.t("Launching TypeSpec language service...");
   return await vscode.window.withProgress(
     {
-      title: "Launching TypeSpec language service...",
+      title: tipToolTitle,
       location: vscode.ProgressLocation.Notification,
     },
     async () => {
