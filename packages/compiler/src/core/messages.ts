@@ -482,7 +482,7 @@ const diagnostics = {
   "unused-template-parameter": {
     severity: "hint",
     messages: {
-      default: paramMessage`Template may only specify used argument, and '${"parameterName"}' does not exist in type '${"type"}'.`,
+      default: paramMessage`Template may only specify used parameter, and '${"parameterName"}' does not exist in type '${"type"}'.`,
     },
   },
   "extends-interface": {
