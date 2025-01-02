@@ -4,7 +4,7 @@ import semver from "semver";
 import logger from "./log/logger.js";
 import { ExecOutput, loadModule, spawnExecutionAndLogToOutput } from "./utils.js";
 
-export enum InstallationAction {
+export enum InstallAction {
   Install = "Install",
   Upgrade = "Upgrade",
   Skip = "Skip",
@@ -40,23 +40,23 @@ export class NpmUtil {
   public async calculateNpmPackageInstallAction(
     packageName: string,
     version?: string,
-  ): Promise<{ action: InstallationAction; version?: string }> {
+  ): Promise<{ action: InstallAction; version?: string }> {
     const { installed: isPackageInstalled, version: installedVersion } =
       await this.isPackageInstalled(packageName);
     if (isPackageInstalled) {
       if (version && installedVersion !== version) {
         if (semver.gt(version, installedVersion!)) {
-          return { action: InstallationAction.Upgrade, version: version };
+          return { action: InstallAction.Upgrade, version: version };
         } else {
           logger.info(
             "The version to intall is less than the installed version. Skip installation.",
           );
-          return { action: InstallationAction.Skip, version: installedVersion };
+          return { action: InstallAction.Skip, version: installedVersion };
         }
       }
-      return { action: InstallationAction.Skip, version: installedVersion };
+      return { action: InstallAction.Skip, version: installedVersion };
     } else {
-      return { action: InstallationAction.Install, version: version };
+      return { action: InstallAction.Install, version: version };
     }
   }
 

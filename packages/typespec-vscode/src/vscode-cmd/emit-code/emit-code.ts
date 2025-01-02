@@ -3,7 +3,7 @@ import vscode, { Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import { StartFileName } from "../../const.js";
 import logger from "../../log/logger.js";
-import { InstallationAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
+import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
 import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
@@ -82,7 +82,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     },
     async () => {
       const packageQuickPickItems = [];
-      if (action === InstallationAction.Upgrade || action === InstallationAction.Install) {
+      if (action === InstallAction.Upgrade || action === InstallAction.Install) {
         const minimumRequisites = selectedEmitter.requisites
           ? ` Minimum requisites: install ${selectedEmitter.requisites?.join(", ")}`
           : "";
