@@ -5,10 +5,6 @@ package type.property.valuetypes;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.valuetypes.models.BooleanLiteralProperty;
-import type.property.valuetypes.models.FloatLiteralProperty;
-import type.property.valuetypes.models.IntLiteralProperty;
-import type.property.valuetypes.models.StringLiteralProperty;
 
 public class LiteralTests {
     private final BooleanLiteralClient booleanLiteralClient = new ValueTypesClientBuilder().buildBooleanLiteralClient();

@@ -4,8 +4,8 @@
 package authentication.http.custom;
 
 import authentication.util.AzureKeyCredentialPolicy;
-import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.exception.HttpResponseException;
+import io.clientcore.core.credential.KeyCredential;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,21 +13,21 @@ public class CustomAuthTests {
 
     @Test
     public void testValid() {
-        CustomAsyncClient client = new CustomClientBuilder()
+        CustomClient client = new CustomClientBuilder()
             // AzureKeyCredentialPolicy from core requires HTTPS
-            .addPolicy(
-                new AzureKeyCredentialPolicy("authorization", new AzureKeyCredential("valid-key"), "SharedAccessKey"))
-            .buildAsyncClient();
+            .addHttpPipelinePolicy(
+                new AzureKeyCredentialPolicy("authorization", new KeyCredential("valid-key"), "SharedAccessKey"))
+            .buildClient();
 
-        client.valid().block();
+        client.valid();
     }
 
     @Test
     public void testInvalid() {
         CustomClient client = new CustomClientBuilder()
             // AzureKeyCredentialPolicy from core requires HTTPS
-            .addPolicy(
-                new AzureKeyCredentialPolicy("authorization", new AzureKeyCredential("invalid-key"), "SharedAccessKey"))
+            .addHttpPipelinePolicy(
+                new AzureKeyCredentialPolicy("authorization", new KeyCredential("invalid-key"), "SharedAccessKey"))
             .buildClient();
 
         // assert HttpResponseException

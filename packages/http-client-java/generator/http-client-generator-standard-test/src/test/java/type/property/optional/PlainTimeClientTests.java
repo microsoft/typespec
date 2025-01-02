@@ -5,7 +5,6 @@ package type.property.optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.PlainTimeProperty;
 
 public class PlainTimeClientTests {
     private final PlainTimeClient client = new OptionalClientBuilder().buildPlainTimeClient();

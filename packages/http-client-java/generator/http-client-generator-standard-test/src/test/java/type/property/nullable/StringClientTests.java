@@ -6,7 +6,6 @@ package type.property.nullable;
 import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.nullable.models.StringProperty;
 
 public class StringClientTests {
 

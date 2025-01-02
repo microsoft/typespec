@@ -5,7 +5,6 @@ package type.property.nullable;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.nullable.models.BytesProperty;
 
 class BytesClientTest {
 

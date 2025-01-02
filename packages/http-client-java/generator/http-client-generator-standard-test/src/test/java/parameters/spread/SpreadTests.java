@@ -5,7 +5,7 @@ package parameters.spread;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import parameters.spread.model.models.BodyParameter;
+import parameters.spread.model.BodyParameter;
 
 public class SpreadTests {
 

@@ -5,8 +5,6 @@ package type.property.optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.StringLiteralProperty;
-import type.property.optional.models.StringLiteralPropertyProperty;
 
 public class StringLiteralClientTests {
     private final StringLiteralClient client = new OptionalClientBuilder().buildStringLiteralClient();

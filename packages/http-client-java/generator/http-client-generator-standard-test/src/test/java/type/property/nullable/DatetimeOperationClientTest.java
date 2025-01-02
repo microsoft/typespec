@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
-import type.property.nullable.models.DatetimeProperty;
 
 class DatetimeOperationClientTest {
 

@@ -6,7 +6,6 @@ package type.property.optional;
 import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.CollectionsByteProperty;
 
 class CollectionsByteClientTest {
 

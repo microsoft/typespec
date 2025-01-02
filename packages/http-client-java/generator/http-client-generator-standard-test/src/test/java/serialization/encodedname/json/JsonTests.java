@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class JsonTests {
 
-    private final JsonClient client = new JsonClientBuilder().buildClient();
+    private final JsonClient client = new JsonClientBuilder().buildJsonClient();
 
     @Test
     public void testJson() {

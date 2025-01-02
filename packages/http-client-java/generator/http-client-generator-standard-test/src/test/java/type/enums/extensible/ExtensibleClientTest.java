@@ -5,11 +5,10 @@ package type.enums.extensible;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.enums.extensible.models.DaysOfWeekExtensibleEnum;
 
 class ExtensibleClientTest {
 
-    ExtensibleClient client = new ExtensibleClientBuilder().buildClient();
+    ExtensibleClient client = new ExtensibleClientBuilder().buildExtensibleClient();
 
     @Test
     void getKnownValue() {
@@ -31,7 +30,7 @@ class ExtensibleClientTest {
 
     @Test
     void putUnknownValue() {
-        DaysOfWeekExtensibleEnum daysOfWeekExtensibleEnum = DaysOfWeekExtensibleEnum.fromString("Weekend");
+        DaysOfWeekExtensibleEnum daysOfWeekExtensibleEnum = DaysOfWeekExtensibleEnum.fromValue("Weekend");
         client.putUnknownValue(daysOfWeekExtensibleEnum);
     }
 

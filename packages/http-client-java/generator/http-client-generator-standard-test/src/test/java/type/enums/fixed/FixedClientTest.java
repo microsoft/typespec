@@ -3,20 +3,19 @@
 
 package type.enums.fixed;
 
-import com.azure.core.exception.HttpResponseException;
-import com.azure.core.http.policy.FixedDelayOptions;
-import com.azure.core.http.policy.RetryOptions;
-import com.azure.core.util.BinaryData;
 import java.time.Duration;
+
+import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.http.models.HttpRetryOptions;
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.enums.fixed.models.DaysOfWeekEnum;
 
 class FixedClientTest {
 
     FixedClient client
-        = new FixedClientBuilder().retryOptions(new RetryOptions(new FixedDelayOptions(0, Duration.ZERO)))
-            .buildClient();
+        = new FixedClientBuilder().httpRetryOptions(new HttpRetryOptions(0, Duration.ZERO))
+            .buildFixedClient();
 
     @Test
     void getKnownValue() {

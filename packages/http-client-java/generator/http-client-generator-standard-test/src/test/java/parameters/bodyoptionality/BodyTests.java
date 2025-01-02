@@ -3,32 +3,29 @@
 
 package parameters.bodyoptionality;
 
-import com.azure.core.http.HttpHeaderName;
-import com.azure.core.http.HttpPipelineCallContext;
-import com.azure.core.http.HttpPipelineNextPolicy;
-import com.azure.core.http.HttpResponse;
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
-import com.azure.core.http.policy.HttpPipelinePolicy;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpLogOptions;
+import io.clientcore.core.http.models.HttpRequest;
+import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipelineNextPolicy;
+import io.clientcore.core.http.pipeline.HttpPipelinePolicy;
 import org.junit.jupiter.api.AssertionFailureBuilder;
 import org.junit.jupiter.api.Test;
-import parameters.bodyoptionality.models.BodyModel;
-import reactor.core.publisher.Mono;
 
 public class BodyTests {
 
     private final ContentTypeValidationPolicy validationPolicy = new ContentTypeValidationPolicy();
     private final BodyOptionalityClient client = new BodyOptionalityClientBuilder().buildClient();
-    private final OptionalExplicitClient optionalClient = new BodyOptionalityClientBuilder().addPolicy(validationPolicy)
-        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+    private final OptionalExplicitClient optionalClient = new BodyOptionalityClientBuilder().addHttpPipelinePolicy(validationPolicy)
+        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogOptions.HttpLogDetailLevel.BODY_AND_HEADERS))
         .buildOptionalExplicitClient();
 
     private final static class ContentTypeValidationPolicy implements HttpPipelinePolicy {
         private boolean contentTypeHeaderExists;
 
         @Override
-        public Mono<HttpResponse> process(HttpPipelineCallContext context, HttpPipelineNextPolicy nextPolicy) {
-            contentTypeHeaderExists = context.getHttpRequest().getHeaders().get(HttpHeaderName.CONTENT_TYPE) != null;
+        public Response process(HttpRequest request, HttpPipelineNextPolicy nextPolicy) {
+            contentTypeHeaderExists = request.getHeaders().get(HttpHeaderName.CONTENT_TYPE) != null;
             return nextPolicy.process();
         }
 

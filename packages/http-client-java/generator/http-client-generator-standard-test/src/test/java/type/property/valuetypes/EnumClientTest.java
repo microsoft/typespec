@@ -5,8 +5,6 @@ package type.property.valuetypes;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.valuetypes.models.EnumProperty;
-import type.property.valuetypes.models.FixedInnerEnum;
 
 class EnumClientTest {
 

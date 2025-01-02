@@ -5,7 +5,6 @@ package type.property.optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.StringProperty;
 
 class StringOperationClientTest {
 

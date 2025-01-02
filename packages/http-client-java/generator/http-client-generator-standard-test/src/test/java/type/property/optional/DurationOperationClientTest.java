@@ -6,7 +6,6 @@ package type.property.optional;
 import java.time.Duration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.DurationProperty;
 
 class DurationOperationClientTest {
 

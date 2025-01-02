@@ -7,8 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.additionalproperties.models.IsModelAdditionalProperties;
-import type.property.additionalproperties.models.ModelForRecord;
 
 public class IsModelClientTest {
     private final IsModelClient client = new AdditionalPropertiesClientBuilder().buildIsModelClient();

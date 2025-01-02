@@ -3,27 +3,15 @@
 
 package type.property.additionalproperties;
 
-import com.azure.core.util.BinaryData;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.BinaryDataUtils;
-import type.property.additionalproperties.models.DifferentSpreadFloatDerived;
-import type.property.additionalproperties.models.DifferentSpreadModelArrayDerived;
-import type.property.additionalproperties.models.DifferentSpreadModelDerived;
-import type.property.additionalproperties.models.DifferentSpreadStringDerived;
-import type.property.additionalproperties.models.ExtendsFloatAdditionalProperties;
-import type.property.additionalproperties.models.ExtendsModelAdditionalProperties;
-import type.property.additionalproperties.models.ExtendsModelArrayAdditionalProperties;
-import type.property.additionalproperties.models.ExtendsStringAdditionalProperties;
-import type.property.additionalproperties.models.ExtendsUnknownAdditionalProperties;
-import type.property.additionalproperties.models.ExtendsUnknownAdditionalPropertiesDerived;
-import type.property.additionalproperties.models.ExtendsUnknownAdditionalPropertiesDiscriminated;
-import type.property.additionalproperties.models.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived;
-import type.property.additionalproperties.models.ModelForRecord;
 
 public class ExtendsTests {
     private final ExtendsFloatClient extendsFloatClient

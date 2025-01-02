@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
-import type.property.nullable.models.DurationProperty;
 
 class DurationOperationClientTest {
 

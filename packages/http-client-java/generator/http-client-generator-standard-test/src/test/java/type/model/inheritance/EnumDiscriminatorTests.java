@@ -5,12 +5,12 @@ package type.model.inheritance;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import type.model.inheritance.enumdiscriminator.Cobra;
+import type.model.inheritance.enumdiscriminator.Dog;
 import type.model.inheritance.enumdiscriminator.EnumDiscriminatorClient;
 import type.model.inheritance.enumdiscriminator.EnumDiscriminatorClientBuilder;
-import type.model.inheritance.enumdiscriminator.models.Cobra;
-import type.model.inheritance.enumdiscriminator.models.Dog;
-import type.model.inheritance.enumdiscriminator.models.Golden;
-import type.model.inheritance.enumdiscriminator.models.Snake;
+import type.model.inheritance.enumdiscriminator.Golden;
+import type.model.inheritance.enumdiscriminator.Snake;
 
 public class EnumDiscriminatorTests {
 

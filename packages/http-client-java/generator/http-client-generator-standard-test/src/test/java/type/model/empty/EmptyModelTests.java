@@ -5,9 +5,6 @@ package type.model.empty;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.model.empty.models.EmptyInput;
-import type.model.empty.models.EmptyInputOutput;
-import type.model.empty.models.EmptyOutput;
 
 public class EmptyModelTests {
 

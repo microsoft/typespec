@@ -11,11 +11,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import type.model.inheritance.nesteddiscriminator.NestedDiscriminatorClient;
 import type.model.inheritance.nesteddiscriminator.NestedDiscriminatorClientBuilder;
-import type.model.inheritance.nesteddiscriminator.models.Fish;
-import type.model.inheritance.nesteddiscriminator.models.GoblinShark;
-import type.model.inheritance.nesteddiscriminator.models.Salmon;
-import type.model.inheritance.nesteddiscriminator.models.SawShark;
-import type.model.inheritance.nesteddiscriminator.models.Shark;
+import type.model.inheritance.nesteddiscriminator.Fish;
+import type.model.inheritance.nesteddiscriminator.GoblinShark;
+import type.model.inheritance.nesteddiscriminator.Salmon;
+import type.model.inheritance.nesteddiscriminator.SawShark;
+import type.model.inheritance.nesteddiscriminator.Shark;
 
 class NestedDiscriminatorTests {
 

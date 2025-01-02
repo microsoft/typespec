@@ -4,8 +4,8 @@
 package authentication.apikey;
 
 import authentication.util.AzureKeyCredentialPolicy;
-import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.exception.HttpResponseException;
+import io.clientcore.core.credential.KeyCredential;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,19 +13,19 @@ public class ApiKeyTests {
 
     @Test
     public void testValid() {
-        ApiKeyAsyncClient client = new ApiKeyClientBuilder()
+        ApiKeyClient client = new ApiKeyClientBuilder()
             // AzureKeyCredentialPolicy from core requires HTTPS
-            .addPolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new AzureKeyCredential("valid-key")))
-            .buildAsyncClient();
+            .addHttpPipelinePolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new KeyCredential("valid-key")))
+            .buildClient();
 
-        client.valid().block();
+        client.valid();
     }
 
     @Test
     public void testInvalid() {
         ApiKeyClient client = new ApiKeyClientBuilder()
             // AzureKeyCredentialPolicy from core requires HTTPS
-            .addPolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new AzureKeyCredential("invalid-key")))
+            .addHttpPipelinePolicy(new AzureKeyCredentialPolicy("x-ms-api-key", new KeyCredential("invalid-key")))
             .buildClient();
 
         // assert HttpResponseException

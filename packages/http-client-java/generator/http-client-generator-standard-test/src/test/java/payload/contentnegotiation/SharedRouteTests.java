@@ -3,19 +3,18 @@
 
 package payload.contentnegotiation;
 
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
-import com.azure.core.util.BinaryData;
+import io.clientcore.core.http.models.HttpLogOptions;
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
-import payload.contentnegotiation.differentbody.models.PngImageAsJson;
+import payload.contentnegotiation.differentbody.PngImageAsJson;
 
 public class SharedRouteTests {
 
     private final SameBodyClient client1 = new ContentNegotiationClientBuilder().buildSameBodyClient();
     private final DifferentBodyClient client2 = new ContentNegotiationClientBuilder()
-        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogOptions.HttpLogDetailLevel.BODY_AND_HEADERS))
         .buildDifferentBodyClient();
 
     @Test

@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import type.model.inheritance.singlediscriminator.SingleDiscriminatorClient;
 import type.model.inheritance.singlediscriminator.SingleDiscriminatorClientBuilder;
-import type.model.inheritance.singlediscriminator.models.Bird;
-import type.model.inheritance.singlediscriminator.models.Eagle;
-import type.model.inheritance.singlediscriminator.models.Goose;
-import type.model.inheritance.singlediscriminator.models.SeaGull;
-import type.model.inheritance.singlediscriminator.models.Sparrow;
-import type.model.inheritance.singlediscriminator.models.TRex;
+import type.model.inheritance.singlediscriminator.Bird;
+import type.model.inheritance.singlediscriminator.Eagle;
+import type.model.inheritance.singlediscriminator.Goose;
+import type.model.inheritance.singlediscriminator.SeaGull;
+import type.model.inheritance.singlediscriminator.Sparrow;
+import type.model.inheritance.singlediscriminator.TRex;
 
 public class SingleDiscriminatorTest {
 

@@ -5,8 +5,6 @@ package type.property.optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.UnionIntLiteralProperty;
-import type.property.optional.models.UnionIntLiteralPropertyProperty;
 
 public class UnionIntLiteralClientTests {
     private final UnionIntLiteralClient client = new OptionalClientBuilder().buildUnionIntLiteralClient();

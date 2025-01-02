@@ -5,9 +5,6 @@ package type.model.usage;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.model.usage.models.InputOutputRecord;
-import type.model.usage.models.InputRecord;
-import type.model.usage.models.OutputRecord;
 
 class ModelsUsageClientTest {
 

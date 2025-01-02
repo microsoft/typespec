@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.additionalproperties.models.IsStringAdditionalProperties;
 
 public class IsStringClientTest {
     private final IsStringClient client = new AdditionalPropertiesClientBuilder().buildIsStringClient();

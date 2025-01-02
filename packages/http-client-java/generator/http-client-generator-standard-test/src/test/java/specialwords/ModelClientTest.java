@@ -3,8 +3,9 @@
 
 package specialwords;
 
-import com.azure.core.util.BinaryData;
 import java.util.Collections;
+
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Test;
 
 public class ModelClientTest {

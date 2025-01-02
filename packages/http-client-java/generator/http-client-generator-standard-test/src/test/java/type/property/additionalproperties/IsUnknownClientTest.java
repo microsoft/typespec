@@ -3,16 +3,13 @@
 
 package type.property.additionalproperties;
 
-import com.azure.core.util.BinaryData;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.BinaryDataUtils;
-import type.property.additionalproperties.models.IsUnknownAdditionalProperties;
-import type.property.additionalproperties.models.IsUnknownAdditionalPropertiesDerived;
-import type.property.additionalproperties.models.IsUnknownAdditionalPropertiesDiscriminated;
-import type.property.additionalproperties.models.IsUnknownAdditionalPropertiesDiscriminatedDerived;
 
 public class IsUnknownClientTest {
     private final IsUnknownClient client = new AdditionalPropertiesClientBuilder().buildIsUnknownClient();

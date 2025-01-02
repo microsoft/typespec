@@ -3,31 +3,15 @@
 
 package type.property.additionalproperties;
 
-import com.azure.core.util.BinaryData;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.additionalproperties.models.DifferentSpreadFloatRecord;
-import type.property.additionalproperties.models.DifferentSpreadModelArrayRecord;
-import type.property.additionalproperties.models.DifferentSpreadModelRecord;
-import type.property.additionalproperties.models.DifferentSpreadStringRecord;
-import type.property.additionalproperties.models.ModelForRecord;
-import type.property.additionalproperties.models.SpreadFloatRecord;
-import type.property.additionalproperties.models.SpreadModelArrayRecord;
-import type.property.additionalproperties.models.SpreadModelRecord;
-import type.property.additionalproperties.models.SpreadRecordForDiscriminatedUnion;
-import type.property.additionalproperties.models.SpreadRecordForNonDiscriminatedUnion;
-import type.property.additionalproperties.models.SpreadRecordForNonDiscriminatedUnion2;
-import type.property.additionalproperties.models.SpreadRecordForNonDiscriminatedUnion3;
-import type.property.additionalproperties.models.SpreadRecordForUnion;
-import type.property.additionalproperties.models.SpreadStringRecord;
-import type.property.additionalproperties.models.WidgetData0;
-import type.property.additionalproperties.models.WidgetData1;
-import type.property.additionalproperties.models.WidgetData2;
 
 public class SpreadTests {
     private final SpreadStringClient spreadStringClient

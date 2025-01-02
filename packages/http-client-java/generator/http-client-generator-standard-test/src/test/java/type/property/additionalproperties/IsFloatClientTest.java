@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.additionalproperties.models.IsFloatAdditionalProperties;
 
 public class IsFloatClientTest {
     private final IsFloatClient client = new AdditionalPropertiesClientBuilder().buildIsFloatClient();

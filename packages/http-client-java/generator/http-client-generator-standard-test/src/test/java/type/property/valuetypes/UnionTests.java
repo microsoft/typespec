@@ -5,12 +5,6 @@ package type.property.valuetypes;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.valuetypes.models.UnionFloatLiteralProperty;
-import type.property.valuetypes.models.UnionFloatLiteralPropertyProperty;
-import type.property.valuetypes.models.UnionIntLiteralProperty;
-import type.property.valuetypes.models.UnionIntLiteralPropertyProperty;
-import type.property.valuetypes.models.UnionStringLiteralProperty;
-import type.property.valuetypes.models.UnionStringLiteralPropertyProperty;
 
 public class UnionTests {
     private final UnionStringLiteralClient unionStringClient

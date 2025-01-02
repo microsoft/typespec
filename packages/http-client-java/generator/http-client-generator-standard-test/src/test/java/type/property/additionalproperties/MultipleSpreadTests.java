@@ -3,12 +3,12 @@
 
 package type.property.additionalproperties;
 
-import com.azure.core.util.BinaryData;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.additionalproperties.models.MultipleSpreadRecord;
 
 public class MultipleSpreadTests {
     private final MultipleSpreadClient multipleSpreadClient

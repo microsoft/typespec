@@ -6,7 +6,6 @@ package type.property.optional;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.PlainDateProperty;
 
 public class PlainDateClientTests {
     private final PlainDateClient client = new OptionalClientBuilder().buildPlainDateClient();

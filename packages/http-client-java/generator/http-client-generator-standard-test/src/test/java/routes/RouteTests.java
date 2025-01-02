@@ -3,10 +3,10 @@
 
 package routes;
 
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
 import java.util.List;
 import java.util.Set;
+
+import io.clientcore.core.http.models.HttpLogOptions;
 import org.junit.jupiter.api.Test;
 
 public class RouteTests {
@@ -79,7 +79,7 @@ public class RouteTests {
     @Test
     public void buildQueryParametersQueryContinuationExplode() {
         var client = new RoutesClientBuilder()
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogOptions.HttpLogDetailLevel.BODY_AND_HEADERS)
                 .setAllowedQueryParamNames(Set.of("fixed", "param")))
             .buildQueryParametersQueryContinuationExplodeClient();
 

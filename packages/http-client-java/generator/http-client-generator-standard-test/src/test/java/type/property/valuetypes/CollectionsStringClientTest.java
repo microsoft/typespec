@@ -6,7 +6,6 @@ package type.property.valuetypes;
 import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.valuetypes.models.CollectionsStringProperty;
 
 class CollectionsStringClientTest {
 

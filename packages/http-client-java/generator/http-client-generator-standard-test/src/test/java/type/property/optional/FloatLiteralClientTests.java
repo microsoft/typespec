@@ -5,8 +5,6 @@ package type.property.optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.FloatLiteralProperty;
-import type.property.optional.models.FloatLiteralPropertyProperty;
 
 public class FloatLiteralClientTests {
     private final FloatLiteralClient client = new OptionalClientBuilder().buildFloatLiteralClient();

@@ -3,22 +3,17 @@
 
 package type.model.visibility;
 
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.netty.NettyAsyncHttpClientProvider;
-import com.azure.core.util.HttpClientOptions;
 import java.util.Arrays;
+
+import io.clientcore.core.http.client.HttpClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.model.visibility.models.ReadOnlyModel;
-import type.model.visibility.models.VisibilityModel;
 
 // These cases are using protocol method, we don't support automatic visibility for convenience methods yet, the tests are added for cadl-ranch coverage.
 class AutomaticClientTest {
 
     private final VisibilityClient client = new VisibilityClientBuilder()
-        .httpClient(
-            HttpClient.createDefault(new HttpClientOptions().setHttpClientProvider(NettyAsyncHttpClientProvider.class)))
-        .buildClient();
+        .httpClient(HttpClient.getSharedInstance()).buildClient();
 
     @Test
     void getModel() {

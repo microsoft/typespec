@@ -3,14 +3,15 @@
 
 package type.scalar;
 
-import com.azure.core.annotation.Immutable;
-import com.azure.core.util.BinaryData;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
+
+import com.azure.core.annotation.Immutable;
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import type.property.valuetypes.models.DecimalProperty;
+import type.property.valuetypes.DecimalProperty;
 
 public class DecimalTests {
 

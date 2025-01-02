@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.additionalproperties.models.IsModelArrayAdditionalProperties;
-import type.property.additionalproperties.models.ModelForRecord;
 
 public class IsModelArrayClientTest {
     private final IsModelArrayClient client = new AdditionalPropertiesClientBuilder().buildIsModelArrayClient();

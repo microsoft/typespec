@@ -3,17 +3,14 @@
 
 package type.property.valuetypes;
 
-import com.azure.core.util.BinaryData;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.valuetypes.models.UnknownArrayProperty;
-import type.property.valuetypes.models.UnknownDictProperty;
-import type.property.valuetypes.models.UnknownIntProperty;
-import type.property.valuetypes.models.UnknownStringProperty;
 
 public class UnknownTests {
 

@@ -3,12 +3,13 @@
 
 package type.dictionary;
 
-import com.azure.core.util.BinaryData;
+import java.util.HashMap;
+import java.util.Map;
+
+import io.clientcore.core.util.binarydata.BinaryData;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

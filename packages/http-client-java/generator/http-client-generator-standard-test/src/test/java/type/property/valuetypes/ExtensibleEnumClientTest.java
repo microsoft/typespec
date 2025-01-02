@@ -5,8 +5,6 @@ package type.property.valuetypes;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.valuetypes.models.ExtensibleEnumProperty;
-import type.property.valuetypes.models.InnerEnum;
 
 class ExtensibleEnumClientTest {
 
@@ -22,7 +20,7 @@ class ExtensibleEnumClientTest {
     @Test
     void put() {
         ExtensibleEnumProperty extensibleEnumProperty
-            = new ExtensibleEnumProperty(InnerEnum.fromString("UnknownValue"));
+            = new ExtensibleEnumProperty(InnerEnum.fromValue("UnknownValue"));
         client.put(extensibleEnumProperty);
     }
 }

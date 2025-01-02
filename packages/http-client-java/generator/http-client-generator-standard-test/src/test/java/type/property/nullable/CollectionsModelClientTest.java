@@ -8,8 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
-import type.property.nullable.models.CollectionsModelProperty;
-import type.property.nullable.models.InnerModel;
 
 class CollectionsModelClientTest {
 

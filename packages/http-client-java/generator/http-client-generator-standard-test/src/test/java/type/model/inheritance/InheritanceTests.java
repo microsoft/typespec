@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import type.model.inheritance.notdiscriminated.NotDiscriminatedClient;
 import type.model.inheritance.notdiscriminated.NotDiscriminatedClientBuilder;
-import type.model.inheritance.notdiscriminated.models.Siamese;
+import type.model.inheritance.notdiscriminated.Siamese;
 
 class InheritanceTests {
 

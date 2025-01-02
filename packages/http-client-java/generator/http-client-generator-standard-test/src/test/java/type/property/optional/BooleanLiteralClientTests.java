@@ -5,8 +5,6 @@ package type.property.optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.optional.models.BooleanLiteralProperty;
-import type.property.optional.models.BooleanLiteralPropertyProperty;
 
 public class BooleanLiteralClientTests {
     private final BooleanLiteralClient client = new OptionalClientBuilder().buildBooleanLiteralClient();

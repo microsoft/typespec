@@ -8,9 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import payload.jsonmergepatch.models.InnerModel;
-import payload.jsonmergepatch.models.Resource;
-import payload.jsonmergepatch.models.ResourcePatch;
 
 public class JsonMergePatchClientTest {
 

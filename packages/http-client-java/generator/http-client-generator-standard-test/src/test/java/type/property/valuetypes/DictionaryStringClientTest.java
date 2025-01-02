@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.property.valuetypes.models.DictionaryStringProperty;
 
 class DictionaryStringClientTest {
 

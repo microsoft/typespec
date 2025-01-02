@@ -3,24 +3,12 @@
 
 package type.union;
 
-import com.azure.core.util.BinaryData;
-import com.azure.core.util.serializer.TypeReference;
 import java.util.Arrays;
 import java.util.List;
+
+import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import type.union.models.Cat;
-import type.union.models.EnumsOnlyCases;
-import type.union.models.EnumsOnlyCasesLr;
-import type.union.models.EnumsOnlyCasesUd;
-import type.union.models.GetResponseProp1;
-import type.union.models.GetResponseProp2;
-import type.union.models.GetResponseProp3;
-import type.union.models.GetResponseProp4;
-import type.union.models.MixedLiteralsCases;
-import type.union.models.MixedTypesCases;
-import type.union.models.StringAndArrayCases;
-import type.union.models.StringExtensibleNamedUnion;
 
 public class UnionsClientTest {
 

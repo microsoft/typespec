@@ -4,7 +4,7 @@
 package specialwords;
 
 import org.junit.jupiter.api.Test;
-import specialwords.modelproperties.models.SameAsModel;
+import specialwords.modelproperties.SameAsModel;
 
 public class ModelPropertyClientTest {
 

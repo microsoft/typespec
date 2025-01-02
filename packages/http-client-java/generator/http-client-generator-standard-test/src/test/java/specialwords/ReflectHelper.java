@@ -3,7 +3,8 @@
 
 package specialwords;
 
-import com.azure.core.http.rest.RequestOptions;
+import io.clientcore.core.http.models.RequestOptions;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
