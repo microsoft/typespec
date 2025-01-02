@@ -631,7 +631,7 @@ async function loadInitTemplates(
 }
 
 async function selectProjectRootFolder(): Promise<string | undefined> {
-  logger.info("Selecting project root folder...");
+  logger.info("Select Project Folder as Root");
   const folderOptions: OpenDialogOptions = {
     canSelectMany: false,
     openLabel: "Select Folder",

@@ -4,7 +4,7 @@ import { InstallGlobalCliCommandArgs, Result, ResultCode } from "../types.js";
 import { createPromiseWithCancelAndTimeout, spawnExecutionAndLogToOutput } from "../utils.js";
 
 const COMPILER_REQUIREMENT =
-  "Minimum Requirements: 'Node.js 20 LTS' && 'npm avaliable in command prompt'";
+  "Minimum Requirements: Install Node.js 20 LTS or above and verify 'node -v' and 'npm -v' run in command prompt";
 
 export async function installCompilerGlobally(
   args: InstallGlobalCliCommandArgs | undefined,
@@ -13,18 +13,46 @@ export async function installCompilerGlobally(
   const showPopup = args?.silentMode !== true;
   // confirm with end user by default
   if (args?.confirm !== false) {
+    const detailLink = "https://typespec.io/docs/";
     const yes: QuickPickItem = {
       label: "Install TypeSpec Compiler/CLI globally",
       detail: COMPILER_REQUIREMENT,
       description: " by 'npm install -g @typespec/compiler'",
+      buttons: [
+        {
+          iconPath: new vscode.ThemeIcon("link-external"),
+          tooltip: `Open ${detailLink}`,
+        },
+      ],
     };
     const no: QuickPickItem = { label: "Cancel" };
     const title = args?.confirmTitle ?? "Please check the requirements and confirm...";
-    const confirm = await vscode.window.showQuickPick<QuickPickItem>([yes, no], {
-      title,
-      placeHolder: args?.confirmPlaceholder ?? title,
+    const confirmPicker = vscode.window.createQuickPick();
+    confirmPicker.items = [yes, no];
+    confirmPicker.title = title;
+    confirmPicker.ignoreFocusOut = true;
+    confirmPicker.placeholder = args?.confirmPlaceholder ?? title;
+    confirmPicker.onDidTriggerItemButton((event) => {
+      if (event.item === yes) {
+        vscode.env.openExternal(vscode.Uri.parse(detailLink));
+      }
+      confirmPicker.hide();
     });
-    if (confirm !== yes) {
+    const p = new Promise<QuickPickItem[] | undefined>((resolve) => {
+      confirmPicker.onDidAccept(() => {
+        const selectedItem = [...confirmPicker.selectedItems];
+        resolve(selectedItem);
+        confirmPicker.hide();
+      });
+      confirmPicker.onDidHide(() => {
+        resolve(undefined);
+        confirmPicker.dispose();
+      });
+    });
+    confirmPicker.show();
+    const confirm = await p;
+
+    if (!confirm || confirm.length === 0 || confirm[0] !== yes) {
       logger.info("User cancelled the installation of TypeSpec Compiler/CLI");
       return { code: ResultCode.Cancelled };
     } else {
