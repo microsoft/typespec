@@ -158,14 +158,15 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 : JavaVisibility.Public;
             addModelConstructor(model, modelConstructorVisibility, settings, classBlock);
 
+            boolean streamStyle = settings.isStreamStyleSerialization();
+
             for (ClientModelProperty property : getFieldProperties(propertiesManager)) {
                 final boolean propertyIsReadOnly = immutableModel || property.isReadOnly();
 
                 IType propertyWireType = property.getWireType();
                 IType propertyClientType = propertyWireType.getClientType();
 
-                JavaVisibility methodVisibility
-                    = property.getClientFlatten() ? JavaVisibility.Private : JavaVisibility.Public;
+                JavaVisibility methodVisibility = getGetterVisibility(model, property, streamStyle);
 
                 if (!property.isPolymorphicDiscriminator()
                     || PolymorphicDiscriminatorHandler.generateGetter(model, property, settings)) {
@@ -206,7 +207,6 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     // The package-private setter is added when the property isn't included in the constructor and is
                     // defined by this model, except for JSON merge patch models as those use the access helper pattern
                     // to enable subtypes to set the property.
-                    boolean streamStyle = settings.isStreamStyleSerialization();
                     boolean hasDerivedTypes = !CoreUtils.isNullOrEmpty(model.getDerivedModels());
                     boolean notIncludedInConstructor
                         = !ClientModelUtil.includePropertyInConstructor(property, settings);
@@ -313,9 +313,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                         ClientModelPropertyReference propertyReferenceFinal = propertyReference;
                         classBlock.publicMethod(String.format("%s %s(%s %s)", model.getName(),
                             propertyReference.getSetterName(), propertyClientType, property.getName()), methodBlock -> {
-                                methodBlock.ifBlock(String.format("this.%s() == null", targetProperty.getGetterName()),
-                                    ifBlock -> methodBlock.line(String.format("this.%s = new %s();",
-                                        targetProperty.getName(), propertyReferenceFinal.getTargetModelType())));
+                                initializeFlattenedProperty(methodBlock, model, targetProperty, propertyReferenceFinal, streamStyle);
 
                                 methodBlock.line(String.format("this.%s().%s(%s);", targetProperty.getGetterName(),
                                     property.getSetterName(), property.getName()));
@@ -335,6 +333,53 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 writeStreamStyleSerialization(classBlock, propertiesManager);
             }
         });
+    }
+
+    /**
+     * Initialize the flattened property in flattening properties setter method.
+     * <pre>
+     *     public ClientModel withFlatteningProperty(FlatteningProperty property) {
+     *          if (this.innerFlattenedProperty() == null) {
+     *              // initializeFlattenedProperty
+     *          }
+     *          this.innerFlattenedProperty().withFlatteningProperty(property);
+     *     }
+     * </pre>
+     *
+     * @param methodBlock             the setter method block
+     * @param model                   the client model
+     * @param targetFlattenedProperty flattened property (property.clientFlatten() == true)
+     * @param flatteningProperty      flattening property (the property of the flattened property model)
+     * @param streamStyle             whether stream-style-serialization is enabled
+     */
+    private static void initializeFlattenedProperty(JavaBlock methodBlock, ClientModel model, ClientModelProperty targetFlattenedProperty, ClientModelPropertyReference flatteningProperty, boolean streamStyle) {
+        String initializeLine;
+        if (streamStyle && model.isAllPolymorphicModelsInSamePackage()) {
+            initializeLine = String.format("this.%s(new %s());",
+                targetFlattenedProperty.getSetterName(), flatteningProperty.getTargetModelType());
+        } else {
+            initializeLine = String.format("this.%s = new %s();",
+                targetFlattenedProperty.getName(), flatteningProperty.getTargetModelType());
+        }
+        methodBlock.ifBlock(String.format("this.%s() == null", targetFlattenedProperty.getGetterName()),
+            ifBlock -> methodBlock.line(initializeLine));
+    }
+
+    private static JavaVisibility getGetterVisibility(ClientModel model, ClientModelProperty property,
+        boolean streamStyle) {
+        JavaVisibility methodVisibility;
+        if (!property.getClientFlatten()) {
+            methodVisibility = JavaVisibility.Public;
+        } else {
+            if (streamStyle && model.isAllPolymorphicModelsInSamePackage()) {
+                // If all polymorphic models are in the same package, flattened property won't shadow in child class,
+                // making it inaccessible for children's getter method.
+                methodVisibility = JavaVisibility.PackagePrivate;
+            } else {
+                methodVisibility = JavaVisibility.Private;
+            }
+        }
+        return methodVisibility;
     }
 
     private static boolean addOverrideAnnotationToGetter(JavaVisibility visibility, ClientModel model,
@@ -637,7 +682,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
      */
     protected List<ClientModelProperty> getFieldProperties(ClientModelPropertiesManager propertiesManager) {
         ClientModel model = propertiesManager.getModel();
-        return Stream.concat(model.getParentPolymorphicDiscriminators().stream(), model.getProperties().stream())
+        return Stream
+            .concat(model.isPolymorphic() ? model.getParentPolymorphicDiscriminators().stream() : Stream.empty(),
+                model.getProperties().stream())
             .collect(Collectors.toList());
     }
 

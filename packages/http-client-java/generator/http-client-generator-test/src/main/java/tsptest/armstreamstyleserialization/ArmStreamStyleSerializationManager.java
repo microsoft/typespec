@@ -32,8 +32,10 @@ import java.util.stream.Collectors;
 import tsptest.armstreamstyleserialization.fluent.ArmStreamStyleSerializationClient;
 import tsptest.armstreamstyleserialization.implementation.ArmStreamStyleSerializationClientBuilder;
 import tsptest.armstreamstyleserialization.implementation.FishesImpl;
+import tsptest.armstreamstyleserialization.implementation.FunctionsImpl;
 import tsptest.armstreamstyleserialization.implementation.TopLevelArmResourcesImpl;
 import tsptest.armstreamstyleserialization.models.Fishes;
+import tsptest.armstreamstyleserialization.models.Functions;
 import tsptest.armstreamstyleserialization.models.TopLevelArmResources;
 
 /**
@@ -44,6 +46,8 @@ public final class ArmStreamStyleSerializationManager {
     private Fishes fishes;
 
     private TopLevelArmResources topLevelArmResources;
+
+    private Functions functions;
 
     private final ArmStreamStyleSerializationClient clientObject;
 
@@ -91,7 +95,7 @@ public final class ArmStreamStyleSerializationManager {
      * @return the Configurable instance allowing configurations.
      */
     public static Configurable configure() {
-        return new ArmStreamStyleSerializationManager.Configurable();
+        return new Configurable();
     }
 
     /**
@@ -279,6 +283,18 @@ public final class ArmStreamStyleSerializationManager {
             this.topLevelArmResources = new TopLevelArmResourcesImpl(clientObject.getTopLevelArmResources(), this);
         }
         return topLevelArmResources;
+    }
+
+    /**
+     * Gets the resource collection API of Functions.
+     * 
+     * @return Resource collection API of Functions.
+     */
+    public Functions functions() {
+        if (this.functions == null) {
+            this.functions = new FunctionsImpl(clientObject.getFunctions(), this);
+        }
+        return functions;
     }
 
     /**
