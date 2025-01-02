@@ -163,6 +163,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
 
         public static InputModelType Model(
             string name,
+            string clientNamespace = "",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
             IEnumerable<InputModelProperty>? properties = null,
@@ -176,6 +177,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
             return new InputModelType(
                 name,
+                clientNamespace,
                 name,
                 access,
                 null,

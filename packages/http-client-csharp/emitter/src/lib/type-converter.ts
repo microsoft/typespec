@@ -116,6 +116,7 @@ export function fromSdkModelType(
     inputModelType = {
       kind: "model",
       name: modelTypeName,
+      clientNamespace: modelType.clientNamespace,
       crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
       access: getAccessOverride(
         context,

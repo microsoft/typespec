@@ -4,8 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using UnbrandedTypeSpec.Models;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     /// <summary> A model with a few required nullable properties. </summary>
     public partial class ModelWithRequiredNullableProperties

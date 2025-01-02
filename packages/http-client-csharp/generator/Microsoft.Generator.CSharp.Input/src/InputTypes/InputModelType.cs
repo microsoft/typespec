@@ -15,9 +15,10 @@ namespace Microsoft.Generator.CSharp.Input
         private IList<InputModelType> _derivedModels = [];
 
         // TODO: Follow up issue https://github.com/microsoft/typespec/issues/3619. After https://github.com/Azure/typespec-azure/pull/966 is completed, update this type and remove the "modelAsStruct" parameter.
-        public InputModelType(string name, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
+        public InputModelType(string name, string clientNamespace, string crossLanguageDefinitionId, string? access, string? deprecation, string? summary, string? doc, InputModelTypeUsage usage, IReadOnlyList<InputModelProperty> properties, InputModelType? baseModel, IReadOnlyList<InputModelType> derivedModels, string? discriminatorValue, InputModelProperty? discriminatorProperty, IReadOnlyDictionary<string, InputModelType> discriminatedSubtypes, InputType? additionalProperties, bool modelAsStruct)
             : base(name)
         {
+            ClientNamespace = clientNamespace;
             CrossLanguageDefinitionId = crossLanguageDefinitionId;
             Access = access;
             Deprecation = deprecation;
@@ -46,6 +47,7 @@ namespace Microsoft.Generator.CSharp.Input
             ModelAsStruct = modelAsStruct;
         }
 
+        public string ClientNamespace { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
         public string? Access { get; internal set; }
         public string? Deprecation { get; internal set; }
@@ -91,6 +93,7 @@ namespace Microsoft.Generator.CSharp.Input
                 var cleanBaseName = Name.ToCleanName();
                 _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
                 new InputModelType(
+                    ClientNamespace,
                     $"Unknown{cleanBaseName}",
                     $"Unknown{cleanBaseName}",
                     "internal",
