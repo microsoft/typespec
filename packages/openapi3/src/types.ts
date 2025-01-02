@@ -866,6 +866,33 @@ export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocab
   required?: Array<string>;
 
   /**
+   * Must be a string.
+   * If the schema instance is a string, this property defines that the string SHOULD be
+   * interpreted as encoded binary data and decoded using the encoding named by this property.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-contentencoding
+   */
+  contentEncoding?: string;
+
+  /**
+   * If the schema instance is a string and "contentMediaType" is present, this property
+   * contains a schema which describes the structure of the string.
+   * This should be ignored if "contentMediaType" is not present.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-contentschema
+   */
+  contentSchema?: Refable<JsonSchema<AdditionalVocabularies>>;
+
+  /**
+   * Must be a string.
+   * If the schema instance is a string, this property indicates the media type of the contents of the string.
+   * If "contentEncoding" is present, this property describes the decoded string.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-contentmediatype
+   */
+  contentMediaType?: string;
+
+  /**
    * This attribute is a string that provides a short description of the instance property.
    *
    * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-title-and-description
