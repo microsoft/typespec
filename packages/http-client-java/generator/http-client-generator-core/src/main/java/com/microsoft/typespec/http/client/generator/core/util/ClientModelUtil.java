@@ -113,7 +113,8 @@ public class ClientModelUtil {
             }
         }
 
-        final int count = serviceClient.getMethodGroupClients().size() + asyncClients.size();
+        final int count
+            = serviceClient.getMethodGroupClients().size() + Math.max(asyncClients.size(), syncClients.size());
         for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
