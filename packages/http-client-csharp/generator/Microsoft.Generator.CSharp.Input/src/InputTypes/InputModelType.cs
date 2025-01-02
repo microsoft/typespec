@@ -93,8 +93,8 @@ namespace Microsoft.Generator.CSharp.Input
                 var cleanBaseName = Name.ToCleanName();
                 _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
                 new InputModelType(
-                    ClientNamespace,
                     $"Unknown{cleanBaseName}",
+                    ClientNamespace,
                     $"Unknown{cleanBaseName}",
                     "internal",
                     null,
@@ -105,6 +105,7 @@ namespace Microsoft.Generator.CSharp.Input
                     this,
                     [],
                     UnknownDiscriminatorValue,
+                    // TODO -- why we construct a new one? we could just reuse the existing discriminator property.
                     new InputModelProperty(
                         DiscriminatorProperty!.Name,
                         DiscriminatorProperty.SerializedName,
