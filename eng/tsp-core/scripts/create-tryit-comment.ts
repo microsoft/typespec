@@ -30,11 +30,12 @@ async function main() {
 
   const tryItComments = data.filter((x) => x.body.includes(TRY_ID_COMMENT_IDENTIFIER));
   console.log(`Found ${azoComments.length} Cadl Try It comment(s)`);
+  const comment = makeComment(folderName, prNumber, vscodeDownloadUrl);
   if (tryItComments.length > 0) {
+    await updateComment(repo, tryItComments[0].id, comment, ghAuth);
     return;
   }
 
-  const comment = makeComment(folderName, prNumber, vscodeDownloadUrl);
   await writeComment(repo, prNumber, comment, ghAuth);
 }
 
@@ -83,6 +84,24 @@ async function writeComment(repo: string, prNumber: string, comment: string, ghA
   });
 
   console.log("Comment created", response);
+}
+
+async function updateComment(repo: string, commentId: string, comment: string, ghAuth: string) {
+  const url = `https://api.github.com/repos/${repo}/issues/comments/${commentId}`;
+  const body = {
+    body: comment,
+  };
+  const headers = {
+    "Content-Type": "application/json",
+  };
+
+  const response = await request("PATCH", url, {
+    headers,
+    body: JSON.stringify(body),
+    ghAuth,
+  });
+
+  console.log("Comment updated", response);
 }
 
 async function request(method: string, url: string, data: any): Promise<string> {
