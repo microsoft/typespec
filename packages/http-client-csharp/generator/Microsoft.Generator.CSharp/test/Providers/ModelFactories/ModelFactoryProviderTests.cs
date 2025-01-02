@@ -139,19 +139,19 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             InputModelProperty[] inheritanceProperties = properties.Concat(new[]
             {
                 InputFactory.Property("EnumProp",
-                    InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true,
+                    InputFactory.Enum("inputEnum", string.Empty, InputPrimitiveType.Int32, isExtensible: true,
                         values: [InputFactory.EnumMember.String("foo", "bar")]), isDiscriminator: true)
             }).ToArray();
 
-            var derivedModel = InputFactory.Model("DerivedModel", properties: inheritanceProperties, discriminatedKind: "foo");
+            var derivedModel = InputFactory.Model("DerivedModel", string.Empty, properties: inheritanceProperties, discriminatedKind: "foo");
             return
             [
-                InputFactory.Model("InternalModel", "internal", properties: properties),
-                InputFactory.Model("PublicModel1", properties: properties),
-                InputFactory.Model("PublicModel2", properties: properties),
+                InputFactory.Model("InternalModel", string.Empty, access: "internal", properties: properties),
+                InputFactory.Model("PublicModel1", string.Empty, properties: properties),
+                InputFactory.Model("PublicModel2", string.Empty, properties: properties),
                 derivedModel,
-                InputFactory.Model("BaseModel", properties: properties, derivedModels: [derivedModel]),
-                InputFactory.Model("ModelWithUnknownAdditionalProperties", properties: properties, additionalProperties: additionalPropertiesUnknown),
+                InputFactory.Model("BaseModel", string.Empty, properties: properties, derivedModels: [derivedModel]),
+                InputFactory.Model("ModelWithUnknownAdditionalProperties", string.Empty, properties: properties, additionalProperties: additionalPropertiesUnknown),
             ];
         }
     }

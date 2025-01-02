@@ -45,7 +45,7 @@ namespace Microsoft.Generator.CSharp.Tests.Expressions
         [Test]
         public void ValidateNullableValueType()
         {
-            InputEnumType enumType = InputFactory.Enum("MyEnum", InputPrimitiveType.String, isExtensible: true, values:
+            InputEnumType enumType = InputFactory.Enum("MyEnum", string.Empty, InputPrimitiveType.String, isExtensible: true, values:
             [
                 InputFactory.EnumMember.Int32("One", 1),
                 InputFactory.EnumMember.Int32("Two", 2)

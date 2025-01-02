@@ -16,18 +16,19 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
 {
     internal class DiscriminatorTests
     {
-        private static readonly InputModelType _catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+        private static readonly InputModelType _catModel = InputFactory.Model("cat", string.Empty, discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true, isDiscriminator: true)
         ]);
-        private static readonly InputModelType _dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+        private static readonly InputModelType _dogModel = InputFactory.Model("dog", string.Empty, discriminatedKind: "dog", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("likesBones", InputPrimitiveType.Boolean, isRequired: true)
         ]);
         private static readonly InputModelType _baseModel = InputFactory.Model(
             "pet",
+            string.Empty,
             properties:
             [
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
@@ -180,11 +181,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         {
             var treeModel = InputFactory.Model(
                 "tree",
+                string.Empty,
                 discriminatedKind: "tree",
                 properties:
                 []);
             var baseModel = InputFactory.Model(
                 "plant",
+                string.Empty,
                 properties:
                 [
                     InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
@@ -262,6 +265,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         {
             var oakTreeModel = InputFactory.Model(
                 "oakTree",
+                string.Empty,
                 discriminatedKind: "oak",
                 properties:
                 [
@@ -269,6 +273,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 ]);
             var treeModel = InputFactory.Model(
                 "tree",
+                string.Empty,
                 discriminatedKind: "tree",
                 properties:
                 [
@@ -277,6 +282,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "oak", oakTreeModel } });
             var baseModel = InputFactory.Model(
                 "plant",
+                string.Empty,
                 properties:
                 [
                     InputFactory.Property("plantType", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),

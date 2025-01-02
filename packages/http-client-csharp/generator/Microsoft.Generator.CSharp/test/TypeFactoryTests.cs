@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void ExtensibleStringEnumType()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, isExtensible: true, usage: InputModelTypeUsage.Input, values:
+            var input = InputFactory.Enum("sampleType", string.Empty, InputPrimitiveType.String, isExtensible: true, usage: InputModelTypeUsage.Input, values:
             [
                 InputFactory.EnumMember.String("value1", "value1"),
                 InputFactory.EnumMember.String("value2", "value2")
@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void ExtensibleStringNullableEnumType()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
+            var input = InputFactory.Enum("sampleType", string.Empty, InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
             [
                 InputFactory.EnumMember.String("value1", "value1"),
                 InputFactory.EnumMember.String("value2", "value2")
@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void ExtensibleStringEnumTypeProvider()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
+            var input = InputFactory.Enum("sampleType", string.Empty, InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
             [
                 InputFactory.EnumMember.String("value1", "value1"),
                 InputFactory.EnumMember.String("value2", "value2")
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void FixedStringEnumType()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
+            var input = InputFactory.Enum("sampleType", string.Empty, InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
             [
                 InputFactory.EnumMember.String("value1", "value1"),
                 InputFactory.EnumMember.String("value2", "value2")
@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CreateSameEnum()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
+            var input = InputFactory.Enum("sampleType", string.Empty, InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
             [
                 InputFactory.EnumMember.String("value1", "value1"),
                 InputFactory.EnumMember.String("value2", "value2")
@@ -101,7 +101,7 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void CreateEnum_WithDeclaringType()
         {
-            var input = InputFactory.Enum("sampleType", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
+            var input = InputFactory.Enum("sampleType", string.Empty, InputPrimitiveType.String, usage: InputModelTypeUsage.Input, values:
             [
                 InputFactory.EnumMember.String("value1", "value1"),
                 InputFactory.EnumMember.String("value2", "value2")

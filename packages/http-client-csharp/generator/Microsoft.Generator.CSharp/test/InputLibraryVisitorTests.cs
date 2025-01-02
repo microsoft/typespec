@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Tests
         public void PreVisitsEnum()
         {
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
-            var inputEnum = InputFactory.Enum("enum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
+            var inputEnum = InputFactory.Enum("enum", string.Empty, InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
             var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
             var inputModel = InputFactory.Model("foo", "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 

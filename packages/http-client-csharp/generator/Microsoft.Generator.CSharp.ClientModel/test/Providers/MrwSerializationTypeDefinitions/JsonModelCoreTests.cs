@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public void KebabCaseSerializedName()
         {
             var inputModelProperty = InputFactory.Property("kebab-case", InputPrimitiveType.String, wireName: "kebab-case", isRequired: true);
-            var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
+            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public void SnakeCaseSerializedName()
         {
             var inputModelProperty = InputFactory.Property("snake_case", InputPrimitiveType.String, wireName: "snake_case", isRequired: true);
-            var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
+            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public void PascalCaseSerializedName()
         {
             var inputModelProperty = InputFactory.Property("PascalCase", InputPrimitiveType.String, wireName: "PascalCase", isRequired: true);
-            var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
+            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public void CamelCaseSerializedName()
         {
             var inputModelProperty = InputFactory.Property("camelCase", InputPrimitiveType.String, wireName: "camelCase", isRequired: true);
-            var inputModel = InputFactory.Model("TestModel", properties: [inputModelProperty]);
+            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: [inputModelProperty]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void MultipleAdditionalProperties()
         {
-            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)],
+            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)],
                 additionalProperties: new InputUnionType("union", [InputPrimitiveType.String, InputPrimitiveType.Float64]));
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
@@ -98,7 +98,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void BinaryDataAdditionalProperties()
         {
-            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)],
+            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)],
                 additionalProperties: InputPrimitiveType.Any);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();

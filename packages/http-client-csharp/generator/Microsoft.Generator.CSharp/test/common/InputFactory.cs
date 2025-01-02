@@ -121,6 +121,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
 
         public static InputEnumType Enum(
             string name,
+            string clientNamespace,
             InputPrimitiveType underlyingType,
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
@@ -129,6 +130,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         {
             return new InputEnumType(
                 name,
+                clientNamespace,
                 name,
                 access,
                 null,
@@ -163,7 +165,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
 
         public static InputModelType Model(
             string name,
-            string clientNamespace = "",
+            string clientNamespace,
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
             IEnumerable<InputModelProperty>? properties = null,

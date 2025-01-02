@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 {
     public class DiscriminatorTests
     {
-        private static readonly InputModelType _dinosaurModel = InputFactory.Model("dinosaur", discriminatedKind: "dinosaur", properties:
+        private static readonly InputModelType _dinosaurModel = InputFactory.Model("dinosaur", string.Empty, discriminatedKind: "dinosaur", properties:
         [
             InputFactory.Property("type", InputPrimitiveType.String, isRequired: true),
             InputFactory.Property("dinosaurKind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
@@ -25,6 +25,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
         private static readonly InputModelType _animalModel = InputFactory.Model(
             "animal",
+            string.Empty,
             properties:
             [
                 InputFactory.Property("type", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
@@ -35,24 +36,25 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 { "dinosaur", _dinosaurModel }
             });
 
-        private static readonly InputModelType _catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+        private static readonly InputModelType _catModel = InputFactory.Model("cat", string.Empty, discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true)
         ]);
-        private static readonly InputModelType _dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+        private static readonly InputModelType _dogModel = InputFactory.Model("dog", string.Empty, discriminatedKind: "dog", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("likesBones", InputPrimitiveType.Boolean, isRequired: true)
         ]);
 
-        private static readonly InputModelType _anotherAnimal = InputFactory.Model("anotherAnimal", discriminatedKind: "dog", properties:
+        private static readonly InputModelType _anotherAnimal = InputFactory.Model("anotherAnimal", string.Empty, discriminatedKind: "dog", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("other", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
         ]);
         private static readonly InputModelType _baseModel = InputFactory.Model(
             "pet",
+            string.Empty,
             properties: [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)],
             discriminatedModels: new Dictionary<string, InputModelType>()
             {
@@ -61,23 +63,24 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 { "otherAnimal", _anotherAnimal }
             });
 
-        private static readonly InputEnumType _petEnum = InputFactory.Enum("pet", InputPrimitiveType.String, isExtensible: true, values:
+        private static readonly InputEnumType _petEnum = InputFactory.Enum("pet", string.Empty, InputPrimitiveType.String, isExtensible: true, values:
         [
             InputFactory.EnumMember.String("cat", "cat"),
             InputFactory.EnumMember.String("dog", "dog")
         ]);
-        private static readonly InputModelType _catEnumModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+        private static readonly InputModelType _catEnumModel = InputFactory.Model("cat", string.Empty, discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", _petEnum, isRequired: true, isDiscriminator: true),
             InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true)
         ]);
-        private static readonly InputModelType _dogEnumModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+        private static readonly InputModelType _dogEnumModel = InputFactory.Model("dog", string.Empty, discriminatedKind: "dog", properties:
         [
             InputFactory.Property("kind", _petEnum, isRequired: true, isDiscriminator: true),
             InputFactory.Property("likesBones", InputPrimitiveType.Boolean, isRequired: true)
         ]);
         private static readonly InputModelType _baseEnumModel = InputFactory.Model(
             "pet",
+            string.Empty,
             properties: [InputFactory.Property("kind", _petEnum, isRequired: true, isDiscriminator: true)],
             discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", _catEnumModel }, { "dog", _dogEnumModel } });
 
@@ -229,13 +232,14 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.Throws<ArgumentException>(() =>
             {
                 var unknownPlantModel = InputFactory.Model(
-                    "unknownPlant", discriminatedKind: "unknown", properties:
+                    "unknownPlant", string.Empty, discriminatedKind: "unknown", properties:
                     [
                         InputFactory.Property("type", InputPrimitiveType.String, isRequired: true),
                     ]);
 
                 var plantModel = InputFactory.Model(
                     "plant",
+                    string.Empty,
                     properties:
                     [
                         InputFactory.Property("type", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),

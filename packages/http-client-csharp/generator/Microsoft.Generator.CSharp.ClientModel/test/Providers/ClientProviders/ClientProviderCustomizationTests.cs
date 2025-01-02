@@ -158,7 +158,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true), isRequired: false)
+                InputFactory.Parameter("p1", InputFactory.Model("myStruct", string.Empty, modelAsStruct: true), isRequired: false)
             ]);
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
