@@ -452,7 +452,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override MethodProvider[] BuildMethods()
         {
-            var subClientCount = _subClients.Value.Count;
+            var subClients = _subClients.Value;
+            var subClientCount = subClients.Count;
             List<MethodProvider> methods = new List<MethodProvider>((_inputClient.Operations.Count * 4) + subClientCount);
 
             // Build methods for all the operations
@@ -474,7 +475,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var parentClientFields = Fields.ToDictionary(f => f.Name.ToVariableName());
 
             // Build factory accessor methods for the sub-clients
-            foreach (var subClient in _subClients.Value)
+            foreach (var subClient in subClients)
             {
                 if (subClient._clientCachingField is null || subClient.Methods.Count == 0)
                 {
