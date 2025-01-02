@@ -250,15 +250,31 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
             },
           );
         }
-      } catch (err) {
-        logger.error(
-          `Exception occurred when generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}.`,
-          [err],
-          {
-            showOutput: true,
-            showPopup: true,
-          },
-        );
+      } catch (err: any) {
+        if (typeof err === "object" && "stdout" in err && "stderr" in err && `error` in err) {
+          const execOutput = err as ExecOutput;
+          const details = [];
+          if (execOutput.stdout !== "") details.push(execOutput.stdout);
+          if (execOutput.stderr !== "") details.push(execOutput.stderr);
+          if (execOutput.error) details.push(execOutput.error);
+          logger.error(
+            `Exception occurred when generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}.`,
+            details,
+            {
+              showOutput: true,
+              showPopup: true,
+            },
+          );
+        } else {
+          logger.error(
+            `Exception occurred when generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}.`,
+            [err],
+            {
+              showOutput: true,
+              showPopup: true,
+            },
+          );
+        }
       }
     },
   );
