@@ -544,7 +544,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             };
         }
 
-        // TODO: Update method to be more efficient
         private IReadOnlyList<ClientProvider> GetSubClients()
         {
             var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
