@@ -189,11 +189,15 @@ async function setupPyodideCall(root: string) {
   const micropipLockPath = path.join(root, "micropip.lock");
   while (true) {
     if (fs.existsSync(micropipLockPath)) {
-      const stats = fs.statSync(micropipLockPath);
-      const now = new Date().getTime();
-      const lockAge = (now - stats.mtime.getTime()) / 1000;
-      if (lockAge > 600) {
-        fs.unlinkSync(micropipLockPath);
+      try {
+        const stats = fs.statSync(micropipLockPath);
+        const now = new Date().getTime();
+        const lockAge = (now - stats.mtime.getTime()) / 1000;
+        if (lockAge > 600) {
+          fs.unlinkSync(micropipLockPath);
+        }
+      } catch (err) {
+        // ignore
       }
     }
     try {
