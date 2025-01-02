@@ -4,7 +4,7 @@
 
 using System;
 
-namespace _Type.Property.Optional.Models
+namespace Type.Property.Optional
 {
     public partial class PlainTimeProperty
     {

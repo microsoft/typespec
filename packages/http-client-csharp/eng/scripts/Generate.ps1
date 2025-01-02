@@ -50,6 +50,7 @@ function IsSpecDir {
 }
 
 $failingSpecs = @(
+    Join-Path 'http' 'client' 'naming' # because of namespace/name collision https://github.com/microsoft/typespec/issues/5471
     Join-Path 'http' 'payload' 'pageable'
     Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'type' 'model' 'flatten'
@@ -57,7 +58,6 @@ $failingSpecs = @(
 )
 
 $azureAllowSpecs = @(
-    Join-Path 'http' 'client' 'naming'
     Join-Path 'http' 'client' 'structure' 'client-operation-group'
     Join-Path 'http' 'client' 'structure' 'default'
     Join-Path 'http' 'client' 'structure' 'multi-client'

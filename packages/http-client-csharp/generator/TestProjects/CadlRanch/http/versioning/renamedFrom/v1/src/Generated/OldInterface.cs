@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.RenamedFrom.V1.Models;
+using Versioning.RenamedFrom;
 
 namespace Versioning.RenamedFrom.V1
 {

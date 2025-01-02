@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Payload.JsonMergePatch.Models
+namespace Payload.JsonMergePatch
 {
     public partial class InnerModel : IJsonModel<InnerModel>
     {

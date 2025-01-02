@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InnerModel",
+   "clientNamespace": "Type.Dictionary",
    "crossLanguageDefinitionId": "Type.Dictionary.InnerModel",
    "usage": "Input,Output,Json",
    "doc": "Dictionary inner model",

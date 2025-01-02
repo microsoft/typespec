@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using Type.Model.Inheritance.Recursive;
 
 namespace _Type.Model.Inheritance.Recursive.Models
 {

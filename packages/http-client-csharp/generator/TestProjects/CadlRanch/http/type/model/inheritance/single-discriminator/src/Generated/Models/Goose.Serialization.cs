@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace _Type.Model.Inheritance.SingleDiscriminator.Models
+namespace Type.Model.Inheritance.SingleDiscriminator
 {
     public partial class Goose : IJsonModel<Goose>
     {

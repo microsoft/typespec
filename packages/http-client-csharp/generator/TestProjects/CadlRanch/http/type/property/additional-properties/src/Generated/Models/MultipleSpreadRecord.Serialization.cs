@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace _Type.Property.AdditionalProperties.Models
+namespace Type.Property.AdditionalProperties
 {
     public partial class MultipleSpreadRecord : IJsonModel<MultipleSpreadRecord>
     {

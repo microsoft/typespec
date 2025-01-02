@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type.Property.Optional.Models;
+using Type.Property.Optional;
 
 namespace _Type.Property.Optional
 {

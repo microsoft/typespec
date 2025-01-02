@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.MadeOptional.V1.Models;
+using Versioning.MadeOptional;
 
 namespace Versioning.MadeOptional.V1
 {

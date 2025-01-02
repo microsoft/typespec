@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace _Type.Model.Visibility.Models
+namespace Type.Model.Visibility
 {
     public partial class VisibilityModel
     {

@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Versioning.Removed.V1.Models
+namespace Versioning.Removed
 {
     public partial class ModelV1
     {

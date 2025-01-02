@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type.Dictionary.Models;
+using Type.Dictionary;
 
 namespace _Type.Dictionary
 {

@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using Versioning.RenamedFrom;
 
 namespace Versioning.RenamedFrom.V1.Models
 {

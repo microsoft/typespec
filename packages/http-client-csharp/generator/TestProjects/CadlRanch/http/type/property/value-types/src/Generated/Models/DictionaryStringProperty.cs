@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace _Type.Property.ValueTypes.Models
+namespace Type.Property.ValueTypes
 {
     public partial class DictionaryStringProperty
     {

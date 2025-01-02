@@ -106,6 +106,7 @@
    "$id": "12",
    "kind": "model",
    "name": "NewModel",
+   "clientNamespace": "Versioning.RenamedFrom",
    "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewModel",
    "usage": "Input,Output,Json",
    "decorators": [],

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace _Type.Property.Nullable.Models
+namespace Type.Property.Nullable
 {
     public partial class InnerModel
     {

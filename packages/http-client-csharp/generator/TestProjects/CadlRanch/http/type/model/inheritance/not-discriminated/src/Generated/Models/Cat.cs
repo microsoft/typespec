@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace _Type.Model.Inheritance.NotDiscriminated.Models
+namespace Type.Model.Inheritance.NotDiscriminated
 {
     public partial class Cat : Pet
     {

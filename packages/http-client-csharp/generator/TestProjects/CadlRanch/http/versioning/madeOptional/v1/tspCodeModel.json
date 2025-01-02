@@ -50,6 +50,7 @@
    "$id": "6",
    "kind": "model",
    "name": "TestModel",
+   "clientNamespace": "Versioning.MadeOptional",
    "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel",
    "usage": "Input,Output,Json",
    "decorators": [],

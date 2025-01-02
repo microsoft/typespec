@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace _Type.Model.Inheritance.NestedDiscriminator.Models
+namespace Type.Model.Inheritance.NestedDiscriminator
 {
     internal partial class UnknownFish : Fish
     {

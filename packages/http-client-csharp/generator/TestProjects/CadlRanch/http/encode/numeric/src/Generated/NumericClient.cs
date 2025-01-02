@@ -15,6 +15,6 @@ namespace Encode.Numeric
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Property GetPropertyClient() => throw null;
+        public virtual Numeric.Property GetPropertyClient() => throw null;
     }
 }

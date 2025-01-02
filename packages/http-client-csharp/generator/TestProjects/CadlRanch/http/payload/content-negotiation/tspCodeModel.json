@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "PngImageAsJson",
+   "clientNamespace": "Payload.ContentNegotiation.DifferentBody",
    "crossLanguageDefinitionId": "Payload.ContentNegotiation.DifferentBody.PngImageAsJson",
    "usage": "Output,Json",
    "decorators": [],

@@ -17,6 +17,6 @@ namespace Payload.ContentNegotiation
 
         public virtual SameBody GetSameBodyClient() => throw null;
 
-        public virtual DifferentBody GetDifferentBodyClient() => throw null;
+        public virtual ContentNegotiation.DifferentBody GetDifferentBodyClient() => throw null;
     }
 }

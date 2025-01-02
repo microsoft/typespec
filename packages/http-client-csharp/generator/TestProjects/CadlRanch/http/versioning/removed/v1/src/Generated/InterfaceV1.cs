@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.Removed.V1.Models;
+using Versioning.Removed;
 
 namespace Versioning.Removed.V1
 {

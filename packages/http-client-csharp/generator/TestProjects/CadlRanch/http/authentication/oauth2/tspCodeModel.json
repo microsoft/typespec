@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InvalidAuth",
+   "clientNamespace": "Authentication.OAuth2",
    "crossLanguageDefinitionId": "Authentication.OAuth2.InvalidAuth",
    "usage": "Error,Json,Exception",
    "decorators": [],

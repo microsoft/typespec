@@ -2,6 +2,8 @@
 
 #nullable disable
 
+using Versioning.TypeChangedFrom;
+
 namespace Versioning.TypeChangedFrom.V2.Models
 {
     public static partial class VersioningTypeChangedFromV2ModelFactory

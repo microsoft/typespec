@@ -87,6 +87,7 @@
    "$id": "10",
    "kind": "model",
    "name": "ModelV1",
+   "clientNamespace": "Versioning.Added",
    "crossLanguageDefinitionId": "Versioning.Added.ModelV1",
    "usage": "Input,Output,Json",
    "decorators": [],

@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace _Type.Property.AdditionalProperties.Models
+namespace Type.Property.AdditionalProperties
 {
     public partial class DifferentSpreadModelDerived : DifferentSpreadModelRecord
     {

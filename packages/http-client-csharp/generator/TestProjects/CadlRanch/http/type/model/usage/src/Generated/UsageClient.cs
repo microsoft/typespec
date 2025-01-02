@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type.Model.Usage.Models;
+using Type.Model.Usage;
 
 namespace _Type.Model.Usage
 {

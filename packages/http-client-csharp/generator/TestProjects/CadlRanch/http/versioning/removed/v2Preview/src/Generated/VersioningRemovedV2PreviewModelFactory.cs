@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using Versioning.Removed;
 
 namespace Versioning.Removed.V2Preview.Models
 {

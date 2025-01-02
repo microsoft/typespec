@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type.Property.ValueTypes.Models;
+using Type.Property.ValueTypes;
 
 namespace _Type.Property.ValueTypes
 {

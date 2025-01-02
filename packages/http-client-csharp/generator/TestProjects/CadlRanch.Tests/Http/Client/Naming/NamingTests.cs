@@ -3,9 +3,10 @@
 
 using System.Threading.Tasks;
 using Client.Naming;
-using Client.Naming.Models;
+using Client.Naming.Model;
+using Client.Naming.Property;
 using NUnit.Framework;
-using ClientModel = Client.Naming.Models.ClientModel;
+using ClientModel = Client.Naming.Model.ClientModel;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Naming
 {
