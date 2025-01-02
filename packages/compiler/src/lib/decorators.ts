@@ -33,6 +33,7 @@ import type {
   WithoutDefaultValuesDecorator,
   WithoutOmittedPropertiesDecorator,
 } from "../../generated-defs/TypeSpec.js";
+import { createJsonToValuesCodeFix } from "../core/compiler-code-fixes/json-to-values.codefix.js";
 import {
   getPropertyType,
   isIntrinsicType,
@@ -40,6 +41,7 @@ import {
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
+  NoTarget,
   Numeric,
   StdTypeName,
   compilerAssert,
@@ -98,6 +100,7 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { mutate } from "../utils/misc.js";
 import { setKey } from "./key.js";
 import { useStateMap, useStateSet } from "./utils.js";
 
@@ -1396,6 +1399,18 @@ function checkExampleValid(
     diagnosticTarget,
   );
   if (!assignable) {
+    // add a codefix to convert json to values , issue #4612
+    for (const diagnostic of diagnostics) {
+      if (
+        diagnostic.severity === "error" &&
+        diagnostic.target !== NoTarget &&
+        diagnostic.code === "missing-property"
+      ) {
+        mutate(diagnostic).codefixes ??= [];
+        mutate(diagnostic.codefixes).push(createJsonToValuesCodeFix(diagnostic.target));
+      }
+    }
+
     program.reportDiagnostics(diagnostics);
   }
   return assignable;
