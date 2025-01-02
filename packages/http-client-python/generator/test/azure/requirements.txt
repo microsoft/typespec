@@ -1,4 +1,4 @@
-setuptools==69.2.0
+setuptools==69.5.1
 -e ../../
 aiohttp;python_full_version>="3.5.2"
 requests==2.32.2
@@ -26,6 +26,7 @@ mypy==1.13.0
 -e ./generated/azure-example-basic
 -e ./generated/azure-resource-manager-common-properties
 -e ./generated/azure-resource-manager-resources
+-e ./generated/azure-payload-pageable
 
 # common test case
 -e ./generated/authentication-api-key

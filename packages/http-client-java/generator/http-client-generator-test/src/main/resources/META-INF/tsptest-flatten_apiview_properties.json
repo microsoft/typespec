@@ -33,14 +33,14 @@
     "tsptest.flatten.implementation.models.SendRequest": "send.Request.anonymous",
     "tsptest.flatten.implementation.models.UploadFileRequest": "uploadFile.Request.anonymous",
     "tsptest.flatten.implementation.models.UploadTodoRequest": "uploadTodo.Request.anonymous",
-    "tsptest.flatten.models.FileDataFileDetails": "null",
-    "tsptest.flatten.models.SendLongOptions": "null",
+    "tsptest.flatten.models.FileDataFileDetails": null,
+    "tsptest.flatten.models.SendLongOptions": null,
     "tsptest.flatten.models.SendLongRequestStatus": "sendLong.Request.status.anonymous",
     "tsptest.flatten.models.TodoItem": "TspTest.Flatten.TodoItem",
     "tsptest.flatten.models.TodoItemPatch": "TspTest.Flatten.TodoItemPatch",
     "tsptest.flatten.models.TodoItemPatchStatus": "TodoItemPatch.status.anonymous",
     "tsptest.flatten.models.UpdatePatchRequest": "update.Request.anonymous",
-    "tsptest.flatten.models.UploadTodoOptions": "null",
+    "tsptest.flatten.models.UploadTodoOptions": null,
     "tsptest.flatten.models.User": "TspTest.Flatten.User"
   }
 }

@@ -14,7 +14,6 @@ import {
   SdkModelType,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
-import { CrossLanguageDefinition } from "./common/client.js";
 import { getNamespace, pascalCase } from "./utils.js";
 
 /*
@@ -36,8 +35,7 @@ export function createResponseErrorSchema(
       },
     },
   });
-  (responseErrorSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
-    "Azure.Core.Foundations.Error";
+  responseErrorSchema.language.default.crossLanguageDefinitionId = "Azure.Core.Foundations.Error";
 
   schemas.add(responseErrorSchema);
   responseErrorSchema.addProperty(
@@ -117,7 +115,7 @@ export function createResponseInnerErrorSchema(
       },
     },
   );
-  (responseInnerErrorSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
+  responseInnerErrorSchema.language.default.crossLanguageDefinitionId =
     "Azure.Core.Foundations.InnerError";
 
   schemas.add(responseInnerErrorSchema);
@@ -341,7 +339,7 @@ export function getFileDetailsSchema(
         fileDetailsSchema.language.default.description = fileSdkType.doc;
       }
       // crossLanguageDefinitionId
-      (fileDetailsSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
+      fileDetailsSchema.language.default.crossLanguageDefinitionId =
         fileSdkType.crossLanguageDefinitionId;
 
       let contentTypeProperty;
