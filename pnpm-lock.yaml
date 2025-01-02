@@ -880,6 +880,9 @@ importers:
       '@readme/openapi-parser':
         specifier: ~2.6.0
         version: 2.6.0(openapi-types@12.1.3)
+      openapi-types:
+        specifier: ~12.1.3
+        version: 12.1.3
       yaml:
         specifier: ~2.5.1
         version: 2.5.1
@@ -896,6 +899,9 @@ importers:
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
+      '@typespec/json-schema':
+        specifier: workspace:~
+        version: link:../json-schema
       '@typespec/library-linter':
         specifier: workspace:~
         version: link:../library-linter

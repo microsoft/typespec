@@ -20,7 +20,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<RequiredAndOptionalProperty> GetAll() => throw null;
+        public virtual ClientResult<RequiredAndOptionalProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> GetRequiredOnlyAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<RequiredAndOptionalProperty> GetRequiredOnly() => throw null;
+        public virtual ClientResult<RequiredAndOptionalProperty> GetRequiredOnly(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetRequiredOnlyAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -36,7 +36,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutAll(RequiredAndOptionalProperty body) => throw null;
+        public virtual ClientResult PutAll(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAllAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -44,7 +44,7 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> PutRequiredOnlyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutRequiredOnly(RequiredAndOptionalProperty body) => throw null;
+        public virtual ClientResult PutRequiredOnly(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutRequiredOnlyAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
     }

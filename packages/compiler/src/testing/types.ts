@@ -41,7 +41,7 @@ export interface TypeSpecTestLibraryInit {
   typespecFileFolder?: string;
 
   /**
-   * JS files folder. @default "dist"
+   * JS files folder. @default "dist/src"
    */
   jsFileFolder?: string;
 }

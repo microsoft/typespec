@@ -26,6 +26,7 @@ import {
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
+import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
@@ -39,11 +40,11 @@ function createWrappedSchemaEmitterClass(
   metadataInfo: MetadataInfo,
   visibilityUsage: VisibilityUsageTracker,
   options: ResolvedOpenAPI3EmitterOptions,
-  xmlModule: XmlModule | undefined,
+  optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
 ): typeof TypeEmitter<Record<string, any>, OpenAPI3EmitterOptions> {
   return class extends OpenAPI31SchemaEmitter {
     constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-      super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
+      super(emitter, metadataInfo, visibilityUsage, options, optionalDependencies);
     }
   };
 }
@@ -55,7 +56,7 @@ export const createSchemaEmitter3_1: CreateSchemaEmitter = ({ program, context, 
       rest.metadataInfo,
       rest.visibilityUsage,
       rest.options,
-      rest.xmlModule,
+      rest.optionalDependencies,
     ),
     context,
   );
@@ -84,6 +85,22 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     target: ObjectBuilder<OpenAPISchema3_1>,
     refSchema?: OpenAPISchema3_1,
   ) {
+    const applyConstraint = (fn: (p: Program, t: Type) => any, key: keyof OpenAPISchema3_1) => {
+      const value = fn(program, type);
+      if (value !== undefined) {
+        target[key] = value;
+      }
+    };
+
+    const applyTypeConstraint = (fn: (p: Program, t: Type) => Type | undefined, key: string) => {
+      const constraintType = fn(this.emitter.getProgram(), type);
+      if (constraintType) {
+        const ref = this.emitter.emitTypeReference(constraintType);
+        compilerAssert(ref.kind === "code", "Unexpected non-code result from emit reference");
+        target.set(key, ref.value);
+      }
+    };
+
     const program = this.emitter.getProgram();
 
     const minValueExclusive = getMinValueExclusive(program, type);
@@ -96,6 +113,26 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     if (maxValueExclusive !== undefined) {
       target.maximum = undefined;
       target.exclusiveMaximum = maxValueExclusive;
+    }
+
+    // apply json schema decorators
+    const jsonSchemaModule = this._jsonSchemaModule;
+    if (jsonSchemaModule) {
+      applyTypeConstraint(jsonSchemaModule.getContains, "contains");
+      applyConstraint(jsonSchemaModule.getMinContains, "minContains");
+      applyConstraint(jsonSchemaModule.getMaxContains, "maxContains");
+      applyConstraint(jsonSchemaModule.getContentEncoding, "contentEncoding");
+      applyConstraint(jsonSchemaModule.getContentMediaType, "contentMediaType");
+      applyTypeConstraint(jsonSchemaModule.getContentSchema, "contentSchema");
+
+      const prefixItems = jsonSchemaModule.getPrefixItems(program, type);
+      if (prefixItems) {
+        const prefixItemsSchema = new ArrayBuilder<Record<string, unknown>>();
+        for (const item of prefixItems.values) {
+          prefixItemsSchema.push(this.emitter.emitTypeReference(item));
+        }
+        target.set("prefixItems", prefixItemsSchema as any);
+      }
     }
 
     this.#applySchemaExamples(program, type, target);
