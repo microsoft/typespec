@@ -9,6 +9,7 @@ export const enum CommandName {
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",
   OpenUrl = "typespec.openUrl",
+  ImportFromOpenApi3 = "typespec.importFromOpenApi3",
 }
 
 export interface InstallGlobalCliCommandArgs {
@@ -28,3 +29,22 @@ export interface RestartServerCommandArgs {
   forceRecreate: boolean;
   popupRecreateLspError: boolean;
 }
+
+export const enum ResultCode {
+  Success = "success",
+  Fail = "fail",
+  Cancelled = "cancelled",
+  Timeout = "timeout",
+}
+
+interface SuccessResult<T = void> {
+  code: ResultCode.Success;
+  value: T;
+  details?: any;
+}
+interface UnsuccessResult {
+  code: ResultCode.Fail | ResultCode.Cancelled | ResultCode.Timeout;
+  details?: any;
+}
+
+export type Result<T = void> = SuccessResult<T> | UnsuccessResult;
