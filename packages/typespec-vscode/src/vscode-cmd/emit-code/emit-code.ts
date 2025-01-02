@@ -116,7 +116,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
               const packageFullName = `${dep.name}@${version ?? "latest"}`;
               packageQuickPickItems.push({
                 label: `${dep.name}`,
-                detail: `Upgrade Dependency ${dep.name}.`,
+                detail: "Required for enabling the emitter library.",
                 packageFullName: packageFullName,
                 picked: true,
               });
