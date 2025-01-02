@@ -14,6 +14,7 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Utilities;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
@@ -71,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
-                FormattableStringHelpers.FromString(Operation.Description),
+                DocHelpers.GetFormattableDescription(Operation.Summary, Operation.Doc) ?? FormattableStringHelpers.FromString(Operation.Name),
                 methodModifier,
                 GetResponseType(Operation.Responses, true, isAsync, out var responseBodyType),
                 null,
@@ -421,7 +422,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             var methodSignature = new MethodSignature(
                 isAsync ? _cleanOperationName + "Async" : _cleanOperationName,
-                FormattableStringHelpers.FromString(Operation.Description),
+                DocHelpers.GetFormattableDescription(Operation.Summary, Operation.Doc) ?? FormattableStringHelpers.FromString(Operation.Name),
                 methodModifier,
                 GetResponseType(Operation.Responses, false, isAsync, out _),
                 $"The response returned from the service.",
@@ -447,7 +448,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     new XmlDocStatement("item", [], new XmlDocStatement("description", [$"This <see href=\"https://aka.ms/azsdk/net/protocol-methods\">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios."]))
                 ];
                 XmlDocStatement listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: [.. listItems]);
-                protocolMethod.XmlDocs!.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {Operation.Description}"], listXmlDoc);
+                protocolMethod.XmlDocs!.Summary = new XmlDocSummaryStatement([$"[Protocol Method] {DocHelpers.GetDescription(Operation.Summary, Operation.Doc) ?? Operation.Name}"], listXmlDoc);
             }
             return protocolMethod;
         }

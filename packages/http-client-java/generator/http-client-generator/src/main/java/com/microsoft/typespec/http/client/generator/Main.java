@@ -162,7 +162,7 @@ public class Main {
         }
 
         boolean includeApiViewProperties
-            = emitterOptions.includeApiViewProperties() != null && emitterOptions.includeApiViewProperties();
+            = emitterOptions.getIncludeApiViewProperties() != null && emitterOptions.getIncludeApiViewProperties();
         if (includeApiViewProperties && !CoreUtils.isNullOrEmpty(typeSpecPlugin.getCrossLanguageDefinitionMap())) {
             String flavor = emitterOptions.getFlavor() == null ? "azure" : emitterOptions.getFlavor();
             StringBuilder sb
@@ -174,7 +174,12 @@ public class Main {
                 } else {
                     sb.append(",\n");
                 }
-                sb.append("    \"").append(key).append("\": \"").append(value).append("\"");
+                sb.append("    \"").append(key).append("\": ");
+                if (value == null) {
+                    sb.append("null");
+                } else {
+                    sb.append("\"").append(value).append("\"");
+                }
             });
             sb.append("\n  }\n}\n");
 
