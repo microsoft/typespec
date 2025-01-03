@@ -7,6 +7,7 @@ import {
   getDirectoryPath,
   joinPaths,
   logDiagnostics,
+  NoTarget,
   Program,
   resolvePath,
 } from "@typespec/compiler";
@@ -18,6 +19,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
+import { reportDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
@@ -150,25 +152,40 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(existingProjectOption)}${constructCommandArg(debugFlag)}`;
         Logger.getInstance().info(command);
 
-        const result = await execAsync(
-          "dotnet",
-          [
-            "--roll-forward",
-            "Major",
-            generatorPath,
-            outputFolder,
-            "-p",
-            options["plugin-name"],
-            newProjectOption,
-            existingProjectOption,
-            debugFlag,
-          ],
-          { stdio: "inherit" },
-        );
-        if (result.exitCode !== 0) {
-          if (result.stderr) Logger.getInstance().error(result.stderr);
-          if (result.stdout) Logger.getInstance().verbose(result.stdout);
-          throw new Error(`Failed to generate SDK. Exit code: ${result.exitCode}`);
+        try {
+          const result = await execAsync(
+            "dotnet",
+            [
+              "--roll-forward",
+              "Major",
+              generatorPath,
+              outputFolder,
+              "-p",
+              options["plugin-name"],
+              newProjectOption,
+              existingProjectOption,
+              debugFlag,
+            ],
+            { stdio: "inherit" },
+          );
+          if (result.exitCode !== 0) {
+            if (result.stderr) Logger.getInstance().error(result.stderr);
+            if (result.stdout) Logger.getInstance().verbose(result.stdout);
+            throw new Error(`Failed to generate SDK. Exit code: ${result.exitCode}`);
+          }
+        } catch (error: any) {
+          if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
+            reportDiagnostic(sdkContext.program, {
+              code: "dependency-runtime-missing",
+              format: {
+                dotnetMajorVersion: "8",
+                downloadUrl: "https://dotnet.microsoft.com/en-us/download",
+              },
+              target: NoTarget,
+            });
+          } else {
+            throw new Error(error);
+          }
         }
         if (!options["save-inputs"]) {
           // delete
