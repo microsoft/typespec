@@ -3,7 +3,6 @@ import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
 import { join } from "path";
 import { fileURLToPath } from "url";
-import { inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   ApplyWorkspaceEditParams,
@@ -51,7 +50,8 @@ function main() {
       let detail: string | undefined = undefined;
       let fullMessage = message;
       if (log.detail) {
-        detail = typeof log.detail === "string" ? log.detail : inspect(log.detail, undefined, 2);
+        detail =
+          typeof log.detail === "string" ? log.detail : JSON.stringify(log.detail, undefined, 2);
         fullMessage = `${message}:\n${detail}`;
       }
 
