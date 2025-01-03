@@ -43,6 +43,13 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`Dotnet is not found in PATH. Please install DotNet ${"dotnetMajorVersion"} or above. Dotnet can be downloaded from ${"downloadUrl"}"`,
       },
     },
+    "no-root-client": {
+      severity: "error",
+      messages: {
+        default:
+          "Cannot generate CSharp SDK since no public root client is defined in typespec file.",
+      },
+    },
   },
   emitter: {
     options: NetEmitterOptionsSchema,
