@@ -176,7 +176,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         } catch (error: any) {
           if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
             reportDiagnostic(sdkContext.program, {
-              code: "dependency-runtime-missing",
+              code: "runtime-dependency-missing",
               format: {
                 dotnetMajorVersion: "8",
                 downloadUrl: "https://dotnet.microsoft.com/en-us/download",
