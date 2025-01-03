@@ -1,39 +1,28 @@
+import { CharCode } from "../charcode.js";
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
-import { CodeFixEdit, DiagnosticTarget, ObjectLiteralNode, SyntaxKind, Type } from "../types.js";
+import { DiagnosticTarget } from "../types.js";
 
-export function createJsonToValuesCodeFix(diagnosticTarget: DiagnosticTarget | Node) {
+export function createJsonToValuesCodeFix(node: DiagnosticTarget) {
   return defineCodeFix({
     id: "json-to-values",
     label: `Convert json to values`,
     fix: (context) => {
-      const result: CodeFixEdit[] = [];
-
-      if (
-        "kind" in diagnosticTarget &&
-        typeof diagnosticTarget.kind === "number" &&
-        diagnosticTarget.kind === SyntaxKind.ObjectLiteral &&
-        diagnosticTarget.properties.length === 2
-      ) {
-        // Test use
-        createCodeFix(diagnosticTarget);
-      } else {
-        // Actual use
-        const targetNode = (diagnosticTarget as Type).node;
-        if (targetNode?.kind === SyntaxKind.ObjectLiteral && targetNode.properties.length === 2) {
-          createCodeFix(targetNode);
+      const location = getSourceLocation(node);
+      const text = location.file.text;
+      let pos = location.pos;
+      const end = location.end;
+      const range: number[] = [];
+      while (pos < end) {
+        if (text.charCodeAt(pos) === CharCode.DoubleQuote) {
+          range.push(pos);
         }
+        if (range.length === 2) {
+          break;
+        }
+        pos++;
       }
-
-      return result;
-
-      function createCodeFix(node: ObjectLiteralNode) {
-        const firstNode = node.properties[0];
-        const lastNode = node.properties[1];
-        const location = getSourceLocation(firstNode);
-
-        const newText = location.file.text.slice(location.pos + 1, lastNode.pos - 1);
-        result.push(context.replaceText(location, newText));
-      }
+      const replaceText = text.slice(range[0] + 1, range[1]);
+      return context.replaceText({ ...location, pos: range[0], end: range[1] + 1 }, replaceText);
     },
   });
 }
