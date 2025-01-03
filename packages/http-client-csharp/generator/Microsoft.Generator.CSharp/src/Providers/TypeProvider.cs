@@ -123,11 +123,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private TypeSignatureModifiers? _declarationModifiers;
 
-        public TypeSignatureModifiers DeclarationModifiers
-        {
-            get => _declarationModifiers ??= GetDeclarationModifiersInternal();
-            private set => _declarationModifiers = value;
-        }
+        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= GetDeclarationModifiersInternal();
 
         protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
 
@@ -332,7 +328,9 @@ namespace Microsoft.Generator.CSharp.Providers
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
-            XmlDocProvider? xmlDocs = null)
+            XmlDocProvider? xmlDocs = null,
+            TypeSignatureModifiers? modifiers = null,
+            string? relativeFilePath = null)
         {
             if (methods != null)
             {
@@ -361,6 +359,14 @@ namespace Microsoft.Generator.CSharp.Providers
             if (xmlDocs != null)
             {
                 XmlDocs = xmlDocs;
+            }
+            if (modifiers != null)
+            {
+                _declarationModifiers = modifiers;
+            }
+            if (relativeFilePath != null)
+            {
+                _relativeFilePath = relativeFilePath;
             }
         }
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
