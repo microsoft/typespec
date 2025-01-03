@@ -385,6 +385,7 @@ namespace Microsoft.Generator.CSharp
             return document.Project;
         }
 
+        // TODO -- here we should add the customization project in here as well otherwise this post processor will not know the existence of the customization code.
         private async Task<HashSet<INamedTypeSymbol>> GetRootSymbolsAsync(Project project, TypeSymbols modelSymbols)
         {
             var result = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
