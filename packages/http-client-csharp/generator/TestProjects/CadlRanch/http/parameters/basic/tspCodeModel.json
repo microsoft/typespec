@@ -116,6 +116,7 @@
      "$id": "15",
      "Name": "simple",
      "ResourceName": "ExplicitBody",
+     "OperationId": "ExplicitBody_simple",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -236,6 +237,7 @@
      "$id": "27",
      "Name": "simple",
      "ResourceName": "ImplicitBody",
+     "OperationId": "ImplicitBody_simple",
      "Accessibility": "public",
      "Parameters": [
       {

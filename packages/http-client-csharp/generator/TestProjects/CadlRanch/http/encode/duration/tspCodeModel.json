@@ -301,6 +301,7 @@
      "$id": "36",
      "Name": "default",
      "ResourceName": "Query",
+     "OperationId": "Query_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -358,6 +359,7 @@
      "$id": "41",
      "Name": "iso8601",
      "ResourceName": "Query",
+     "OperationId": "Query_iso8601",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -415,6 +417,7 @@
      "$id": "46",
      "Name": "int32Seconds",
      "ResourceName": "Query",
+     "OperationId": "Query_int32Seconds",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -472,6 +475,7 @@
      "$id": "51",
      "Name": "floatSeconds",
      "ResourceName": "Query",
+     "OperationId": "Query_floatSeconds",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -529,6 +533,7 @@
      "$id": "56",
      "Name": "float64Seconds",
      "ResourceName": "Query",
+     "OperationId": "Query_float64Seconds",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -586,6 +591,7 @@
      "$id": "61",
      "Name": "int32SecondsArray",
      "ResourceName": "Query",
+     "OperationId": "Query_int32SecondsArray",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -710,6 +716,7 @@
      "$id": "75",
      "Name": "default",
      "ResourceName": "Property",
+     "OperationId": "Property_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -819,6 +826,7 @@
      "$id": "84",
      "Name": "iso8601",
      "ResourceName": "Property",
+     "OperationId": "Property_iso8601",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -928,6 +936,7 @@
      "$id": "93",
      "Name": "int32Seconds",
      "ResourceName": "Property",
+     "OperationId": "Property_int32Seconds",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1037,6 +1046,7 @@
      "$id": "102",
      "Name": "floatSeconds",
      "ResourceName": "Property",
+     "OperationId": "Property_floatSeconds",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1146,6 +1156,7 @@
      "$id": "111",
      "Name": "float64Seconds",
      "ResourceName": "Property",
+     "OperationId": "Property_float64Seconds",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1255,6 +1266,7 @@
      "$id": "120",
      "Name": "floatSecondsArray",
      "ResourceName": "Property",
+     "OperationId": "Property_floatSecondsArray",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1408,6 +1420,7 @@
      "$id": "135",
      "Name": "default",
      "ResourceName": "Header",
+     "OperationId": "Header_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1465,6 +1478,7 @@
      "$id": "140",
      "Name": "iso8601",
      "ResourceName": "Header",
+     "OperationId": "Header_iso8601",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1522,6 +1536,7 @@
      "$id": "145",
      "Name": "iso8601Array",
      "ResourceName": "Header",
+     "OperationId": "Header_iso8601Array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1602,6 +1617,7 @@
      "$id": "153",
      "Name": "int32Seconds",
      "ResourceName": "Header",
+     "OperationId": "Header_int32Seconds",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1659,6 +1675,7 @@
      "$id": "158",
      "Name": "floatSeconds",
      "ResourceName": "Header",
+     "OperationId": "Header_floatSeconds",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1716,6 +1733,7 @@
      "$id": "163",
      "Name": "float64Seconds",
      "ResourceName": "Header",
+     "OperationId": "Header_float64Seconds",
      "Accessibility": "public",
      "Parameters": [
       {

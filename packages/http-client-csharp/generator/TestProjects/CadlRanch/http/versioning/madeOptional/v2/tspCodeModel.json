@@ -123,6 +123,7 @@
      "$id": "14",
      "Name": "test",
      "ResourceName": "MadeOptional",
+     "OperationId": "test",
      "Accessibility": "public",
      "Parameters": [
       {

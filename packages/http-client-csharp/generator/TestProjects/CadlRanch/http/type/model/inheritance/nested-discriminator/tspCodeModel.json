@@ -332,6 +332,7 @@
      "$id": "34",
      "Name": "getModel",
      "ResourceName": "NestedDiscriminator",
+     "OperationId": "getModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -393,6 +394,7 @@
      "$id": "39",
      "Name": "putModel",
      "ResourceName": "NestedDiscriminator",
+     "OperationId": "putModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -469,6 +471,7 @@
      "$id": "45",
      "Name": "getRecursiveModel",
      "ResourceName": "NestedDiscriminator",
+     "OperationId": "getRecursiveModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -530,6 +533,7 @@
      "$id": "50",
      "Name": "putRecursiveModel",
      "ResourceName": "NestedDiscriminator",
+     "OperationId": "putRecursiveModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -606,6 +610,7 @@
      "$id": "56",
      "Name": "getMissingDiscriminator",
      "ResourceName": "NestedDiscriminator",
+     "OperationId": "getMissingDiscriminator",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -667,6 +672,7 @@
      "$id": "61",
      "Name": "getWrongDiscriminator",
      "ResourceName": "NestedDiscriminator",
+     "OperationId": "getWrongDiscriminator",
      "Accessibility": "public",
      "Parameters": [
       {
