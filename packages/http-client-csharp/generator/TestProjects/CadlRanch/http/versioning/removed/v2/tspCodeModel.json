@@ -305,6 +305,7 @@
      "$id": "33",
      "Name": "v2",
      "ResourceName": "Removed",
+     "OperationId": "v2",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -414,6 +415,7 @@
      "$id": "42",
      "Name": "modelV3",
      "ResourceName": "Removed",
+     "OperationId": "modelV3",
      "Doc": "This operation will pass different paths and different request bodies based on different versions.",
      "Accessibility": "public",
      "Parameters": [

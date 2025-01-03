@@ -74,6 +74,7 @@
      "$id": "9",
      "Name": "withoutApiVersion",
      "ResourceName": "Versioned",
+     "OperationId": "withoutApiVersion",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -101,6 +102,7 @@
      "$id": "11",
      "Name": "withQueryApiVersion",
      "ResourceName": "Versioned",
+     "OperationId": "withQueryApiVersion",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -160,6 +162,7 @@
      "$id": "17",
      "Name": "withPathApiVersion",
      "ResourceName": "Versioned",
+     "OperationId": "withPathApiVersion",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -219,6 +222,7 @@
      "$id": "23",
      "Name": "withQueryOldApiVersion",
      "ResourceName": "Versioned",
+     "OperationId": "withQueryOldApiVersion",
      "Accessibility": "public",
      "Parameters": [
       {

@@ -860,6 +860,7 @@
      "$id": "87",
      "Name": "getAll",
      "ResourceName": "String",
+     "OperationId": "String_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -922,6 +923,7 @@
      "$id": "92",
      "Name": "getDefault",
      "ResourceName": "String",
+     "OperationId": "String_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -984,6 +986,7 @@
      "$id": "97",
      "Name": "putAll",
      "ResourceName": "String",
+     "OperationId": "String_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -1061,6 +1064,7 @@
      "$id": "103",
      "Name": "putDefault",
      "ResourceName": "String",
+     "OperationId": "String_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -1182,6 +1186,7 @@
      "$id": "115",
      "Name": "getAll",
      "ResourceName": "Bytes",
+     "OperationId": "Bytes_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -1244,6 +1249,7 @@
      "$id": "120",
      "Name": "getDefault",
      "ResourceName": "Bytes",
+     "OperationId": "Bytes_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -1306,6 +1312,7 @@
      "$id": "125",
      "Name": "putAll",
      "ResourceName": "Bytes",
+     "OperationId": "Bytes_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -1383,6 +1390,7 @@
      "$id": "131",
      "Name": "putDefault",
      "ResourceName": "Bytes",
+     "OperationId": "Bytes_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -1504,6 +1512,7 @@
      "$id": "143",
      "Name": "getAll",
      "ResourceName": "Datetime",
+     "OperationId": "Datetime_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -1566,6 +1575,7 @@
      "$id": "148",
      "Name": "getDefault",
      "ResourceName": "Datetime",
+     "OperationId": "Datetime_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -1628,6 +1638,7 @@
      "$id": "153",
      "Name": "putAll",
      "ResourceName": "Datetime",
+     "OperationId": "Datetime_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -1705,6 +1716,7 @@
      "$id": "159",
      "Name": "putDefault",
      "ResourceName": "Datetime",
+     "OperationId": "Datetime_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -1826,6 +1838,7 @@
      "$id": "171",
      "Name": "getAll",
      "ResourceName": "Duration",
+     "OperationId": "Duration_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -1888,6 +1901,7 @@
      "$id": "176",
      "Name": "getDefault",
      "ResourceName": "Duration",
+     "OperationId": "Duration_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -1950,6 +1964,7 @@
      "$id": "181",
      "Name": "putAll",
      "ResourceName": "Duration",
+     "OperationId": "Duration_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -2027,6 +2042,7 @@
      "$id": "187",
      "Name": "putDefault",
      "ResourceName": "Duration",
+     "OperationId": "Duration_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -2148,6 +2164,7 @@
      "$id": "199",
      "Name": "getAll",
      "ResourceName": "PlainDate",
+     "OperationId": "PlainDate_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -2210,6 +2227,7 @@
      "$id": "204",
      "Name": "getDefault",
      "ResourceName": "PlainDate",
+     "OperationId": "PlainDate_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -2272,6 +2290,7 @@
      "$id": "209",
      "Name": "putAll",
      "ResourceName": "PlainDate",
+     "OperationId": "PlainDate_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -2349,6 +2368,7 @@
      "$id": "215",
      "Name": "putDefault",
      "ResourceName": "PlainDate",
+     "OperationId": "PlainDate_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -2470,6 +2490,7 @@
      "$id": "227",
      "Name": "getAll",
      "ResourceName": "PlainTime",
+     "OperationId": "PlainTime_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -2532,6 +2553,7 @@
      "$id": "232",
      "Name": "getDefault",
      "ResourceName": "PlainTime",
+     "OperationId": "PlainTime_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -2594,6 +2616,7 @@
      "$id": "237",
      "Name": "putAll",
      "ResourceName": "PlainTime",
+     "OperationId": "PlainTime_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -2671,6 +2694,7 @@
      "$id": "243",
      "Name": "putDefault",
      "ResourceName": "PlainTime",
+     "OperationId": "PlainTime_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -2792,6 +2816,7 @@
      "$id": "255",
      "Name": "getAll",
      "ResourceName": "CollectionsByte",
+     "OperationId": "CollectionsByte_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -2854,6 +2879,7 @@
      "$id": "260",
      "Name": "getDefault",
      "ResourceName": "CollectionsByte",
+     "OperationId": "CollectionsByte_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -2916,6 +2942,7 @@
      "$id": "265",
      "Name": "putAll",
      "ResourceName": "CollectionsByte",
+     "OperationId": "CollectionsByte_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -2993,6 +3020,7 @@
      "$id": "271",
      "Name": "putDefault",
      "ResourceName": "CollectionsByte",
+     "OperationId": "CollectionsByte_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -3114,6 +3142,7 @@
      "$id": "283",
      "Name": "getAll",
      "ResourceName": "CollectionsModel",
+     "OperationId": "CollectionsModel_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -3176,6 +3205,7 @@
      "$id": "288",
      "Name": "getDefault",
      "ResourceName": "CollectionsModel",
+     "OperationId": "CollectionsModel_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -3238,6 +3268,7 @@
      "$id": "293",
      "Name": "putAll",
      "ResourceName": "CollectionsModel",
+     "OperationId": "CollectionsModel_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -3315,6 +3346,7 @@
      "$id": "299",
      "Name": "putDefault",
      "ResourceName": "CollectionsModel",
+     "OperationId": "CollectionsModel_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -3436,6 +3468,7 @@
      "$id": "311",
      "Name": "getAll",
      "ResourceName": "StringLiteral",
+     "OperationId": "StringLiteral_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -3498,6 +3531,7 @@
      "$id": "316",
      "Name": "getDefault",
      "ResourceName": "StringLiteral",
+     "OperationId": "StringLiteral_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -3560,6 +3594,7 @@
      "$id": "321",
      "Name": "putAll",
      "ResourceName": "StringLiteral",
+     "OperationId": "StringLiteral_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -3637,6 +3672,7 @@
      "$id": "327",
      "Name": "putDefault",
      "ResourceName": "StringLiteral",
+     "OperationId": "StringLiteral_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -3758,6 +3794,7 @@
      "$id": "339",
      "Name": "getAll",
      "ResourceName": "IntLiteral",
+     "OperationId": "IntLiteral_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -3820,6 +3857,7 @@
      "$id": "344",
      "Name": "getDefault",
      "ResourceName": "IntLiteral",
+     "OperationId": "IntLiteral_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -3882,6 +3920,7 @@
      "$id": "349",
      "Name": "putAll",
      "ResourceName": "IntLiteral",
+     "OperationId": "IntLiteral_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -3959,6 +3998,7 @@
      "$id": "355",
      "Name": "putDefault",
      "ResourceName": "IntLiteral",
+     "OperationId": "IntLiteral_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -4080,6 +4120,7 @@
      "$id": "367",
      "Name": "getAll",
      "ResourceName": "FloatLiteral",
+     "OperationId": "FloatLiteral_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -4142,6 +4183,7 @@
      "$id": "372",
      "Name": "getDefault",
      "ResourceName": "FloatLiteral",
+     "OperationId": "FloatLiteral_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -4204,6 +4246,7 @@
      "$id": "377",
      "Name": "putAll",
      "ResourceName": "FloatLiteral",
+     "OperationId": "FloatLiteral_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -4281,6 +4324,7 @@
      "$id": "383",
      "Name": "putDefault",
      "ResourceName": "FloatLiteral",
+     "OperationId": "FloatLiteral_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -4402,6 +4446,7 @@
      "$id": "395",
      "Name": "getAll",
      "ResourceName": "BooleanLiteral",
+     "OperationId": "BooleanLiteral_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -4464,6 +4509,7 @@
      "$id": "400",
      "Name": "getDefault",
      "ResourceName": "BooleanLiteral",
+     "OperationId": "BooleanLiteral_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -4526,6 +4572,7 @@
      "$id": "405",
      "Name": "putAll",
      "ResourceName": "BooleanLiteral",
+     "OperationId": "BooleanLiteral_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -4603,6 +4650,7 @@
      "$id": "411",
      "Name": "putDefault",
      "ResourceName": "BooleanLiteral",
+     "OperationId": "BooleanLiteral_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -4724,6 +4772,7 @@
      "$id": "423",
      "Name": "getAll",
      "ResourceName": "UnionStringLiteral",
+     "OperationId": "UnionStringLiteral_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -4786,6 +4835,7 @@
      "$id": "428",
      "Name": "getDefault",
      "ResourceName": "UnionStringLiteral",
+     "OperationId": "UnionStringLiteral_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -4848,6 +4898,7 @@
      "$id": "433",
      "Name": "putAll",
      "ResourceName": "UnionStringLiteral",
+     "OperationId": "UnionStringLiteral_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -4925,6 +4976,7 @@
      "$id": "439",
      "Name": "putDefault",
      "ResourceName": "UnionStringLiteral",
+     "OperationId": "UnionStringLiteral_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -5046,6 +5098,7 @@
      "$id": "451",
      "Name": "getAll",
      "ResourceName": "UnionIntLiteral",
+     "OperationId": "UnionIntLiteral_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -5108,6 +5161,7 @@
      "$id": "456",
      "Name": "getDefault",
      "ResourceName": "UnionIntLiteral",
+     "OperationId": "UnionIntLiteral_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -5170,6 +5224,7 @@
      "$id": "461",
      "Name": "putAll",
      "ResourceName": "UnionIntLiteral",
+     "OperationId": "UnionIntLiteral_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -5247,6 +5302,7 @@
      "$id": "467",
      "Name": "putDefault",
      "ResourceName": "UnionIntLiteral",
+     "OperationId": "UnionIntLiteral_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -5368,6 +5424,7 @@
      "$id": "479",
      "Name": "getAll",
      "ResourceName": "UnionFloatLiteral",
+     "OperationId": "UnionFloatLiteral_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -5430,6 +5487,7 @@
      "$id": "484",
      "Name": "getDefault",
      "ResourceName": "UnionFloatLiteral",
+     "OperationId": "UnionFloatLiteral_getDefault",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -5492,6 +5550,7 @@
      "$id": "489",
      "Name": "putAll",
      "ResourceName": "UnionFloatLiteral",
+     "OperationId": "UnionFloatLiteral_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -5569,6 +5628,7 @@
      "$id": "495",
      "Name": "putDefault",
      "ResourceName": "UnionFloatLiteral",
+     "OperationId": "UnionFloatLiteral_putDefault",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -5691,6 +5751,7 @@
      "$id": "507",
      "Name": "getAll",
      "ResourceName": "RequiredAndOptional",
+     "OperationId": "RequiredAndOptional_getAll",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -5753,6 +5814,7 @@
      "$id": "512",
      "Name": "getRequiredOnly",
      "ResourceName": "RequiredAndOptional",
+     "OperationId": "RequiredAndOptional_getRequiredOnly",
      "Doc": "Get models that will return only the required properties",
      "Accessibility": "public",
      "Parameters": [
@@ -5815,6 +5877,7 @@
      "$id": "517",
      "Name": "putAll",
      "ResourceName": "RequiredAndOptional",
+     "OperationId": "RequiredAndOptional_putAll",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -5892,6 +5955,7 @@
      "$id": "523",
      "Name": "putRequiredOnly",
      "ResourceName": "RequiredAndOptional",
+     "OperationId": "RequiredAndOptional_putRequiredOnly",
      "Doc": "Put a body with only required properties.",
      "Accessibility": "public",
      "Parameters": [

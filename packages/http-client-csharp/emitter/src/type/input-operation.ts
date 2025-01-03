@@ -19,6 +19,7 @@ export interface Paging {
 export interface InputOperation {
   Name: string;
   ResourceName?: string;
+  OperationId: string;
   Summary?: string;
   Deprecated?: string;
   Doc?: string;

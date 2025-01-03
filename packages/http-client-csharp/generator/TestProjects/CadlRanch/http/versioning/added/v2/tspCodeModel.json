@@ -327,6 +327,7 @@
      "$id": "36",
      "Name": "v1",
      "ResourceName": "Added",
+     "OperationId": "v1",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -457,6 +458,7 @@
      "$id": "47",
      "Name": "v2",
      "ResourceName": "Added",
+     "OperationId": "v2",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -617,6 +619,7 @@
      "$id": "61",
      "Name": "v2InInterface",
      "ResourceName": "InterfaceV2",
+     "OperationId": "InterfaceV2_v2InInterface",
      "Accessibility": "public",
      "Parameters": [
       {

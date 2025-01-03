@@ -87,6 +87,7 @@
      "$id": "12",
      "Name": "getAvatarAsPng",
      "ResourceName": "SameBody",
+     "OperationId": "SameBody_getAvatarAsPng",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -171,6 +172,7 @@
      "$id": "21",
      "Name": "getAvatarAsJpeg",
      "ResourceName": "SameBody",
+     "OperationId": "SameBody_getAvatarAsJpeg",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -299,6 +301,7 @@
      "$id": "36",
      "Name": "getAvatarAsPng",
      "ResourceName": "DifferentBody",
+     "OperationId": "DifferentBody_getAvatarAsPng",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -383,6 +386,7 @@
      "$id": "45",
      "Name": "getAvatarAsJson",
      "ResourceName": "DifferentBody",
+     "OperationId": "DifferentBody_getAvatarAsJson",
      "Accessibility": "public",
      "Parameters": [
       {

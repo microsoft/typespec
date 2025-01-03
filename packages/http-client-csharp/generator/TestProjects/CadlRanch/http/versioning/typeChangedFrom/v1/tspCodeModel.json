@@ -104,6 +104,7 @@
      "$id": "12",
      "Name": "test",
      "ResourceName": "TypeChangedFrom",
+     "OperationId": "test",
      "Accessibility": "public",
      "Parameters": [
       {

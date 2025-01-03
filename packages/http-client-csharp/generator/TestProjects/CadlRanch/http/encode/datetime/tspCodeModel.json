@@ -264,6 +264,7 @@
      "$id": "32",
      "Name": "default",
      "ResourceName": "Query",
+     "OperationId": "Query_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -321,6 +322,7 @@
      "$id": "37",
      "Name": "rfc3339",
      "ResourceName": "Query",
+     "OperationId": "Query_rfc3339",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -378,6 +380,7 @@
      "$id": "42",
      "Name": "rfc7231",
      "ResourceName": "Query",
+     "OperationId": "Query_rfc7231",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -435,6 +438,7 @@
      "$id": "47",
      "Name": "unixTimestamp",
      "ResourceName": "Query",
+     "OperationId": "Query_unixTimestamp",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -492,6 +496,7 @@
      "$id": "52",
      "Name": "unixTimestampArray",
      "ResourceName": "Query",
+     "OperationId": "Query_unixTimestampArray",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -616,6 +621,7 @@
      "$id": "66",
      "Name": "default",
      "ResourceName": "Property",
+     "OperationId": "Property_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -725,6 +731,7 @@
      "$id": "75",
      "Name": "rfc3339",
      "ResourceName": "Property",
+     "OperationId": "Property_rfc3339",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -834,6 +841,7 @@
      "$id": "84",
      "Name": "rfc7231",
      "ResourceName": "Property",
+     "OperationId": "Property_rfc7231",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -943,6 +951,7 @@
      "$id": "93",
      "Name": "unixTimestamp",
      "ResourceName": "Property",
+     "OperationId": "Property_unixTimestamp",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1052,6 +1061,7 @@
      "$id": "102",
      "Name": "unixTimestampArray",
      "ResourceName": "Property",
+     "OperationId": "Property_unixTimestampArray",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1205,6 +1215,7 @@
      "$id": "117",
      "Name": "default",
      "ResourceName": "Header",
+     "OperationId": "Header_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1262,6 +1273,7 @@
      "$id": "122",
      "Name": "rfc3339",
      "ResourceName": "Header",
+     "OperationId": "Header_rfc3339",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1319,6 +1331,7 @@
      "$id": "127",
      "Name": "rfc7231",
      "ResourceName": "Header",
+     "OperationId": "Header_rfc7231",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1376,6 +1389,7 @@
      "$id": "132",
      "Name": "unixTimestamp",
      "ResourceName": "Header",
+     "OperationId": "Header_unixTimestamp",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1433,6 +1447,7 @@
      "$id": "137",
      "Name": "unixTimestampArray",
      "ResourceName": "Header",
+     "OperationId": "Header_unixTimestampArray",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1557,6 +1572,7 @@
      "$id": "151",
      "Name": "default",
      "ResourceName": "ResponseHeader",
+     "OperationId": "ResponseHeader_default",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -1605,6 +1621,7 @@
      "$id": "156",
      "Name": "rfc3339",
      "ResourceName": "ResponseHeader",
+     "OperationId": "ResponseHeader_rfc3339",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -1653,6 +1670,7 @@
      "$id": "161",
      "Name": "rfc7231",
      "ResourceName": "ResponseHeader",
+     "OperationId": "ResponseHeader_rfc7231",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -1701,6 +1719,7 @@
      "$id": "166",
      "Name": "unixTimestamp",
      "ResourceName": "ResponseHeader",
+     "OperationId": "ResponseHeader_unixTimestamp",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [

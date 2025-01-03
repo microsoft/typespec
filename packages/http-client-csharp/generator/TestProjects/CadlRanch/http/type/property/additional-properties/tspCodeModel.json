@@ -1871,6 +1871,7 @@
      "$id": "185",
      "Name": "get",
      "ResourceName": "ExtendsUnknown",
+     "OperationId": "ExtendsUnknown_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -1933,6 +1934,7 @@
      "$id": "190",
      "Name": "put",
      "ResourceName": "ExtendsUnknown",
+     "OperationId": "ExtendsUnknown_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -2055,6 +2057,7 @@
      "$id": "202",
      "Name": "get",
      "ResourceName": "ExtendsUnknownDerived",
+     "OperationId": "ExtendsUnknownDerived_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -2117,6 +2120,7 @@
      "$id": "207",
      "Name": "put",
      "ResourceName": "ExtendsUnknownDerived",
+     "OperationId": "ExtendsUnknownDerived_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -2239,6 +2243,7 @@
      "$id": "219",
      "Name": "get",
      "ResourceName": "ExtendsUnknownDiscriminated",
+     "OperationId": "ExtendsUnknownDiscriminated_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -2301,6 +2306,7 @@
      "$id": "224",
      "Name": "put",
      "ResourceName": "ExtendsUnknownDiscriminated",
+     "OperationId": "ExtendsUnknownDiscriminated_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -2423,6 +2429,7 @@
      "$id": "236",
      "Name": "get",
      "ResourceName": "IsUnknown",
+     "OperationId": "IsUnknown_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -2485,6 +2492,7 @@
      "$id": "241",
      "Name": "put",
      "ResourceName": "IsUnknown",
+     "OperationId": "IsUnknown_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -2607,6 +2615,7 @@
      "$id": "253",
      "Name": "get",
      "ResourceName": "IsUnknownDerived",
+     "OperationId": "IsUnknownDerived_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -2669,6 +2678,7 @@
      "$id": "258",
      "Name": "put",
      "ResourceName": "IsUnknownDerived",
+     "OperationId": "IsUnknownDerived_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -2791,6 +2801,7 @@
      "$id": "270",
      "Name": "get",
      "ResourceName": "IsUnknownDiscriminated",
+     "OperationId": "IsUnknownDiscriminated_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -2853,6 +2864,7 @@
      "$id": "275",
      "Name": "put",
      "ResourceName": "IsUnknownDiscriminated",
+     "OperationId": "IsUnknownDiscriminated_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -2975,6 +2987,7 @@
      "$id": "287",
      "Name": "get",
      "ResourceName": "ExtendsString",
+     "OperationId": "ExtendsString_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -3037,6 +3050,7 @@
      "$id": "292",
      "Name": "put",
      "ResourceName": "ExtendsString",
+     "OperationId": "ExtendsString_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -3159,6 +3173,7 @@
      "$id": "304",
      "Name": "get",
      "ResourceName": "IsString",
+     "OperationId": "IsString_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -3221,6 +3236,7 @@
      "$id": "309",
      "Name": "put",
      "ResourceName": "IsString",
+     "OperationId": "IsString_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -3343,6 +3359,7 @@
      "$id": "321",
      "Name": "get",
      "ResourceName": "SpreadString",
+     "OperationId": "SpreadString_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -3405,6 +3422,7 @@
      "$id": "326",
      "Name": "put",
      "ResourceName": "SpreadString",
+     "OperationId": "SpreadString_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -3527,6 +3545,7 @@
      "$id": "338",
      "Name": "get",
      "ResourceName": "ExtendsFloat",
+     "OperationId": "ExtendsFloat_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -3589,6 +3608,7 @@
      "$id": "343",
      "Name": "put",
      "ResourceName": "ExtendsFloat",
+     "OperationId": "ExtendsFloat_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -3711,6 +3731,7 @@
      "$id": "355",
      "Name": "get",
      "ResourceName": "IsFloat",
+     "OperationId": "IsFloat_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -3773,6 +3794,7 @@
      "$id": "360",
      "Name": "put",
      "ResourceName": "IsFloat",
+     "OperationId": "IsFloat_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -3895,6 +3917,7 @@
      "$id": "372",
      "Name": "get",
      "ResourceName": "SpreadFloat",
+     "OperationId": "SpreadFloat_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -3957,6 +3980,7 @@
      "$id": "377",
      "Name": "put",
      "ResourceName": "SpreadFloat",
+     "OperationId": "SpreadFloat_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -4079,6 +4103,7 @@
      "$id": "389",
      "Name": "get",
      "ResourceName": "ExtendsModel",
+     "OperationId": "ExtendsModel_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -4141,6 +4166,7 @@
      "$id": "394",
      "Name": "put",
      "ResourceName": "ExtendsModel",
+     "OperationId": "ExtendsModel_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -4263,6 +4289,7 @@
      "$id": "406",
      "Name": "get",
      "ResourceName": "IsModel",
+     "OperationId": "IsModel_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -4325,6 +4352,7 @@
      "$id": "411",
      "Name": "put",
      "ResourceName": "IsModel",
+     "OperationId": "IsModel_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -4447,6 +4475,7 @@
      "$id": "423",
      "Name": "get",
      "ResourceName": "SpreadModel",
+     "OperationId": "SpreadModel_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -4509,6 +4538,7 @@
      "$id": "428",
      "Name": "put",
      "ResourceName": "SpreadModel",
+     "OperationId": "SpreadModel_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -4631,6 +4661,7 @@
      "$id": "440",
      "Name": "get",
      "ResourceName": "ExtendsModelArray",
+     "OperationId": "ExtendsModelArray_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -4693,6 +4724,7 @@
      "$id": "445",
      "Name": "put",
      "ResourceName": "ExtendsModelArray",
+     "OperationId": "ExtendsModelArray_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -4815,6 +4847,7 @@
      "$id": "457",
      "Name": "get",
      "ResourceName": "IsModelArray",
+     "OperationId": "IsModelArray_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -4877,6 +4910,7 @@
      "$id": "462",
      "Name": "put",
      "ResourceName": "IsModelArray",
+     "OperationId": "IsModelArray_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -4999,6 +5033,7 @@
      "$id": "474",
      "Name": "get",
      "ResourceName": "SpreadModelArray",
+     "OperationId": "SpreadModelArray_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -5061,6 +5096,7 @@
      "$id": "479",
      "Name": "put",
      "ResourceName": "SpreadModelArray",
+     "OperationId": "SpreadModelArray_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -5183,6 +5219,7 @@
      "$id": "491",
      "Name": "get",
      "ResourceName": "SpreadDifferentString",
+     "OperationId": "SpreadDifferentString_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -5245,6 +5282,7 @@
      "$id": "496",
      "Name": "put",
      "ResourceName": "SpreadDifferentString",
+     "OperationId": "SpreadDifferentString_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -5367,6 +5405,7 @@
      "$id": "508",
      "Name": "get",
      "ResourceName": "SpreadDifferentFloat",
+     "OperationId": "SpreadDifferentFloat_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -5429,6 +5468,7 @@
      "$id": "513",
      "Name": "put",
      "ResourceName": "SpreadDifferentFloat",
+     "OperationId": "SpreadDifferentFloat_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -5551,6 +5591,7 @@
      "$id": "525",
      "Name": "get",
      "ResourceName": "SpreadDifferentModel",
+     "OperationId": "SpreadDifferentModel_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -5613,6 +5654,7 @@
      "$id": "530",
      "Name": "put",
      "ResourceName": "SpreadDifferentModel",
+     "OperationId": "SpreadDifferentModel_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -5735,6 +5777,7 @@
      "$id": "542",
      "Name": "get",
      "ResourceName": "SpreadDifferentModelArray",
+     "OperationId": "SpreadDifferentModelArray_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -5797,6 +5840,7 @@
      "$id": "547",
      "Name": "put",
      "ResourceName": "SpreadDifferentModelArray",
+     "OperationId": "SpreadDifferentModelArray_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -5919,6 +5963,7 @@
      "$id": "559",
      "Name": "get",
      "ResourceName": "ExtendsDifferentSpreadString",
+     "OperationId": "ExtendsDifferentSpreadString_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -5981,6 +6026,7 @@
      "$id": "564",
      "Name": "put",
      "ResourceName": "ExtendsDifferentSpreadString",
+     "OperationId": "ExtendsDifferentSpreadString_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -6103,6 +6149,7 @@
      "$id": "576",
      "Name": "get",
      "ResourceName": "ExtendsDifferentSpreadFloat",
+     "OperationId": "ExtendsDifferentSpreadFloat_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -6165,6 +6212,7 @@
      "$id": "581",
      "Name": "put",
      "ResourceName": "ExtendsDifferentSpreadFloat",
+     "OperationId": "ExtendsDifferentSpreadFloat_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -6287,6 +6335,7 @@
      "$id": "593",
      "Name": "get",
      "ResourceName": "ExtendsDifferentSpreadModel",
+     "OperationId": "ExtendsDifferentSpreadModel_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -6349,6 +6398,7 @@
      "$id": "598",
      "Name": "put",
      "ResourceName": "ExtendsDifferentSpreadModel",
+     "OperationId": "ExtendsDifferentSpreadModel_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -6471,6 +6521,7 @@
      "$id": "610",
      "Name": "get",
      "ResourceName": "ExtendsDifferentSpreadModelArray",
+     "OperationId": "ExtendsDifferentSpreadModelArray_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -6533,6 +6584,7 @@
      "$id": "615",
      "Name": "put",
      "ResourceName": "ExtendsDifferentSpreadModelArray",
+     "OperationId": "ExtendsDifferentSpreadModelArray_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -6655,6 +6707,7 @@
      "$id": "627",
      "Name": "get",
      "ResourceName": "MultipleSpread",
+     "OperationId": "MultipleSpread_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -6717,6 +6770,7 @@
      "$id": "632",
      "Name": "put",
      "ResourceName": "MultipleSpread",
+     "OperationId": "MultipleSpread_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -6839,6 +6893,7 @@
      "$id": "644",
      "Name": "get",
      "ResourceName": "SpreadRecordUnion",
+     "OperationId": "SpreadRecordUnion_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -6901,6 +6956,7 @@
      "$id": "649",
      "Name": "put",
      "ResourceName": "SpreadRecordUnion",
+     "OperationId": "SpreadRecordUnion_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -7023,6 +7079,7 @@
      "$id": "661",
      "Name": "get",
      "ResourceName": "SpreadRecordDiscriminatedUnion",
+     "OperationId": "SpreadRecordDiscriminatedUnion_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -7085,6 +7142,7 @@
      "$id": "666",
      "Name": "put",
      "ResourceName": "SpreadRecordDiscriminatedUnion",
+     "OperationId": "SpreadRecordDiscriminatedUnion_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -7207,6 +7265,7 @@
      "$id": "678",
      "Name": "get",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion",
+     "OperationId": "SpreadRecordNonDiscriminatedUnion_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -7269,6 +7328,7 @@
      "$id": "683",
      "Name": "put",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion",
+     "OperationId": "SpreadRecordNonDiscriminatedUnion_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -7391,6 +7451,7 @@
      "$id": "695",
      "Name": "get",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion2",
+     "OperationId": "SpreadRecordNonDiscriminatedUnion2_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -7453,6 +7514,7 @@
      "$id": "700",
      "Name": "put",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion2",
+     "OperationId": "SpreadRecordNonDiscriminatedUnion2_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [
@@ -7575,6 +7637,7 @@
      "$id": "712",
      "Name": "get",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion3",
+     "OperationId": "SpreadRecordNonDiscriminatedUnion3_get",
      "Doc": "Get call",
      "Accessibility": "public",
      "Parameters": [
@@ -7637,6 +7700,7 @@
      "$id": "717",
      "Name": "put",
      "ResourceName": "SpreadRecordNonDiscriminatedUnion3",
+     "OperationId": "SpreadRecordNonDiscriminatedUnion3_put",
      "Doc": "Put operation",
      "Accessibility": "public",
      "Parameters": [

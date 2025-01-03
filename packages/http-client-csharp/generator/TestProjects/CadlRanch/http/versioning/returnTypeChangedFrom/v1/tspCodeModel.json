@@ -55,6 +55,7 @@
      "$id": "7",
      "Name": "test",
      "ResourceName": "ReturnTypeChangedFrom",
+     "OperationId": "test",
      "Accessibility": "public",
      "Parameters": [
       {

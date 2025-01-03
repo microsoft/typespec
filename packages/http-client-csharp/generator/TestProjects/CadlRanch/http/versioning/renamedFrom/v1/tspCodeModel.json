@@ -177,6 +177,7 @@
      "$id": "20",
      "Name": "oldOp",
      "ResourceName": "RenamedFrom",
+     "OperationId": "oldOp",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -358,6 +359,7 @@
      "$id": "36",
      "Name": "newOpInNewInterface",
      "ResourceName": "OldInterface",
+     "OperationId": "OldInterface_newOpInNewInterface",
      "Accessibility": "public",
      "Parameters": [
       {

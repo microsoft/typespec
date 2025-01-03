@@ -54,6 +54,7 @@
      "$id": "7",
      "Name": "noOperationParams",
      "ResourceName": "Multiple",
+     "OperationId": "noOperationParams",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -81,6 +82,7 @@
      "$id": "9",
      "Name": "withOperationPathParam",
      "ResourceName": "Multiple",
+     "OperationId": "withOperationPathParam",
      "Accessibility": "public",
      "Parameters": [
       {

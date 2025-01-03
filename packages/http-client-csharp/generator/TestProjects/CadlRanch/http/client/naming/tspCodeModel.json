@@ -255,6 +255,7 @@
      "$id": "28",
      "Name": "clientName",
      "ResourceName": "Naming",
+     "OperationId": "operation",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -282,6 +283,7 @@
      "$id": "30",
      "Name": "parameter",
      "ResourceName": "Naming",
+     "OperationId": "parameter",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -331,6 +333,7 @@
      "$id": "34",
      "Name": "client",
      "ResourceName": "Property",
+     "OperationId": "Property_client",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -407,6 +410,7 @@
      "$id": "40",
      "Name": "language",
      "ResourceName": "Property",
+     "OperationId": "Property_language",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -483,6 +487,7 @@
      "$id": "46",
      "Name": "compatibleWithEncodedName",
      "ResourceName": "Property",
+     "OperationId": "Property_compatibleWithEncodedName",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -559,6 +564,7 @@
      "$id": "52",
      "Name": "request",
      "ResourceName": "Header",
+     "OperationId": "Header_request",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -608,6 +614,7 @@
      "$id": "56",
      "Name": "response",
      "ResourceName": "Header",
+     "OperationId": "Header_response",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -691,6 +698,7 @@
      "$id": "66",
      "Name": "client",
      "ResourceName": "Model",
+     "OperationId": "Model_client",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -767,6 +775,7 @@
      "$id": "72",
      "Name": "language",
      "ResourceName": "Model",
+     "OperationId": "Model_language",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -887,6 +896,7 @@
      "$id": "84",
      "Name": "unionEnumName",
      "ResourceName": "UnionEnum",
+     "OperationId": "UnionEnum_unionEnumName",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -963,6 +973,7 @@
      "$id": "90",
      "Name": "unionEnumMemberName",
      "ResourceName": "UnionEnum",
+     "OperationId": "UnionEnum_unionEnumMemberName",
      "Accessibility": "public",
      "Parameters": [
       {

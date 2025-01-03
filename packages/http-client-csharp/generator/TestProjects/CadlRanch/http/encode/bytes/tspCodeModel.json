@@ -192,6 +192,7 @@
      "$id": "23",
      "Name": "default",
      "ResourceName": "Query",
+     "OperationId": "Query_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -242,6 +243,7 @@
      "$id": "27",
      "Name": "base64",
      "ResourceName": "Query",
+     "OperationId": "Query_base64",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -292,6 +294,7 @@
      "$id": "31",
      "Name": "base64url",
      "ResourceName": "Query",
+     "OperationId": "Query_base64url",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -342,6 +345,7 @@
      "$id": "35",
      "Name": "base64urlArray",
      "ResourceName": "Query",
+     "OperationId": "Query_base64urlArray",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -452,6 +456,7 @@
      "$id": "47",
      "Name": "default",
      "ResourceName": "Property",
+     "OperationId": "Property_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -561,6 +566,7 @@
      "$id": "56",
      "Name": "base64",
      "ResourceName": "Property",
+     "OperationId": "Property_base64",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -670,6 +676,7 @@
      "$id": "65",
      "Name": "base64url",
      "ResourceName": "Property",
+     "OperationId": "Property_base64url",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -779,6 +786,7 @@
      "$id": "74",
      "Name": "base64urlArray",
      "ResourceName": "Property",
+     "OperationId": "Property_base64urlArray",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -932,6 +940,7 @@
      "$id": "89",
      "Name": "default",
      "ResourceName": "Header",
+     "OperationId": "Header_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -982,6 +991,7 @@
      "$id": "93",
      "Name": "base64",
      "ResourceName": "Header",
+     "OperationId": "Header_base64",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1032,6 +1042,7 @@
      "$id": "97",
      "Name": "base64url",
      "ResourceName": "Header",
+     "OperationId": "Header_base64url",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1082,6 +1093,7 @@
      "$id": "101",
      "Name": "base64urlArray",
      "ResourceName": "Header",
+     "OperationId": "Header_base64urlArray",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1192,6 +1204,7 @@
      "$id": "113",
      "Name": "default",
      "ResourceName": "RequestBody",
+     "OperationId": "RequestBody_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1273,6 +1286,7 @@
      "$id": "120",
      "Name": "octetStream",
      "ResourceName": "RequestBody",
+     "OperationId": "RequestBody_octetStream",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1352,6 +1366,7 @@
      "$id": "127",
      "Name": "customContentType",
      "ResourceName": "RequestBody",
+     "OperationId": "RequestBody_customContentType",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1431,6 +1446,7 @@
      "$id": "134",
      "Name": "base64",
      "ResourceName": "RequestBody",
+     "OperationId": "RequestBody_base64",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1512,6 +1528,7 @@
      "$id": "141",
      "Name": "base64url",
      "ResourceName": "RequestBody",
+     "OperationId": "RequestBody_base64url",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1637,6 +1654,7 @@
      "$id": "154",
      "Name": "default",
      "ResourceName": "ResponseBody",
+     "OperationId": "ResponseBody_default",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1703,6 +1721,7 @@
      "$id": "160",
      "Name": "octetStream",
      "ResourceName": "ResponseBody",
+     "OperationId": "ResponseBody_octetStream",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1787,6 +1806,7 @@
      "$id": "169",
      "Name": "customContentType",
      "ResourceName": "ResponseBody",
+     "OperationId": "ResponseBody_customContentType",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1871,6 +1891,7 @@
      "$id": "178",
      "Name": "base64",
      "ResourceName": "ResponseBody",
+     "OperationId": "ResponseBody_base64",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1937,6 +1958,7 @@
      "$id": "184",
      "Name": "base64url",
      "ResourceName": "ResponseBody",
+     "OperationId": "ResponseBody_base64url",
      "Accessibility": "public",
      "Parameters": [
       {

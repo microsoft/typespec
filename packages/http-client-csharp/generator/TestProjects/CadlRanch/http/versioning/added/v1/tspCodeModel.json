@@ -136,6 +136,7 @@
      "$id": "15",
      "Name": "v1",
      "ResourceName": "Added",
+     "OperationId": "v1",
      "Accessibility": "public",
      "Parameters": [
       {

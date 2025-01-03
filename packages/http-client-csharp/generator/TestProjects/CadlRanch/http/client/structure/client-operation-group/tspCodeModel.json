@@ -118,6 +118,7 @@
      "$id": "15",
      "Name": "one",
      "ResourceName": "ClientOperationGroup",
+     "OperationId": "ClientOperationGroup_one",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -196,6 +197,7 @@
      "$id": "22",
      "Name": "two",
      "ResourceName": "Group3",
+     "OperationId": "Group3_two",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -223,6 +225,7 @@
      "$id": "24",
      "Name": "three",
      "ResourceName": "Group3",
+     "OperationId": "Group3_three",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -302,6 +305,7 @@
      "$id": "31",
      "Name": "four",
      "ResourceName": "Group4",
+     "OperationId": "Group4_four",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -381,6 +385,7 @@
      "$id": "38",
      "Name": "five",
      "ResourceName": "AnotherClientOperationGroup",
+     "OperationId": "AnotherClientOperationGroup_five",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -459,6 +464,7 @@
      "$id": "45",
      "Name": "six",
      "ResourceName": "Group5",
+     "OperationId": "Group5_six",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [

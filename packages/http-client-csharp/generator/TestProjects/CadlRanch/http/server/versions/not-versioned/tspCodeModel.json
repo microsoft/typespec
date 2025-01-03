@@ -14,6 +14,7 @@
      "$id": "3",
      "Name": "withoutApiVersion",
      "ResourceName": "NotVersioned",
+     "OperationId": "withoutApiVersion",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -41,6 +42,7 @@
      "$id": "5",
      "Name": "withQueryApiVersion",
      "ResourceName": "NotVersioned",
+     "OperationId": "withQueryApiVersion",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -90,6 +92,7 @@
      "$id": "9",
      "Name": "withPathApiVersion",
      "ResourceName": "NotVersioned",
+     "OperationId": "withPathApiVersion",
      "Accessibility": "public",
      "Parameters": [
       {

@@ -14,6 +14,7 @@
      "$id": "3",
      "Name": "myOp",
      "ResourceName": "Single",
+     "OperationId": "myOp",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [

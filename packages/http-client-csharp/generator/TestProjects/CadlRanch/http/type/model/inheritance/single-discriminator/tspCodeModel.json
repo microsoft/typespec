@@ -405,6 +405,7 @@
      "$id": "41",
      "Name": "getModel",
      "ResourceName": "SingleDiscriminator",
+     "OperationId": "getModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -466,6 +467,7 @@
      "$id": "46",
      "Name": "putModel",
      "ResourceName": "SingleDiscriminator",
+     "OperationId": "putModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -542,6 +544,7 @@
      "$id": "52",
      "Name": "getRecursiveModel",
      "ResourceName": "SingleDiscriminator",
+     "OperationId": "getRecursiveModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -603,6 +606,7 @@
      "$id": "57",
      "Name": "putRecursiveModel",
      "ResourceName": "SingleDiscriminator",
+     "OperationId": "putRecursiveModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -679,6 +683,7 @@
      "$id": "63",
      "Name": "getMissingDiscriminator",
      "ResourceName": "SingleDiscriminator",
+     "OperationId": "getMissingDiscriminator",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -740,6 +745,7 @@
      "$id": "68",
      "Name": "getWrongDiscriminator",
      "ResourceName": "SingleDiscriminator",
+     "OperationId": "getWrongDiscriminator",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -801,6 +807,7 @@
      "$id": "73",
      "Name": "getLegacyModel",
      "ResourceName": "SingleDiscriminator",
+     "OperationId": "getLegacyModel",
      "Accessibility": "public",
      "Parameters": [
       {

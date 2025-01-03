@@ -119,6 +119,7 @@
      "$id": "15",
      "Name": "one",
      "ResourceName": "Service",
+     "OperationId": "one",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -146,6 +147,7 @@
      "$id": "17",
      "Name": "two",
      "ResourceName": "Service",
+     "OperationId": "two",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -275,6 +277,7 @@
      "$id": "29",
      "Name": "seven",
      "ResourceName": "Foo",
+     "OperationId": "Foo_seven",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -354,6 +357,7 @@
      "$id": "36",
      "Name": "eight",
      "ResourceName": "Qux",
+     "OperationId": "Qux_eight",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -433,6 +437,7 @@
      "$id": "43",
      "Name": "nine",
      "ResourceName": "Bar",
+     "OperationId": "Bar_nine",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -512,6 +517,7 @@
      "$id": "50",
      "Name": "three",
      "ResourceName": "Foo",
+     "OperationId": "Foo_three",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -539,6 +545,7 @@
      "$id": "52",
      "Name": "four",
      "ResourceName": "Foo",
+     "OperationId": "Foo_four",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -618,6 +625,7 @@
      "$id": "59",
      "Name": "five",
      "ResourceName": "Bar",
+     "OperationId": "Bar_five",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -645,6 +653,7 @@
      "$id": "61",
      "Name": "six",
      "ResourceName": "Bar",
+     "OperationId": "Bar_six",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [

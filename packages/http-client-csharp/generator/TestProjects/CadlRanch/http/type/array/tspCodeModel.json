@@ -111,6 +111,7 @@
      "$id": "14",
      "Name": "get",
      "ResourceName": "Int32Value",
+     "OperationId": "Int32Value_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -183,6 +184,7 @@
      "$id": "21",
      "Name": "put",
      "ResourceName": "Int32Value",
+     "OperationId": "Int32Value_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -315,6 +317,7 @@
      "$id": "35",
      "Name": "get",
      "ResourceName": "Int64Value",
+     "OperationId": "Int64Value_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -387,6 +390,7 @@
      "$id": "42",
      "Name": "put",
      "ResourceName": "Int64Value",
+     "OperationId": "Int64Value_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -519,6 +523,7 @@
      "$id": "56",
      "Name": "get",
      "ResourceName": "BooleanValue",
+     "OperationId": "BooleanValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -591,6 +596,7 @@
      "$id": "63",
      "Name": "put",
      "ResourceName": "BooleanValue",
+     "OperationId": "BooleanValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -723,6 +729,7 @@
      "$id": "77",
      "Name": "get",
      "ResourceName": "StringValue",
+     "OperationId": "StringValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -795,6 +802,7 @@
      "$id": "84",
      "Name": "put",
      "ResourceName": "StringValue",
+     "OperationId": "StringValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -927,6 +935,7 @@
      "$id": "98",
      "Name": "get",
      "ResourceName": "Float32Value",
+     "OperationId": "Float32Value_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -999,6 +1008,7 @@
      "$id": "105",
      "Name": "put",
      "ResourceName": "Float32Value",
+     "OperationId": "Float32Value_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1131,6 +1141,7 @@
      "$id": "119",
      "Name": "get",
      "ResourceName": "DatetimeValue",
+     "OperationId": "DatetimeValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1211,6 +1222,7 @@
      "$id": "127",
      "Name": "put",
      "ResourceName": "DatetimeValue",
+     "OperationId": "DatetimeValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1351,6 +1363,7 @@
      "$id": "142",
      "Name": "get",
      "ResourceName": "DurationValue",
+     "OperationId": "DurationValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1431,6 +1444,7 @@
      "$id": "150",
      "Name": "put",
      "ResourceName": "DurationValue",
+     "OperationId": "DurationValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1571,6 +1585,7 @@
      "$id": "165",
      "Name": "get",
      "ResourceName": "UnknownValue",
+     "OperationId": "UnknownValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1643,6 +1658,7 @@
      "$id": "172",
      "Name": "put",
      "ResourceName": "UnknownValue",
+     "OperationId": "UnknownValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1775,6 +1791,7 @@
      "$id": "186",
      "Name": "get",
      "ResourceName": "ModelValue",
+     "OperationId": "ModelValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1843,6 +1860,7 @@
      "$id": "192",
      "Name": "put",
      "ResourceName": "ModelValue",
+     "OperationId": "ModelValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1971,6 +1989,7 @@
      "$id": "205",
      "Name": "get",
      "ResourceName": "NullableFloatValue",
+     "OperationId": "NullableFloatValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2047,6 +2066,7 @@
      "$id": "213",
      "Name": "put",
      "ResourceName": "NullableFloatValue",
+     "OperationId": "NullableFloatValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2175,6 +2195,7 @@
      "$id": "226",
      "Name": "get",
      "ResourceName": "NullableInt32Value",
+     "OperationId": "NullableInt32Value_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2251,6 +2272,7 @@
      "$id": "234",
      "Name": "put",
      "ResourceName": "NullableInt32Value",
+     "OperationId": "NullableInt32Value_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2379,6 +2401,7 @@
      "$id": "247",
      "Name": "get",
      "ResourceName": "NullableBooleanValue",
+     "OperationId": "NullableBooleanValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2455,6 +2478,7 @@
      "$id": "255",
      "Name": "put",
      "ResourceName": "NullableBooleanValue",
+     "OperationId": "NullableBooleanValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2583,6 +2607,7 @@
      "$id": "268",
      "Name": "get",
      "ResourceName": "NullableStringValue",
+     "OperationId": "NullableStringValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2659,6 +2684,7 @@
      "$id": "276",
      "Name": "put",
      "ResourceName": "NullableStringValue",
+     "OperationId": "NullableStringValue_put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2787,6 +2813,7 @@
      "$id": "289",
      "Name": "get",
      "ResourceName": "NullableModelValue",
+     "OperationId": "NullableModelValue_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2859,6 +2886,7 @@
      "$id": "296",
      "Name": "put",
      "ResourceName": "NullableModelValue",
+     "OperationId": "NullableModelValue_put",
      "Accessibility": "public",
      "Parameters": [
       {

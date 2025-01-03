@@ -508,6 +508,7 @@
      "$id": "58",
      "Name": "getNonNull",
      "ResourceName": "String",
+     "OperationId": "String_getNonNull",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -570,6 +571,7 @@
      "$id": "63",
      "Name": "getNull",
      "ResourceName": "String",
+     "OperationId": "String_getNull",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -632,6 +634,7 @@
      "$id": "68",
      "Name": "patchNonNull",
      "ResourceName": "String",
+     "OperationId": "String_patchNonNull",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -709,6 +712,7 @@
      "$id": "74",
      "Name": "patchNull",
      "ResourceName": "String",
+     "OperationId": "String_patchNull",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -830,6 +834,7 @@
      "$id": "86",
      "Name": "getNonNull",
      "ResourceName": "Bytes",
+     "OperationId": "Bytes_getNonNull",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -892,6 +897,7 @@
      "$id": "91",
      "Name": "getNull",
      "ResourceName": "Bytes",
+     "OperationId": "Bytes_getNull",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -954,6 +960,7 @@
      "$id": "96",
      "Name": "patchNonNull",
      "ResourceName": "Bytes",
+     "OperationId": "Bytes_patchNonNull",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -1031,6 +1038,7 @@
      "$id": "102",
      "Name": "patchNull",
      "ResourceName": "Bytes",
+     "OperationId": "Bytes_patchNull",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -1152,6 +1160,7 @@
      "$id": "114",
      "Name": "getNonNull",
      "ResourceName": "Datetime",
+     "OperationId": "Datetime_getNonNull",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -1214,6 +1223,7 @@
      "$id": "119",
      "Name": "getNull",
      "ResourceName": "Datetime",
+     "OperationId": "Datetime_getNull",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -1276,6 +1286,7 @@
      "$id": "124",
      "Name": "patchNonNull",
      "ResourceName": "Datetime",
+     "OperationId": "Datetime_patchNonNull",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -1353,6 +1364,7 @@
      "$id": "130",
      "Name": "patchNull",
      "ResourceName": "Datetime",
+     "OperationId": "Datetime_patchNull",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -1474,6 +1486,7 @@
      "$id": "142",
      "Name": "getNonNull",
      "ResourceName": "Duration",
+     "OperationId": "Duration_getNonNull",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -1536,6 +1549,7 @@
      "$id": "147",
      "Name": "getNull",
      "ResourceName": "Duration",
+     "OperationId": "Duration_getNull",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -1598,6 +1612,7 @@
      "$id": "152",
      "Name": "patchNonNull",
      "ResourceName": "Duration",
+     "OperationId": "Duration_patchNonNull",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -1675,6 +1690,7 @@
      "$id": "158",
      "Name": "patchNull",
      "ResourceName": "Duration",
+     "OperationId": "Duration_patchNull",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -1796,6 +1812,7 @@
      "$id": "170",
      "Name": "getNonNull",
      "ResourceName": "CollectionsByte",
+     "OperationId": "CollectionsByte_getNonNull",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -1858,6 +1875,7 @@
      "$id": "175",
      "Name": "getNull",
      "ResourceName": "CollectionsByte",
+     "OperationId": "CollectionsByte_getNull",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -1920,6 +1938,7 @@
      "$id": "180",
      "Name": "patchNonNull",
      "ResourceName": "CollectionsByte",
+     "OperationId": "CollectionsByte_patchNonNull",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -1997,6 +2016,7 @@
      "$id": "186",
      "Name": "patchNull",
      "ResourceName": "CollectionsByte",
+     "OperationId": "CollectionsByte_patchNull",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -2118,6 +2138,7 @@
      "$id": "198",
      "Name": "getNonNull",
      "ResourceName": "CollectionsModel",
+     "OperationId": "CollectionsModel_getNonNull",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -2180,6 +2201,7 @@
      "$id": "203",
      "Name": "getNull",
      "ResourceName": "CollectionsModel",
+     "OperationId": "CollectionsModel_getNull",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -2242,6 +2264,7 @@
      "$id": "208",
      "Name": "patchNonNull",
      "ResourceName": "CollectionsModel",
+     "OperationId": "CollectionsModel_patchNonNull",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -2319,6 +2342,7 @@
      "$id": "214",
      "Name": "patchNull",
      "ResourceName": "CollectionsModel",
+     "OperationId": "CollectionsModel_patchNull",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [
@@ -2440,6 +2464,7 @@
      "$id": "226",
      "Name": "getNonNull",
      "ResourceName": "CollectionsString",
+     "OperationId": "CollectionsString_getNonNull",
      "Doc": "Get models that will return all properties in the model",
      "Accessibility": "public",
      "Parameters": [
@@ -2502,6 +2527,7 @@
      "$id": "231",
      "Name": "getNull",
      "ResourceName": "CollectionsString",
+     "OperationId": "CollectionsString_getNull",
      "Doc": "Get models that will return the default object",
      "Accessibility": "public",
      "Parameters": [
@@ -2564,6 +2590,7 @@
      "$id": "236",
      "Name": "patchNonNull",
      "ResourceName": "CollectionsString",
+     "OperationId": "CollectionsString_patchNonNull",
      "Doc": "Put a body with all properties present.",
      "Accessibility": "public",
      "Parameters": [
@@ -2641,6 +2668,7 @@
      "$id": "242",
      "Name": "patchNull",
      "ResourceName": "CollectionsString",
+     "OperationId": "CollectionsString_patchNull",
      "Doc": "Put a body with default properties.",
      "Accessibility": "public",
      "Parameters": [

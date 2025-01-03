@@ -55,6 +55,7 @@
      "$id": "7",
      "Name": "fromNone",
      "ResourceName": "AddOptionalParam",
+     "OperationId": "AddOptionalParam_fromNone",
      "Doc": "Test that currently accepts no parameters, will be updated in next spec to accept a new optional parameter as well",
      "Accessibility": "public",
      "Parameters": [],
@@ -83,6 +84,7 @@
      "$id": "9",
      "Name": "fromOneRequired",
      "ResourceName": "AddOptionalParam",
+     "OperationId": "AddOptionalParam_fromOneRequired",
      "Doc": "Test that currently accepts one required parameter, will be updated in next spec to accept a new optional parameter as well",
      "Accessibility": "public",
      "Parameters": [
@@ -134,6 +136,7 @@
      "$id": "13",
      "Name": "fromOneOptional",
      "ResourceName": "AddOptionalParam",
+     "OperationId": "AddOptionalParam_fromOneOptional",
      "Doc": "Test that currently accepts one optional parameter, will be updated in next spec to accept a new optional parameter as well",
      "Accessibility": "public",
      "Parameters": [

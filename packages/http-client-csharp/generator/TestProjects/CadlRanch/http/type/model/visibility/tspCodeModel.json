@@ -214,6 +214,7 @@
      "$id": "25",
      "Name": "getModel",
      "ResourceName": "Visibility",
+     "OperationId": "getModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -323,6 +324,7 @@
      "$id": "34",
      "Name": "headModel",
      "ResourceName": "Visibility",
+     "OperationId": "headModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -399,6 +401,7 @@
      "$id": "40",
      "Name": "putModel",
      "ResourceName": "Visibility",
+     "OperationId": "putModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -475,6 +478,7 @@
      "$id": "46",
      "Name": "patchModel",
      "ResourceName": "Visibility",
+     "OperationId": "patchModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -551,6 +555,7 @@
      "$id": "52",
      "Name": "postModel",
      "ResourceName": "Visibility",
+     "OperationId": "postModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -627,6 +632,7 @@
      "$id": "58",
      "Name": "deleteModel",
      "ResourceName": "Visibility",
+     "OperationId": "deleteModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -703,6 +709,7 @@
      "$id": "64",
      "Name": "putReadOnlyModel",
      "ResourceName": "Visibility",
+     "OperationId": "putReadOnlyModel",
      "Accessibility": "public",
      "Parameters": [
       {

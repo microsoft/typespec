@@ -1483,6 +1483,7 @@
      "$id": "148",
      "Name": "get",
      "ResourceName": "StringsOnly",
+     "OperationId": "StringsOnly_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1544,6 +1545,7 @@
      "$id": "153",
      "Name": "send",
      "ResourceName": "StringsOnly",
+     "OperationId": "StringsOnly_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1665,6 +1667,7 @@
      "$id": "165",
      "Name": "get",
      "ResourceName": "StringExtensible",
+     "OperationId": "StringExtensible_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1726,6 +1729,7 @@
      "$id": "170",
      "Name": "send",
      "ResourceName": "StringExtensible",
+     "OperationId": "StringExtensible_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1847,6 +1851,7 @@
      "$id": "182",
      "Name": "get",
      "ResourceName": "StringExtensibleNamed",
+     "OperationId": "StringExtensibleNamed_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1908,6 +1913,7 @@
      "$id": "187",
      "Name": "send",
      "ResourceName": "StringExtensibleNamed",
+     "OperationId": "StringExtensibleNamed_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2029,6 +2035,7 @@
      "$id": "199",
      "Name": "get",
      "ResourceName": "IntsOnly",
+     "OperationId": "IntsOnly_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2090,6 +2097,7 @@
      "$id": "204",
      "Name": "send",
      "ResourceName": "IntsOnly",
+     "OperationId": "IntsOnly_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2211,6 +2219,7 @@
      "$id": "216",
      "Name": "get",
      "ResourceName": "FloatsOnly",
+     "OperationId": "FloatsOnly_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2272,6 +2281,7 @@
      "$id": "221",
      "Name": "send",
      "ResourceName": "FloatsOnly",
+     "OperationId": "FloatsOnly_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2393,6 +2403,7 @@
      "$id": "233",
      "Name": "get",
      "ResourceName": "ModelsOnly",
+     "OperationId": "ModelsOnly_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2454,6 +2465,7 @@
      "$id": "238",
      "Name": "send",
      "ResourceName": "ModelsOnly",
+     "OperationId": "ModelsOnly_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2575,6 +2587,7 @@
      "$id": "250",
      "Name": "get",
      "ResourceName": "EnumsOnly",
+     "OperationId": "EnumsOnly_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2636,6 +2649,7 @@
      "$id": "255",
      "Name": "send",
      "ResourceName": "EnumsOnly",
+     "OperationId": "EnumsOnly_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2757,6 +2771,7 @@
      "$id": "267",
      "Name": "get",
      "ResourceName": "StringAndArray",
+     "OperationId": "StringAndArray_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2818,6 +2833,7 @@
      "$id": "272",
      "Name": "send",
      "ResourceName": "StringAndArray",
+     "OperationId": "StringAndArray_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2939,6 +2955,7 @@
      "$id": "284",
      "Name": "get",
      "ResourceName": "MixedLiterals",
+     "OperationId": "MixedLiterals_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3000,6 +3017,7 @@
      "$id": "289",
      "Name": "send",
      "ResourceName": "MixedLiterals",
+     "OperationId": "MixedLiterals_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3121,6 +3139,7 @@
      "$id": "301",
      "Name": "get",
      "ResourceName": "MixedTypes",
+     "OperationId": "MixedTypes_get",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3182,6 +3201,7 @@
      "$id": "306",
      "Name": "send",
      "ResourceName": "MixedTypes",
+     "OperationId": "MixedTypes_send",
      "Accessibility": "public",
      "Parameters": [
       {
