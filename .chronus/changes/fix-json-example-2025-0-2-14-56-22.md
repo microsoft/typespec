@@ -4,4 +4,4 @@ packages:
   - "@typespec/json-schema"
 ---
 
-Fix example of json-chema
+Fix example of json-schema
