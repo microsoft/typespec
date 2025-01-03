@@ -43,9 +43,14 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
       detail: `Generate ${e.kind} code for ${e.language} by TypeSpec library ${e.package}.${moreDetail}`,
       picked: false,
       fromConfig: false,
-      iconPath: Uri.file(
-        context.asAbsolutePath(`./icons/${getLanguageAlias(e.language).toLowerCase()}.svg`),
-      ),
+      iconPath: {
+        light: Uri.file(
+          context.asAbsolutePath(`./icons/${getLanguageAlias(e.language).toLowerCase()}.light.svg`),
+        ),
+        dark: Uri.file(
+          context.asAbsolutePath(`./icons/${getLanguageAlias(e.language).toLowerCase()}.dark.svg`),
+        ),
+      },
     };
   };
 
@@ -147,10 +152,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     /* npm install packages. */
     if (selectedPackages.length > 0) {
       const installPackages = selectedPackages.map((p) => p.packageFullName);
-      logger.info(`Install ${installPackages.join("\n\n")} under directory ${baseDir}`, [], {
-        showOutput: true,
-        showPopup: true,
-      });
+      logger.info(`Install ${installPackages.join("\n\n")} under directory ${baseDir}`);
       const installResult = await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -346,7 +348,10 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
         PreDefinedEmitterPickItems[kind]?.detail ??
         `Generate ${kind} code from TypeSpec files. Supported languages are ${supportedLanguages}.`,
       emitterKind: kind,
-      iconPath: Uri.file(context.asAbsolutePath(`./icons/${kind.toLowerCase()}.svg`)),
+      iconPath: {
+        light: Uri.file(context.asAbsolutePath(`./icons/${kind.toLowerCase()}.light.svg`)),
+        dark: Uri.file(context.asAbsolutePath(`./icons/${kind.toLowerCase()}.dark.svg`)),
+      },
     };
   };
   const codesToEmit = emitterKinds.map((kind) => toEmitterTypeQuickPickItem(kind));
