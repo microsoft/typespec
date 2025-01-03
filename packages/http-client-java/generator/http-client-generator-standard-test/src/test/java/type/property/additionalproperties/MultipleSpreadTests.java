@@ -3,6 +3,7 @@
 
 package type.property.additionalproperties;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public class MultipleSpreadTests {
         = new AdditionalPropertiesClientBuilder().buildMultipleSpreadClient();
 
     @Test
-    public void testMultipleSpread() {
+    public void testMultipleSpread() throws IOException {
         Map<String, BinaryData> propertyMap = new LinkedHashMap<>();
         propertyMap.put("prop1", BinaryData.fromObject("abc"));
         propertyMap.put("prop2", BinaryData.fromObject(43.125));

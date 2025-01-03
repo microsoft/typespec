@@ -4,7 +4,7 @@
 package authentication.apikey;
 
 import authentication.util.AzureKeyCredentialPolicy;
-import com.azure.core.exception.HttpResponseException;
+import io.clientcore.core.http.exception.HttpResponseException;
 import io.clientcore.core.credential.KeyCredential;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

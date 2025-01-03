@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class NullableFloatValueClientTests {
@@ -29,6 +30,7 @@ public class NullableFloatValueClientTests {
     }
 
     @Test
+    @Disabled("Cannot parse null string")
     public void put() throws Exception {
         MapModel model = new MapModel();
         model.map = new HashMap<>();

@@ -3,6 +3,7 @@
 
 package type.union;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,9 +60,9 @@ public class UnionsClientTest {
     }
 
     @Test
-    public void testModelsOnlyClient() {
+    public void testModelsOnlyClient() throws IOException {
         BinaryData prop = client6.get().getProp();
-        Assertions.assertEquals("test", prop.toObject(Cat.class).getName());
+        Assertions.assertEquals("test", ((Cat) prop.toObject(Cat.class)).getName());
         client6.send(BinaryData.fromObject(new Cat("test")));
     }
 
@@ -74,36 +75,35 @@ public class UnionsClientTest {
     }
 
     @Test
-    public void testStringAndArrayClient() {
+    public void testStringAndArrayClient() throws IOException {
         StringAndArrayCases prop = client8.get().getProp();
         Assertions.assertEquals("test", prop.getString().toObject(String.class));
         Assertions.assertEquals(Arrays.asList("test1", "test2"),
-            prop.getArray().toObject(new TypeReference<List<String>>() {
-            }));
+            prop.getArray().toObject(List.class));
         client8.send(prop);
     }
 
     @Test
-    public void testMixedLiteralsClient() {
+    public void testMixedLiteralsClient() throws IOException {
         MixedLiteralsCases prop = client9.get().getProp();
         Assertions.assertEquals("a", prop.getStringLiteral().toObject(String.class));
-        Assertions.assertEquals(2L, prop.getIntLiteral().toObject(Long.class));
+        Assertions.assertEquals(2L, Long.valueOf(prop.getIntLiteral().toString()));
         Assertions.assertEquals(3.3, prop.getFloatLiteral().toObject(Double.class));
         Assertions.assertEquals(true, prop.getBooleanLiteral().toObject(Boolean.class));
         client9.send(prop);
     }
 
     @Test
-    public void testMixedTypesClient() {
+    public void testMixedTypesClient() throws IOException {
         MixedTypesCases prop = client10.get().getProp();
-        Assertions.assertEquals("test", prop.getModel().toObject(Cat.class).getName());
+        Assertions.assertEquals("test", ((Cat) prop.getModel().toObject(Cat.class)).getName());
         Assertions.assertEquals("a", prop.getLiteral().toObject(String.class));
-        Assertions.assertEquals(2L, prop.getIntProperty().toObject(Long.class));
+        Assertions.assertEquals(2L, Long.valueOf(prop.getIntProperty().toString()));
         Assertions.assertEquals(true, prop.getBooleanProperty().toObject(Boolean.class));
         List<BinaryData> array = prop.getArray();
-        Assertions.assertEquals("test", array.get(0).toObject(Cat.class).getName());
+        Assertions.assertEquals("test", ((Cat) array.get(0).toObject(Cat.class)).getName());
         Assertions.assertEquals("a", array.get(1).toObject(String.class));
-        Assertions.assertEquals(2L, array.get(2).toObject(Long.class));
+        Assertions.assertEquals(2L, Long.valueOf(array.get(2).toString()));
         Assertions.assertEquals(true, array.get(3).toObject(Boolean.class));
 
         client10.send(prop);

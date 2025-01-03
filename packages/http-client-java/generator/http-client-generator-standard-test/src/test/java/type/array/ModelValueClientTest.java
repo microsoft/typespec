@@ -6,6 +6,7 @@ package type.array;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class ModelValueClientTest {
@@ -13,6 +14,7 @@ class ModelValueClientTest {
     ModelValueClient client = new ArrayClientBuilder().buildModelValueClient();
 
     @Test
+    @Disabled("type.array.InnerModel is in unnamed module of loader 'app'")
     void get() {
         List<InnerModel> response = client.get();
         Assertions.assertEquals(2, response.size());

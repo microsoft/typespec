@@ -3,6 +3,7 @@
 
 package type.property.valuetypes;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ public class UnknownTests {
     private final UnknownStringClient stringClient = new ValueTypesClientBuilder().buildUnknownStringClient();
 
     @Test
-    public void testUnknownArray() {
+    public void testUnknownArray() throws IOException {
         List<String> array = Arrays.asList("hello", "world");
 
         arrayClient.put(new UnknownArrayProperty(BinaryData.fromObject(array)));
@@ -29,7 +30,7 @@ public class UnknownTests {
     }
 
     @Test
-    public void testUnknownDict() {
+    public void testUnknownDict() throws IOException {
         Map<String, Object> dict = new HashMap<>();
         dict.put("k1", "hello");
         dict.put("k2", 42);
@@ -40,16 +41,16 @@ public class UnknownTests {
     }
 
     @Test
-    public void testUnknownInt() {
+    public void testUnknownInt() throws IOException {
         int integer = 42;
 
         intClient.put(new UnknownIntProperty(BinaryData.fromObject(integer)));
 
-        Assertions.assertEquals(integer, intClient.get().getProperty().toObject(Integer.class));
+        Assertions.assertEquals(integer, (Integer) intClient.get().getProperty().toObject(Integer.class));
     }
 
     @Test
-    public void testUnknownString() {
+    public void testUnknownString() throws IOException {
         String str = "hello";
 
         stringClient.put(new UnknownStringProperty(BinaryData.fromObject(str)));

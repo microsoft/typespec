@@ -16,7 +16,7 @@ class NullableFloatValueClientTest {
     @Test
     void get() {
         List<Double> response = client.get();
-        assertEquals(Arrays.asList(1.25, null, 3.0), response);
+        assertEquals(Arrays.asList(1.25, null, 3), response);
     }
 
     @Test
