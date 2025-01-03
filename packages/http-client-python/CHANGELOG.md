@@ -1,5 +1,17 @@
 # Change Log - @typespec/http-client-python
 
+## 0.5.0
+
+### Features
+
+- Add support for generation in enviroments without a Python installation
+
+## 0.4.4
+
+### Bug Fixes
+
+- `:code:` in docstring should always be preceded by `\`
+
 ## 0.4.3
 
 ### Bump dependencies

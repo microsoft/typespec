@@ -70,7 +70,7 @@
      "enumType": {
       "$ref": "6"
      },
-     "description": "The version v1.",
+     "doc": "The version v1.",
      "decorators": []
     },
     {
@@ -88,11 +88,11 @@
      "enumType": {
       "$ref": "6"
      },
-     "description": "The version v2.",
+     "doc": "The version v2.",
      "decorators": []
     }
    ],
-   "description": "The version of the API.",
+   "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,ApiVersionEnum",
@@ -190,7 +190,7 @@
   {
    "$id": "21",
    "Name": "RenamedFromClient",
-   "Description": "Test for the `@renamedFrom` decorator.",
+   "Doc": "Test for the `@renamedFrom` decorator.",
    "Operations": [
     {
      "$id": "22",
@@ -223,7 +223,7 @@
        "$id": "25",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "26",
         "kind": "constant",
@@ -331,7 +331,7 @@
      "$id": "34",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "35",
       "kind": "url",
@@ -352,7 +352,7 @@
      "$id": "36",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
      "Type": {
       "$ref": "6"
      },
@@ -383,7 +383,7 @@
        "$id": "39",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "40",
         "kind": "constant",
@@ -492,7 +492,7 @@
      "$id": "48",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "49",
       "kind": "url",
@@ -513,7 +513,7 @@
      "$id": "50",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
      "Type": {
       "$ref": "6"
      },

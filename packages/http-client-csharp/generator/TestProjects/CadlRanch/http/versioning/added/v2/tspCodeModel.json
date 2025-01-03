@@ -123,7 +123,7 @@
      "enumType": {
       "$ref": "12"
      },
-     "description": "The version v1.",
+     "doc": "The version v1.",
      "decorators": []
     },
     {
@@ -141,11 +141,11 @@
      "enumType": {
       "$ref": "12"
      },
-     "description": "The version v2.",
+     "doc": "The version v2.",
      "decorators": []
     }
    ],
-   "description": "The version of the API.",
+   "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,ApiVersionEnum",
@@ -321,7 +321,7 @@
   {
    "$id": "35",
    "Name": "AddedClient",
-   "Description": "Test for the `@added` decorator.",
+   "Doc": "Test for the `@added` decorator.",
    "Operations": [
     {
      "$id": "36",
@@ -354,7 +354,7 @@
        "$id": "39",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "40",
         "kind": "constant",
@@ -463,7 +463,7 @@
        "$id": "48",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "49",
         "kind": "constant",
@@ -571,7 +571,7 @@
      "$id": "57",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "58",
       "kind": "url",
@@ -592,7 +592,7 @@
      "$id": "59",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
      "Type": {
       "$ref": "12"
      },
@@ -623,7 +623,7 @@
        "$id": "62",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "63",
         "kind": "constant",
@@ -732,7 +732,7 @@
      "$id": "71",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "72",
       "kind": "url",
@@ -753,7 +753,7 @@
      "$id": "73",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
      "Type": {
       "$ref": "12"
      },

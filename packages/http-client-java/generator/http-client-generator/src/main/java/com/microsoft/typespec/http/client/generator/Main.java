@@ -174,7 +174,12 @@ public class Main {
                 } else {
                     sb.append(",\n");
                 }
-                sb.append("    \"").append(key).append("\": \"").append(value).append("\"");
+                sb.append("    \"").append(key).append("\": ");
+                if (value == null) {
+                    sb.append("null");
+                } else {
+                    sb.append("\"").append(value).append("\"");
+                }
             });
             sb.append("\n  }\n}\n");
 

@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -26,9 +27,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputOperation _inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [_inputOperation], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [_inputOperation], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [_inputOperation], [], _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -61,6 +66,47 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 oauth2Auth: oauth2Auth,
                 clients: clients,
                 clientPipelineApi: TestClientPipelineApi.Instance);
+        }
+
+        [Test]
+        public async Task TestEmptyClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client]);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNull(clientProvider);
+        }
+
+        [Test]
+        public async Task TestNonEmptySubClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [_inputOperation], [], client.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client, subClient]);
+
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
+            Assert.IsNotNull(subClientProvider);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNotNull(clientProvider);
+        }
+
+        [Test]
+        public async Task TestEmptySubClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [], [], client.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client, subClient]);
+
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
+            Assert.IsNull(subClientProvider);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNull(clientProvider);
         }
 
         [Test]
@@ -178,9 +224,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         // validates the credential fields are built correctly when a client has sub-clients
-        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
-        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
-        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
+        [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
         public void TestBuildAuthFields_WithSubClients_WithAuth(InputClient client)
         {
             var clientProvider = new ClientProvider(client);
@@ -204,6 +250,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
+            }
+        }
+
+        // validates the credential fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
+        public void TestBuildAuthFields_SubClients_WithAuth(InputClient client)
+        {
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            if (_hasKeyAuth)
+            {
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Equals("_keyCredential")));
+            }
+            if (_hasOAuth2)
+            {
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Equals("_tokenCredential")));
             }
         }
 
@@ -298,9 +364,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when there is only one approach of auth, we have 3 parameters in the ctor.
+            // when there is only one approach of auth, we still have 2 parameters in the ctor because we should not have auth parameter in sub-client
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(3, ctorParams?.Count);
+            Assert.AreEqual(2, ctorParams?.Count);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -320,9 +386,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when we have both auths, we have 4 parameters in the ctor, because now we should have two credential parameters
+            // when we have both auths, we still have 2 parameters in the ctor, because we should not have auth parameters in sub-client
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(4, ctorParams?.Count);
+            Assert.AreEqual(2, ctorParams?.Count);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -462,14 +528,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             var client = InputFactory.Client(TestClientName, parent: parentClientName);
             var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
 
             if (isSubClient)
             {
-                Assert.IsNull(clientProvider?.ClientOptions);
+                Assert.IsNull(clientProvider.ClientOptions.Value);
             }
             else
             {
-                Assert.IsNotNull(clientProvider?.ClientOptions);
+                Assert.IsNotNull(clientProvider.ClientOptions.Value);
             }
         }
 
@@ -878,11 +945,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
-        public static IEnumerable<TestCaseData> SubClientAuthFieldsTestCases
+        public static IEnumerable<TestCaseData> WithSubClientAuthFieldsTestCases
         {
             get
             {
                 yield return new TestCaseData(InputFactory.Client(TestClientName));
+            }
+        }
+
+        public static IEnumerable<TestCaseData> SubClientAuthFieldsTestCases
+        {
+            get
+            {
                 yield return new TestCaseData(_animalClient);
                 yield return new TestCaseData(_dogClient);
                 yield return new TestCaseData(_huskyClient);

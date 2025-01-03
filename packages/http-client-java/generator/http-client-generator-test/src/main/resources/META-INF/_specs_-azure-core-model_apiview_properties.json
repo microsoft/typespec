@@ -1,14 +1,14 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "_specs_.azure.core.model.ModelAsyncClient": "null",
+    "_specs_.azure.core.model.ModelAsyncClient": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector",
     "_specs_.azure.core.model.ModelAsyncClient.get": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.get",
     "_specs_.azure.core.model.ModelAsyncClient.getWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.get",
     "_specs_.azure.core.model.ModelAsyncClient.post": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.post",
     "_specs_.azure.core.model.ModelAsyncClient.postWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.post",
     "_specs_.azure.core.model.ModelAsyncClient.put": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.put",
     "_specs_.azure.core.model.ModelAsyncClient.putWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.put",
-    "_specs_.azure.core.model.ModelClient": "null",
+    "_specs_.azure.core.model.ModelClient": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector",
     "_specs_.azure.core.model.ModelClient.get": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.get",
     "_specs_.azure.core.model.ModelClient.getWithResponse": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.get",
     "_specs_.azure.core.model.ModelClient.post": "_Specs_.Azure.Core.Model.AzureCoreEmbeddingVector.post",

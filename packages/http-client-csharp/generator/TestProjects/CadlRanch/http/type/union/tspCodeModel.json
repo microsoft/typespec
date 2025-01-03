@@ -487,7 +487,7 @@
         "kind": "property",
         "name": "model",
         "serializedName": "model",
-        "description": "This should be receive/send the Cat variant",
+        "doc": "This should be receive/send the Cat variant",
         "type": {
          "$id": "58",
          "kind": "union",
@@ -564,7 +564,7 @@
         "kind": "property",
         "name": "literal",
         "serializedName": "literal",
-        "description": "This should be receive/send the \"a\" variant",
+        "doc": "This should be receive/send the \"a\" variant",
         "type": {
          "$ref": "58"
         },
@@ -580,7 +580,7 @@
         "kind": "property",
         "name": "int",
         "serializedName": "int",
-        "description": "This should be receive/send the int variant",
+        "doc": "This should be receive/send the int variant",
         "type": {
          "$ref": "58"
         },
@@ -596,7 +596,7 @@
         "kind": "property",
         "name": "boolean",
         "serializedName": "boolean",
-        "description": "This should be receive/send the boolean variant",
+        "doc": "This should be receive/send the boolean variant",
         "type": {
          "$ref": "58"
         },
@@ -612,7 +612,7 @@
         "kind": "property",
         "name": "array",
         "serializedName": "array",
-        "description": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
+        "doc": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
         "type": {
          "$id": "70",
          "kind": "array",
@@ -698,7 +698,7 @@
         "kind": "property",
         "name": "stringLiteral",
         "serializedName": "stringLiteral",
-        "description": "This should be receive/send the \"a\" variant",
+        "doc": "This should be receive/send the \"a\" variant",
         "type": {
          "$id": "77",
          "kind": "union",
@@ -771,7 +771,7 @@
         "kind": "property",
         "name": "intLiteral",
         "serializedName": "intLiteral",
-        "description": "This should be receive/send the 2 variant",
+        "doc": "This should be receive/send the 2 variant",
         "type": {
          "$ref": "77"
         },
@@ -787,7 +787,7 @@
         "kind": "property",
         "name": "floatLiteral",
         "serializedName": "floatLiteral",
-        "description": "This should be receive/send the 3.3 variant",
+        "doc": "This should be receive/send the 3.3 variant",
         "type": {
          "$ref": "77"
         },
@@ -803,7 +803,7 @@
         "kind": "property",
         "name": "booleanLiteral",
         "serializedName": "booleanLiteral",
-        "description": "This should be receive/send the true variant",
+        "doc": "This should be receive/send the true variant",
         "type": {
          "$ref": "77"
         },
@@ -879,7 +879,7 @@
         "kind": "property",
         "name": "string",
         "serializedName": "string",
-        "description": "This should be receive/send the string variant",
+        "doc": "This should be receive/send the string variant",
         "type": {
          "$id": "95",
          "kind": "union",
@@ -921,7 +921,7 @@
         "kind": "property",
         "name": "array",
         "serializedName": "array",
-        "description": "This should be receive/send the array variant",
+        "doc": "This should be receive/send the array variant",
         "type": {
          "$id": "100",
          "kind": "union",
@@ -1023,7 +1023,7 @@
         "kind": "property",
         "name": "lr",
         "serializedName": "lr",
-        "description": "This should be receive/send the left variant",
+        "doc": "This should be receive/send the left variant",
         "type": {
          "$ref": "2"
         },
@@ -1039,7 +1039,7 @@
         "kind": "property",
         "name": "ud",
         "serializedName": "ud",
-        "description": "This should be receive/send the up variant",
+        "doc": "This should be receive/send the up variant",
         "type": {
          "$ref": "12"
         },
@@ -1434,7 +1434,7 @@
   {
    "$id": "141",
    "Name": "UnionClient",
-   "Description": "Describe scenarios for various combinations of unions.",
+   "Doc": "Describe scenarios for various combinations of unions.",
    "Operations": [],
    "Protocol": {
     "$id": "142"
@@ -1444,7 +1444,7 @@
      "$id": "143",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "144",
       "kind": "url",
@@ -1477,7 +1477,7 @@
   {
    "$id": "147",
    "Name": "StringsOnly",
-   "Description": "Describe union of string \"a\" | \"b\" | \"c\"",
+   "Doc": "Describe union of string \"a\" | \"b\" | \"c\"",
    "Operations": [
     {
      "$id": "148",
@@ -1550,7 +1550,7 @@
        "$id": "154",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "155",
         "kind": "constant",
@@ -1626,7 +1626,7 @@
      "$id": "160",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "161",
       "kind": "url",
@@ -1659,7 +1659,7 @@
   {
    "$id": "164",
    "Name": "StringExtensible",
-   "Description": "Describe union of string string | \"b\" | \"c\"",
+   "Doc": "Describe union of string string | \"b\" | \"c\"",
    "Operations": [
     {
      "$id": "165",
@@ -1732,7 +1732,7 @@
        "$id": "171",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "172",
         "kind": "constant",
@@ -1808,7 +1808,7 @@
      "$id": "177",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "178",
       "kind": "url",
@@ -1841,7 +1841,7 @@
   {
    "$id": "181",
    "Name": "StringExtensibleNamed",
-   "Description": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
+   "Doc": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
    "Operations": [
     {
      "$id": "182",
@@ -1914,7 +1914,7 @@
        "$id": "188",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "189",
         "kind": "constant",
@@ -1990,7 +1990,7 @@
      "$id": "194",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "195",
       "kind": "url",
@@ -2023,7 +2023,7 @@
   {
    "$id": "198",
    "Name": "IntsOnly",
-   "Description": "Describe union of integer 1 | 2 | 3",
+   "Doc": "Describe union of integer 1 | 2 | 3",
    "Operations": [
     {
      "$id": "199",
@@ -2096,7 +2096,7 @@
        "$id": "205",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "206",
         "kind": "constant",
@@ -2172,7 +2172,7 @@
      "$id": "211",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "212",
       "kind": "url",
@@ -2205,7 +2205,7 @@
   {
    "$id": "215",
    "Name": "FloatsOnly",
-   "Description": "Describe union of floats 1.1 | 2.2 | 3.3",
+   "Doc": "Describe union of floats 1.1 | 2.2 | 3.3",
    "Operations": [
     {
      "$id": "216",
@@ -2278,7 +2278,7 @@
        "$id": "222",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "223",
         "kind": "constant",
@@ -2354,7 +2354,7 @@
      "$id": "228",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "229",
       "kind": "url",
@@ -2387,7 +2387,7 @@
   {
    "$id": "232",
    "Name": "ModelsOnly",
-   "Description": "Describe union of models",
+   "Doc": "Describe union of models",
    "Operations": [
     {
      "$id": "233",
@@ -2460,7 +2460,7 @@
        "$id": "239",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "240",
         "kind": "constant",
@@ -2536,7 +2536,7 @@
      "$id": "245",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "246",
       "kind": "url",
@@ -2569,7 +2569,7 @@
   {
    "$id": "249",
    "Name": "EnumsOnly",
-   "Description": "Describe union of 2 different enums",
+   "Doc": "Describe union of 2 different enums",
    "Operations": [
     {
      "$id": "250",
@@ -2642,7 +2642,7 @@
        "$id": "256",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "257",
         "kind": "constant",
@@ -2718,7 +2718,7 @@
      "$id": "262",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "263",
       "kind": "url",
@@ -2751,7 +2751,7 @@
   {
    "$id": "266",
    "Name": "StringAndArray",
-   "Description": "Describe union of a string and an array of strings",
+   "Doc": "Describe union of a string and an array of strings",
    "Operations": [
     {
      "$id": "267",
@@ -2824,7 +2824,7 @@
        "$id": "273",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "274",
         "kind": "constant",
@@ -2900,7 +2900,7 @@
      "$id": "279",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "280",
       "kind": "url",
@@ -2933,7 +2933,7 @@
   {
    "$id": "283",
    "Name": "MixedLiterals",
-   "Description": "Describe union of floats \"a\" | 2 | 3.3",
+   "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {
      "$id": "284",
@@ -3006,7 +3006,7 @@
        "$id": "290",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "291",
         "kind": "constant",
@@ -3082,7 +3082,7 @@
      "$id": "296",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "297",
       "kind": "url",
@@ -3115,7 +3115,7 @@
   {
    "$id": "300",
    "Name": "MixedTypes",
-   "Description": "Describe union of floats \"a\" | 2 | 3.3",
+   "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {
      "$id": "301",
@@ -3188,7 +3188,7 @@
        "$id": "307",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "308",
         "kind": "constant",
@@ -3264,7 +3264,7 @@
      "$id": "313",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "314",
       "kind": "url",
