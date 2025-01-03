@@ -95,7 +95,7 @@ public final class ArmStreamStyleSerializationManager {
      * @return the Configurable instance allowing configurations.
      */
     public static Configurable configure() {
-        return new Configurable();
+        return new ArmStreamStyleSerializationManager.Configurable();
     }
 
     /**
