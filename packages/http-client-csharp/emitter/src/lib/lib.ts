@@ -37,6 +37,12 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
+    "runtime-dependency-missing": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Dotnet is not found in PATH. Please install DotNet ${"dotnetMajorVersion"} or above. Dotnet can be downloaded from ${"downloadUrl"}"`,
+      },
+    },
     "no-root-client": {
       severity: "error",
       messages: {
