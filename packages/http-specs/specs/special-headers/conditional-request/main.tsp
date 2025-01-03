@@ -4,7 +4,6 @@ import "@typespec/spector";
 
 using Http;
 using Spector;
-using TypeSpec.Versioning;
 
 @doc("Illustrates conditional request headers")
 @scenarioService("/special-headers/conditional-request")

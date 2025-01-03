@@ -57,6 +57,7 @@ export async function compileForOpenAPI3({ parameters, paths, schemas }: OpenAPI
   const testableCode = wrapCodeInTest(code);
   const host = await createTestHost({
     libraries: [HttpTestLibrary, OpenAPITestLibrary, OpenAPI3TestLibrary],
+    diagnosticFilter: (diag) => diag.severity !== "hint",
   });
   host.addTypeSpecFile("main.tsp", testableCode);
 

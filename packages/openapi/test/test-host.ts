@@ -6,6 +6,7 @@ import { OpenAPITestLibrary } from "../src/testing/index.js";
 export async function createOpenAPITestHost() {
   return createTestHost({
     libraries: [HttpTestLibrary, RestTestLibrary, OpenAPITestLibrary],
+    diagnosticFilter: (diag) => diag.severity !== "hint",
   });
 }
 export async function createOpenAPITestRunner() {

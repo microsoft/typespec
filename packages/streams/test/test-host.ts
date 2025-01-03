@@ -4,6 +4,7 @@ import { StreamsTestLibrary } from "../src/testing/index.js";
 export async function createStreamsTestHost() {
   return createTestHost({
     libraries: [StreamsTestLibrary],
+    diagnosticFilter: (diag) => diag.severity !== "hint",
   });
 }
 
