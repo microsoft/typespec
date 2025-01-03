@@ -193,7 +193,7 @@ async function setupPyodideCall(root: string) {
         const stats = fs.statSync(micropipLockPath);
         const now = new Date().getTime();
         const lockAge = (now - stats.mtime.getTime()) / 1000;
-        if (lockAge > 600) {
+        if (lockAge > 300) {
           fs.unlinkSync(micropipLockPath);
         }
       } catch (err) {
