@@ -299,14 +299,8 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
       _getCmdList(subdirectory, flagsResolved),
     );
-    const chunks: TspCommand[][] = [];
-    for (let i = 0; i < cmdList.length; i += 10) {
-      chunks.push(cmdList.slice(i, i + 10));
-    }
-    for (const chunk of chunks) {
-      const promiseCommands = chunk.map((tspCommand) => executeCommand(tspCommand));
-      await Promise.all(promiseCommands);
-    }
+    const PromiseCommands = cmdList.map((tspCommand) => executeCommand(tspCommand));
+    await Promise.all(PromiseCommands);
   }
 }
 
