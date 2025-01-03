@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using Type.Dictionary;
 
 namespace _Type.Dictionary.Models
 {

@@ -2,6 +2,8 @@
 
 #nullable disable
 
+using Versioning.MadeOptional;
+
 namespace Versioning.MadeOptional.V2.Models
 {
     public static partial class VersioningMadeOptionalV2ModelFactory

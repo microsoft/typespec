@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InvalidAuth",
+   "clientNamespace": "Authentication.Http.Custom",
    "crossLanguageDefinitionId": "Authentication.Http.Custom.InvalidAuth",
    "usage": "Error,Json,Exception",
    "decorators": [],

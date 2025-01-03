@@ -6,11 +6,11 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using SpecialWords.Models;
+using SpecialWords.ModelProperties;
 
 namespace SpecialWords
 {
-    public partial class ModelProperties
+    internal partial class ModelProperties
     {
         protected ModelProperties() => throw null;
 
@@ -20,8 +20,8 @@ namespace SpecialWords
 
         public virtual Task<ClientResult> SameAsModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SameAsModel(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SameAsModel(SpecialWords.ModelProperties.SameAsModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SameAsModelAsync(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SameAsModelAsync(SpecialWords.ModelProperties.SameAsModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

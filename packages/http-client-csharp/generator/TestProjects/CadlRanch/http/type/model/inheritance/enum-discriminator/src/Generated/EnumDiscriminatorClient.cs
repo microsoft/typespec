@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type.Model.Inheritance.EnumDiscriminator.Models;
+using Type.Model.Inheritance.EnumDiscriminator;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {

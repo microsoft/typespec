@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace _Type.Model.Inheritance.EnumDiscriminator.Models
+namespace Type.Model.Inheritance.EnumDiscriminator
 {
     internal partial class UnknownDog : Dog
     {

@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         {
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, isRequired: true, isReadOnly: true);
-            var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
+            var inputModel = InputFactory.Model("foo", string.Empty, access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
             var param = InputFactory.Parameter("param", InputFactory.Literal.String("bar"), location: RequestLocation.Header, isRequired: true, isResourceParameter: true);
             var inputOperation = InputFactory.Operation("testOperation", parameters: [param], responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);

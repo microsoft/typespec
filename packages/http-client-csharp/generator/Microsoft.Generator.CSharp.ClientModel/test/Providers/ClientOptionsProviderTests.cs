@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             {
                 List<string> apiVersions = ["1.0", "2.0"];
                 var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-                var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+                var inputEnum = InputFactory.Enum("ServiceVersion", string.Empty, InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
 
                 MockHelpers.LoadMockPlugin(
                     apiVersions: () => apiVersions,

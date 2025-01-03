@@ -37,6 +37,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.RenamedFrom",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -92,6 +93,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.RenamedFrom",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -104,6 +106,7 @@
    "$id": "12",
    "kind": "model",
    "name": "NewModel",
+   "clientNamespace": "Versioning.RenamedFrom",
    "crossLanguageDefinitionId": "Versioning.RenamedFrom.NewModel",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -174,6 +177,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "Versioning.RenamedFrom",
       "decorators": []
      },
      "optional": false,

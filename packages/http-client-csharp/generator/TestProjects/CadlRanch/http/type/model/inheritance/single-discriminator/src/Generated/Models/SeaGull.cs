@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace _Type.Model.Inheritance.SingleDiscriminator.Models
+namespace Type.Model.Inheritance.SingleDiscriminator
 {
     public partial class SeaGull : Bird
     {

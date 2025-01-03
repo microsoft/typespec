@@ -6,6 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Type.Union;
 using _Type.Union.Models;
 
 namespace _Type.Union

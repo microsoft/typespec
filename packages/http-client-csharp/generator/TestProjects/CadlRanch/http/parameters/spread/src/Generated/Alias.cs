@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Parameters.Spread
 {
-    public partial class Alias
+    internal partial class Alias
     {
         protected Alias() => throw null;
 

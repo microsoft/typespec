@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace _Type._Array.Models
+namespace Type.Array
 {
     public partial class InnerModel
     {

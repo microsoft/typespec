@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "BodyModel",
+   "clientNamespace": "Parameters.BodyOptionality",
    "crossLanguageDefinitionId": "Parameters.BodyOptionality.BodyModel",
    "usage": "Input,Spread,Json",
    "decorators": [],

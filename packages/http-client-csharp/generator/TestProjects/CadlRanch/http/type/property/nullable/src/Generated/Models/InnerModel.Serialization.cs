@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace _Type.Property.Nullable.Models
+namespace Type.Property.Nullable
 {
     public partial class InnerModel : IJsonModel<InnerModel>
     {

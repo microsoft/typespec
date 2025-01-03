@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace _Type.Model.Usage.Models
+namespace Type.Model.Usage
 {
     public partial class OutputRecord
     {

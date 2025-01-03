@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using Type.Model.Inheritance.NestedDiscriminator;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator.Models
 {

@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type._Enum.Fixed.Models;
+using Type.Enum.Fixed;
 
 namespace _Type._Enum.Fixed
 {

@@ -6,11 +6,11 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Parameters.Spread.Models;
+using Parameters.Spread.Model;
 
 namespace Parameters.Spread
 {
-    public partial class Model
+    internal partial class Model
     {
         protected Model() => throw null;
 
@@ -28,9 +28,9 @@ namespace Parameters.Spread
 
         public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequestOnlyWithBody(BodyParameter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SpreadCompositeRequestOnlyWithBody(Spread.Model.BodyParameter body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(BodyParameter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SpreadCompositeRequestOnlyWithBodyAsync(Spread.Model.BodyParameter body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult SpreadCompositeRequestWithoutBody(string name, string testHeader, RequestOptions options) => throw null;
 
@@ -44,9 +44,9 @@ namespace Parameters.Spread
 
         public virtual Task<ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult SpreadCompositeRequest(string name, string testHeader, BodyParameter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult SpreadCompositeRequest(string name, string testHeader, Spread.Model.BodyParameter body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, BodyParameter body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> SpreadCompositeRequestAsync(string name, string testHeader, Spread.Model.BodyParameter body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult SpreadCompositeRequestMix(string name, string testHeader, BinaryContent content, RequestOptions options = null) => throw null;
 

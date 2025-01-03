@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using UnbrandedTypeSpec.Models;
+using UnbrandedTypeSpec;
 
 namespace TestProjects.Local.Tests
 {

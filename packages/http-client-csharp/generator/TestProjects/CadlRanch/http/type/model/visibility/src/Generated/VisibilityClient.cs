@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type.Model.Visibility.Models;
+using Type.Model.Visibility;
 
 namespace _Type.Model.Visibility
 {

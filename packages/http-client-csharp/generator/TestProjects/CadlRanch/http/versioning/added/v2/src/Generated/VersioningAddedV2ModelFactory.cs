@@ -3,6 +3,7 @@
 #nullable disable
 
 using System;
+using Versioning.Added;
 
 namespace Versioning.Added.V2.Models
 {

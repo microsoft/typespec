@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InnerModel",
+   "clientNamespace": "Type.Array",
    "crossLanguageDefinitionId": "Type.Array.InnerModel",
    "usage": "Input,Output,Json",
    "doc": "Array inner model",
@@ -2020,7 +2021,8 @@
           "name": "float32",
           "crossLanguageDefinitionId": "TypeSpec.float32",
           "decorators": []
-         }
+         },
+         "clientNamespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2224,7 +2226,8 @@
           "name": "int32",
           "crossLanguageDefinitionId": "TypeSpec.int32",
           "decorators": []
-         }
+         },
+         "clientNamespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2428,7 +2431,8 @@
           "name": "boolean",
           "crossLanguageDefinitionId": "TypeSpec.boolean",
           "decorators": []
-         }
+         },
+         "clientNamespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2632,7 +2636,8 @@
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
           "decorators": []
-         }
+         },
+         "clientNamespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []
@@ -2832,7 +2837,8 @@
          "kind": "nullable",
          "type": {
           "$ref": "2"
-         }
+         },
+         "clientNamespace": ""
         },
         "crossLanguageDefinitionId": "TypeSpec.Array",
         "decorators": []

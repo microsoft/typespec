@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Encode.Bytes.Models
+namespace Encode.Bytes
 {
     public partial class Base64BytesProperty : IJsonModel<Base64BytesProperty>
     {

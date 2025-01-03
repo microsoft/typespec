@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Versioning.MadeOptional.V2.Models
+namespace Versioning.MadeOptional
 {
     public partial class TestModel
     {

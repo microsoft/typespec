@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using Type.Model.Visibility;
 
 namespace _Type.Model.Visibility.Models
 {

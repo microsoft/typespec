@@ -15,6 +15,6 @@ namespace Serialization.EncodedName.Json
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Property GetPropertyClient() => throw null;
+        public virtual Json.Property GetPropertyClient() => throw null;
     }
 }

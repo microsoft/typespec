@@ -37,6 +37,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Resiliency.ServiceDriven",
    "doc": "Service versions.",
    "isFixed": true,
    "isFlags": false,

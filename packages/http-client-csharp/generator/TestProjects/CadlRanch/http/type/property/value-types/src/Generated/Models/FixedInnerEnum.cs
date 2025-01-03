@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace _Type.Property.ValueTypes.Models
+namespace Type.Property.ValueTypes
 {
     public enum FixedInnerEnum
     {

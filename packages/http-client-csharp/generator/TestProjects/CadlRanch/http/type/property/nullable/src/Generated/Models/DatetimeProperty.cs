@@ -4,7 +4,7 @@
 
 using System;
 
-namespace _Type.Property.Nullable.Models
+namespace Type.Property.Nullable
 {
     public partial class DatetimeProperty
     {

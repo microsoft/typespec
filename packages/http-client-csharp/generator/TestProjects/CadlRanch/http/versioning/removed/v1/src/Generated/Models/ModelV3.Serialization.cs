@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Versioning.Removed.V1.Models
+namespace Versioning.Removed
 {
     public partial class ModelV3 : IJsonModel<ModelV3>
     {
