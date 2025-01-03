@@ -21,3 +21,39 @@ it("it change model expression to an object value", async () => {
       }
     `);
 });
+
+it("it recursively changes the model expression to the corresponding object value", async () => {
+  await expectCodeFixOnAst(
+    `
+      @example(┆{Bar : {Baz : "Hello"}})
+      model Foo { Bar : Bar; }
+      model Bar { Baz : string }
+    `,
+    (node) => {
+      strictEqual(node.kind, SyntaxKind.ModelExpression);
+      return createModelToObjectValueCodeFix(node);
+    },
+  ).toChangeTo(`
+      @example(#{Bar : #{Baz : "Hello"}})
+      model Foo { Bar : Bar; }
+      model Bar { Baz : string }
+    `);
+});
+
+it("it recursively changes the complex model expression to the corresponding object value or array value", async () => {
+  await expectCodeFixOnAst(
+    `
+      @example(┆{ Bar: [ {Baz: "Hello"}, [ "foo" ] ] })
+      model Foo { Bar : Array<Bar|Array<string>>; }
+      model Bar { Baz : string }
+    `,
+    (node) => {
+      strictEqual(node.kind, SyntaxKind.ModelExpression);
+      return createModelToObjectValueCodeFix(node);
+    },
+  ).toChangeTo(`
+      @example(#{ Bar: #[ #{Baz: "Hello"}, #[ "foo" ] ] })
+      model Foo { Bar : Array<Bar|Array<string>>; }
+      model Bar { Baz : string }
+    `);
+});
