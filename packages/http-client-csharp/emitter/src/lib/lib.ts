@@ -37,6 +37,12 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
+    "no-root-client": {
+      severity: "error",
+      messages: {
+        default: "Cannot generate CSharp SDK since no public root client is defined in typespec file.",
+      },
+    },
   },
   emitter: {
     options: NetEmitterOptionsSchema,
