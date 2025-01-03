@@ -166,8 +166,6 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 IType propertyWireType = property.getWireType();
                 IType propertyClientType = propertyWireType.getClientType();
 
-                JavaVisibility methodVisibility = getGetterVisibility(model, property, streamStyle);
-
                 if (!property.isPolymorphicDiscriminator()
                     || PolymorphicDiscriminatorHandler.generateGetter(model, property, settings)) {
                     generateGetterJavadoc(classBlock, property);
@@ -178,6 +176,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     if (!propertyIsReadOnly) {
                         TemplateUtil.addJsonGetter(classBlock, settings, property.getSerializedName());
                     }
+                    JavaVisibility methodVisibility = getGetterVisibility(model, property, streamStyle);
 
                     if (addOverrideAnnotationToGetter(methodVisibility, model, property, settings)) {
                         classBlock.annotation("Override");
@@ -192,7 +191,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     generateSetterJavadoc(classBlock, model, property);
                     addGeneratedAnnotation(classBlock);
                     TemplateUtil.addJsonSetter(classBlock, settings, property.getSerializedName());
-                    classBlock.method(methodVisibility, null,
+                    classBlock.method(JavaVisibility.Public, null,
                         model.getName() + " " + property.getSetterName() + "(" + propertyClientType + " "
                             + property.getName() + ")",
                         methodBlock -> addSetterMethod(propertyWireType, propertyClientType, property, treatAsXml,
@@ -362,7 +361,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         } else {
             if (streamStyle && model.isAllPolymorphicModelsInSamePackage()) {
                 // If all polymorphic models are in the same package, flattened property won't shadow in child class,
-                // making it inaccessible for children's getter method.
+                // package-private here is to make parent getter accessible for children.
                 methodVisibility = JavaVisibility.PackagePrivate;
             } else {
                 methodVisibility = JavaVisibility.Private;
