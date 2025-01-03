@@ -40,7 +40,8 @@ const $lib = createTypeSpecLibrary({
     "no-root-client": {
       severity: "error",
       messages: {
-        default: "Cannot generate CSharp SDK since no public root client is defined in typespec file.",
+        default:
+          "Cannot generate CSharp SDK since no public root client is defined in typespec file.",
       },
     },
   },
