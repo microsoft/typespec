@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Type.Property.AdditionalProperties
+namespace _Type.Property.AdditionalProperties
 {
     public partial class DifferentSpreadStringRecord
     {

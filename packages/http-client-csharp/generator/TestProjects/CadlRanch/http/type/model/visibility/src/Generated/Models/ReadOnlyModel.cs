@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Type.Model.Visibility
+namespace _Type.Model.Visibility
 {
     public partial class ReadOnlyModel
     {

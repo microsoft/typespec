@@ -4,7 +4,7 @@
 
 using _Type.Union.Models;
 
-namespace Type.Union
+namespace _Type.Union
 {
     public partial class GetResponse9
     {

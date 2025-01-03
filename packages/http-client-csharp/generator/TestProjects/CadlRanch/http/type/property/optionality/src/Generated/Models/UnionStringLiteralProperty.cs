@@ -4,7 +4,7 @@
 
 using _Type.Property.Optional.Models;
 
-namespace Type.Property.Optional
+namespace _Type.Property.Optional
 {
     public partial class UnionStringLiteralProperty
     {

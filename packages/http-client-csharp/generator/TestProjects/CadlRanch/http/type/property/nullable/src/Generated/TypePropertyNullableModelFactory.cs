@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using Type.Property.Nullable;
+using _Type.Property.Nullable;
 
 namespace _Type.Property.Nullable.Models
 {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-using Type.Model.Inheritance.NotDiscriminated;
+using _Type.Model.Inheritance.NotDiscriminated;
 
 namespace _Type.Model.Inheritance.NotDiscriminated.Models
 {

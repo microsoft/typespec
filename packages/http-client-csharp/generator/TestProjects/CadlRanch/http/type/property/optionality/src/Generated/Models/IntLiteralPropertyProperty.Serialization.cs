@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Type.Property.Optional
+namespace _Type.Property.Optional
 {
     public readonly partial struct IntLiteralPropertyProperty
     {

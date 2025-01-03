@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Inheritance.EnumDiscriminator
+namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     [PersistableModelProxy(typeof(UnknownDog))]
     public abstract partial class Dog : IJsonModel<Dog>

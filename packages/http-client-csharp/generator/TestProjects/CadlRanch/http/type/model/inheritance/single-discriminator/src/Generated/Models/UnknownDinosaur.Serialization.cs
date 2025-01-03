@@ -6,7 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Inheritance.SingleDiscriminator
+namespace _Type.Model.Inheritance.SingleDiscriminator
 {
     internal partial class UnknownDinosaur : IJsonModel<Dinosaur>
     {

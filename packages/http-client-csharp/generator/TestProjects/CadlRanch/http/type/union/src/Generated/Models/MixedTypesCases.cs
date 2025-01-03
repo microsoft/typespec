@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Type.Union
+namespace _Type.Union
 {
     public partial class MixedTypesCases
     {

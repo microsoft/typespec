@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using Type.Union;
+using _Type.Union;
 
 namespace _Type.Union.Models
 {

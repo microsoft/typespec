@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Property.AdditionalProperties
+namespace _Type.Property.AdditionalProperties
 {
     public partial class ExtendsUnknownAdditionalPropertiesDerived : IJsonModel<ExtendsUnknownAdditionalPropertiesDerived>
     {

@@ -6,7 +6,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Type.Property.Nullable;
 
 namespace _Type.Property.Nullable
 {

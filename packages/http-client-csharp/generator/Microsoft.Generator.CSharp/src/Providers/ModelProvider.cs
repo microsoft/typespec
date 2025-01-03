@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string GetNamespace() => string.IsNullOrEmpty(_inputModel.ClientNamespace) ?
             CodeModelPlugin.Instance.Configuration.ModelNamespace :
-            _inputModel.ClientNamespace;
+            Configuration.GetCleanNameSpace(_inputModel.ClientNamespace);
 
         protected override CSharpType? GetBaseType()
         {

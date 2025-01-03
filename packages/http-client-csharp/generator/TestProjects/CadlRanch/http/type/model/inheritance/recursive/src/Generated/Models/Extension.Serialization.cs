@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Inheritance.Recursive
+namespace _Type.Model.Inheritance.Recursive
 {
     public partial class Extension : IJsonModel<Extension>
     {

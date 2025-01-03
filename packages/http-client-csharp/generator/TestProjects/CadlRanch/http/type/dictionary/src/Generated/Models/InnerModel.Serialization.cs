@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Dictionary
+namespace _Type.Dictionary
 {
     public partial class InnerModel : IJsonModel<InnerModel>
     {

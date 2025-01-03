@@ -2,7 +2,7 @@
 
 #nullable disable
 
-using Type.Model.Inheritance.EnumDiscriminator;
+using _Type.Model.Inheritance.EnumDiscriminator;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator.Models
 {

@@ -6,7 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Inheritance.NestedDiscriminator
+namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     internal partial class UnknownFish : IJsonModel<Fish>
     {

@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Type.Model.Inheritance.NestedDiscriminator
+namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     public partial class Shark : Fish
     {

@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Property.Optional
+namespace _Type.Property.Optional
 {
     public partial class UnionStringLiteralProperty : IJsonModel<UnionStringLiteralProperty>
     {

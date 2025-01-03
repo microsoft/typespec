@@ -7,7 +7,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Type.Model.Inheritance.NestedDiscriminator;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {

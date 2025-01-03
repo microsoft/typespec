@@ -6,7 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Inheritance.EnumDiscriminator
+namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     internal partial class UnknownDog : IJsonModel<Dog>
     {

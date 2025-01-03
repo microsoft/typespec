@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Type.Union
+namespace _Type.Union
 {
     public partial class GetResponse2
     {

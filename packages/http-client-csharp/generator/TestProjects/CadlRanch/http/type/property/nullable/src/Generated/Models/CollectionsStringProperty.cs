@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Type.Property.Nullable
+namespace _Type.Property.Nullable
 {
     public partial class CollectionsStringProperty
     {

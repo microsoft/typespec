@@ -7,7 +7,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Type.Model.Inheritance.Recursive;
 
 namespace _Type.Model.Inheritance.Recursive
 {

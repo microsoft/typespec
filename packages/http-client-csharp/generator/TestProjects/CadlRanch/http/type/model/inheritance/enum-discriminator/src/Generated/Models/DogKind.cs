@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Type.Model.Inheritance.EnumDiscriminator
+namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     internal readonly partial struct DogKind : IEquatable<DogKind>
     {

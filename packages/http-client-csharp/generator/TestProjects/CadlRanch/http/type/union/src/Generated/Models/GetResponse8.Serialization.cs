@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Union
+namespace _Type.Union
 {
     public partial class GetResponse8 : IJsonModel<GetResponse8>
     {

@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Inheritance.SingleDiscriminator
+namespace _Type.Model.Inheritance.SingleDiscriminator
 {
     public partial class Eagle : IJsonModel<Eagle>
     {

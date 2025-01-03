@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Type.Model.Empty
+namespace _Type.Model.Empty
 {
     public partial class EmptyInput
     {

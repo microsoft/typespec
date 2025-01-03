@@ -4,7 +4,7 @@
 
 using _Type.Property.ValueTypes.Models;
 
-namespace Type.Property.ValueTypes
+namespace _Type.Property.ValueTypes
 {
     public partial class UnionFloatLiteralProperty
     {

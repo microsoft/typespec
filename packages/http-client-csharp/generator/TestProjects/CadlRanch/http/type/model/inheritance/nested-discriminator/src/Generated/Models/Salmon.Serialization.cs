@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Inheritance.NestedDiscriminator
+namespace _Type.Model.Inheritance.NestedDiscriminator
 {
     public partial class Salmon : IJsonModel<Salmon>
     {

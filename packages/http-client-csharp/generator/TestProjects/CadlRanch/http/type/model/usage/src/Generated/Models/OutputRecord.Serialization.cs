@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Usage
+namespace _Type.Model.Usage
 {
     public partial class OutputRecord : IJsonModel<OutputRecord>
     {

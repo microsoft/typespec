@@ -3,7 +3,7 @@
 #nullable disable
 
 using System.Collections.Generic;
-using Type.Array;
+using _Type._Array;
 
 namespace _Type._Array.Models
 {

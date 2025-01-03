@@ -2,7 +2,7 @@
 
 #nullable disable
 
-using Type.Model.Empty;
+using _Type.Model.Empty;
 
 namespace _Type.Model.Empty.Models
 {

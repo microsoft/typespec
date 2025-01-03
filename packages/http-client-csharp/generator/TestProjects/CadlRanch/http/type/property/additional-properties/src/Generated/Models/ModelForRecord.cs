@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Type.Property.AdditionalProperties
+namespace _Type.Property.AdditionalProperties
 {
     public partial class ModelForRecord
     {

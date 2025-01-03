@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Empty
+namespace _Type.Model.Empty
 {
     public partial class EmptyInputOutput : IJsonModel<EmptyInputOutput>
     {

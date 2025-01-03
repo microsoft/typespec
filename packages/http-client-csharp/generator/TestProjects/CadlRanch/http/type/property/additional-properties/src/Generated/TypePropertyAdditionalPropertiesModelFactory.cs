@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using Type.Property.AdditionalProperties;
+using _Type.Property.AdditionalProperties;
 
 namespace _Type.Property.AdditionalProperties.Models
 {

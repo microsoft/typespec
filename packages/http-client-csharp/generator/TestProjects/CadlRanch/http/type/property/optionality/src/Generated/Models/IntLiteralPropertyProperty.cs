@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Type.Property.Optional
+namespace _Type.Property.Optional
 {
     public readonly partial struct IntLiteralPropertyProperty : IEquatable<IntLiteralPropertyProperty>
     {

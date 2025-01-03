@@ -67,7 +67,8 @@ namespace Microsoft.Generator.CSharp
             UnreferencedTypesHandling = unreferencedTypesHandling;
         }
 
-        private string GetCleanNameSpace(string libraryNamespace)
+        // TODO -- this is temporary, we may move this method to somewhere else such as the `StringExtensions`.
+        internal static string GetCleanNameSpace(string libraryNamespace)
         {
             Span<char> dest = stackalloc char[libraryNamespace.Length + GetSegmentCount(libraryNamespace)];
             var source = libraryNamespace.AsSpan();
@@ -98,7 +99,7 @@ namespace Microsoft.Generator.CSharp
             return dest.Slice(0, destIndex).ToString();
         }
 
-        private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
+        private static bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
         {
             for (int i = 0; i < _badNamespaces.Length; i++)
             {

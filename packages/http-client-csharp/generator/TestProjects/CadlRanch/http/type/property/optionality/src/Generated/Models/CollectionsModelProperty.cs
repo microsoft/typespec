@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace Type.Property.Optional
+namespace _Type.Property.Optional
 {
     public partial class CollectionsModelProperty
     {

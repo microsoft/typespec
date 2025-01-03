@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Property.ValueTypes
+namespace _Type.Property.ValueTypes
 {
     public partial class ExtensibleEnumProperty : IJsonModel<ExtensibleEnumProperty>
     {

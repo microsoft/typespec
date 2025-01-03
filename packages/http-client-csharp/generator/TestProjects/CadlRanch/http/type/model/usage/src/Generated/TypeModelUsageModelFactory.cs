@@ -2,7 +2,7 @@
 
 #nullable disable
 
-using Type.Model.Usage;
+using _Type.Model.Usage;
 
 namespace _Type.Model.Usage.Models
 {

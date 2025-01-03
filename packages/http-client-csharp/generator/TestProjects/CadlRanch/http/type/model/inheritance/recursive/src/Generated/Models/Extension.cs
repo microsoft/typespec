@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Type.Model.Inheritance.Recursive
+namespace _Type.Model.Inheritance.Recursive
 {
     public partial class Extension : Element
     {

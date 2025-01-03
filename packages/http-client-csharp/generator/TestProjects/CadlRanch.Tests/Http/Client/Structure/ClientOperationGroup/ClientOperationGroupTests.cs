@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Client.Structure.Service;
-using Client.Structure.Service.Models;
 using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;

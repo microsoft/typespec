@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Type.Property.ValueTypes
+namespace _Type.Property.ValueTypes
 {
     public readonly partial struct ExtendedEnum : IEquatable<ExtendedEnum>
     {

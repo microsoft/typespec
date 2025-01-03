@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Type.Model.Visibility
+namespace _Type.Model.Visibility
 {
     public partial class VisibilityModel : IJsonModel<VisibilityModel>
     {
