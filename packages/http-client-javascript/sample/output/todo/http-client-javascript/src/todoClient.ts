@@ -10,7 +10,8 @@ import {
   createAttachmentsClientContext,
 } from "./api/todoItemsClient/attachmentsClient/clientContext.js";
 import {
-  createAttachment,
+  createFileAttachment,
+  createJsonAttachment,
   list as list_2,
 } from "./api/todoItemsClient/attachmentsClient/operations.js";
 import {
@@ -19,7 +20,8 @@ import {
   createTodoItemsClientContext,
 } from "./api/todoItemsClient/clientContext.js";
 import {
-  create as create_2,
+  createForm,
+  createJson,
   delete_,
   get,
   list,
@@ -31,7 +33,14 @@ import {
   createUsersClientContext,
 } from "./api/usersClient/clientContext.js";
 import { create } from "./api/usersClient/operations.js";
-import { TodoAttachment, TodoItem, TodoItemPatch, User } from "./models/models.js";
+import {
+  FileAttachmentMultipartRequest,
+  ToDoItemMultipartRequest,
+  TodoAttachment,
+  TodoItem,
+  TodoItemPatch,
+  User,
+} from "./models/models.js";
 
 export class TodoClient {
   #context: TodoClientContext;
@@ -55,14 +64,17 @@ export class TodoItemsClient {
   async list(options?: { limit?: number; offset?: number }) {
     return list(this.#context, options);
   }
-  async create(
+  async createJson(
     item: TodoItem,
     contentType: "application/json",
     options?: {
       attachments?: Array<TodoAttachment>;
     },
   ) {
-    return create_2(this.#context, item, contentType, options);
+    return createJson(this.#context, item, contentType, options);
+  }
+  async createForm(body: ToDoItemMultipartRequest, contentType: "multipart/form-data") {
+    return createForm(this.#context, body, contentType);
   }
   async get(id: number) {
     return get(this.#context, id);
@@ -84,8 +96,19 @@ export class AttachmentsClient {
   async list(itemId: number) {
     return list_2(this.#context, itemId);
   }
-  async createAttachment(itemId: number, contents: TodoAttachment) {
-    return createAttachment(this.#context, itemId, contents);
+  async createJsonAttachment(
+    itemId: number,
+    contents: TodoAttachment,
+    contentType: "application/json",
+  ) {
+    return createJsonAttachment(this.#context, itemId, contents, contentType);
+  }
+  async createFileAttachment(
+    itemId: number,
+    body: FileAttachmentMultipartRequest,
+    contentType: "multipart/form-data",
+  ) {
+    return createFileAttachment(this.#context, itemId, body, contentType);
   }
 }
 

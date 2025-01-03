@@ -1,15 +1,17 @@
 import {
-  AttachmentPage,
   ConstructorParameters,
   ConstructorParameters_2,
   ConstructorParameters_3,
   ConstructorParameters_4,
-  TodoFileAttachment,
+  File,
+  FileAttachmentMultipartRequest,
+  TodoAttachment,
+  TodoAttachmentPage,
   TodoItem,
+  ToDoItemMultipartRequest,
   TodoItemPatch,
   TodoLabelRecord,
   TodoPage,
-  TodoUrlAttachment,
   User,
 } from "./models.js";
 
@@ -106,27 +108,23 @@ export function constructorParametersToApplication_4(item: any): ConstructorPara
 export function todoPageToTransport(item: TodoPage): any {
   return {
     items: arraySerializer(item.items, todoItemToTransport),
-    pagination: {
-      pageSize: item.pagination.pageSize,
-      totalSize: item.pagination.totalSize,
-      limit: item.pagination.limit,
-      offset: item.pagination.offset,
-      prevLink: item.pagination.prevLink,
-      nextLink: item.pagination.nextLink,
-    },
+    pageSize: item.pageSize,
+    totalSize: item.totalSize,
+    limit: item.limit,
+    offset: item.offset,
+    prevLink: item.prevLink,
+    nextLink: item.nextLink,
   };
 }
 export function todoPageToApplication(item: any): TodoPage {
   return {
     items: arraySerializer(item.items, todoItemToApplication),
-    pagination: {
-      pageSize: item.pagination.pageSize,
-      totalSize: item.pagination.totalSize,
-      limit: item.pagination.limit,
-      offset: item.pagination.offset,
-      prevLink: item.pagination.prevLink,
-      nextLink: item.pagination.nextLink,
-    },
+    pageSize: item.pageSize,
+    totalSize: item.totalSize,
+    limit: item.limit,
+    offset: item.offset,
+    prevLink: item.prevLink,
+    nextLink: item.nextLink,
   };
 }
 export function todoItemToTransport(item: TodoItem): any {
@@ -171,30 +169,48 @@ export function todoLabelRecordToApplication(item: any): TodoLabelRecord {
     color: item.color,
   };
 }
-export function todoFileAttachmentToTransport(item: TodoFileAttachment): any {
+export function todoAttachmentToTransport(item: TodoAttachment): any {
   return {
     filename: item.filename,
     mediaType: item.mediaType,
     contents: item.contents,
   };
 }
-export function todoFileAttachmentToApplication(item: any): TodoFileAttachment {
+export function todoAttachmentToApplication(item: any): TodoAttachment {
   return {
     filename: item.filename,
     mediaType: item.mediaType,
     contents: item.contents,
   };
 }
-export function todoUrlAttachmentToTransport(item: TodoUrlAttachment): any {
+export function toDoItemMultipartRequestToTransport(item: ToDoItemMultipartRequest): any {
   return {
-    description: item.description,
-    url: item.url,
+    item: todoItemToTransport(item.item),
+    attachments: item.attachments
+      ? arraySerializer(item.attachments, fileToTransport)
+      : item.attachments,
   };
 }
-export function todoUrlAttachmentToApplication(item: any): TodoUrlAttachment {
+export function toDoItemMultipartRequestToApplication(item: any): ToDoItemMultipartRequest {
   return {
-    description: item.description,
-    url: item.url,
+    item: todoItemToApplication(item.item),
+    attachments: item.attachments
+      ? arraySerializer(item.attachments, fileToApplication)
+      : item.attachments,
+  };
+}
+export function fileToTransport(item: File): any {
+  return {
+    contentType: item.contentType,
+    filename: item.filename,
+    contents: item.contents,
+  };
+}
+export function fileToApplication(item: any): File {
+  return {
+    contentType: item.contentType,
+    filename: item.filename,
+    contents: item.contents,
   };
 }
 export function todoItemPatchToTransport(item: TodoItemPatch): any {
@@ -213,30 +229,28 @@ export function todoItemPatchToApplication(item: any): TodoItemPatch {
     status: item.status,
   };
 }
-export function attachmentPageToTransport(item: AttachmentPage): any {
+export function todoAttachmentPageToTransport(item: TodoAttachmentPage): any {
   return {
-    items: arraySerializer(item.items),
-    pagination: {
-      pageSize: item.pagination.pageSize,
-      totalSize: item.pagination.totalSize,
-      limit: item.pagination.limit,
-      offset: item.pagination.offset,
-      prevLink: item.pagination.prevLink,
-      nextLink: item.pagination.nextLink,
-    },
+    items: arraySerializer(item.items, todoAttachmentToTransport),
   };
 }
-export function attachmentPageToApplication(item: any): AttachmentPage {
+export function todoAttachmentPageToApplication(item: any): TodoAttachmentPage {
   return {
-    items: arraySerializer(item.items),
-    pagination: {
-      pageSize: item.pagination.pageSize,
-      totalSize: item.pagination.totalSize,
-      limit: item.pagination.limit,
-      offset: item.pagination.offset,
-      prevLink: item.pagination.prevLink,
-      nextLink: item.pagination.nextLink,
-    },
+    items: arraySerializer(item.items, todoAttachmentToApplication),
+  };
+}
+export function fileAttachmentMultipartRequestToTransport(
+  item: FileAttachmentMultipartRequest,
+): any {
+  return {
+    contents: fileToTransport(item.contents),
+  };
+}
+export function fileAttachmentMultipartRequestToApplication(
+  item: any,
+): FileAttachmentMultipartRequest {
+  return {
+    contents: fileToApplication(item.contents),
   };
 }
 export function userToTransport(item: User): any {

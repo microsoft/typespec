@@ -2,6 +2,7 @@ import { parse } from "uri-template";
 import {
   TodoAttachment,
   TodoItem,
+  ToDoItemMultipartRequest,
   TodoItemPatch,
   TodoLabels,
   TodoPage,
@@ -9,6 +10,8 @@ import {
 import {
   arraySerializer,
   dateDeserializer,
+  todoAttachmentToTransport,
+  toDoItemMultipartRequestToTransport,
   todoItemPatchToTransport,
   todoItemToTransport,
   todoPageToApplication,
@@ -38,7 +41,7 @@ export async function list(
 
   throw new Error("Unhandled response");
 }
-export async function create(
+export async function createJson(
   client: TodoItemsClientContext,
   item: TodoItem,
   contentType: "application/json",
@@ -66,8 +69,55 @@ export async function create(
     body: {
       item: todoItemToTransport(item),
       attachments: options?.attachments
-        ? arraySerializer(options?.attachments)
+        ? arraySerializer(options?.attachments, todoAttachmentToTransport)
         : options?.attachments,
+    },
+  };
+
+  const response = await client.path(path).post(httpRequestOptions);
+  if (+response.status === 200) {
+    return {
+      id: response.body.id,
+      title: response.body.title,
+      createdBy: response.body.createdBy,
+      assignedTo: response.body.assignedTo,
+      description: response.body.description,
+      status: response.body.status,
+      createdAt: dateDeserializer(response.body.createdAt),
+      updatedAt: dateDeserializer(response.body.updatedAt),
+      completedAt: response.body.completedAt
+        ? dateDeserializer(response.body.completedAt)
+        : response.body.completedAt,
+      labels: response.body.labels,
+    };
+  }
+
+  throw new Error("Unhandled response");
+}
+export async function createForm(
+  client: TodoItemsClientContext,
+  body: ToDoItemMultipartRequest,
+  contentType: "multipart/form-data",
+): Promise<{
+  id: number;
+  title: string;
+  createdBy: number;
+  assignedTo?: number;
+  description?: string;
+  status: "NotStarted" | "InProgress" | "Completed";
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt?: Date;
+  labels?: TodoLabels;
+}> {
+  const path = parse("/items").expand({});
+
+  const httpRequestOptions = {
+    headers: {
+      "Content-Type": contentType,
+    },
+    body: {
+      body: toDoItemMultipartRequestToTransport(body),
     },
   };
 
@@ -94,18 +144,23 @@ export async function create(
 export async function get(
   client: TodoItemsClientContext,
   id: number,
-): Promise<{
-  id: number;
-  title: string;
-  createdBy: number;
-  assignedTo?: number;
-  description?: string;
-  status: "NotStarted" | "InProgress" | "Completed";
-  createdAt: Date;
-  updatedAt: Date;
-  completedAt?: Date;
-  labels?: TodoLabels;
-} | void> {
+): Promise<
+  | {
+      id: number;
+      title: string;
+      createdBy: number;
+      assignedTo?: number;
+      description?: string;
+      status: "NotStarted" | "InProgress" | "Completed";
+      createdAt: Date;
+      updatedAt: Date;
+      completedAt?: Date;
+      labels?: TodoLabels;
+    }
+  | {
+      code: "not-found";
+    }
+> {
   const path = parse("/items/{id}").expand({
     id: id,
   });
@@ -132,8 +187,10 @@ export async function get(
     };
   }
 
-  if (+response.status === 204 && !response.body) {
-    return response.body;
+  if (+response.status === 200) {
+    return {
+      code: response.body.code,
+    };
   }
 
   throw new Error("Unhandled response");
@@ -186,7 +243,12 @@ export async function update(
 
   throw new Error("Unhandled response");
 }
-export async function delete_(client: TodoItemsClientContext, id: number): Promise<void> {
+export async function delete_(
+  client: TodoItemsClientContext,
+  id: number,
+): Promise<void | {
+  code: "not-found";
+}> {
   const path = parse("/items/{id}").expand({
     id: id,
   });
@@ -198,6 +260,12 @@ export async function delete_(client: TodoItemsClientContext, id: number): Promi
   const response = await client.path(path).delete(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
     return response.body;
+  }
+
+  if (+response.status === 200) {
+    return {
+      code: response.body.code,
+    };
   }
 
   throw new Error("Unhandled response");

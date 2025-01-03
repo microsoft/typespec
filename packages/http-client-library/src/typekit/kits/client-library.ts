@@ -156,11 +156,7 @@ export function collectTypes(client: Client, options: TypeCollectorOptions = {})
   };
 }
 
-function collectDataType(
-  type: Type,
-  dataTypes: Set<Model | Enum | Union>,
-  options: TypeCollectorOptions = {},
-) {
+function collectDataType(type: Type, dataTypes: Set<DataType>, options: TypeCollectorOptions = {}) {
   navigateType(
     type,
     {
@@ -219,6 +215,11 @@ function isDeclaredType(type: Type): boolean {
 }
 
 function trackType(types: Set<DataType>, type: Type) {
+  if ($.httpPart.is(type)) {
+    collectDataType($.httpPart.unpack(type), types);
+    return;
+  }
+
   if (!isDataType(type)) {
     return;
   }

@@ -79,6 +79,15 @@ model TodoItem {
   @visibility("create") _dummy?: string;
 }
 
+model ToDoItemMultipartRequest {
+  item: HttpPart<TodoItem>;
+  attachments?: HttpPart<File>[];
+}
+
+model FileAttachmentMultipartRequest {
+  contents: HttpPart<File>;
+}
+
 @jsonSchema
 union TodoLabels {
   string,
@@ -95,22 +104,8 @@ model TodoLabelRecord {
   color?: string;
 }
 
-union TodoAttachment {
-  file: TodoFileAttachment,
-  url: TodoUrlAttachment,
-}
-
 @jsonSchema
-model TodoUrlAttachment {
-  /** A description of the URL */
-  description: string;
-
-  /** The url */
-  url: url;
-}
-
-@jsonSchema
-model TodoFileAttachment {
+model TodoAttachment {
   /** The file name of the attachment */
   @maxLength(255)
   filename: string;
@@ -198,48 +193,25 @@ namespace TodoItems {
     @query offset?: int32 = 0;
   }
 
-  model AttachmentPage {
-    /** The items in the page */
-    @pageItems
-    items: TodoAttachment[];
-
-    pagination: {
-      /** The number of items returned in this page */
-      pageSize: int32;
-
-      /** The total number of items */
-      totalSize: int32;
-
-      ...PaginationControls;
-
-      /** A link to the previous page, if it exists */
-      prevLink?: url;
-
-      /** A link to the next page, if it exists */
-      nextLink?: url;
-    };
-  }
-
   model TodoPage {
     /** The items in the page */
-    @pageItems
-    items: TodoItem[];
+    @pageItems items: TodoItem[];
 
-    pagination: {
-      /** The number of items returned in this page */
-      pageSize: int32;
+    /** The number of items returned in this page */
+    pageSize: int32;
 
-      /** The total number of items */
-      totalSize: int32;
+    /** The total number of items */
+    totalSize: int32;
 
-      ...PaginationControls;
+    ...PaginationControls;
 
-      /** A link to the previous page, if it exists */
-      prevLink?: url;
+    /** A link to the previous page, if it exists */
+    @prevLink
+    prevLink?: url;
 
-      /** A link to the next page, if it exists */
-      nextLink?: url;
-    };
+    /** A link to the next page, if it exists */
+    @nextLink
+    nextLink?: url;
   }
 
   // deeply annoying that I have to copy/paste this...
@@ -261,16 +233,35 @@ namespace TodoItems {
     @statusCode statusCode: 422;
   }
 
+  @error
+  model NotFoundErrorResponse {
+    @statusCode statusCode: 404;
+    code: "not-found";
+  }
+
+  //@friendlyName("{name}List", T)
+  model Page<T> {
+    @pageItems items: T[];
+  }
+
   @list op list(...PaginationControls): WithStandardErrors<TodoPage>;
 
+  @sharedRoute
   @post
-  op create(
+  op createJson(
     @header contentType: "application/json",
     item: TodoItem,
     attachments?: TodoAttachment[],
   ): WithStandardErrors<TodoItem | InvalidTodoItem>;
 
-  @get op get(@path id: TodoItem.id): TodoItem | NotFoundResponse;
+  @sharedRoute
+  @post
+  op createForm(
+    @header contentType: "multipart/form-data",
+    @multipartBody body: ToDoItemMultipartRequest,
+  ): WithStandardErrors<TodoItem | InvalidTodoItem>;
+
+  @get op get(@path id: TodoItem.id): TodoItem | NotFoundErrorResponse;
   @patch op update(
     @header contentType: "application/merge-patch+json",
     @path id: TodoItem.id,
@@ -278,17 +269,28 @@ namespace TodoItems {
   ): TodoItem;
   @delete op delete(
     @path id: TodoItem.id,
-  ): WithStandardErrors<NoContentResponse | NotFoundResponse>;
+  ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
 
   @route("{itemId}/attachments")
   namespace Attachments {
-    @list op list(@path itemId: TodoItem.id): WithStandardErrors<AttachmentPage | NotFoundResponse>;
+    @list op list(
+      @path itemId: TodoItem.id,
+    ): WithStandardErrors<Page<TodoAttachment> | NotFoundErrorResponse>;
 
     @sharedRoute
     @post
-    op createAttachment(
+    op createJsonAttachment(
+      @header contentType: "application/json",
       @path itemId: TodoItem.id,
       @body contents: TodoAttachment,
-    ): WithStandardErrors<NoContentResponse | NotFoundResponse>;
+    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+
+    @sharedRoute
+    @post
+    op createFileAttachment(
+      @header contentType: "multipart/form-data",
+      @path itemId: TodoItem.id,
+      @multipartBody body: FileAttachmentMultipartRequest,
+    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
   }
 }

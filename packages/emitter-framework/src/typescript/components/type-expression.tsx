@@ -1,19 +1,21 @@
 import { refkey } from "@alloy-js/core";
 import { ValueExpression, Reference } from "@alloy-js/typescript";
 import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
-import { isArray, isDeclaration, isRecord } from "../../core/utils/typeguards.js";
+import { isDeclaration } from "../../core/utils/typeguards.js";
 import { UnionExpression } from "./union-expression.js";
 import {ArrayExpression} from "./array-expression.js";
 import { RecordExpression } from "./record-expression.js";
 import { InterfaceExpression } from "./interface-declaration.js";
 import { $ } from "@typespec/compiler/typekit";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import "@typespec/http/typekit";
 
 export interface TypeExpressionProps {
   type: Type;
 }
 
-export function TypeExpression({ type }: TypeExpressionProps) {
+export function TypeExpression(props: TypeExpressionProps) {
+  const type = $.httpPart.unpack(props.type);
   if (isDeclaration(type) && !(type as Model).indexer) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
@@ -55,6 +57,11 @@ export function TypeExpression({ type }: TypeExpressionProps) {
       if ($.record.is(type)) {
         const elementType = (type as Model).indexer!.value;
         return <RecordExpression elementType={elementType} />;
+      }
+
+      if($.httpPart.is(type)) {
+        const partType = $.httpPart.unpack(type);
+        return <TypeExpression type={partType} />;
       }
 
       return <InterfaceExpression type={type} />;

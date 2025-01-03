@@ -1,9 +1,10 @@
 import { useTSNamePolicy } from "@alloy-js/typescript";
-import { isNeverType, ModelIndexer, ModelProperty, Operation } from "@typespec/compiler";
+import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
 import { isOperation } from "../../core/utils/typeguards.js";
 import { FunctionDeclaration } from "./function-declaration.js";
 import { TypeExpression } from "./type-expression.js";
 import { $ } from "@typespec/compiler/experimental/typekit";
+import { getHttpPart } from "@typespec/http";
 
 export interface InterfaceMemberProps {
   type: ModelProperty | Operation;
@@ -21,9 +22,15 @@ export function InterfaceMember({ type, optional  }: InterfaceMemberProps) {
       return null;
     }
 
+    let unpackedType = type.type;
+    const part = getHttpPart($.program, type.type);
+    if(part) {
+      unpackedType = part.type;
+    }
+
     return (
       <>
-        "{name}"{optionality}: <TypeExpression type={type.type} />;
+        "{name}"{optionality}: <TypeExpression type={unpackedType} />;
       </>
     );
   }

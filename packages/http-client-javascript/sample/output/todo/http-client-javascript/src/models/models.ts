@@ -18,14 +18,12 @@ export interface ConstructorParameters_4 {
 
 export interface TodoPage {
   items: Array<TodoItem>;
-  pagination: {
-    pageSize: number;
-    totalSize: number;
-    limit?: number;
-    offset?: number;
-    prevLink?: string;
-    nextLink?: string;
-  };
+  pageSize: number;
+  totalSize: number;
+  limit?: number;
+  offset?: number;
+  prevLink?: string;
+  nextLink?: string;
 }
 
 export interface TodoItem {
@@ -49,17 +47,21 @@ export interface TodoLabelRecord {
   color?: string;
 }
 
-export type TodoAttachment = TodoFileAttachment | TodoUrlAttachment;
-
-export interface TodoFileAttachment {
+export interface TodoAttachment {
   filename: string;
   mediaType: string;
   contents: Uint8Array;
 }
 
-export interface TodoUrlAttachment {
-  description: string;
-  url: string;
+export interface ToDoItemMultipartRequest {
+  item: TodoItem;
+  attachments?: Array<File>;
+}
+
+export interface File {
+  contentType?: string;
+  filename?: string;
+  contents: Uint8Array;
 }
 
 export interface TodoItemPatch {
@@ -69,16 +71,12 @@ export interface TodoItemPatch {
   status?: "NotStarted" | "InProgress" | "Completed";
 }
 
-export interface AttachmentPage {
+export interface TodoAttachmentPage {
   items: Array<TodoAttachment>;
-  pagination: {
-    pageSize: number;
-    totalSize: number;
-    limit?: number;
-    offset?: number;
-    prevLink?: string;
-    nextLink?: string;
-  };
+}
+
+export interface FileAttachmentMultipartRequest {
+  contents: File;
 }
 
 export interface User {
