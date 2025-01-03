@@ -2549,7 +2549,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case IdentifierKind.ModelExpressionProperty:
       case IdentifierKind.ObjectLiteralProperty:
         const model = getReferencedModel(node as ModelPropertyNode | ObjectLiteralPropertyNode);
-        if (model) {
+        if (model && !Array.isArray(model)) {
           sym = getMemberSymbol(model.node!.symbol, id.sv);
         } else {
           return undefined;
@@ -2617,7 +2617,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function getReferencedModel(
     propertyNode: ObjectLiteralPropertyNode | ModelPropertyNode,
-  ): Model | undefined {
+  ): Model | Model[] | undefined {
     type ModelOrArrayValueNode = ArrayLiteralNode | ObjectLiteralNode;
     type ModelOrArrayTypeNode = ModelExpressionNode | TupleExpressionNode;
     type ModelOrArrayNode = ModelOrArrayValueNode | ModelOrArrayTypeNode;
@@ -2660,9 +2660,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         refType = getReferencedTypeFromConstAssignment(foundNode as ModelOrArrayValueNode);
         break;
     }
-    return refType?.kind === "Model" || refType?.kind === "Tuple"
-      ? getNestedModel(refType, path)
-      : undefined;
+
+    return refType?.kind === "Union"
+      ? getUnionModels(refType)
+      : refType?.kind === "Model" || refType?.kind === "Tuple"
+        ? getNestedModel(refType, path)
+        : undefined;
+
+    function getUnionModels(model: Union): Model[] {
+      const models: Model[] = [];
+      for (const variant of model.variants.values()) {
+        if (variant.type.kind === "Model") {
+          models.push(variant.type);
+        }
+      }
+      return models;
+    }
 
     function pushToModelPath(node: Node, preNode: Node | undefined, path: PathSeg[]) {
       if (node.kind === SyntaxKind.ArrayLiteral || node.kind === SyntaxKind.TupleExpression) {
@@ -2909,22 +2922,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return completions;
       }
       const curModelNode = ancestor.parent as ModelExpressionNode | ObjectLiteralNode;
-
-      for (const prop of walkPropertiesInherited(model)) {
-        if (
-          identifier.sv === prop.name ||
-          !curModelNode.properties.find(
-            (p) =>
-              (p.kind === SyntaxKind.ModelProperty ||
-                p.kind === SyntaxKind.ObjectLiteralProperty) &&
-              p.id.sv === prop.name,
-          )
-        ) {
-          const sym = getMemberSymbol(model.node!.symbol, prop.name);
-          if (sym) {
-            addCompletion(prop.name, sym);
-          }
+      if (Array.isArray(model)) {
+        for (const curModel of model) {
+          addInheritedPropertyCompletions(curModel, curModelNode);
         }
+      } else {
+        addInheritedPropertyCompletions(model, curModelNode);
       }
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
@@ -2985,6 +2988,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     return completions;
+
+    function addInheritedPropertyCompletions(
+      model: Model,
+      curModelNode: ModelExpressionNode | ObjectLiteralNode,
+    ) {
+      for (const prop of walkPropertiesInherited(model)) {
+        if (
+          identifier.sv === prop.name ||
+          !curModelNode.properties.find(
+            (p) =>
+              (p.kind === SyntaxKind.ModelProperty ||
+                p.kind === SyntaxKind.ObjectLiteralProperty) &&
+              p.id.sv === prop.name,
+          )
+        ) {
+          const sym = getMemberSymbol(model.node!.symbol, prop.name);
+          if (sym) {
+            addCompletion(prop.name, sym);
+          }
+        }
+      }
+    }
 
     function addCompletions(table: SymbolTable | undefined) {
       if (!table) {

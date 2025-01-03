@@ -664,6 +664,61 @@ describe("identifiers", () => {
     );
   });
 
+  it("completes union variants(models) of template parameters", async () => {
+    const completions = await complete(
+      `
+      model Options {
+        a: string;
+        b: string;
+      }
+
+      model Foo {
+        foo: string;
+      }
+
+      model Test<T extends valueof string | Foo | Options> {}
+
+      alias A = Test<#{┆}>;
+      `,
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "foo",
+          insertText: "foo",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nFoo.foo: string\n```",
+          },
+        },
+        {
+          label: "a",
+          insertText: "a",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nOptions.a: string\n```",
+          },
+        },
+        {
+          label: "b",
+          insertText: "b",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nOptions.b: string\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      },
+    );
+  });
+
   it("completes namespace operations", async () => {
     const completions = await complete(
       `
