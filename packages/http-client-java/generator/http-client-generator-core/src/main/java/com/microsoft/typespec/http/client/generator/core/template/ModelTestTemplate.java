@@ -101,7 +101,6 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             // avoid "constant string too long"
             StringBuilder sb = new StringBuilder("String.join(\"\"");
             String remains = jsonStr;
-            String.join("", "", "");
             while (remains.length() >= maxConstantStringLength) {
                 String current = remains.substring(0, maxConstantStringLength - 1);
                 remains = remains.substring(maxConstantStringLength - 1);
