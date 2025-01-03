@@ -353,6 +353,15 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             ifBlock -> methodBlock.line(initializeLine));
     }
 
+    /**
+     * Get getter method visibility for the field property.
+     *
+     * @param model the model to generate getter for
+     * @param property the field property to generate getter for, either defined by model itself, or the shadow one from
+     * parent
+     * @param streamStyle whether stream-style-serialization is enabled
+     * @return the getter method visibility for the field property
+     */
     private static JavaVisibility getGetterVisibility(ClientModel model, ClientModelProperty property,
         boolean streamStyle) {
         JavaVisibility methodVisibility;
