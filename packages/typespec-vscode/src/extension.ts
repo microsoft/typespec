@@ -1,4 +1,4 @@
-import vscode, { commands, ExtensionContext } from "vscode";
+import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
 import { ExtensionLogListener } from "./log/extension-log-listener.js";
@@ -100,7 +100,34 @@ export async function activate(context: ExtensionContext) {
   // Only try to start language server when some workspace has been opened
   // because the LanguageClient class will popup error notification in vscode directly if failing to start
   // which will be confusing to user if no workspace is opened (i.e. in Create TypeSpec project scenario)
-  if ((vscode.workspace.workspaceFolders?.length ?? 0) > 0) {
+  if (
+    (vscode.workspace.workspaceFolders?.length ?? 0) > 0 ||
+    // still need to check opened files when there is no workspace opened
+    vscode.window.tabGroups.all
+      .flatMap((tg) => tg.tabs)
+      .findIndex((t) => {
+        if (!t.input || !(t.input instanceof TabInputText) || !t.input.uri) {
+          return false;
+        }
+        // When an untitled file being renamed to .tsp file, our extension will be activated
+        // before the file info being refreshed properly, so need to check the untitled file too here.
+        // untitled file has the scheme "untitled"
+        if (t.input.uri.scheme === "untitled") {
+          return true;
+        }
+        // only handle .tsp file, not tspconfig.yaml file because
+        // vscode won't activate our extension if tspconfig.yaml is opened without workspace because we are using "workspaceContains:..." activation event now.
+        // In order to cover "tspconfig.yaml" file, we would need to hook on "onStartupFinish" or "*" activation event
+        // and check whether we should do real job in onDidOpenTextDocument event ourselves.
+        // Considering
+        //   - it's not a good idea to start our extension whenever vscode is started
+        //   - the increasement of complaxity to handle activation ourselves
+        //   - purely open a tspconfig.yaml file without other .tsp file as well as without workspace is a related corner case
+        //   - user can easily workaround this by calling "Restart TypeSpec Server" command
+        // We won't handle this case for now and may revisit this if we get more feedbacks from users.
+        return t.input.uri.fsPath.endsWith(".tsp");
+      }) >= 0
+  ) {
     return await vscode.window.withProgress(
       {
         title: "Launching TypeSpec language service...",
