@@ -3563,40 +3563,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (mapper === undefined) {
       for (const templateParameter of node.templateParameters) {
         checkTemplateParameterDeclaration(templateParameter, undefined);
-        const references = resolver.resolveTypeReference(templateParameter.id);
-        /* check template parameter usages in decorators. */
-        const decorators =
-          node.kind === SyntaxKind.ModelStatement
-            ? node.decorators.filter((d) => {
-                let isUsed: boolean = false;
-                for (const arg of d.arguments) {
-                  if (typeof arg === "object" && "target" in arg) {
-                    const argNode = arg as TypeReferenceNode;
-                    //return (argNode.target as IdentifierNode).sv === templateParameter.id.sv;
-                    isUsed = (argNode.target as IdentifierNode).sv === templateParameter.id.sv;
-                  }
-                  if (isUsed) break;
-                }
-                //return false;
-                return isUsed;
-              })
-            : [];
-        /* check template parameter usages in properties. */
-        const templateProperties =
-          node.kind === SyntaxKind.ModelStatement
-            ? node.properties.filter((p) => {
-                if (p.kind === SyntaxKind.ModelProperty) {
-                  if (p.value?.kind === SyntaxKind.TypeReference) {
-                    return (p.value?.target as IdentifierNode).sv === templateParameter.id.sv;
-                  }
-                }
-                if (p.kind === SyntaxKind.ModelSpreadProperty) {
-                  return (p.target.target as IdentifierNode).sv === templateParameter.id.sv;
-                }
-                return false;
-              })
-            : [];
-        if (decorators.length === 0 && templateProperties.length === 0) {
+        if (!resolver.checkTemplateParameterSym(templateParameter)) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "unused-template-parameter",
@@ -3608,6 +3575,51 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             }),
           );
         }
+        // const references = resolver.resolveTypeReference(templateParameter.id);
+        // /* check template parameter usages in decorators. */
+        // const decorators =
+        //   node.kind === SyntaxKind.ModelStatement
+        //     ? node.decorators.filter((d) => {
+        //         let isUsed: boolean = false;
+        //         for (const arg of d.arguments) {
+        //           if (typeof arg === "object" && "target" in arg) {
+        //             const argNode = arg as TypeReferenceNode;
+        //             //return (argNode.target as IdentifierNode).sv === templateParameter.id.sv;
+        //             isUsed = (argNode.target as IdentifierNode).sv === templateParameter.id.sv;
+        //           }
+        //           if (isUsed) break;
+        //         }
+        //         //return false;
+        //         return isUsed;
+        //       })
+        //     : [];
+        // /* check template parameter usages in properties. */
+        // const templateProperties =
+        //   node.kind === SyntaxKind.ModelStatement
+        //     ? node.properties.filter((p) => {
+        //         if (p.kind === SyntaxKind.ModelProperty) {
+        //           if (p.value?.kind === SyntaxKind.TypeReference) {
+        //             return (p.value?.target as IdentifierNode).sv === templateParameter.id.sv;
+        //           }
+        //         }
+        //         if (p.kind === SyntaxKind.ModelSpreadProperty) {
+        //           return (p.target.target as IdentifierNode).sv === templateParameter.id.sv;
+        //         }
+        //         return false;
+        //       })
+        //     : [];
+        // if (decorators.length === 0 && templateProperties.length === 0) {
+        //   reportCheckerDiagnostic(
+        //     createDiagnostic({
+        //       code: "unused-template-parameter",
+        //       format: {
+        //         parameterName: templateParameter.id.sv,
+        //         type: node.symbol.name,
+        //       },
+        //       target: templateParameter,
+        //     }),
+        //   );
+        // }
       }
     }
   }
@@ -3630,7 +3642,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // we're not instantiating this model and we've already checked it
       return links.declaredType as any;
     }
-    checkTemplateDeclaration(node, mapper);
+    // checkTemplateDeclaration(node, mapper);
 
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
@@ -3721,6 +3733,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     lateBindMemberContainer(type);
     lateBindMembers(type);
+
+    checkTemplateDeclaration(node, mapper);
     return type;
   }
 
@@ -4723,6 +4737,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): [ModelProperty[], ModelIndexer | undefined] {
     const targetType = getTypeForNode(targetNode, mapper);
 
+    if (targetType.kind === "TemplateParameter") {
+      resolver.setTemplateParameterSym(targetType.node);
+    }
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
       return [[], undefined];
     }
@@ -4844,6 +4861,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const parentTemplate = getParentTemplateNode(prop);
     linkMapper(type, mapper);
 
+    if (parentTemplate) {
+      if (type.type.kind === "Union") {
+        for (const variant of type.type.variants) {
+          for (const templateParam of parentTemplate.templateParameters) {
+          }
+        }
+      }
+      if (type.type.kind === "TemplateParameter") {
+        // for (const templateParam of parentTemplate.templateParameters) {
+        //   if (templateParam.id.sv === type.type.name) {
+        //     resolver.setTemplateParameterSym(templateParam);
+        //   }
+        // }
+        resolver.setTemplateParameterSym(type.type.node);
+      }
+    }
     if (!parentTemplate || shouldCreateTypeForTemplate(parentTemplate, mapper)) {
       const docComment = docFromCommentForSym.get(sym);
       if (docComment) {
@@ -5773,6 +5806,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const name = variantNode.id ? variantNode.id.sv : Symbol("name");
     const type = getTypeForNode(variantNode.value, mapper);
+    if (type.kind === "TemplateParameter") {
+      resolver.setTemplateParameterSym(type.node);
+    }
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",
       name,

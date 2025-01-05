@@ -124,6 +124,12 @@ export interface NameResolver {
   /** Return augment decorator nodes that are bound to this symbol */
   getAugmentDecoratorsForSym(symbol: Sym): AugmentDecoratorStatementNode[];
 
+  /** Check if a template parameter delare node is used or not */
+  checkTemplateParameterSym(node: TemplateParameterDeclarationNode): boolean;
+
+  /** Set used template parameter */
+  setTemplateParameterSym(node: TemplateParameterDeclarationNode): void;
+
   /**
    * Resolve the member expression using the given symbol as base.
    * This can be used to follow the name resolution for template instance which are not statically linked.
@@ -180,6 +186,11 @@ export function createResolver(program: Program): NameResolver {
   const nullSym = createSymbol(undefined, "null", SymbolFlags.None);
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
 
+  /**
+   * Tracking the template parameters that are used.
+   */
+  const usedTemplateParameterSym = new Set<TemplateParameterDeclarationNode>();
+
   return {
     symbols: { global: globalNamespaceSym, null: nullSym },
     resolveProgram() {
@@ -222,6 +233,8 @@ export function createResolver(program: Program): NameResolver {
     resolveTypeReference,
 
     getAugmentDecoratorsForSym,
+    checkTemplateParameterSym,
+    setTemplateParameterSym,
   };
 
   function getAugmentDecoratorsForSym(sym: Sym) {
@@ -233,6 +246,15 @@ export function createResolver(program: Program): NameResolver {
     return mergedSymbols.get(sym) || sym;
   }
 
+  function checkTemplateParameterSym(node: TemplateParameterDeclarationNode): boolean {
+    if (!node) return false;
+    return usedTemplateParameterSym.has(node);
+  }
+
+  function setTemplateParameterSym(node: TemplateParameterDeclarationNode): void {
+    if (!node) return;
+    usedTemplateParameterSym.add(node);
+  }
   /**
    * @internal
    */
@@ -328,6 +350,12 @@ export function createResolver(program: Program): NameResolver {
         ~resolvedSym.flags & SymbolFlags.Namespace
       ) {
         bindAndResolveNode(resolvedSym.declarations[0]);
+      }
+
+      if (!(resolvedSym.flags & SymbolFlags.Declaration) && resolvedSym.node) {
+        if (resolvedSym.node.kind === SyntaxKind.TemplateParameterDeclaration) {
+          usedTemplateParameterSym.add(resolvedSym.node);
+        }
       }
     }
 
