@@ -150,7 +150,7 @@ namespace Microsoft.Generator.CSharp
             var projectDirectory = CodeModelPlugin.Instance.Configuration.ProjectDirectory;
             var generatedDirectory = CodeModelPlugin.Instance.Configuration.ProjectGeneratedDirectory;
 
-            // add all the documents but except for the documents from the generated directory
+            // add all documents except the documents from the generated directory
             if (Path.IsPathRooted(projectDirectory) && Path.IsPathRooted(outputDirectory))
             {
                 projectDirectory = Path.GetFullPath(projectDirectory);
