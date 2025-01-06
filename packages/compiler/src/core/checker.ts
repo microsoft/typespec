@@ -3536,18 +3536,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (mapper === undefined) {
       for (const templateParameter of node.templateParameters) {
         checkTemplateParameterDeclaration(templateParameter, undefined);
-        if (!resolver.checkTemplateParameterSym(templateParameter)) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "unused-template-parameter",
-              format: {
-                parameterName: templateParameter.id.sv,
-                type: node.symbol.name,
-              },
-              target: templateParameter,
-              codefixes: [removeUnusedTemplateParameterCodeFix(templateParameter)],
-            }),
-          );
+        /* current we only check unused template parameter for model template.
+         *  TODO: We should add more check for other template types in the future.
+         */
+        if (node.kind === SyntaxKind.ModelStatement) {
+          if (!resolver.checkTemplateParameterSym(templateParameter)) {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "unused-template-parameter",
+                format: {
+                  parameterName: templateParameter.id.sv,
+                  type: node.symbol.name,
+                },
+                target: templateParameter,
+                codefixes: [removeUnusedTemplateParameterCodeFix(templateParameter)],
+              }),
+            );
+          }
         }
       }
     }
