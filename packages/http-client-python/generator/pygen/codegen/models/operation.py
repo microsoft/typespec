@@ -466,7 +466,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         responses = [cast(ResponseType, get_response(r, code_model)) for r in yaml_data["responses"]]
         exceptions = [Response.from_yaml(e, code_model) for e in yaml_data["exceptions"]]
         parameter_list = ParameterList.from_yaml(yaml_data, code_model)
-        overloads = [cast(Operation, cls.from_yaml(overload, code_model, client)) for overload in yaml_data.get("overloads", [])]
+        overloads = [
+            cast(Operation, cls.from_yaml(overload, code_model, client)) for overload in yaml_data.get("overloads", [])
+        ]
 
         return cls(
             yaml_data=yaml_data,
