@@ -43,6 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
             }
         }
 
+        public string CrossLanguageDefinitionId => _inputModel.CrossLanguageDefinitionId;
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
 
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
