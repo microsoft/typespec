@@ -14,7 +14,7 @@ class ModelValueClientTest {
     ModelValueClient client = new DictionaryClientBuilder().buildModelValueClient();
 
     @Test
-    @Disabled("type.dictionary.InnerModel is in unnamed module of loader 'app'")
+    @Disabled("java.lang.ClassCastException: class java.util.LinkedHashMap cannot be cast to class type.dictionary.InnerModel")
     void get() {
         Map<String, InnerModel> response = client.get();
         Assertions.assertTrue(response.containsKey("k1"));

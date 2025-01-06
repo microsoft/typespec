@@ -19,7 +19,7 @@ class FixedClientTest {
             .buildFixedClient();
 
     @Test
-    @Disabled("type.enums.fixed.DaysOfWeekEnum is in unnamed module of loader 'app'")
+    @Disabled("java.lang.ClassCastException: class java.lang.String cannot be cast to class type.enums.fixed.DaysOfWeekEnum")
     void getKnownValue() {
         DaysOfWeekEnum daysOfWeekEnum = client.getKnownValue();
         Assertions.assertEquals(DaysOfWeekEnum.MONDAY, daysOfWeekEnum);

@@ -12,14 +12,14 @@ class ExtensibleClientTest {
     ExtensibleClient client = new ExtensibleClientBuilder().buildExtensibleClient();
 
     @Test
-    @Disabled("type.enums.extensible.DaysOfWeekExtensibleEnum is in unnamed module of loader 'app'")
+    @Disabled("java.lang.ClassCastException: class java.lang.String cannot be cast to class type.enums.extensible.DaysOfWeekExtensibleEnum")
     void getKnownValue() {
         DaysOfWeekExtensibleEnum daysOfWeekExtensibleEnum = client.getKnownValue();
         Assertions.assertEquals(DaysOfWeekExtensibleEnum.MONDAY, daysOfWeekExtensibleEnum);
     }
 
     @Test
-    @Disabled("type.enums.extensible.DaysOfWeekExtensibleEnum is in unnamed module of loader 'app'")
+    @Disabled("java.lang.ClassCastException: class java.lang.String cannot be cast to class type.enums.extensible.DaysOfWeekExtensibleEnum")
     void getUnknownValue() {
         DaysOfWeekExtensibleEnum daysOfWeekExtensibleEnum = client.getUnknownValue();
         Assertions.assertEquals("Weekend", daysOfWeekExtensibleEnum.toString());

@@ -12,7 +12,7 @@ public class MediaTypeTests {
     private final MediaTypeClient client = new MediaTypeClientBuilder().buildMediaTypeClient();
 
     @Test
-    @Disabled("None of the provided serializers support the format: TEXT.")
+    @Disabled("java.lang.UnsupportedOperationException: None of the provided serializers support the format: TEXT..")
     public void test() {
         client.sendAsJson(client.getAsJson());
 

@@ -35,7 +35,7 @@ public class ScalarTests {
     }
 
     @Test
-    @Disabled("Body provided doesn't match expected body")
+    @Disabled("Body provided doesn't match expected body\",\"expected\":0.33333,\"actual\":\"0.33333\"")
     public void testDecimal() {
         BigDecimal decimal = new BigDecimal("0.33333");
 

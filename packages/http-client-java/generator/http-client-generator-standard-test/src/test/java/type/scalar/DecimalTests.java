@@ -34,7 +34,7 @@ public class DecimalTests {
 
   @ParameterizedTest
   @ValueSource(classes = { DecimalProperty.class, DecimalJackson.class })
-  @Disabled("The Object is not an instance of declaring class")
+  @Disabled("java.lang.RuntimeException: java.lang.IllegalArgumentException: object is not an instance of declaring class")
   public <T> void testBigDecimal(Class<T> clazz) throws IOException {
     // precision larger than double
     BigDecimal value = new BigDecimal("12345678901234567890.1234567890");

@@ -25,7 +25,7 @@ class AutomaticClientTest {
     }
 
     @Test
-    @Disabled("The header is restricted by 'java.net.http.HttpClient' and will be ignored.")
+    @Disabled("io.clientcore.core.http.exception.HttpResponseException: Status code 400, (empty body).")
     void headModel() {
         // client.headModelWithResponse(BinaryData.fromString("{\"queryProp\": 123}"), null);
         client.headModel(new VisibilityModel(123, null, null, null));

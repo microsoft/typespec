@@ -14,7 +14,7 @@ class ModelValueClientTest {
     ModelValueClient client = new ArrayClientBuilder().buildModelValueClient();
 
     @Test
-    @Disabled("type.array.InnerModel is in unnamed module of loader 'app'")
+    @Disabled("java.lang.ClassCastException: class java.util.LinkedHashMap cannot be cast to class type.array.InnerModel")
     void get() {
         List<InnerModel> response = client.get();
         Assertions.assertEquals(2, response.size());
