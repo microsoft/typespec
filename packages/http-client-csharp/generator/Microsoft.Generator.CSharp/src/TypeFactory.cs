@@ -44,6 +44,20 @@ namespace Microsoft.Generator.CSharp
 
         public CSharpType? CreateCSharpType(InputType inputType)
         {
+            var inputModelType = inputType as InputModelType;
+
+            if (inputModelType is not null)
+            {
+                if (TryGetTypeReplacement(inputModelType, out var typeReplacement))
+                {
+                    return typeReplacement.Type;
+                }
+                else if (TryGetPropertyTypeReplacement(inputModelType, out var propertyReplacement))
+                {
+                    return propertyReplacement.Type;
+                }
+            }
+
             if (TypeCache.TryGetValue(inputType, out var type))
             {
                 return type;
