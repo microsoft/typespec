@@ -19,20 +19,23 @@ export function removeUnusedTemplateParameterCodeFix(node: TemplateParameterDecl
             pos: parent.templateParametersRange.pos,
             end: parent.templateParametersRange.end,
           };
-        }
-        const index = parent.templateParameters.findIndex((param) => param === node);
-        if (index !== -1 && index !== parent.templateParameters.length - 1) {
-          location = {
-            file: location.file,
-            pos: location.pos,
-            end: parent.templateParameters[index + 1].pos,
-          };
-        } else if (index !== -1 && length > 1 && index === parent.templateParameters.length - 1) {
-          location = {
-            file: location.file,
-            pos: parent.templateParameters[index - 1].end,
-            end: location.end,
-          };
+        } else {
+          const index = parent.templateParameters.findIndex((param) => param === node);
+          if (index !== -1) {
+            if (index !== parent.templateParameters.length - 1) {
+              location = {
+                file: location.file,
+                pos: location.pos,
+                end: parent.templateParameters[index + 1].pos,
+              };
+            } else {
+              location = {
+                file: location.file,
+                pos: parent.templateParameters[index - 1].end,
+                end: location.end,
+              };
+            }
+          }
         }
       }
       return context.replaceText(location, "");
