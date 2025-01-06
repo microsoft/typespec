@@ -99,6 +99,7 @@ public class ProxyMethodMapper implements IMapper<Operation, Map<Request, List<P
         builder.responseExpectedStatusCodes(expectedStatusCodes);
 
         IType responseBodyType = MapperUtils.handleResponseSchema(operation, settings);
+        // unbranded would use the model, instead of BinaryData, as return type
         if (settings.isDataPlaneClient() && settings.isBranded()) {
             builder.rawResponseBodyType(responseBodyType);
             responseBodyType = SchemaUtil.removeModelFromResponse(responseBodyType, operation);

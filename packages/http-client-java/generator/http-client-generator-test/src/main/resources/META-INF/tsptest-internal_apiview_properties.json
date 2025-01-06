@@ -1,12 +1,12 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "tsptest.internal.InternalAsyncClient": "null",
+    "tsptest.internal.InternalAsyncClient": "TspTest.Internal.InternalOp",
     "tsptest.internal.InternalAsyncClient.getInternal": "TspTest.Internal.InternalOp.getInternal",
     "tsptest.internal.InternalAsyncClient.getInternalWithResponse": "TspTest.Internal.InternalOp.getInternal",
     "tsptest.internal.InternalAsyncClient.postInternal": "TspTest.Internal.InternalOp.postInternal",
     "tsptest.internal.InternalAsyncClient.postInternalWithResponse": "TspTest.Internal.InternalOp.postInternal",
-    "tsptest.internal.InternalClient": "null",
+    "tsptest.internal.InternalClient": "TspTest.Internal.InternalOp",
     "tsptest.internal.InternalClient.getInternal": "TspTest.Internal.InternalOp.getInternal",
     "tsptest.internal.InternalClient.getInternalWithResponse": "TspTest.Internal.InternalOp.getInternal",
     "tsptest.internal.InternalClient.postInternal": "TspTest.Internal.InternalOp.postInternal",
