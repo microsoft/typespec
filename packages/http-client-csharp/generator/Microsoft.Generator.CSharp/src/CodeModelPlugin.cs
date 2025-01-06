@@ -91,10 +91,15 @@ namespace Microsoft.Generator.CSharp
 
         private SourceInputModel? _sourceInputModel;
 
-        internal async Task InitializeSourceInputModelAsync()
+        /// <summary>
+        /// This method initializes the source input model for the plugin.
+        /// This method must be called before any generated documents are added into the workspace.
+        /// </summary>
+        /// <param name="workspace"></param>
+        /// <returns></returns>
+        internal async Task InitializeSourceInputModelAsync(GeneratedCodeWorkspace workspace)
         {
-            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject([Instance.Configuration.ProjectDirectory], Instance.Configuration.ProjectGeneratedDirectory);
-            _sourceInputModel =  new SourceInputModel(await existingCode.GetCompilationAsync());
+            _sourceInputModel = new SourceInputModel(await workspace.GetCompilationAsync());
         }
 
         internal HashSet<string> TypesToKeep { get; } = new();

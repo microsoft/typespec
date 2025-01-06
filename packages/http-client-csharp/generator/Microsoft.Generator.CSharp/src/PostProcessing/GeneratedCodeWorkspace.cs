@@ -34,7 +34,6 @@ namespace Microsoft.Generator.CSharp
         private static readonly string[] _sharedFolders = [SharedFolder];
 
         private Project _project;
-        private Compilation? _compilation;
         private Dictionary<string, string> PlainFiles { get; }
 
         private GeneratedCodeWorkspace(Project generatedCodeProject)
@@ -107,8 +106,11 @@ namespace Microsoft.Generator.CSharp
         private async Task<Document> ProcessDocument(Document document)
         {
             var syntaxTree = await document.GetSyntaxTreeAsync();
-            var compilation = await GetProjectCompilationAsync();
-            if (syntaxTree != null)
+            var compilation = await _project.GetCompilationAsync();
+
+            Debug.Assert(compilation is not null);
+
+            if (syntaxTree != null && compilation != null)
             {
                 var semanticModel = compilation.GetSemanticModel(syntaxTree);
                 var modelRemoveRewriter = new MemberRemoverRewriter(_project, semanticModel);
@@ -143,12 +145,15 @@ namespace Microsoft.Generator.CSharp
 
         internal static async Task<GeneratedCodeWorkspace> Create()
         {
+            // prepare the generated code project
             var projectTask = Interlocked.Exchange(ref _cachedProject, null);
-            var generatedCodeProject = projectTask != null ? await projectTask : CreateGeneratedCodeProject();
+            var project = projectTask != null ? await projectTask : CreateGeneratedCodeProject();
 
             var outputDirectory = CodeModelPlugin.Instance.Configuration.OutputDirectory;
             var projectDirectory = CodeModelPlugin.Instance.Configuration.ProjectDirectory;
+            var generatedDirectory = CodeModelPlugin.Instance.Configuration.ProjectGeneratedDirectory;
 
+            // add all the documents but except for the documents from the generated directory
             if (Path.IsPathRooted(projectDirectory) && Path.IsPathRooted(outputDirectory))
             {
                 projectDirectory = Path.GetFullPath(projectDirectory);
@@ -157,37 +162,15 @@ namespace Microsoft.Generator.CSharp
                 Directory.CreateDirectory(projectDirectory);
                 Directory.CreateDirectory(outputDirectory);
 
-                generatedCodeProject = AddDirectory(generatedCodeProject, projectDirectory, skipPredicate: sourceFile => sourceFile.StartsWith(outputDirectory));
+                project = AddDirectory(project, projectDirectory, skipPredicate: sourceFile => sourceFile.StartsWith(generatedDirectory));
             }
 
             foreach (var sharedSourceFolder in CodeModelPlugin.Instance.SharedSourceDirectories)
             {
-                generatedCodeProject = AddDirectory(generatedCodeProject, sharedSourceFolder, folders: _sharedFolders);
+                project = AddDirectory(project, sharedSourceFolder, folders: _sharedFolders);
             }
 
-            generatedCodeProject = generatedCodeProject.WithParseOptions(new CSharpParseOptions(preprocessorSymbols: new[] { "EXPERIMENTAL" }));
-            return new GeneratedCodeWorkspace(generatedCodeProject);
-        }
-
-        internal static GeneratedCodeWorkspace CreateExistingCodeProject(IEnumerable<string> projectDirectories, string generatedDirectory)
-        {
-            var workspace = new AdhocWorkspace();
-            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, NewLine);
-            workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
-            Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
-
-            foreach (var projectDirectory in projectDirectories)
-            {
-                if (Path.IsPathRooted(projectDirectory))
-                {
-                    project = AddDirectory(project, Path.GetFullPath(projectDirectory), skipPredicate: sourceFile => sourceFile.StartsWith(generatedDirectory));
-                }
-            }
-
-            project = project
-                .AddMetadataReferences(_assemblyMetadataReferences.Value.Concat(CodeModelPlugin.Instance.AdditionalMetadataReferences))
-                .WithCompilationOptions(new CSharpCompilationOptions(
-                    OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
+            project = project.WithParseOptions(new CSharpParseOptions(preprocessorSymbols: new[] { "EXPERIMENTAL" }));
 
             return new GeneratedCodeWorkspace(project);
         }
@@ -247,12 +230,6 @@ namespace Microsoft.Generator.CSharp
                     _project = await postProcessor.RemoveAsync(_project);
                     break;
             }
-        }
-
-        private async Task<Compilation> GetProjectCompilationAsync()
-        {
-            _compilation ??= await _project.GetCompilationAsync();
-            return _compilation!;
         }
     }
 }

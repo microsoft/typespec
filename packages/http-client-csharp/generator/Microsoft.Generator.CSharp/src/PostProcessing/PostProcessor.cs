@@ -103,28 +103,28 @@ namespace Microsoft.Generator.CSharp
 
         /// <summary>
         /// This method marks the "not publicly" referenced types as internal if they are previously defined as public. It will do this job in the following steps:
-        /// 1. This method will read all the public types defined in the given <paramref name="project"/>, and build a cache for those symbols
+        /// 1. This method will read all the public types defined in the given <paramref name="generatedProject"/>, and build a cache for those symbols
         /// 2. Build a public reference map for those symbols
         /// 3. Finds all the root symbols, please override the <see cref="IsRootDocument(Document)"/> to control which document you would like to include
         /// 4. Visit all the symbols starting from the root symbols following the reference map to get all unvisited symbols
         /// 5. Change the accessibility of the unvisited symbols in step 4 to internal
         /// </summary>
-        /// <param name="project">The project to process</param>
+        /// <param name="generatedProject">The project to process</param>
         /// <returns>The processed <see cref="Project"/>. <see cref="Project"/> is immutable, therefore this should usually be a new instance </returns>
-        public async Task<Project> InternalizeAsync(Project project)
+        public async Task<Project> InternalizeAsync(Project generatedProject)//, Project existingProject)
         {
-            var compilation = await project.GetCompilationAsync();
+            var compilation = await generatedProject.GetCompilationAsync();
             if (compilation == null)
-                return project;
+                return generatedProject;
 
             // first get all the declared symbols
-            var definitions = await GetTypeSymbolsAsync(compilation, project, true);
+            var definitions = await GetTypeSymbolsAsync(compilation, generatedProject, true);
             // build the reference map
             var referenceMap =
-                await new ReferenceMapBuilder(compilation, project).BuildPublicReferenceMapAsync(
+                await new ReferenceMapBuilder(compilation, generatedProject).BuildPublicReferenceMapAsync(
                     definitions.DeclaredSymbols, definitions.DeclaredNodesCache);
             // get the root symbols
-            var rootSymbols = await GetRootSymbolsAsync(project, definitions);
+            var rootSymbols = await GetRootSymbolsAsync(generatedProject, definitions);
             // traverse all the root and recursively add all the things we met
             var publicSymbols = VisitSymbolsFromRootAsync(rootSymbols, referenceMap);
 
@@ -135,20 +135,20 @@ namespace Microsoft.Generator.CSharp
             {
                 foreach (var node in definitions.DeclaredNodesCache[symbol])
                 {
-                    nodesToInternalize[node] = project.GetDocumentId(node.SyntaxTree)!;
+                    nodesToInternalize[node] = generatedProject.GetDocumentId(node.SyntaxTree)!;
                 }
             }
 
             foreach (var (model, documentId) in nodesToInternalize)
             {
-                project = MarkInternal(project, model, documentId);
+                generatedProject = MarkInternal(generatedProject, model, documentId);
             }
 
             var modelNamesToRemove =
                 nodesToInternalize.Keys.Select(item => item.Identifier.Text);
-            project = await RemoveMethodsFromModelFactoryAsync(project, definitions, modelNamesToRemove.ToHashSet());
+            generatedProject = await RemoveMethodsFromModelFactoryAsync(generatedProject, definitions, modelNamesToRemove.ToHashSet());
 
-            return project;
+            return generatedProject;
         }
 
         private async Task<Project> RemoveMethodsFromModelFactoryAsync(Project project,
