@@ -4,6 +4,7 @@ import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../ut
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { createModelToObjectValueCodeFix } from "./compiler-code-fixes/model-to-object-literal.codefix.js";
+import { removeUnusedTemplateParameterCodeFix } from "./compiler-code-fixes/remove-unused-template-parameter.codefix.js";
 import { createTupleToArrayValueCodeFix } from "./compiler-code-fixes/tuple-to-array-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
@@ -3544,6 +3545,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
                 type: node.symbol.name,
               },
               target: templateParameter,
+              codefixes: [removeUnusedTemplateParameterCodeFix(templateParameter)],
             }),
           );
         }
