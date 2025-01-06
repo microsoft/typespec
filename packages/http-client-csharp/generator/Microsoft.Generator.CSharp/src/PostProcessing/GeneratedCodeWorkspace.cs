@@ -106,11 +106,8 @@ namespace Microsoft.Generator.CSharp
         private async Task<Document> ProcessDocument(Document document)
         {
             var syntaxTree = await document.GetSyntaxTreeAsync();
-            var compilation = await _project.GetCompilationAsync();
-
-            Debug.Assert(compilation is not null);
-
-            if (syntaxTree != null && compilation != null)
+            var compilation = await GetCompilationAsync();
+            if (syntaxTree != null)
             {
                 var semanticModel = compilation.GetSemanticModel(syntaxTree);
                 var modelRemoveRewriter = new MemberRemoverRewriter(_project, semanticModel);
