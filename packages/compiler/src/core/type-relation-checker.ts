@@ -59,7 +59,11 @@ export interface TypeRelation {
   isReflectionType(type: Type): type is Model & { name: ReflectionTypeName };
 
   areScalarsRelated(source: Scalar, target: Scalar): boolean;
-  isUnusedTemplateParameter(source: Value, target: Type, diagnosticTarget: Entity | Node): [boolean, readonly Diagnostic[]];
+  isUnusedTemplateParameter(
+    source: Value,
+    target: Type,
+    diagnosticTarget: Entity | Node,
+  ): [boolean, readonly Diagnostic[]];
 }
 
 enum Related {
@@ -150,8 +154,14 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     return false;
   }
 
-  function isUnusedTemplateParameter(source: Value, target: Type, diagnosticTarget: Entity | Node): [boolean, readonly Diagnostic[]] {
-    const errors: TypeRelationError[] = [createUnusedTemplateParameterDiagnostic(source, target, diagnosticTarget)];
+  function isUnusedTemplateParameter(
+    source: Value,
+    target: Type,
+    diagnosticTarget: Entity | Node,
+  ): [boolean, readonly Diagnostic[]] {
+    const errors: TypeRelationError[] = [
+      createUnusedTemplateParameterDiagnostic(source, target, diagnosticTarget),
+    ];
     return [true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
   }
 

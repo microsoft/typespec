@@ -6,7 +6,6 @@ import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
-import { DiagnosticTag } from "vscode-languageserver";
 
 // prettier-ignore
 export type MarshalledValue<Value>  = 
