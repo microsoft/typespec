@@ -12,7 +12,6 @@ import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipelineNextPolicy;
 import io.clientcore.core.http.pipeline.HttpPipelinePolicy;
-import io.clientcore.core.util.ClientLogger;
 
 /**
  * Pipeline policy that uses an {@link KeyCredential} to set the authorization key for a request.
@@ -22,8 +21,6 @@ import io.clientcore.core.util.ClientLogger;
  */
 public final class AzureKeyCredentialPolicy implements HttpPipelinePolicy {
     // AzureKeyCredentialPolicy can be a commonly used policy, use a static logger.
-    private static final ClientLogger LOGGER
-        = new ClientLogger(AzureKeyCredentialPolicy.class);
     private final HttpHeaderName name;
     private final KeyCredential credential;
     private final String prefix;
