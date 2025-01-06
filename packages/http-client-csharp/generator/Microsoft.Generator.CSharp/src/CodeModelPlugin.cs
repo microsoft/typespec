@@ -61,7 +61,17 @@ namespace Microsoft.Generator.CSharp
 
         // Extensibility points to be implemented by a plugin
         public virtual TypeFactory TypeFactory { get; }
-        public virtual SourceInputModel SourceInputModel => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
+
+        private SourceInputModel? _sourceInputModel;
+        public virtual SourceInputModel SourceInputModel
+        {
+            get => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
+            internal set
+            {
+                _sourceInputModel = value;
+            }
+        }
+
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary;
@@ -87,19 +97,6 @@ namespace Microsoft.Generator.CSharp
         public void AddSharedSourceDirectory(string sharedSourceDirectory)
         {
             _sharedSourceDirectories.Add(sharedSourceDirectory);
-        }
-
-        private SourceInputModel? _sourceInputModel;
-
-        /// <summary>
-        /// This method initializes the source input model for the plugin.
-        /// This method must be called before any generated documents are added into the workspace.
-        /// </summary>
-        /// <param name="workspace"></param>
-        /// <returns></returns>
-        internal async Task InitializeSourceInputModelAsync(GeneratedCodeWorkspace workspace)
-        {
-            _sourceInputModel = new SourceInputModel(await workspace.GetCompilationAsync());
         }
 
         internal HashSet<string> TypesToKeep { get; } = new();
