@@ -351,12 +351,6 @@ export function createResolver(program: Program): NameResolver {
       ) {
         bindAndResolveNode(resolvedSym.declarations[0]);
       }
-
-      if (!(resolvedSym.flags & SymbolFlags.Declaration) && resolvedSym.node) {
-        if (resolvedSym.node.kind === SyntaxKind.TemplateParameterDeclaration) {
-          usedTemplateParameterSym.add(resolvedSym.node);
-        }
-      }
     }
 
     return result;
