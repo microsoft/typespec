@@ -90,8 +90,10 @@ def test_add_optional_param_from_one_optional():
         client.from_one_optional(parameter="optional", new_parameter="new")
 
 
-def test_break_the_glass(core_library):
-    request = core_library.rest.HttpRequest(method="DELETE", url="/add-operation")
+def test_break_the_glass():
+    from azure.core.rest import HttpRequest
+
+    request = HttpRequest(method="DELETE", url="/add-operation")
     with V1Client(
         endpoint="http://localhost:3000",
         service_deployment_version="v2",
