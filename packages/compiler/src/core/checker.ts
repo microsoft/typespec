@@ -1890,6 +1890,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (type === neverType) {
         continue;
       }
+      if (type.kind === "TemplateParameter") {
+        resolver.setTemplateParameterSym(type.node);
+      }
       if (type.kind === "Union" && type.expression) {
         for (const [name, variant] of type.variants) {
           unionType.variants.set(name, variant);
@@ -5310,6 +5313,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     for (const decNode of decoratorNodes) {
       const decorator = checkDecoratorApplication(targetType, decNode, mapper);
       if (decorator) {
+        /* check template parameters */
+        for (const arg of decorator.args) {
+          if ("kind" in arg.value && arg.value.kind === "TemplateParameter") {
+            resolver.setTemplateParameterSym(arg.value.node);
+          }
+        }
         decorators.unshift(decorator);
       }
     }
