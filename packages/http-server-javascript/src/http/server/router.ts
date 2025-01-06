@@ -20,7 +20,9 @@ import { bifilter, indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { HttpContext } from "../index.js";
 
+import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as routerHelper } from "../../../generated-defs/helpers/router.js";
+import { parseHeaderValueParameters } from "../../helpers/header.js";
 import { reportDiagnostic } from "../../lib.js";
 import { UnimplementedError } from "../../util/error.js";
 
@@ -47,6 +49,11 @@ export function emitRouter(ctx: HttpContext, service: HttpService, serverRawModu
   routerModule.imports.push({
     binder: "* as serverRaw",
     from: serverRawModule,
+  });
+
+  routerModule.imports.push({
+    binder: ["parseHeaderValueParameters"],
+    from: headerHelpers,
   });
 
   routerModule.declarations.push([...emitRouterDefinition(ctx, service, routeTree, routerModule)]);
@@ -197,7 +204,7 @@ function* emitRouterDefinition(
 
   yield "";
 
-  yield `    return ${onRequestNotFound}(ctx);`;
+  yield `    return ctx.errorHandlers.onRequestNotFound(ctx);`;
   yield `  });`;
   yield "";
 
@@ -389,7 +396,11 @@ function* emitRouteOperationDispatchMultiple(
     contentTypeMap.set(operation, operationContentType.value);
   }
 
-  yield `switch (request.headers["content-type"]) {`;
+  const contentTypeName = ctx.gensym("contentType");
+
+  yield `const ${contentTypeName} = parseHeaderValueParameters(request.headers["content-type"])?.value;`;
+
+  yield `switch (${contentTypeName}) {`;
 
   for (const [operation, contentType] of contentTypeMap.entries()) {
     const [backend] = backends.get(operation.container)!;
@@ -404,12 +415,14 @@ function* emitRouteOperationDispatchMultiple(
         ? ", " + operation.parameters.map((param) => parseCase(param.name).camelCase).join(", ")
         : "";
 
-    yield `  case ${JSON.stringify(contentType)}:`;
+    const contentTypeValue = parseHeaderValueParameters(contentType).value;
+
+    yield `  case ${JSON.stringify(contentTypeValue)}:`;
     yield `    return ${routeHandlers}.${operationName}(ctx, ${backendMemberName}${parameters});`;
   }
 
   yield `  default:`;
-  yield `    return ctx.errorHandlers.onInvalidRequest(ctx, ${JSON.stringify(route)}, \`No operation in route '${route}' matched content-type "\${contentType}"\`);`;
+  yield `    return ctx.errorHandlers.onInvalidRequest(ctx, ${JSON.stringify(route)}, \`No operation in route '${route}' matched content-type "\${${contentTypeName}}"\`);`;
   yield "}";
 }
 

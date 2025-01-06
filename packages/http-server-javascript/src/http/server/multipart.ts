@@ -4,6 +4,9 @@ import { HttpContext } from "../index.js";
 
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
 import { module as multipartHelpers } from "../../../generated-defs/helpers/multipart.js";
+import { emitTypeReference } from "../../common/reference.js";
+import { requireSerialization } from "../../common/serialization/index.js";
+import { requiresJsonSerialization } from "../../common/serialization/json.js";
 import { parseCase } from "../../util/case.js";
 import { UnimplementedError } from "../../util/error.js";
 
@@ -22,6 +25,7 @@ export function* emitMultipart(
   module: Module,
   operation: HttpOperation,
   body: HttpOperationMultipartBody,
+  ctxName: string,
   bodyName: string,
   bodyTypeName: string,
 ): Iterable<string> {
@@ -40,7 +44,7 @@ export function* emitMultipart(
 
   const stream = ctx.gensym("stream");
 
-  yield `  const ${stream} = createMultipartReadable(request);`;
+  yield `  const ${stream} = createMultipartReadable(${ctxName}.request);`;
   yield "";
 
   const contentDisposition = ctx.gensym("contentDisposition");
@@ -154,13 +158,30 @@ export function* emitMultipart(
         );
       }
 
-      yield `        let __chunks = Buffer.alloc(0);`;
+      yield `        const __chunks = [];`;
       yield "";
       yield `        for await (const __chunk of ${partName}.body) {`;
       yield `          __chunks.push(__chunk);`;
       yield `        }`;
+
+      yield `        const __object = JSON.parse(Buffer.concat(__chunks).toString("utf-8"));`;
       yield "";
-      value = 'JSON.parse(Buffer.concat(__chunks).toString("utf-8"));';
+
+      if (requiresJsonSerialization(ctx, namedPart.body.type)) {
+        const bodyTypeReference = emitTypeReference(
+          ctx,
+          namedPart.body.type,
+          namedPart.body.property ?? namedPart.body.type,
+          module,
+          { altName: bodyTypeName + "Body", requireDeclaration: true },
+        );
+
+        requireSerialization(ctx, namedPart.body.type, "application/json");
+
+        value = `${bodyTypeReference}.fromJsonObject(__object)`;
+      } else {
+        value = "__object";
+      }
     }
     if (namedPart.multi) {
       if (namedPart.optional) {
@@ -207,16 +228,20 @@ export function* emitMultipart(
 
 // This function is old and broken. I'm not likely to fix it unless we decide to continue supporting legacy multipart
 // parsing after 1.0.
-export function* emitMultipartLegacy(bodyName: string, bodyTypeName: string): Iterable<string> {
+export function* emitMultipartLegacy(
+  ctxName: string,
+  bodyName: string,
+  bodyTypeName: string,
+): Iterable<string> {
   yield `const ${bodyName} = await new Promise(function parse${bodyTypeName}MultipartRequest(resolve, reject) {`;
-  yield `  const boundary = request.headers["content-type"]?.split(";").find((s) => s.includes("boundary="))?.split("=", 2)[1];`;
+  yield `  const boundary = ${ctxName}.request.headers["content-type"]?.split(";").find((s) => s.includes("boundary="))?.split("=", 2)[1];`;
   yield `  if (!boundary) {`;
   yield `    return reject("Invalid request: missing boundary in content-type.");`;
   yield `  }`;
   yield "";
   yield `  const chunks: Array<Buffer> = [];`;
-  yield `  request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
-  yield `  request.on("end", function finalize() {`;
+  yield `  ${ctxName}.request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
+  yield `  ${ctxName}.request.on("end", function finalize() {`;
   yield `    const text = Buffer.concat(chunks).toString();`;
   yield `    const parts = text.split(boundary).slice(1, -1);`;
   yield `    const fields: { [k: string]: any } = {};`;

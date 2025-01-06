@@ -32,6 +32,7 @@ import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
+import { requiresJsonSerialization } from "../../common/serialization/json.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
 
@@ -192,7 +193,7 @@ function* emitRawServerOperation(
     yield `    return ${names.ctx}.errorHandlers.onInvalidRequest(`;
     yield `      ${names.ctx},`;
     yield `      ${JSON.stringify(operation.path)},`;
-    yield `      \`unexpected "Content-Type": '\${${contentTypeHeader}?.value}', expected '${JSON.stringify(contentType)}'\``;
+    yield `      \`unexpected "content-type": '\${${contentTypeHeader}?.value}', expected '${JSON.stringify(contentType)}'\``;
     yield `    );`;
 
     yield "  }";
@@ -206,7 +207,26 @@ function* emitRawServerOperation(
         yield `    const chunks: Array<Buffer> = [];`;
         yield `    ${names.ctx}.request.on("data", function appendChunk(chunk) { chunks.push(chunk); });`;
         yield `    ${names.ctx}.request.on("end", function finalize() {`;
-        yield `      resolve(JSON.parse(Buffer.concat(chunks).toString()));`;
+        yield `      try {`;
+        yield `        const body = Buffer.concat(chunks).toString();`;
+
+        let value: string;
+
+        if (requiresJsonSerialization(ctx, body.type)) {
+          value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
+        } else {
+          value = `JSON.parse(body)`;
+        }
+
+        yield `        resolve(${value});`;
+        yield `      } catch {`;
+        yield `        ${names.ctx}.errorHandlers.onInvalidRequest(`;
+        yield `          ${names.ctx},`;
+        yield `          ${JSON.stringify(operation.path)},`;
+        yield `          "invalid JSON in request body",`;
+        yield `        );`;
+        yield `        reject();`;
+        yield `      }`;
         yield `    });`;
         yield `    ${names.ctx}.request.on("error", reject);`;
         yield `  }) as ${bodyTypeName};`;
@@ -216,9 +236,11 @@ function* emitRawServerOperation(
       }
       case "multipart/form-data":
         if (body.bodyKind === "multipart") {
-          yield* indent(emitMultipart(ctx, module, operation, body, bodyName, bodyTypeName));
+          yield* indent(
+            emitMultipart(ctx, module, operation, body, names.ctx, bodyName, bodyTypeName),
+          );
         } else {
-          yield* indent(emitMultipartLegacy(bodyName, bodyTypeName));
+          yield* indent(emitMultipartLegacy(names.ctx, bodyName, bodyTypeName));
         }
         break;
       default:
@@ -378,6 +400,9 @@ function* emitResultProcessingForType(
     const bodyCase = parseCase(body.name);
     const serializationRequired = isSerializationRequired(ctx, body.type, "application/json");
     requireSerialization(ctx, body.type, "application/json");
+
+    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
     if (serializationRequired) {
       const typeReference = emitTypeReference(ctx, body.type, body, module, {
         requireDeclaration: true,
@@ -392,6 +417,9 @@ function* emitResultProcessingForType(
     } else {
       const serializationRequired = isSerializationRequired(ctx, target, "application/json");
       requireSerialization(ctx, target, "application/json");
+
+      yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
       if (serializationRequired) {
         const typeReference = emitTypeReference(ctx, target, target, module, {
           requireDeclaration: true,
@@ -419,6 +447,7 @@ function* emitHeaderParamBinding(
   parameter: Extract<HttpOperationParameter, { type: "header" }>,
 ): Iterable<string> {
   const nameCase = parseCase(parameter.param.name);
+  const headerName = parameter.name.toLowerCase();
 
   // See https://nodejs.org/api/http.html#messageheaders
   // Apparently, only set-cookie can be an array.
@@ -426,13 +455,12 @@ function* emitHeaderParamBinding(
 
   const assertion = canBeArrayType ? "" : " as string | undefined";
 
-  yield `const ${nameCase.camelCase} = ${names.ctx}.request.headers[${JSON.stringify(parameter.name)}]${assertion};`;
+  yield `const ${nameCase.camelCase} = ${names.ctx}.request.headers[${JSON.stringify(headerName)}]${assertion};`;
 
   if (!parameter.param.optional) {
     yield `if (${nameCase.camelCase} === undefined) {`;
     // prettier-ignore
-    yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required header '${parameter.name}'");`;
-    yield `  throw new Error("Invalid request: missing required header '${parameter.name}'.");`;
+    yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required header '${headerName}'");`;
     yield "}";
     yield "";
   }
@@ -455,7 +483,7 @@ function* emitQueryParamBinding(
   const nameCase = parseCase(parameter.param.name);
 
   // UrlSearchParams annoyingly returns null for missing parameters instead of undefined.
-  yield `const ${nameCase.camelCase} = ${names}.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
+  yield `const ${nameCase.camelCase} = ${names.queryParams}.get(${JSON.stringify(parameter.name)}) ?? undefined;`;
 
   if (!parameter.param.optional) {
     yield `if (!${nameCase.camelCase}) {`;

@@ -26,6 +26,8 @@ function MultipartBoundaryTransformStream(
   let boundarySplit = Buffer.from(`--${boundary}`);
   let initialized = false;
 
+  // We need to keep at least the length of the boundary split plus room for CRLFCRLF in the buffer to detect the boundaries.
+  // We subtract one from this length because if the whole thing were in the buffer, we would detect it and move past it.
   const bufferKeepLength = boundarySplit.length + BUF_CRLFCRLF.length - 1;
   let _readableController: ReadableStreamDefaultController<ReadableStream<Buffer>> = null as any;
 
@@ -41,9 +43,9 @@ function MultipartBoundaryTransformStream(
     write: async (chunk) => {
       buffer = Buffer.concat([buffer, chunk]);
 
-      const index = buffer.indexOf(boundarySplit);
+      let index: number;
 
-      if (index !== -1) {
+      while ((index = buffer.indexOf(boundarySplit)) !== -1) {
         // We found a boundary, emit everything before it and initialize a new stream for the next part.
 
         // We are initialized if we have found the boundary at least once.
@@ -88,7 +90,7 @@ function MultipartBoundaryTransformStream(
       }
     },
     close() {
-      if (buffer.toString("utf-8") !== "--") {
+      if (!/--(\r\n)?/.test(buffer.toString("utf-8"))) {
         readableController.error(new Error("Unexpected characters after final boundary."));
       }
 
