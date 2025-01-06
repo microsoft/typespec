@@ -30,9 +30,9 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override ConstructorProvider[] BuildConstructors()
         {
             var initializationCtor = GetCtor(_type, InitializationCtorAttributeName);
-            var seiralizationCtor = GetCtor(_type, SerializationCtorAttributeName);
+            var serializationCtor = GetCtor(_type, SerializationCtorAttributeName);
 
-            return [BuildConstructor(initializationCtor), BuildConstructor(seiralizationCtor)];
+            return [BuildConstructor(initializationCtor), BuildConstructor(serializationCtor)];
         }
 
         private ConstructorProvider BuildConstructor(ConstructorInfo ctor)
