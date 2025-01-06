@@ -880,6 +880,39 @@ public class ClientModelUtil {
     }
 
     /**
+     * If stream-style serialization is being generated, some additional setters may need to be added to
+     * support read-only properties that aren't included in the constructor.
+     * Jackson handles this by reflectively setting the value in the parent model, but stream-style
+     * serialization doesn't perform reflective cracking like Jackson Databind does, so it needs a way
+     * to access the readonly property (aka one without a public setter method).
+     * The package-private setter is added when the property isn't included in the constructor and is
+     * defined by this model, except for JSON merge patch models as those use the access helper pattern
+     * to enable subtypes to set the property.
+     *
+     * @param model the model to generate package-private setter for
+     * @param property the field property to generate package-private setter for, either defined by the model,
+     * or the shadow one from parent
+     * @param settings JavaSettings instance
+     * @param streamStyle whether stream-style-serialization is enabled
+     * @return whether the model needs package-private setter for this field property
+     */
+    public static boolean needsPackagePrivateSetter(ClientModel model, ClientModelProperty property,
+        JavaSettings settings, boolean streamStyle) {
+        boolean hasDerivedTypes = !CoreUtils.isNullOrEmpty(model.getDerivedModels());
+        boolean notIncludedInConstructor = !includePropertyInConstructor(property, settings);
+        boolean definedByModel = modelDefinesProperty(model, property);
+        boolean modelIsJsonMergePatch = isJsonMergePatchModel(model, settings);
+        boolean hasPackagePrivateSetter = hasDerivedTypes
+            && notIncludedInConstructor
+            && definedByModel
+            && streamStyle
+            && !property.isPolymorphicDiscriminator()
+            && !modelIsJsonMergePatch
+            && !property.isConstant();
+        return hasPackagePrivateSetter;
+    }
+
+    /**
      * The model is immutable output if and only if the immutable output model setting is enabled and
      * the usage of the model include output and does not include input.
      *
