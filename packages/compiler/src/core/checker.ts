@@ -1861,7 +1861,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         continue;
       }
       if (type.kind === "TemplateParameter") {
-        resolver.setTemplateParameterSym(type.node);
+        resolver.setTemplateParameterDeclarationNode(type.node);
       }
       if (type.kind === "Union" && type.expression) {
         for (const [name, variant] of type.variants) {
@@ -3540,7 +3540,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
          *  TODO: We should add more check for other template types in the future.
          */
         if (node.kind === SyntaxKind.ModelStatement) {
-          if (!resolver.checkTemplateParameterSym(templateParameter)) {
+          if (!resolver.isUsedTemplateParameterDeclarationNode(templateParameter)) {
             reportCheckerDiagnostic(
               createDiagnostic({
                 code: "unused-template-parameter",
@@ -4671,7 +4671,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const targetType = getTypeForNode(targetNode, mapper);
 
     if (targetType.kind === "TemplateParameter") {
-      resolver.setTemplateParameterSym(targetType.node);
+      resolver.setTemplateParameterDeclarationNode(targetType.node);
     }
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
       return [[], undefined];
@@ -4791,7 +4791,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (type.type.kind === "TemplateParameter") {
-      resolver.setTemplateParameterSym(type.type.node);
+      resolver.setTemplateParameterDeclarationNode(type.type.node);
     }
     type.decorators = checkDecorators(type, prop, mapper);
     const parentTemplate = getParentTemplateNode(prop);
@@ -5233,7 +5233,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         /* check template parameters */
         for (const arg of decorator.args) {
           if ("kind" in arg.value && arg.value.kind === "TemplateParameter") {
-            resolver.setTemplateParameterSym(arg.value.node);
+            resolver.setTemplateParameterDeclarationNode(arg.value.node);
           }
         }
         decorators.unshift(decorator);
@@ -5733,7 +5733,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const name = variantNode.id ? variantNode.id.sv : Symbol("name");
     const type = getTypeForNode(variantNode.value, mapper);
     if (type.kind === "TemplateParameter") {
-      resolver.setTemplateParameterSym(type.node);
+      resolver.setTemplateParameterDeclarationNode(type.node);
     }
     const variantType: UnionVariant = createType({
       kind: "UnionVariant",

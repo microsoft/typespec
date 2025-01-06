@@ -125,10 +125,10 @@ export interface NameResolver {
   getAugmentDecoratorsForSym(symbol: Sym): AugmentDecoratorStatementNode[];
 
   /** Check if a template parameter delare node is used or not */
-  checkTemplateParameterSym(node: TemplateParameterDeclarationNode): boolean;
+  isUsedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): boolean;
 
   /** Set used template parameter */
-  setTemplateParameterSym(node: TemplateParameterDeclarationNode): void;
+  setTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void;
 
   /**
    * Resolve the member expression using the given symbol as base.
@@ -189,7 +189,7 @@ export function createResolver(program: Program): NameResolver {
   /**
    * Tracking the template parameters that are used.
    */
-  const usedTemplateParameterSym = new Set<TemplateParameterDeclarationNode>();
+  const usedTemplateParameterDeclarationNodes = new Set<TemplateParameterDeclarationNode>();
 
   return {
     symbols: { global: globalNamespaceSym, null: nullSym },
@@ -233,8 +233,8 @@ export function createResolver(program: Program): NameResolver {
     resolveTypeReference,
 
     getAugmentDecoratorsForSym,
-    checkTemplateParameterSym,
-    setTemplateParameterSym,
+    isUsedTemplateParameterDeclarationNode,
+    setTemplateParameterDeclarationNode,
   };
 
   function getAugmentDecoratorsForSym(sym: Sym) {
@@ -246,14 +246,14 @@ export function createResolver(program: Program): NameResolver {
     return mergedSymbols.get(sym) || sym;
   }
 
-  function checkTemplateParameterSym(node: TemplateParameterDeclarationNode): boolean {
+  function isUsedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): boolean {
     if (!node) return false;
-    return usedTemplateParameterSym.has(node);
+    return usedTemplateParameterDeclarationNodes.has(node);
   }
 
-  function setTemplateParameterSym(node: TemplateParameterDeclarationNode): void {
+  function setTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void {
     if (!node) return;
-    usedTemplateParameterSym.add(node);
+    usedTemplateParameterDeclarationNodes.add(node);
   }
   /**
    * @internal
