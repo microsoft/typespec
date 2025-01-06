@@ -94,8 +94,9 @@ async def test_add_optional_param_from_one_optional():
 
 
 @pytest.mark.asyncio
-async def test_break_the_glass(core_library):
-    request = core_library.rest.HttpRequest(method="DELETE", url="/add-operation")
+async def test_break_the_glass():
+    from azure.core.rest import HttpRequest
+    request = HttpRequest(method="DELETE", url="/add-operation")
     async with V1Client(
         endpoint="http://localhost:3000",
         service_deployment_version="v2",
