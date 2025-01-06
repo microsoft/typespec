@@ -8,8 +8,8 @@ import {
   SdkPackage,
 } from "@azure-tools/typespec-client-generator-core";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
-import { InputAuth } from "../type/input-auth.js";
 import { Logger } from "./logger.js";
+import { InputAuth } from "../type/input-auth.js";
 
 export function processServiceAuthentication(
   sdkPackage: SdkPackage<SdkHttpOperation>,
@@ -47,7 +47,14 @@ function processAuthType(credentialType: SdkCredentialType): InputAuth | undefin
   const scheme = credentialType.scheme;
   switch (scheme.type) {
     case "apiKey":
-      return { ApiKey: { Name: scheme.name } } as InputAuth;
+      if (scheme.in !== "header") {
+        Logger.getInstance().warn(
+          `Only header is supported for ApiKey auth method. ${scheme.in} is not supported.`,
+          credentialType.__raw
+        );
+        return undefined;
+      }
+      return { ApiKey: { Name: scheme.name, In: scheme.in } } as InputAuth;
     case "oauth2":
       return processOAuth2(scheme);
     case "http":
@@ -57,27 +64,33 @@ function processAuthType(credentialType: SdkCredentialType): InputAuth | undefin
           case "basic":
             Logger.getInstance().warn(
               `${schemeOrApiKeyPrefix} auth method is currently not supported.`,
+              credentialType.__raw
             );
             return undefined;
           case "bearer":
             return {
               ApiKey: {
                 Name: "Authorization",
+                In: "header",
                 Prefix: "Bearer",
               },
-            } as InputAuth;
+            };
           default:
             return {
               ApiKey: {
                 Name: "Authorization",
+                In: "header",
                 Prefix: schemeOrApiKeyPrefix,
               },
-            } as InputAuth;
+            };
         }
       }
-      break;
     default:
-      throw new Error(`un-supported authentication scheme ${scheme.type}`);
+      Logger.getInstance().error(
+        `un-supported authentication scheme ${scheme.type}`,
+        credentialType.__raw
+      );
+      return undefined;
   }
 }
 
