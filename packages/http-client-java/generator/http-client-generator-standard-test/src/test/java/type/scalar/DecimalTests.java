@@ -3,7 +3,6 @@
 
 package type.scalar;
 
-import com.azure.core.annotation.Immutable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.IOException;
@@ -18,7 +17,6 @@ import type.property.valuetypes.DecimalProperty;
 
 public class DecimalTests {
 
-  @Immutable
   public static class DecimalJackson {
     @JsonProperty("property")
     private BigDecimal property;
