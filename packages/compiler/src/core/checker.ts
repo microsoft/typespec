@@ -4655,21 +4655,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
 
-    if (isType.kind === "TemplateParameter") {
-      resolver.setTemplateParameterDeclarationNode(isType.node);
-    }
-
-    if (isType.kind === "Model") {
-      for (const arg of isType.templateMapper?.args ?? []) {
-        if ("kind" in arg && arg.kind === "TemplateParameter") {
-          resolver.setTemplateParameterDeclarationNode(arg.node);
-        }
-      }
-    }
-
     if (isType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));
       return;
+    }
+
+    for (const arg of isType.templateMapper?.args ?? []) {
+      if ("kind" in arg && arg.kind === "TemplateParameter") {
+        resolver.setTemplateParameterDeclarationNode(arg.node);
+      }
     }
 
     if (isType.name === "") {
