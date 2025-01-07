@@ -50,7 +50,7 @@
     {% endif %}
 
 
-    {% if serializer.need_init(model) %}
+    {% if serializer.init_overloads(model) %}
     @overload
     def __init__({{ model.init_pylint_disable }}
         self,
@@ -69,7 +69,6 @@
 
     {% endif %}
     {% set initialize_properties = serializer.initialize_properties(model) %}
-    {% if serializer.need_init(model) or initialize_properties %}
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         {% for line in serializer.super_call(model) %}
         {{ line }}
@@ -94,4 +93,3 @@
         else:
             super().__setattr__(key, value)
         {% endif %}
-    {% endif %}
