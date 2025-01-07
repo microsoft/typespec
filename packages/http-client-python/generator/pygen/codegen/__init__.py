@@ -244,12 +244,8 @@ class CodeGenerator(Plugin):
     @staticmethod
     def sort_exceptions(yaml_data: Dict[str, Any]) -> None:
         for client in yaml_data["clients"]:
-            if not client.get("operationGroups"):
-                continue
-            for group in client["operationGroups"]:
-                if not group.get("operations"):
-                    continue
-                for operation in group["operations"]:
+            for group in client.get("operationGroups", []):
+                for operation in group.get("operations", []):
                     if not operation.get("exceptions"):
                         continue
                     # sort exceptions by status code, first single status code, then range, then default
@@ -265,12 +261,8 @@ class CodeGenerator(Plugin):
     @staticmethod
     def remove_cloud_errors(yaml_data: Dict[str, Any]) -> None:
         for client in yaml_data["clients"]:
-            if not client.get("operationGroups"):
-                continue
-            for group in client["operationGroups"]:
-                if not group.get("operations"):
-                    continue
-                for operation in group["operations"]:
+            for group in client.get("operationGroups", []):
+                for operation in group.get("operations", []):
                     if not operation.get("exceptions"):
                         continue
                     i = 0
