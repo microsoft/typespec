@@ -1154,7 +1154,7 @@ it("handles multipartBody requests and shared routes", async () => {
           "using Microsoft.AspNetCore.WebUtilities;",
           "using Microsoft.AspNetCore.Http.Extensions;",
           `[Consumes("multipart/form-data")]`,
-          "public virtual async Task<IActionResult> FooBinary(HttpRequest request, Stream body)",
+          "public virtual async Task<IActionResult> FooBinary()",
           ".FooBinaryAsync(reader)",
           "public virtual async Task<IActionResult> FooJson(FooJsonRequest body)",
           ".FooJsonAsync(body)",

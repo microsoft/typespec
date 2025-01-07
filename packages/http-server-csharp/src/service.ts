@@ -661,7 +661,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const multipart: boolean = this.#isMultipartRequest(httpOperation);
       const declParams = !multipart
         ? this.#emitHttpOperationParameters(httpOperation)
-        : this.#emitHttpOperationParameters(httpOperation, "HttpRequest request, Stream body");
+        : this.#emitHttpOperationParameters(httpOperation, true);
 
       if (multipart) {
         const context = this.emitter.getContext();
@@ -720,14 +720,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         ${this.emitter.emitOperationReturnType(operation)}
         public virtual async Task<IActionResult> ${operationName}(${declParams})
         {
-          var boundary = request.GetMultipartBoundary();
+          var boundary = Request.GetMultipartBoundary();
           if (boundary == null)
           {
              return BadRequest("Request missing multipart boundary");
           }
 
 
-          var reader = new MultipartReader(boundary, body);
+          var reader = new MultipartReader(boundary, Request.Body);
           ${
             hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(httpOperation, "reader")});
@@ -912,7 +912,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     #emitHttpOperationParameters(
       operation: HttpOperation,
-      bodyParameter?: string,
+      bodyParameter?: boolean,
     ): EmitterOutput<string> {
       const signature = new StringBuilder();
       const bodyParam = operation.parameters.body;
@@ -946,7 +946,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           );
         }
       } else {
-        signature.push(code`${bodyParameter}${optionalParams.length > 0 ? ", " : ""}`);
+        signature.push(code`${optionalParams.length > 0 ? ", " : ""}`);
       }
       i = 0;
       for (const parameter of optionalParams) {
