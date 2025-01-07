@@ -23,7 +23,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 
         public virtual Task<ClientResult> GetModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Fish> GetModel() => throw null;
+        public virtual ClientResult<Fish> GetModel(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Fish>> GetModelAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -31,7 +31,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 
         public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutModel(Fish input) => throw null;
+        public virtual ClientResult PutModel(Fish input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
 
@@ -39,7 +39,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 
         public virtual Task<ClientResult> GetRecursiveModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Fish> GetRecursiveModel() => throw null;
+        public virtual ClientResult<Fish> GetRecursiveModel(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Fish>> GetRecursiveModelAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -47,7 +47,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 
         public virtual Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutRecursiveModel(Fish input) => throw null;
+        public virtual ClientResult PutRecursiveModel(Fish input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutRecursiveModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
 
@@ -55,7 +55,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 
         public virtual Task<ClientResult> GetMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Fish> GetMissingDiscriminator() => throw null;
+        public virtual ClientResult<Fish> GetMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Fish>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -63,7 +63,7 @@ namespace _Type.Model.Inheritance.NestedDiscriminator
 
         public virtual Task<ClientResult> GetWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Fish> GetWrongDiscriminator() => throw null;
+        public virtual ClientResult<Fish> GetWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Fish>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
     }

@@ -20,7 +20,7 @@
      "kind": "enumvalue",
      "name": "image/jpg",
      "value": "image/jpg",
-     "description": "image/jpg",
+     "doc": "image/jpg",
      "valueType": {
       "$ref": "3"
      },
@@ -30,7 +30,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
-   "description": "The FileSpecificContentType_contentType",
+   "doc": "The FileSpecificContentType_contentType",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input",
@@ -813,7 +813,7 @@
   {
    "$id": "79",
    "Name": "MultiPartClient",
-   "Description": "Test for multipart",
+   "Doc": "Test for multipart",
    "Operations": [],
    "Protocol": {
     "$id": "80"
@@ -823,7 +823,7 @@
      "$id": "81",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "82",
       "kind": "url",
@@ -861,7 +861,7 @@
      "$id": "86",
      "Name": "basic",
      "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data",
+     "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -937,7 +937,7 @@
      "$id": "92",
      "Name": "fileArrayAndBasic",
      "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data for mixed scenarios",
+     "Doc": "Test content-type: multipart/form-data for mixed scenarios",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1013,7 +1013,7 @@
      "$id": "98",
      "Name": "jsonPart",
      "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data for scenario contains json part and binary part ",
+     "Doc": "Test content-type: multipart/form-data for scenario contains json part and binary part ",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1089,7 +1089,7 @@
      "$id": "104",
      "Name": "binaryArrayParts",
      "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data for scenario contains multi binary parts",
+     "Doc": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1165,7 +1165,7 @@
      "$id": "110",
      "Name": "multiBinaryParts",
      "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data for scenario contains multi binary parts",
+     "Doc": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1241,7 +1241,7 @@
      "$id": "116",
      "Name": "checkFileNameAndContentType",
      "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data",
+     "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1317,7 +1317,7 @@
      "$id": "122",
      "Name": "anonymousModel",
      "ResourceName": "FormData",
-     "Description": "Test content-type: multipart/form-data",
+     "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1399,7 +1399,7 @@
      "$id": "129",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "130",
       "kind": "url",
@@ -1437,7 +1437,7 @@
      "$id": "134",
      "Name": "jsonArrayAndFileArray",
      "ResourceName": "HttpParts",
-     "Description": "Test content-type: multipart/form-data for mixed scenarios",
+     "Doc": "Test content-type: multipart/form-data for mixed scenarios",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1519,7 +1519,7 @@
      "$id": "141",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "142",
       "kind": "url",
@@ -1557,7 +1557,7 @@
      "$id": "146",
      "Name": "imageJpegContentType",
      "ResourceName": "ContentType",
-     "Description": "Test content-type: multipart/form-data",
+     "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1633,7 +1633,7 @@
      "$id": "152",
      "Name": "requiredContentType",
      "ResourceName": "ContentType",
-     "Description": "Test content-type: multipart/form-data",
+     "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1709,7 +1709,7 @@
      "$id": "158",
      "Name": "optionalContentType",
      "ResourceName": "ContentType",
-     "Description": "Test content-type: multipart/form-data for optional content type",
+     "Doc": "Test content-type: multipart/form-data for optional content type",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1791,7 +1791,7 @@
      "$id": "165",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "166",
       "kind": "url",
@@ -1829,7 +1829,7 @@
      "$id": "170",
      "Name": "float",
      "ResourceName": "NonString",
-     "Description": "Test content-type: multipart/form-data for non string",
+     "Doc": "Test content-type: multipart/form-data for non string",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1911,7 +1911,7 @@
      "$id": "177",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "178",
       "kind": "url",

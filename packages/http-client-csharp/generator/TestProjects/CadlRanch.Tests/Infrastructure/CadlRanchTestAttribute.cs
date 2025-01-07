@@ -82,14 +82,19 @@ namespace TestProjects.CadlRanch.Tests
             var clientCodeDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "..", "..", "..", "TestProjects", "CadlRanch");
             foreach (var part in namespaceParts)
             {
-                clientCodeDirectory = Path.Combine(clientCodeDirectory, kebabCaseDirectories ? FixName(part) : part);
+                clientCodeDirectory = Path.Combine(clientCodeDirectory, FixName(part, kebabCaseDirectories));
             }
             return Path.Combine(clientCodeDirectory, "src", "Generated");
         }
 
-        private static string FixName(string part)
+        private static string FixName(string part, bool kebabCaseDirectories)
         {
-            return ToKebabCase().Replace(part.StartsWith("_", StringComparison.Ordinal) ? part.Substring(1) : part, "-$1").ToLower();
+            if (kebabCaseDirectories)
+            {
+                return ToKebabCase().Replace(part.StartsWith("_", StringComparison.Ordinal) ? part.Substring(1) : part, "-$1").ToLowerInvariant();
+            }
+            // Use camelCase
+            return char.ToLowerInvariant(part[0]) + part[1..];
         }
     }
 }

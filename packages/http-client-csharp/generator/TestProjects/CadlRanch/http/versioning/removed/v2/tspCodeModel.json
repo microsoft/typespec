@@ -124,7 +124,7 @@
      "enumType": {
       "$ref": "12"
      },
-     "description": "The original version v1.",
+     "doc": "The version v1.",
      "decorators": []
     },
     {
@@ -142,7 +142,7 @@
      "enumType": {
       "$ref": "12"
      },
-     "description": "The V2 Preview version.",
+     "doc": "The V2 Preview version.",
      "decorators": []
     },
     {
@@ -160,11 +160,11 @@
      "enumType": {
       "$ref": "12"
      },
-     "description": "The latest version v2.",
+     "doc": "The version v2.",
      "decorators": []
     }
    ],
-   "description": "The version of the API.",
+   "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,ApiVersionEnum",
@@ -299,7 +299,7 @@
   {
    "$id": "32",
    "Name": "RemovedClient",
-   "Description": "Test for the `@removed` decorator.",
+   "Doc": "Test for the `@removed` decorator.",
    "Operations": [
     {
      "$id": "33",
@@ -311,7 +311,7 @@
        "$id": "34",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "35",
         "kind": "constant",
@@ -414,14 +414,14 @@
      "$id": "42",
      "Name": "modelV3",
      "ResourceName": "Removed",
-     "Description": "This operation will pass different paths and different request bodies based on different versions.",
+     "Doc": "This operation will pass different paths and different request bodies based on different versions.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "43",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "44",
         "kind": "constant",
@@ -529,7 +529,7 @@
      "$id": "52",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "53",
       "kind": "url",
@@ -550,7 +550,7 @@
      "$id": "54",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
      "Type": {
       "$ref": "12"
      },

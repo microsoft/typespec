@@ -6,7 +6,7 @@ import { getPropertySource, getSourceModel } from "../src/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
 
 function getGeneratedFile(runner: BasicTestRunner, fileName: string): [string, string] {
-  const result = [...runner.fs.entries()].filter((e) => e[0].includes(fileName));
+  const result = [...runner.fs.entries()].filter((e) => e[0].includes(`/${fileName}`));
   assert.strictEqual(
     result === null || result === undefined,
     false,
@@ -718,7 +718,6 @@ it("Handles user-defined model templates", async () => {
           name: string;
         }
 
-      @friendlyName("{name}ListResults", Item)
        model ResponsePage<Item> {
         items: Item[];
         nextLink?: string;
@@ -728,12 +727,19 @@ it("Handles user-defined model templates", async () => {
       }
     `,
     [
-      ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
+      [
+        "IMyServiceOperations.cs",
+        ["interface IMyServiceOperations", "Task<ResponsePageToy> FooAsync( );"],
+      ],
       [
         "MyServiceOperationsControllerBase.cs",
-        ["public abstract partial class MyServiceOperationsControllerBase: ControllerBase"],
+        [
+          "public abstract partial class MyServiceOperationsControllerBase: ControllerBase",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponsePageToy))]",
+          "public virtual async Task<IActionResult> Foo()",
+        ],
       ],
-      ["ToyListResults.cs", ["public partial class ToyListResults"]],
+      ["ResponsePageToy.cs", ["public partial class ResponsePageToy"]],
     ],
   );
 });
@@ -1022,5 +1028,165 @@ it("generates valid code for anonymous models", async () => {
       ["ContosoOperationsControllerBase.cs", [`public virtual async Task<IActionResult> Foo()`]],
       ["IContosoOperations.cs", [`Task FooAsync( );`]],
     ],
+  );
+});
+
+it("handles nullable types correctly", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Nullable numeric property */
+        intProp: int32 | null;
+        /** Nullable reference type */
+        stringProp: string | null;
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        /** A complex property */
+        modelProp: {
+          bar: string;
+        } | null;
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        anotherModelProp: {
+          baz: string;
+        };
+        
+        yetAnother: Foo.modelProp | null;
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `,
+    [
+      ["Model0.cs", ["public partial class Model0", "public string Bar { get; set; }"]],
+      ["Model1.cs", ["public partial class Model1", "public string Baz { get; set; }"]],
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int? IntProp { get; set; }",
+          "public string StringProp { get; set; }",
+          "public Model0 ModelProp { get; set; }",
+          "public Model1 AnotherModelProp { get; set; }",
+          "public Model0 YetAnother { get; set; }",
+        ],
+      ],
+      ["ContosoOperationsControllerBase.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+    ],
+  );
+});
+
+it("handles implicit request body models correctly", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
+      @route("/foo") @post op foo(intProp?: int32, arrayProp?: string[]): void;
+      `,
+    [
+      [
+        "Model0.cs",
+        [
+          "public partial class Model0",
+          "public int? IntProp { get; set; }",
+          "public string[] ArrayProp { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsControllerBase.cs",
+        [
+          `public virtual async Task<IActionResult> Foo(Model0 body)`,
+          ".FooAsync(body?.IntProp, body?.ArrayProp)",
+        ],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
+    ],
+  );
+});
+
+it("handles multipartBody requests and shared routes", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      model Bar<T extends {}> {
+        ...T;
+      }
+      model FooRequest {
+        contents: HttpPart<File>;
+        other: HttpPart<Bar<FooJsonRequest>>;
+      }
+      model FooJsonRequest {
+        mediaType: string;
+        filename: string;
+        contents: bytes;
+      }
+
+      @sharedRoute
+      @route("/foo") 
+      @post 
+      op fooBinary(
+        @header("content-type") contentType: "multipart/form-data", 
+        @multipartBody body: FooRequest
+      ): void;
+
+      @sharedRoute
+      @route("/foo") 
+      @post 
+      op fooJson(
+        @header("content-type") contentType: "application/json", 
+        @body body: FooJsonRequest
+      ): void;
+      `,
+    [
+      [
+        "FooJsonRequest.cs",
+        [
+          "public partial class FooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsControllerBase.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "using Microsoft.AspNetCore.Http.Extensions;",
+          `[Consumes("multipart/form-data")]`,
+          "public virtual async Task<IActionResult> FooBinary(HttpRequest request, Stream body)",
+          ".FooBinaryAsync(reader)",
+          "public virtual async Task<IActionResult> FooJson(FooJsonRequest body)",
+          ".FooJsonAsync(body)",
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "Task FooBinaryAsync( MultipartReader reader);",
+          "Task FooJsonAsync( FooJsonRequest body);",
+        ],
+      ],
+      [
+        "BarFooJsonRequest.cs",
+        [
+          "public partial class BarFooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+    ],
+  );
+
+  const files = [...runner.fs.keys()];
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("HttpPartFile.cs")),
+    false,
+  );
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("FooRequest.cs")),
+    false,
   );
 });

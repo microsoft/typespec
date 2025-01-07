@@ -194,6 +194,24 @@ model OutputOnlyModelChild extends OutputOnlyModel {
   childName: string;
 }
 
+model FunctionConfiguration {
+  input?: string;
+  output?: string;
+}
+
+@discriminator("kind")
+model FunctionProperties {
+  properties: FunctionConfiguration;
+}
+
+model AggregateFunctionProperties extends FunctionProperties {
+  kind: "aggregate";
+}
+
+model Function {
+  properties: FunctionProperties;
+}
+
 @route("/model")
 interface Fishes {
   @get
@@ -211,7 +229,14 @@ interface TopLevelArmResources {
   update is ArmCustomPatchAsync<TopLevelArmResource>;
 }
 
+@route("/function")
+interface Functions {
+  @put
+  createFunction(@body function: Function): Function;
+}
+
 @@flattenProperty(Fish.properties);
 @@flattenProperty(FishProperties.tailProperties);
 @@flattenProperty(Fish.anotherProperties);
 @@flattenProperty(AnotherFishProperties.eyeProperties);
+@@flattenProperty(FunctionProperties.properties);

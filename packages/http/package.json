@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "0.62.0",
+  "version": "0.63.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
@@ -34,6 +34,10 @@
       "typespec": "./lib/streams/main.tsp",
       "types": "./dist/src/streams/index.d.ts",
       "default": "./dist/src/streams/index.js"
+    },
+    "./experimental": {
+      "types": "./dist/src/experimental/index.d.ts",
+      "default": "./dist/src/experimental/index.js"
     }
   },
   "engines": {
