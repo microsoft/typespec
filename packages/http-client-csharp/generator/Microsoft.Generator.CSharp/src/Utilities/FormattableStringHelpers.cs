@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp

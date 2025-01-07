@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\Microsoft.Generator.CSharp\src\Shared\StringExtensions.cs" LinkBase="Shared" />
+  </ItemGroup>
+
 </Project>
