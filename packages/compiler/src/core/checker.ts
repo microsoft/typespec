@@ -4588,7 +4588,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (heritageType.kind === "Model") {
-      for (const arg of heritageType.templateArguments ?? []) {
+      for (const arg of heritageType.templateMapper?.args ?? []) {
         if ("kind" in arg && arg.kind === "TemplateParameter") {
           resolver.setTemplateParameterDeclarationNode(arg.node);
         }
@@ -4660,7 +4660,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (isType.kind === "Model") {
-      for (const arg of isType.templateArguments ?? []) {
+      for (const arg of isType.templateMapper?.args ?? []) {
         if ("kind" in arg && arg.kind === "TemplateParameter") {
           resolver.setTemplateParameterDeclarationNode(arg.node);
         }
