@@ -58,6 +58,7 @@ export interface ResolvedCoverageReport extends CoverageReport {
 export interface ScenariosMetadata {
   version: string;
   commit: string;
+  packageName: string;
 }
 
 export interface GeneratorMetadata {

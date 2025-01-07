@@ -2,19 +2,19 @@
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
     "parameters.basic.BasicClientBuilder": "Parameters.Basic",
-    "parameters.basic.ExplicitBodyAsyncClient": "null",
+    "parameters.basic.ExplicitBodyAsyncClient": "Parameters.Basic.ExplicitBody",
     "parameters.basic.ExplicitBodyAsyncClient.simple": "Parameters.Basic.ExplicitBody.simple",
     "parameters.basic.ExplicitBodyAsyncClient.simpleWithResponse": "Parameters.Basic.ExplicitBody.simple",
-    "parameters.basic.ExplicitBodyClient": "null",
+    "parameters.basic.ExplicitBodyClient": "Parameters.Basic.ExplicitBody",
     "parameters.basic.ExplicitBodyClient.simple": "Parameters.Basic.ExplicitBody.simple",
     "parameters.basic.ExplicitBodyClient.simpleWithResponse": "Parameters.Basic.ExplicitBody.simple",
-    "parameters.basic.ImplicitBodyAsyncClient": "null",
+    "parameters.basic.ImplicitBodyAsyncClient": "Parameters.Basic.ImplicitBody",
     "parameters.basic.ImplicitBodyAsyncClient.simple": "Parameters.Basic.ImplicitBody.simple",
     "parameters.basic.ImplicitBodyAsyncClient.simpleWithResponse": "Parameters.Basic.ImplicitBody.simple",
-    "parameters.basic.ImplicitBodyClient": "null",
+    "parameters.basic.ImplicitBodyClient": "Parameters.Basic.ImplicitBody",
     "parameters.basic.ImplicitBodyClient.simple": "Parameters.Basic.ImplicitBody.simple",
     "parameters.basic.ImplicitBodyClient.simpleWithResponse": "Parameters.Basic.ImplicitBody.simple",
-    "parameters.basic.implementation.models.SimpleRequest": "Parameters.Basic.ImplicitBody.simple.Request.anonymous",
-    "parameters.basic.models.User": "Parameters.Basic.ExplicitBody.User"
+    "parameters.basic.explicitbody.models.User": "Parameters.Basic.ExplicitBody.User",
+    "parameters.basic.implicitbody.implementation.models.SimpleRequest": "Parameters.Basic.ImplicitBody.simple.Request.anonymous"
   }
 }

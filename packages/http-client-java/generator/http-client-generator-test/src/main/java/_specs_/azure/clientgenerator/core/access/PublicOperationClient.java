@@ -5,8 +5,8 @@
 package _specs_.azure.clientgenerator.core.access;
 
 import _specs_.azure.clientgenerator.core.access.implementation.PublicOperationsImpl;
-import _specs_.azure.clientgenerator.core.access.models.NoDecoratorModelInPublic;
-import _specs_.azure.clientgenerator.core.access.models.PublicDecoratorModelInPublic;
+import _specs_.azure.clientgenerator.core.access.publicoperation.models.NoDecoratorModelInPublic;
+import _specs_.azure.clientgenerator.core.access.publicoperation.models.PublicDecoratorModelInPublic;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;

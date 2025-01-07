@@ -9,6 +9,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Utilities;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -89,13 +90,13 @@ namespace Microsoft.Generator.CSharp.Providers
                 ? $"{inputProperty.Name.ToCleanName()}Property"
                 : inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
-            Description = string.IsNullOrEmpty(inputProperty.Description) ? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter) : $"{inputProperty.Description}";
+            Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
             XmlDocs = GetXmlDocs();
             WireInfo = new PropertyWireInformation(inputProperty);
             IsDiscriminator = inputProperty.IsDiscriminator;
 
-            InitializeParameter(FormattableStringHelpers.FromString(inputProperty.Description) ?? FormattableStringHelpers.Empty);
+            InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
         }
 
         public PropertyProvider(

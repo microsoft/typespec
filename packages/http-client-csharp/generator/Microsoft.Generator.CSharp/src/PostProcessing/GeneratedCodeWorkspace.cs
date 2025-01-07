@@ -19,16 +19,19 @@ namespace Microsoft.Generator.CSharp
 {
     internal class GeneratedCodeWorkspace
     {
+        private const string SharedFolder = "Shared";
         private const string GeneratedFolder = "Generated";
         private const string GeneratedCodeProjectName = "GeneratedCode";
         private const string GeneratedTestFolder = "GeneratedTests";
+        private const string NewLine = "\n";
 
         private static readonly Lazy<IReadOnlyList<MetadataReference>> _assemblyMetadataReferences = new(() => new List<MetadataReference>()
             { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
         private static readonly Lazy<WorkspaceMetadataReferenceResolver> _metadataReferenceResolver = new(() => new WorkspaceMetadataReferenceResolver());
         private static Task<Project>? _cachedProject;
-        private static readonly string[] _generatedFolders = { GeneratedFolder };
-        private static readonly string _newLine = "\n";
+
+        private static readonly string[] _generatedFolders = [GeneratedFolder];
+        private static readonly string[] _sharedFolders = [SharedFolder];
 
         private Project _project;
         private Compilation? _compilation;
@@ -127,7 +130,7 @@ namespace Microsoft.Generator.CSharp
         private static Project CreateGeneratedCodeProject()
         {
             var workspace = new AdhocWorkspace();
-            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, _newLine);
+            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, NewLine);
             workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
             Project generatedCodeProject = workspace.AddProject(GeneratedCodeProjectName, LanguageNames.CSharp);
 
@@ -157,6 +160,11 @@ namespace Microsoft.Generator.CSharp
                 generatedCodeProject = AddDirectory(generatedCodeProject, projectDirectory, skipPredicate: sourceFile => sourceFile.StartsWith(outputDirectory));
             }
 
+            foreach (var sharedSourceFolder in CodeModelPlugin.Instance.SharedSourceDirectories)
+            {
+                generatedCodeProject = AddDirectory(generatedCodeProject, sharedSourceFolder, folders: _sharedFolders);
+            }
+
             generatedCodeProject = generatedCodeProject.WithParseOptions(new CSharpParseOptions(preprocessorSymbols: new[] { "EXPERIMENTAL" }));
             return new GeneratedCodeWorkspace(generatedCodeProject);
         }
@@ -164,7 +172,7 @@ namespace Microsoft.Generator.CSharp
         internal static GeneratedCodeWorkspace CreateExistingCodeProject(IEnumerable<string> projectDirectories, string generatedDirectory)
         {
             var workspace = new AdhocWorkspace();
-            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, _newLine);
+            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, NewLine);
             workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
             Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
 

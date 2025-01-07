@@ -8,8 +8,18 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class BytesProperty
     {
-        public string RequiredProperty => throw null;
+        public BytesProperty(string requiredProperty, BinaryData nullableProperty) => throw null;
 
-        public BinaryData NullableProperty => throw null;
+        public string RequiredProperty
+        {
+            get => throw null;
+            set => throw null;
+        }
+
+        public BinaryData NullableProperty
+        {
+            get => throw null;
+            set => throw null;
+        }
     }
 }

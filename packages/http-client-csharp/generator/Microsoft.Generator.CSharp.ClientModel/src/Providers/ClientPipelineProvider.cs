@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
-using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
@@ -25,6 +27,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public override CSharpType PipelinePolicyType => typeof(PipelinePolicy);
 
+        public override CSharpType KeyCredentialType => typeof(ApiKeyCredential);
+
+        public override CSharpType? TokenCredentialType => null; // Scm library does not support token credentials yet.
+
         public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
             => Static<ClientPipeline>().Invoke(nameof(ClientPipeline.Create), [options, New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType), perRetryPolicies, New.Array(ClientModelPlugin.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType)]).As<ClientPipeline>();
 
@@ -34,8 +40,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override ClientPipelineApi FromExpression(ValueExpression expression)
             => new ClientPipelineProvider(expression);
 
-        public override ValueExpression AuthorizationPolicy(params ValueExpression[] arguments)
-            => Static<ApiKeyAuthenticationPolicy>().Invoke(nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), arguments).As<ApiKeyAuthenticationPolicy>();
+        public override ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
+        {
+            ValueExpression[] arguments = keyPrefix == null ? [credential, headerName] : [credential, headerName, keyPrefix];
+            return Static<ApiKeyAuthenticationPolicy>().Invoke(nameof(ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy), arguments).As<ApiKeyAuthenticationPolicy>();
+        }
+
+        public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
+        {
+            // Scm library does not support token credentials yet. The throw here is intentional.
+            // For a plugin that supports token credentials, they could override this implementation as well as the above TokenCredentialType property.
+            throw new NotImplementedException();
+        }
 
         public override ClientPipelineApi ToExpression() => this;
 

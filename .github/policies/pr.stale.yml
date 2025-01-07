@@ -1,0 +1,49 @@
+id: pr.inactivity
+name: GitOps.PullRequestIssueManagement
+description: Manage Stale pull requests
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches:
+      - description: Ping user when the PR has not been updated in 30 days
+        frequencies:
+          - daily:
+              time: 13:0
+        filters:
+          - isPullRequest
+          - isOpen
+          - isNotLabeledWith:
+              label: no-recent-activity
+          - noActivitySince:
+              days: 30
+        actions:
+          - addLabel:
+              label: stale
+          - addReply:
+              reply: >-
+                Hi @${issueAuthor}.
+                Your PR has had no update for 30 days and it is marked as a stale PR. If it is not updated within 30 days, the PR will automatically be closed.  If you want to refresh the PR, please remove the `stale` label.
+
+      - description: Close prs that have not been updated in 60 days
+        frequencies:
+          - daily:
+              time: 13:0
+        filters:
+          - isPullRequest
+          - isOpen
+          - hasLabel:
+              label: no-recent-activity
+          - noActivitySince:
+              days: 30
+        actions:
+          - closeIssue
+          - addReply:
+              reply: >-
+                Hi @${issueAuthor}.
+                The PR will be closed since the PR has no update for 60 days. If this is still relevant please reopen.
+
+onFailure:
+onSuccess:

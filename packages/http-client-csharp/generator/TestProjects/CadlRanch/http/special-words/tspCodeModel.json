@@ -995,7 +995,7 @@
   {
    "$id": "104",
    "Name": "SpecialWordsClient",
-   "Description": "Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.\n\nCurrent list of special words\n```txt\nand\nas\nassert\nasync\nawait\nbreak\nclass\nconstructor\ncontinue\ndef\ndel\nelif\nelse\nexcept\nexec\nfinally\nfor\nfrom\nglobal\nif\nimport\nin\nis\nlambda\nnot\nor\npass\nraise\nreturn\ntry\nwhile\nwith\nyield\n```",
+   "Doc": "Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.\n\nCurrent list of special words\n```txt\nand\nas\nassert\nasync\nawait\nbreak\nclass\nconstructor\ncontinue\ndef\ndel\nelif\nelse\nexcept\nexec\nfinally\nfor\nfrom\nglobal\nif\nimport\nin\nis\nlambda\nnot\nor\npass\nraise\nreturn\ntry\nwhile\nwith\nyield\n```",
    "Operations": [],
    "Protocol": {
     "$id": "105"
@@ -1005,7 +1005,7 @@
      "$id": "106",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "107",
       "kind": "url",
@@ -1038,7 +1038,7 @@
   {
    "$id": "110",
    "Name": "ModelsOps",
-   "Description": "Verify model names",
+   "Doc": "Verify model names",
    "Operations": [
     {
      "$id": "111",
@@ -1050,7 +1050,7 @@
        "$id": "112",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "113",
         "kind": "constant",
@@ -1126,7 +1126,7 @@
        "$id": "118",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "119",
         "kind": "constant",
@@ -1202,7 +1202,7 @@
        "$id": "124",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "125",
         "kind": "constant",
@@ -1278,7 +1278,7 @@
        "$id": "130",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "131",
         "kind": "constant",
@@ -1354,7 +1354,7 @@
        "$id": "136",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "137",
         "kind": "constant",
@@ -1430,7 +1430,7 @@
        "$id": "142",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "143",
         "kind": "constant",
@@ -1506,7 +1506,7 @@
        "$id": "148",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "149",
         "kind": "constant",
@@ -1582,7 +1582,7 @@
        "$id": "154",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "155",
         "kind": "constant",
@@ -1658,7 +1658,7 @@
        "$id": "160",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "161",
         "kind": "constant",
@@ -1734,7 +1734,7 @@
        "$id": "166",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "167",
         "kind": "constant",
@@ -1810,7 +1810,7 @@
        "$id": "172",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "173",
         "kind": "constant",
@@ -1886,7 +1886,7 @@
        "$id": "178",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "179",
         "kind": "constant",
@@ -1962,7 +1962,7 @@
        "$id": "184",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "185",
         "kind": "constant",
@@ -2038,7 +2038,7 @@
        "$id": "190",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "191",
         "kind": "constant",
@@ -2114,7 +2114,7 @@
        "$id": "196",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "197",
         "kind": "constant",
@@ -2190,7 +2190,7 @@
        "$id": "202",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "203",
         "kind": "constant",
@@ -2266,7 +2266,7 @@
        "$id": "208",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "209",
         "kind": "constant",
@@ -2342,7 +2342,7 @@
        "$id": "214",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "215",
         "kind": "constant",
@@ -2418,7 +2418,7 @@
        "$id": "220",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "221",
         "kind": "constant",
@@ -2494,7 +2494,7 @@
        "$id": "226",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "227",
         "kind": "constant",
@@ -2570,7 +2570,7 @@
        "$id": "232",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "233",
         "kind": "constant",
@@ -2646,7 +2646,7 @@
        "$id": "238",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "239",
         "kind": "constant",
@@ -2722,7 +2722,7 @@
        "$id": "244",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "245",
         "kind": "constant",
@@ -2798,7 +2798,7 @@
        "$id": "250",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "251",
         "kind": "constant",
@@ -2874,7 +2874,7 @@
        "$id": "256",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "257",
         "kind": "constant",
@@ -2950,7 +2950,7 @@
        "$id": "262",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "263",
         "kind": "constant",
@@ -3026,7 +3026,7 @@
        "$id": "268",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "269",
         "kind": "constant",
@@ -3102,7 +3102,7 @@
        "$id": "274",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "275",
         "kind": "constant",
@@ -3178,7 +3178,7 @@
        "$id": "280",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "281",
         "kind": "constant",
@@ -3254,7 +3254,7 @@
        "$id": "286",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "287",
         "kind": "constant",
@@ -3330,7 +3330,7 @@
        "$id": "292",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "293",
         "kind": "constant",
@@ -3406,7 +3406,7 @@
        "$id": "298",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "299",
         "kind": "constant",
@@ -3482,7 +3482,7 @@
        "$id": "304",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "305",
         "kind": "constant",
@@ -3558,7 +3558,7 @@
      "$id": "310",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "311",
       "kind": "url",
@@ -3591,7 +3591,7 @@
   {
    "$id": "314",
    "Name": "ModelProperties",
-   "Description": "Verify model names",
+   "Doc": "Verify model names",
    "Operations": [
     {
      "$id": "315",
@@ -3603,7 +3603,7 @@
        "$id": "316",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "317",
         "kind": "constant",
@@ -3679,7 +3679,7 @@
      "$id": "322",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "323",
       "kind": "url",
@@ -3712,7 +3712,7 @@
   {
    "$id": "326",
    "Name": "Operations",
-   "Description": "Test reserved words as operation name.",
+   "Doc": "Test reserved words as operation name.",
    "Operations": [
     {
      "$id": "327",
@@ -4615,7 +4615,7 @@
      "$id": "394",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "395",
       "kind": "url",
@@ -4648,7 +4648,7 @@
   {
    "$id": "398",
    "Name": "Parameters",
-   "Description": "Verify reserved words as parameter name.",
+   "Doc": "Verify reserved words as parameter name.",
    "Operations": [
     {
      "$id": "399",
@@ -6326,7 +6326,7 @@
      "$id": "536",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "537",
       "kind": "url",
