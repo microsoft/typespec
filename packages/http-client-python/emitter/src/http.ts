@@ -204,7 +204,7 @@ function emitHttpOperation(
     apiVersions: [],
     wantTracing: true,
     exposeStreamKeyword: true,
-    crossLanguageDefinitionId: method?.crossLanguageDefintionId,
+    crossLanguageDefinitionId: method?.crossLanguageDefinitionId,
     samples: arrayToRecord(method?.operation.examples),
     internal: method.access === "internal",
   };
