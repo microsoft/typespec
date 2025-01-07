@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
@@ -16,7 +17,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [Test]
         public async Task CanChangeClientNamespace()
         {
-            var inputClient = InputFactory.Client("TestClient");
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputClient = InputFactory.Client("TestClient", [inputOperation]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
