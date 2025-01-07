@@ -191,7 +191,6 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         const clientTspPath = join(subDirPath, "client.tsp");
 
         const mainTspRelativePath = toPosix(relative(baseDir, mainTspPath));
-        if (flags.flavor === "unbranded" && mainTspRelativePath.includes("azure")) return;
 
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
@@ -295,7 +294,10 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
     const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);
-    const subdirectories = [...subdirectoriesForAzure, ...subdirectoriesForNonAzure];
+    const subdirectories =
+      flags.flavor === "azure"
+        ? [...subdirectoriesForAzure, ...subdirectoriesForNonAzure]
+        : subdirectoriesForNonAzure;
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
       _getCmdList(subdirectory, flagsResolved),
     );

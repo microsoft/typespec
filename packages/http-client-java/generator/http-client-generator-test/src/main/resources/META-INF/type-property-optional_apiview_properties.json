@@ -308,10 +308,10 @@
     "type.property.optional.models.StringLiteralPropertyProperty": null,
     "type.property.optional.models.StringProperty": "Type.Property.Optional.StringProperty",
     "type.property.optional.models.UnionFloatLiteralProperty": "Type.Property.Optional.UnionFloatLiteralProperty",
-    "type.property.optional.models.UnionFloatLiteralPropertyProperty": "UnionFloatLiteralProperty.property.anonymous",
+    "type.property.optional.models.UnionFloatLiteralPropertyProperty": "Type.Property.Optional.UnionFloatLiteralProperty.property.anonymous",
     "type.property.optional.models.UnionIntLiteralProperty": "Type.Property.Optional.UnionIntLiteralProperty",
-    "type.property.optional.models.UnionIntLiteralPropertyProperty": "UnionIntLiteralProperty.property.anonymous",
+    "type.property.optional.models.UnionIntLiteralPropertyProperty": "Type.Property.Optional.UnionIntLiteralProperty.property.anonymous",
     "type.property.optional.models.UnionStringLiteralProperty": "Type.Property.Optional.UnionStringLiteralProperty",
-    "type.property.optional.models.UnionStringLiteralPropertyProperty": "UnionStringLiteralProperty.property.anonymous"
+    "type.property.optional.models.UnionStringLiteralPropertyProperty": "Type.Property.Optional.UnionStringLiteralProperty.property.anonymous"
   }
 }
