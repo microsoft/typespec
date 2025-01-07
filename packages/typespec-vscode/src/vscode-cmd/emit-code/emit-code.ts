@@ -58,7 +58,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   const all = [...registerEmitters].map((e) => toQuickPickItem(e));
 
   const selectedEmitter = await vscode.window.showQuickPick<EmitQuickPickItem>(all, {
-    title: `Select a Language for ${kind} code generation`,
+    title: `Generate from TypeSpec`,
     canPickMany: false,
     placeHolder: `Select a Language for ${kind} code generation`,
     ignoreFocusOut: true,
@@ -137,7 +137,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
 
   if (installPackageQuickPickItems.length > 0) {
     const selectedPackages = await vscode.window.showQuickPick(installPackageQuickPickItems, {
-      title: "Install or update libraries",
+      title: "Generate from TypeSpec",
       canPickMany: true,
       placeHolder: "Here are libraries to install or update.",
       ignoreFocusOut: true,
@@ -310,9 +310,9 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
         toProjectPickItem(filePath),
       );
       const selectedProjectFile = await vscode.window.showQuickPick(typespecProjectQuickPickItems, {
-        title: "Select a Project",
+        title: "Generate from TypeSpec",
         canPickMany: false,
-        placeHolder: "Pick a project",
+        placeHolder: "Select a project",
         ignoreFocusOut: true,
       });
       if (!selectedProjectFile) {
@@ -356,7 +356,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
   };
   const codesToEmit = emitterKinds.map((kind) => toEmitterTypeQuickPickItem(kind));
   const codeType = await vscode.window.showQuickPick(codesToEmit, {
-    title: "Select an Emitter Type",
+    title: "Generate from TypeSpec",
     canPickMany: false,
     placeHolder: "Select an emitter type",
     ignoreFocusOut: true,
