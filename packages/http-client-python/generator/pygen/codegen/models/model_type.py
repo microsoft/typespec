@@ -352,6 +352,5 @@ class DPGModelType(GeneratedModelType):
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
-        if self.flattened_property:
-            file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
+        file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
         return file_import
