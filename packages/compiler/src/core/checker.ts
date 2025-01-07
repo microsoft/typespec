@@ -4339,6 +4339,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     if (isType(entity)) {
       if (entity.kind === "TemplateParameter") {
+        resolver.setTemplateParameterDeclarationNode(entity.node);
         if (entity.constraint === undefined || entity.constraint.type !== undefined) {
           // means this template constraint will accept values
           reportCheckerDiagnostic(
@@ -4586,6 +4587,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
 
+    if (heritageType.kind === "Model") {
+      for (const arg of heritageType.templateArguments ?? []) {
+        if ("kind" in arg && arg.kind === "TemplateParameter") {
+          resolver.setTemplateParameterDeclarationNode(arg.node);
+        }
+      }
+    }
     if (heritageType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "extend-model", target: heritageRef }));
       return undefined;
@@ -4646,6 +4654,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     pendingResolutions.finish(modelSymId, ResolutionKind.BaseType);
+
+    if (isType.kind === "TemplateParameter") {
+      resolver.setTemplateParameterDeclarationNode(isType.node);
+    }
+
+    if (isType.kind === "Model") {
+      for (const arg of isType.templateArguments ?? []) {
+        if ("kind" in arg && arg.kind === "TemplateParameter") {
+          resolver.setTemplateParameterDeclarationNode(arg.node);
+        }
+      }
+    }
 
     if (isType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "is-model", target: isExpr }));

@@ -84,4 +84,50 @@ describe("compiler: unused template parameter in model template", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 0);
   });
+
+  it("no unused template parameter diagnose when the template parameter used in base Model", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model A<T> {
+          prop:T;
+        }
+        model IsModel<T> is A<T>;
+      `,
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+
+  it("no unused template parameter diagnose when the template parameter used extended Model", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model A<T> {
+          prop:T;
+        }
+        model ExtendModel<T> extends A<T> {
+        }
+      `,
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
+
+  it("no unused template parameter diagnose when the template parameter in typeof expression", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+        model A<T> {
+          prop:T;
+        }
+        model ModelWithTypeOfExpression<Type, ContentType extends valueof string>
+          is A<Type> {
+          contentType: typeof ContentType;
+        }
+      `,
+    );
+    const diagnostics = await testHost.diagnose("main.tsp");
+    strictEqual(diagnostics.length, 0);
+  });
 });
