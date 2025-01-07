@@ -1,3 +1,7 @@
+---
+layout: ../layouts/content.astro
+---
+
 # Multi protocol
 
 TypeSpec is a protocol agnostic language. It could be used with many different protocols independently or together.
