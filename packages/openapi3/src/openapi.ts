@@ -1844,7 +1844,7 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
         singleQuote: true,
         aliasDuplicateObjects: false,
         lineWidth: 0,
-        schema: "yaml-1.1",
+        compat: "yaml-1.1",
       });
   }
 }
