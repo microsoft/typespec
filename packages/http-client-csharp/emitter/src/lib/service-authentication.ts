@@ -8,8 +8,8 @@ import {
   SdkPackage,
 } from "@azure-tools/typespec-client-generator-core";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
-import { Logger } from "./logger.js";
 import { InputAuth } from "../type/input-auth.js";
+import { Logger } from "./logger.js";
 
 export function processServiceAuthentication(
   sdkPackage: SdkPackage<SdkHttpOperation>,
@@ -50,45 +50,44 @@ function processAuthType(credentialType: SdkCredentialType): InputAuth | undefin
       if (scheme.in !== "header") {
         Logger.getInstance().warn(
           `Only header is supported for ApiKey auth method. ${scheme.in} is not supported.`,
-          credentialType.__raw
+          credentialType.__raw,
         );
         return undefined;
       }
       return { ApiKey: { Name: scheme.name, In: scheme.in } } as InputAuth;
     case "oauth2":
       return processOAuth2(scheme);
-    case "http":
-      {
-        const schemeOrApiKeyPrefix = scheme.scheme;
-        switch (schemeOrApiKeyPrefix) {
-          case "basic":
-            Logger.getInstance().warn(
-              `${schemeOrApiKeyPrefix} auth method is currently not supported.`,
-              credentialType.__raw
-            );
-            return undefined;
-          case "bearer":
-            return {
-              ApiKey: {
-                Name: "Authorization",
-                In: "header",
-                Prefix: "Bearer",
-              },
-            };
-          default:
-            return {
-              ApiKey: {
-                Name: "Authorization",
-                In: "header",
-                Prefix: schemeOrApiKeyPrefix,
-              },
-            };
-        }
+    case "http": {
+      const schemeOrApiKeyPrefix = scheme.scheme;
+      switch (schemeOrApiKeyPrefix) {
+        case "basic":
+          Logger.getInstance().warn(
+            `${schemeOrApiKeyPrefix} auth method is currently not supported.`,
+            credentialType.__raw,
+          );
+          return undefined;
+        case "bearer":
+          return {
+            ApiKey: {
+              Name: "Authorization",
+              In: "header",
+              Prefix: "Bearer",
+            },
+          };
+        default:
+          return {
+            ApiKey: {
+              Name: "Authorization",
+              In: "header",
+              Prefix: schemeOrApiKeyPrefix,
+            },
+          };
       }
+    }
     default:
       Logger.getInstance().error(
         `un-supported authentication scheme ${scheme.type}`,
-        credentialType.__raw
+        credentialType.__raw,
       );
       return undefined;
   }

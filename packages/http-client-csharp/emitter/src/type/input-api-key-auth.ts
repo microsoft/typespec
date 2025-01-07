@@ -7,4 +7,4 @@ export interface InputApiKeyAuth {
   Prefix?: string;
 }
 
-export type ApiKeyLocation = "header";// | "query" | "cookie"; // we do not support query or cookie yet
+export type ApiKeyLocation = "header"; // | "query" | "cookie"; // we do not support query or cookie yet
