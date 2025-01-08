@@ -14,6 +14,7 @@ from typing import (
     Union,
     TYPE_CHECKING,
     cast,
+    Sequence,
 )
 from abc import abstractmethod
 
@@ -39,7 +40,7 @@ if TYPE_CHECKING:
     from .request_builder import RequestBuilder
 
 
-OverloadListType = TypeVar("OverloadListType", bound=Union[List["Operation"], List["RequestBuilder"]])
+OverloadListType = TypeVar("OverloadListType", bound=Union[Sequence["Operation"], Sequence["RequestBuilder"]])
 
 _LOGGER = logging.getLogger(__name__)
 

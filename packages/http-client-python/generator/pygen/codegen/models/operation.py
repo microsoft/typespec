@@ -13,6 +13,7 @@ from typing import (
     Generic,
     TypeVar,
     cast,
+    Sequence,
 )
 
 from .request_builder_parameter import RequestBuilderParameter
@@ -55,7 +56,7 @@ def is_internal(target: Optional[BaseType]) -> bool:
 
 
 class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instance-attributes
-    Generic[ResponseType], BaseBuilder[ParameterList, List["Operation"]]
+    Generic[ResponseType], BaseBuilder[ParameterList, Sequence["Operation"]]
 ):
     def __init__(
         self,
@@ -68,7 +69,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         responses: List[ResponseType],
         exceptions: List[Response],
         *,
-        overloads: Optional[List["Operation"]] = None,
+        overloads: Optional[Sequence["Operation"]] = None,
     ) -> None:
         super().__init__(
             code_model=code_model,
@@ -78,7 +79,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             parameters=parameters,
             overloads=overloads,
         )
-        self.overloads: List["Operation"] = overloads or []
+        self.overloads: Sequence["Operation"] = overloads or []
         self.responses = responses
         self.request_builder = request_builder
         self.deprecated = False
@@ -499,7 +500,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         responses = [cast(ResponseType, get_response(r, code_model)) for r in yaml_data["responses"]]
         exceptions = [Response.from_yaml(e, code_model) for e in yaml_data["exceptions"]]
         parameter_list = ParameterList.from_yaml(yaml_data, code_model)
-        overloads = [cls.from_yaml(overload, code_model, client) for overload in yaml_data.get("overloads", [])]
+        overloads = [
+            cast(Operation, cls.from_yaml(overload, code_model, client)) for overload in yaml_data.get("overloads", [])
+        ]
 
         return cls(
             yaml_data=yaml_data,
