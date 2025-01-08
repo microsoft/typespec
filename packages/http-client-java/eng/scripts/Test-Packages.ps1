@@ -37,11 +37,23 @@ try {
                 & ./Setup.ps1
                 & ./Spector-Tests.ps1
                 Set-Location $packageRoot
-                Write-Host "Spector tests passed"
             }
             finally {
                 Pop-Location
             }
+
+            $generatorTestDir = Join-Path $packageRoot 'generator/http-client-generator-standard-test'
+            Push-Location $generatorTestDir
+            try {
+                & ./Setup.ps1
+                & ./Spector-Tests.ps1
+                Set-Location $packageRoot
+            }
+            finally {
+                Pop-Location
+            }
+
+            Write-Host "Spector tests passed"
         } 
         catch {
             Write-Error "Spector tests failed: $_"
@@ -52,7 +64,7 @@ try {
             if (!(Test-Path $coverageReportDir)) {
                 New-Item -ItemType Directory -Path $coverageReportDir
 
-                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-test/tsp-spector-coverage-java-standard.json'
+                $sourceFile = Join-Path $packageRoot 'generator/http-client-generator-standard-test/tsp-spector-coverage-java-standard.json'
                 $targetFile = Join-Path $coverageReportDir 'tsp-spector-coverage-java-standard.json'
                 Copy-Item $sourceFile -Destination $targetFile
             }

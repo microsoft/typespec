@@ -25,9 +25,8 @@ extends:
             - name: typespec-http-client-java
               file: typespec-http-client-java-*.tgz
               type: npm
-          UnitTestArgs: -UnitTests
+          UnitTestArgs: -UnitTests -GenerationChecks
           StagePrefix: "Java"
           LanguageShortName: "java"
           HasNugetPackages: false
           CadlRanchName: "@typespec/http-client-java"
-          EnableCadlRanchReport: false
