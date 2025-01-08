@@ -156,6 +156,7 @@
   {
    "$id": "18",
    "Name": "ExtensibleClient",
+   "ClientNamespace": "Type.Enum.Extensible",
    "Operations": [],
    "Protocol": {
     "$id": "19"
@@ -198,6 +199,7 @@
   {
    "$id": "24",
    "Name": "String",
+   "ClientNamespace": "Type.Enum.Extensible",
    "Operations": [
     {
      "$id": "25",

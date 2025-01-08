@@ -15,6 +15,6 @@ namespace Payload.MultiPart
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual MultiPart.FormData GetFormDataClient() => throw null;
+        public virtual FormData GetFormDataClient() => throw null;
     }
 }

@@ -102,6 +102,7 @@
   {
    "$id": "11",
    "Name": "UsageClient",
+   "ClientNamespace": "Type.Model.Usage",
    "Doc": "Illustrates usage of Record in different places(Operation parameters, return type or both).",
    "Operations": [
     {

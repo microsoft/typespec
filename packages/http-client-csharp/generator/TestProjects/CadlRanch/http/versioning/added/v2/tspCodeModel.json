@@ -328,6 +328,7 @@
   {
    "$id": "35",
    "Name": "AddedClient",
+   "ClientNamespace": "Versioning.Added",
    "Doc": "Test for the `@added` decorator.",
    "Operations": [
     {
@@ -619,6 +620,7 @@
   {
    "$id": "60",
    "Name": "InterfaceV2",
+   "ClientNamespace": "Versioning.Added",
    "Operations": [
     {
      "$id": "61",

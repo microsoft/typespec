@@ -6,11 +6,11 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Encode.Duration.Property;
+using Encode.Duration._Property;
 
 namespace Encode.Duration
 {
-    internal partial class Property
+    public partial class Property
     {
         protected Property() => throw null;
 
@@ -20,48 +20,48 @@ namespace Encode.Duration
 
         public virtual Task<ClientResult> DefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Duration.Property.DefaultDurationProperty> Default(Duration.Property.DefaultDurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<DefaultDurationProperty> Default(DefaultDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Duration.Property.DefaultDurationProperty>> DefaultAsync(Duration.Property.DefaultDurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<DefaultDurationProperty>> DefaultAsync(DefaultDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Iso8601(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> Iso8601Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Duration.Property.ISO8601DurationProperty> Iso8601(Duration.Property.ISO8601DurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ISO8601DurationProperty> Iso8601(ISO8601DurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Duration.Property.ISO8601DurationProperty>> Iso8601Async(Duration.Property.ISO8601DurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ISO8601DurationProperty>> Iso8601Async(ISO8601DurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Int32Seconds(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> Int32SecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Duration.Property.Int32SecondsDurationProperty> Int32Seconds(Duration.Property.Int32SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Int32SecondsDurationProperty> Int32Seconds(Int32SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Duration.Property.Int32SecondsDurationProperty>> Int32SecondsAsync(Duration.Property.Int32SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Int32SecondsDurationProperty>> Int32SecondsAsync(Int32SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FloatSeconds(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> FloatSecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Duration.Property.FloatSecondsDurationProperty> FloatSeconds(Duration.Property.FloatSecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<FloatSecondsDurationProperty> FloatSeconds(FloatSecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Duration.Property.FloatSecondsDurationProperty>> FloatSecondsAsync(Duration.Property.FloatSecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<FloatSecondsDurationProperty>> FloatSecondsAsync(FloatSecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Float64Seconds(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> Float64SecondsAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Duration.Property.Float64SecondsDurationProperty> Float64Seconds(Duration.Property.Float64SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<Float64SecondsDurationProperty> Float64Seconds(Float64SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Duration.Property.Float64SecondsDurationProperty>> Float64SecondsAsync(Duration.Property.Float64SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<Float64SecondsDurationProperty>> Float64SecondsAsync(Float64SecondsDurationProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FloatSecondsArray(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> FloatSecondsArrayAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Duration.Property.FloatSecondsDurationArrayProperty> FloatSecondsArray(Duration.Property.FloatSecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<FloatSecondsDurationArrayProperty> FloatSecondsArray(FloatSecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<Duration.Property.FloatSecondsDurationArrayProperty>> FloatSecondsArrayAsync(Duration.Property.FloatSecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<FloatSecondsDurationArrayProperty>> FloatSecondsArrayAsync(FloatSecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

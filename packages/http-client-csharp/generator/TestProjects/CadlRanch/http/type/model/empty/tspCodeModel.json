@@ -42,6 +42,7 @@
   {
    "$id": "5",
    "Name": "EmptyClient",
+   "ClientNamespace": "Type.Model.Empty",
    "Doc": "Illustrates usage of empty model used in operation's parameters and responses.",
    "Operations": [
     {

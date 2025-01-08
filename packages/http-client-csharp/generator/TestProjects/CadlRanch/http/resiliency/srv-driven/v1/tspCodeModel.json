@@ -50,6 +50,7 @@
   {
    "$id": "6",
    "Name": "ResiliencyServiceDrivenClient",
+   "ClientNamespace": "Resiliency.ServiceDriven",
    "Doc": "Test that we can grow up a service spec and service deployment into a multi-versioned service with full client support.",
    "Operations": [
     {

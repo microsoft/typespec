@@ -114,6 +114,7 @@
   {
    "$id": "14",
    "Name": "RenamedOperationClient",
+   "ClientNamespace": "Client.Structure.RenamedOperation",
    "Operations": [
     {
      "$id": "15",
@@ -246,6 +247,7 @@
   {
    "$id": "25",
    "Name": "Group",
+   "ClientNamespace": "Client.Structure.RenamedOperation",
    "Operations": [
     {
      "$id": "26",

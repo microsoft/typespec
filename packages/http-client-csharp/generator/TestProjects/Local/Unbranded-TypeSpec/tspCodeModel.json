@@ -1879,6 +1879,7 @@
   {
    "$id": "191",
    "Name": "UnbrandedTypeSpecClient",
+   "ClientNamespace": "UnbrandedTypeSpec",
    "Doc": "This is a sample typespec project.",
    "Operations": [
     {

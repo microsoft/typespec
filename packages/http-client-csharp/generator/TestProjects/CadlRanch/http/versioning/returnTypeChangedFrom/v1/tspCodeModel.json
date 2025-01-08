@@ -50,6 +50,7 @@
   {
    "$id": "6",
    "Name": "ReturnTypeChangedFromClient",
+   "ClientNamespace": "Versioning.ReturnTypeChangedFrom",
    "Doc": "Test for the `@returnTypeChangedFrom` decorator.",
    "Operations": [
     {

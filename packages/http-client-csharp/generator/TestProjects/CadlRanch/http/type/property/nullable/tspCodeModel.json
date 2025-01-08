@@ -475,6 +475,7 @@
   {
    "$id": "51",
    "Name": "NullableClient",
+   "ClientNamespace": "Type.Property.Nullable",
    "Doc": "Illustrates models with nullable properties.",
    "Operations": [],
    "Protocol": {
@@ -518,6 +519,7 @@
   {
    "$id": "57",
    "Name": "String",
+   "ClientNamespace": "Type.Property.Nullable",
    "Operations": [
     {
      "$id": "58",
@@ -840,6 +842,7 @@
   {
    "$id": "85",
    "Name": "Bytes",
+   "ClientNamespace": "Type.Property.Nullable",
    "Operations": [
     {
      "$id": "86",
@@ -1162,6 +1165,7 @@
   {
    "$id": "113",
    "Name": "Datetime",
+   "ClientNamespace": "Type.Property.Nullable",
    "Operations": [
     {
      "$id": "114",
@@ -1484,6 +1488,7 @@
   {
    "$id": "141",
    "Name": "Duration",
+   "ClientNamespace": "Type.Property.Nullable",
    "Operations": [
     {
      "$id": "142",
@@ -1806,6 +1811,7 @@
   {
    "$id": "169",
    "Name": "CollectionsByte",
+   "ClientNamespace": "Type.Property.Nullable",
    "Operations": [
     {
      "$id": "170",
@@ -2128,6 +2134,7 @@
   {
    "$id": "197",
    "Name": "CollectionsModel",
+   "ClientNamespace": "Type.Property.Nullable",
    "Operations": [
     {
      "$id": "198",
@@ -2450,6 +2457,7 @@
   {
    "$id": "225",
    "Name": "CollectionsString",
+   "ClientNamespace": "Type.Property.Nullable",
    "Operations": [
     {
      "$id": "226",

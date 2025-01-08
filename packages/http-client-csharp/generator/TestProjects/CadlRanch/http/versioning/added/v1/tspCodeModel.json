@@ -133,6 +133,7 @@
   {
    "$id": "14",
    "Name": "AddedClient",
+   "ClientNamespace": "Versioning.Added",
    "Doc": "Test for the `@added` decorator.",
    "Operations": [
     {

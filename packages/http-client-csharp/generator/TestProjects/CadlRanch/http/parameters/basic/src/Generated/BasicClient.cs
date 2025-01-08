@@ -15,8 +15,8 @@ namespace Parameters.Basic
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Basic.ExplicitBody GetExplicitBodyClient() => throw null;
+        public virtual ExplicitBody GetExplicitBodyClient() => throw null;
 
-        public virtual Basic.ImplicitBody GetImplicitBodyClient() => throw null;
+        public virtual ImplicitBody GetImplicitBodyClient() => throw null;
     }
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Parameters.Basic
 {
-    internal partial class ImplicitBody
+    public partial class ImplicitBody
     {
         protected ImplicitBody() => throw null;
 

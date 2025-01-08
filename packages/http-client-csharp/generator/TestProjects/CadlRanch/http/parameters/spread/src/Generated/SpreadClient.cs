@@ -15,8 +15,8 @@ namespace Parameters.Spread
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Spread.Model GetModelClient() => throw null;
+        public virtual Model GetModelClient() => throw null;
 
-        public virtual Spread.Alias GetAliasClient() => throw null;
+        public virtual Alias GetAliasClient() => throw null;
     }
 }

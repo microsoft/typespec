@@ -50,6 +50,7 @@
   {
    "$id": "6",
    "Name": "MultipleClient",
+   "ClientNamespace": "Server.Path.Multiple",
    "Operations": [
     {
      "$id": "7",

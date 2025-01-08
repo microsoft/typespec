@@ -237,10 +237,6 @@ function transformJSONProperties(this: any, key: string, value: any): any {
       return result.join(",");
     }
   }
-  // skip the __raw property to make sure the json is clean
-  if (key == "__raw") {
-    return undefined;
-  }
 
   return value;
 }

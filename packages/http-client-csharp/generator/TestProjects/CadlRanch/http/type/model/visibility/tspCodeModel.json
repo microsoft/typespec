@@ -211,6 +211,7 @@
   {
    "$id": "24",
    "Name": "VisibilityClient",
+   "ClientNamespace": "Type.Model.Visibility",
    "Doc": "Illustrates models with visibility properties.",
    "Operations": [
     {

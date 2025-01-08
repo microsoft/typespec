@@ -396,6 +396,7 @@
   {
    "$id": "41",
    "Name": "JsonMergePatchClient",
+   "ClientNamespace": "Payload.JsonMergePatch",
    "Doc": "Test for merge-patch+json content-type",
    "Operations": [
     {

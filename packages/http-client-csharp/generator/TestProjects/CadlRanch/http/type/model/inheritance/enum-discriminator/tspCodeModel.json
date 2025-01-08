@@ -286,6 +286,7 @@
   {
    "$id": "28",
    "Name": "EnumDiscriminatorClient",
+   "ClientNamespace": "Type.Model.Inheritance.EnumDiscriminator",
    "Doc": "Illustrates inheritance with enum discriminator.",
    "Operations": [
     {

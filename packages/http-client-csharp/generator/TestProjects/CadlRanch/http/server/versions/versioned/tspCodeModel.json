@@ -69,6 +69,7 @@
   {
    "$id": "8",
    "Name": "VersionedClient",
+   "ClientNamespace": "Server.Versions.Versioned",
    "Doc": "Illustrates versioned server.",
    "Operations": [
     {

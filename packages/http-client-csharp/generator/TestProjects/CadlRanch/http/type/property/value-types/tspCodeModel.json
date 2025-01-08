@@ -1400,6 +1400,7 @@
   {
    "$id": "134",
    "Name": "ValueTypesClient",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Doc": "Illustrates various property types for models",
    "Operations": [],
    "Protocol": {
@@ -1443,6 +1444,7 @@
   {
    "$id": "140",
    "Name": "Boolean",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "141",
@@ -1627,6 +1629,7 @@
   {
    "$id": "157",
    "Name": "String",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "158",
@@ -1811,6 +1814,7 @@
   {
    "$id": "174",
    "Name": "Bytes",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "175",
@@ -1995,6 +1999,7 @@
   {
    "$id": "191",
    "Name": "Int",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "192",
@@ -2179,6 +2184,7 @@
   {
    "$id": "208",
    "Name": "Float",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "209",
@@ -2363,6 +2369,7 @@
   {
    "$id": "225",
    "Name": "Decimal",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "226",
@@ -2547,6 +2554,7 @@
   {
    "$id": "242",
    "Name": "Decimal128",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "243",
@@ -2731,6 +2739,7 @@
   {
    "$id": "259",
    "Name": "Datetime",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "260",
@@ -2915,6 +2924,7 @@
   {
    "$id": "276",
    "Name": "Duration",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "277",
@@ -3099,6 +3109,7 @@
   {
    "$id": "293",
    "Name": "Enum",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "294",
@@ -3283,6 +3294,7 @@
   {
    "$id": "310",
    "Name": "ExtensibleEnum",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "311",
@@ -3467,6 +3479,7 @@
   {
    "$id": "327",
    "Name": "Model",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "328",
@@ -3651,6 +3664,7 @@
   {
    "$id": "344",
    "Name": "CollectionsString",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "345",
@@ -3835,6 +3849,7 @@
   {
    "$id": "361",
    "Name": "CollectionsInt",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "362",
@@ -4019,6 +4034,7 @@
   {
    "$id": "378",
    "Name": "CollectionsModel",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "379",
@@ -4203,6 +4219,7 @@
   {
    "$id": "395",
    "Name": "DictionaryString",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "396",
@@ -4387,6 +4404,7 @@
   {
    "$id": "412",
    "Name": "Never",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "413",
@@ -4571,6 +4589,7 @@
   {
    "$id": "429",
    "Name": "UnknownString",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "430",
@@ -4755,6 +4774,7 @@
   {
    "$id": "446",
    "Name": "UnknownInt",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "447",
@@ -4939,6 +4959,7 @@
   {
    "$id": "463",
    "Name": "UnknownDict",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "464",
@@ -5123,6 +5144,7 @@
   {
    "$id": "480",
    "Name": "UnknownArray",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "481",
@@ -5307,6 +5329,7 @@
   {
    "$id": "497",
    "Name": "StringLiteral",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "498",
@@ -5491,6 +5514,7 @@
   {
    "$id": "514",
    "Name": "IntLiteral",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "515",
@@ -5675,6 +5699,7 @@
   {
    "$id": "531",
    "Name": "FloatLiteral",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "532",
@@ -5859,6 +5884,7 @@
   {
    "$id": "548",
    "Name": "BooleanLiteral",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "549",
@@ -6043,6 +6069,7 @@
   {
    "$id": "565",
    "Name": "UnionStringLiteral",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "566",
@@ -6227,6 +6254,7 @@
   {
    "$id": "582",
    "Name": "UnionIntLiteral",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "583",
@@ -6411,6 +6439,7 @@
   {
    "$id": "599",
    "Name": "UnionFloatLiteral",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "600",
@@ -6595,6 +6624,7 @@
   {
    "$id": "616",
    "Name": "UnionEnumValue",
+   "ClientNamespace": "Type.Property.ValueTypes",
    "Operations": [
     {
      "$id": "617",

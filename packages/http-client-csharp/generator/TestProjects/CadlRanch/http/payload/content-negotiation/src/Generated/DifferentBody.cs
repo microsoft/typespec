@@ -7,11 +7,11 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Payload.ContentNegotiation.DifferentBody;
+using Payload.ContentNegotiation._DifferentBody;
 
 namespace Payload.ContentNegotiation
 {
-    internal partial class DifferentBody
+    public partial class DifferentBody
     {
         protected DifferentBody() => throw null;
 
@@ -29,8 +29,8 @@ namespace Payload.ContentNegotiation
 
         public virtual Task<ClientResult> GetAvatarAsJsonAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<ContentNegotiation.DifferentBody.PngImageAsJson> GetAvatarAsJson(CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<PngImageAsJson> GetAvatarAsJson(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<ContentNegotiation.DifferentBody.PngImageAsJson>> GetAvatarAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<PngImageAsJson>> GetAvatarAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

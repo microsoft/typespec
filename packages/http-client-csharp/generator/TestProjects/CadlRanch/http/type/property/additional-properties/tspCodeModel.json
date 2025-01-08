@@ -1870,6 +1870,7 @@
   {
    "$id": "178",
    "Name": "AdditionalPropertiesClient",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Doc": "Tests for additional properties of models",
    "Operations": [],
    "Protocol": {
@@ -1913,6 +1914,7 @@
   {
    "$id": "184",
    "Name": "ExtendsUnknown",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "185",
@@ -2097,6 +2099,7 @@
   {
    "$id": "201",
    "Name": "ExtendsUnknownDerived",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "202",
@@ -2281,6 +2284,7 @@
   {
    "$id": "218",
    "Name": "ExtendsUnknownDiscriminated",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "219",
@@ -2465,6 +2469,7 @@
   {
    "$id": "235",
    "Name": "IsUnknown",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "236",
@@ -2649,6 +2654,7 @@
   {
    "$id": "252",
    "Name": "IsUnknownDerived",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "253",
@@ -2833,6 +2839,7 @@
   {
    "$id": "269",
    "Name": "IsUnknownDiscriminated",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "270",
@@ -3017,6 +3024,7 @@
   {
    "$id": "286",
    "Name": "ExtendsString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "287",
@@ -3201,6 +3209,7 @@
   {
    "$id": "303",
    "Name": "IsString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "304",
@@ -3385,6 +3394,7 @@
   {
    "$id": "320",
    "Name": "SpreadString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "321",
@@ -3569,6 +3579,7 @@
   {
    "$id": "337",
    "Name": "ExtendsFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "338",
@@ -3753,6 +3764,7 @@
   {
    "$id": "354",
    "Name": "IsFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "355",
@@ -3937,6 +3949,7 @@
   {
    "$id": "371",
    "Name": "SpreadFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "372",
@@ -4121,6 +4134,7 @@
   {
    "$id": "388",
    "Name": "ExtendsModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "389",
@@ -4305,6 +4319,7 @@
   {
    "$id": "405",
    "Name": "IsModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "406",
@@ -4489,6 +4504,7 @@
   {
    "$id": "422",
    "Name": "SpreadModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "423",
@@ -4673,6 +4689,7 @@
   {
    "$id": "439",
    "Name": "ExtendsModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "440",
@@ -4857,6 +4874,7 @@
   {
    "$id": "456",
    "Name": "IsModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "457",
@@ -5041,6 +5059,7 @@
   {
    "$id": "473",
    "Name": "SpreadModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "474",
@@ -5225,6 +5244,7 @@
   {
    "$id": "490",
    "Name": "SpreadDifferentString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "491",
@@ -5409,6 +5429,7 @@
   {
    "$id": "507",
    "Name": "SpreadDifferentFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "508",
@@ -5593,6 +5614,7 @@
   {
    "$id": "524",
    "Name": "SpreadDifferentModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "525",
@@ -5777,6 +5799,7 @@
   {
    "$id": "541",
    "Name": "SpreadDifferentModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "542",
@@ -5961,6 +5984,7 @@
   {
    "$id": "558",
    "Name": "ExtendsDifferentSpreadString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "559",
@@ -6145,6 +6169,7 @@
   {
    "$id": "575",
    "Name": "ExtendsDifferentSpreadFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "576",
@@ -6329,6 +6354,7 @@
   {
    "$id": "592",
    "Name": "ExtendsDifferentSpreadModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "593",
@@ -6513,6 +6539,7 @@
   {
    "$id": "609",
    "Name": "ExtendsDifferentSpreadModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "610",
@@ -6697,6 +6724,7 @@
   {
    "$id": "626",
    "Name": "MultipleSpread",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "627",
@@ -6881,6 +6909,7 @@
   {
    "$id": "643",
    "Name": "SpreadRecordUnion",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "644",
@@ -7065,6 +7094,7 @@
   {
    "$id": "660",
    "Name": "SpreadRecordDiscriminatedUnion",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "661",
@@ -7249,6 +7279,7 @@
   {
    "$id": "677",
    "Name": "SpreadRecordNonDiscriminatedUnion",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "678",
@@ -7433,6 +7464,7 @@
   {
    "$id": "694",
    "Name": "SpreadRecordNonDiscriminatedUnion2",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "695",
@@ -7617,6 +7649,7 @@
   {
    "$id": "711",
    "Name": "SpreadRecordNonDiscriminatedUnion3",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "712",

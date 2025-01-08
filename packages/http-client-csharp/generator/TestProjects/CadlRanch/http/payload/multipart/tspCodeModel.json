@@ -625,7 +625,7 @@
    "$id": "61",
    "kind": "model",
    "name": "FloatRequest",
-   "clientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
+   "clientNamespace": "Payload.MultiPart._FormData.HttpParts.NonString",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -655,7 +655,7 @@
    "$id": "64",
    "kind": "model",
    "name": "FloatRequestTemperature",
-   "clientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
+   "clientNamespace": "Payload.MultiPart._FormData.HttpParts.NonString",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.temperature.anonymous",
    "usage": "Input",
    "decorators": [],
@@ -831,6 +831,7 @@
   {
    "$id": "79",
    "Name": "MultiPartClient",
+   "ClientNamespace": "Payload.MultiPart",
    "Doc": "Test for multipart",
    "Operations": [],
    "Protocol": {
@@ -874,6 +875,7 @@
   {
    "$id": "85",
    "Name": "FormData",
+   "ClientNamespace": "Payload.MultiPart._FormData",
    "Operations": [
     {
      "$id": "86",
@@ -1450,6 +1452,7 @@
   {
    "$id": "133",
    "Name": "FormDataHttpParts",
+   "ClientNamespace": "Payload.MultiPart._FormData.HttpParts",
    "Operations": [
     {
      "$id": "134",
@@ -1570,6 +1573,7 @@
   {
    "$id": "145",
    "Name": "FormDataHttpPartsContentType",
+   "ClientNamespace": "Payload.MultiPart._FormData.HttpParts.ContentType",
    "Operations": [
     {
      "$id": "146",
@@ -1842,6 +1846,7 @@
   {
    "$id": "169",
    "Name": "FormDataHttpPartsNonString",
+   "ClientNamespace": "Payload.MultiPart._FormData.HttpParts.NonString",
    "Operations": [
     {
      "$id": "170",

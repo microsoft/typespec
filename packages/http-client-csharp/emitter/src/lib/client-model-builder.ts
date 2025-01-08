@@ -222,19 +222,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     }
     return parameters;
   }
-
-  // function normalizeNamespace(type: InputType & { clientNamespace: string }, clientNames: Set<string>): void {
-  //   const segments = type.clientNamespace.split(".");
-  //   const newSegments = [];
-  //   for (const segment of segments) {
-  //     if (clientNames.has(segment)) {
-  //       newSegments.push("_" + segment);
-  //     } else {
-  //       newSegments.push(segment);
-  //     }
-  //   }
-  //   return newSegments.join(".");
-  // }
 }
 
 function getMethodUri(p: SdkEndpointParameter | undefined): string {

@@ -39,6 +39,7 @@
   {
    "$id": "5",
    "Name": "OAuth2Client",
+   "ClientNamespace": "Authentication.OAuth2",
    "Doc": "Illustrates clients generated with OAuth2 authentication.",
    "Operations": [
     {

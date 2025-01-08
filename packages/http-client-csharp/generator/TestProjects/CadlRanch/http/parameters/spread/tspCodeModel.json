@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "SpreadAsRequestBodyRequest",
-   "clientNamespace": "Parameters.Spread.Alias",
+   "clientNamespace": "Parameters.Spread._Alias",
    "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadAsRequestBody.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -254,7 +254,7 @@
    "$id": "27",
    "kind": "model",
    "name": "BodyParameter",
-   "clientNamespace": "Parameters.Spread.Model",
+   "clientNamespace": "Parameters.Spread._Model",
    "crossLanguageDefinitionId": "Parameters.Spread.Model.BodyParameter",
    "usage": "Input,Spread,Json",
    "doc": "This is a simple model.",
@@ -316,6 +316,7 @@
   {
    "$id": "33",
    "Name": "SpreadClient",
+   "ClientNamespace": "Parameters.Spread",
    "Doc": "Test for the spread operator.",
    "Operations": [],
    "Protocol": {
@@ -359,6 +360,7 @@
   {
    "$id": "39",
    "Name": "Model",
+   "ClientNamespace": "Parameters.Spread._Model",
    "Operations": [
     {
      "$id": "40",
@@ -861,6 +863,7 @@
   {
    "$id": "83",
    "Name": "Alias",
+   "ClientNamespace": "Parameters.Spread._Alias",
    "Operations": [
     {
      "$id": "84",

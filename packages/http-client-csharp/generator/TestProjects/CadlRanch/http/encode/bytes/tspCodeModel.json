@@ -148,6 +148,7 @@
   {
    "$id": "16",
    "Name": "BytesClient",
+   "ClientNamespace": "Encode.Bytes",
    "Doc": "Test for encode decorator on bytes.",
    "Operations": [],
    "Protocol": {
@@ -191,6 +192,7 @@
   {
    "$id": "22",
    "Name": "Query",
+   "ClientNamespace": "Encode.Bytes._Query",
    "Operations": [
     {
      "$id": "23",
@@ -451,6 +453,7 @@
   {
    "$id": "46",
    "Name": "Property",
+   "ClientNamespace": "Encode.Bytes._Property",
    "Operations": [
     {
      "$id": "47",
@@ -931,6 +934,7 @@
   {
    "$id": "88",
    "Name": "Header",
+   "ClientNamespace": "Encode.Bytes._Header",
    "Operations": [
     {
      "$id": "89",
@@ -1191,6 +1195,7 @@
   {
    "$id": "112",
    "Name": "RequestBody",
+   "ClientNamespace": "Encode.Bytes._RequestBody",
    "Operations": [
     {
      "$id": "113",
@@ -1636,6 +1641,7 @@
   {
    "$id": "153",
    "Name": "ResponseBody",
+   "ClientNamespace": "Encode.Bytes._ResponseBody",
    "Operations": [
     {
      "$id": "154",

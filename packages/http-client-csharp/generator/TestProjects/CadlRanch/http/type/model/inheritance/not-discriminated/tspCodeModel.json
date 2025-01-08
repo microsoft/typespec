@@ -108,6 +108,7 @@
   {
    "$id": "11",
    "Name": "NotDiscriminatedClient",
+   "ClientNamespace": "Type.Model.Inheritance.NotDiscriminated",
    "Doc": "Illustrates not-discriminated inheritance model.",
    "Operations": [
     {

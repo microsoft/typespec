@@ -1472,6 +1472,7 @@
   {
    "$id": "141",
    "Name": "UnionClient",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe scenarios for various combinations of unions.",
    "Operations": [],
    "Protocol": {
@@ -1515,6 +1516,7 @@
   {
    "$id": "147",
    "Name": "StringsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string \"a\" | \"b\" | \"c\"",
    "Operations": [
     {
@@ -1697,6 +1699,7 @@
   {
    "$id": "164",
    "Name": "StringExtensible",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string string | \"b\" | \"c\"",
    "Operations": [
     {
@@ -1879,6 +1882,7 @@
   {
    "$id": "181",
    "Name": "StringExtensibleNamed",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
    "Operations": [
     {
@@ -2061,6 +2065,7 @@
   {
    "$id": "198",
    "Name": "IntsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of integer 1 | 2 | 3",
    "Operations": [
     {
@@ -2243,6 +2248,7 @@
   {
    "$id": "215",
    "Name": "FloatsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats 1.1 | 2.2 | 3.3",
    "Operations": [
     {
@@ -2425,6 +2431,7 @@
   {
    "$id": "232",
    "Name": "ModelsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of models",
    "Operations": [
     {
@@ -2607,6 +2614,7 @@
   {
    "$id": "249",
    "Name": "EnumsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of 2 different enums",
    "Operations": [
     {
@@ -2789,6 +2797,7 @@
   {
    "$id": "266",
    "Name": "StringAndArray",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of a string and an array of strings",
    "Operations": [
     {
@@ -2971,6 +2980,7 @@
   {
    "$id": "283",
    "Name": "MixedLiterals",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {
@@ -3153,6 +3163,7 @@
   {
    "$id": "300",
    "Name": "MixedTypes",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {

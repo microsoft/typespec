@@ -17,7 +17,7 @@ namespace Encode.Duration
 
         public virtual Query GetQueryClient() => throw null;
 
-        public virtual Duration.Property GetPropertyClient() => throw null;
+        public virtual Property GetPropertyClient() => throw null;
 
         public virtual Header GetHeaderClient() => throw null;
     }

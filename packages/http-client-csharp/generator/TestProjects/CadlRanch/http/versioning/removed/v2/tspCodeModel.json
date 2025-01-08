@@ -305,6 +305,7 @@
   {
    "$id": "32",
    "Name": "RemovedClient",
+   "ClientNamespace": "Versioning.Removed",
    "Doc": "Test for the `@removed` decorator.",
    "Operations": [
     {

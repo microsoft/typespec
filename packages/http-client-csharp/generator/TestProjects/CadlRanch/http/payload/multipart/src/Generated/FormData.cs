@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Payload.MultiPart
 {
-    internal partial class FormData
+    public partial class FormData
     {
         protected FormData() => throw null;
 

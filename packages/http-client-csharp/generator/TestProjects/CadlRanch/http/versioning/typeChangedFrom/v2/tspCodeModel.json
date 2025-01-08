@@ -119,6 +119,7 @@
   {
    "$id": "13",
    "Name": "TypeChangedFromClient",
+   "ClientNamespace": "Versioning.TypeChangedFrom",
    "Doc": "Test for the `@typeChangedFrom` decorator.",
    "Operations": [
     {

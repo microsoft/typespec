@@ -17,7 +17,7 @@ namespace SpecialWords
 
         public virtual ModelsOps GetModelsOpsClient() => throw null;
 
-        public virtual SpecialWords.ModelProperties GetModelPropertiesClient() => throw null;
+        public virtual ModelProperties GetModelPropertiesClient() => throw null;
 
         public virtual Operations GetOperationsClient() => throw null;
 

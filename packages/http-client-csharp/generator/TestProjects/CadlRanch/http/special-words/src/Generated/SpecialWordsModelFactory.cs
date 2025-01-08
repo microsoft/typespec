@@ -2,12 +2,13 @@
 
 #nullable disable
 
-using SpecialWords.ModelProperties;
+using SpecialWords._ModelProperties;
 
 namespace SpecialWords.Models
 {
     public static partial class SpecialWordsModelFactory
     {
+        public static SameAsModel SameAsModel(string sameAsModelProperty = default) => throw null;
 
         public static And And(string name = default) => throw null;
 

@@ -434,6 +434,7 @@
   {
    "$id": "46",
    "Name": "RemovedClient",
+   "ClientNamespace": "Versioning.Removed",
    "Doc": "Test for the `@removed` decorator.",
    "Operations": [
     {
@@ -836,6 +837,7 @@
   {
    "$id": "80",
    "Name": "InterfaceV1",
+   "ClientNamespace": "Versioning.Removed",
    "Doc": "This operation group should not be generated with latest version.",
    "Operations": [
     {

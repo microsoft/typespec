@@ -406,6 +406,7 @@
   {
    "$id": "40",
    "Name": "SingleDiscriminatorClient",
+   "ClientNamespace": "Type.Model.Inheritance.SingleDiscriminator",
    "Doc": "Illustrates inheritance with single discriminator.",
    "Operations": [
     {

@@ -175,6 +175,7 @@
   {
    "$id": "19",
    "Name": "RenamedFromClient",
+   "ClientNamespace": "Versioning.RenamedFrom",
    "Doc": "Test for the `@renamedFrom` decorator.",
    "Operations": [
     {
@@ -357,6 +358,7 @@
   {
    "$id": "35",
    "Name": "OldInterface",
+   "ClientNamespace": "Versioning.RenamedFrom",
    "Operations": [
     {
      "$id": "36",

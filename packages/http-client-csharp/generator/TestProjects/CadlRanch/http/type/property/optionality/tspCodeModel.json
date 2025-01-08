@@ -834,6 +834,7 @@
   {
    "$id": "80",
    "Name": "OptionalClient",
+   "ClientNamespace": "Type.Property.Optional",
    "Doc": "Illustrates models with optional properties.",
    "Operations": [],
    "Protocol": {
@@ -877,6 +878,7 @@
   {
    "$id": "86",
    "Name": "String",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "87",
@@ -1199,6 +1201,7 @@
   {
    "$id": "114",
    "Name": "Bytes",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "115",
@@ -1521,6 +1524,7 @@
   {
    "$id": "142",
    "Name": "Datetime",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "143",
@@ -1843,6 +1847,7 @@
   {
    "$id": "170",
    "Name": "Duration",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "171",
@@ -2165,6 +2170,7 @@
   {
    "$id": "198",
    "Name": "PlainDate",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "199",
@@ -2487,6 +2493,7 @@
   {
    "$id": "226",
    "Name": "PlainTime",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "227",
@@ -2809,6 +2816,7 @@
   {
    "$id": "254",
    "Name": "CollectionsByte",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "255",
@@ -3131,6 +3139,7 @@
   {
    "$id": "282",
    "Name": "CollectionsModel",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "283",
@@ -3453,6 +3462,7 @@
   {
    "$id": "310",
    "Name": "StringLiteral",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "311",
@@ -3775,6 +3785,7 @@
   {
    "$id": "338",
    "Name": "IntLiteral",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "339",
@@ -4097,6 +4108,7 @@
   {
    "$id": "366",
    "Name": "FloatLiteral",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "367",
@@ -4419,6 +4431,7 @@
   {
    "$id": "394",
    "Name": "BooleanLiteral",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "395",
@@ -4741,6 +4754,7 @@
   {
    "$id": "422",
    "Name": "UnionStringLiteral",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "423",
@@ -5063,6 +5077,7 @@
   {
    "$id": "450",
    "Name": "UnionIntLiteral",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "451",
@@ -5385,6 +5400,7 @@
   {
    "$id": "478",
    "Name": "UnionFloatLiteral",
+   "ClientNamespace": "Type.Property.Optional",
    "Operations": [
     {
      "$id": "479",
@@ -5707,6 +5723,7 @@
   {
    "$id": "506",
    "Name": "RequiredAndOptional",
+   "ClientNamespace": "Type.Property.Optional",
    "Doc": "Test optional and required properties",
    "Operations": [
     {

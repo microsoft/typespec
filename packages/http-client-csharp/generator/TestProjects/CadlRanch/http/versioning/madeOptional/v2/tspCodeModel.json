@@ -119,6 +119,7 @@
   {
    "$id": "13",
    "Name": "MadeOptionalClient",
+   "ClientNamespace": "Versioning.MadeOptional",
    "Doc": "Test for the `@madeOptional` decorator.",
    "Operations": [
     {

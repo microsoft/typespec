@@ -221,6 +221,7 @@
   {
    "$id": "25",
    "Name": "DatetimeClient",
+   "ClientNamespace": "Encode.Datetime",
    "Doc": "Test for encode decorator on datetime.",
    "Operations": [],
    "Protocol": {
@@ -264,6 +265,7 @@
   {
    "$id": "31",
    "Name": "Query",
+   "ClientNamespace": "Encode.Datetime._Query",
    "Operations": [
     {
      "$id": "32",
@@ -616,6 +618,7 @@
   {
    "$id": "65",
    "Name": "Property",
+   "ClientNamespace": "Encode.Datetime._Property",
    "Operations": [
     {
      "$id": "66",
@@ -1205,6 +1208,7 @@
   {
    "$id": "116",
    "Name": "Header",
+   "ClientNamespace": "Encode.Datetime._Header",
    "Operations": [
     {
      "$id": "117",
@@ -1557,6 +1561,7 @@
   {
    "$id": "150",
    "Name": "ResponseHeader",
+   "ClientNamespace": "Encode.Datetime._ResponseHeader",
    "Operations": [
     {
      "$id": "151",

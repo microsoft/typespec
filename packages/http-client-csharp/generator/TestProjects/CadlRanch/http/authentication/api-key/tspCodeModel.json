@@ -39,6 +39,7 @@
   {
    "$id": "5",
    "Name": "ApiKeyClient",
+   "ClientNamespace": "Authentication.ApiKey",
    "Doc": "Illustrates clients generated with ApiKey authentication.",
    "Operations": [
     {

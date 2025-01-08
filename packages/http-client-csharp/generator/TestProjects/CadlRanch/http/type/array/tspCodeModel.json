@@ -63,6 +63,7 @@
   {
    "$id": "7",
    "Name": "ArrayClient",
+   "ClientNamespace": "Type.Array",
    "Doc": "Illustrates various types of arrays.",
    "Operations": [],
    "Protocol": {
@@ -106,6 +107,7 @@
   {
    "$id": "13",
    "Name": "Int32Value",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of int32 values",
    "Operations": [
     {
@@ -310,6 +312,7 @@
   {
    "$id": "34",
    "Name": "Int64Value",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of int64 values",
    "Operations": [
     {
@@ -514,6 +517,7 @@
   {
    "$id": "55",
    "Name": "BooleanValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of boolean values",
    "Operations": [
     {
@@ -718,6 +722,7 @@
   {
    "$id": "76",
    "Name": "StringValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of string values",
    "Operations": [
     {
@@ -922,6 +927,7 @@
   {
    "$id": "97",
    "Name": "Float32Value",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of float values",
    "Operations": [
     {
@@ -1126,6 +1132,7 @@
   {
    "$id": "118",
    "Name": "DatetimeValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of datetime values",
    "Operations": [
     {
@@ -1346,6 +1353,7 @@
   {
    "$id": "141",
    "Name": "DurationValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of duration values",
    "Operations": [
     {
@@ -1566,6 +1574,7 @@
   {
    "$id": "164",
    "Name": "UnknownValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of unknown values",
    "Operations": [
     {
@@ -1770,6 +1779,7 @@
   {
    "$id": "185",
    "Name": "ModelValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of model values",
    "Operations": [
     {
@@ -1966,6 +1976,7 @@
   {
    "$id": "204",
    "Name": "NullableFloatValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of nullable float values",
    "Operations": [
     {
@@ -2171,6 +2182,7 @@
   {
    "$id": "225",
    "Name": "NullableInt32Value",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of nullable int32 values",
    "Operations": [
     {
@@ -2376,6 +2388,7 @@
   {
    "$id": "246",
    "Name": "NullableBooleanValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of nullable boolean values",
    "Operations": [
     {
@@ -2581,6 +2594,7 @@
   {
    "$id": "267",
    "Name": "NullableStringValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of nullable string values",
    "Operations": [
     {
@@ -2786,6 +2800,7 @@
   {
    "$id": "288",
    "Name": "NullableModelValue",
+   "ClientNamespace": "Type.Array",
    "Doc": "Array of nullable model values",
    "Operations": [
     {

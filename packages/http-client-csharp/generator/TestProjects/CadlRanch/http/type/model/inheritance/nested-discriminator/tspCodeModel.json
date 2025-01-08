@@ -331,6 +331,7 @@
   {
    "$id": "33",
    "Name": "NestedDiscriminatorClient",
+   "ClientNamespace": "Type.Model.Inheritance.NestedDiscriminator",
    "Doc": "Illustrates multiple level inheritance with multiple discriminators.",
    "Operations": [
     {

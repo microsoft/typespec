@@ -39,6 +39,7 @@
   {
    "$id": "5",
    "Name": "CustomClient",
+   "ClientNamespace": "Authentication.Http.Custom",
    "Doc": "Illustrates clients generated with generic HTTP auth.",
    "Operations": [
     {

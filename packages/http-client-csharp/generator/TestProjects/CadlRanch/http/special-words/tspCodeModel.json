@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "SameAsModel",
-   "clientNamespace": "SpecialWords.ModelProperties",
+   "clientNamespace": "SpecialWords._ModelProperties",
    "crossLanguageDefinitionId": "SpecialWords.ModelProperties.SameAsModel",
    "usage": "Input,Json",
    "decorators": [],
@@ -1029,6 +1029,7 @@
   {
    "$id": "104",
    "Name": "SpecialWordsClient",
+   "ClientNamespace": "SpecialWords",
    "Doc": "Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.\n\nCurrent list of special words\n```txt\nand\nas\nassert\nasync\nawait\nbreak\nclass\nconstructor\ncontinue\ndef\ndel\nelif\nelse\nexcept\nexec\nfinally\nfor\nfrom\nglobal\nif\nimport\nin\nis\nlambda\nnot\nor\npass\nraise\nreturn\ntry\nwhile\nwith\nyield\n```",
    "Operations": [],
    "Protocol": {
@@ -1072,6 +1073,7 @@
   {
    "$id": "110",
    "Name": "ModelsOps",
+   "ClientNamespace": "SpecialWords.Models",
    "Doc": "Verify model names",
    "Operations": [
     {
@@ -3625,6 +3627,7 @@
   {
    "$id": "314",
    "Name": "ModelProperties",
+   "ClientNamespace": "SpecialWords._ModelProperties",
    "Doc": "Verify model names",
    "Operations": [
     {
@@ -3746,6 +3749,7 @@
   {
    "$id": "326",
    "Name": "Operations",
+   "ClientNamespace": "SpecialWords",
    "Doc": "Test reserved words as operation name.",
    "Operations": [
     {
@@ -4682,6 +4686,7 @@
   {
    "$id": "398",
    "Name": "Parameters",
+   "ClientNamespace": "SpecialWords",
    "Doc": "Verify reserved words as parameter name.",
    "Operations": [
     {
