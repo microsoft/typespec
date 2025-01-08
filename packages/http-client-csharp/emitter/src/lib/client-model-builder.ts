@@ -145,11 +145,9 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     badNamespaceSegments: Set<string>,
   ): [string, boolean] {
     const segments = clientNamespace.split(".");
-    let isBad = false;
     if (segments[segments.length - 1] === clientName) {
       // this segment is bad
       badNamespaceSegments.add(segments[segments.length - 1]);
-      isBad = true;
     }
 
     // normalize it
