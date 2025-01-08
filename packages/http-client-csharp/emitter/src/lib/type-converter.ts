@@ -53,6 +53,7 @@ export function fromSdkType(
     case "nullable":
       const inputType = fromSdkType(sdkType.type, context, typeMap);
       retVar = {
+        __raw: sdkType.__raw,
         kind: "nullable",
         type: inputType,
         clientNamespace: sdkType.clientNamespace,
@@ -114,6 +115,7 @@ export function fromSdkModelType(
   let inputModelType = typeMap.models.get(modelTypeName);
   if (!inputModelType) {
     inputModelType = {
+      __raw: modelType.__raw,
       kind: "model",
       name: modelTypeName,
       clientNamespace: modelType.clientNamespace,
@@ -186,6 +188,7 @@ export function fromSdkModelType(
     literalTypeContext.PropertyName = serializedName;
 
     const modelProperty: InputModelProperty = {
+      __raw: property.__raw,
       kind: property.kind,
       name: property.name,
       serializedName: serializedName,
@@ -220,6 +223,7 @@ export function fromSdkEnumType(
   if (!inputEnumType) {
     const values: InputEnumTypeValue[] = [];
     inputEnumType = {
+      __raw: enumType.__raw,
       kind: "enum",
       name: enumName,
       crossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
@@ -249,6 +253,7 @@ export function fromSdkEnumType(
 
 function fromSdkDateTimeType(dateTimeType: SdkDateTimeType): InputDateTimeType {
   return {
+    __raw: dateTimeType.__raw,
     kind: dateTimeType.kind,
     name: dateTimeType.name,
     encode: dateTimeType.encode,
@@ -261,6 +266,7 @@ function fromSdkDateTimeType(dateTimeType: SdkDateTimeType): InputDateTimeType {
 
 function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
   return {
+    __raw: durationType.__raw,
     kind: durationType.kind,
     name: durationType.name,
     encode: durationType.encode,
@@ -274,6 +280,7 @@ function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
 // TODO: tuple is not officially supported
 function fromTupleType(tupleType: SdkTupleType): InputType {
   return {
+    __raw: tupleType.__raw,
     kind: "unknown",
     name: "tuple",
     crossLanguageDefinitionId: "",
@@ -283,6 +290,7 @@ function fromTupleType(tupleType: SdkTupleType): InputType {
 
 function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
   return {
+    __raw: builtInType.__raw,
     kind: builtInType.kind,
     name: builtInType.name,
     encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
@@ -304,6 +312,7 @@ function fromUnionType(
   }
 
   return {
+    __raw: union.__raw,
     kind: "union",
     name: union.name,
     variantTypes: variantTypes,
@@ -318,6 +327,7 @@ function fromSdkConstantType(
   literalTypeContext?: LiteralTypeContext,
 ): InputLiteralType {
   return {
+    __raw: constantType.__raw,
     kind: constantType.kind,
     valueType:
       constantType.valueType.kind === "boolean" || literalTypeContext === undefined
@@ -339,6 +349,7 @@ function fromSdkConstantType(
     const enumValueName = constantType.value === null ? "Null" : constantType.value.toString();
     const values: InputEnumTypeValue[] = [];
     const enumType: InputEnumType = {
+      __raw: constantType.__raw,
       kind: "enum",
       name: enumName,
       valueType: fromSdkBuiltInType(constantType.valueType),
@@ -356,6 +367,7 @@ function fromSdkConstantType(
     typeMap.enums.set(enumName, enumType);
 
     values.push({
+      __raw: constantType.__raw,
       kind: "enumvalue",
       name: enumValueName,
       value: constantType.value as string | number,
@@ -374,6 +386,7 @@ function fromSdkEnumValueTypeToConstantType(
   literalTypeContext?: LiteralTypeContext,
 ): InputLiteralType {
   return {
+    __raw: enumValueType.__raw,
     kind: "constant",
     valueType:
       enumValueType.valueType.kind === "boolean" || literalTypeContext === undefined
@@ -390,6 +403,7 @@ function fromSdkEnumValueType(
   typeMap: SdkTypeMap,
 ): InputEnumTypeValue {
   return {
+    __raw: enumValueType.__raw,
     kind: "enumvalue",
     name: enumValueType.name,
     value: enumValueType.value,
@@ -407,6 +421,7 @@ function fromSdkDictionaryType(
   typeMap: SdkTypeMap,
 ): InputDictionaryType {
   return {
+    __raw: dictionaryType.__raw,
     kind: "dict",
     keyType: fromSdkType(dictionaryType.keyType, context, typeMap),
     valueType: fromSdkType(dictionaryType.valueType, context, typeMap),
@@ -420,6 +435,7 @@ function fromSdkArrayType(
   typeMap: SdkTypeMap,
 ): InputArrayType {
   return {
+    __raw: arrayType.__raw,
     kind: "array",
     name: arrayType.name,
     valueType: fromSdkType(arrayType.valueType, context, typeMap),
@@ -430,6 +446,7 @@ function fromSdkArrayType(
 
 function fromSdkEndpointType(): InputPrimitiveType {
   return {
+    __raw: undefined,
     kind: "string",
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",

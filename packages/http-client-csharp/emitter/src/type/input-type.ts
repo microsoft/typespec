@@ -7,9 +7,10 @@ import {
   SdkBuiltInKinds,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
+import { DateTimeKnownEncoding, DurationKnownEncoding, Type } from "@typespec/compiler";
 
 interface InputTypeBase {
+  __raw?: Type; // we need the raw to report diagnostics
   kind: string;
   summary?: string;
   doc?: string;

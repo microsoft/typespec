@@ -51,8 +51,10 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
       : rootClients[0].apiVersions;
 
+  // this is a set tracking the bad namespace segments
+  const badNamespaceSegments = new Set<string>();
   const inputClients: InputClient[] = [];
-  fromSdkClients(rootClients, inputClients, []);
+  fromSdkClients(rootClients, inputClients, [], badNamespaceSegments);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
@@ -62,33 +64,50 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     Clients: inputClients,
     Auth: processServiceAuthentication(sdkPackage),
   };
+
+  // go over all models and enums to replace those bad namespaces
+  for (const m of clientModel.Models) {
+    m.clientNamespace = normalizeNamespace(m.clientNamespace.split('.'), badNamespaceSegments)[0];
+  }
+  for (const e of clientModel.Enums) {
+    e.clientNamespace = normalizeNamespace(e.clientNamespace.split('.'), badNamespaceSegments)[0];
+  }
+
   return clientModel;
 
   function fromSdkClients(
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
+    badNamespaceSegments: Set<string>,
   ) {
     for (const client of clients) {
-      const inputClient = emitClient(client, parentClientNames);
+      const inputClient = fromSdkClient(client, parentClientNames, badNamespaceSegments);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames);
+      fromSdkClients(subClients, inputClients, parentClientNames, badNamespaceSegments);
       parentClientNames.pop();
     }
   }
 
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
+  function fromSdkClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[], badNamespaceSegments: Set<string>): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
+    const clientName = getClientName(client, parentNames);
+    // see if this namespace is a sub-namespace of an existing bad namespace
+    const [clientNamespace, isBad] = normalizeClientNamespace(client.clientNamespace, clientName, badNamespaceSegments);
+    if (isBad) {
+      Logger.getInstance().warn(`bad namespace ${client.clientNamespace} for client ${clientName}, please use @clientNamespace to specify a different namespace or @clientName to specify a different name for the client`, client.__raw.type);
+    }
     return {
-      Name: getClientName(client, parentNames),
+      Name: clientName,
+      ClientNamespace: clientNamespace,
       Summary: client.summary,
       Doc: client.doc,
       Operations: client.methods
@@ -107,6 +126,30 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       Parameters: clientParameters,
       Decorators: client.decorators,
     };
+  }
+
+  function normalizeClientNamespace(clientNamespace: string, clientName: string, badNamespaceSegments: Set<string>) : [string, boolean] {
+    const segments = clientNamespace.split(".");
+    let isBad = false;
+    if (segments[segments.length - 1] === clientName) {
+      // this segment is bad
+      badNamespaceSegments.add(segments[segments.length - 1]);
+      isBad = true;
+    }
+    
+    // normalize it
+    return normalizeNamespace(segments, badNamespaceSegments);
+  }
+
+  function normalizeNamespace(namespaceSegments: string[], badNamespaceSegments: Set<string>): [string, boolean] {
+    let isBad = false;
+    for (let i = 0; i < namespaceSegments.length; i++) {
+      if (badNamespaceSegments.has(namespaceSegments[i])) {
+        isBad = true;
+        namespaceSegments[i] = "_" + namespaceSegments[i];
+      }
+    }
+    return [namespaceSegments.join("."), isBad];
   }
 
   function getClientName(
@@ -179,6 +222,19 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     }
     return parameters;
   }
+
+  // function normalizeNamespace(type: InputType & { clientNamespace: string }, clientNames: Set<string>): void {
+  //   const segments = type.clientNamespace.split(".");
+  //   const newSegments = [];
+  //   for (const segment of segments) {
+  //     if (clientNames.has(segment)) {
+  //       newSegments.push("_" + segment);
+  //     } else {
+  //       newSegments.push(segment);
+  //     }
+  //   }
+  //   return newSegments.join(".");
+  // }
 }
 
 function getMethodUri(p: SdkEndpointParameter | undefined): string {

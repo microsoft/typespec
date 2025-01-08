@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { NoTarget, Program, Tracer } from "@typespec/compiler";
+import { DiagnosticTarget, NoTarget, Program, Tracer } from "@typespec/compiler";
 import { getTracer, reportDiagnostic } from "./lib.js";
 import { LoggerLevel } from "./log-level.js";
 
@@ -63,19 +63,19 @@ export class Logger {
     }
   }
 
-  warn(message: string): void {
+  warn(message: string, target?: DiagnosticTarget | typeof NoTarget): void {
     reportDiagnostic(this.program, {
       code: "general-warning",
       format: { message: message },
-      target: NoTarget,
+      target: target ?? NoTarget,
     });
   }
 
-  error(message: string): void {
+  error(message: string, target?: DiagnosticTarget | typeof NoTarget): void {
     reportDiagnostic(this.program, {
       code: "general-error",
       format: { message: message },
-      target: NoTarget,
+      target: target ?? NoTarget,
     });
   }
 }
