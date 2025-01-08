@@ -107,8 +107,8 @@ class _ModelSerializer(BaseSerializer, ABC):
     @abstractmethod
     def initialize_properties(self, model: ModelType) -> List[str]: ...
 
-    def init_overloads(self, model: ModelType) -> bool:
-        return (not model.internal) and bool(self.init_line(model) or model.discriminator)
+    def need_init(self, model: ModelType) -> bool:
+        return bool(self.init_line(model) or model.discriminator)
 
     def pylint_disable_items(self, model: ModelType) -> List[str]:
         if model.flattened_property or self.initialize_properties(model):
@@ -116,7 +116,7 @@ class _ModelSerializer(BaseSerializer, ABC):
         if any(p for p in model.properties if p.is_discriminator and model.discriminator_value):
             return [""]
         if model.parents and any(
-            "=" in prop for parent in model.parents for prop in self.init_line(parent) if self.init_overloads(parent)
+            "=" in prop for parent in model.parents for prop in self.init_line(parent) if self.need_init(parent)
         ):
             return [""]
         return ["useless-super-delegation"]
@@ -325,7 +325,7 @@ class DpgModelSerializer(_ModelSerializer):
     def global_pylint_disables(self) -> str:
         result = []
         for model in self.code_model.model_types:
-            if self.init_overloads(model):
+            if self.need_init(model):
                 for item in self.pylint_disable_items(model):
                     if item:
                         result.append(item)
