@@ -156,7 +156,7 @@ export function getCSharpType(
       }
       let name: string = type.name;
       if (isTemplateInstance(type)) {
-        name = getFriendlyName(program, type)!;
+        name = getModelInstantiationName(program, type, name);
       }
       return {
         type: new CSharpType({

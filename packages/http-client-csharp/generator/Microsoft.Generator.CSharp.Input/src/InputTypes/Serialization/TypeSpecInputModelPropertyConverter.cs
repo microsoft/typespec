@@ -27,7 +27,8 @@ namespace Microsoft.Generator.CSharp.Input
         {
             var isFirstProperty = true;
             string? serializedName = null;
-            string? description = null;
+            string? summary = null;
+            string? doc = null;
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
@@ -39,7 +40,8 @@ namespace Microsoft.Generator.CSharp.Input
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadString("serializedName", ref serializedName)
-                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadString("summary", ref summary)
+                    || reader.TryReadString("doc", ref doc)
                     || reader.TryReadWithConverter("type", options, ref propertyType)
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
                     || reader.TryReadBoolean("optional", ref isOptional)
@@ -57,7 +59,7 @@ namespace Microsoft.Generator.CSharp.Input
             // description = BuilderHelpers.EscapeXmlDocDescription(description);
             propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
 
-            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, !isOptional, isReadOnly, isDiscriminator) { Decorators = decorators ?? [] };
+            var property = new InputModelProperty(name, serializedName ?? name, summary, doc, propertyType, !isOptional, isReadOnly, isDiscriminator) { Decorators = decorators ?? [] };
             if (id != null)
             {
                 resolver.AddReference(id, property);

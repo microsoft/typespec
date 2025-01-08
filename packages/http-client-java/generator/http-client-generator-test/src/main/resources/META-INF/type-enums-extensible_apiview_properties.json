@@ -1,7 +1,7 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "type.enums.extensible.ExtensibleAsyncClient": "null",
+    "type.enums.extensible.ExtensibleAsyncClient": "Type.Enum.Extensible.String",
     "type.enums.extensible.ExtensibleAsyncClient.getKnownValue": "Type.Enum.Extensible.String.getKnownValue",
     "type.enums.extensible.ExtensibleAsyncClient.getKnownValueWithResponse": "Type.Enum.Extensible.String.getKnownValue",
     "type.enums.extensible.ExtensibleAsyncClient.getUnknownValue": "Type.Enum.Extensible.String.getUnknownValue",
@@ -10,7 +10,7 @@
     "type.enums.extensible.ExtensibleAsyncClient.putKnownValueWithResponse": "Type.Enum.Extensible.String.putKnownValue",
     "type.enums.extensible.ExtensibleAsyncClient.putUnknownValue": "Type.Enum.Extensible.String.putUnknownValue",
     "type.enums.extensible.ExtensibleAsyncClient.putUnknownValueWithResponse": "Type.Enum.Extensible.String.putUnknownValue",
-    "type.enums.extensible.ExtensibleClient": "null",
+    "type.enums.extensible.ExtensibleClient": "Type.Enum.Extensible.String",
     "type.enums.extensible.ExtensibleClient.getKnownValue": "Type.Enum.Extensible.String.getKnownValue",
     "type.enums.extensible.ExtensibleClient.getKnownValueWithResponse": "Type.Enum.Extensible.String.getKnownValue",
     "type.enums.extensible.ExtensibleClient.getUnknownValue": "Type.Enum.Extensible.String.getUnknownValue",

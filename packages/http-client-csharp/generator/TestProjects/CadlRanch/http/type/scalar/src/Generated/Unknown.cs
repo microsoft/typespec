@@ -20,7 +20,7 @@ namespace _Type.Scalar
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> Get() => throw null;
+        public virtual ClientResult<BinaryData> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<BinaryData>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Scalar
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(BinaryData body) => throw null;
+        public virtual ClientResult Put(BinaryData body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(BinaryData body, CancellationToken cancellationToken = default) => throw null;
     }
