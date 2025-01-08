@@ -10,5 +10,5 @@ options:
     flavor: "Azure"
     dev-options:
       generate-code-model: true
-      loglevel: info
-      debug: false
+      # loglevel: info
+      # debug: false
