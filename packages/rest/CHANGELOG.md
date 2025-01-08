@@ -1,5 +1,12 @@
 # Change Log - @typespec/rest
 
+## 0.63.1
+
+### Bug Fixes
+
+- [#5535](https://github.com/microsoft/typespec/pull/5535) In some scenarios, the options for the `@path` decorator do not accurately reflect the provided parameters, including the `#{allowReserved: true}` which is the `x-ms-skip-url-encoding` option. This change addresses and fixes this issue.
+
+
 ## 0.63.0
 
 No changes, version bump only.
