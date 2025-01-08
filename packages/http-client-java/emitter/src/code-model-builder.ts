@@ -817,7 +817,7 @@ export class CodeModelBuilder {
     });
 
     codeModelOperation.language.default.crossLanguageDefinitionId =
-      sdkMethod.crossLanguageDefintionId;
+      sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
