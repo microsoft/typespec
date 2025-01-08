@@ -579,12 +579,12 @@ export function hasVisibility(
   property: ModelProperty,
   modifier: EnumMember,
 ): boolean {
-  const activeSet = getOrInitializeActiveModifierSetForClass(
-    program,
-    property,
-    modifier.enum,
-    /* defaultSet: */ getDefaultModifierSetForClass(program, modifier.enum),
-  );
+  const visibilityClass = modifier.enum;
+
+  const store = getVisibilityStore(program, property);
+
+  const activeSet =
+    store?.get(visibilityClass) ?? getDefaultModifierSetForClass(program, visibilityClass);
 
   return activeSet?.has(modifier) ?? false;
 }
