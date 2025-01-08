@@ -163,35 +163,11 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
           try {
             const npmInstallResult = await npmUtil.npmInstallPackages(installPackages, undefined);
             if (npmInstallResult.exitCode !== 0) {
-              const details = [];
-              if (npmInstallResult.stdout !== "") details.push(npmInstallResult.stdout);
-              if (npmInstallResult.stderr !== "") details.push(npmInstallResult.stderr);
-              if (npmInstallResult.error) details.push(npmInstallResult.error);
-              logger.error(`Error occurred when installing packages.`, [details], {
-                showOutput: true,
-                showPopup: true,
-              });
               return false;
             } else {
               return true;
             }
           } catch (err: any) {
-            if (typeof err === "object" && "stdout" in err && "stderr" in err && `error` in err) {
-              const execOutput = err as ExecOutput;
-              const details = [];
-              if (execOutput.stdout !== "") details.push(execOutput.stdout);
-              if (execOutput.stderr !== "") details.push(execOutput.stderr);
-              if (execOutput.error) details.push(execOutput.error);
-              logger.error(`Exception occurred when installing packages.`, details, {
-                showOutput: true,
-                showPopup: true,
-              });
-            } else {
-              logger.error(`Exception occurred when installing packages.`, [err], {
-                showOutput: true,
-                showPopup: true,
-              });
-            }
             return false;
           }
         },
