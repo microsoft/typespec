@@ -67,10 +67,10 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   // go over all models and enums to replace those bad namespaces
   for (const m of clientModel.Models) {
-    m.clientNamespace = normalizeNamespace(m.clientNamespace.split('.'), badNamespaceSegments)[0];
+    m.clientNamespace = normalizeNamespace(m.clientNamespace.split("."), badNamespaceSegments)[0];
   }
   for (const e of clientModel.Enums) {
-    e.clientNamespace = normalizeNamespace(e.clientNamespace.split('.'), badNamespaceSegments)[0];
+    e.clientNamespace = normalizeNamespace(e.clientNamespace.split("."), badNamespaceSegments)[0];
   }
 
   return clientModel;
@@ -93,7 +93,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     }
   }
 
-  function fromSdkClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[], badNamespaceSegments: Set<string>): InputClient {
+  function fromSdkClient(
+    client: SdkClientType<SdkHttpOperation>,
+    parentNames: string[],
+    badNamespaceSegments: Set<string>,
+  ): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
@@ -101,9 +105,16 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     const clientName = getClientName(client, parentNames);
     // see if this namespace is a sub-namespace of an existing bad namespace
-    const [clientNamespace, isBad] = normalizeClientNamespace(client.clientNamespace, clientName, badNamespaceSegments);
+    const [clientNamespace, isBad] = normalizeClientNamespace(
+      client.clientNamespace,
+      clientName,
+      badNamespaceSegments,
+    );
     if (isBad) {
-      Logger.getInstance().warn(`bad namespace ${client.clientNamespace} for client ${clientName}, please use @clientNamespace to specify a different namespace or @clientName to specify a different name for the client`, client.__raw.type);
+      Logger.getInstance().warn(
+        `bad namespace ${client.clientNamespace} for client ${clientName}, please use @clientNamespace to specify a different namespace or @clientName to specify a different name for the client`,
+        client.__raw.type,
+      );
     }
     return {
       Name: clientName,
@@ -128,7 +139,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     };
   }
 
-  function normalizeClientNamespace(clientNamespace: string, clientName: string, badNamespaceSegments: Set<string>) : [string, boolean] {
+  function normalizeClientNamespace(
+    clientNamespace: string,
+    clientName: string,
+    badNamespaceSegments: Set<string>,
+  ): [string, boolean] {
     const segments = clientNamespace.split(".");
     let isBad = false;
     if (segments[segments.length - 1] === clientName) {
@@ -136,12 +151,15 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       badNamespaceSegments.add(segments[segments.length - 1]);
       isBad = true;
     }
-    
+
     // normalize it
     return normalizeNamespace(segments, badNamespaceSegments);
   }
 
-  function normalizeNamespace(namespaceSegments: string[], badNamespaceSegments: Set<string>): [string, boolean] {
+  function normalizeNamespace(
+    namespaceSegments: string[],
+    badNamespaceSegments: Set<string>,
+  ): [string, boolean] {
     let isBad = false;
     for (let i = 0; i < namespaceSegments.length; i++) {
       if (badNamespaceSegments.has(namespaceSegments[i])) {
