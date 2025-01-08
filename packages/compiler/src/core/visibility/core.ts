@@ -555,12 +555,9 @@ export function getVisibilityForClass(
   property: ModelProperty,
   visibilityClass: Enum,
 ): Set<EnumMember> {
-  return getOrInitializeActiveModifierSetForClass(
-    program,
-    property,
-    visibilityClass,
-    /* defaultSet: */ getDefaultModifierSetForClass(program, visibilityClass),
-  );
+  const store = getVisibilityStore(program, property);
+
+  return store?.get(visibilityClass) ?? getDefaultModifierSetForClass(program, visibilityClass);
 }
 
 /**
@@ -581,12 +578,7 @@ export function hasVisibility(
 ): boolean {
   const visibilityClass = modifier.enum;
 
-  const store = getVisibilityStore(program, property);
-
-  const activeSet =
-    store?.get(visibilityClass) ?? getDefaultModifierSetForClass(program, visibilityClass);
-
-  return activeSet?.has(modifier) ?? false;
+  return getVisibilityForClass(program, property, visibilityClass).has(modifier) ?? false;
 }
 
 /**
