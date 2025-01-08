@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <Compile Include="../CadlRanch/**/*.cs" Exclude="../CadlRanch/**/Properties/**/*.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" />
+    <Compile Remove="../CadlRanch/**/ClientType.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/client/structure/default/src/Generated/Models/ClientType.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
   </ItemGroup>
 
   <ItemGroup>
