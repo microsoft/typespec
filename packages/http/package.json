@@ -34,6 +34,10 @@
       "typespec": "./lib/streams/main.tsp",
       "types": "./dist/src/streams/index.d.ts",
       "default": "./dist/src/streams/index.js"
+    },
+    "./experimental": {
+      "types": "./dist/src/experimental/index.d.ts",
+      "default": "./dist/src/experimental/index.js"
     }
   },
   "engines": {
