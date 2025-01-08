@@ -117,9 +117,7 @@ export const $lib = createTypeSpecLibrary({
 
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const program = context.program;
-  if (!program.compilerOptions.noEmit) {
-    await validateDependencies(program, true);
-  }
+  await validateDependencies(program, true);
 
   if (!program.hasError()) {
     const options = context.options;
