@@ -3,34 +3,18 @@
 
 package type.scalar;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.clientcore.core.util.binarydata.BinaryData;
 import java.io.IOException;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import type.property.valuetypes.DecimalProperty;
 
 public class DecimalTests {
 
-    public static class DecimalJackson {
-        @JsonProperty("property")
-        private BigDecimal property;
-
-        public DecimalJackson(@JsonProperty("property") BigDecimal property) {
-            this.property = property;
-        }
-
-        public BigDecimal getProperty() {
-            return property;
-        }
-    }
-
     @ParameterizedTest
-    @ValueSource(classes = { DecimalProperty.class, DecimalJackson.class })
-    @Disabled("java.lang.RuntimeException: java.lang.IllegalArgumentException: object is not an instance of declaring class")
+    @ValueSource(classes = { DecimalProperty.class })
     public <T> void testBigDecimal(Class<T> clazz) throws IOException {
         // precision larger than double
         BigDecimal value = new BigDecimal("12345678901234567890.1234567890");
