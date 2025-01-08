@@ -930,9 +930,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       for (const parameter of requiredParams) {
         signature.push(
           code`${this.#emitOperationSignatureParameter(operation, parameter)}${
-            ++i < requiredParams.length || bodyParam !== undefined ? ", " : ""
+            ++i < requiredParams.length ? ", " : ""
           }`,
         );
+      }
+      if (
+        requiredParams.length > 0 &&
+        (optionalParams.length > 0 || (bodyParameter === undefined && bodyParam !== undefined))
+      ) {
+        signature.push(code`, `);
       }
       if (bodyParameter === undefined) {
         if (bodyParam !== undefined) {
@@ -942,11 +948,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                 bodyParam.type,
                 Visibility.Create || Visibility.Update,
               ),
-            )} body${optionalParams.length > 0 ? ", " : ""}`,
+            )} body${requiredParams.length > 0 && optionalParams.length > 0 ? ", " : ""}`,
           );
         }
-      } else {
-        signature.push(code`${optionalParams.length > 0 ? ", " : ""}`);
       }
       i = 0;
       for (const parameter of optionalParams) {
