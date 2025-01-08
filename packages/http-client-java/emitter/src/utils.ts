@@ -2,7 +2,6 @@ import { NoTarget, Program, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 
 export function logError(program: Program, msg: string) {
-  trace(program, msg);
   program.reportDiagnostic({
     code: "http-client-java",
     severity: "error",
@@ -12,7 +11,6 @@ export function logError(program: Program, msg: string) {
 }
 
 export function logWarning(program: Program, msg: string) {
-  trace(program, msg);
   program.reportDiagnostic({
     code: "http-client-java",
     severity: "warning",
