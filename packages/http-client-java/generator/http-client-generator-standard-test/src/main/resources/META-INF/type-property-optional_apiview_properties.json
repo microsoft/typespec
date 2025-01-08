@@ -146,7 +146,7 @@
     "type.property.optional.UnionFloatLiteralClient.putDefault": "Type.Property.Optional.UnionFloatLiteral.putDefault",
     "type.property.optional.UnionFloatLiteralClient.putDefaultWithResponse": "Type.Property.Optional.UnionFloatLiteral.putDefault",
     "type.property.optional.UnionFloatLiteralProperty": "Type.Property.Optional.UnionFloatLiteralProperty",
-    "type.property.optional.UnionFloatLiteralPropertyProperty": "UnionFloatLiteralProperty.property.anonymous",
+    "type.property.optional.UnionFloatLiteralPropertyProperty": "Type.Property.Optional.UnionFloatLiteralProperty.property.anonymous",
     "type.property.optional.UnionIntLiteralClient": "Type.Property.Optional.UnionIntLiteral",
     "type.property.optional.UnionIntLiteralClient.getAll": "Type.Property.Optional.UnionIntLiteral.getAll",
     "type.property.optional.UnionIntLiteralClient.getAllWithResponse": "Type.Property.Optional.UnionIntLiteral.getAll",
@@ -157,7 +157,7 @@
     "type.property.optional.UnionIntLiteralClient.putDefault": "Type.Property.Optional.UnionIntLiteral.putDefault",
     "type.property.optional.UnionIntLiteralClient.putDefaultWithResponse": "Type.Property.Optional.UnionIntLiteral.putDefault",
     "type.property.optional.UnionIntLiteralProperty": "Type.Property.Optional.UnionIntLiteralProperty",
-    "type.property.optional.UnionIntLiteralPropertyProperty": "UnionIntLiteralProperty.property.anonymous",
+    "type.property.optional.UnionIntLiteralPropertyProperty": "Type.Property.Optional.UnionIntLiteralProperty.property.anonymous",
     "type.property.optional.UnionStringLiteralClient": "Type.Property.Optional.UnionStringLiteral",
     "type.property.optional.UnionStringLiteralClient.getAll": "Type.Property.Optional.UnionStringLiteral.getAll",
     "type.property.optional.UnionStringLiteralClient.getAllWithResponse": "Type.Property.Optional.UnionStringLiteral.getAll",
@@ -168,6 +168,6 @@
     "type.property.optional.UnionStringLiteralClient.putDefault": "Type.Property.Optional.UnionStringLiteral.putDefault",
     "type.property.optional.UnionStringLiteralClient.putDefaultWithResponse": "Type.Property.Optional.UnionStringLiteral.putDefault",
     "type.property.optional.UnionStringLiteralProperty": "Type.Property.Optional.UnionStringLiteralProperty",
-    "type.property.optional.UnionStringLiteralPropertyProperty": "UnionStringLiteralProperty.property.anonymous"
+    "type.property.optional.UnionStringLiteralPropertyProperty": "Type.Property.Optional.UnionStringLiteralProperty.property.anonymous"
   }
 }

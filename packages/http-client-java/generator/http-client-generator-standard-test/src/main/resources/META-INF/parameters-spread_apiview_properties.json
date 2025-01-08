@@ -25,11 +25,11 @@
     "parameters.spread.ModelClient.spreadCompositeRequestWithoutBodyWithResponse": "Parameters.Spread.Model.spreadCompositeRequestWithoutBody",
     "parameters.spread.SpreadClientBuilder": "Parameters.Spread",
     "parameters.spread.alias.implementation.SpreadAsRequestBodyRequest": "Parameters.Spread.Alias.spreadAsRequestBody.Request.anonymous",
-    "parameters.spread.implementation.SpreadAsRequestParameterRequest": "spreadAsRequestParameter.Request.anonymous",
-    "parameters.spread.implementation.SpreadCompositeRequestMixRequest": "spreadCompositeRequestMix.Request.anonymous",
-    "parameters.spread.implementation.SpreadParameterWithInnerAliasRequest": "spreadParameterWithInnerAlias.Request.anonymous",
-    "parameters.spread.implementation.SpreadParameterWithInnerModelRequest": "spreadParameterWithInnerModel.Request.anonymous",
-    "parameters.spread.implementation.SpreadWithMultipleParametersRequest": "spreadWithMultipleParameters.Request.anonymous",
+    "parameters.spread.implementation.SpreadAsRequestParameterRequest": "Parameters.Spread.Alias.spreadAsRequestParameter.Request.anonymous",
+    "parameters.spread.implementation.SpreadCompositeRequestMixRequest": "Parameters.Spread.Model.spreadCompositeRequestMix.Request.anonymous",
+    "parameters.spread.implementation.SpreadParameterWithInnerAliasRequest": "Parameters.Spread.Alias.spreadParameterWithInnerAlias.Request.anonymous",
+    "parameters.spread.implementation.SpreadParameterWithInnerModelRequest": "Parameters.Spread.Alias.spreadParameterWithInnerModel.Request.anonymous",
+    "parameters.spread.implementation.SpreadWithMultipleParametersRequest": "Parameters.Spread.Alias.spreadWithMultipleParameters.Request.anonymous",
     "parameters.spread.model.BodyParameter": "Parameters.Spread.Model.BodyParameter"
   }
 }
