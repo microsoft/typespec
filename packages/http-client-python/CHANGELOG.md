@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.5.1
+
+### Bug Fixes
+
+- Do not do exception sort if there is no operation groups
+
 ## 0.5.0
 
 ### Features
