@@ -11,7 +11,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
-import { logError, spawnAsync } from "./utils.js";
+import { logError, spawnAsync, SpawnError } from "./utils.js";
 import { JDK_NOT_FOUND_MESSAGE, validateDependencies } from "./validate.js";
 
 export interface EmitterOptions {
@@ -191,12 +191,16 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       javaArgs.push(jarFileName);
       javaArgs.push(codeModelFileName);
       try {
-        await spawnAsync("java", javaArgs, { stdio: "inherit" });
+        const result = await spawnAsync("java", javaArgs, { stdio: "pipe" });
+        program.trace("http-client-java", `Log on code generation: ${result.stdout}`);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
           logError(program, JDK_NOT_FOUND_MESSAGE);
         } else {
           logError(program, error.message);
+          if (error instanceof SpawnError) {
+            program.trace("http-client-java", `Failed to generate code: ${error.stdout}`);
+          }
         }
       }
 

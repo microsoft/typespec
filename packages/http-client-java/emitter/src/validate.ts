@@ -1,6 +1,5 @@
 import { Program } from "@typespec/compiler";
 import { logError, spawnAsync, trace } from "./utils.js";
-import { match } from "assert";
 
 export const JDK_NOT_FOUND_MESSAGE =
   "Java Development Kit (JDK) is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download";

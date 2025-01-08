@@ -68,6 +68,17 @@ export type SpawnReturns = {
   stderr: string;
 };
 
+export class SpawnError extends Error {
+  stdout: string;
+  stderr: string;
+
+  constructor(message: string, stdout: string, stderr: string) {
+    super(message);
+    this.stdout = stdout;
+    this.stderr = stderr;
+  }
+}
+
 export async function spawnAsync(
   command: string,
   args: readonly string[],
@@ -101,7 +112,11 @@ export async function spawnAsync(
     childProcess.on("exit", (code, signal) => {
       if (code !== 0) {
         if (code) {
-          error = new Error(`${command} ended with code '${code}'.`);
+          error = new SpawnError(
+            `${command} ended with code '${code}'.`,
+            stdout.join(""),
+            stderr.join(""),
+          );
         } else {
           error = new Error(`${command} terminated by signal '${signal}'.`);
         }
