@@ -168,7 +168,7 @@
               {
                 "language": "Java",
                 "package": "@typespec/http-client-java",
-                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-java ",
+                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-java",
                 "requisites": [
                   "Java 17 or above",
                   "Maven"
