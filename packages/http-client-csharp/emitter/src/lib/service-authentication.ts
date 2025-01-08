@@ -49,7 +49,7 @@ function processAuthType(credentialType: SdkCredentialType): InputAuth | undefin
     case "apiKey":
       if (scheme.in !== "header") {
         Logger.getInstance().warn(
-          `Only header is supported for ApiKey auth method. ${scheme.in} is not supported.`,
+          `Only header is supported for ApiKey authentication. ${scheme.in} is not supported.`,
           credentialType.__raw,
         );
         return undefined;
