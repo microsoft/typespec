@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SpecialHeaders.ConditionalRequest;
-using TestProjects.CadlRanch.Tests;
 
 namespace TestProjects.CadlRanch.Tests.Http.SpecialHeaders.ConditionalRequests
 {
