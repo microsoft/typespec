@@ -4,9 +4,9 @@
 package type.model.inheritance;
 
 import org.junit.jupiter.api.Test;
+import type.model.inheritance.recursive.Extension;
 import type.model.inheritance.recursive.RecursiveClient;
 import type.model.inheritance.recursive.RecursiveClientBuilder;
-import type.model.inheritance.recursive.Extension;
 
 public class RecursiveReferenceTests {
 

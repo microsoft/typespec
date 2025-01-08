@@ -16,9 +16,10 @@ public class BodyTests {
 
     private final ContentTypeValidationPolicy validationPolicy = new ContentTypeValidationPolicy();
     private final BodyOptionalityClient client = new BodyOptionalityClientBuilder().buildClient();
-    private final OptionalExplicitClient optionalClient = new BodyOptionalityClientBuilder().addHttpPipelinePolicy(validationPolicy)
-        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogOptions.HttpLogDetailLevel.BODY_AND_HEADERS))
-        .buildOptionalExplicitClient();
+    private final OptionalExplicitClient optionalClient
+        = new BodyOptionalityClientBuilder().addHttpPipelinePolicy(validationPolicy)
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogOptions.HttpLogDetailLevel.BODY_AND_HEADERS))
+            .buildOptionalExplicitClient();
 
     private final static class ContentTypeValidationPolicy implements HttpPipelinePolicy {
         private boolean contentTypeHeaderExists;

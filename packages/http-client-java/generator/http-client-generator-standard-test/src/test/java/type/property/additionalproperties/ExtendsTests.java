@@ -3,12 +3,11 @@
 
 package type.property.additionalproperties;
 
+import io.clientcore.core.util.binarydata.BinaryData;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.BinaryDataUtils;

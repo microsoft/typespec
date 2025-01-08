@@ -3,6 +3,11 @@
 
 package payload.multipart;
 
+import io.clientcore.core.http.models.HttpRequest;
+import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipelineNextPolicy;
+import io.clientcore.core.http.pipeline.HttpPipelinePolicy;
+import io.clientcore.core.util.binarydata.BinaryData;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,12 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import io.clientcore.core.http.models.HttpRequest;
-import io.clientcore.core.http.models.Response;
-import io.clientcore.core.http.pipeline.HttpPipelineNextPolicy;
-import io.clientcore.core.http.pipeline.HttpPipelinePolicy;
-import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,8 @@ public class MultipartTests {
         = new MultiPartClientBuilder().addHttpPipelinePolicy(validationPolicy).buildFormDataClient();
 
     private final FormDataHttpPartsContentTypeClient httpPartContentTypeClient
-        = new MultiPartClientBuilder().addHttpPipelinePolicy(validationPolicy).buildFormDataHttpPartsContentTypeClient();
+        = new MultiPartClientBuilder().addHttpPipelinePolicy(validationPolicy)
+            .buildFormDataHttpPartsContentTypeClient();
 
     private static final Path FILE = FileUtils.getJpgFile();
 
@@ -177,7 +177,7 @@ public class MultipartTests {
         validationPolicy.validateFilenames("image.jpg", "image.png");
 
         // "picture" be optional
-      client.multiBinaryParts(new MultiBinaryPartsRequest(
+        client.multiBinaryParts(new MultiBinaryPartsRequest(
             new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("image.jpg")));
     }
 
@@ -190,11 +190,9 @@ public class MultipartTests {
         validationPolicy.validateContentTypes("application/octet-stream", "application/octet-stream");
 
         // filename contains non-ASCII
-        client
-            .binaryArrayParts(
-                new BinaryArrayPartsRequest("123",
-                    Arrays.asList(new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("voilà.png"),
-                        new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("ima\"\n\rge2.png"))));
+        client.binaryArrayParts(new BinaryArrayPartsRequest("123",
+            Arrays.asList(new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("voilà.png"),
+                new PicturesFileDetails(BinaryData.fromFile(PNG_FILE)).setFilename("ima\"\n\rge2.png"))));
 
         validationPolicy.validateFilenames("voilà.png", "ima%22%0A%0Dge2.png");
     }
@@ -255,8 +253,8 @@ public class MultipartTests {
 
     @Test
     public void testNonStringHttpPart() {
-        FormDataHttpPartsNonStringClient client
-            = new MultiPartClientBuilder().addHttpPipelinePolicy(validationPolicy).buildFormDataHttpPartsNonStringClient();
+        FormDataHttpPartsNonStringClient client = new MultiPartClientBuilder().addHttpPipelinePolicy(validationPolicy)
+            .buildFormDataHttpPartsNonStringClient();
 
         client.floatMethod(new FloatRequest(0.5));
     }

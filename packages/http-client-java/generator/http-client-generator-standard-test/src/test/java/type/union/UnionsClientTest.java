@@ -3,11 +3,10 @@
 
 package type.union;
 
+import io.clientcore.core.util.binarydata.BinaryData;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
-import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -78,8 +77,7 @@ public class UnionsClientTest {
     public void testStringAndArrayClient() throws IOException {
         StringAndArrayCases prop = client8.get().getProp();
         Assertions.assertEquals("test", prop.getString().toObject(String.class));
-        Assertions.assertEquals(Arrays.asList("test1", "test2"),
-            prop.getArray().toObject(List.class));
+        Assertions.assertEquals(Arrays.asList("test1", "test2"), prop.getArray().toObject(List.class));
         client8.send(prop);
     }
 

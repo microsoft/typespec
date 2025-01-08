@@ -3,10 +3,9 @@
 
 package routes;
 
+import io.clientcore.core.http.models.HttpLogOptions;
 import java.util.List;
 import java.util.Set;
-
-import io.clientcore.core.http.models.HttpLogOptions;
 import org.junit.jupiter.api.Test;
 
 public class RouteTests {

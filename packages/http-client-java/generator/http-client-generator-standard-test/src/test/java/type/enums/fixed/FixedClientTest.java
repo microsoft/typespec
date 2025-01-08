@@ -3,11 +3,10 @@
 
 package type.enums.fixed;
 
-import java.time.Duration;
-
 import io.clientcore.core.http.exception.HttpResponseException;
 import io.clientcore.core.http.models.HttpRetryOptions;
 import io.clientcore.core.util.binarydata.BinaryData;
+import java.time.Duration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -15,8 +14,7 @@ import org.junit.jupiter.api.Test;
 class FixedClientTest {
 
     FixedClient client
-        = new FixedClientBuilder().httpRetryOptions(new HttpRetryOptions(0, Duration.ZERO))
-            .buildFixedClient();
+        = new FixedClientBuilder().httpRetryOptions(new HttpRetryOptions(0, Duration.ZERO)).buildFixedClient();
 
     @Test
     @Disabled("java.lang.ClassCastException: class java.lang.String cannot be cast to class type.enums.fixed.DaysOfWeekEnum")

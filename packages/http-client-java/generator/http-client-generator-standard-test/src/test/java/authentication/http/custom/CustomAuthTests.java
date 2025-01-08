@@ -3,8 +3,8 @@
 
 package authentication.http.custom;
 
-import io.clientcore.core.http.exception.HttpResponseException;
 import io.clientcore.core.credential.KeyCredential;
+import io.clientcore.core.http.exception.HttpResponseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,18 +12,14 @@ public class CustomAuthTests {
 
     @Test
     public void testValid() {
-        CustomClient client = new CustomClientBuilder()
-            .credential(new KeyCredential("valid-key"))
-            .buildClient();
+        CustomClient client = new CustomClientBuilder().credential(new KeyCredential("valid-key")).buildClient();
 
         client.valid();
     }
 
     @Test
     public void testInvalid() {
-        CustomClient client = new CustomClientBuilder()
-            .credential(new KeyCredential("invalid-key"))
-            .buildClient();
+        CustomClient client = new CustomClientBuilder().credential(new KeyCredential("invalid-key")).buildClient();
 
         // assert HttpResponseException
         Assertions.assertThrows(HttpResponseException.class, client::invalid);

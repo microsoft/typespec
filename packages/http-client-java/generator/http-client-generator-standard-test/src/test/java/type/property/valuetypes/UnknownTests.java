@@ -3,13 +3,12 @@
 
 package type.property.valuetypes;
 
+import io.clientcore.core.util.binarydata.BinaryData;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

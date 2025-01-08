@@ -19,8 +19,7 @@ class ExtensibleEnumClientTest {
 
     @Test
     void put() {
-        ExtensibleEnumProperty extensibleEnumProperty
-            = new ExtensibleEnumProperty(InnerEnum.fromValue("UnknownValue"));
+        ExtensibleEnumProperty extensibleEnumProperty = new ExtensibleEnumProperty(InnerEnum.fromValue("UnknownValue"));
         client.put(extensibleEnumProperty);
     }
 }

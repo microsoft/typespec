@@ -3,10 +3,9 @@
 
 package type.scalar;
 
+import io.clientcore.core.util.binarydata.BinaryData;
 import java.io.IOException;
 import java.math.BigDecimal;
-
-import io.clientcore.core.util.binarydata.BinaryData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

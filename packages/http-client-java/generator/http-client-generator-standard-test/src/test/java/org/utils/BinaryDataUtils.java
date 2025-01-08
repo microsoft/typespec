@@ -3,9 +3,8 @@
 
 package org.utils;
 
-import java.util.Map;
-
 import io.clientcore.core.util.binarydata.BinaryData;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 
 public class BinaryDataUtils {
