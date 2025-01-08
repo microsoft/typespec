@@ -4,10 +4,10 @@ aiohttp;python_full_version>="3.5.2"
 requests==2.32.2
 pytest
 pytest-asyncio==0.14.0;python_full_version>="3.5.2"
-pyright==1.1.389
+pyright==1.1.391
 pylint==3.2.7
 tox==4.18.1
-mypy==1.13.0
+mypy==1.14.1
 
 
 # common test case
