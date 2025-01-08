@@ -31,7 +31,6 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   const baseDir = getDirectoryPath(mainTspFile);
 
   const toQuickPickItem = (e: Emitter): EmitQuickPickItem => {
-    const moreDetail = e.sourceRepo ? `[**More Detail**](${e.sourceRepo})` : "";
     return {
       language: e.language,
       package: e.package,
@@ -40,9 +39,15 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
       sourceRepo: e.sourceRepo,
       emitterKind: e.kind,
       label: e.language,
-      detail: `Generate ${e.kind} code for ${e.language} by TypeSpec library ${e.package}.${moreDetail}`,
+      detail: `Generate ${e.kind} code for ${e.language} by TypeSpec library ${e.package}.`,
       picked: false,
       fromConfig: false,
+      buttons: [
+        {
+          iconPath: new vscode.ThemeIcon("link-external"),
+          tooltip: "More details",
+        },
+      ],
       iconPath: {
         light: Uri.file(
           context.asAbsolutePath(`./icons/${getLanguageAlias(e.language).toLowerCase()}.light.svg`),
@@ -55,13 +60,27 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   };
 
   const registerEmitters = getRegisterEmitters(kind);
-  const all = [...registerEmitters].map((e) => toQuickPickItem(e));
+  const all: EmitQuickPickItem[] = [...registerEmitters].map((e) => toQuickPickItem(e));
 
-  const selectedEmitter = await vscode.window.showQuickPick<EmitQuickPickItem>(all, {
-    title: `Generate from TypeSpec`,
-    canPickMany: false,
-    placeHolder: `Select a Language for ${kind} code generation`,
-    ignoreFocusOut: true,
+  const emitterSelector = vscode.window.createQuickPick<EmitQuickPickItem>();
+  emitterSelector.items = all;
+  emitterSelector.title = `Generate from TypeSpec`;
+  emitterSelector.canSelectMany = false;
+  emitterSelector.placeholder = `Select a Language for ${kind} code generation`;
+  emitterSelector.ignoreFocusOut = true;
+  emitterSelector.onDidTriggerItemButton(async (e) => {
+    if (e.button.tooltip === "More details") {
+      const url = e.item.sourceRepo?.trim() ?? "";
+      await vscode.env.openExternal(vscode.Uri.parse(url));
+    }
+  });
+  emitterSelector.show();
+  const selectedEmitter = await new Promise<EmitQuickPickItem>((resolve) => {
+    emitterSelector.onDidAccept(() => {
+      resolve(emitterSelector.selectedItems[0]);
+      // emitterSelector.hide();
+      emitterSelector.dispose();
+    });
   });
 
   if (!selectedEmitter) {
@@ -92,7 +111,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
           ? ` Minimum requisites: install ${selectedEmitter.requisites?.join(", ")}`
           : "";
         const moreDetail = selectedEmitter.sourceRepo
-          ? `[**More Detail**](${selectedEmitter.sourceRepo})`
+          ? `[**More details**](${selectedEmitter.sourceRepo.trim()})`
           : "";
         let packageFullName = selectedEmitter.package;
         if (version) {
