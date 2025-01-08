@@ -1,5 +1,5 @@
 import path from "path";
-import vscode, { Uri } from "vscode";
+import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import { StartFileName } from "../../const.js";
 import logger from "../../log/logger.js";
@@ -30,7 +30,19 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
 
   const baseDir = getDirectoryPath(mainTspFile);
 
+  interface EmitQuickPickButton extends QuickInputButton {
+    uri: string;
+  }
   const toQuickPickItem = (e: Emitter): EmitQuickPickItem => {
+    const buttons = e.sourceRepo
+      ? [
+          {
+            iconPath: new vscode.ThemeIcon("link-external"),
+            tooltip: "More details",
+            uri: e.sourceRepo,
+          },
+        ]
+      : undefined;
     return {
       language: e.language,
       package: e.package,
@@ -42,12 +54,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
       detail: `Generate ${e.kind} code for ${e.language} by TypeSpec library ${e.package}.`,
       picked: false,
       fromConfig: false,
-      buttons: [
-        {
-          iconPath: new vscode.ThemeIcon("link-external"),
-          tooltip: "More details",
-        },
-      ],
+      buttons: buttons,
       iconPath: {
         light: Uri.file(
           context.asAbsolutePath(`./icons/${getLanguageAlias(e.language).toLowerCase()}.light.svg`),
@@ -70,7 +77,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   emitterSelector.ignoreFocusOut = true;
   emitterSelector.onDidTriggerItemButton(async (e) => {
     if (e.button.tooltip === "More details") {
-      const url = e.item.sourceRepo?.trim() ?? "";
+      const url = (e.button as EmitQuickPickButton).uri;
       await vscode.env.openExternal(vscode.Uri.parse(url));
     }
   });
@@ -120,12 +127,15 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
           packageFullName: packageFullName,
           sourceRepo: selectedEmitter.sourceRepo,
           picked: true,
-          buttons: [
-            {
-              iconPath: new vscode.ThemeIcon("link-external"),
-              tooltip: "More details",
-            },
-          ],
+          buttons: selectedEmitter.sourceRepo
+            ? [
+                {
+                  iconPath: new vscode.ThemeIcon("link-external"),
+                  tooltip: "More details",
+                  uri: selectedEmitter.sourceRepo,
+                },
+              ]
+            : undefined,
         });
         packagesToInstall.push(packageFullName);
       }
@@ -168,7 +178,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     installPackagesSelector.selectedItems = [...installPackageQuickPickItems];
     installPackagesSelector.onDidTriggerItemButton(async (e) => {
       if (e.button.tooltip === "More details") {
-        const url = e.item.sourceRepo?.trim() ?? "";
+        const url = (e.button as EmitQuickPickButton).uri;
         await vscode.env.openExternal(vscode.Uri.parse(url));
       }
     });
