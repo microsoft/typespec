@@ -78,7 +78,6 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   const selectedEmitter = await new Promise<EmitQuickPickItem>((resolve) => {
     emitterSelector.onDidAccept(() => {
       resolve(emitterSelector.selectedItems[0]);
-      // emitterSelector.hide();
       emitterSelector.dispose();
     });
   });
@@ -110,18 +109,23 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
         const minimumRequisites = selectedEmitter.requisites
           ? ` Minimum requisites: install ${selectedEmitter.requisites?.join(", ")}`
           : "";
-        const moreDetail = selectedEmitter.sourceRepo
-          ? `[**More details**](${selectedEmitter.sourceRepo.trim()})`
-          : "";
         let packageFullName = selectedEmitter.package;
         if (version) {
           packageFullName = `${selectedEmitter.package}@${version}`;
         }
         packageQuickPickItems.push({
           label: `${selectedEmitter.package}`,
-          detail: `TypeSpec library for emitting ${selectedEmitter.language} from TypeSpec files.${minimumRequisites} ${moreDetail}`,
+          description: `TypeSpec library for emitting ${selectedEmitter.language} from TypeSpec files.`,
+          detail: minimumRequisites,
           packageFullName: packageFullName,
+          sourceRepo: selectedEmitter.sourceRepo,
           picked: true,
+          buttons: [
+            {
+              iconPath: new vscode.ThemeIcon("link-external"),
+              tooltip: "More details",
+            },
+          ],
         });
         packagesToInstall.push(packageFullName);
       }
@@ -140,7 +144,7 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
               const packageFullName = `${dep.name}@${version ?? "latest"}`;
               packageQuickPickItems.push({
                 label: `${dep.name}`,
-                detail: "Required for enabling the emitter library.",
+                description: "Required for enabling the emitter library.",
                 packageFullName: packageFullName,
                 picked: true,
               });
@@ -155,11 +159,25 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
   );
 
   if (installPackageQuickPickItems.length > 0) {
-    const selectedPackages = await vscode.window.showQuickPick(installPackageQuickPickItems, {
-      title: "Generate from TypeSpec",
-      canPickMany: true,
-      placeHolder: "Here are libraries to install or update.",
-      ignoreFocusOut: true,
+    const installPackagesSelector = vscode.window.createQuickPick<any>();
+    installPackagesSelector.items = installPackageQuickPickItems;
+    installPackagesSelector.title = `Generate from TypeSpec`;
+    installPackagesSelector.canSelectMany = true;
+    installPackagesSelector.placeholder = "Here are libraries to install or update.";
+    installPackagesSelector.ignoreFocusOut = true;
+    installPackagesSelector.selectedItems = [...installPackageQuickPickItems];
+    installPackagesSelector.onDidTriggerItemButton(async (e) => {
+      if (e.button.tooltip === "More details") {
+        const url = e.item.sourceRepo?.trim() ?? "";
+        await vscode.env.openExternal(vscode.Uri.parse(url));
+      }
+    });
+    installPackagesSelector.show();
+    const selectedPackages = await new Promise<readonly any[]>((resolve) => {
+      installPackagesSelector.onDidAccept(() => {
+        resolve(installPackagesSelector.selectedItems);
+        installPackagesSelector.dispose();
+      });
     });
     if (!selectedPackages || selectedPackages.length === 0) {
       logger.info("No package selected. Generating Cancelled.", [], {
