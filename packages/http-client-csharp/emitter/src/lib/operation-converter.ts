@@ -187,10 +187,10 @@ function fromSdkHttpOperationParameter(
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
-  // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the style for
+  // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
   // any path expansion to ensure the parameter values are delimited correctly during serialization.
-  const explode =
-    (parameterType.kind === "array" || parameterType.kind === "dict") && isExplodedParameter(p);
+  // https://github.com/microsoft/typespec/issues/5561
+  const explode = isExplodedParameter(p, parameterType);
 
   return {
     Name: p.name,
@@ -427,6 +427,7 @@ function normalizeHeaderName(name: string): string {
   }
 }
 
-function isExplodedParameter(p: SdkHttpParameter): boolean {
-  return (p.kind === "path" || p.kind === "query") && p.explode === true;
+function isExplodedParameter(p: SdkHttpParameter, parameterType: InputType): boolean {
+  return (parameterType.kind === "array" || parameterType.kind === "dict") &&
+         (p.kind === "path" || p.kind === "query") && p.explode === true;
 }
