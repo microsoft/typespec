@@ -7,11 +7,12 @@ from typing import (
     Any,
     Callable,
     Dict,
-    List,
     TypeVar,
     TYPE_CHECKING,
     Union,
     Optional,
+    Sequence,
+    cast,
 )
 from abc import abstractmethod
 
@@ -34,7 +35,7 @@ ParameterListType = TypeVar(
 )
 
 
-class RequestBuilderBase(BaseBuilder[ParameterListType, List["RequestBuilder"]]):
+class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder"]]):
     def __init__(
         self,
         yaml_data: Dict[str, Any],
@@ -43,7 +44,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, List["RequestBuilder"]])
         name: str,
         parameters: ParameterListType,
         *,
-        overloads: Optional[List["RequestBuilder"]] = None,
+        overloads: Optional[Sequence["RequestBuilder"]] = None,
     ) -> None:
         super().__init__(
             code_model=code_model,
@@ -53,7 +54,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, List["RequestBuilder"]])
             parameters=parameters,
             overloads=overloads,
         )
-        self.overloads: List["RequestBuilder"] = overloads or []
+        self.overloads: Sequence["RequestBuilder"] = overloads or []
         self.url: str = yaml_data["url"]
         self.method: str = yaml_data["method"]
         self.want_tracing = False
@@ -154,7 +155,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, List["RequestBuilder"]])
         # So add operation group name is effective method
 
         overloads = [
-            RequestBuilder.from_yaml(rb_yaml_data, code_model, client)
+            cast(RequestBuilder, RequestBuilder.from_yaml(rb_yaml_data, code_model, client))
             for rb_yaml_data in yaml_data.get("overloads", [])
         ]
         parameter_list = cls.parameter_list_type()(yaml_data, code_model)

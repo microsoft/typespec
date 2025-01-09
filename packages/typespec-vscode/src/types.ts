@@ -20,6 +20,10 @@ export interface InstallGlobalCliCommandArgs {
   confirm: boolean;
   confirmTitle?: string;
   confirmPlaceholder?: string;
+  /**
+   * set to true to disable popup notification and show output channel when running the command
+   */
+  silentMode?: boolean;
 }
 
 export interface RestartServerCommandArgs {
@@ -27,7 +31,7 @@ export interface RestartServerCommandArgs {
    * whether to recreate TspLanguageClient instead of just restarting it
    */
   forceRecreate: boolean;
-  popupRecreateLspError: boolean;
+  notificationMessage?: string;
 }
 
 export const enum ResultCode {
@@ -37,11 +41,12 @@ export const enum ResultCode {
   Timeout = "timeout",
 }
 
-interface SuccessResult<T = void> {
+interface SuccessResult<T> {
   code: ResultCode.Success;
   value: T;
   details?: any;
 }
+
 interface UnsuccessResult {
   code: ResultCode.Fail | ResultCode.Cancelled | ResultCode.Timeout;
   details?: any;
