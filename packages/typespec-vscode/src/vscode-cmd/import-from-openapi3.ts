@@ -18,6 +18,7 @@ import {
   spawnExecutionAndLogToOutput,
 } from "../utils.js";
 
+const TITLE = "Import TypeSpec From OpenAPI3";
 const TSP_OPENAPI3_COMMAND = "tsp-openapi3";
 const TSP_COMPILER_PACKAGE = "@typespec/compiler";
 const TSP_OPENAPI3_PACKAGE = "@typespec/openapi3";
@@ -36,7 +37,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
       const targetFolder =
         uri && uri.fsPath && (await isDirectory(uri.fsPath))
           ? normalizePath(uri.fsPath)
-          : await selectFolder("Select target folder to import OpenAPI", "Select Folder");
+          : await selectFolder("Select target folder to import OpenAPI", "Select Target Folder");
       if (!targetFolder) {
         logger.info("Importing from OpenApi canceled because no target folder selected");
         return;
@@ -44,13 +45,13 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
       const checkEmpty = await checkAndConfirmEmptyFolder(
         targetFolder,
         "Selected folder is not empty. Do you want to continue?",
-        getTitle("confirm-non-empty-folder"),
+        TITLE,
       );
       if (!checkEmpty) {
         logger.info("Importing from OpenApi canceled due to non-empty target folder.");
         return;
       }
-      const sourceFile = await selectFile("Select OpenAPI file to import", "Select File", {
+      const sourceFile = await selectFile("Select OpenAPI file to import", "Select OpenAPI File", {
         "OpenAPI files": ["json", "yaml", "yml"],
       });
       if (!sourceFile) {
@@ -121,7 +122,7 @@ async function tryInstallOpenApi3Locally(
         {
           name: `Confirm and try to install OpenAPI3 package by 'npm install'`,
           confirm: {
-            title: getTitle("install-openapi3"),
+            title: TITLE,
             placeholder: `'${TSP_OPENAPI3_PACKAGE}' is required to import OpenApi3. Do you want to install it?`,
             yesQuickPickItem: {
               label: `Install ${TSP_OPENAPI3_PACKAGE}`,
@@ -169,7 +170,7 @@ async function tryInstallOpenApi3Locally(
       {
         name: `Confirm and try to install OpenAPI3 package by 'npm install ${TSP_OPENAPI3_PACKAGE}'`,
         confirm: {
-          title: getTitle("install-openapi3"),
+          title: TITLE,
           placeholder: `'${TSP_OPENAPI3_PACKAGE}' is required to import OpenApi3. Do you want to install it?`,
           yesQuickPickItem: {
             label: `Install ${TSP_OPENAPI3_PACKAGE}`,
@@ -288,7 +289,7 @@ async function importUsingGlobalOpenApi3(
       {
         name: `Install ${TSP_OPENAPI3_PACKAGE} globally`,
         confirm: {
-          title: getTitle("install-openapi3"),
+          title: TITLE,
           placeholder: `'${TSP_OPENAPI3_PACKAGE}'is required to import OpenAPI. Do you want to install it?`,
           yesQuickPickItem: {
             label: `Install ${TSP_OPENAPI3_PACKAGE} globally`,
@@ -328,14 +329,4 @@ async function installOpenApi3Package(
   const pkgName = `${TSP_OPENAPI3_PACKAGE}@${version ?? "latest"}`;
   const args = isGlobal ? ["install", "-g", pkgName] : ["install", "--save-dev", pkgName];
   return await spawnExecutionAndLogToOutput("npm", args, folder);
-}
-
-function getTitle(step: "confirm-non-empty-folder" | "install-openapi3") {
-  const title = "Import TypeSpec From OpenAPI3";
-  switch (step) {
-    case "confirm-non-empty-folder":
-      return `${title} - Target folder not empty`;
-    case "install-openapi3":
-      return `${title} - Pre-requisite missing`;
-  }
 }
