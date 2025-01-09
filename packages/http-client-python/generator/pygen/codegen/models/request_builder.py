@@ -85,15 +85,12 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
     def response_docstring_type(self, **kwargs) -> str:
         return f"~{self.code_model.core_library}.rest.HttpRequest"
 
-    def imports(self) -> FileImport:
+    def imports(self, **kwargs) -> FileImport:
         file_import = FileImport(self.code_model)
-        relative_path = ".."
-        if not self.code_model.options["builders_visibility"] == "embedded" and self.group_name:
-            relative_path = "..." if self.group_name else ".."
         if self.abstract:
             return file_import
         for parameter in self.parameters.method:
-            file_import.merge(parameter.imports(async_mode=False, relative_path=relative_path, operation=self))
+            file_import.merge(parameter.imports(async_mode=False, **kwargs))
 
         file_import.add_submodule_import(
             "rest",
@@ -109,11 +106,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
             )
         file_import.add_submodule_import("typing", "Any", ImportType.STDLIB, typing_section=TypingSection.CONDITIONAL)
         file_import.add_msrest_import(
-            relative_path=(
-                "..."
-                if (not self.code_model.options["builders_visibility"] == "embedded" and self.group_name)
-                else ".."
-            ),
+            serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
             msrest_import_type=MsrestImportType.Serializer,
             typing_section=TypingSection.REGULAR,
         )
