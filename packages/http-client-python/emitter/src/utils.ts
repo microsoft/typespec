@@ -207,11 +207,7 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   const rootNamespace = removeUnderscoresFromNamespace(
     context.sdkPackage.rootNamespace,
   ).toLowerCase();
-  let enableTypespecNamespace = context.emitContext.options["enable-typespec-namespace"];
-  if (enableTypespecNamespace === undefined) {
-    enableTypespecNamespace = context.emitContext.options["flavor"] !== "azure";
-  }
-  if (!enableTypespecNamespace) {
+  if (!context.emitContext.options["enable-typespec-namespace"]) {
     return rootNamespace;
   }
   if (
