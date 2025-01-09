@@ -91,7 +91,7 @@ export function fromSdkServiceMethod(
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
-    CrossLanguageDefinitionId: method.crossLanguageDefintionId,
+    CrossLanguageDefinitionId: method.crossLanguageDefinitionId,
     Decorators: method.decorators,
     Examples: method.operation.examples
       ? fromSdkHttpExamples(
