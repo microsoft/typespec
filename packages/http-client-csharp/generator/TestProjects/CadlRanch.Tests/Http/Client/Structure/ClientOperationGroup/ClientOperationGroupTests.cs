@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Client.Structure.Service;
-using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
+using Client.Structure.AnotherClientOperationGroup;
+using Client.Structure.ClientOperationGroup;
+using Client.Structure.Service;
+using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGroup
 {
