@@ -625,7 +625,7 @@
    "$id": "61",
    "kind": "model",
    "name": "FloatRequest",
-   "clientNamespace": "Payload.MultiPart._FormData.HttpParts.NonString",
+   "clientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -655,7 +655,7 @@
    "$id": "64",
    "kind": "model",
    "name": "FloatRequestTemperature",
-   "clientNamespace": "Payload.MultiPart._FormData.HttpParts.NonString",
+   "clientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.temperature.anonymous",
    "usage": "Input",
    "decorators": [],
@@ -875,7 +875,7 @@
   {
    "$id": "85",
    "Name": "FormData",
-   "ClientNamespace": "Payload.MultiPart._FormData",
+   "ClientNamespace": "Payload.MultiPart.FormData",
    "Operations": [
     {
      "$id": "86",
@@ -1452,7 +1452,7 @@
   {
    "$id": "133",
    "Name": "FormDataHttpParts",
-   "ClientNamespace": "Payload.MultiPart._FormData.HttpParts",
+   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts",
    "Operations": [
     {
      "$id": "134",
@@ -1573,7 +1573,7 @@
   {
    "$id": "145",
    "Name": "FormDataHttpPartsContentType",
-   "ClientNamespace": "Payload.MultiPart._FormData.HttpParts.ContentType",
+   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts.ContentType",
    "Operations": [
     {
      "$id": "146",
@@ -1846,7 +1846,7 @@
   {
    "$id": "169",
    "Name": "FormDataHttpPartsNonString",
-   "ClientNamespace": "Payload.MultiPart._FormData.HttpParts.NonString",
+   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "Operations": [
     {
      "$id": "170",

@@ -52,7 +52,7 @@
   {
    "$id": "8",
    "Name": "Query",
-   "ClientNamespace": "Parameters.CollectionFormat._Query",
+   "ClientNamespace": "Parameters.CollectionFormat.Query",
    "Operations": [
     {
      "$id": "9",
@@ -386,7 +386,7 @@
   {
    "$id": "39",
    "Name": "Header",
-   "ClientNamespace": "Parameters.CollectionFormat._Header",
+   "ClientNamespace": "Parameters.CollectionFormat.Header",
    "Operations": [
     {
      "$id": "40",

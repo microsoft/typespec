@@ -265,7 +265,7 @@
   {
    "$id": "31",
    "Name": "Query",
-   "ClientNamespace": "Encode.Datetime._Query",
+   "ClientNamespace": "Encode.Datetime.Query",
    "Operations": [
     {
      "$id": "32",
@@ -618,7 +618,7 @@
   {
    "$id": "65",
    "Name": "Property",
-   "ClientNamespace": "Encode.Datetime._Property",
+   "ClientNamespace": "Encode.Datetime.Property",
    "Operations": [
     {
      "$id": "66",
@@ -1208,7 +1208,7 @@
   {
    "$id": "116",
    "Name": "Header",
-   "ClientNamespace": "Encode.Datetime._Header",
+   "ClientNamespace": "Encode.Datetime.Header",
    "Operations": [
     {
      "$id": "117",
@@ -1561,7 +1561,7 @@
   {
    "$id": "150",
    "Name": "ResponseHeader",
-   "ClientNamespace": "Encode.Datetime._ResponseHeader",
+   "ClientNamespace": "Encode.Datetime.ResponseHeader",
    "Operations": [
     {
      "$id": "151",

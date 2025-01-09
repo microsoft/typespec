@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "PngImageAsJson",
-   "clientNamespace": "Payload.ContentNegotiation._DifferentBody",
+   "clientNamespace": "Payload.ContentNegotiation.DifferentBody",
    "crossLanguageDefinitionId": "Payload.ContentNegotiation.DifferentBody.PngImageAsJson",
    "usage": "Output,Json",
    "decorators": [],
@@ -84,7 +84,7 @@
   {
    "$id": "11",
    "Name": "SameBody",
-   "ClientNamespace": "Payload.ContentNegotiation._SameBody",
+   "ClientNamespace": "Payload.ContentNegotiation.SameBody",
    "Operations": [
     {
      "$id": "12",
@@ -297,7 +297,7 @@
   {
    "$id": "35",
    "Name": "DifferentBody",
-   "ClientNamespace": "Payload.ContentNegotiation._DifferentBody",
+   "ClientNamespace": "Payload.ContentNegotiation.DifferentBody",
    "Operations": [
     {
      "$id": "36",

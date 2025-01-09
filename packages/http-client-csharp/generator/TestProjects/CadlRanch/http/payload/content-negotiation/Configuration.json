@@ -2,5 +2,9 @@
   "output-folder": ".",
   "namespace": "Payload.ContentNegotiation",
   "library-name": "Payload.ContentNegotiation",
+  "bad-namespace-segments": [
+    "SameBody",
+    "DifferentBody"
+  ],
   "use-model-reader-writer": true
 }

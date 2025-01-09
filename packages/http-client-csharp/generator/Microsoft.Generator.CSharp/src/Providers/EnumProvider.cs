@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
         protected override string GetNamespace() => string.IsNullOrEmpty(_inputType.ClientNamespace) ?
             CodeModelPlugin.Instance.Configuration.ModelNamespace : // we default to this model namespace when the namespace is empty
-            Configuration.GetCleanNameSpace(_inputType.ClientNamespace);
+            CodeModelPlugin.Instance.Configuration.GetCleanNameSpace(_inputType.ClientNamespace);
 
         protected override bool GetIsEnum() => true;
         protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");

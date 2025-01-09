@@ -192,7 +192,7 @@
   {
    "$id": "22",
    "Name": "Query",
-   "ClientNamespace": "Encode.Bytes._Query",
+   "ClientNamespace": "Encode.Bytes.Query",
    "Operations": [
     {
      "$id": "23",
@@ -453,7 +453,7 @@
   {
    "$id": "46",
    "Name": "Property",
-   "ClientNamespace": "Encode.Bytes._Property",
+   "ClientNamespace": "Encode.Bytes.Property",
    "Operations": [
     {
      "$id": "47",
@@ -934,7 +934,7 @@
   {
    "$id": "88",
    "Name": "Header",
-   "ClientNamespace": "Encode.Bytes._Header",
+   "ClientNamespace": "Encode.Bytes.Header",
    "Operations": [
     {
      "$id": "89",
@@ -1195,7 +1195,7 @@
   {
    "$id": "112",
    "Name": "RequestBody",
-   "ClientNamespace": "Encode.Bytes._RequestBody",
+   "ClientNamespace": "Encode.Bytes.RequestBody",
    "Operations": [
     {
      "$id": "113",
@@ -1641,7 +1641,7 @@
   {
    "$id": "153",
    "Name": "ResponseBody",
-   "ClientNamespace": "Encode.Bytes._ResponseBody",
+   "ClientNamespace": "Encode.Bytes.ResponseBody",
    "Operations": [
     {
      "$id": "154",

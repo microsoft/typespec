@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "SameAsModel",
-   "clientNamespace": "SpecialWords._ModelProperties",
+   "clientNamespace": "SpecialWords.ModelProperties",
    "crossLanguageDefinitionId": "SpecialWords.ModelProperties.SameAsModel",
    "usage": "Input,Json",
    "decorators": [],
@@ -3627,7 +3627,7 @@
   {
    "$id": "314",
    "Name": "ModelProperties",
-   "ClientNamespace": "SpecialWords._ModelProperties",
+   "ClientNamespace": "SpecialWords.ModelProperties",
    "Doc": "Verify model names",
    "Operations": [
     {

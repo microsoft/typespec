@@ -5,6 +5,7 @@ export interface Configuration {
   "output-folder": string;
   namespace: string;
   "library-name": string | null;
+  "bad-namespace-segments"?: string[];
   flavor?: string;
   "single-top-level-client"?: boolean;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";

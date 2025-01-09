@@ -27,7 +27,7 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+export function createModel(sdkContext: SdkContext<NetEmitterOptions>): [CodeModel, string[]] {
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -43,7 +43,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   const rootClients = sdkPackage.clients.filter((c) => c.initialization.access === "public");
   if (rootClients.length === 0) {
     reportDiagnostic(sdkContext.program, { code: "no-root-client", format: {}, target: NoTarget });
-    return {} as CodeModel;
+    return [{} as CodeModel, []];
   }
 
   const rootApiVersions =
@@ -65,15 +65,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     Auth: processServiceAuthentication(sdkPackage),
   };
 
-  // go over all models and enums to replace those bad namespaces
-  for (const m of clientModel.Models) {
-    m.clientNamespace = normalizeNamespace(m.clientNamespace.split("."), badNamespaceSegments)[0];
-  }
-  for (const e of clientModel.Enums) {
-    e.clientNamespace = normalizeNamespace(e.clientNamespace.split("."), badNamespaceSegments)[0];
-  }
-
-  return clientModel;
+  return [clientModel, [...badNamespaceSegments]];
 
   function fromSdkClients(
     clients: SdkClientType<SdkHttpOperation>[],
@@ -105,20 +97,21 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     const clientName = getClientName(client, parentNames);
     // see if this namespace is a sub-namespace of an existing bad namespace
-    const [clientNamespace, isBad] = normalizeClientNamespace(
-      client.clientNamespace,
-      clientName,
-      badNamespaceSegments,
-    );
-    if (isBad) {
+    const segments = client.clientNamespace.split(".");
+    const lastSegment = segments[segments.length - 1];
+    if (lastSegment === clientName) {
+      // this segment is bad
+      badNamespaceSegments.add(lastSegment);
+      
       Logger.getInstance().warn(
         `bad namespace ${client.clientNamespace} for client ${clientName}, please use @clientNamespace to specify a different namespace or @clientName to specify a different name for the client`,
         client.__raw.type,
       );
     }
+
     return {
       Name: clientName,
-      ClientNamespace: clientNamespace,
+      ClientNamespace: client.clientNamespace,
       Summary: client.summary,
       Doc: client.doc,
       Operations: client.methods
@@ -137,35 +130,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       Parameters: clientParameters,
       Decorators: client.decorators,
     };
-  }
-
-  function normalizeClientNamespace(
-    clientNamespace: string,
-    clientName: string,
-    badNamespaceSegments: Set<string>,
-  ): [string, boolean] {
-    const segments = clientNamespace.split(".");
-    if (segments[segments.length - 1] === clientName) {
-      // this segment is bad
-      badNamespaceSegments.add(segments[segments.length - 1]);
-    }
-
-    // normalize it
-    return normalizeNamespace(segments, badNamespaceSegments);
-  }
-
-  function normalizeNamespace(
-    namespaceSegments: string[],
-    badNamespaceSegments: Set<string>,
-  ): [string, boolean] {
-    let isBad = false;
-    for (let i = 0; i < namespaceSegments.length; i++) {
-      if (badNamespaceSegments.has(namespaceSegments[i])) {
-        isBad = true;
-        namespaceSegments[i] = "_" + namespaceSegments[i];
-      }
-    }
-    return [namespaceSegments.join("."), isBad];
   }
 
   function getClientName(

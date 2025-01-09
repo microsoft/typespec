@@ -221,7 +221,7 @@
   {
    "$id": "23",
    "Name": "Baz",
-   "ClientNamespace": "Client.Structure.Service._Baz",
+   "ClientNamespace": "Client.Structure.Service.Baz",
    "Operations": [],
    "Protocol": {
     "$id": "24"
@@ -273,7 +273,7 @@
   {
    "$id": "28",
    "Name": "BazFoo",
-   "ClientNamespace": "Client.Structure.Service._Baz",
+   "ClientNamespace": "Client.Structure.Service.Baz",
    "Operations": [
     {
      "$id": "29",
@@ -353,7 +353,7 @@
   {
    "$id": "35",
    "Name": "Qux",
-   "ClientNamespace": "Client.Structure.Service._Qux",
+   "ClientNamespace": "Client.Structure.Service.Qux",
    "Operations": [
     {
      "$id": "36",
@@ -433,7 +433,7 @@
   {
    "$id": "42",
    "Name": "QuxBar",
-   "ClientNamespace": "Client.Structure.Service._Qux",
+   "ClientNamespace": "Client.Structure.Service.Qux",
    "Operations": [
     {
      "$id": "43",

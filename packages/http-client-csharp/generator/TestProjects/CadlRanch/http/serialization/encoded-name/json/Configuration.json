@@ -2,5 +2,8 @@
   "output-folder": ".",
   "namespace": "Serialization.EncodedName.Json",
   "library-name": "Serialization.EncodedName.Json",
+  "bad-namespace-segments": [
+    "Property"
+  ],
   "use-model-reader-writer": true
 }

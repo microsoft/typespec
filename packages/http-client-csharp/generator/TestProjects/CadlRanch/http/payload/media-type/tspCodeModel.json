@@ -52,7 +52,7 @@
   {
    "$id": "8",
    "Name": "StringBody",
-   "ClientNamespace": "Payload.MediaType._StringBody",
+   "ClientNamespace": "Payload.MediaType.StringBody",
    "Operations": [
     {
      "$id": "9",

@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "SafeintAsStringProperty",
-   "clientNamespace": "Encode.Numeric._Property",
+   "clientNamespace": "Encode.Numeric.Property",
    "crossLanguageDefinitionId": "Encode.Numeric.Property.SafeintAsStringProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -39,7 +39,7 @@
    "$id": "5",
    "kind": "model",
    "name": "Uint32AsStringProperty",
-   "clientNamespace": "Encode.Numeric._Property",
+   "clientNamespace": "Encode.Numeric.Property",
    "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint32AsStringProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -70,7 +70,7 @@
    "$id": "8",
    "kind": "model",
    "name": "Uint8AsStringProperty",
-   "clientNamespace": "Encode.Numeric._Property",
+   "clientNamespace": "Encode.Numeric.Property",
    "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint8AsStringProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -146,7 +146,7 @@
   {
    "$id": "17",
    "Name": "Property",
-   "ClientNamespace": "Encode.Numeric._Property",
+   "ClientNamespace": "Encode.Numeric.Property",
    "Operations": [
     {
      "$id": "18",

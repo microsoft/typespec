@@ -34,7 +34,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Client.Naming._UnionEnum",
+   "clientNamespace": "Client.Naming.UnionEnum",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Json",
@@ -88,7 +88,7 @@
      "decorators": []
     }
    ],
-   "clientNamespace": "Client.Naming._UnionEnum",
+   "clientNamespace": "Client.Naming.UnionEnum",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Json",
@@ -891,7 +891,7 @@
   {
    "$id": "83",
    "Name": "UnionEnum",
-   "ClientNamespace": "Client.Naming._UnionEnum",
+   "ClientNamespace": "Client.Naming.UnionEnum",
    "Operations": [
     {
      "$id": "84",

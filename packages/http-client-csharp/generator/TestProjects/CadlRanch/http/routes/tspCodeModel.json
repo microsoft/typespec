@@ -80,7 +80,7 @@
   {
    "$id": "10",
    "Name": "PathParameters",
-   "ClientNamespace": "Routes._PathParameters",
+   "ClientNamespace": "Routes.PathParameters",
    "Operations": [
     {
      "$id": "11",
@@ -272,7 +272,7 @@
   {
    "$id": "28",
    "Name": "PathParametersReservedExpansion",
-   "ClientNamespace": "Routes._PathParameters.ReservedExpansion",
+   "ClientNamespace": "Routes.PathParameters.ReservedExpansion",
    "Operations": [
     {
      "$id": "29",
@@ -415,7 +415,7 @@
   {
    "$id": "42",
    "Name": "PathParametersSimpleExpansion",
-   "ClientNamespace": "Routes._PathParameters.SimpleExpansion",
+   "ClientNamespace": "Routes.PathParameters.SimpleExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "43"
@@ -459,7 +459,7 @@
   {
    "$id": "48",
    "Name": "PathParametersSimpleExpansionStandard",
-   "ClientNamespace": "Routes._PathParameters.SimpleExpansion.Standard",
+   "ClientNamespace": "Routes.PathParameters.SimpleExpansion.Standard",
    "Operations": [
     {
      "$id": "49",
@@ -670,7 +670,7 @@
   {
    "$id": "69",
    "Name": "PathParametersSimpleExpansionExplode",
-   "ClientNamespace": "Routes._PathParameters.SimpleExpansion.Explode",
+   "ClientNamespace": "Routes.PathParameters.SimpleExpansion.Explode",
    "Operations": [
     {
      "$id": "70",
@@ -881,7 +881,7 @@
   {
    "$id": "90",
    "Name": "PathParametersPathExpansion",
-   "ClientNamespace": "Routes._PathParameters.PathExpansion",
+   "ClientNamespace": "Routes.PathParameters.PathExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "91"
@@ -925,7 +925,7 @@
   {
    "$id": "96",
    "Name": "PathParametersPathExpansionStandard",
-   "ClientNamespace": "Routes._PathParameters.PathExpansion.Standard",
+   "ClientNamespace": "Routes.PathParameters.PathExpansion.Standard",
    "Operations": [
     {
      "$id": "97",
@@ -1136,7 +1136,7 @@
   {
    "$id": "117",
    "Name": "PathParametersPathExpansionExplode",
-   "ClientNamespace": "Routes._PathParameters.PathExpansion.Explode",
+   "ClientNamespace": "Routes.PathParameters.PathExpansion.Explode",
    "Operations": [
     {
      "$id": "118",
@@ -1347,7 +1347,7 @@
   {
    "$id": "138",
    "Name": "PathParametersLabelExpansion",
-   "ClientNamespace": "Routes._PathParameters.LabelExpansion",
+   "ClientNamespace": "Routes.PathParameters.LabelExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "139"
@@ -1391,7 +1391,7 @@
   {
    "$id": "144",
    "Name": "PathParametersLabelExpansionStandard",
-   "ClientNamespace": "Routes._PathParameters.LabelExpansion.Standard",
+   "ClientNamespace": "Routes.PathParameters.LabelExpansion.Standard",
    "Operations": [
     {
      "$id": "145",
@@ -1602,7 +1602,7 @@
   {
    "$id": "165",
    "Name": "PathParametersLabelExpansionExplode",
-   "ClientNamespace": "Routes._PathParameters.LabelExpansion.Explode",
+   "ClientNamespace": "Routes.PathParameters.LabelExpansion.Explode",
    "Operations": [
     {
      "$id": "166",
@@ -1813,7 +1813,7 @@
   {
    "$id": "186",
    "Name": "PathParametersMatrixExpansion",
-   "ClientNamespace": "Routes._PathParameters.MatrixExpansion",
+   "ClientNamespace": "Routes.PathParameters.MatrixExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "187"
@@ -1857,7 +1857,7 @@
   {
    "$id": "192",
    "Name": "PathParametersMatrixExpansionStandard",
-   "ClientNamespace": "Routes._PathParameters.MatrixExpansion.Standard",
+   "ClientNamespace": "Routes.PathParameters.MatrixExpansion.Standard",
    "Operations": [
     {
      "$id": "193",
@@ -2068,7 +2068,7 @@
   {
    "$id": "213",
    "Name": "PathParametersMatrixExpansionExplode",
-   "ClientNamespace": "Routes._PathParameters.MatrixExpansion.Explode",
+   "ClientNamespace": "Routes.PathParameters.MatrixExpansion.Explode",
    "Operations": [
     {
      "$id": "214",
@@ -2279,7 +2279,7 @@
   {
    "$id": "234",
    "Name": "QueryParameters",
-   "ClientNamespace": "Routes._QueryParameters",
+   "ClientNamespace": "Routes.QueryParameters",
    "Operations": [
     {
      "$id": "235",
@@ -2471,7 +2471,7 @@
   {
    "$id": "252",
    "Name": "QueryParametersQueryExpansion",
-   "ClientNamespace": "Routes._QueryParameters.QueryExpansion",
+   "ClientNamespace": "Routes.QueryParameters.QueryExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "253"
@@ -2515,7 +2515,7 @@
   {
    "$id": "258",
    "Name": "QueryParametersQueryExpansionStandard",
-   "ClientNamespace": "Routes._QueryParameters.QueryExpansion.Standard",
+   "ClientNamespace": "Routes.QueryParameters.QueryExpansion.Standard",
    "Operations": [
     {
      "$id": "259",
@@ -2726,7 +2726,7 @@
   {
    "$id": "279",
    "Name": "QueryParametersQueryExpansionExplode",
-   "ClientNamespace": "Routes._QueryParameters.QueryExpansion.Explode",
+   "ClientNamespace": "Routes.QueryParameters.QueryExpansion.Explode",
    "Operations": [
     {
      "$id": "280",
@@ -2937,7 +2937,7 @@
   {
    "$id": "300",
    "Name": "QueryParametersQueryContinuation",
-   "ClientNamespace": "Routes._QueryParameters.QueryContinuation",
+   "ClientNamespace": "Routes.QueryParameters.QueryContinuation",
    "Operations": [],
    "Protocol": {
     "$id": "301"
@@ -2981,7 +2981,7 @@
   {
    "$id": "306",
    "Name": "QueryParametersQueryContinuationStandard",
-   "ClientNamespace": "Routes._QueryParameters.QueryContinuation.Standard",
+   "ClientNamespace": "Routes.QueryParameters.QueryContinuation.Standard",
    "Operations": [
     {
      "$id": "307",
@@ -3192,7 +3192,7 @@
   {
    "$id": "327",
    "Name": "QueryParametersQueryContinuationExplode",
-   "ClientNamespace": "Routes._QueryParameters.QueryContinuation.Explode",
+   "ClientNamespace": "Routes.QueryParameters.QueryContinuation.Explode",
    "Operations": [
     {
      "$id": "328",

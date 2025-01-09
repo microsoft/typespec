@@ -236,7 +236,7 @@
   {
    "$id": "23",
    "Name": "OptionalExplicit",
-   "ClientNamespace": "Parameters.BodyOptionality._OptionalExplicit",
+   "ClientNamespace": "Parameters.BodyOptionality.OptionalExplicit",
    "Operations": [
     {
      "$id": "24",

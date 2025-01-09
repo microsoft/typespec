@@ -2,5 +2,11 @@
   "output-folder": ".",
   "namespace": "Encode.Datetime",
   "library-name": "Encode.Datetime",
+  "bad-namespace-segments": [
+    "Query",
+    "Property",
+    "Header",
+    "ResponseHeader"
+  ],
   "use-model-reader-writer": true
 }

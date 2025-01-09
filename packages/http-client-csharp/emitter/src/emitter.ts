@@ -59,7 +59,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       "@typespec/http-client-csharp",
       defaultSDKContextOptions,
     );
-    const root = createModel(sdkContext);
+    const [root, badNamespaceSegments] = createModel(sdkContext);
     if (
       context.program.diagnostics.length > 0 &&
       context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
@@ -87,6 +87,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         "output-folder": ".",
         namespace: namespace,
         "library-name": options["library-name"] ?? namespace,
+        "bad-namespace-segments": badNamespaceSegments.length > 0 ? badNamespaceSegments : undefined,
         "single-top-level-client": options["single-top-level-client"],
         "unreferenced-types-handling": options["unreferenced-types-handling"],
         "keep-non-overloadable-protocol-signature":

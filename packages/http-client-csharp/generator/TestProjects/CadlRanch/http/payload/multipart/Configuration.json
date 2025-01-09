@@ -2,5 +2,8 @@
   "output-folder": ".",
   "namespace": "Payload.MultiPart",
   "library-name": "Payload.MultiPart",
+  "bad-namespace-segments": [
+    "FormData"
+  ],
   "use-model-reader-writer": true
 }

@@ -8,7 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "SpreadAsRequestBodyRequest",
-   "clientNamespace": "Parameters.Spread._Alias",
+   "clientNamespace": "Parameters.Spread.Alias",
    "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadAsRequestBody.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -254,7 +254,7 @@
    "$id": "27",
    "kind": "model",
    "name": "BodyParameter",
-   "clientNamespace": "Parameters.Spread._Model",
+   "clientNamespace": "Parameters.Spread.Model",
    "crossLanguageDefinitionId": "Parameters.Spread.Model.BodyParameter",
    "usage": "Input,Spread,Json",
    "doc": "This is a simple model.",
@@ -360,7 +360,7 @@
   {
    "$id": "39",
    "Name": "Model",
-   "ClientNamespace": "Parameters.Spread._Model",
+   "ClientNamespace": "Parameters.Spread.Model",
    "Operations": [
     {
      "$id": "40",
@@ -863,7 +863,7 @@
   {
    "$id": "83",
    "Name": "Alias",
-   "ClientNamespace": "Parameters.Spread._Alias",
+   "ClientNamespace": "Parameters.Spread.Alias",
    "Operations": [
     {
      "$id": "84",

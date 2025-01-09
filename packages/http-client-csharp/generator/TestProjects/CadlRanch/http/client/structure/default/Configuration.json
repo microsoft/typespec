@@ -2,5 +2,9 @@
   "output-folder": ".",
   "namespace": "Client.Structure.Service.Default",
   "library-name": "Client.Structure.Service.Default",
+  "bad-namespace-segments": [
+    "Baz",
+    "Qux"
+  ],
   "use-model-reader-writer": true
 }

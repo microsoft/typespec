@@ -2,5 +2,10 @@
   "output-folder": ".",
   "namespace": "Encode.Duration",
   "library-name": "Encode.Duration",
+  "bad-namespace-segments": [
+    "Query",
+    "Property",
+    "Header"
+  ],
   "use-model-reader-writer": true
 }

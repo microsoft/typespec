@@ -2,5 +2,8 @@
   "output-folder": ".",
   "namespace": "Client.Naming",
   "library-name": "Client.Naming",
+  "bad-namespace-segments": [
+    "UnionEnum"
+  ],
   "use-model-reader-writer": true
 }
