@@ -57,6 +57,9 @@ function addDefaultOptions(sdkContext: SdkContext) {
   if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";
   }
+  if (options["enable-typespec-namespace"] === undefined) {
+    options["enable-typespec-namespace"] = options.flavor !== "azure";
+  }
 }
 
 async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
@@ -79,6 +82,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
+  addDefaultOptions(sdkContext);
   const yamlMap = emitCodeModel(sdkContext);
   if (yamlMap.clients.length === 0) {
     reportDiagnostic(program, {
@@ -88,7 +92,6 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     return;
   }
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
-  addDefaultOptions(sdkContext);
   const resolvedOptions = sdkContext.emitContext.options;
   const commandArgs: Record<string, string> = {};
   if (resolvedOptions["packaging-files-config"]) {

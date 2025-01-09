@@ -1,5 +1,17 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.0
+
+### Features
+
+- Add support for typespec namespace
+
+## 0.5.1
+
+### Bug Fixes
+
+- Do not do exception sort if there is no operation groups
+
 ## 0.5.0
 
 ### Features
