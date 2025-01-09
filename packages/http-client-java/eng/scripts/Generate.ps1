@@ -17,7 +17,7 @@ Set-Location $generatorTestDir
 ./Generate.ps1
 Set-Location $PSScriptRoot
 
-$generatorTestDir = Join-Path $repoRoot 'generator/http-client-generator-standard-test'
+$generatorTestDir = Join-Path $repoRoot 'generator/http-client-generator-clientcore-test'
 Set-Location $generatorTestDir
 ./Generate.ps1
 Set-Location $PSScriptRoot

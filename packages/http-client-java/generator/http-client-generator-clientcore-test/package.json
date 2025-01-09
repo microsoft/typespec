@@ -1,5 +1,5 @@
 {
-  "name": "@typespec/http-client-java-standard-tests",
+  "name": "@typespec/http-client-java-clientcore-tests",
   "version": "0.1.0",
   "type": "module",
   "scripts": {

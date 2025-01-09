@@ -8,7 +8,7 @@
   </parent>
 
   <groupId>com.microsoft.typespec</groupId>
-  <artifactId>http-client-generator-standard-test</artifactId>
+  <artifactId>http-client-generator-clientcore-test</artifactId>
   <packaging>jar</packaging>
 
   <name>http-client-generator-test</name>
