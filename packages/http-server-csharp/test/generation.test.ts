@@ -6,7 +6,7 @@ import { getPropertySource, getSourceModel } from "../src/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
 
 function getGeneratedFile(runner: BasicTestRunner, fileName: string): [string, string] {
-  const result = [...runner.fs.entries()].filter((e) => e[0].includes(fileName));
+  const result = [...runner.fs.entries()].filter((e) => e[0].includes(`/${fileName}`));
   assert.strictEqual(
     result === null || result === undefined,
     false,
@@ -718,7 +718,6 @@ it("Handles user-defined model templates", async () => {
           name: string;
         }
 
-      @friendlyName("{name}ListResults", Item)
        model ResponsePage<Item> {
         items: Item[];
         nextLink?: string;
@@ -728,12 +727,19 @@ it("Handles user-defined model templates", async () => {
       }
     `,
     [
-      ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
+      [
+        "IMyServiceOperations.cs",
+        ["interface IMyServiceOperations", "Task<ResponsePageToy> FooAsync( );"],
+      ],
       [
         "MyServiceOperationsControllerBase.cs",
-        ["public abstract partial class MyServiceOperationsControllerBase: ControllerBase"],
+        [
+          "public abstract partial class MyServiceOperationsControllerBase: ControllerBase",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponsePageToy))]",
+          "public virtual async Task<IActionResult> Foo()",
+        ],
       ],
-      ["ToyListResults.cs", ["public partial class ToyListResults"]],
+      ["ResponsePageToy.cs", ["public partial class ResponsePageToy"]],
     ],
   );
 });
@@ -1096,5 +1102,91 @@ it("handles implicit request body models correctly", async () => {
       ],
       ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
     ],
+  );
+});
+
+it("handles multipartBody requests and shared routes", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      model Bar<T extends {}> {
+        ...T;
+      }
+      model FooRequest {
+        contents: HttpPart<File>;
+        other: HttpPart<Bar<FooJsonRequest>>;
+      }
+      model FooJsonRequest {
+        mediaType: string;
+        filename: string;
+        contents: bytes;
+      }
+
+      @sharedRoute
+      @route("/foo") 
+      @post 
+      op fooBinary(
+        @header("content-type") contentType: "multipart/form-data", 
+        @multipartBody body: FooRequest
+      ): void;
+
+      @sharedRoute
+      @route("/foo") 
+      @post 
+      op fooJson(
+        @header("content-type") contentType: "application/json", 
+        @body body: FooJsonRequest
+      ): void;
+      `,
+    [
+      [
+        "FooJsonRequest.cs",
+        [
+          "public partial class FooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsControllerBase.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "using Microsoft.AspNetCore.Http.Extensions;",
+          `[Consumes("multipart/form-data")]`,
+          "public virtual async Task<IActionResult> FooBinary(HttpRequest request, Stream body)",
+          ".FooBinaryAsync(reader)",
+          "public virtual async Task<IActionResult> FooJson(FooJsonRequest body)",
+          ".FooJsonAsync(body)",
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "Task FooBinaryAsync( MultipartReader reader);",
+          "Task FooJsonAsync( FooJsonRequest body);",
+        ],
+      ],
+      [
+        "BarFooJsonRequest.cs",
+        [
+          "public partial class BarFooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+    ],
+  );
+
+  const files = [...runner.fs.keys()];
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("HttpPartFile.cs")),
+    false,
+  );
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("FooRequest.cs")),
+    false,
   );
 });

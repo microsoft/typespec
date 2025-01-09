@@ -30,6 +30,7 @@ import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
+import { OperationLongRunning } from "../type/operation-long-running.js";
 import { OperationPaging } from "../type/operation-paging.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
@@ -75,7 +76,7 @@ export function fromSdkServiceMethod(
       getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
     Deprecated: getDeprecated(sdkContext.program, method.__raw!),
     Summary: method.summary,
-    Description: method.doc,
+    Doc: method.doc,
     Accessibility: method.access,
     Parameters: [...parameterMap.values()],
     Responses: [...responseMap.values()],
@@ -90,7 +91,7 @@ export function fromSdkServiceMethod(
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
-    CrossLanguageDefinitionId: method.crossLanguageDefintionId,
+    CrossLanguageDefinitionId: method.crossLanguageDefinitionId,
     Decorators: method.decorators,
     Examples: method.operation.examples
       ? fromSdkHttpExamples(
@@ -150,6 +151,14 @@ function fromSdkOperationParameters(
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
+    if (p.kind === "cookie") {
+      Logger.getInstance().error(
+        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
+      );
+      throw new Error(
+        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
+      );
+    }
     const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeMap);
     parameters.set(p, param);
   }
@@ -181,7 +190,8 @@ function fromSdkHttpOperationParameter(
   return {
     Name: p.name,
     NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
-    Description: p.summary ?? p.doc,
+    Summary: p.summary,
+    Doc: p.doc,
     Type: parameterType,
     Location: getParameterLocation(p),
     IsApiVersion:
@@ -202,7 +212,7 @@ function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
   sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap,
-): import("../type/operation-long-running.js").OperationLongRunning | undefined {
+): OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
   }
@@ -252,7 +262,8 @@ function fromSdkServiceResponseHeaders(
       ({
         Name: h.__raw!.name,
         NameInResponse: h.serializedName,
-        Description: h.summary ?? h.doc,
+        Summary: h.summary,
+        Doc: h.doc,
         Type: fromSdkType(h.type, sdkContext, typeMap),
       }) as HttpResponseHeader,
   );
@@ -329,7 +340,7 @@ function loadOperationPaging(
   };
 }
 
-// TODO: https://github.com/Azure/typespec-azure/issues/981
+// TODO: https://github.com/Azure/typespec-azure/issues/1441
 function getParameterLocation(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter | undefined,
 ): RequestLocation {

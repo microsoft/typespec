@@ -111,11 +111,7 @@ import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
 import pkg from "lodash";
-import {
-  Client as CodeModelClient,
-  CrossLanguageDefinition,
-  EncodedSchema,
-} from "./common/client.js";
+import { Client as CodeModelClient, EncodedSchema } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -176,8 +172,6 @@ export class CodeModelBuilder {
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
 
-  private loggingEnabled: boolean = false;
-
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
   );
@@ -190,9 +184,6 @@ export class CodeModelBuilder {
     this.options = context.options;
     this.program = program1;
     this.emitterContext = context;
-    if (this.options["dev-options"]?.loglevel) {
-      this.loggingEnabled = true;
-    }
 
     if (this.options["skip-special-headers"]) {
       this.options["skip-special-headers"].forEach((it) =>
@@ -202,11 +193,11 @@ export class CodeModelBuilder {
 
     const service = listServices(this.program)[0];
     if (!service) {
-      this.logError("TypeSpec for HTTP must define a service.");
+      this.logWarning("TypeSpec for HTTP client should define a service.");
     }
-    this.serviceNamespace = service.type;
+    this.serviceNamespace = service?.type ?? this.program.getGlobalNamespaceType();
 
-    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Client";
 
     const namespace1 = this.namespace;
     this.typeNameOptions = {
@@ -238,6 +229,10 @@ export class CodeModelBuilder {
   }
 
   public async build(): Promise<CodeModel> {
+    if (this.program.hasError()) {
+      return this.codeModel;
+    }
+
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
@@ -257,9 +252,8 @@ export class CodeModelBuilder {
 
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
 
-    // TODO: reportDiagnostics from TCGC temporary disabled
-    // issue https://github.com/Azure/typespec-azure/issues/1675
-    // this.program.reportDiagnostics(this.sdkContext.diagnostics);
+    // potential problem https://github.com/Azure/typespec-azure/issues/1675
+    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // auth
     // TODO: it is not very likely, but different client could have different auth
@@ -546,7 +540,7 @@ export class CodeModelBuilder {
       // at present, use global security definition
       security: this.codeModel.security,
     });
-    codeModelClient.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
+    codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
     // versioning
     const versions = client.apiVersions;
@@ -588,7 +582,7 @@ export class CodeModelBuilder {
               }
             }
           } else if (initializationProperty.type.variantTypes.length > 2) {
-            this.logError("Multiple server url defined for one client is not supported yet.");
+            this.logError("Multiple server URL defined for one client is not supported yet.");
           }
         } else if (initializationProperty.type.kind === "endpoint") {
           sdkPathParameters = initializationProperty.type.templateArguments;
@@ -613,6 +607,7 @@ export class CodeModelBuilder {
     // operations without operation group
     const serviceMethodsWithoutSubClient = this.listServiceMethodsUnderClient(client);
     let codeModelGroup = new OperationGroup("");
+    codeModelGroup.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
     for (const serviceMethod of serviceMethodsWithoutSubClient) {
       if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
         codeModelGroup.addOperation(this.processOperation(serviceMethod, clientContext, ""));
@@ -636,6 +631,8 @@ export class CodeModelBuilder {
         // operation group with no operation is skipped
         if (serviceMethods.length > 0) {
           codeModelGroup = new OperationGroup(subClient.name);
+          codeModelGroup.language.default.crossLanguageDefinitionId =
+            subClient.crossLanguageDefinitionId;
           for (const serviceMethod of serviceMethods) {
             if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
               codeModelGroup.addOperation(
@@ -814,8 +811,8 @@ export class CodeModelBuilder {
       },
     });
 
-    (codeModelOperation as CrossLanguageDefinition).crossLanguageDefinitionId =
-      sdkMethod.crossLanguageDefintionId;
+    codeModelOperation.language.default.crossLanguageDefinitionId =
+      sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
@@ -2014,7 +2011,7 @@ export class CodeModelBuilder {
         },
       },
     });
-    schema.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
   }
 
@@ -2114,8 +2111,7 @@ export class CodeModelBuilder {
         },
       },
     });
-    (objectSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
-      type.crossLanguageDefinitionId;
+    objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     this.codeModel.schemas.add(objectSchema);
 
     // cache this now before we accidentally recurse on this type.
@@ -2320,7 +2316,7 @@ export class CodeModelBuilder {
 
   private getUnionVariantName(type: Type | undefined, option: any): string {
     if (type === undefined) {
-      this.logError("type is undefined.");
+      this.logWarning("Union variant type is undefined.");
       return "UnionVariant";
     }
     switch (type.kind) {
@@ -2373,7 +2369,7 @@ export class CodeModelBuilder {
       case "UnionVariant":
         return (typeof type.name === "string" ? type.name : undefined) ?? "UnionVariant";
       default:
-        this.logError(`Unrecognized type for union variable: '${type.kind}'.`);
+        this.logWarning(`Unrecognized type for union variable: '${type.kind}'.`);
         return "UnionVariant";
     }
   }
@@ -2538,17 +2534,18 @@ export class CodeModelBuilder {
     const clientNamespace: string | undefined = type?.clientNamespace;
 
     if (type) {
+      const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
       if (this.isBranded()) {
         // special handling for namespace of model that cannot be mapped to azure-core
-        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+        if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
           // TypeSpec.Http.File
           return this.baseJavaNamespace;
-        } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
+        } else if (crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
           // Azure.Core.OperationState
           return this.baseJavaNamespace;
         } else if (
-          type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
-          type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
+          crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
+          crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
         ) {
           // Azure.Core.ResourceOperationStatus<>
           // Azure.Core.Foundations.OperationStatus<>
@@ -2559,8 +2556,11 @@ export class CodeModelBuilder {
           return this.baseJavaNamespace;
         }
       } else {
-        // special handling for namespace of model in TypeSpec.Rest.Resource
-        if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+        // special handling for namespace of model in TypeSpec
+        if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
           // models in TypeSpec.Rest.Resource
           return this.baseJavaNamespace;
         }
@@ -2579,9 +2579,7 @@ export class CodeModelBuilder {
   }
 
   private logWarning(msg: string) {
-    if (this.loggingEnabled) {
-      logWarning(this.program, msg);
-    }
+    logWarning(this.program, msg);
   }
 
   private trace(msg: string) {
