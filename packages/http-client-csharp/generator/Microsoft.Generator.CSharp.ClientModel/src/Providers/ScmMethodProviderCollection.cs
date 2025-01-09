@@ -298,7 +298,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                     return response.Content().ToObjectFromJson(responseBodyType);
                 }
             }
-            if (responseBodyType.Equals(typeof(string)) && Operation.RequestMediaTypes?.Contains("text/plain") == true)
+            if (responseBodyType.Equals(typeof(string)) && Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
             {
                 return response.Content().InvokeToString();
             }
