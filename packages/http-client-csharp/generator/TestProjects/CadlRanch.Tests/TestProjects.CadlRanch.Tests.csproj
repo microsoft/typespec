@@ -40,6 +40,34 @@
     <Compile Remove="../CadlRanch/**/TestModel.Serialization.cs" /> <!-- Remove the duplicated class from multiple projects -->
     <Compile Include="../CadlRanch/http/versioning/madeOptional/v1/src/Generated/Models/TestModel.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
     <Compile Include="../CadlRanch/http/versioning/typeChangedFrom/v1/src/Generated/Models/TestModel.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ResiliencyServiceDrivenClient.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/resiliency/srv-driven/v2/src/Generated/ResiliencyServiceDrivenClient.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ResiliencyServiceDrivenClientOptions.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/resiliency/srv-driven/v2/src/Generated/ResiliencyServiceDrivenClientOptions.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/AddedClient.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/added/v1/src/Generated/AddedClient.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/AddedClientOptions.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/added/v1/src/Generated/AddedClientOptions.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/RenamedFromClient.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/renamedFrom/v1/src/Generated/RenamedFromClient.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/RenamedFromClientOptions.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/renamedFrom/v1/src/Generated/RenamedFromClientOptions.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/TypeChangedFromClient.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/typeChangedFrom/v1/src/Generated/TypeChangedFromClient.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/TypeChangedFromClientOptions.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/typeChangedFrom/v1/src/Generated/TypeChangedFromClientOptions.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ReturnTypeChangedFromClient.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/returnTypeChangedFrom/v1/src/Generated/ReturnTypeChangedFromClient.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ReturnTypeChangedFromClientOptions.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/returnTypeChangedFrom/v1/src/Generated/ReturnTypeChangedFromClientOptions.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/RemovedClient.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/RemovedClient.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/RemovedClientOptions.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/RemovedClientOptions.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/InterfaceV1.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/InterfaceV1.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/MadeOptionalClient.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/madeOptional/v1/src/Generated/MadeOptionalClient.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
   </ItemGroup>
 
   <ItemGroup>
