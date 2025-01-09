@@ -173,7 +173,7 @@ class OperationGroup(BaseModel):
 
     @property
     def filename(self) -> str:
-        return self.operations[0].filename
+        return self.operations[0].filename if self.operations else "_operations"
 
     @property
     def is_mixin(self) -> bool:

@@ -211,7 +211,7 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   if (enableTypespecNamespace === undefined) {
     enableTypespecNamespace = context.emitContext.options["flavor"] !== "azure";
   }
-  if (enableTypespecNamespace) {
+  if (!enableTypespecNamespace) {
     return rootNamespace;
   }
   if (
