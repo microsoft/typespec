@@ -165,7 +165,6 @@ interface RegenerateFlagsInput {
   debug?: boolean;
   name?: string;
   pyodide?: boolean;
-  "enable-typespec-namespace"?: boolean;
 }
 
 interface RegenerateFlags {
@@ -173,6 +172,7 @@ interface RegenerateFlags {
   debug: boolean;
   name?: string;
   pyodide?: boolean;
+  "enable-typespec-namespace"?: boolean;
 }
 
 const SpecialFlags: Record<string, Record<string, any>> = {
@@ -271,6 +271,9 @@ function addOptions(
       options["company-name"] = "Unbranded";
     }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
+    if (options["enable-typespec-namespace"] === undefined) {
+      options["enable-typespec-namespace"] = "false";
+    }
     const configs = Object.entries(options).flatMap(([k, v]) => {
       return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${v}`;
     });
@@ -295,12 +298,7 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     await regenerate({ flavor: "azure", ...flags });
     await regenerate({ flavor: "unbranded", pyodide: true, ...flags });
   } else {
-    const flagsResolved = {
-      debug: false,
-      flavor: flags.flavor,
-      "enable-typespec-namespace": false,
-      ...flags,
-    };
+    const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
     const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);
     const subdirectories =
