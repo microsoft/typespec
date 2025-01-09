@@ -3,9 +3,9 @@
 
 package _specs_.azure.clientgenerator.core.access;
 
-import _specs_.azure.clientgenerator.core.access.implementation.models.AbstractModel;
-import _specs_.azure.clientgenerator.core.access.implementation.models.RealModel;
-import _specs_.azure.clientgenerator.core.access.models.SharedModel;
+import _specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.AbstractModel;
+import _specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.RealModel;
+import _specs_.azure.clientgenerator.core.access.sharedmodelinoperation.models.SharedModel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

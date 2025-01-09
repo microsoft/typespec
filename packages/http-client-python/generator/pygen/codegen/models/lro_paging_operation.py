@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any
+from typing import Any, List, Union
 from .imports import FileImport
 from .lro_operation import LROOperationBase
 from .paging_operation import PagingOperationBase
@@ -12,7 +12,7 @@ from .response import LROPagingResponse, Response
 
 class LROPagingOperation(LROOperationBase[LROPagingResponse], PagingOperationBase[LROPagingResponse]):
     @property
-    def success_status_codes(self):
+    def success_status_codes(self) -> List[Union[int, str, List[int]]]:
         """The list of all successfull status code."""
         return [200]
 
@@ -20,8 +20,8 @@ class LROPagingOperation(LROOperationBase[LROPagingResponse], PagingOperationBas
     def operation_type(self) -> str:
         return "lropaging"
 
-    def cls_type_annotation(self, *, async_mode: bool) -> str:
-        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode)}]"
+    def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
+        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
     def imports(self, async_mode: bool, **kwargs: Any) -> FileImport:
         lro_imports = LROOperationBase.imports(self, async_mode, **kwargs)

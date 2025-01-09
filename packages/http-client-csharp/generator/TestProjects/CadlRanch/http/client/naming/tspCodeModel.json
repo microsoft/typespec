@@ -107,7 +107,7 @@
      "kind": "property",
      "name": "clientName",
      "serializedName": "defaultName",
-     "description": "Pass in true",
+     "doc": "Pass in true",
      "type": {
       "$id": "14",
       "kind": "boolean",
@@ -137,7 +137,7 @@
      "kind": "property",
      "name": "CSName",
      "serializedName": "defaultName",
-     "description": "Pass in true",
+     "doc": "Pass in true",
      "type": {
       "$id": "17",
       "kind": "boolean",
@@ -167,7 +167,7 @@
      "kind": "property",
      "name": "clientName",
      "serializedName": "wireName",
-     "description": "Pass in true",
+     "doc": "Pass in true",
      "type": {
       "$id": "20",
       "kind": "boolean",
@@ -197,7 +197,7 @@
      "kind": "property",
      "name": "defaultName",
      "serializedName": "defaultName",
-     "description": "Pass in true",
+     "doc": "Pass in true",
      "type": {
       "$id": "23",
       "kind": "boolean",
@@ -227,7 +227,7 @@
      "kind": "property",
      "name": "defaultName",
      "serializedName": "defaultName",
-     "description": "Pass in true",
+     "doc": "Pass in true",
      "type": {
       "$id": "26",
       "kind": "boolean",
@@ -249,7 +249,7 @@
   {
    "$id": "27",
    "Name": "NamingClient",
-   "Description": "Describe changing names of types in a client with `@clientName`",
+   "Doc": "Describe changing names of types in a client with `@clientName`",
    "Operations": [
     {
      "$id": "28",
@@ -337,7 +337,7 @@
        "$id": "35",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "36",
         "kind": "constant",
@@ -413,7 +413,7 @@
        "$id": "41",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "42",
         "kind": "constant",
@@ -489,7 +489,7 @@
        "$id": "47",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "48",
         "kind": "constant",
@@ -653,7 +653,7 @@
      "$id": "61",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "62",
       "kind": "url",
@@ -697,7 +697,7 @@
        "$id": "67",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "68",
         "kind": "constant",
@@ -773,7 +773,7 @@
        "$id": "73",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "74",
         "kind": "constant",
@@ -849,7 +849,7 @@
      "$id": "79",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "80",
       "kind": "url",
@@ -893,7 +893,7 @@
        "$id": "85",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "86",
         "kind": "constant",
@@ -969,7 +969,7 @@
        "$id": "91",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "92",
         "kind": "constant",
@@ -1045,7 +1045,7 @@
      "$id": "97",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "98",
       "kind": "url",

@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Resiliency.ServiceDriven.V1
+namespace Resiliency.SrvDriven.V1
 {
     public partial class ResiliencyServiceDrivenClient
     {
@@ -24,7 +24,7 @@ namespace Resiliency.ServiceDriven.V1
 
         public virtual Task<ClientResult> FromNoneAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult FromNone() => throw null;
+        public virtual ClientResult FromNone(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> FromNoneAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -32,7 +32,7 @@ namespace Resiliency.ServiceDriven.V1
 
         public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, RequestOptions options) => throw null;
 
-        public virtual ClientResult FromOneRequired(string parameter) => throw null;
+        public virtual ClientResult FromOneRequired(string parameter, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, CancellationToken cancellationToken = default) => throw null;
 
@@ -40,7 +40,7 @@ namespace Resiliency.ServiceDriven.V1
 
         public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, RequestOptions options) => throw null;
 
-        public virtual ClientResult FromOneOptional(string parameter = null) => throw null;
+        public virtual ClientResult FromOneOptional(string parameter = null, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = null, CancellationToken cancellationToken = default) => throw null;
     }

@@ -2,6 +2,7 @@ import {
   SdkBasicServiceMethod,
   SdkClientType,
   SdkCredentialParameter,
+  SdkCredentialType,
   SdkEndpointParameter,
   SdkEndpointType,
   SdkLroPagingServiceMethod,
@@ -10,6 +11,7 @@ import {
   SdkPagingServiceMethod,
   SdkServiceMethod,
   SdkServiceOperation,
+  SdkUnionType,
   UsageFlags,
   getCrossLanguagePackageId,
   isAzureCoreModel,
@@ -30,7 +32,12 @@ import {
   simpleTypesMap,
   typesMap,
 } from "./types.js";
-import { emitParamBase, getImplementation, removeUnderscoresFromNamespace } from "./utils.js";
+import {
+  emitParamBase,
+  getClientNamespace,
+  getImplementation,
+  removeUnderscoresFromNamespace,
+} from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
@@ -109,6 +116,28 @@ function emitMethodParameter<TServiceOperation extends SdkServiceOperation>(
       return emitEndpointType(context, parameter.type);
     }
   }
+  // filter out credential that python does not support for now
+  if (parameter.kind === "credential") {
+    const filteredCredentialType = [];
+    const originalCredentialType =
+      parameter.type.kind === "union" ? parameter.type.variantTypes : [parameter.type];
+    for (const credentialType of originalCredentialType) {
+      if (
+        credentialType.scheme.type === "oauth2" ||
+        credentialType.scheme.type === "http" ||
+        (credentialType.scheme.type === "apiKey" && credentialType.scheme.in === "header")
+      ) {
+        filteredCredentialType.push(credentialType);
+      }
+    }
+    if (filteredCredentialType.length === 0) {
+      return [];
+    } else if (filteredCredentialType.length === 1) {
+      parameter.type = filteredCredentialType[0];
+    } else {
+      (parameter.type as SdkUnionType<SdkCredentialType>).variantTypes = filteredCredentialType;
+    }
+  }
   const base = {
     ...emitParamBase(context, parameter),
     implementation: getImplementation(context, parameter),
@@ -169,6 +198,7 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
         propertyName: operationGroup.name,
         operations: operations,
         operationGroups: emitOperationGroups(context, operationGroup, rootClient, name),
+        clientNamespace: getClientNamespace(context, operationGroup.clientNamespace),
       });
     }
   }
@@ -186,7 +216,15 @@ function emitOperationGroups<TServiceOperation extends SdkServiceOperation>(
         className: "",
         propertyName: "",
         operations: operations,
+        clientNamespace: getClientNamespace(context, client.clientNamespace),
       });
+    }
+  }
+
+  // operation has same clientNamespace as the operation group
+  for (const og of operationGroups) {
+    for (const op of og.operations) {
+      op.clientNamespace = getClientNamespace(context, og.clientNamespace);
     }
   }
 
@@ -223,7 +261,18 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
     url,
     apiVersions: client.apiVersions,
     arm: context.arm,
+    clientNamespace: getClientNamespace(context, client.clientNamespace),
   };
+}
+
+function onlyUsedByPolling(usage: UsageFlags): boolean {
+  return (
+    ((usage & UsageFlags.LroInitial) > 0 ||
+      (usage & UsageFlags.LroFinalEnvelope) > 0 ||
+      (usage & UsageFlags.LroPolling) > 0) &&
+    (usage & UsageFlags.Input) === 0 &&
+    (usage & UsageFlags.Output) === 0
+  );
 }
 
 export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
@@ -234,14 +283,9 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   const codeModel: Record<string, any> = {
     namespace: removeUnderscoresFromNamespace(sdkPackage.rootNamespace).toLowerCase(),
     clients: [],
-    subnamespaceToClients: {},
   };
   for (const client of sdkPackage.clients) {
     codeModel["clients"].push(emitClient(sdkContext, client));
-    if (client.nameSpace === sdkPackage.rootNamespace) {
-    } else {
-      codeModel["subnamespaceToClients"][client.nameSpace] = emitClient(sdkContext, client);
-    }
   }
   // loop through models and enums since there may be some orphaned models needs to be generated
   for (const model of sdkPackage.models) {
@@ -252,6 +296,10 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
         (model.usage & UsageFlags.Input) === 0 &&
         (model.usage & UsageFlags.Output) === 0)
     ) {
+      continue;
+    }
+    // filter out models only used for polling and or envelope result
+    if (onlyUsedByPolling(model.usage)) {
       continue;
     }
     // filter out specific models not used in python, e.g., pageable models
@@ -267,6 +315,9 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   for (const sdkEnum of sdkPackage.enums) {
     // filter out api version enum since python do not generate it
     if (sdkEnum.usage === UsageFlags.ApiVersionEnum) {
+      continue;
+    }
+    if (onlyUsedByPolling(sdkEnum.usage)) {
       continue;
     }
     // filter out core enums

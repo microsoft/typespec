@@ -43,14 +43,15 @@ class BlackScriptPlugin(Plugin):
                         "venv",
                         "env",
                     )
-                    and not Path(f).parts[0].startswith(".")
-                    and Path(f).suffix == ".py"
+                    # we shall also format generated files like "../../../generated_tests/test_xxx.py"
+                    and (not Path(f).parts[0].startswith(".") or Path(f).parts[0] == "..") and Path(f).suffix == ".py"
                 ],
             )
         )
         return True
 
     def format_file(self, file: Path) -> None:
+        file_content = ""
         try:
             file_content = self.read_file(file)
             file_content = black.format_file_contents(file_content, fast=True, mode=_BLACK_MODE)

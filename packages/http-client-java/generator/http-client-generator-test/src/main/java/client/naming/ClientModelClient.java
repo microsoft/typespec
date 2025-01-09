@@ -5,8 +5,8 @@
 package client.naming;
 
 import client.naming.implementation.ClientModelsImpl;
-import client.naming.models.ClientModel;
-import client.naming.models.JavaModel;
+import client.naming.model.models.ClientModel;
+import client.naming.model.models.JavaModel;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;

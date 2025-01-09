@@ -5,7 +5,7 @@
 /**
  * <!-- start generated doc -->
  * Package containing the data models for Pageable.
- * Test describing pageable.
+ * Test for pageable payload.
  * <!-- end generated doc -->
  */
 package payload.pageable.models;

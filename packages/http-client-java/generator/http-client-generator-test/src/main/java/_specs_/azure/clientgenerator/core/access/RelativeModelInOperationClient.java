@@ -5,8 +5,8 @@
 package _specs_.azure.clientgenerator.core.access;
 
 import _specs_.azure.clientgenerator.core.access.implementation.RelativeModelInOperationsImpl;
-import _specs_.azure.clientgenerator.core.access.implementation.models.AbstractModel;
-import _specs_.azure.clientgenerator.core.access.implementation.models.OuterModel;
+import _specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.AbstractModel;
+import _specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.OuterModel;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -77,7 +77,7 @@ public final class RelativeModelInOperationClient {
     }
 
     /**
-     * Expected query parameter: kind= "real"
+     * Expected query parameter: kind="real"
      * Expected response body:
      * ```json
      * {
@@ -141,7 +141,7 @@ public final class RelativeModelInOperationClient {
     }
 
     /**
-     * Expected query parameter: kind= "real"
+     * Expected query parameter: kind="real"
      * Expected response body:
      * ```json
      * {

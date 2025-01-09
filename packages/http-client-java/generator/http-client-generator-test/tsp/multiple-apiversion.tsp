@@ -8,6 +8,7 @@ using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.Core.Foundations;
 using Azure.Core.Traits;
+using Azure.ClientGenerator.Core;
 
 @service({
   title: "MultipleApiVersion",
@@ -16,6 +17,7 @@ using Azure.Core.Traits;
 @Azure.ClientGenerator.Core.client({
   name: "FirstClient",
 })
+@clientNamespace("tsptest.multipleapiversion", "java")
 namespace TspTest.MultipleApiVersion {
   @resource("resources")
   model Resource {
@@ -54,6 +56,7 @@ namespace TspTest.MultipleApiVersion {
 @Azure.ClientGenerator.Core.client({
   name: "SecondClient",
 })
+@clientNamespace("tsptest.multipleapiversion", "java")
 namespace TspTest.MultipleApiVersion2 {
   @resource("resources")
   model Resource2 {
@@ -92,6 +95,7 @@ namespace TspTest.MultipleApiVersion2 {
 @Azure.ClientGenerator.Core.client({
   name: "NoApiVersionClient",
 })
+@clientNamespace("tsptest.multipleapiversion", "java")
 namespace TspTest.MultipleApiVersion3 {
   enum Versions {
     v2022_10_01_preview: "2022-10-01-preview",

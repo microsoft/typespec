@@ -16,7 +16,7 @@ import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import parameters.basic.implementation.ImplicitBodiesImpl;
-import parameters.basic.implementation.models.SimpleRequest;
+import parameters.basic.implicitbody.implementation.models.SimpleRequest;
 
 /**
  * Initializes a new instance of the synchronous BasicClient type.
