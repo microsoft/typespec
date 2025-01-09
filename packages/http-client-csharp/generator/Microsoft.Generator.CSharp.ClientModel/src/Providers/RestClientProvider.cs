@@ -46,6 +46,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildName() => _inputClient.Name.ToCleanName();
 
+        protected override string GetNamespace() => ClientProvider.Namespace;
+
         protected override PropertyProvider[] BuildProperties()
         {
             return [.. _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name)];

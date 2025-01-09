@@ -6,9 +6,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Parameters.Spread._Model;
 
-namespace Parameters.Spread
+namespace Parameters.Spread._Model
 {
     public partial class Model
     {

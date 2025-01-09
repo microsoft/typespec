@@ -6,8 +6,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Parameters.BodyOptionality;
 
-namespace Parameters.BodyOptionality
+namespace Parameters.BodyOptionality._OptionalExplicit
 {
     public partial class OptionalExplicit
     {

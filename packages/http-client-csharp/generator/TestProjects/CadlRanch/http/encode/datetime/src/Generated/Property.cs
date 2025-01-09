@@ -6,8 +6,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Encode.Datetime;
 
-namespace Encode.Datetime
+namespace Encode.Datetime._Property
 {
     public partial class Property
     {

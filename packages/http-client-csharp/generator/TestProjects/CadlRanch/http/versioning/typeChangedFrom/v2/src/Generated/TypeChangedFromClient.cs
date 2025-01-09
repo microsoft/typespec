@@ -7,9 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.TypeChangedFrom;
+using Versioning.TypeChangedFrom.V2;
 
-namespace Versioning.TypeChangedFrom.V2
+namespace Versioning.TypeChangedFrom
 {
     public partial class TypeChangedFromClient
     {

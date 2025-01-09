@@ -6,9 +6,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Parameters.Basic._ExplicitBody;
 
-namespace Parameters.Basic
+namespace Parameters.Basic._ExplicitBody
 {
     public partial class ExplicitBody
     {

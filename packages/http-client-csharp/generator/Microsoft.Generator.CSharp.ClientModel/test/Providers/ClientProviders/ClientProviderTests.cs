@@ -31,9 +31,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [_inputOperation], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [_inputOperation], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [_inputOperation], [], _dogClient.Name);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", operations: [_inputOperation], parent: TestClientName);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", operations: [_inputOperation], parent: _animalClient.Name);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", operations: [_inputOperation], parent: _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             string.Empty,
@@ -84,7 +84,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public async Task TestNonEmptySubClient()
         {
             var client = InputFactory.Client(TestClientName);
-            var subClient = InputFactory.Client($"Sub{TestClientName}", [_inputOperation], [], client.Name);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", operations: [_inputOperation], parent: client.Name);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [client, subClient]);
 
@@ -99,7 +99,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public async Task TestEmptySubClient()
         {
             var client = InputFactory.Client(TestClientName);
-            var subClient = InputFactory.Client($"Sub{TestClientName}", [], [], client.Name);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", parent: client.Name);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [client, subClient]);
 

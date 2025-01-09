@@ -7,9 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.RenamedFrom;
+using Versioning.RenamedFrom.V2;
 
-namespace Versioning.RenamedFrom.V2
+namespace Versioning.RenamedFrom
 {
     public partial class RenamedFromClient
     {

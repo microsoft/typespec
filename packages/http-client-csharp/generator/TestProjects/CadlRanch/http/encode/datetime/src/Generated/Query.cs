@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Datetime
+namespace Encode.Datetime._Query
 {
     public partial class Query
     {

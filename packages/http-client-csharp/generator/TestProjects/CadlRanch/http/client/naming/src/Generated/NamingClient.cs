@@ -7,7 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Client.Naming.Model;
 using Client.Naming.Property;
+using Client.Naming._UnionEnum;
 
 namespace Client.Naming
 {

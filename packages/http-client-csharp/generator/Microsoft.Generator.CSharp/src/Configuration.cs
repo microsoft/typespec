@@ -13,7 +13,7 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public class Configuration
     {
-        private static readonly string[] _badBuiltInNamespaceSegements =
+        private static readonly string[] _badBuiltInNamespaceSegments =
         [
             "Type",
             "Array",
@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp
         {
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
-            BadNamespaceSegements = [.._badBuiltInNamespaceSegements ,..badNamespaceSegments];
+            BadNamespaceSegements = [.._badBuiltInNamespaceSegments ,..badNamespaceSegments];
             ClearOutputFolder = clearOutputFolder;
             GenerateModelFactory = generateModelFactory;
             GenerateSampleProject = generateSampleProject;
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp
             UnreferencedTypesHandling = unreferencedTypesHandling;
         }
 
-        internal string GetCleanNameSpace(string libraryNamespace)
+        public string GetCleanNameSpace(string libraryNamespace)
         {
             Span<char> dest = stackalloc char[libraryNamespace.Length + GetSegmentCount(libraryNamespace)];
             var source = libraryNamespace.AsSpan();

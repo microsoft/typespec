@@ -7,9 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.Added;
+using Versioning.Added.V2;
 
-namespace Versioning.Added.V2
+namespace Versioning.Added
 {
     public partial class AddedClient
     {

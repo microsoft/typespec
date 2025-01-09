@@ -15,7 +15,7 @@ namespace Client.Naming.Models
 
         public static ClientNameAndJsonEncodedNameModel ClientNameAndJsonEncodedNameModel(bool clientName = default) => throw null;
 
-        public static Model.ClientModel ClientModel(bool defaultName = default) => throw null;
+        public static ClientModel ClientModel(bool defaultName = default) => throw null;
 
         public static CSModel CSModel(bool defaultName = default) => throw null;
     }

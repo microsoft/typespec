@@ -6,9 +6,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Client.Naming.Model;
 
-namespace Client.Naming
+namespace Client.Naming.Model
 {
     public partial class ClientModel
     {
@@ -20,9 +19,9 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> ClientAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Client(Model.ClientModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Client(ClientModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ClientAsync(Model.ClientModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ClientAsync(ClientModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Language(BinaryContent content, RequestOptions options = null) => throw null;
 

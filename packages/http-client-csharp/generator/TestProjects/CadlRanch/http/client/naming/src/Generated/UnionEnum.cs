@@ -6,9 +6,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Client.Naming._UnionEnum;
 
-namespace Client.Naming
+namespace Client.Naming._UnionEnum
 {
     public partial class UnionEnum
     {
