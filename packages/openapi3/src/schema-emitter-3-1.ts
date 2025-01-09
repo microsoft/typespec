@@ -4,6 +4,7 @@ import {
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
+  IntrinsicScalarName,
   IntrinsicType,
   Model,
   ModelProperty,
@@ -28,6 +29,7 @@ import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-1.js";
 import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
@@ -138,6 +140,29 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     this.#applySchemaExamples(program, type, target);
   }
 
+  applyEncoding(
+    typespecType: Scalar | ModelProperty,
+    target: OpenAPISchema3_1 | Placeholder<OpenAPISchema3_1>,
+  ): OpenAPISchema3_1 {
+    return applyEncoding(this.emitter.getProgram(), typespecType, target as any, this._options);
+  }
+
+  getRawBinarySchema(): OpenAPISchema3_1 {
+    return getRawBinarySchema();
+  }
+
+  getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPISchema3_1 {
+    // Raw binary data is handled separately when resolving a request/response body.
+    // Open API 3.1 treats encoded binaries differently from Open API 3.0, so we need to handle
+    // the Scalar 'bytes' special here.
+    // @see https://spec.openapis.org/oas/v3.1.1.html#working-with-binary-data
+    if (scalar.name === "bytes") {
+      const contentType = this.emitter.getContext().contentType;
+      return { type: "string", contentMediaType: contentType, contentEncoding: "base64" };
+    }
+    return super.getSchemaForStdScalars(scalar);
+  }
+
   enumSchema(en: Enum): OpenAPISchema3_1 {
     const program = this.emitter.getProgram();
     if (en.members.size === 0) {
@@ -178,7 +203,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     for (const variant of variants) {
       // 2. Special handling for multipart - want to treat as binary
       if (isMultipart && isBytesKeptRaw(program, variant.type)) {
-        schemaMembers.push({ schema: { type: "string", format: "binary" }, type: variant.type });
+        schemaMembers.push({ schema: this.getRawBinarySchema(), type: variant.type });
         continue;
       }
 

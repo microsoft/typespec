@@ -193,32 +193,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
     strictEqual(res.components.parameters["PetId.name"].deprecated, undefined);
   });
 
-  describe("openapi3: request", () => {
-    describe("binary request", () => {
-      it("bytes request should default to application/json byte", async () => {
-        const res = await openApiFor(`
-        @post op read(@body body: bytes): {};
-      `);
-
-        const requestBody = res.paths["/"].post.requestBody;
-        ok(requestBody);
-        strictEqual(requestBody.content["application/json"].schema.type, "string");
-        strictEqual(requestBody.content["application/json"].schema.format, "byte");
-      });
-
-      it("bytes request should respect @header contentType and use binary format when not json or text", async () => {
-        const res = await openApiFor(`
-        @post op read(@header contentType: "image/png", @body body: bytes): {};
-      `);
-
-        const requestBody = res.paths["/"].post.requestBody;
-        ok(requestBody);
-        strictEqual(requestBody.content["image/png"].schema.type, "string");
-        strictEqual(requestBody.content["image/png"].schema.format, "binary");
-      });
-    });
-  });
-
   describe("openapi3: extension decorator", () => {
     it("adds an arbitrary extension to a model", async () => {
       const oapi = await openApiFor(`
@@ -347,6 +321,63 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor, openapiWithOptions }) 
       ok(oapi.paths["/"].get);
       strictEqual(oapi.paths["/"].get.responses["200"]["$ref"], "../common.json#/definitions/Foo");
       strictEqual(oapi.paths["/"].get.responses["201"]["$ref"], "https://example.com/example.yml");
+    });
+  });
+});
+
+worksFor(["3.0.0"], ({ openApiFor }) => {
+  describe("openapi 3.0: request", () => {
+    describe("binary request", () => {
+      it("bytes request should default to application/json byte", async () => {
+        const res = await openApiFor(`
+        @post op read(@body body: bytes): {};
+      `);
+
+        const requestBody = res.paths["/"].post.requestBody;
+        ok(requestBody);
+        strictEqual(requestBody.content["application/json"].schema.type, "string");
+        strictEqual(requestBody.content["application/json"].schema.format, "byte");
+      });
+
+      it("bytes request should respect @header contentType and use binary format when not json or text", async () => {
+        const res = await openApiFor(`
+        @post op read(@header contentType: "image/png", @body body: bytes): {};
+      `);
+
+        const requestBody = res.paths["/"].post.requestBody;
+        ok(requestBody);
+        strictEqual(requestBody.content["image/png"].schema.type, "string");
+        strictEqual(requestBody.content["image/png"].schema.format, "binary");
+      });
+    });
+  });
+});
+
+worksFor(["3.1.0"], ({ openApiFor }) => {
+  describe("openapi 3.1: request", () => {
+    describe("binary request", () => {
+      it("bytes request should default to application/json with base64 contentEncoding", async () => {
+        const res = await openApiFor(`
+        @post op read(@body body: bytes): {};
+      `);
+
+        const requestBody = res.paths["/"].post.requestBody;
+        ok(requestBody);
+        deepStrictEqual(requestBody.content["application/json"].schema, {
+          type: "string",
+          contentEncoding: "base64",
+        });
+      });
+
+      it("bytes request should respect @header contentType and use contentMediaType when not json or text", async () => {
+        const res = await openApiFor(`
+        @post op read(@header contentType: "image/png", @body body: bytes): {};
+      `);
+
+        const requestBody = res.paths["/"].post.requestBody;
+        ok(requestBody);
+        deepStrictEqual(requestBody.content["image/png"].schema, { contentMediaType: "image/png" });
+      });
     });
   });
 });

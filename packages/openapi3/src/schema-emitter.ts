@@ -65,7 +65,6 @@ import {
 } from "@typespec/openapi";
 import { attachExtensions } from "./attach-extensions.js";
 import { getOneOf, getRef } from "./decorators.js";
-import { applyEncoding } from "./encoding.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
@@ -344,19 +343,23 @@ export class OpenAPI3SchemaEmitterBase<
     return props;
   }
 
+  getRawBinarySchema(): Schema {
+    throw new Error("Method not implemented.");
+  }
+
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const isMultipart = this.getContentType().startsWith("multipart/");
     if (isMultipart) {
       if (isBytesKeptRaw(program, prop.type) && getEncode(program, prop) === undefined) {
-        return { type: "string", format: "binary" };
+        return this.getRawBinarySchema();
       }
       if (
         prop.type.kind === "Model" &&
         isArrayModelType(program, prop.type) &&
         isBytesKeptRaw(program, prop.type.indexer.value)
       ) {
-        return { type: "array", items: { type: "string", format: "binary" } };
+        return { type: "array", items: this.getRawBinarySchema() };
       }
     }
 
@@ -382,7 +385,7 @@ export class OpenAPI3SchemaEmitterBase<
 
     const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
 
-    const schema = this.#applyEncoding(prop, refSchema.value as any);
+    const schema = this.applyEncoding(prop, refSchema.value as any);
 
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<Schema> = this.applyConstraints(
@@ -585,14 +588,11 @@ export class OpenAPI3SchemaEmitterBase<
     let result: Schema = {} as Schema;
     const isStd = isStdType(this.emitter.getProgram(), scalar);
     if (isStd) {
-      result = this.#getSchemaForStdScalars(scalar);
+      result = this.getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
       result = this.#getSchemaForScalar(scalar.baseScalar);
     }
-    const withDecorators = this.#applyEncoding(
-      scalar,
-      this.applyConstraints(scalar, result) as any,
-    );
+    const withDecorators = this.applyEncoding(scalar, this.applyConstraints(scalar, result) as any);
     if (isStd) {
       // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
       delete withDecorators.description;
@@ -600,7 +600,7 @@ export class OpenAPI3SchemaEmitterBase<
     return withDecorators;
   }
 
-  #getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): Schema {
+  getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): Schema {
     return getSchemaForStdScalars(scalar, this._options) as Schema;
   }
 
@@ -742,16 +742,11 @@ export class OpenAPI3SchemaEmitterBase<
     return decl;
   }
 
-  #applyEncoding(
+  applyEncoding(
     typespecType: Scalar | ModelProperty,
     target: Schema | Placeholder<Schema>,
   ): Schema {
-    return applyEncoding(
-      this.emitter.getProgram(),
-      typespecType,
-      target as any,
-      this._options,
-    ) as Schema;
+    throw new Error("Method not implemented.");
   }
 
   programContext(program: Program): Context {
