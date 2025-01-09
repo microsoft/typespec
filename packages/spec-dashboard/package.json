@@ -2,7 +2,7 @@
   "name": "@typespec/spec-dashboard",
   "private": true,
   "version": "0.1.0-alpha.0",
-  "description": "Spec Dashboard website",
+  "description": "Spector Dashboard website",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
