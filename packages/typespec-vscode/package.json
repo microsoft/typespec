@@ -348,6 +348,7 @@
     "typescript": "~5.6.3",
     "vitest": "^2.1.5",
     "vscode-languageclient": "~9.0.1",
-    "semver": "^7.6.3"
+    "semver": "^7.6.3",
+    "yaml": "~2.5.1"
   }
 }

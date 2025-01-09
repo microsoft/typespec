@@ -1930,6 +1930,9 @@ importers:
       vscode-languageclient:
         specifier: ~9.0.1
         version: 9.0.1
+      yaml:
+        specifier: ~2.5.1
+        version: 2.5.1
 
   packages/versioning:
     devDependencies:

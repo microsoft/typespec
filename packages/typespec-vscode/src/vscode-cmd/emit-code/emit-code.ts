@@ -1,7 +1,9 @@
+import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import vscode, { QuickInputButton, Uri } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
-import { StartFileName } from "../../const.js";
+import { isScalar, isSeq, parseDocument } from "yaml";
+import { StartFileName, TspConfigFileName } from "../../const.js";
 import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
@@ -242,14 +244,73 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     );
     return;
   }
-  const outputDir = path.join(
-    baseDir,
-    selectedEmitter.emitterKind,
-    getLanguageAlias(selectedEmitter.language),
-  );
+  /*Config emitter output dir and emit in tspconfig.yaml. */
+  const defaultEmitOutputDirInConfig = `{project-root}/${selectedEmitter.emitterKind}/${getLanguageAlias(selectedEmitter.language)}`;
+  const tspConfigFile = path.join(baseDir, TspConfigFileName);
+  let configYaml = parseDocument(""); //generate a empty yaml
+  if (await isFile(tspConfigFile)) {
+    const content = await readFile(tspConfigFile);
+    configYaml = parseDocument(content.toString());
+  }
+  let outputDir = defaultEmitOutputDirInConfig;
+  try {
+    /*update emitter in config.yaml. */
+    const emitNode = configYaml.get("emit");
+    if (emitNode) {
+      if (isSeq(emitNode)) {
+        if (Array.isArray(emitNode.items)) {
+          const index = emitNode.items.findIndex((item) => {
+            if (isScalar(item)) {
+              return item.value === selectedEmitter.package;
+            }
+            return false;
+          });
+          if (index === -1) {
+            emitNode.items.push(selectedEmitter.package);
+          }
+        }
+      }
+    } else {
+      configYaml.set("emit", [selectedEmitter.package]);
+    }
+    const optionsObject = configYaml.get("options");
+    if (!optionsObject) {
+      configYaml.set("options", {
+        [selectedEmitter.package]: {
+          "emitter-output-dir": defaultEmitOutputDirInConfig,
+        },
+      });
+    } else {
+      const emitterOptions = configYaml.getIn(["options", selectedEmitter.package]);
+      if (!emitterOptions) {
+        const optionRecord = optionsObject as Record<string, any>;
+        optionRecord[selectedEmitter.package] = {
+          "emitter-output-dir": defaultEmitOutputDirInConfig,
+        };
+      } else {
+        const emitOutputDir = configYaml.getIn([
+          "options",
+          selectedEmitter.package,
+          "emitter-output-dir",
+        ]);
+        if (emitOutputDir) {
+          outputDir = emitOutputDir as string;
+        } else {
+          configYaml.setIn(
+            ["options", selectedEmitter.package, "emitter-output-dir"],
+            defaultEmitOutputDirInConfig,
+          );
+        }
+      }
+    }
+    const newYamlContent = configYaml.toString();
+    await writeFile(tspConfigFile, newYamlContent);
+  } catch (error: any) {
+    logger.error(error);
+  }
 
+  outputDir = outputDir.replace("{project-root}", baseDir);
   const options: Record<string, string> = {};
-  options["emitter-output-dir"] = outputDir;
   logger.info(
     `Start to generate ${selectedEmitter.language} ${selectedEmitter.emitterKind} code under directory ${outputDir}`,
   );
@@ -269,26 +330,18 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
           false,
         );
         if (compileResult.exitCode !== 0) {
-          const details = [];
-          if (compileResult.stdout !== "") details.push(compileResult.stdout);
-          if (compileResult.stderr !== "") details.push(compileResult.stderr);
-          if (compileResult.error) details.push(compileResult.error);
           logger.error(
             `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Failed`,
-            [details],
+            [],
             {
               showOutput: true,
               showPopup: true,
             },
           );
         } else {
-          const details = [];
-          if (compileResult.stdout !== "") details.push(compileResult.stdout);
-          if (compileResult.stderr !== "") details.push(compileResult.stderr);
-          if (compileResult.error) details.push(compileResult.error);
           logger.info(
             `Generating ${selectedEmitter.emitterKind} code for ${selectedEmitter.language}...Succeeded`,
-            [details],
+            [],
             {
               showOutput: true,
               showPopup: true,
