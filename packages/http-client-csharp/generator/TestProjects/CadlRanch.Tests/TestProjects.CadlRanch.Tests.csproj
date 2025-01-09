@@ -7,7 +7,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../CadlRanch/**/*.cs" Exclude="../CadlRanch/**/Properties/**/*.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" />
+    <Compile Remove="Http\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,10 +21,10 @@
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <None Update="Http\**\TestData\**\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
+  </ItemGroup> -->
 
 </Project>

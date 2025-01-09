@@ -6,6 +6,7 @@ using Client.Structure.Service.Models;
 using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGroup
 {
