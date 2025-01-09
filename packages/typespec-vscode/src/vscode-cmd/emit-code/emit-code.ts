@@ -273,35 +273,18 @@ async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, kin
     } else {
       configYaml.set("emit", [selectedEmitter.package]);
     }
-    const optionsObject = configYaml.get("options");
-    if (!optionsObject) {
-      configYaml.set("options", {
-        [selectedEmitter.package]: {
-          "emitter-output-dir": defaultEmitOutputDirInConfig,
-        },
-      });
+    const emitOutputDir = configYaml.getIn([
+      "options",
+      selectedEmitter.package,
+      "emitter-output-dir",
+    ]);
+    if (!emitOutputDir) {
+      configYaml.setIn(
+        ["options", selectedEmitter.package, "emitter-output-dir"],
+        defaultEmitOutputDirInConfig,
+      );
     } else {
-      const emitterOptions = configYaml.getIn(["options", selectedEmitter.package]);
-      if (!emitterOptions) {
-        const optionRecord = optionsObject as Record<string, any>;
-        optionRecord[selectedEmitter.package] = {
-          "emitter-output-dir": defaultEmitOutputDirInConfig,
-        };
-      } else {
-        const emitOutputDir = configYaml.getIn([
-          "options",
-          selectedEmitter.package,
-          "emitter-output-dir",
-        ]);
-        if (emitOutputDir) {
-          outputDir = emitOutputDir as string;
-        } else {
-          configYaml.setIn(
-            ["options", selectedEmitter.package, "emitter-output-dir"],
-            defaultEmitOutputDirInConfig,
-          );
-        }
-      }
+      outputDir = emitOutputDir as string;
     }
     const newYamlContent = configYaml.toString();
     await writeFile(tspConfigFile, newYamlContent);
