@@ -5,7 +5,7 @@
 ### Bug Fixes
 
 - Generate `__init__` for all DPG models to ensure stability
-- Don't automatically overwrite version in `_version.py` file if the existing version is newer
+- Don't automatically overwrite version in `_version.py` file and `setup.py` file if the existing version is newer
 
 ## 0.6.0
 
