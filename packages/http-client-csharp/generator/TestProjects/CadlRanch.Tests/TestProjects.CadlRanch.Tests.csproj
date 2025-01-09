@@ -10,6 +10,36 @@
     <Compile Include="../CadlRanch/**/*.cs" Exclude="../CadlRanch/**/Properties/**/*.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" />
     <Compile Remove="../CadlRanch/**/ClientType.cs" /> <!-- Remove the duplicated class from multiple projects -->
     <Compile Include="../CadlRanch/http/client/structure/default/src/Generated/Models/ClientType.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ModelV1.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/added/v1/src/Generated/Models/ModelV1.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/Models/ModelV1.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ModelV1.Serialization.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/added/v1/src/Generated/Models/ModelV1.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/Models/ModelV1.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ModelV2.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/added/v2/src/Generated/Models/ModelV2.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/Models/ModelV2.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ModelV2.Serialization.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/added/v2/src/Generated/Models/ModelV2.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/Models/ModelV2.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ModelV3.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/Models/ModelV3.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/ModelV3.Serialization.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/Models/ModelV3.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/EnumV1.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/added/v1/src/Generated/Models/EnumV1.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v1/src/Generated/Models/EnumV1.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/EnumV2.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/added/v2/src/Generated/Models/EnumV2.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v2/src/Generated/Models/EnumV2.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/EnumV3.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/removed/v2/src/Generated/Models/EnumV3.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/TestModel.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/madeOptional/v1/src/Generated/Models/TestModel.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Include="../CadlRanch/http/versioning/typeChangedFrom/v1/src/Generated/Models/TestModel.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Remove="../CadlRanch/**/TestModel.Serialization.cs" /> <!-- Remove the duplicated class from multiple projects -->
+    <Compile Include="../CadlRanch/http/versioning/madeOptional/v1/src/Generated/Models/TestModel.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
+    <Compile Include="../CadlRanch/http/versioning/typeChangedFrom/v1/src/Generated/Models/TestModel.Serialization.cs" Link="Projects/%(RecursiveDir)/%(Filename)%(Extension)" /> <!-- Add one specific version back in -->
   </ItemGroup>
 
   <ItemGroup>
