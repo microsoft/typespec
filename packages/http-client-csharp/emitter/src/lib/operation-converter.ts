@@ -428,6 +428,9 @@ function normalizeHeaderName(name: string): string {
 }
 
 function isExplodedParameter(p: SdkHttpParameter, parameterType: InputType): boolean {
-  return (parameterType.kind === "array" || parameterType.kind === "dict") &&
-         (p.kind === "path" || p.kind === "query") && p.explode === true;
+  return (
+    (parameterType.kind === "array" || parameterType.kind === "dict") &&
+    (p.kind === "path" || p.kind === "query") &&
+    p.explode === true
+  );
 }
