@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ModelClientTests {
-    ModelClient client = new ModelClientBuilder().buildClient();
+    private final ModelClient client = new ModelClientBuilder().buildClient();
 
     @Test
     public void get() {

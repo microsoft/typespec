@@ -84,7 +84,11 @@ public class GenericType implements IType {
     }
 
     public static GenericType PagedResponse(IType bodyType) {
-        return new GenericType("com.azure.core.http.rest", "PagedResponse", bodyType);
+        if (JavaSettings.getInstance().isBranded()) {
+            return new GenericType("com.azure.core.http.rest", "PagedResponse", bodyType);
+        } else {
+            return new GenericType("io.clientcore.core.http.models", "PagedResponse", bodyType);
+        }
     }
 
     public static GenericType PagedFlux(IType bodyType) {
@@ -92,7 +96,11 @@ public class GenericType implements IType {
     }
 
     public static GenericType PagedIterable(IType bodyType) {
-        return new GenericType("com.azure.core.http.rest", "PagedIterable", bodyType);
+        if (JavaSettings.getInstance().isBranded()) {
+            return new GenericType("com.azure.core.http.rest", "PagedIterable", bodyType);
+        } else {
+            return new GenericType("io.clientcore.core.http.models", "PagedIterable", bodyType);
+        }
     }
 
     public static GenericType Function(IType inputType, IType outputType) {

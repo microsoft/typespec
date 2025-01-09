@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import inspector from "inspector";
 import { join } from "path";
 import { fileURLToPath } from "url";
+import { inspect } from "util";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   ApplyWorkspaceEditParams,
@@ -15,7 +16,7 @@ import {
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../utils/misc.js";
 import { createServer } from "./serverlib.js";
-import { Server, ServerHost, ServerLog } from "./types.js";
+import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
 let server: Server | undefined = undefined;
 
@@ -50,8 +51,7 @@ function main() {
       let detail: string | undefined = undefined;
       let fullMessage = message;
       if (log.detail) {
-        detail =
-          typeof log.detail === "string" ? log.detail : JSON.stringify(log.detail, undefined, 2);
+        detail = typeof log.detail === "string" ? log.detail : inspect(log.detail);
         fullMessage = `${message}:\n${detail}`;
       }
 
@@ -128,6 +128,13 @@ function main() {
   connection.onCodeAction(profile(s.getCodeActions));
   connection.onExecuteCommand(profile(s.executeCommand));
   connection.languages.semanticTokens.on(profile(s.buildSemanticTokens));
+
+  const validateInitProjectTemplate: CustomRequestName = "typespec/validateInitProjectTemplate";
+  connection.onRequest(validateInitProjectTemplate, profile(s.validateInitProjectTemplate));
+  const getInitProjectContextRequestName: CustomRequestName = "typespec/getInitProjectContext";
+  connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
+  const initProjectRequestName: CustomRequestName = "typespec/initProject";
+  connection.onRequest(initProjectRequestName, profile(s.initProject));
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));

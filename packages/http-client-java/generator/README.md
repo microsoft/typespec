@@ -10,7 +10,7 @@ The **Microsoft Java client generator** tool generates client libraries for acce
 
 ## Prerequisites
 
-- [Java 11 or above](https://adoptium.net/temurin/releases/)
+- [Java 17 or above](https://docs.microsoft.com/java/openjdk/download)
 - [Maven](https://maven.apache.org/download.cgi)
 
 ## Build

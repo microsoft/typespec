@@ -12,7 +12,8 @@ export interface VirtualParameter {}
 export interface InputParameter {
   Name: string;
   NameInRequest: string;
-  Description?: string;
+  Summary?: string;
+  Doc?: string;
   Type: InputType;
   Location: RequestLocation;
   DefaultValue?: InputConstant;

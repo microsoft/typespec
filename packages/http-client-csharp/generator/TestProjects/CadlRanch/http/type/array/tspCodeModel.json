@@ -10,7 +10,7 @@
    "name": "InnerModel",
    "crossLanguageDefinitionId": "Type.Array.InnerModel",
    "usage": "Input,Output,Json",
-   "description": "Array inner model",
+   "doc": "Array inner model",
    "decorators": [],
    "properties": [
     {
@@ -18,7 +18,7 @@
      "kind": "property",
      "name": "property",
      "serializedName": "property",
-     "description": "Required string property",
+     "doc": "Required string property",
      "type": {
       "$id": "4",
       "kind": "string",
@@ -62,7 +62,7 @@
   {
    "$id": "7",
    "Name": "ArrayClient",
-   "Description": "Illustrates various types of arrays.",
+   "Doc": "Illustrates various types of arrays.",
    "Operations": [],
    "Protocol": {
     "$id": "8"
@@ -72,7 +72,7 @@
      "$id": "9",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "10",
       "kind": "url",
@@ -105,7 +105,7 @@
   {
    "$id": "13",
    "Name": "Int32Value",
-   "Description": "Array of int32 values",
+   "Doc": "Array of int32 values",
    "Operations": [
     {
      "$id": "14",
@@ -189,7 +189,7 @@
        "$id": "22",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "23",
         "kind": "constant",
@@ -276,7 +276,7 @@
      "$id": "30",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "31",
       "kind": "url",
@@ -309,7 +309,7 @@
   {
    "$id": "34",
    "Name": "Int64Value",
-   "Description": "Array of int64 values",
+   "Doc": "Array of int64 values",
    "Operations": [
     {
      "$id": "35",
@@ -393,7 +393,7 @@
        "$id": "43",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "44",
         "kind": "constant",
@@ -480,7 +480,7 @@
      "$id": "51",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "52",
       "kind": "url",
@@ -513,7 +513,7 @@
   {
    "$id": "55",
    "Name": "BooleanValue",
-   "Description": "Array of boolean values",
+   "Doc": "Array of boolean values",
    "Operations": [
     {
      "$id": "56",
@@ -597,7 +597,7 @@
        "$id": "64",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "65",
         "kind": "constant",
@@ -684,7 +684,7 @@
      "$id": "72",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "73",
       "kind": "url",
@@ -717,7 +717,7 @@
   {
    "$id": "76",
    "Name": "StringValue",
-   "Description": "Array of string values",
+   "Doc": "Array of string values",
    "Operations": [
     {
      "$id": "77",
@@ -801,7 +801,7 @@
        "$id": "85",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "86",
         "kind": "constant",
@@ -888,7 +888,7 @@
      "$id": "93",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "94",
       "kind": "url",
@@ -921,7 +921,7 @@
   {
    "$id": "97",
    "Name": "Float32Value",
-   "Description": "Array of float values",
+   "Doc": "Array of float values",
    "Operations": [
     {
      "$id": "98",
@@ -1005,7 +1005,7 @@
        "$id": "106",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "107",
         "kind": "constant",
@@ -1092,7 +1092,7 @@
      "$id": "114",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "115",
       "kind": "url",
@@ -1125,7 +1125,7 @@
   {
    "$id": "118",
    "Name": "DatetimeValue",
-   "Description": "Array of datetime values",
+   "Doc": "Array of datetime values",
    "Operations": [
     {
      "$id": "119",
@@ -1217,7 +1217,7 @@
        "$id": "128",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "129",
         "kind": "constant",
@@ -1312,7 +1312,7 @@
      "$id": "137",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "138",
       "kind": "url",
@@ -1345,7 +1345,7 @@
   {
    "$id": "141",
    "Name": "DurationValue",
-   "Description": "Array of duration values",
+   "Doc": "Array of duration values",
    "Operations": [
     {
      "$id": "142",
@@ -1437,7 +1437,7 @@
        "$id": "151",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "152",
         "kind": "constant",
@@ -1532,7 +1532,7 @@
      "$id": "160",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "161",
       "kind": "url",
@@ -1565,7 +1565,7 @@
   {
    "$id": "164",
    "Name": "UnknownValue",
-   "Description": "Array of unknown values",
+   "Doc": "Array of unknown values",
    "Operations": [
     {
      "$id": "165",
@@ -1649,7 +1649,7 @@
        "$id": "173",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "174",
         "kind": "constant",
@@ -1736,7 +1736,7 @@
      "$id": "181",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "182",
       "kind": "url",
@@ -1769,7 +1769,7 @@
   {
    "$id": "185",
    "Name": "ModelValue",
-   "Description": "Array of model values",
+   "Doc": "Array of model values",
    "Operations": [
     {
      "$id": "186",
@@ -1849,7 +1849,7 @@
        "$id": "193",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "194",
         "kind": "constant",
@@ -1932,7 +1932,7 @@
      "$id": "200",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "201",
       "kind": "url",
@@ -1965,7 +1965,7 @@
   {
    "$id": "204",
    "Name": "NullableFloatValue",
-   "Description": "Array of nullable float values",
+   "Doc": "Array of nullable float values",
    "Operations": [
     {
      "$id": "205",
@@ -2053,7 +2053,7 @@
        "$id": "214",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "215",
         "kind": "constant",
@@ -2136,7 +2136,7 @@
      "$id": "221",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "222",
       "kind": "url",
@@ -2169,7 +2169,7 @@
   {
    "$id": "225",
    "Name": "NullableInt32Value",
-   "Description": "Array of nullable int32 values",
+   "Doc": "Array of nullable int32 values",
    "Operations": [
     {
      "$id": "226",
@@ -2257,7 +2257,7 @@
        "$id": "235",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "236",
         "kind": "constant",
@@ -2340,7 +2340,7 @@
      "$id": "242",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "243",
       "kind": "url",
@@ -2373,7 +2373,7 @@
   {
    "$id": "246",
    "Name": "NullableBooleanValue",
-   "Description": "Array of nullable boolean values",
+   "Doc": "Array of nullable boolean values",
    "Operations": [
     {
      "$id": "247",
@@ -2461,7 +2461,7 @@
        "$id": "256",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "257",
         "kind": "constant",
@@ -2544,7 +2544,7 @@
      "$id": "263",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "264",
       "kind": "url",
@@ -2577,7 +2577,7 @@
   {
    "$id": "267",
    "Name": "NullableStringValue",
-   "Description": "Array of nullable string values",
+   "Doc": "Array of nullable string values",
    "Operations": [
     {
      "$id": "268",
@@ -2665,7 +2665,7 @@
        "$id": "277",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "278",
         "kind": "constant",
@@ -2748,7 +2748,7 @@
      "$id": "284",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "285",
       "kind": "url",
@@ -2781,7 +2781,7 @@
   {
    "$id": "288",
    "Name": "NullableModelValue",
-   "Description": "Array of nullable model values",
+   "Doc": "Array of nullable model values",
    "Operations": [
     {
      "$id": "289",
@@ -2865,7 +2865,7 @@
        "$id": "297",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "298",
         "kind": "constant",
@@ -2948,7 +2948,7 @@
      "$id": "304",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "305",
       "kind": "url",

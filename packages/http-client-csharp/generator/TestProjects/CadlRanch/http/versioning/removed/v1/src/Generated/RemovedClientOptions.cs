@@ -14,7 +14,7 @@ namespace Versioning.Removed.V1
 
         public enum ServiceVersion
         {
-            /// <summary> The original version v1. </summary>
+            /// <summary> The version v1. </summary>
             V1 = 1
         }
     }

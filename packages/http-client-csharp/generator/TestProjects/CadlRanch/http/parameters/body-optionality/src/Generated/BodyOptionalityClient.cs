@@ -23,7 +23,7 @@ namespace Parameters.BodyOptionality
 
         public virtual Task<ClientResult> RequiredExplicitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult RequiredExplicit(BodyModel body) => throw null;
+        public virtual ClientResult RequiredExplicit(BodyModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> RequiredExplicitAsync(BodyModel body, CancellationToken cancellationToken = default) => throw null;
 
@@ -31,7 +31,7 @@ namespace Parameters.BodyOptionality
 
         public virtual Task<ClientResult> RequiredImplicitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult RequiredImplicit(string name) => throw null;
+        public virtual ClientResult RequiredImplicit(string name, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> RequiredImplicitAsync(string name, CancellationToken cancellationToken = default) => throw null;
 

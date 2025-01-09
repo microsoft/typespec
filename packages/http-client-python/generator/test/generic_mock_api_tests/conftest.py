@@ -15,9 +15,14 @@ FILE_FOLDER = Path(__file__).parent
 
 
 def start_server_process():
-    path = Path(os.path.dirname(__file__)) / Path("../../../node_modules/@azure-tools/cadl-ranch-specs")
-    os.chdir(path.resolve())
-    cmd = "cadl-ranch serve ./http"
+    azure_http_path = Path(os.path.dirname(__file__)) / Path("../../../node_modules/@azure-tools/azure-http-specs")
+    http_path = Path(os.path.dirname(__file__)) / Path("../../../node_modules/@typespec/http-specs")
+    if "unbranded" in Path(os.getcwd()).parts:
+        os.chdir(http_path.resolve())
+        cmd = "npx tsp-spector serve ./specs"
+    else:
+        os.chdir(azure_http_path.resolve())
+        cmd = f"npx tsp-spector serve ./specs {(http_path / 'specs').resolve()}"
     if os.name == "nt":
         return subprocess.Popen(cmd, shell=True)
     return subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
@@ -32,7 +37,7 @@ def terminate_server_process(process):
 
 @pytest.fixture(scope="session", autouse=True)
 def testserver():
-    """Start cadl ranch mock api tests"""
+    """Start spector mock api tests"""
     server = start_server_process()
     yield
     terminate_server_process(server)

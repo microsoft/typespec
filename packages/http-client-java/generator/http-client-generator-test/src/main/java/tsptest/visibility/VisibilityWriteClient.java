@@ -44,6 +44,7 @@ public final class VisibilityWriteClient {
      * <pre>
      * {@code
      * {
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }

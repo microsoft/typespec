@@ -103,8 +103,8 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
     def operation_type(self) -> str:
         return "paging"
 
-    def cls_type_annotation(self, *, async_mode: bool) -> str:
-        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode)}]"
+    def cls_type_annotation(self, *, async_mode: bool, **kwargs: Any) -> str:
+        return f"ClsType[{Response.type_annotation(self.responses[0], async_mode=async_mode, **kwargs)}]"
 
     def _imports_shared(self, async_mode: bool, **kwargs: Any) -> FileImport:
         file_import = super()._imports_shared(async_mode, **kwargs)
@@ -117,7 +117,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             and self.code_model.options["builders_visibility"] == "embedded"
             and not async_mode
         ):
-            file_import.merge(self.next_request_builder.imports())
+            file_import.merge(self.next_request_builder.imports(**kwargs))
         return file_import
 
     @property
@@ -129,6 +129,7 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
             return FileImport(self.code_model)
         file_import = self._imports_shared(async_mode, **kwargs)
         file_import.merge(super().imports(async_mode, **kwargs))
+        serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
         if self.code_model.options["tracing"] and self.want_tracing:
             file_import.add_submodule_import(
                 "azure.core.tracing.decorator",
@@ -136,7 +137,9 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 ImportType.SDKCORE,
             )
         if self.next_request_builder:
-            file_import.merge(self.get_request_builder_import(self.next_request_builder, async_mode))
+            file_import.merge(
+                self.get_request_builder_import(self.next_request_builder, async_mode, serialize_namespace)
+            )
         elif any(p.is_api_version for p in self.client.parameters):
             file_import.add_import("urllib.parse", ImportType.STDLIB)
             file_import.add_submodule_import(
@@ -145,10 +148,10 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
                 ImportType.SDKCORE,
             )
         if self.code_model.options["models_mode"] == "dpg":
-            relative_path = "..." if async_mode else ".."
+            relative_path = self.code_model.get_relative_import_path(serialize_namespace, module_name="_model_base")
             file_import.merge(self.item_type.imports(**kwargs))
             if self.default_error_deserialization or any(r.type for r in self.responses):
-                file_import.add_submodule_import(f"{relative_path}_model_base", "_deserialize", ImportType.LOCAL)
+                file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
         return file_import
 
 

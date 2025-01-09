@@ -29,14 +29,16 @@ namespace Microsoft.Generator.CSharp.Input
             var isFirstProperty = id == null;
             string? name = null;
             string? nameInResponse = null;
-            string? description = null;
+            string? summary = null;
+            string? doc = null;
             InputType? type = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString(nameof(OperationResponseHeader.Name), ref name)
                     || reader.TryReadString(nameof(OperationResponseHeader.NameInResponse), ref nameInResponse)
-                    || reader.TryReadString(nameof(OperationResponseHeader.Description), ref description)
+                    || reader.TryReadString("Summary", ref summary)
+                    || reader.TryReadString("Doc", ref doc)
                     || reader.TryReadWithConverter(nameof(OperationResponseHeader.Type), options, ref type);
 
                 if (!isKnownProperty)
@@ -47,10 +49,9 @@ namespace Microsoft.Generator.CSharp.Input
 
             name = name ?? throw new JsonException("OperationResponseHeader must have Name");
             nameInResponse = nameInResponse ?? throw new JsonException("OperationResponseHeader must have NameInResponse");
-            description = description ?? string.Empty;
             type = type ?? throw new JsonException("OperationResponseHeader must have Type");
 
-            var result = new OperationResponseHeader(name, nameInResponse, description, type);
+            var result = new OperationResponseHeader(name, nameInResponse, summary, doc, type);
 
             if (id != null)
             {

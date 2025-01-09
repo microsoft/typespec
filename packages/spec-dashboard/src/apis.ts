@@ -8,30 +8,18 @@ const storageAccountName = "typespec";
 
 export type GeneratorNames =
   | "@typespec/http-client-python"
-  | "@azure-tools/typespec-python"
-  | "@azure-tools/typespec-go"
-  | "@azure-tools/typespec-csharp"
   | "@typespec/http-client-csharp"
   | "@azure-tools/typespec-ts-rlc"
   | "@azure-tools/typespec-ts-modular"
-  | "@azure-tools/typespec-java"
   | "@typespec/http-client-java"
-  | "@azure-tools/typespec-cpp"
-  | "@azure-tools/typespec-rust"
   | "test";
 const query = new URLSearchParams(window.location.search);
 const generatorNames: GeneratorNames[] = [
   "@typespec/http-client-python",
-  "@azure-tools/typespec-python",
-  "@azure-tools/typespec-go",
-  "@azure-tools/typespec-csharp",
   "@typespec/http-client-csharp",
   "@azure-tools/typespec-ts-rlc",
   "@azure-tools/typespec-ts-modular",
-  "@azure-tools/typespec-java",
   "@typespec/http-client-java",
-  "@azure-tools/typespec-cpp",
-  "@azure-tools/typespec-rust",
   ...(query.has("showtest") ? (["test"] as const) : []),
 ];
 
@@ -70,6 +58,9 @@ export async function getCoverageSummaries(): Promise<CoverageSummary[]> {
     (manifest: ScenarioManifest) => manifest.setName !== "@azure-tools/azure-http-specs",
   )[0];
   for (const key in generatorReports["standard"]) {
+    if (!(generatorReports["standard"] as any)[key]) {
+      continue;
+    }
     (generatorReports["standard"] as any)[key] = {
       ...(generatorReports["standard"] as any)[key][0],
       generatorMetadata: (generatorReports["standard"] as any)[key]["generatorMetadata"],

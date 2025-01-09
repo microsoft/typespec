@@ -20,7 +20,7 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<DifferentSpreadModelArrayRecord> Get() => throw null;
+        public virtual ClientResult<DifferentSpreadModelArrayRecord> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<DifferentSpreadModelArrayRecord>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Property.AdditionalProperties
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(DifferentSpreadModelArrayRecord body) => throw null;
+        public virtual ClientResult Put(DifferentSpreadModelArrayRecord body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(DifferentSpreadModelArrayRecord body, CancellationToken cancellationToken = default) => throw null;
     }

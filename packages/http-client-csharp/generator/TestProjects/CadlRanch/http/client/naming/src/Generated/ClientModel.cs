@@ -20,7 +20,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> ClientAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Client(Models.ClientModel body) => throw null;
+        public virtual ClientResult Client(Models.ClientModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ClientAsync(Models.ClientModel body, CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Client.Naming
 
         public virtual Task<ClientResult> LanguageAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Language(CSModel body) => throw null;
+        public virtual ClientResult Language(CSModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> LanguageAsync(CSModel body, CancellationToken cancellationToken = default) => throw null;
     }

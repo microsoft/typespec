@@ -22,7 +22,7 @@ namespace Routes
 
         public virtual Task<ClientResult> FixedAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Fixed() => throw null;
+        public virtual ClientResult Fixed(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> FixedAsync(CancellationToken cancellationToken = default) => throw null;
 

@@ -58,6 +58,8 @@ public class MethodGroupClient {
 
     private List<ServiceClientProperty> properties;
 
+    private String crossLanguageDefinitionId;
+
     /**
      * Create a new MethodGroupClient with the provided properties.
      * 
@@ -74,7 +76,7 @@ public class MethodGroupClient {
     protected MethodGroupClient(String packageKeyword, String className, String interfaceName,
         List<String> implementedInterfaces, Proxy proxy, String serviceClientName, String variableType,
         String variableName, List<ClientMethod> clientMethods, List<IType> supportedInterfaces, String classBaseName,
-        List<ServiceClientProperty> properties) {
+        List<ServiceClientProperty> properties, String crossLanguageDefinitionId) {
         packageName = packageKeyword;
         this.className = className;
         this.interfaceName = interfaceName;
@@ -89,6 +91,7 @@ public class MethodGroupClient {
             ? classBaseName
             : (className.endsWith("Impl") ? className.substring(0, className.length() - 4) : className);
         this.properties = properties;
+        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
     }
 
     public final String getPackage() {
@@ -137,6 +140,10 @@ public class MethodGroupClient {
 
     public List<ServiceClientProperty> getProperties() {
         return properties;
+    }
+
+    public String getCrossLanguageDefinitionId() {
+        return crossLanguageDefinitionId;
     }
 
     /**
@@ -199,6 +206,7 @@ public class MethodGroupClient {
         protected List<IType> supportedInterfaces;
         protected String classBaseName;
         private List<ServiceClientProperty> properties;
+        private String crossLanguageDefinitionId;
 
         /**
          * Sets the name of the package.
@@ -332,10 +340,21 @@ public class MethodGroupClient {
             return this;
         }
 
+        /**
+         * Sets crossLanguageDefinitionId.
+         *
+         * @param crossLanguageDefinitionId the crossLanguageDefinitionId.
+         * @return the Builder itself
+         */
+        public Builder crossLanguageDefinitionId(String crossLanguageDefinitionId) {
+            this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+            return this;
+        }
+
         public MethodGroupClient build() {
             return new MethodGroupClient(packageName, className, interfaceName, implementedInterfaces, proxy,
                 serviceClientName, variableType, variableName, clientMethods, supportedInterfaces, classBaseName,
-                properties);
+                properties, crossLanguageDefinitionId);
         }
     }
 }

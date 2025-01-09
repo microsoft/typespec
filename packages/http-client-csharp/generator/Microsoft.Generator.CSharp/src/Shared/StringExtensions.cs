@@ -83,16 +83,18 @@ namespace Microsoft.Generator.CSharp
         [return: NotNullIfNotNull(nameof(name))]
         public static string ToVariableName(this string name) => ToCleanName(name, isCamelCase: false);
 
-        public static GetPathPartsEnumerator GetPathParts(string? path) => new GetPathPartsEnumerator(path);
+        public static GetPathPartsEnumerator GetFormattableStringFormatParts(string? format) => new GetPathPartsEnumerator(format);
+
+        public static GetPathPartsEnumerator GetFormattableStringFormatParts(ReadOnlySpan<char> format) => new GetPathPartsEnumerator(format);
 
         public ref struct GetPathPartsEnumerator
         {
             private ReadOnlySpan<char> _path;
             public Part Current { get; private set; }
 
-            public GetPathPartsEnumerator(ReadOnlySpan<char> path)
+            public GetPathPartsEnumerator(ReadOnlySpan<char> format)
             {
-                _path = path;
+                _path = format;
                 Current = default;
             }
 

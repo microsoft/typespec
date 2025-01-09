@@ -17,7 +17,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.MediaType
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/4208")]
         public Task GetAsText() => Test(async (host) =>
         {
             var response2 = await new MediaTypeClient(host, null).GetStringBodyClient().GetAsTextAsync();

@@ -23,7 +23,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult> GetExtensibleModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Dog> GetExtensibleModel() => throw null;
+        public virtual ClientResult<Dog> GetExtensibleModel(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Dog>> GetExtensibleModelAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -31,7 +31,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult> PutExtensibleModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutExtensibleModel(Dog input) => throw null;
+        public virtual ClientResult PutExtensibleModel(Dog input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutExtensibleModelAsync(Dog input, CancellationToken cancellationToken = default) => throw null;
 
@@ -39,7 +39,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult> GetExtensibleModelMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Dog> GetExtensibleModelMissingDiscriminator() => throw null;
+        public virtual ClientResult<Dog> GetExtensibleModelMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Dog>> GetExtensibleModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -47,7 +47,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult> GetExtensibleModelWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Dog> GetExtensibleModelWrongDiscriminator() => throw null;
+        public virtual ClientResult<Dog> GetExtensibleModelWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Dog>> GetExtensibleModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -55,7 +55,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult> GetFixedModelAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Snake> GetFixedModel() => throw null;
+        public virtual ClientResult<Snake> GetFixedModel(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Snake>> GetFixedModelAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -63,7 +63,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult> PutFixedModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutFixedModel(Snake input) => throw null;
+        public virtual ClientResult PutFixedModel(Snake input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutFixedModelAsync(Snake input, CancellationToken cancellationToken = default) => throw null;
 
@@ -71,7 +71,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult> GetFixedModelMissingDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Snake> GetFixedModelMissingDiscriminator() => throw null;
+        public virtual ClientResult<Snake> GetFixedModelMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Snake>> GetFixedModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -79,7 +79,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
 
         public virtual Task<ClientResult> GetFixedModelWrongDiscriminatorAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<Snake> GetFixedModelWrongDiscriminator() => throw null;
+        public virtual ClientResult<Snake> GetFixedModelWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Snake>> GetFixedModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
     }

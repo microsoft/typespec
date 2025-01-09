@@ -86,7 +86,7 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         processPipelinePolicyDetails(builder, client);
 
-        builder.crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
+        builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client));
 
         List<ClientAccessorMethod> clientAccessorMethods = new ArrayList<>();
         for (Client subClient : client.getSubClients()) {

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.Generator.CSharp.Expressions;
@@ -96,6 +95,19 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var expected = Helpers.GetExpectedFromFile($"{type.Name}, {isNullable}");
 
             Assert.AreEqual(expected, writer.ToString());
+        }
+
+        [Test]
+        public void SingleLineSummaryWithLineBreaks()
+        {
+            FormattableString fs = $"Some\nmultiline\n{typeof(string)}\nsummary.";
+            using var writer = new CodeWriter();
+            var summary = new XmlDocSummaryStatement([fs]);
+            summary.Write(writer);
+
+            var expected = Helpers.GetExpectedFromFile();
+
+            Assert.AreEqual(expected, writer.ToString(false));
         }
 
         [Test]

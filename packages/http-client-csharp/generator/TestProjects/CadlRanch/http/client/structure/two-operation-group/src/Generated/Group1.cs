@@ -19,7 +19,7 @@ namespace Client.Structure.Service.TwoOperationGroup
 
         public virtual Task<ClientResult> OneAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult One() => throw null;
+        public virtual ClientResult One(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> OneAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -27,7 +27,7 @@ namespace Client.Structure.Service.TwoOperationGroup
 
         public virtual Task<ClientResult> ThreeAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Three() => throw null;
+        public virtual ClientResult Three(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ThreeAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -35,7 +35,7 @@ namespace Client.Structure.Service.TwoOperationGroup
 
         public virtual Task<ClientResult> FourAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Four() => throw null;
+        public virtual ClientResult Four(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> FourAsync(CancellationToken cancellationToken = default) => throw null;
     }

@@ -98,6 +98,8 @@ public class ModelTestCaseUtil {
             return RANDOM.nextInt() & Integer.MAX_VALUE;
         } else if (type.asNullable() == ClassType.LONG) {
             return RANDOM.nextLong() & Long.MAX_VALUE;
+        } else if (type.asNullable() == ClassType.BIG_DECIMAL) {
+            return RANDOM.nextLong() & Long.MAX_VALUE;
         } else if (type.asNullable() == ClassType.FLOAT) {
             return RANDOM.nextFloat() * 100;
         } else if (type.asNullable() == ClassType.DOUBLE) {

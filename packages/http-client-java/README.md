@@ -6,9 +6,9 @@ This is a TypeSpec library that will emit a Java SDK from TypeSpec.
 
 Install [Node.js](https://nodejs.org/) 20 or above. (Verify by running `node --version`)
 
-Install [Java](https://docs.microsoft.com/java/openjdk/download) 11 or above. (Verify by running `java --version`)
+Install [Java](https://docs.microsoft.com/java/openjdk/download) 17 or above. (Verify by running `java --version`)
 
-Install [Maven](https://maven.apache.org/install.html). (Verify by running `mvn --version`)
+Install [Maven](https://maven.apache.org/download.cgi). (Verify by running `mvn --version`)
 
 ## Getting started
 

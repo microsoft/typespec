@@ -95,7 +95,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.kind, "enum");
     strictEqual(type.name, "SimpleEnum");
     strictEqual(type.isFixed, true);
-    strictEqual(type.description, "fixed string enum");
+    strictEqual(type.doc, "fixed string enum");
     strictEqual(type.crossLanguageDefinitionId, "Azure.Csharp.Testing.SimpleEnum");
     strictEqual(type.access, undefined);
     strictEqual(type.valueType.kind, "string");
@@ -142,7 +142,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.name, "FixedIntEnum");
     strictEqual(type.crossLanguageDefinitionId, "Azure.Csharp.Testing.FixedIntEnum");
     strictEqual(type.access, undefined);
-    strictEqual(type.description, "Fixed int enum");
+    strictEqual(type.doc, "Fixed int enum");
     strictEqual(type.valueType.crossLanguageDefinitionId, "TypeSpec.int32");
     strictEqual(type.valueType.kind, "int32");
     strictEqual(type.values.length, 3);
@@ -181,7 +181,7 @@ describe("Test GetInputType for enum", () => {
     strictEqual(type.name, "FixedEnum");
     strictEqual(type.crossLanguageDefinitionId, "Azure.Csharp.Testing.FixedEnum");
     strictEqual(type.access, undefined);
-    strictEqual(type.description, "Fixed enum");
+    strictEqual(type.doc, "Fixed enum");
     strictEqual(type.valueType.kind, "string");
     strictEqual(type.valueType.crossLanguageDefinitionId, "TypeSpec.string");
     strictEqual(type.values.length, 3);

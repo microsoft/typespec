@@ -7,6 +7,9 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>Latest</LangVersion>
     <Nullable>Enable</Nullable>
+    <!-- Set this to 'all' explicitly to get a consistent behavior. It's the default value now in latest VS/.Net/NugetMgr, but maybe not in some previous version -->
+    <!-- https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/9.0/nugetaudit-transitive-packages -->
+    <NuGetAuditMode>all</NuGetAuditMode>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- Official build will pass in the real version from package.json, see scripts/build.js -->
     <Version>42.42.42</Version>
@@ -28,6 +31,10 @@
       Link="TextMate/typespec.tmLanguage" />
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
     <Reference Include="System.ComponentModel.Composition" />
+    <!-- The 'MessagePack' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.SDK', 'Microsoft.VisualStudio.Workspace' and 'Microsoft.VisualStudio.VSIntegration' -->
+    <!-- Have to add it explicitly here because the version used by 'Microsoft.VisualStudio...' report vulnerabilities now -->
+    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version having 'MessagePack' updated to vulnerability free version-->
+    <PackageReference Include="MessagePack" Version="2.5.192" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
     <Content Include="Icons\logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -40,12 +47,18 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <!-- The 'Microsoft.VisualStudio.Composition' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.Workspace' -->
+    <!-- Have to add it explicitly here because otherwise 'Microsoft.VisualStudio.Workspace" will report warning NU1603 because its desired version not found and higher version will be used -->
+    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
+    <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.12.18" />
     <!-- Use 17.0.x or latest 16.x if no 17.0.x for compatible API-->
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.10.40171" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="16.3.43"
-      ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="16.3.43"
-      ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.12.40392" ExcludeAssets="Runtime" />
+    <!-- The 'Microsoft.VisualStudio.Shell.15.0' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.Workspace.VSIntegration' -->
+    <!-- Have to add it explicitly here because otherwise 'Microsoft.VisualStudio.Workspace.VSIntegration" will report warning NU1603 because its desired version not found and higher version will be used -->
+    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
+    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.12.40392" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.12.19" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.12.19" ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.9.3184">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

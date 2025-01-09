@@ -33,6 +33,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.ArmStreamStyleSerializationClient;
 import tsptest.armstreamstyleserialization.fluent.FishesClient;
+import tsptest.armstreamstyleserialization.fluent.FunctionsClient;
 import tsptest.armstreamstyleserialization.fluent.TopLevelArmResourcesClient;
 
 /**
@@ -153,6 +154,20 @@ public final class ArmStreamStyleSerializationClientImpl implements ArmStreamSty
     }
 
     /**
+     * The FunctionsClient object to access its operations.
+     */
+    private final FunctionsClient functions;
+
+    /**
+     * Gets the FunctionsClient object to access its operations.
+     * 
+     * @return the FunctionsClient object.
+     */
+    public FunctionsClient getFunctions() {
+        return this.functions;
+    }
+
+    /**
      * Initializes an instance of ArmStreamStyleSerializationClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -172,6 +187,7 @@ public final class ArmStreamStyleSerializationClientImpl implements ArmStreamSty
         this.apiVersion = "2023-12-01-preview";
         this.fishes = new FishesClientImpl(this);
         this.topLevelArmResources = new TopLevelArmResourcesClientImpl(this);
+        this.functions = new FunctionsClientImpl(this);
     }
 
     /**

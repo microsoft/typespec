@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleNode;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
+import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelTestCaseUtil;
 import java.io.ByteArrayOutputStream;
@@ -32,6 +33,18 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
         return INSTANCE;
     }
 
+    /**
+     * Write the JSON serialization / de-serialization unit test for the model.
+     *
+     * @param model the client model to test.
+     * @param javaFile the java file.
+     * @throws com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException
+     * thrown when there is possible mock value to a secret property.
+     * Even when the value is mocked, it could be flagged by CI as issue. Therefore, the case is skipped.
+     * @throws com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException
+     * thrown when the String representation of the JSON is too long (>= 2^16).
+     * Constant string of that size would cause compiler "constant string too long" error.
+     */
     @Override
     public void write(ClientModel model, JavaFile javaFile) {
 
@@ -61,12 +74,20 @@ public class ModelTestTemplate implements IJavaTemplate<ClientModel, JavaFile> {
 
         javaFile.declareImport(imports);
 
+        String jsonStringExpression = ClassType.STRING.defaultValueExpression(jsonStr);
+        if (jsonStringExpression.length() >= 65536) {
+            // Java compiler would give "constant string too long" error on the generated file.
+            // The length of a string constant in a class file is limited to 2^16 bytes in UTF-8 encoding.
+            // There is also a related "code too large" error, for limit on Java method size in bytecode.
+            throw new ConstantStringTooLongException();
+        }
+
         javaFile.publicFinalClass(model.getName() + "Tests", classBlock -> {
             // testDeserialize
             classBlock.annotation("org.junit.jupiter.api.Test");
             classBlock.publicMethod("void testDeserialize() throws Exception", methodBlock -> {
                 methodBlock.line(String.format("%1$s model = BinaryData.fromString(%2$s).toObject(%1$s.class);",
-                    model.getName(), ClassType.STRING.defaultValueExpression(jsonStr)));
+                    model.getName(), jsonStringExpression));
                 writer.writeAssertion(methodBlock);
             });
 

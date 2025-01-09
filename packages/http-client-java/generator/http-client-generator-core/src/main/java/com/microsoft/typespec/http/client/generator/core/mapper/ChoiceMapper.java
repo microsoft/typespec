@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -53,9 +54,12 @@ public class ChoiceMapper implements IMapper<ChoiceSchema, IType> {
     private IType createChoiceType(ChoiceSchema enumType) {
         IType elementType = Mappers.getSchemaMapper().map(enumType.getChoiceType());
         boolean isStringEnum = elementType == ClassType.STRING;
-        if (isStringEnum) {
+        JavaSettings javaSettings = JavaSettings.getInstance();
+        if (isStringEnum && javaSettings.isBranded()) {
+            // for branded string enum, will generate ExpandableStringEnum subclass
             return MapperUtils.createEnumType(enumType, true, useCodeModelNameForEnumMember());
         } else {
+            // other cases, will generate ExpandableEnum interface implementation
             return MapperUtils.createEnumType(enumType, true, useCodeModelNameForEnumMember(), "getValue", "fromValue");
         }
     }

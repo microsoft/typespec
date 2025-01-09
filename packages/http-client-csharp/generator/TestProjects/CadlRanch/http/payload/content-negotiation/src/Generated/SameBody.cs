@@ -20,7 +20,7 @@ namespace Payload.ContentNegotiation
 
         public virtual Task<ClientResult> GetAvatarAsPngAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> GetAvatarAsPng() => throw null;
+        public virtual ClientResult<BinaryData> GetAvatarAsPng(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<BinaryData>> GetAvatarAsPngAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Payload.ContentNegotiation
 
         public virtual Task<ClientResult> GetAvatarAsJpegAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<BinaryData> GetAvatarAsJpeg() => throw null;
+        public virtual ClientResult<BinaryData> GetAvatarAsJpeg(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<BinaryData>> GetAvatarAsJpegAsync(CancellationToken cancellationToken = default) => throw null;
     }

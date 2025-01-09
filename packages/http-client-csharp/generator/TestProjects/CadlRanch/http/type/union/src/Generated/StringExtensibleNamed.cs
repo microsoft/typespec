@@ -20,7 +20,7 @@ namespace _Type.Union
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<GetResponse7> Get() => throw null;
+        public virtual ClientResult<GetResponse7> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<GetResponse7>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Union
 
         public virtual Task<ClientResult> SendAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Send(StringExtensibleNamedUnion prop) => throw null;
+        public virtual ClientResult Send(StringExtensibleNamedUnion prop, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> SendAsync(StringExtensibleNamedUnion prop, CancellationToken cancellationToken = default) => throw null;
     }

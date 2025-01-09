@@ -68,7 +68,7 @@
     "tsptest.enumservice.models.ColorModel": "TspTest.EnumService.ColorModel",
     "tsptest.enumservice.models.OlympicRecordModel": "TspTest.EnumService.OlympicRecordModel",
     "tsptest.enumservice.models.Operation": "TspTest.EnumService.Operation",
-    "tsptest.enumservice.models.OperationName": "Operation.name.anonymous",
+    "tsptest.enumservice.models.OperationName": "TspTest.EnumService.Operation.name.anonymous",
     "tsptest.enumservice.models.OperationStateValues": "TspTest.EnumService.OperationStateValues",
     "tsptest.enumservice.models.Priority": "TspTest.EnumService.Priority",
     "tsptest.enumservice.models.PriorityModel": "TspTest.EnumService.PriorityModel",

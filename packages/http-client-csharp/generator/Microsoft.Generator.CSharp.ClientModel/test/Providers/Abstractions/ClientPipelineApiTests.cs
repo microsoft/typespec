@@ -55,6 +55,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             public override CSharpType PipelinePolicyType => typeof(string);
 
+            public override CSharpType KeyCredentialType => typeof(object);
+
+            public override CSharpType TokenCredentialType => typeof(object);
+
             public override ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies)
                 => Original.Invoke("GetFakeCreate", [options, perRetryPolicies]);
 
@@ -64,8 +68,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
 
-            public override ValueExpression AuthorizationPolicy(params ValueExpression[] arguments)
-                => Original.Invoke("GetFakeAuthorizationPolicy", arguments);
+            public override ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null)
+                => Original.Invoke("GetFakeAuthorizationPolicy", keyPrefix == null ? [credential, headerName] : [credential, headerName, keyPrefix]);
+
+            public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
+                => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
 
             public override ClientPipelineApi ToExpression() => this;
 

@@ -20,7 +20,7 @@ namespace _Type.Dictionary
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<IDictionary<string, bool>> Get() => throw null;
+        public virtual ClientResult<IDictionary<string, bool>> Get(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<IDictionary<string, bool>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace _Type.Dictionary
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(IDictionary<string, bool> body) => throw null;
+        public virtual ClientResult Put(IDictionary<string, bool> body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutAsync(IDictionary<string, bool> body, CancellationToken cancellationToken = default) => throw null;
     }

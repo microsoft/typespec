@@ -92,7 +92,7 @@ async def test_operation(client: AccessClient):
 @pytest.mark.asyncio
 async def test_discriminator(client: AccessClient):
     result = await client.relative_model_in_operation._discriminator(kind="real")
-    assert result == models._models.RealModel(name="Madge", kind="real")
+    assert result == models._models.RealModel(name="Madge")
 
     with pytest.raises(ImportError):
         from specs.azure.clientgenerator.core.access.models import RealModel

@@ -1,14 +1,14 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "client.structure.renamedoperation.GroupAsyncClient": "null",
+    "client.structure.renamedoperation.GroupAsyncClient": "Client.Structure.RenamedOperation.Group",
     "client.structure.renamedoperation.GroupAsyncClient.renamedFour": "Client.Structure.RenamedOperation.Group.renamedFour",
     "client.structure.renamedoperation.GroupAsyncClient.renamedFourWithResponse": "Client.Structure.RenamedOperation.Group.renamedFour",
     "client.structure.renamedoperation.GroupAsyncClient.renamedSix": "Client.Structure.RenamedOperation.Group.renamedSix",
     "client.structure.renamedoperation.GroupAsyncClient.renamedSixWithResponse": "Client.Structure.RenamedOperation.Group.renamedSix",
     "client.structure.renamedoperation.GroupAsyncClient.renamedTwo": "Client.Structure.RenamedOperation.Group.renamedTwo",
     "client.structure.renamedoperation.GroupAsyncClient.renamedTwoWithResponse": "Client.Structure.RenamedOperation.Group.renamedTwo",
-    "client.structure.renamedoperation.GroupClient": "null",
+    "client.structure.renamedoperation.GroupClient": "Client.Structure.RenamedOperation.Group",
     "client.structure.renamedoperation.GroupClient.renamedFour": "Client.Structure.RenamedOperation.Group.renamedFour",
     "client.structure.renamedoperation.GroupClient.renamedFourWithResponse": "Client.Structure.RenamedOperation.Group.renamedFour",
     "client.structure.renamedoperation.GroupClient.renamedSix": "Client.Structure.RenamedOperation.Group.renamedSix",

@@ -75,6 +75,7 @@ public final class VisibilityAsyncClient {
      * <pre>
      * {@code
      * {
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -113,7 +114,7 @@ public final class VisibilityAsyncClient {
      * <pre>
      * {@code
      * {
-     *     id: int (Required)
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -125,7 +126,6 @@ public final class VisibilityAsyncClient {
      * {@code
      * {
      *     id: int (Required)
-     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -237,11 +237,11 @@ public final class VisibilityAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Dog> query(ReadDog dog) {
+    public Mono<ReadDog> query(WriteDog dog) {
         // Generated convenience method for queryWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return queryWithResponse(BinaryData.fromObject(dog), requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Dog.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(ReadDog.class));
     }
 
     /**

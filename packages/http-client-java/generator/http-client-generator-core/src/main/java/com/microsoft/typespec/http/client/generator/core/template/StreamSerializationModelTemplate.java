@@ -2312,10 +2312,20 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
                     // Loop over all properties and generate their deserialization handling.
                     AtomicReference<JavaIfBlock> ifBlockReference = new AtomicReference<>(ifBlock);
-                    propertiesManager.forEachSuperXmlElement(
-                        element -> handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, true));
-                    propertiesManager.forEachXmlElement(
-                        element -> handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, false));
+                    propertiesManager.forEachSuperXmlElement(element -> {
+                        if (element.isRequired() && element.isConstant()) {
+                            return;
+                        }
+                        handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, true);
+                    });
+                    propertiesManager.forEachXmlElement(element -> {
+                        if (element.isRequired() && element.isConstant()) {
+                            // the element is element of a constant, which can only have one value
+                            // skip de-serialize
+                            return;
+                        }
+                        handleXmlPropertyDeserialization(element, whileBlock, ifBlockReference, false);
+                    });
 
                     ifBlock = ifBlockReference.get();
 

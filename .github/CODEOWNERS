@@ -1,5 +1,5 @@
 # Catch all
-*                                            @bterlson @markcowl @allenjzhang @timotheeguerin
+*                                            @bterlson @markcowl @allenjzhang @timotheeguerin @witemple-msft
 
 ######################
 # CSharp
@@ -20,6 +20,11 @@
 # Emiter Shared
 ######################
 /eng/emitters/                               @m-nash
+
+######################
+# JS - Server
+######################
+/packages/http-server-javascript             @witemple-msft
 
 ######################
 # IDE

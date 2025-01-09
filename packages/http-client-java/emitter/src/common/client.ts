@@ -2,7 +2,7 @@
 import { Aspect, Metadata, OperationGroup, Parameter, Security } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
 
-export interface Client extends Aspect, CrossLanguageDefinition {
+export interface Client extends Aspect {
   /** All operations  */
   operationGroups: Array<OperationGroup>;
 
@@ -65,10 +65,6 @@ export class ServiceVersion extends Metadata {
       initializer,
     );
   }
-}
-
-export interface CrossLanguageDefinition {
-  crossLanguageDefinitionId?: string;
 }
 
 export interface EncodedSchema {

@@ -17,6 +17,7 @@ import {
   isVisible,
   Model,
   ModelProperty,
+  projectProgram,
   removeVisibilityModifiers,
   resetVisibilityModifiersForClass,
   sealVisibilityModifiers,
@@ -1010,7 +1011,101 @@ describe("compiler: visibility core", () => {
       strictEqual(idRead.type, idReadCreate.type);
     });
   });
+
+  describe("projection compatibility", () => {
+    it("allows @defaultVisibility to be used on enums that are projected", async () => {
+      const { Example, Bar } = (await runner.compile(`
+        @defaultVisibility(Example.A)
+        @test enum Example {
+          A,
+          B,
+        }
+
+        @test
+        model Bar {
+          @visibility(Example.B)
+          x: string;
+        }
+
+        #suppress "projections-are-experimental"
+        projection Bar#test {
+          to {
+          }
+        }
+          `)) as { Example: Enum; Bar: Model };
+
+      const projected = projectProgram(runner.program, [
+        {
+          projectionName: "test",
+          arguments: [],
+        },
+      ]);
+
+      const visibility = getVisibilityForClass(runner.program, Bar.properties.get("x")!, Example);
+
+      strictEqual(visibility.size, 1);
+      ok(visibility.has(Example.members.get("B")!));
+
+      const ProjectedBar = projected.projector.projectType(Bar) as Model;
+      const ProjectedExample = projected.projector.projectType(Example) as Enum;
+
+      const projectedX = ProjectedBar.properties.get("x")!;
+
+      strictEqual(projectedX.decorators.length, 1);
+
+      const projectedVisibility = getVisibilityForClass(projected, projectedX, ProjectedExample);
+
+      strictEqual(projectedVisibility.size, 1);
+      ok(projectedVisibility.has(ProjectedExample.members.get("B")!));
+    });
+
+    it("correctly makes projected properties invisible", async () => {
+      const { Example } = (await runner.compile(`
+        @test
+        model Example {
+          @invisible(Lifecycle)
+          x: string;
+        }
+
+        #suppress "projections-are-experimental"
+        projection Example#test {
+          to {
+          }
+        }
+      `)) as { Example: Model };
+
+      const projected = projectProgram(runner.program, [
+        {
+          projectionName: "test",
+          arguments: [],
+        },
+      ]);
+
+      const visibility = getVisibilityForClass(
+        runner.program,
+        Example.properties.get("x")!,
+        getLifecycleVisibilityEnum(runner.program),
+      );
+
+      strictEqual(visibility.size, 0);
+
+      const projectedExample = projected.projector.projectType(Example) as Model;
+
+      const projectedX = projectedExample.properties.get("x")!;
+
+      strictEqual(projectedX.decorators.length, 1);
+
+      const projectedVisibility = getVisibilityForClass(
+        projected,
+        projectedX,
+        getLifecycleVisibilityEnum(projected),
+      );
+
+      strictEqual(projectedVisibility.size, 0);
+    });
+  });
 });
+
 function validateCreateOrUpdateTransform(
   props: {
     c: ModelProperty | undefined;

@@ -25,7 +25,7 @@ namespace Versioning.TypeChangedFrom.V2
 
         public virtual Task<ClientResult> TestAsync(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<TestModel> Test(string @param, TestModel body) => throw null;
+        public virtual ClientResult<TestModel> Test(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<TestModel>> TestAsync(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
     }

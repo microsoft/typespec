@@ -1,10 +1,10 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "versioning.renamedfrom.NewInterfaceAsyncClient": "null",
+    "versioning.renamedfrom.NewInterfaceAsyncClient": "Versioning.RenamedFrom.NewInterface",
     "versioning.renamedfrom.NewInterfaceAsyncClient.newOpInNewInterface": "Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
     "versioning.renamedfrom.NewInterfaceAsyncClient.newOpInNewInterfaceWithResponse": "Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
-    "versioning.renamedfrom.NewInterfaceClient": "null",
+    "versioning.renamedfrom.NewInterfaceClient": "Versioning.RenamedFrom.NewInterface",
     "versioning.renamedfrom.NewInterfaceClient.newOpInNewInterface": "Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
     "versioning.renamedfrom.NewInterfaceClient.newOpInNewInterfaceWithResponse": "Versioning.RenamedFrom.NewInterface.newOpInNewInterface",
     "versioning.renamedfrom.RenamedFromAsyncClient": "Versioning.RenamedFrom",

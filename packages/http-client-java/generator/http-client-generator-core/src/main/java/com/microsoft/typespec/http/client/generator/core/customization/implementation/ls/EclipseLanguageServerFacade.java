@@ -4,8 +4,10 @@
 package com.microsoft.typespec.http.client.generator.core.customization.implementation.ls;
 
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -16,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 import org.apache.tools.tar.TarEntry;
 import org.apache.tools.tar.TarInputStream;
@@ -33,7 +36,7 @@ public class EclipseLanguageServerFacade {
             int javaVersion = Runtime.version().feature();
 
             Path languageServerPath = (pathToLanguageServerPlugin == null)
-                ? getLanguageServerDirectory(javaVersion, logger)
+                ? getLanguageServerDirectory(javaVersion, logger, false)
                 : Paths.get(pathToLanguageServerPlugin).resolve("jdt-language-server");
 
             List<String> command = new ArrayList<>();
@@ -71,18 +74,55 @@ public class EclipseLanguageServerFacade {
                 command.add("./config_linux");
             }
 
-            logger.info("Starting Eclipse JDT language server at {}", languageServerPath);
-            server = new ProcessBuilder(command).redirectOutput(ProcessBuilder.Redirect.PIPE)
-                .redirectInput(ProcessBuilder.Redirect.PIPE)
-                .redirectErrorStream(true)
-                .directory(languageServerPath.toFile())
-                .start();
+            Process server = startServer(command, languageServerPath, logger);
+            if (!server.isAlive()) {
+                if (pathToLanguageServerPlugin == null) {
+                    // If user didn't specify language server path, we do a clean re-download.
+                    logger
+                        .warn("Eclipse language server failed to start. The folder may be corrupted. Try re-download.");
+                    server = startServer(command, getLanguageServerDirectory(javaVersion, logger, true), logger);
+                    if (!server.isAlive()) {
+                        // if server failed to start anyway, throw with server output.
+                        throw new RuntimeException(String.format(
+                            "Eclipse language server failed to start, error output:\n %s", readServerOutput(server)));
+                    }
+                } else {
+                    // if user specify the language server path, we just throw with server output.
+                    throw new RuntimeException(String.format(
+                        "Eclipse language server failed to start, error output:\n %s", readServerOutput(server)));
+                }
+            }
+            this.server = server;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static Path getLanguageServerDirectory(int javaVersion, Logger logger) throws IOException {
+    private String readServerOutput(Process server) throws IOException {
+        if (server.getInputStream() == null) {
+            return null;
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream()))) {
+            reader.lines().forEachOrdered(line -> stringBuilder.append(line).append("\n"));
+        }
+        return stringBuilder.toString();
+    }
+
+    private Process startServer(List<String> command, Path languageServerPath, Logger logger) throws Exception {
+        logger.info("Starting Eclipse JDT language server at {}", languageServerPath);
+        final Process server;
+        server = new ProcessBuilder(command).redirectOutput(ProcessBuilder.Redirect.PIPE)
+            .redirectInput(ProcessBuilder.Redirect.PIPE)
+            .redirectErrorStream(true)
+            .directory(languageServerPath.toFile())
+            .start();
+        server.waitFor(1, TimeUnit.SECONDS);
+        return server;
+    }
+
+    private static Path getLanguageServerDirectory(int javaVersion, Logger logger, boolean forceReDownload)
+        throws IOException {
         Path tmp = Paths.get(System.getProperty("java.io.tmpdir"));
         Path autorestLanguageServer = tmp.resolve("autorest-java-language-server");
 
@@ -104,9 +144,12 @@ public class EclipseLanguageServerFacade {
         }
 
         Path languageServer = languageServerPath.resolve("jdt-language-server");
-        if (!Files.exists(languageServerPath) || !Files.exists(languageServer)) {
-            Files.createDirectories(languageServerPath);
+
+        if (!Files.exists(languageServer) || forceReDownload) {
+            Files.createDirectories(languageServer);
             Path zipPath = languageServerPath.resolve("jdt-language-server.tar.gz");
+            Files.deleteIfExists(zipPath);
+
             logger.info("Downloading Eclipse JDT language server from {} to {}", downloadUrl, zipPath);
             try (InputStream in = downloadUrl.openStream()) {
                 Files.copy(in, zipPath);
@@ -122,13 +165,15 @@ public class EclipseLanguageServerFacade {
     private static Path unzipLanguageServer(Path zipPath) throws IOException {
         try (TarInputStream tar = new TarInputStream(new GZIPInputStream(Files.newInputStream(zipPath)))) {
             Path languageServerDirectory = zipPath.getParent().resolve("jdt-language-server");
-            Files.createDirectory(languageServerDirectory);
             TarEntry entry;
             while ((entry = tar.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     Files.createDirectories(languageServerDirectory.resolve(entry.getName()));
                 } else {
-                    Files.copy(tar, languageServerDirectory.resolve(entry.getName()));
+                    Path entryPath = languageServerDirectory.resolve(entry.getName());
+                    // In case of corrupted folder, delete before create.
+                    Files.deleteIfExists(entryPath);
+                    Files.copy(tar, entryPath);
                 }
             }
 

@@ -120,8 +120,7 @@ public class EnumType implements IType {
                     return getName() + "." + enumValue.getName();
                 }
             }
-            return String.format("%1$s.from%2$s(%3$s)", getName(),
-                CodeNamer.toPascalCase(this.getElementType().toString()),
+            return String.format("%1$s.%2$s(%3$s)", getName(), getFromMethodName(),
                 this.getElementType().defaultValueExpression(sourceExpression));
         } else {
             for (ClientEnumValue enumValue : this.getValues()) {

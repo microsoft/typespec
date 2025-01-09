@@ -175,11 +175,11 @@
      "enumType": {
       "$ref": "18"
      },
-     "description": "The original version v1.",
+     "doc": "The version v1.",
      "decorators": []
     }
    ],
-   "description": "The version of the API.",
+   "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,ApiVersionEnum",
@@ -425,20 +425,20 @@
   {
    "$id": "46",
    "Name": "RemovedClient",
-   "Description": "Test for the `@removed` decorator.",
+   "Doc": "Test for the `@removed` decorator.",
    "Operations": [
     {
      "$id": "47",
      "Name": "v1",
      "ResourceName": "Removed",
-     "Description": "This operation should not be generated with latest version's signature.",
+     "Doc": "This operation should not be generated with latest version's signature.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "48",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "49",
         "kind": "constant",
@@ -568,7 +568,7 @@
        "$id": "59",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "60",
         "kind": "constant",
@@ -671,14 +671,14 @@
      "$id": "67",
      "Name": "modelV3",
      "ResourceName": "Removed",
-     "Description": "This operation will pass different paths and different request bodies based on different versions.",
+     "Doc": "This operation will pass different paths and different request bodies based on different versions.",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "68",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "69",
         "kind": "constant",
@@ -786,7 +786,7 @@
      "$id": "77",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "78",
       "kind": "url",
@@ -807,7 +807,7 @@
      "$id": "79",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
      "Type": {
       "$ref": "18"
      },
@@ -827,7 +827,7 @@
   {
    "$id": "80",
    "Name": "InterfaceV1",
-   "Description": "This operation group should not be generated with latest version.",
+   "Doc": "This operation group should not be generated with latest version.",
    "Operations": [
     {
      "$id": "81",
@@ -839,7 +839,7 @@
        "$id": "82",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "83",
         "kind": "constant",
@@ -948,7 +948,7 @@
      "$id": "91",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "92",
       "kind": "url",
@@ -969,7 +969,7 @@
      "$id": "93",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
      "Type": {
       "$ref": "18"
      },

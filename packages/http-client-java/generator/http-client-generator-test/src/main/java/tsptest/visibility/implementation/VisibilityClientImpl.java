@@ -296,6 +296,7 @@ public final class VisibilityClientImpl {
      * <pre>
      * {@code
      * {
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -336,6 +337,7 @@ public final class VisibilityClientImpl {
      * <pre>
      * {@code
      * {
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -375,7 +377,7 @@ public final class VisibilityClientImpl {
      * <pre>
      * {@code
      * {
-     *     id: int (Required)
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -387,7 +389,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     id: int (Required)
-     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -416,7 +417,7 @@ public final class VisibilityClientImpl {
      * <pre>
      * {@code
      * {
-     *     id: int (Required)
+     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -428,7 +429,6 @@ public final class VisibilityClientImpl {
      * {@code
      * {
      *     id: int (Required)
-     *     secretName: String (Required)
      *     name: String (Required)
      * }
      * }

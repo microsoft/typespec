@@ -11,6 +11,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Utilities;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
@@ -59,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     EnumUnderlyingType,
                     name,
                     this,
-                    FormattableStringHelpers.FromString(inputValue.Description),
+                    DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc),
                     initializationValue);
 
                 values[i] = new EnumTypeMember(valueName, field, inputValue.Value);

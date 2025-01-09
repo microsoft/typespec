@@ -24,7 +24,7 @@ namespace Server.Endpoint.NotDefined
 
         public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult Valid() => throw null;
+        public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
     }

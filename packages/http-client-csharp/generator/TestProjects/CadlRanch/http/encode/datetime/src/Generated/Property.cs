@@ -20,7 +20,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> DefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<DefaultDatetimeProperty> Default(DefaultDatetimeProperty body) => throw null;
+        public virtual ClientResult<DefaultDatetimeProperty> Default(DefaultDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<DefaultDatetimeProperty>> DefaultAsync(DefaultDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -28,7 +28,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> Rfc3339Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Rfc3339DatetimeProperty> Rfc3339(Rfc3339DatetimeProperty body) => throw null;
+        public virtual ClientResult<Rfc3339DatetimeProperty> Rfc3339(Rfc3339DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Rfc3339DatetimeProperty>> Rfc3339Async(Rfc3339DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -36,7 +36,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> Rfc7231Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<Rfc7231DatetimeProperty> Rfc7231(Rfc7231DatetimeProperty body) => throw null;
+        public virtual ClientResult<Rfc7231DatetimeProperty> Rfc7231(Rfc7231DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<Rfc7231DatetimeProperty>> Rfc7231Async(Rfc7231DatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -44,7 +44,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> UnixTimestampAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<UnixTimestampDatetimeProperty> UnixTimestamp(UnixTimestampDatetimeProperty body) => throw null;
+        public virtual ClientResult<UnixTimestampDatetimeProperty> UnixTimestamp(UnixTimestampDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<UnixTimestampDatetimeProperty>> UnixTimestampAsync(UnixTimestampDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
@@ -52,7 +52,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> UnixTimestampArrayAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<UnixTimestampArrayDatetimeProperty> UnixTimestampArray(UnixTimestampArrayDatetimeProperty body) => throw null;
+        public virtual ClientResult<UnixTimestampArrayDatetimeProperty> UnixTimestampArray(UnixTimestampArrayDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<UnixTimestampArrayDatetimeProperty>> UnixTimestampArrayAsync(UnixTimestampArrayDatetimeProperty body, CancellationToken cancellationToken = default) => throw null;
     }

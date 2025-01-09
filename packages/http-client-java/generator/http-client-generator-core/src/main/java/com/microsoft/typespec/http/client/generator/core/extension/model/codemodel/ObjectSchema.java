@@ -25,7 +25,6 @@ public class ObjectSchema extends ComplexSchema {
     private boolean flattenedSchema;
     // internal use, not from modelerfour
     private boolean stronglyTypedHeader;
-    private String crossLanguageDefinitionId;
 
     /**
      * Creates a new instance of the ObjectSchema class.
@@ -195,24 +194,6 @@ public class ObjectSchema extends ComplexSchema {
         this.stronglyTypedHeader = stronglyTypedHeader;
     }
 
-    /**
-     * Gets the cross-language definition ID for this object.
-     *
-     * @return The cross-language definition ID for this object.
-     */
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
-    }
-
-    /**
-     * Sets the cross-language definition ID for this object.
-     *
-     * @param crossLanguageDefinitionId The cross-language definition ID for this object.
-     */
-    public void setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
-    }
-
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return super.writeParentProperties(jsonWriter.writeStartObject()).writeJsonField("discriminator", discriminator)
@@ -256,8 +237,6 @@ public class ObjectSchema extends ComplexSchema {
                 schema.flattenedSchema = reader.getBoolean();
             } else if ("stronglyTypedHeader".equals(fieldName)) {
                 schema.stronglyTypedHeader = reader.getBoolean();
-            } else if ("crossLanguageDefinitionId".equals(fieldName)) {
-                schema.crossLanguageDefinitionId = reader.getString();
             } else {
                 reader.skipChildren();
             }

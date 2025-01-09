@@ -21,7 +21,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> DefaultAsync(DateTimeOffset value, RequestOptions options) => throw null;
 
-        public virtual ClientResult Default(DateTimeOffset value) => throw null;
+        public virtual ClientResult Default(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> DefaultAsync(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
@@ -29,7 +29,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> Rfc3339Async(DateTimeOffset value, RequestOptions options) => throw null;
 
-        public virtual ClientResult Rfc3339(DateTimeOffset value) => throw null;
+        public virtual ClientResult Rfc3339(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> Rfc3339Async(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
@@ -37,7 +37,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> Rfc7231Async(DateTimeOffset value, RequestOptions options) => throw null;
 
-        public virtual ClientResult Rfc7231(DateTimeOffset value) => throw null;
+        public virtual ClientResult Rfc7231(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> Rfc7231Async(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
@@ -45,7 +45,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, RequestOptions options) => throw null;
 
-        public virtual ClientResult UnixTimestamp(DateTimeOffset value) => throw null;
+        public virtual ClientResult UnixTimestamp(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
@@ -53,7 +53,7 @@ namespace Encode.Datetime
 
         public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
 
-        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value) => throw null;
+        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default) => throw null;
     }

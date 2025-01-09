@@ -86,7 +86,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
 
             // Response body
             IType responseBodyType;
-            if (JavaSettings.getInstance().isDataPlaneClient()) {
+            if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isBranded()) {
                 // special handling for paging method
                 if (clientMethod.getType().isPaging()) {
                     String itemName = clientMethod.getMethodPageDetails().getItemName();

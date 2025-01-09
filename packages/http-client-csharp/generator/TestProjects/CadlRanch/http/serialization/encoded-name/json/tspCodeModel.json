@@ -17,7 +17,7 @@
      "kind": "property",
      "name": "defaultName",
      "serializedName": "wireName",
-     "description": "Pass in true",
+     "doc": "Pass in true",
      "type": {
       "$id": "4",
       "kind": "boolean",
@@ -39,7 +39,7 @@
   {
    "$id": "5",
    "Name": "JsonClient",
-   "Description": "Projection",
+   "Doc": "Projection",
    "Operations": [],
    "Protocol": {
     "$id": "6"
@@ -49,7 +49,7 @@
      "$id": "7",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "8",
       "kind": "url",
@@ -93,7 +93,7 @@
        "$id": "13",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "14",
         "kind": "constant",
@@ -230,7 +230,7 @@
      "$id": "24",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "25",
       "kind": "url",

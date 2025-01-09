@@ -24,7 +24,7 @@ class GeneratorRenderer(m2r2.RestRenderer):
 
     def inline_html(self, html: str) -> str:
         """Do not render inline HTML with a role definition."""
-        return f":code:`{html}`"
+        return r"\ :code:`{}`".format(html)
 
 
 class M2R(YamlUpdatePlugin):

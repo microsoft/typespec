@@ -25,7 +25,7 @@ namespace Versioning.Removed.V1
 
         public virtual Task<ClientResult> V1Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ModelV1> V1(ModelV1 body) => throw null;
+        public virtual ClientResult<ModelV1> V1(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<ModelV1>> V1Async(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
@@ -33,7 +33,7 @@ namespace Versioning.Removed.V1
 
         public virtual Task<ClientResult> V2Async(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ModelV2> V2(string @param, ModelV2 body) => throw null;
+        public virtual ClientResult<ModelV2> V2(string @param, ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<ModelV2>> V2Async(string @param, ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
@@ -41,7 +41,7 @@ namespace Versioning.Removed.V1
 
         public virtual Task<ClientResult> ModelV3Async(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ModelV3> ModelV3(ModelV3 body) => throw null;
+        public virtual ClientResult<ModelV3> ModelV3(ModelV3 body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<ModelV3>> ModelV3Async(ModelV3 body, CancellationToken cancellationToken = default) => throw null;
 

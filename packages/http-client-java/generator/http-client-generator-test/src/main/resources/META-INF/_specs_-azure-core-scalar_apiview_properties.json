@@ -1,7 +1,7 @@
 {
   "flavor": "Azure", 
   "CrossLanguageDefinitionId": {
-    "_specs_.azure.core.scalar.ScalarAsyncClient": "null",
+    "_specs_.azure.core.scalar.ScalarAsyncClient": "_Specs_.Azure.Core.Scalar.AzureLocationScalar",
     "_specs_.azure.core.scalar.ScalarAsyncClient.get": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
     "_specs_.azure.core.scalar.ScalarAsyncClient.getWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
     "_specs_.azure.core.scalar.ScalarAsyncClient.headerMethod": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.header",
@@ -12,7 +12,7 @@
     "_specs_.azure.core.scalar.ScalarAsyncClient.putWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.put",
     "_specs_.azure.core.scalar.ScalarAsyncClient.query": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.query",
     "_specs_.azure.core.scalar.ScalarAsyncClient.queryWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.query",
-    "_specs_.azure.core.scalar.ScalarClient": "null",
+    "_specs_.azure.core.scalar.ScalarClient": "_Specs_.Azure.Core.Scalar.AzureLocationScalar",
     "_specs_.azure.core.scalar.ScalarClient.get": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
     "_specs_.azure.core.scalar.ScalarClient.getWithResponse": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.get",
     "_specs_.azure.core.scalar.ScalarClient.headerMethod": "_Specs_.Azure.Core.Scalar.AzureLocationScalar.header",

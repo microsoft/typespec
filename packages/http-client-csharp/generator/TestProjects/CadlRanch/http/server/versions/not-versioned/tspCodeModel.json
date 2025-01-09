@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "NotVersionedClient",
-   "Description": "Illustrates not-versioned server.",
+   "Doc": "Illustrates not-versioned server.",
    "Operations": [
     {
      "$id": "3",
@@ -144,7 +144,7 @@
      "$id": "14",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
       "$id": "15",
       "kind": "url",

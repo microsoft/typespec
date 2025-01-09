@@ -94,7 +94,7 @@ A decorator implementation takes the following parameters:
 import type { DecoratorContext, Type } from "@typespec/compiler";
 
 export function $logType(context: DecoratorContext, target: Type, name: string) {
-  console.log(name + ": " + targetType.kind);
+  console.log(name + ": " + target.kind);
 }
 ```
 
@@ -103,7 +103,7 @@ Or in JavaScript:
 ```ts
 // model.js
 export function $logType(context, target, name) {
-  console.log(name + ": " + targetType.kind);
+  console.log(name + ": " + target.kind);
 }
 ```
 

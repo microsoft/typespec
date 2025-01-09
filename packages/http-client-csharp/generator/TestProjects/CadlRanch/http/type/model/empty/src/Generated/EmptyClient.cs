@@ -23,7 +23,7 @@ namespace _Type.Model.Empty
 
         public virtual Task<ClientResult> PutEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutEmpty(EmptyInput input) => throw null;
+        public virtual ClientResult PutEmpty(EmptyInput input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> PutEmptyAsync(EmptyInput input, CancellationToken cancellationToken = default) => throw null;
 
@@ -31,7 +31,7 @@ namespace _Type.Model.Empty
 
         public virtual Task<ClientResult> GetEmptyAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<EmptyOutput> GetEmpty() => throw null;
+        public virtual ClientResult<EmptyOutput> GetEmpty(CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<EmptyOutput>> GetEmptyAsync(CancellationToken cancellationToken = default) => throw null;
 
@@ -39,7 +39,7 @@ namespace _Type.Model.Empty
 
         public virtual Task<ClientResult> PostRoundTripEmptyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<EmptyInputOutput> PostRoundTripEmpty(EmptyInputOutput body) => throw null;
+        public virtual ClientResult<EmptyInputOutput> PostRoundTripEmpty(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<EmptyInputOutput>> PostRoundTripEmptyAsync(EmptyInputOutput body, CancellationToken cancellationToken = default) => throw null;
     }

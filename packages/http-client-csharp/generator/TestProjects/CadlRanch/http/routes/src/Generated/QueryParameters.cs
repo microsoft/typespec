@@ -19,7 +19,7 @@ namespace Routes
 
         public virtual Task<ClientResult> TemplateOnlyAsync(string @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult TemplateOnly(string @param) => throw null;
+        public virtual ClientResult TemplateOnly(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> TemplateOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
@@ -27,7 +27,7 @@ namespace Routes
 
         public virtual Task<ClientResult> ExplicitAsync(string @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult Explicit(string @param) => throw null;
+        public virtual ClientResult Explicit(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> ExplicitAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
@@ -35,7 +35,7 @@ namespace Routes
 
         public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult AnnotationOnly(string @param) => throw null;
+        public virtual ClientResult AnnotationOnly(string @param, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 

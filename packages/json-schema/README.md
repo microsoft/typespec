@@ -22,7 +22,7 @@ namespace Example;
 
 model Car {
   make: string;
-  model: string;
+  modelName: string;
 }
 ```
 

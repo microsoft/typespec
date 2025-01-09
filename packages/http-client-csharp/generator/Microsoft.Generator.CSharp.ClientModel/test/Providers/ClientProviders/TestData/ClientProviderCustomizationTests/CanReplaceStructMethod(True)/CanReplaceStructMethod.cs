@@ -11,7 +11,7 @@ namespace Sample
     /// <summary></summary>
     public partial class TestClient
     {
-        public virtual ClientResult HelloAgain(MyStruct? p1)
+        public virtual ClientResult HelloAgain(MyStruct? p1, CancellationToken cancellationToken = default)
         {
 
         }

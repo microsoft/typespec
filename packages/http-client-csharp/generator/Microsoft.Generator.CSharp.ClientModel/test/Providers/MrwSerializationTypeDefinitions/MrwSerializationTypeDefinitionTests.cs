@@ -690,10 +690,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var name = kind.ToString().ToLower();
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredInt", "requiredInt", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false),
+                new InputModelProperty("requiredInt", "requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false),
              };
 
-            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
@@ -712,7 +712,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)
         {
-            var expr = MrwSerializationTypeDefinition.GetValueTypeDeserializationExpressionCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
+            var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
             return expr.ToDisplayString();
         }
 
