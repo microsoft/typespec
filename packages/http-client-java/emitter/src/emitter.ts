@@ -192,14 +192,17 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       javaArgs.push(codeModelFileName);
       try {
         const result = await spawnAsync("java", javaArgs, { stdio: "pipe" });
-        program.trace("http-client-java", `Log on code generation: ${result.stdout}`);
+        program.trace("http-client-java", `Code generation log: ${result.stdout}`);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
           logError(program, JDK_NOT_FOUND_MESSAGE);
         } else {
-          logError(program, error.message);
+          logError(
+            program,
+            'The emitter was unable to generate client code from this TypeSpec, please run this command again with "--trace http-client-java" to get diagnostic information, and open an issue on https://github.com/microsoft/typespec',
+          );
           if (error instanceof SpawnError) {
-            program.trace("http-client-java", `Failed to generate code: ${error.stdout}`);
+            program.trace("http-client-java", `Code generation error: ${error.stdout}`);
           }
         }
       }
