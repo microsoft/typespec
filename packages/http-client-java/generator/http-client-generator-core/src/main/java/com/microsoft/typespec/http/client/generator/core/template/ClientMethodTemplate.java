@@ -1589,9 +1589,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
-            Optional<String> serializedName
+            Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
-            if (serializedName.isPresent()) {
+            if (maxPageSizeSerializedName.isPresent() && settings.isBranded()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
                 expression.append("(pageSize) -> {");
@@ -1601,7 +1601,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
                     .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
                     .append("    urlBuilder.setQueryParameter(\"")
-                    .append(serializedName.get())
+                    .append(maxPageSizeSerializedName.get())
                     .append("\", String.valueOf(pageSize));")
                     .append("    requestLocal.setUrl(urlBuilder.toString());")
                     .append("  });")
@@ -1618,9 +1618,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
-            Optional<String> serializedName
+            Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
-            if (serializedName.isPresent()) {
+            if (maxPageSizeSerializedName.isPresent() && settings.isBranded()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
                 expression.append("(nextLink, pageSize) -> {");
@@ -1630,7 +1630,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
                     .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
                     .append("    urlBuilder.setQueryParameter(\"")
-                    .append(serializedName.get())
+                    .append(maxPageSizeSerializedName.get())
                     .append("\", String.valueOf(pageSize));")
                     .append("    requestLocal.setUrl(urlBuilder.toString());")
                     .append("  });")
