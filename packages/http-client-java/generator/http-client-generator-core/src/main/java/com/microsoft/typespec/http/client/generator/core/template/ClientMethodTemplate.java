@@ -1612,7 +1612,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        return String.format("() -> %s(%s)", methodName, argumentLine);
+        String lambdaParameters = "";
+        if (!settings.isBranded()) {
+            lambdaParameters = "pagingOptions";
+        }
+
+        return String.format("(%s) -> %s(%s)", lambdaParameters, methodName, argumentLine);
     }
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
@@ -1641,10 +1646,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
+        String lambdaParameters = "nextLink";
+        if (!settings.isBranded()) {
+            lambdaParameters = "(pagingOptions, nextLink)";
+        }
+
         if (settings.isDataPlaneClient()) {
             argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
         }
-        return String.format("nextLink -> %s(%s)", methodName, argumentLine);
+
+        return String.format("%s -> %s(%s)", lambdaParameters, methodName, argumentLine);
     }
 
     private String getPollingStrategy(ClientMethod clientMethod, String contextParam) {
