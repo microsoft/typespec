@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             description,
                             MethodSignatureModifiers.Public,
                             type,
-                            p.Name.ToCleanName(),
+                            StringHelpers.ToCleanName(p.Name),
                             new AutoPropertyBody(true),
                             this));
                     }

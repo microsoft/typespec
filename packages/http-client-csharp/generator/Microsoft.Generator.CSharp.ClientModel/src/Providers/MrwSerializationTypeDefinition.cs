@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     /// <summary>
     /// This class provides the set of serialization models, methods, and interfaces for a given model.
     /// </summary>
-    internal class MrwSerializationTypeDefinition : TypeProvider
+    public class MrwSerializationTypeDefinition : TypeProvider
     {
         private const string JsonModelWriteCoreMethodName = "JsonModelWriteCore";
         private const string JsonModelCreateCoreMethodName = "JsonModelCreateCore";
@@ -88,7 +87,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToCleanName();
+        protected override string BuildName() => StringHelpers.ToCleanName(_inputModel.Name);
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {

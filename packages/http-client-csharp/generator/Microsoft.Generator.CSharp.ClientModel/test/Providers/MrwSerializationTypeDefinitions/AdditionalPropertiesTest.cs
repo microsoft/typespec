@@ -45,7 +45,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             // validate the additional properties variable declarations
             for (var i = 0; i < expectedValueTypeNames.Length; i++)
             {
-                var expectedVariableName = i == 0 ? "additionalProperties" : $"additional{expectedValueTypeNames[i].ToCleanName()}Properties";
+                var expectedVariableName = i == 0 ? "additionalProperties" : $"additional{StringHelpers.ToCleanName(expectedValueTypeNames[i])}Properties";
                 var expectedDeclaration = $"global::System.Collections.Generic.IDictionary<string, {expectedValueTypeNames[i].ToVariableName()}> {expectedVariableName}";
                 Assert.IsTrue(methodBodyString.Contains(expectedDeclaration, StringComparison.InvariantCultureIgnoreCase));
             }
@@ -60,7 +60,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             if (expectedValueTypeNames.Length > 1)
             {
                 // skip the first value type name as it is already included in the return statement
-                var additionalPropertiesVariables = "additionalProperties, " + string.Join(", ", expectedValueTypeNames.Skip(1).Select(v => $"additional{v.ToCleanName()}Properties,"));
+                var additionalPropertiesVariables = "additionalProperties, " + string.Join(", ", expectedValueTypeNames.Skip(1).Select(v => $"additional{StringHelpers.ToCleanName(v)}Properties,"));
                 var expectedReturnStatement = $"return new global::Sample.Models.Cat(color, {additionalPropertiesVariables} additionalBinaryDataProperties);";
                 Assert.IsTrue(methodBodyString.Contains(expectedReturnStatement));
             }

@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp.Input
 
                 _discriminatedSubtypes = new Dictionary<string, InputModelType>(value);
 
-                var cleanBaseName = Name.ToCleanName();
+                var cleanBaseName = StringHelpers.ToCleanName(Name);
                 _discriminatedSubtypes.Add(UnknownDiscriminatorValue,
                 new InputModelType(
                     $"Unknown{cleanBaseName}",

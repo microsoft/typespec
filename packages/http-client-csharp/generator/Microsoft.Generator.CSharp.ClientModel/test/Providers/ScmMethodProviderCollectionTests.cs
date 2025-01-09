@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             var method = methodCollection![0];
             var signature = method.Signature;
             Assert.IsNotNull(signature);
-            Assert.AreEqual(inputOperation.Name.ToCleanName(), signature.Name);
+            Assert.AreEqual(StringHelpers.ToCleanName(inputOperation.Name), signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);
@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             var convenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                    && m.Signature.Name == $"{inputOperation.Name.ToCleanName()}");
+                    && m.Signature.Name == $"{StringHelpers.ToCleanName(inputOperation.Name)}");
             Assert.IsNotNull(convenienceMethod);
 
             var convenienceMethodParams = convenienceMethod!.Signature.Parameters;
@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             var asyncConvenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                    && m.Signature.Name == $"{inputOperation.Name.ToCleanName()}Async");
+                    && m.Signature.Name == $"{StringHelpers.ToCleanName(inputOperation.Name)}Async");
             Assert.IsNotNull(asyncConvenienceMethod);
 
             var asyncConvenienceMethodParameters = asyncConvenienceMethod!.Signature.Parameters;
@@ -91,7 +91,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
 
             var syncConvenienceMethod = methodCollection.FirstOrDefault(m
                 => !m.Signature.Parameters.Any(p => p.Name == "content")
-                   && m.Signature.Name == inputOperation.Name.ToCleanName());
+                   && m.Signature.Name == StringHelpers.ToCleanName(inputOperation.Name));
             Assert.IsNotNull(syncConvenienceMethod);
 
             var syncConvenienceMethodParameters = syncConvenienceMethod!.Signature.Parameters;

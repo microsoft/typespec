@@ -45,7 +45,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
             var method = restClientProvider.Methods![0];
             var signature = method.Signature;
             Assert.IsNotNull(signature);
-            Assert.AreEqual($"Create{inputOperation.Name.ToCleanName()}Request", signature.Name);
+            Assert.AreEqual($"Create{StringHelpers.ToCleanName(inputOperation.Name)}Request", signature.Name);
 
             var parameters = signature.Parameters;
             Assert.IsNotNull(parameters);

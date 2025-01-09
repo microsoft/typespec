@@ -24,7 +24,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
             var specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToCleanName(), p => p);
+            _specPropertiesMap = specProperties.ToDictionary(p => StringHelpers.ToCleanName(p.Name), p => p);
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();

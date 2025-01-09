@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputType.Name.ToCleanName();
+        protected override string BuildName() => StringHelpers.ToCleanName(_inputType.Name);
         protected override FormattableString Description { get; }
 
         protected override TypeProvider[] BuildSerializationProviders()

@@ -76,7 +76,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             InputFactory.Model("TestModel", properties: [collectionProperty]);
             var property = new PropertyProvider(collectionProperty, new TestTypeProvider());
 
-            Assert.AreEqual(collectionProperty.Name.ToCleanName(), property.Name);
+            Assert.AreEqual(StringHelpers.ToCleanName(collectionProperty.Name), property.Name);
             Assert.AreEqual(expectedType, property.Type);
 
             // validate the parameter conversion
@@ -117,7 +117,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             InputFactory.Model("TestModel", properties: [inputModelProperty]);
 
             var property = new PropertyProvider(inputModelProperty, testTypeProvider);
-            Assert.AreEqual(inputPropertyName.ToCleanName() + "Property", property.Name);
+            Assert.AreEqual(StringHelpers.ToCleanName(inputPropertyName) + "Property", property.Name);
         }
 
         private static IEnumerable<TestCaseData> CollectionPropertyTestCases()
