@@ -43,8 +43,8 @@ class BlackScriptPlugin(Plugin):
                         "venv",
                         "env",
                     )
-                    and not Path(f).parts[0].startswith(".")
-                    and Path(f).suffix == ".py"
+                    # we shall also format generated files like "../../../generated_tests/test_xxx.py"
+                    and (not Path(f).parts[0].startswith(".") or Path(f).parts[0] == "..") and Path(f).suffix == ".py"
                 ],
             )
         )
