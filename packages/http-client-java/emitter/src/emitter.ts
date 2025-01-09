@@ -181,8 +181,6 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         javaArgs.push(
           "-Dorg.slf4j.simpleLogger.defaultLogLevel=" + options["dev-options"]?.loglevel,
         );
-      } else {
-        javaArgs.push("-Dorg.slf4j.simpleLogger.defaultLogLevel=error");
       }
       if (options["dev-options"]?.["java-temp-dir"]) {
         javaArgs.push("-Dcodegen.java.temp.directory=" + options["dev-options"]?.["java-temp-dir"]);

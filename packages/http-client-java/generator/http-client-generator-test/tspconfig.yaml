@@ -11,4 +11,4 @@ options:
     dev-options:
       generate-code-model: true
       loglevel: info
-      # debug: false
+      debug: false
