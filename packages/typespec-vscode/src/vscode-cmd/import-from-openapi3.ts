@@ -2,7 +2,6 @@ import { NodePackage } from "@typespec/compiler";
 import { major, minor } from "semver";
 import vscode from "vscode";
 import logger from "../log/logger.js";
-import { loadDependencyPackageJson, searchAndLoadPackageJson } from "../npm-utils.js";
 import { normalizePath } from "../path-utils.js";
 import { Result, ResultCode } from "../types.js";
 import {
@@ -15,6 +14,8 @@ import {
   ExecOutput,
   isDirectory,
   isExecOutputCmdNotFound,
+  loadDependencyPackageJson,
+  searchAndLoadPackageJson,
   spawnExecutionAndLogToOutput,
 } from "../utils.js";
 
