@@ -1,6 +1,16 @@
 # Change Log - @typespec/http-client-python
 
-## 0.5.2
+## 0.6.1
+
+### Bug Fixes
+
+- Only add linting disables for a file with too many lines if the file doesn't already disable this linter rule
+
+## 0.6.0
+
+### Features
+
+- Add support for typespec namespace
 
 ### Bug Fixes
 

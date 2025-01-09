@@ -7,7 +7,7 @@
    "$id": "2",
    "kind": "enum",
    "name": "EnumsOnlyCasesLr",
-   "crossLanguageDefinitionId": "EnumsOnlyCases.lr.anonymous",
+   "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr.anonymous",
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -94,7 +94,7 @@
    "$id": "12",
    "kind": "enum",
    "name": "EnumsOnlyCasesUd",
-   "crossLanguageDefinitionId": "EnumsOnlyCases.ud.anonymous",
+   "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud.anonymous",
    "valueType": {
     "$id": "13",
     "kind": "string",
@@ -147,7 +147,7 @@
    "$id": "18",
    "kind": "enum",
    "name": "GetResponseProp1",
-   "crossLanguageDefinitionId": "get.Response.prop.anonymous",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
    "valueType": {
     "$id": "19",
     "kind": "float32",
@@ -217,7 +217,7 @@
    "$id": "26",
    "kind": "enum",
    "name": "GetResponseProp2",
-   "crossLanguageDefinitionId": "get.Response.prop.anonymous",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
    "valueType": {
     "$id": "27",
     "kind": "int32",
@@ -340,7 +340,7 @@
    "$id": "40",
    "kind": "enum",
    "name": "GetResponseProp3",
-   "crossLanguageDefinitionId": "get.Response.prop.anonymous",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
    "valueType": {
     "$id": "41",
     "kind": "string",
@@ -393,7 +393,7 @@
    "$id": "46",
    "kind": "enum",
    "name": "GetResponseProp4",
-   "crossLanguageDefinitionId": "get.Response.prop.anonymous",
+   "crossLanguageDefinitionId": "Type.Union.get.Response.prop.anonymous",
    "valueType": {
     "$id": "47",
     "kind": "string",
@@ -668,7 +668,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.MixedTypes.send.prop"
     }
    ]
   },
@@ -849,7 +849,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.MixedLiterals.send.prop"
     }
    ]
   },
@@ -993,7 +993,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.StringAndArray.send.prop"
     }
    ]
   },
@@ -1085,7 +1085,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.EnumsOnly.send.prop"
     }
    ]
   },
@@ -1175,7 +1175,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.ModelsOnly.send.prop"
     }
    ]
   },
@@ -1225,7 +1225,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.FloatsOnly.send.prop"
     }
    ]
   },
@@ -1275,7 +1275,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.IntsOnly.send.prop"
     }
    ]
   },
@@ -1325,7 +1325,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.send.prop"
     }
    ]
   },
@@ -1375,7 +1375,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.StringExtensible.send.prop"
     }
    ]
   },
@@ -1425,7 +1425,7 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.StringsOnly.send.prop"
     }
    ]
   }
