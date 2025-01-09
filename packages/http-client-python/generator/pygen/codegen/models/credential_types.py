@@ -155,7 +155,7 @@ class TokenCredentialType(CredentialType[Union[BearerTokenCredentialPolicyType, 
 
     @property
     def type_description(self) -> str:
-        return "TokenCredential"
+        return "token credential"
 
     @property
     def credentials_subfolder(self) -> str:
