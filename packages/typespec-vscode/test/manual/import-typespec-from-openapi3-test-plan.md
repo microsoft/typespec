@@ -5,7 +5,6 @@ With the TypeSpec emitter for OpenAPI3, users can import a TypeSpec file from a 
 ## Test Environment
 
 * OS : Windows or Linux
-* Language : Python, Java, JavaScript, .NET
 
 > Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
 
@@ -15,23 +14,39 @@ Install TypeSpec Compiler before starting to write TypeSpec.
 
 * [Node.js 20+](https://nodejs.org/download/)
 * Npm 7+
-* Install [TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
+* [Install TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
 
 ## Test Steps
 
-### Step 1: "Import TypeSpec from OpenAPI 3.0" from the right-click context menu of a .tsp file.
+### Step 1: Install the typespec extension.
+
+_Option 1_. Install using .vsix file: 
+   `Extension` -> `…` -> `Install form VSIX...`
+   
+   ![alt text](./images/InstallTypespec_VSIX.png)
+
+   Find the .vsix file you want to install locally.
+   
+   ![alt text](./images/InstallTypeSpec_SelectVSIXFileTest.png)
+
+_Option 2_. Install typespec with vscode extension marketplace:
+   `Extension` -> input `TypeSpec for VS Code` -> `Install`
+   
+   ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
+
+### Step 2: "Import TypeSpec from OpenAPI 3.0" from the right-click context menu of a .tsp file.
 
 ![alt text](./images/TriggerImportTypeSpecfromOpenAPI3.png)
 
-### Step 2: Confirm the project folder where you will place the TypeSpec file converted from the specified OpenAPI3 specification.
+### Step 3: Confirm the project folder where you will place the TypeSpec file converted from the specified OpenAPI3 specification.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_ConfirmProjectFolder.png)
 
-### Step 3: Specify the OpenAPI3 specification to convert.
+### Step 4: Specify the OpenAPI3 specification to convert.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_SpecifyOpenAPI3Specification.png)
 
-### Step 4: Verify that @typespec/http and @typespec/openapi3 are installed.
+### Step 5: Verify that `@typespec/http` and `@typespec/openapi3` are installed.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyInstallaDependencies.png)
 

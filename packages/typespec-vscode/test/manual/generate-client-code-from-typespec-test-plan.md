@@ -18,7 +18,7 @@ Install TypeSpec Compiler before starting to write TypeSpec.
 
 * [Node.js 20+](https://nodejs.org/download/)
 * Npm 7+
-* Install [TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
+* [Install TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
 
 Install required SDK/runtime for executing the specified language:
 
@@ -75,29 +75,35 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
    ![alt text](./images/GeneratefromTypeSpec_SelectClientLanguage.png)
 
-### Step 6: Select a Language, the TypeSpec to client code generation is initiated at the back end.
+### Step 6: Select a Language, confirm the TypeSpec emitters you want to install and their minimum requirements.
+
+  **Validate:** There should be a prompt `Here are libraries to install or update`, and TypeSpec emitters to install and their minimum requirements.
+
+  ![alt text](./images/GenerateClientCode_ConfirmTypeSpecEmitters.png)
+
+### Step 7: Initiate the generation of client code on the backend.
 
    **Validate:** The emitter package is already installed and the client folder is generated. The result appears in the lower right corner as a notification.
 
-   - For `DotNet`.
+   - For `DotNet`:
 
    ![alt text](./images/GenerateClientCode_VerifyInstallEmitter_DotNet.png)
    ![alt text](./images/GenerateClientCode_VerifyGenerateSuccessful_DotNet.png)
    ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_DotNet.png)
    
-   - For `Java`.
+   - For `Java`:
 
    ![alt text](./images/GenerateClientCode_VerifyInstallEmitter_Java.png)
    ![alt text](./images/GenerateClientCode_VerifyGenerateSuccessful_Java.png)
    ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_Java.png)
 
-   - For `JavaScript`.
+   - For `JavaScript`:
 
    ![alt text](./images/GenerateClientCode_VerifyInstallEmitter_JS.png)
    ![alt text](./images/GenerateClientCode_VerifyGenerateSuccessful_JS.png)
    ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_JS.png)
 
-   - For `Python`.
+   - For `Python`:
 
    ![alt text](./images/GenerateClientCode_VerifyInstallEmitter_Python.png)
    ![alt text](./images/GenerateClientCode_VerifyGenerateSuccessful_Python.png)
@@ -109,7 +115,7 @@ When an error is detected, it’s necessary to document the findings by using th
 
 | No | Title | Emitter Type | Language | Issue Description | Repro Steps | Expected Results | Actual Results | Comments |
 | ---------| :--: | :-: | :--: | :--: | :--: | :--: | :--: | :--: |
-| 1 | e.g. Generate Client Code failed | Client Code | `DotNet`/ `Java`/ `JavaScript`/ `Python` | Exception occurred when generating client code for JavaScript. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language.| Generate client code for JavaScript ...Succeeded. | Exception occurred when generating client code for JavaScript. | Issue link |
+| 1 | e.g. Generate Client Code failed | Client Code | DotNet/ Java / JavaScript / Python | Exception occurred when generating client code for JavaScript. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language.| Generate client code for JavaScript ...Succeeded. | Exception occurred when generating client code for JavaScript. | Issue link |
 
 ## Test Results Summary
 

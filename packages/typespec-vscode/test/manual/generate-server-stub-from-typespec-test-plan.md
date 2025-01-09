@@ -1,14 +1,15 @@
 # Generate Server Stub from TypeSpec Test Scenario
 
 The service stub generation support will be PREVIEWED for 2 languages: `.NET` and `JavaScript`.
-> Note: Server Stub Emitter is currently under PREVIEW.
+
+> Note: Server Stub Emitter is currently under PREVIEW. JavaScript server code emitter is experimental.
 
 **Important: There must be at least one TypeSpec project in the project folder.**
 
 ## Test Environment
 
 * OS : Windows or Linux
-* Language : Python, Java, JavaScript, .NET
+* Language : JavaScript, .NET
 
 > Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
 
@@ -18,7 +19,7 @@ Install TypeSpec Compiler before starting to write TypeSpec.
 
 * [Node.js 20+](https://nodejs.org/download/)
 * Npm 7+
-* Install [TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
+* [Install TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
 
 ## Test Steps
 
@@ -71,17 +72,15 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 ### Step 6: Select a Language, the TypeSpec to Server Stub generation is initiated at the back end.
 
    **Validate:** The result appears as a Notification in the bottom right corner, and generate the server folder.
-   - For `DotNet`.
+
+  > Note: JavaScript server code emitter is experimental.
+
+   - For `DotNet`:
 
    ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodeInstallDependencies_DotNet.png)
    ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodePrompt_DotNet.png)
    ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodeFolder_DotNet.png)
 
-   - For `JavaScript`.
-   
-   ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodeInstallDependencies_JS.png)
-   ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodePrompt_JS.png)
-   ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodeFolder_JS.png)
 
 ## Issue Report
 
@@ -89,7 +88,7 @@ When an error is detected, it’s necessary to document the findings by using th
 
 | No | Title | Emitter Type | Language | Issue Description | Repro Steps | Expected Results | Actual Results | Comments |
 | ---------| :--: | :-: | :--: | :--: | :--: | :--: | :--: | :--: |
-| 1 | e.g. Generate Server Stub failed | Server Stub | `DotNet`/ `JavaScript`/ | Exception occurred when generating server code for JavaScript. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language.| Generate server code for JavaScript ...Succeeded. | Exception occurred when generating server code for JavaScript. | Issue link |
+| 1 | e.g. Generate Server Stub failed | Server Stub | DotNet/ JavaScript | Exception occurred when generating server code for JavaScript. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language.| Generate server code for JavaScript ...Succeeded. | Exception occurred when generating server code for JavaScript. | Issue link |
 
 ## Test Results Summary
 
@@ -98,4 +97,4 @@ The test results will be presented in the following form:
 | NO | Test Cases | Platform | Language | Result | Issues | Comments |
 |  --------------- | :-: |:-: | :--: | :--: | :--: | :--: |
 | 1 | Generate Server Stub from TypeSpec Test Scenario | Windows/Linux | DotNet |  |  |  |
-| 2 | Generate Server Stub from TypeSpec Test Scenario | Windows/Linux | JavaScript |  |  |  |
+| 2 | Generate Server Stub from TypeSpec Test Scenario | Windows/Linux | JavaScript _(Experimental)_ |  |  |  |

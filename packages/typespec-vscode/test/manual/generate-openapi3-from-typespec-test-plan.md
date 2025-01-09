@@ -8,7 +8,7 @@ The TypeSpec file itself is not sufficient to generate OpenAPI 3. The conversion
 ## Test Environment
 
 * OS : Windows or Linux
-* Language : Python, Java, JavaScript, .NET
+* Language : OpenAPI3
 
 > Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
 
@@ -18,7 +18,7 @@ Install TypeSpec Compiler before starting to write TypeSpec.
 
 * [Node.js 20+](https://nodejs.org/download/)
 * Npm 7+
-* Install [TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
+* [Install TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
 
 ## Test Steps
 
@@ -68,12 +68,22 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
    ![alt text](./images/GeneratefromTypeSpec_SelectOpenAPILanguage.png)
 
-### Step 6: Select a Language, the TypeSpec to OpenAPI generation is initiated at the back end.
+### Step 6: Select a Language, confirming installation of the required TypeSpec library @typespec/openapi3.
 
-   **Validate:** The result appears as a Notification in the bottom right corner, and generate the schema folder.
+  **Validate**: There should be a prompt `Here are libraries to install or update`, and confirming installation of the required TypeSpec library @typespec/openapi3.
+
+  ![alt text](./images/GenerateOpenAPI_ConfirmTypeSpecEmitters.png)
+
+### Step 7: Initiate the generation of OpenAPI on the backend.
+
+   **Validate:** A detailed trace log should be printed in the OUTPUT window. The result appears as a Notification in the bottom right corner, and generate the schema folder.
 
    ![alt text](./images/GeneratefromTypeSpec_GenerateOpenAPIResult_prompt.png)
    ![alt text](./images/GeneratefromTypeSpec_GenerateOpenAPIResult_Folder.png)
+
+   If the OpenAPI 3 generation fails, the error message should indicate the root cause and suggest possible resolutions to continue.
+
+   ![alt text](./images/GeneratefromTypeSpec_GenerateOpenAPIResult_Fail.png)
 
 ## Issue Report
 
@@ -81,7 +91,7 @@ When an error is detected, it’s necessary to document the findings by using th
 
 | No | Title | Emitter Type | Language | Issue Description | Repro Steps | Expected Results | Actual Results | Comments |
 | ---------| :--: | :-: | :--: | :--: | :--: | :--: | :--: | :--: |
-| 1 | e.g. Generate schema code failed | Protocal Schema | `OpenAPI3` | Exception occurred when generating schema code for OpenAPI3. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language.| Generate schema code for OpenAPI3 ...Succeeded. | Exception occurred when generating schema code for OpenAPI3. | Issue link |
+| 1 | e.g. Generate schema code failed | Protocal Schema | OpenAPI3 | Exception occurred when generating schema code for OpenAPI3. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language.| Generate schema code for OpenAPI3 ...Succeeded. | Exception occurred when generating schema code for OpenAPI3. | Issue link |
 
 ## Test Results Summary
 

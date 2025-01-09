@@ -17,7 +17,7 @@ Selecting a template involves:
 ## Test Environment
 
 * OS : Windows or Linux
-* Language : Python, Java, JavaScript, .NET
+* Template : Empty Project, Generic REST API, TypeSpec Library (with TypeScript), TypeSpec Emitter (with TypeScript)
 
 > Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
 
@@ -27,7 +27,7 @@ Install TypeSpec Compiler before starting to write TypeSpec.
 
 * [Node.js 20+](https://nodejs.org/download/)
 * Npm 7+
-* Install TypeSpec Compiler CLI: `"npm install -g @typespec/compiler"`
+* [Install TypeSpec Compiler CLI](https://typespec.io/docs/): `"npm install -g @typespec/compiler"`
 
 ## Test Steps
 
@@ -61,7 +61,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
    
    ![alt text](./images/CreateTypeSpecProject_SelectFolderTest.png)
 
-#### Step 4. Check if TypeSpec Compiler CLI is installed (optional).
+### Step 4. Check if TypeSpec Compiler CLI is install. (optional)
 
 If the TypeSpec Compiler is not installed, the Quick Pick will initiate the installation of the TypeSpec Compiler. If TypeSpec Compiler is installed, Skip to the next step.
    
@@ -69,7 +69,7 @@ If the TypeSpec Compiler is not installed, the Quick Pick will initiate the inst
 
 ### Step 5. After successfully installing TypeSpec Compiler, will go through the questions of `tsp init`.
 
-   1. If the specified folder is not empty. If the folder is empty, skip to the next step. _(optional)_
+   1. If the specified folder is not empty, it will prompt `Folder C:\xxx\xxx\xxx is not empty. Are you sure you want to initialize a new project here?`. If the folder is empty, skip to the next step. _(optional)_
 
    &emsp;&emsp;**Validate:** Will it appear: `Folder C:\xxx\xxx\xxx is not empty. Are you sure you want to initialize a new project here?`
    
@@ -90,6 +90,8 @@ If the TypeSpec Compiler is not installed, the Quick Pick will initiate the inst
       ![alt text](./images/CreateTypeSpecProject_Generate_ignoreFile.png)
 
    5. Select libraries to update. _(Multiple choice)_
+
+      > Note: Select libraries to update is required only when you select `Generic REST API`. This step will not appear if you select other templates.
 
       ![alt text](./images/CreateTypeSpecProject_InstallOrUpdateLibraries.png)
 
@@ -125,7 +127,7 @@ When an error is detected, it’s necessary to document the findings by using th
 
 | No | Title | Template | Issue Description | Repro Steps | Expected Results | Actual Results | Comments |
 | ---------| :--: | :--: | :--: | :--: | :--: | :--: | :--: |
-| 1 | e.g. Create typespec project failed | `Empty project` / `Generic REST API` / `TypeSpec Library (With TypeScript)` / `TypeSpec Emitter (With TypeScript)` | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | 1. Typing `>TypeSpec: Create TypeSpec Project` in the _Command Palette_. <br> 2. Select an empty folder as the root folder for the new TypeSpec project. <br> 3. Select a template. | There should be a prompt "Select a template", and should see four options: `Empty project`, `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`. | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | Issue link |
+| 1 | e.g. Create typespec project failed | Empty project / Generic REST API / TypeSpec Library (With TypeScript) / TypeSpec Emitter (With TypeScript) | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | 1. Typing `>TypeSpec: Create TypeSpec Project` in the _Command Palette_. <br> 2. Select an empty folder as the root folder for the new TypeSpec project. <br> 3. Select a template. | There should be a prompt "Select a template", and should see four options: `Empty project`, `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`. | Create project feature is not supported by the current TypeSpec Compiler (ver <= 0.63.0). Please upgrade TypeSpec Compiler and try again. | Issue link |
 
 ## Test Results Summary
 
