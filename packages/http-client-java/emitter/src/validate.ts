@@ -66,7 +66,7 @@ export async function validateDependencies(
 }
 
 function findJavaVersion(output: string): string | undefined {
-  const matches = output.match(/javac ([\d\.]+).*/);
+  const matches = output.match(/javac ([\d.]+).*/);
   if (matches && matches.length > 1) {
     return matches[1];
   }
@@ -89,7 +89,7 @@ function getJavaMajorVersion(version: string): number {
 
 function findMavenVersion(output: string): string | undefined {
   // there is control characters in the output
-  const matches = output.match(/.*Apache Maven ([\d\.]+).*/);
+  const matches = output.match(/.*Apache Maven ([\d.]+).*/);
   if (matches && matches.length > 1) {
     return matches[1];
   }
