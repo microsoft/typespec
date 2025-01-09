@@ -69,36 +69,55 @@ If the TypeSpec Compiler is not installed, the Quick Pick will initiate the inst
 
 ### Step 5. After successfully installing TypeSpec Compiler, will go through the questions of `tsp init`.
 
-   1. If the specified folder is not empty. If the folder is empty, skip to the next step.
+   1. If the specified folder is not empty. If the folder is empty, skip to the next step. _(optional)_
 
    &emsp;&emsp;**Validate:** Will it appear: `Folder C:\xxx\xxx\xxx is not empty. Are you sure you want to initialize a new project here?`
    
    &emsp;&emsp;![alt text](./images/CreateTypeSpecProject_VerifyFolderIsEmpty.png)
 
-   2. Select a template.
+   2. Select a template _(Single choice)_.
 
    &emsp;&emsp;**Validate:** There should be a prompt "Select a template", and should see four options: `Empty project`, `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`.
    
    &emsp;&emsp;![alt text](./images/CreateTypeSpecProject_SelectTemplate.png)
 
-   3. Input project name.
+   3. Input project name - _(Text input)_ by default, it is the project root folder name..
 
       ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
 
-   4. Choose whether to generate a .ignore file.
+   4. Choose whether to generate a .ignore file. _(Single choice)_ `Y/N`
 
       ![alt text](./images/CreateTypeSpecProject_Generate_ignoreFile.png)
 
-   5. Select libraries to update.
+   5. Select libraries to update. _(Multiple choice)_
 
       ![alt text](./images/CreateTypeSpecProject_InstallOrUpdateLibraries.png)
 
-   6. Click `OK`.
+   6. Click `OK` and the project will be created, the folder structure will be set up, dependencies will be installed, and tspconfig.yaml will be updated..
 
       **Validate:** Verify that the project was created correctly and the dependencies are installed.
+      
+      - Install Dependencies
 
-      ![alt text](./images/CreateTypeSpecProject_InstallDependencies.png)
-      ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder.png)
+        ![alt text](./images/CreateTypeSpecProject_InstallDependencies.png)
+
+      - Folder structure
+
+        - For `Empty project`, the folder structure.
+        
+          ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_EmptyProject.png)
+
+        - For `Generic REST API`, the folder structure.
+
+          ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_GenericRESTAPI.png)
+
+        - For `TypeSpec Library (With TypeScript)`, the folder structure.
+     
+          ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_TypeSpecLibrary.png)
+
+        - For `TypeSpec Emitter (With TypeScript)`, the folder structure.
+     
+          ![alt text](./images/CreateTypeSpecProject_CreateSucceedFolder_TypeSpecEmitter.png)
 
 ## Issue Report
 
