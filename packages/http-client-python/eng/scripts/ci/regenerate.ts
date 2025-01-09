@@ -165,6 +165,7 @@ interface RegenerateFlagsInput {
   debug?: boolean;
   name?: string;
   pyodide?: boolean;
+  "enable-typespec-namespace"?: boolean;
 }
 
 interface RegenerateFlags {
@@ -292,7 +293,7 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
-    await regenerate({ flavor: "unbranded", pyodide: true, ...flags });
+    await regenerate({ flavor: "unbranded", pyodide: true, "enable-typespec-namespace": false, ...flags });
   } else {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
