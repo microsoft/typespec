@@ -293,14 +293,14 @@ function _getCmdList(spec: string, flags: RegenerateFlags): TspCommand[] {
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
-    await regenerate({
-      flavor: "unbranded",
-      pyodide: true,
+    await regenerate({ flavor: "unbranded", pyodide: true, ...flags });
+  } else {
+    const flagsResolved = {
+      debug: false,
+      flavor: flags.flavor,
       "enable-typespec-namespace": false,
       ...flags,
-    });
-  } else {
-    const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
+    };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
     const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);
     const subdirectories =
