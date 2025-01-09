@@ -8,62 +8,53 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
     label: "Format triple-quote-indent",
     fix: (context) => {
       const result: CodeFixEdit[] = [];
-
       const location = getSourceLocation(diagnosticTarget);
-      const startPos = location.pos;
-      const endPos = location.end;
-      const offSet = 3;
-      const splitOrIndentStr = "\r\n";
+      const startPos = location.pos + 3;
+      const endPos = location.end - 3;
+      const splitStr = "\r\n";
 
-      const arrSplintLines = splitLines(location.file.text, startPos + offSet, endPos - offSet);
-      const count = arrSplintLines.length;
+      const lines = splitLines(location.file.text, startPos, endPos);
 
-      const minIndentObj: { startPos: number; indent: number } = arrSplintLines.reduce(
-        (prev, curr) => {
-          return prev.indent < curr.indent ? prev : curr;
-        },
-      );
+      const firstLine = lines[0];
+      if (lines.length > 0 && firstLine.lineText.trim() === "") {
+        lines.shift();
+      }
 
-      for (let i = 0; i < count; i++) {
-        const line = arrSplintLines[i];
-        const lastLine = arrSplintLines[arrSplintLines.length - 1];
+      const lastLine = lines[lines.length - 1];
+      if (lines.length > 0 && lastLine.lineText.trim() === "") {
+        lines.pop();
+      }
 
-        if (i === 0 || i === count - 1) {
-          if (i === 0 && line.lineText.trim() !== "") {
-            // start triple quote is not on new line
-            [startPos + offSet].map((pos) => {
-              result.push(
-                context.prependText(
-                  { ...location, pos },
-                  splitOrIndentStr + " ".repeat(lastLine.indent - minIndentObj.indent),
-                ),
-              );
-            });
-          }
+      const minIndentLine: { startPos: number; indent: number } = lines.reduce((prev, curr) => {
+        return prev.indent < curr.indent ? prev : curr;
+      });
+      if (minIndentLine.indent <= lastLine.indent) {
+        let indentDiff = lastLine.indent - minIndentLine.indent;
+        const prefix = " ".repeat(indentDiff);
+        // start triple-quote is not on a new line
+        if (firstLine.lineText.trim() !== "") {
+          result.push(context.prependText({ ...location, pos: startPos }, splitStr + prefix));
+        }
 
-          if (i === count - 1 && line.lineText.replace(splitOrIndentStr, "").trim() !== "") {
-            // end triple quote is not on new line
-            [endPos - offSet].map((pos) => {
-              result.push(
-                context.prependText(
-                  { ...location, pos },
-                  splitOrIndentStr +
-                    " ".repeat(
-                      lastLine.indent - (arrSplintLines.length === 1 ? 0 : minIndentObj.indent),
-                    ),
-                ),
-              );
-            });
-          }
-        } else {
-          // All triple quote is on new line, but content is not indented the same as the closing triple quote
-          // So take the difference between the last line and the smallest indentation in all lines,
-          // and supplement the indentation of each line (except the first and last lines)
+        if (lastLine.lineText.trim() === lines[lines.length - 1].lineText.trim()) {
+          lines.pop();
+        }
+
+        if (lines.length > 0 && firstLine.lineText.trim() === lines[0].lineText.trim()) {
+          lines.shift();
+        }
+
+        lines.map((line) => {
+          result.push(context.prependText({ ...location, pos: line.startPos }, prefix));
+        });
+        // end triple-quote is not on a new line
+        if (lastLine.lineText.trim() !== "") {
+          indentDiff =
+            minIndentLine.indent === lastLine.indent
+              ? lastLine.indent
+              : lastLine.indent - minIndentLine.indent;
           result.push(
-            context.prependText(
-              { ...location, pos: arrSplintLines[i].startPos },
-              " ".repeat(lastLine.indent - minIndentObj.indent),
-            ),
+            context.prependText({ ...location, pos: endPos }, splitStr + " ".repeat(indentDiff)),
           );
         }
       }
@@ -100,33 +91,34 @@ function splitLines(
   }
 
   const lineText = text.slice(start, end);
-  const indentNumb = getIndentInLine(lineText);
+  const indentNumb = getIndentNumbInLine(lineText);
   lines.push({ startPos: start + 2, indent: indentNumb, lineText });
 
   return lines;
 
   function addObjToArray() {
     const lineText = text.slice(start, pos);
-    const indentNumb = getIndentInLine(lineText);
+    const indentNumb = getIndentNumbInLine(lineText);
     lines.push({ startPos: start + 2, indent: indentNumb, lineText });
     start = pos;
   }
 }
 
-function getIndentInLine(lineText: string): number {
+function getIndentNumbInLine(lineText: string): number {
   let curStart = 0;
   const curEnd = lineText.length;
-  let indentNumb = 0;
-  if (
+  const flag =
+    curEnd >= 2 &&
     lineText.charCodeAt(curStart) === CharCode.CarriageReturn &&
-    lineText.charCodeAt(curStart + 1) === CharCode.LineFeed
-  ) {
+    lineText.charCodeAt(curStart + 1) === CharCode.LineFeed;
+
+  if (flag) {
     curStart += 2;
   }
 
   while (curStart < curEnd && isWhiteSpaceSingleLine(lineText.charCodeAt(curStart))) {
-    indentNumb++;
     curStart++;
   }
-  return indentNumb;
+
+  return flag ? curStart - 2 : curStart;
 }
