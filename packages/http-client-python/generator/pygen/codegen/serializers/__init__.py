@@ -94,7 +94,7 @@ class JinjaSerializer(ReaderAndWriter):
         sync_loop = AsyncInfo(async_mode=False, async_path="")
         async_loop = AsyncInfo(async_mode=True, async_path="aio/")
         return [sync_loop, async_loop] if self.has_aio_folder else [sync_loop]
-    
+
     @property
     def keep_version_file(self) -> bool:
         if self.options.get("keep_version_file"):
