@@ -819,13 +819,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("res.getBody(),");
                 function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                     .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+                // continuation token
+                function.line("null,");
+                // next link
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                     String nextLinkLine = nextLinkLine(clientMethod);
                     nextLinkLine = nextLinkLine.substring(0, nextLinkLine.length() - 1);
-                    function.line(nextLinkLine + ");");
+                    function.line(nextLinkLine + ",");
                 } else {
-                    function.line("null);");
+                    function.line("null,");
                 }
+                // previous link, first link, last link
+                function.line("null,null,null);");
             }
         });
     }
