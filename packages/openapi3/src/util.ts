@@ -133,6 +133,20 @@ export function includeDerivedModel(model: Model): boolean {
   );
 }
 
+export function isScalarExtendsBytes(type: Type): boolean {
+  if (type.kind !== "Scalar") {
+    return false;
+  }
+  let current: Scalar | undefined = type;
+  while (current) {
+    if (current.name === "bytes") {
+      return true;
+    }
+    current = current.baseScalar;
+  }
+  return false;
+}
+
 export function getDefaultValue(
   program: Program,
   defaultType: Value,

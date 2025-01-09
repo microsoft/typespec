@@ -26,6 +26,7 @@ import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { applyEncoding, getRawBinarySchema } from "./openapi-helpers-3-0.js";
 import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
@@ -97,6 +98,17 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     this.#applySchemaExamples(type, target);
   }
 
+  applyEncoding(
+    typespecType: Scalar | ModelProperty,
+    target: OpenAPI3Schema | Placeholder<OpenAPI3Schema>,
+  ): OpenAPI3Schema {
+    return applyEncoding(this.emitter.getProgram(), typespecType, target as any, this._options);
+  }
+
+  getRawBinarySchema(): OpenAPI3Schema {
+    return getRawBinarySchema();
+  }
+
   enumSchema(en: Enum): OpenAPI3Schema {
     const program = this.emitter.getProgram();
     if (en.members.size === 0) {
@@ -143,7 +155,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
       }
 
       if (isMultipart && isBytesKeptRaw(program, variant.type)) {
-        schemaMembers.push({ schema: { type: "string", format: "binary" }, type: variant.type });
+        schemaMembers.push({ schema: this.getRawBinarySchema(), type: variant.type });
         continue;
       }
 

@@ -28,7 +28,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
       ["offsetDateTime", { type: "string", format: "date-time" }],
       ["plainTime", { type: "string", format: "time" }],
       ["duration", { type: "string", format: "duration" }],
-      ["bytes", { type: "string", format: "byte" }],
       ["decimal", { type: "number", format: "decimal" }],
       ["decimal128", { type: "number", format: "decimal128" }],
     ];
@@ -307,13 +306,6 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
         testEncode("duration", { type: "integer", format: "int32" }, "seconds", "int32"));
     });
 
-    describe("bytes", () => {
-      it("set format to 'base64' by default", () =>
-        testEncode("bytes", { type: "string", format: "byte" }));
-      it("set format to base64url when encoding bytes as base64url", () =>
-        testEncode("bytes", { type: "string", format: "base64url" }, "base64url"));
-    });
-
     describe("int64", () => {
       it("set type: integer and format to 'int64' by default", () =>
         testEncode("int64", { type: "integer", format: "int64" }));
@@ -331,16 +323,32 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, openApiFor }) => {
 });
 
 worksFor(["3.0.0"], ({ oapiForModel }) => {
-  it("handle null type as nullable", async () => {
-    const res = await oapiForModel(
-      "Pet",
-      `
-      model Pet { name: null };
-      `,
-    );
+  describe("Open API 3.0", () => {
+    it("handle null type as nullable", async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+        model Pet { name: null };
+        `,
+      );
 
-    const schema = res.schemas.Pet.properties.name;
-    deepStrictEqual(schema, { nullable: true });
+      const schema = res.schemas.Pet.properties.name;
+      deepStrictEqual(schema, { nullable: true });
+    });
+
+    it("set format to 'base64' by default", async () => {
+      const res1 = await oapiForModel("s", "scalar s extends bytes;");
+      deepStrictEqual(res1.schemas.s, { type: "string", format: "byte" });
+      const res2 = await oapiForModel("Test", "model Test { prop: bytes };");
+      deepStrictEqual(res2.schemas.Test.properties.prop, { type: "string", format: "byte" });
+    });
+
+    it("set format to 'base64Url' when encoding bytes as base64url", async () => {
+      const res1 = await oapiForModel("s", `@encode("base64url") scalar s extends bytes;`);
+      deepStrictEqual(res1.schemas.s, { type: "string", format: "base64url" });
+      const res2 = await oapiForModel("Test", `model Test { @encode("base64url") prop: bytes };`);
+      deepStrictEqual(res2.schemas.Test.properties.prop, { type: "string", format: "base64url" });
+    });
   });
 });
 
@@ -355,5 +363,37 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
 
     const schema = res.schemas.Pet.properties.name;
     deepStrictEqual(schema, { type: "null" });
+  });
+
+  it("set contentEncoding to 'base64' by default", async () => {
+    const res1 = await oapiForModel("s", "scalar s extends bytes;");
+    deepStrictEqual(res1.schemas.s, { type: "string", contentEncoding: "base64" });
+    const res2 = await oapiForModel("Test", "model Test { prop: bytes };");
+    deepStrictEqual(res2.schemas.Test.properties.prop, {
+      type: "string",
+      contentEncoding: "base64",
+    });
+  });
+
+  it("set contentEncoding to 'base64Url' when encoding bytes as base64url", async () => {
+    const res1 = await oapiForModel("s", `@encode("base64url") scalar s extends bytes;`);
+    deepStrictEqual(res1.schemas.s, { type: "string", contentEncoding: "base64url" });
+    const res2 = await oapiForModel("Test", `model Test { @encode("base64url") prop: bytes };`);
+    deepStrictEqual(res2.schemas.Test.properties.prop, {
+      type: "string",
+      contentEncoding: "base64url",
+    });
+  });
+
+  it("set contentEncoding and contentMediaType via decorators on bytes property", async () => {
+    const res = await oapiForModel(
+      "Test",
+      `model Test { @JsonSchema.contentEncoding("base64url") @JsonSchema.contentMediaType("text/plain") prop: bytes };`,
+    );
+    deepStrictEqual(res.schemas.Test.properties.prop, {
+      type: "string",
+      contentMediaType: "text/plain",
+      contentEncoding: "base64url",
+    });
   });
 });

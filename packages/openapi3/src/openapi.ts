@@ -86,7 +86,6 @@ import {
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
-import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
@@ -230,7 +229,13 @@ function createOAPIEmitter(
   options: ResolvedOpenAPI3EmitterOptions,
   specVersion: OpenAPIVersion = "3.0.0",
 ) {
-  const { createRootDoc, createSchemaEmitter } = getOpenApiSpecProps(specVersion);
+  const {
+    applyEncoding,
+    createRootDoc,
+    createSchemaEmitter,
+    getRawBinarySchema,
+    isRawBinarySchema,
+  } = getOpenApiSpecProps(specVersion);
   let program = context.program;
   let schemaEmitter: AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
@@ -1092,7 +1097,7 @@ function createOAPIEmitter(
   ): OpenAPI3MediaType {
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
-      return { schema: { type: "string", format: "binary" } };
+      return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
     }
 
     const oai3Examples = examples && getExampleOrExamples(program, examples);
@@ -1141,7 +1146,7 @@ function createOAPIEmitter(
     for (const [partIndex, part] of body.parts.entries()) {
       const partName = part.name ?? `part${partIndex}`;
       let schema = isBytesKeptRaw(program, part.body.type)
-        ? { type: "string", format: "binary" }
+        ? getRawBinarySchema()
         : getSchemaForSingleBody(
             part.body.type,
             visibility,
@@ -1231,10 +1236,8 @@ function createOAPIEmitter(
         return schema.type === "string" || schema.type === "number";
       case "application/octet-stream":
         return (
-          (schema.type === "string" && schema.format === "binary") ||
-          (schema.type === "array" &&
-            (schema.items as any)?.type === "string" &&
-            (schema.items as any)?.format === "binary")
+          isRawBinarySchema(schema) ||
+          (schema.type === "array" && !!schema.items && isRawBinarySchema(schema.items as any))
         );
       case "application/json":
         return schema.type === "object";
