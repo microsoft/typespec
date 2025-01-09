@@ -698,7 +698,7 @@ async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<Ts
     const igcArgs: InstallGlobalCliCommandArgs = {
       confirm: true,
       confirmTitle: TITLE,
-      confirmPlaceholder: "Install Type Compiler CLI.",
+      confirmPlaceholder: "Install TypeSpec Compiler CLI.",
       silentMode: true,
     };
     const result = await vscode.commands.executeCommand<Result<void>>(
