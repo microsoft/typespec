@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.1
+
+### Bug Fixes
+
+- Generate `__init__` for all DPG models to ensure stability
+
 ## 0.6.0
 
 ### Features
