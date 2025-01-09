@@ -168,6 +168,7 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       }
       `,
       );
+      expect(Object.keys(res.components.schemas).length).toBe(1);
       deepStrictEqual(res.components.schemas.FilePurpose, {
         type: "string",
         enum: ["one", "two"],
@@ -425,7 +426,7 @@ worksFor(["3.0.0"], ({ openApiFor }) => {
 
 worksFor(["3.1.0"], ({ openApiFor }) => {
   describe("Open API 3.1", () => {
-    // @see https://spec.openapis.org/oas/latest.html#encoding-content-type
+    // @see https://spec.openapis.org/oas/v3.1.1.html#encoding-content-type
     it("part of type `bytes` produce empty schema", async () => {
       const res = await openApiFor(
         `
@@ -444,7 +445,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       });
     });
 
-    it("part of type union `HttpPart<bytes | {content: bytes}>` produce `type: string, format: binary`", async () => {
+    it("part of type union `HttpPart<bytes | {content: bytes}>` produce `{}, type: string, contentEncoding: base64`", async () => {
       const res = await openApiFor(
         `
       op upload(@header contentType: "multipart/form-data", @multipartBody _: {profileImage: HttpPart<bytes | {content: bytes}>}): void;
@@ -481,7 +482,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
       });
     });
 
-    it("part of type `bytes[]` produce `type: array, items: {type: string, format: binary}`", async () => {
+    it("part of type `bytes[]` produce `type: array, items: {}`", async () => {
       const res = await openApiFor(
         `
       op upload(@header contentType: "multipart/form-data",  @multipartBody _: { profileImage: HttpPart<bytes>[]}): void;
@@ -581,7 +582,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
     });
 
     describe("legacy implicit form", () => {
-      it("part of type `bytes` produce `type: string, format: binary`", async () => {
+      it("part of type `bytes` produce `{}`", async () => {
         const res = await openApiFor(
           `
         op upload(@header contentType: "multipart/form-data", profileImage: bytes): void;
@@ -599,7 +600,7 @@ worksFor(["3.1.0"], ({ openApiFor }) => {
         });
       });
 
-      it("part of type union `bytes | {content: bytes}` produce `type: string, format: binary`", async () => {
+      it("part of type union `bytes | {content: bytes}` produce `{} | { content: {type: string, contentEncoding: 'base64' }`", async () => {
         const res = await openApiFor(
           `
         op upload(@header contentType: "multipart/form-data", profileImage: bytes | {content: bytes}): void;
