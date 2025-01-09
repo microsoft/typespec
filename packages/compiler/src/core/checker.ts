@@ -5165,6 +5165,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: node.targetType,
         }),
       );
+    } else if (
+      links.finalSymbol?.flags &&
+      links.finalSymbol.flags & SymbolFlags.Model &&
+      ~links.finalSymbol.flags & SymbolFlags.Declaration
+    ) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId: "noModelExpressions",
+          target: node.targetType,
+        }),
+      );
     }
 
     // If this was used to get a type this is invalid, only used for validation.
