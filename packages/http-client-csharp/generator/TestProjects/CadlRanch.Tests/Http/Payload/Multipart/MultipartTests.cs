@@ -226,7 +226,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
-
         internal partial class MultiPartFormDataBinaryContent : BinaryContent
         {
             private readonly MultipartFormDataContent _multipartContent;
