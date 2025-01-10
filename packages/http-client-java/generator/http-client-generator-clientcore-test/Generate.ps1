@@ -88,10 +88,6 @@ Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse
 # remove xml tests, emitter has not supported xml model
 Remove-Item ./specs/payload/xml -Recurse -Force
 
-# ServiceVersion not in core
-Remove-Item ./specs/versioning -Recurse -Force
-Remove-Item ./specs/server/path -Recurse -Force
-Remove-Item ./specs/server/versions -Recurse -Force
 # TokenCredential not in core
 Remove-Item ./specs/authentication/oauth2 -Recurse -Force
 Remove-Item ./specs/authentication/union -Recurse -Force
