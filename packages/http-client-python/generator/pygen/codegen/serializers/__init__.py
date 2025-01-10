@@ -201,15 +201,15 @@ class JinjaSerializer(ReaderAndWriter):
             return
         serializer = GeneralSerializer(self.code_model, env, async_mode=False)
         params = self.code_model.options["packaging_files_config"] or {}
-        if self.keep_version_file:
-            # don't regenerate setup.py file if the version file is more up to date
-            return
         for template_name in package_files:
             if not self.code_model.is_azure_flavor and template_name == "dev_requirements.txt.jinja2":
                 continue
             file = template_name.replace(".jinja2", "")
             output_name = root_of_sdk / file
             if not self.read_file(output_name) or file in _REGENERATE_FILES:
+                if self.keep_version_file and file == "setup.py":
+                    # don't regenerate setup.py file if the version file is more up to date
+                    continue
                 self.write_file(
                     output_name,
                     serializer.serialize_package_file(template_name, **params),
