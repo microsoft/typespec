@@ -73,6 +73,7 @@ class BaseBuilder(
         self.api_versions: List[str] = yaml_data["apiVersions"]
         self.added_on: Optional[str] = yaml_data.get("addedOn")
         self.external_docs: Optional[Dict[str, Any]] = yaml_data.get("externalDocs")
+        self.client_namespace: str = yaml_data.get("clientNamespace", code_model.namespace)
 
         if code_model.options["version_tolerant"] and yaml_data.get("abstract"):
             _LOGGER.warning(
@@ -113,7 +114,7 @@ class BaseBuilder(
             )
         return self._description or self.name
 
-    def method_signature(self, async_mode: bool) -> List[str]:
+    def method_signature(self, async_mode: bool, **kwargs: Any) -> List[str]:
         if self.abstract:
             return ["*args,", "**kwargs"]
-        return self.parameters.method_signature(async_mode)
+        return self.parameters.method_signature(async_mode, **kwargs)

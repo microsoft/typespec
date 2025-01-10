@@ -71,7 +71,7 @@
           "typespec.tsp-server.path": {
             "type": "string",
             "default": "",
-            "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
+            "description": "Path to 'tsp-server' command that runs the TypeSpec language server. If not specified, then 'tsp-server' will be resolved in following sequence:\n\n1. from workspace node_modules folder\nExample: ${workspaceFolder}/node_modules/@typespec/compiler\n\n2. from PATH environment variable\nExample: /usr/local/bin/tsp-server",
             "scope": "machine-overridable"
           },
           "typespec.initTemplatesUrls": {

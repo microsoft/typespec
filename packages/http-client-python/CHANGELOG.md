@@ -1,5 +1,22 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.1
+
+### Bug Fixes
+
+- Only add linting disables for a file with too many lines if the file doesn't already disable this linter rule
+- Generate `__init__` for internal models to allow for discriminator needs
+
+## 0.6.0
+
+### Features
+
+- Add support for typespec namespace
+
+### Bug Fixes
+
+- Only add linting disables for a file with too many lines if the file doesn't already disable this linter rule
+
 ## 0.5.1
 
 ### Bug Fixes
