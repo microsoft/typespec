@@ -11,8 +11,9 @@ Refresh-Build
 
 $specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs' 'specs'
 $azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
-$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 'http'
-$directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
+$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 
+$cadlRanchRootHttp = Join-Path $cadlRanchRoot 'http'
+$directories = Get-ChildItem -Path "$cadlRanchRootHttp" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
@@ -27,15 +28,15 @@ foreach ($directory in $directories) {
     }
 
     $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
-    $subPath = $outputDir.Substring($cadlRanchRoot.Length + 1)
+    $subPath = $outputDir.Substring($cadlRanchRootHttp.Length + 1)
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
     
-    $testPath = "$cadlRanchRoot.Tests"
-    $testFilter = "TestProjects.CadlRanch.Tests"
+    $testPath = Join-Path "$cadlRanchRoot.Tests" "Http"
+    $testFilter = "TestProjects.CadlRanch.Tests.Http"
     foreach ($folder in $folders) {
         $segment = "$(Get-Namespace $folder)"
         
