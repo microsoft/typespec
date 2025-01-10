@@ -43,8 +43,8 @@ class BlackScriptPlugin(Plugin):
                         "venv",
                         "env",
                     )
-                    and not Path(f).parts[0].startswith(".")
-                    and Path(f).suffix == ".py"
+                    # we shall also format generated files like "../../../generated_tests/test_xxx.py"
+                    and (not Path(f).parts[0].startswith(".") or Path(f).parts[0] == "..") and Path(f).suffix == ".py"
                 ],
             )
         )
@@ -60,7 +60,7 @@ class BlackScriptPlugin(Plugin):
         except:
             _LOGGER.error("Error: failed to format %s", file)
             raise
-        if len(file_content.splitlines()) > 1000:
+        if len(file_content.splitlines()) > 1000 and "pylint: disable=too-many-lines" not in file_content:
             file_content = "# pylint: disable=too-many-lines\n" + file_content
         self.write_file(file, file_content)
 
