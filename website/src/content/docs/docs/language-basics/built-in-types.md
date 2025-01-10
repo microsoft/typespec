@@ -42,7 +42,7 @@ Built in types are related to each other according to the rules described in [ty
 | `offsetDateTime` | A date and time in a particular time zone, e.g. "1985-04-12T16:20:50-08:00"         |
 | `duration`       | A duration/time period. e.g 5s, 10h                                                 |
 
-For more information about how emitters should encode date-time strings, see the [`@encode`](https://typespec.io/docs/libraries/http/encoding/#utcdatetime-and-offsetdatetime) decorator.
+For more information about how emitters should encode date-time strings, read [Encoding of types](https://typespec.io/docs/libraries/http/encoding/#utcdatetime-and-offsetdatetime) in the HTTP library.
 
 ## Other core types
 
