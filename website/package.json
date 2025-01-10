@@ -28,7 +28,7 @@
     "@fluentui/react-icons": "^2.0.260",
     "@typespec/compiler": "workspace:~",
     "@typespec/playground": "workspace:~",
-    "astro": "^4.16.10",
+    "astro": "^4.16.18",
     "astro-rehype-relative-markdown-links": "^0.15.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
