@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\optionality\src\_Type.Property.Optionality.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\optionality\src\_Type.Property.Optional.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch.Tests\TestProjects.CadlRanch.Tests.csproj" />
   </ItemGroup>
 

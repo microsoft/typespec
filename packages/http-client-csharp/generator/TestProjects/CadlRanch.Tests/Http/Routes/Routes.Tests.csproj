@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="$(RepoRoot)\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\not-discriminator\src\_Type.Model.Inheritance.NotDiscriminator.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\routes\src\Routes.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch.Tests\TestProjects.CadlRanch.Tests.csproj" />
   </ItemGroup>
 

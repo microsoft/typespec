@@ -4,7 +4,6 @@
 using System.ClientModel;
 using System.IO;
 using _Type.Model.Inheritance.SingleDiscriminator.Models;
-using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using TestProjects.CadlRanch.Tests.Infrastructure;
 
@@ -12,9 +11,9 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.SingleDiscri
 {
     internal class EagleTests : CadlRanchModelJsonTests<Eagle>
     {
-        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Eagle/Eagle.json"));
+        protected override string JsonPayload => File.ReadAllText("./TestData/Eagle/Eagle.json");
 
-        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/Eagle/EagleWire.json"));
+        protected override string WirePayload => File.ReadAllText("./TestData/Eagle/EagleWire.json");
 
         protected override void CompareModels(Eagle model, Eagle model2, string format)
         {

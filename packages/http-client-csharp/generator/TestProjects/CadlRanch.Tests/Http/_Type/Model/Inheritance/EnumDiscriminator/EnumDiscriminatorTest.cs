@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.EnumDiscriminator;
@@ -43,7 +44,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.EnumDiscrimi
             var result = await new EnumDiscriminatorClient(host, null).GetExtensibleModelWrongDiscriminatorAsync();
             Assert.AreEqual(200, result.GetRawResponse().Status);
 
-            var unknownDogType = Assembly.GetExecutingAssembly().GetType("_Type.Model.Inheritance.EnumDiscriminator.UnknownDog");
+            var unknownDogType = typeof(Dog).Assembly.DefinedTypes.FirstOrDefault(t => t.Name == "UnknownDog");
+            Assert.IsNotNull(unknownDogType);
             Assert.AreEqual(unknownDogType, result.Value.GetType());
             Assert.AreEqual(8, result.Value.Weight);
         });
@@ -70,7 +72,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.EnumDiscrimi
             var response = await new EnumDiscriminatorClient(host, null).GetFixedModelMissingDiscriminatorAsync();
             Assert.AreEqual(200, response.GetRawResponse().Status);
 
-            var unknownSnakeType = Assembly.GetExecutingAssembly().GetType("_Type.Model.Inheritance.EnumDiscriminator.UnknownSnake");
+            var unknownSnakeType = typeof(Snake).Assembly.GetTypes().FirstOrDefault(t => t.Name == "UnknownSnake");
+            Assert.IsNotNull(unknownSnakeType);
             Assert.AreEqual(unknownSnakeType, response.Value.GetType());
             Assert.AreEqual(10, response.Value.Length);
         });
