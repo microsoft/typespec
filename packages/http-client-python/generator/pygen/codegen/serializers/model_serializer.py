@@ -116,7 +116,7 @@ class _ModelSerializer(BaseSerializer, ABC):
     def initialize_properties(self, model: ModelType) -> List[str]: ...
 
     def need_init(self, model: ModelType) -> bool:
-        return (not model.internal) and bool(self.init_line(model) or model.discriminator)
+        return bool(self.init_line(model) or model.discriminator)
 
     def pylint_disable_items(self, model: ModelType) -> List[str]:
         if model.flattened_property or self.initialize_properties(model):
