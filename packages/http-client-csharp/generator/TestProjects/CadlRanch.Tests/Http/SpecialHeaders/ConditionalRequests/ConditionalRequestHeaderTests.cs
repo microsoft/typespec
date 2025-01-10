@@ -5,9 +5,8 @@ using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SpecialHeaders.ConditionalRequest;
-using TestProjects.CadlRanch.Tests;
 
-namespace CadlRanchProjects.Tests.Http.SpecialHeaders.ConditionalRequests
+namespace TestProjects.CadlRanch.Tests.Http.SpecialHeaders.ConditionalRequests
 {
     public class ConditionalRequestHeaderTests : CadlRanchTestBase
     {
