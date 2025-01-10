@@ -3,6 +3,7 @@ import vscode, {
   CancellationToken,
   OpenDialogOptions,
   Progress,
+  QuickPick,
   QuickPickItem,
   QuickPickItemButtonEvent,
   QuickPickOptions,
@@ -50,7 +51,7 @@ export async function confirm<
     ignoreFocusOut: true,
   };
   const items = [yes, no];
-  const selected = await showQuickPickWithButtons(items, options, (event) => {
+  const selected = await showQuickPickWithButtons(items, options, (_quickpick, event) => {
     if (event.item === yes && yes.externalLink) {
       vscode.env.openExternal(vscode.Uri.parse(yes.externalLink));
     } else if (event.item === no && no.externalLink) {
@@ -254,7 +255,7 @@ export async function tryExecuteWithUi<
 export async function showQuickPickWithButtons<T extends QuickPickItem>(
   items: T[],
   options: QuickPickOptions,
-  onItemButtonTriggered: (item: QuickPickItemButtonEvent<T>) => void,
+  onItemButtonTriggered: (quickpick: QuickPick<T>, item: QuickPickItemButtonEvent<T>) => void,
 ) {
   const quickPickup = vscode.window.createQuickPick<T>();
   quickPickup.items = items;
@@ -265,8 +266,7 @@ export async function showQuickPickWithButtons<T extends QuickPickItem>(
   if (options.matchOnDescription) quickPickup.matchOnDescription = options.matchOnDescription;
   if (options.matchOnDetail) quickPickup.matchOnDetail = options.matchOnDetail;
   quickPickup.onDidTriggerItemButton((event) => {
-    onItemButtonTriggered(event);
-    quickPickup.hide();
+    onItemButtonTriggered(quickPickup, event);
   });
   const selectionPromise = new Promise<T[] | undefined>((resolve) => {
     quickPickup.onDidAccept(() => {
