@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
-        protected override string BuildName() => StringHelpers.ToCleanName(_inputClient.Name);
+        protected override string BuildName() => _inputClient.Name.ToCleanName();
 
         protected override PropertyProvider[] BuildProperties()
         {
@@ -89,7 +89,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var parameters = GetMethodParameters(operation, MethodType.CreateRequest);
 
             var signature = new MethodSignature(
-                $"Create{StringHelpers.ToCleanName(operation.Name)}Request",
+                $"Create{operation.Name.ToCleanName()}Request",
                 null,
                 MethodSignatureModifiers.Internal,
                 ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
@@ -153,7 +153,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                         null,
                         MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
                         ClientModelPlugin.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
-                        StringHelpers.ToCleanName(classifierBackingField.Name.Substring(1)),
+                        classifierBackingField.Name.Substring(1).ToCleanName(),
                         new ExpressionPropertyBody(
                             classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)))),
                         this)

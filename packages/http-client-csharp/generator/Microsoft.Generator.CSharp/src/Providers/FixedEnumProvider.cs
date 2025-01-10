@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Utilities;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
@@ -65,7 +66,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
                 var name = _isApiVersionEnum
                     ? inputValue.Name.ToApiVersionMemberName()
-                    : StringHelpers.ToCleanName(inputValue.Name);
+                    : inputValue.Name.ToCleanName();
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;

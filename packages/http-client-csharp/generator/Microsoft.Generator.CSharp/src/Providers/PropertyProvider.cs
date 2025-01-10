@@ -87,8 +87,8 @@ namespace Microsoft.Generator.CSharp.Providers
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             Modifiers = inputProperty.IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
-                ? $"{StringHelpers.ToCleanName(inputProperty.Name)}Property"
-                : StringHelpers.ToCleanName(inputProperty.Name);
+                ? $"{inputProperty.Name.ToCleanName()}Property"
+                : inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
             XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);

@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public ScmMethodProviderCollection(InputOperation operation, TypeProvider enclosingType)
             : base(operation, enclosingType)
         {
-            _cleanOperationName = StringHelpers.ToCleanName(operation.Name);
+            _cleanOperationName = operation.Name.ToCleanName();
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(Operation);
         }

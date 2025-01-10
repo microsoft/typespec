@@ -658,7 +658,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsNotNull(methodSignature);
 
             var expectedModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
-            Assert.AreEqual(StringHelpers.ToCleanName(inputModel.Name), methodSignature?.Name);
+            Assert.AreEqual(inputModel.Name.ToCleanName(), methodSignature?.Name);
             Assert.AreEqual(expectedModifiers, methodSignature?.Modifiers);
 
             var methodParameters = methodSignature?.Parameters;

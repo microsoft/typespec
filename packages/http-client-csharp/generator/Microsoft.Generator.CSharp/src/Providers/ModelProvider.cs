@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => StringHelpers.ToCleanName(_inputModel.Name);
+        protected override string BuildName() => _inputModel.Name.ToCleanName();
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
@@ -252,7 +252,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     null,
                     MethodSignatureModifiers.Public,
                     propertyType,
-                    i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : StringHelpers.ToCleanName(field.Name),
+                    i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : field.Name.ToCleanName(),
                     assignment,
                     this)
                 {
@@ -283,7 +283,7 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 var name = !containsAdditionalTypeProperties
                     ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName
-                    : StringHelpers.ToCleanName(RawDataField.Name);
+                    : RawDataField.Name.ToCleanName();
                 var type = !_inputModel.Usage.HasFlag(InputModelTypeUsage.Input)
                     ? additionalPropsType.OutputType
                     : additionalPropsType;
@@ -878,7 +878,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 name += additionalPropertiesValueType.Name;
             }
 
-            return $"_additional{StringHelpers.ToCleanName(name)}Properties";
+            return $"_additional{name.ToCleanName()}Properties";
         }
     }
 }

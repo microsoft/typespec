@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public void ServiceClientWithSubClient()
         {
             var client = InputFactory.Client(TestClientName);
-            string[] expectedSubClientFactoryMethodNames = [$"Get{StringHelpers.ToCleanName(_animalClient.Name)}Client"];
+            string[] expectedSubClientFactoryMethodNames = [$"Get{_animalClient.Name.ToCleanName()}Client"];
             var clientProvider = new MockClientProvider(client, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         [Test]
         public void SubClientWithSingleSubClient()
         {
-            string[] expectedSubClientFactoryMethodNames = [$"Get{StringHelpers.ToCleanName(_huskyClient.Name)}Client"];
+            string[] expectedSubClientFactoryMethodNames = [$"Get{_huskyClient.Name.ToCleanName()}Client"];
             var clientProvider = new MockClientProvider(_dogClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
@@ -61,9 +61,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             string[] expectedSubClientFactoryMethodNames =
             [
-                $"Get{StringHelpers.ToCleanName(_dogClient.Name)}Client",
-                $"Get{StringHelpers.ToCleanName(_catClient.Name)}Client",
-                $"Get{StringHelpers.ToCleanName(_hawkClient.Name)}"
+                $"Get{_dogClient.Name.ToCleanName()}Client",
+                $"Get{_catClient.Name.ToCleanName()}Client",
+                $"Get{_hawkClient.Name.ToCleanName()}"
             ];
             var clientProvider = new MockClientProvider(_animalClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);

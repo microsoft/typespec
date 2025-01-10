@@ -200,7 +200,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => StringHelpers.ToCleanName(_inputClient.Name);
+        protected override string BuildName() => _inputClient.Name.ToCleanName();
 
         protected override FieldProvider[] BuildFields()
         {
@@ -407,16 +407,16 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter.Value, perRetryPolicies)).Terminate());
 
-            var clientOptionsPropertyDict = ClientOptions.Value.Properties.ToDictionary(p => StringHelpers.ToCleanName(p.Name));
+            var clientOptionsPropertyDict = ClientOptions.Value.Properties.ToDictionary(p => p.Name.ToCleanName());
             foreach (var f in Fields)
             {
                 if (f == _apiVersionField && ClientOptions.Value.VersionProperty != null)
                 {
                     body.Add(f.Assign(ClientOptionsParameter.Value.Property(ClientOptions.Value.VersionProperty.Name)).Terminate());
                 }
-                else if (clientOptionsPropertyDict.TryGetValue(StringHelpers.ToCleanName(f.Name), out var optionsProperty))
+                else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out var optionsProperty))
                 {
-                    clientOptionsPropertyDict.TryGetValue(StringHelpers.ToCleanName(f.Name), out optionsProperty);
+                    clientOptionsPropertyDict.TryGetValue(f.Name.ToCleanName(), out optionsProperty);
                 }
             }
 

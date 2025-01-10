@@ -87,7 +87,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
-        protected override string BuildName() => StringHelpers.ToCleanName(_inputModel.Name);
+        protected override string BuildName() => _inputModel.Name.ToCleanName();
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
