@@ -102,7 +102,7 @@ class JinjaSerializer(ReaderAndWriter):
         # If the version file is already there and the version is greater than the current version, keep it.
         try:
             serialized_version_file = self.read_file(self.exec_path(self.code_model.namespace) / "_version.py")
-            match = re.search(r'VERSION\s*=\s*"([^"]+)"', serialized_version_file)
+            match = re.search(r'VERSION\s*=\s*"([^"]+)"', str(serialized_version_file))
             serialized_version = match.group(1) if match else ""
         except (FileNotFoundError, IndexError):
             serialized_version = ""
