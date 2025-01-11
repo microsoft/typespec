@@ -87,6 +87,7 @@
      "$id": "12",
      "Name": "send",
      "ResourceName": "Property",
+     "OperationId": "Property_send",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -163,6 +164,7 @@
      "$id": "18",
      "Name": "get",
      "ResourceName": "Property",
+     "OperationId": "Property_get",
      "Accessibility": "public",
      "Parameters": [
       {

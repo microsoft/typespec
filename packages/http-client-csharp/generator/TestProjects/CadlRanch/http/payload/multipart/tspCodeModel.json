@@ -861,6 +861,7 @@
      "$id": "86",
      "Name": "basic",
      "ResourceName": "FormData",
+     "OperationId": "FormData_basic",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
@@ -937,6 +938,7 @@
      "$id": "92",
      "Name": "fileArrayAndBasic",
      "ResourceName": "FormData",
+     "OperationId": "FormData_fileArrayAndBasic",
      "Doc": "Test content-type: multipart/form-data for mixed scenarios",
      "Accessibility": "public",
      "Parameters": [
@@ -1013,6 +1015,7 @@
      "$id": "98",
      "Name": "jsonPart",
      "ResourceName": "FormData",
+     "OperationId": "FormData_jsonPart",
      "Doc": "Test content-type: multipart/form-data for scenario contains json part and binary part ",
      "Accessibility": "public",
      "Parameters": [
@@ -1089,6 +1092,7 @@
      "$id": "104",
      "Name": "binaryArrayParts",
      "ResourceName": "FormData",
+     "OperationId": "FormData_binaryArrayParts",
      "Doc": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
@@ -1165,6 +1169,7 @@
      "$id": "110",
      "Name": "multiBinaryParts",
      "ResourceName": "FormData",
+     "OperationId": "FormData_multiBinaryParts",
      "Doc": "Test content-type: multipart/form-data for scenario contains multi binary parts",
      "Accessibility": "public",
      "Parameters": [
@@ -1241,6 +1246,7 @@
      "$id": "116",
      "Name": "checkFileNameAndContentType",
      "ResourceName": "FormData",
+     "OperationId": "FormData_checkFileNameAndContentType",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
@@ -1317,6 +1323,7 @@
      "$id": "122",
      "Name": "anonymousModel",
      "ResourceName": "FormData",
+     "OperationId": "FormData_anonymousModel",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
@@ -1437,6 +1444,7 @@
      "$id": "134",
      "Name": "jsonArrayAndFileArray",
      "ResourceName": "HttpParts",
+     "OperationId": "HttpParts_jsonArrayAndFileArray",
      "Doc": "Test content-type: multipart/form-data for mixed scenarios",
      "Accessibility": "public",
      "Parameters": [
@@ -1557,6 +1565,7 @@
      "$id": "146",
      "Name": "imageJpegContentType",
      "ResourceName": "ContentType",
+     "OperationId": "ContentType_imageJpegContentType",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
@@ -1633,6 +1642,7 @@
      "$id": "152",
      "Name": "requiredContentType",
      "ResourceName": "ContentType",
+     "OperationId": "ContentType_requiredContentType",
      "Doc": "Test content-type: multipart/form-data",
      "Accessibility": "public",
      "Parameters": [
@@ -1709,6 +1719,7 @@
      "$id": "158",
      "Name": "optionalContentType",
      "ResourceName": "ContentType",
+     "OperationId": "ContentType_optionalContentType",
      "Doc": "Test content-type: multipart/form-data for optional content type",
      "Accessibility": "public",
      "Parameters": [
@@ -1829,6 +1840,7 @@
      "$id": "170",
      "Name": "float",
      "ResourceName": "NonString",
+     "OperationId": "NonString_float",
      "Doc": "Test content-type: multipart/form-data for non string",
      "Accessibility": "public",
      "Parameters": [

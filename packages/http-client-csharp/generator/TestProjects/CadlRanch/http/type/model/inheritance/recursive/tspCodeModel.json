@@ -81,6 +81,7 @@
      "$id": "9",
      "Name": "put",
      "ResourceName": "Recursive",
+     "OperationId": "put",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -157,6 +158,7 @@
      "$id": "15",
      "Name": "get",
      "ResourceName": "Recursive",
+     "OperationId": "get",
      "Accessibility": "public",
      "Parameters": [
       {

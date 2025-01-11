@@ -44,6 +44,7 @@
      "$id": "6",
      "Name": "valid",
      "ResourceName": "ApiKey",
+     "OperationId": "valid",
      "Doc": "Check whether client is authenticated",
      "Accessibility": "public",
      "Parameters": [],
@@ -72,6 +73,7 @@
      "$id": "8",
      "Name": "invalid",
      "ResourceName": "ApiKey",
+     "OperationId": "invalid",
      "Doc": "Check whether client is authenticated.",
      "Accessibility": "public",
      "Parameters": [

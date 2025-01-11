@@ -55,6 +55,7 @@
      "$id": "9",
      "Name": "get",
      "ResourceName": "String",
+     "OperationId": "String_get",
      "Doc": "get string value",
      "Accessibility": "public",
      "Parameters": [
@@ -121,6 +122,7 @@
      "$id": "15",
      "Name": "put",
      "ResourceName": "String",
+     "OperationId": "String_put",
      "Doc": "put string value",
      "Accessibility": "public",
      "Parameters": [
@@ -247,6 +249,7 @@
      "$id": "28",
      "Name": "get",
      "ResourceName": "Boolean",
+     "OperationId": "Boolean_get",
      "Doc": "get boolean value",
      "Accessibility": "public",
      "Parameters": [
@@ -313,6 +316,7 @@
      "$id": "34",
      "Name": "put",
      "ResourceName": "Boolean",
+     "OperationId": "Boolean_put",
      "Doc": "put boolean value",
      "Accessibility": "public",
      "Parameters": [
@@ -439,6 +443,7 @@
      "$id": "47",
      "Name": "get",
      "ResourceName": "Unknown",
+     "OperationId": "Unknown_get",
      "Doc": "get unknown value",
      "Accessibility": "public",
      "Parameters": [
@@ -505,6 +510,7 @@
      "$id": "53",
      "Name": "put",
      "ResourceName": "Unknown",
+     "OperationId": "Unknown_put",
      "Doc": "put unknown value",
      "Accessibility": "public",
      "Parameters": [
@@ -632,6 +638,7 @@
      "$id": "66",
      "Name": "responseBody",
      "ResourceName": "DecimalType",
+     "OperationId": "DecimalType_responseBody",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -697,6 +704,7 @@
      "$id": "72",
      "Name": "requestBody",
      "ResourceName": "DecimalType",
+     "OperationId": "DecimalType_requestBody",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -777,6 +785,7 @@
      "$id": "79",
      "Name": "requestParameter",
      "ResourceName": "DecimalType",
+     "OperationId": "DecimalType_requestParameter",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -871,6 +880,7 @@
      "$id": "89",
      "Name": "responseBody",
      "ResourceName": "Decimal128Type",
+     "OperationId": "Decimal128Type_responseBody",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -936,6 +946,7 @@
      "$id": "95",
      "Name": "requestBody",
      "ResourceName": "Decimal128Type",
+     "OperationId": "Decimal128Type_requestBody",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1016,6 +1027,7 @@
      "$id": "102",
      "Name": "requestParameter",
      "ResourceName": "Decimal128Type",
+     "OperationId": "Decimal128Type_requestParameter",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1110,6 +1122,7 @@
      "$id": "112",
      "Name": "prepareVerify",
      "ResourceName": "DecimalVerify",
+     "OperationId": "DecimalVerify_prepareVerify",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1182,6 +1195,7 @@
      "$id": "119",
      "Name": "verify",
      "ResourceName": "DecimalVerify",
+     "OperationId": "DecimalVerify_verify",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1307,6 +1321,7 @@
      "$id": "132",
      "Name": "prepareVerify",
      "ResourceName": "Decimal128Verify",
+     "OperationId": "Decimal128Verify_prepareVerify",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1379,6 +1394,7 @@
      "$id": "139",
      "Name": "verify",
      "ResourceName": "Decimal128Verify",
+     "OperationId": "Decimal128Verify_verify",
      "Accessibility": "public",
      "Parameters": [
       {

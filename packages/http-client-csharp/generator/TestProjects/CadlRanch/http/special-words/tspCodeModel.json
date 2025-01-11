@@ -1044,6 +1044,7 @@
      "$id": "111",
      "Name": "withAnd",
      "ResourceName": "Models",
+     "OperationId": "Models_withAnd",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1120,6 +1121,7 @@
      "$id": "117",
      "Name": "withAs",
      "ResourceName": "Models",
+     "OperationId": "Models_withAs",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1196,6 +1198,7 @@
      "$id": "123",
      "Name": "withAssert",
      "ResourceName": "Models",
+     "OperationId": "Models_withAssert",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1272,6 +1275,7 @@
      "$id": "129",
      "Name": "withAsync",
      "ResourceName": "Models",
+     "OperationId": "Models_withAsync",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1348,6 +1352,7 @@
      "$id": "135",
      "Name": "withAwait",
      "ResourceName": "Models",
+     "OperationId": "Models_withAwait",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1424,6 +1429,7 @@
      "$id": "141",
      "Name": "withBreak",
      "ResourceName": "Models",
+     "OperationId": "Models_withBreak",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1500,6 +1506,7 @@
      "$id": "147",
      "Name": "withClass",
      "ResourceName": "Models",
+     "OperationId": "Models_withClass",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1576,6 +1583,7 @@
      "$id": "153",
      "Name": "withConstructor",
      "ResourceName": "Models",
+     "OperationId": "Models_withConstructor",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1652,6 +1660,7 @@
      "$id": "159",
      "Name": "withContinue",
      "ResourceName": "Models",
+     "OperationId": "Models_withContinue",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1728,6 +1737,7 @@
      "$id": "165",
      "Name": "withDef",
      "ResourceName": "Models",
+     "OperationId": "Models_withDef",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1804,6 +1814,7 @@
      "$id": "171",
      "Name": "withDel",
      "ResourceName": "Models",
+     "OperationId": "Models_withDel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1880,6 +1891,7 @@
      "$id": "177",
      "Name": "withElif",
      "ResourceName": "Models",
+     "OperationId": "Models_withElif",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1956,6 +1968,7 @@
      "$id": "183",
      "Name": "withElse",
      "ResourceName": "Models",
+     "OperationId": "Models_withElse",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2032,6 +2045,7 @@
      "$id": "189",
      "Name": "withExcept",
      "ResourceName": "Models",
+     "OperationId": "Models_withExcept",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2108,6 +2122,7 @@
      "$id": "195",
      "Name": "withExec",
      "ResourceName": "Models",
+     "OperationId": "Models_withExec",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2184,6 +2199,7 @@
      "$id": "201",
      "Name": "withFinally",
      "ResourceName": "Models",
+     "OperationId": "Models_withFinally",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2260,6 +2276,7 @@
      "$id": "207",
      "Name": "withFor",
      "ResourceName": "Models",
+     "OperationId": "Models_withFor",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2336,6 +2353,7 @@
      "$id": "213",
      "Name": "withFrom",
      "ResourceName": "Models",
+     "OperationId": "Models_withFrom",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2412,6 +2430,7 @@
      "$id": "219",
      "Name": "withGlobal",
      "ResourceName": "Models",
+     "OperationId": "Models_withGlobal",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2488,6 +2507,7 @@
      "$id": "225",
      "Name": "withIf",
      "ResourceName": "Models",
+     "OperationId": "Models_withIf",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2564,6 +2584,7 @@
      "$id": "231",
      "Name": "withImport",
      "ResourceName": "Models",
+     "OperationId": "Models_withImport",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2640,6 +2661,7 @@
      "$id": "237",
      "Name": "withIn",
      "ResourceName": "Models",
+     "OperationId": "Models_withIn",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2716,6 +2738,7 @@
      "$id": "243",
      "Name": "withIs",
      "ResourceName": "Models",
+     "OperationId": "Models_withIs",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2792,6 +2815,7 @@
      "$id": "249",
      "Name": "withLambda",
      "ResourceName": "Models",
+     "OperationId": "Models_withLambda",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2868,6 +2892,7 @@
      "$id": "255",
      "Name": "withNot",
      "ResourceName": "Models",
+     "OperationId": "Models_withNot",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2944,6 +2969,7 @@
      "$id": "261",
      "Name": "withOr",
      "ResourceName": "Models",
+     "OperationId": "Models_withOr",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3020,6 +3046,7 @@
      "$id": "267",
      "Name": "withPass",
      "ResourceName": "Models",
+     "OperationId": "Models_withPass",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3096,6 +3123,7 @@
      "$id": "273",
      "Name": "withRaise",
      "ResourceName": "Models",
+     "OperationId": "Models_withRaise",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3172,6 +3200,7 @@
      "$id": "279",
      "Name": "withReturn",
      "ResourceName": "Models",
+     "OperationId": "Models_withReturn",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3248,6 +3277,7 @@
      "$id": "285",
      "Name": "withTry",
      "ResourceName": "Models",
+     "OperationId": "Models_withTry",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3324,6 +3354,7 @@
      "$id": "291",
      "Name": "withWhile",
      "ResourceName": "Models",
+     "OperationId": "Models_withWhile",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3400,6 +3431,7 @@
      "$id": "297",
      "Name": "withWith",
      "ResourceName": "Models",
+     "OperationId": "Models_withWith",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3476,6 +3508,7 @@
      "$id": "303",
      "Name": "withYield",
      "ResourceName": "Models",
+     "OperationId": "Models_withYield",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3597,6 +3630,7 @@
      "$id": "315",
      "Name": "sameAsModel",
      "ResourceName": "ModelProperties",
+     "OperationId": "ModelProperties_sameAsModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3718,6 +3752,7 @@
      "$id": "327",
      "Name": "and",
      "ResourceName": "Operations",
+     "OperationId": "Operations_and",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3745,6 +3780,7 @@
      "$id": "329",
      "Name": "as",
      "ResourceName": "Operations",
+     "OperationId": "Operations_as",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3772,6 +3808,7 @@
      "$id": "331",
      "Name": "assert",
      "ResourceName": "Operations",
+     "OperationId": "Operations_assert",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3799,6 +3836,7 @@
      "$id": "333",
      "Name": "async",
      "ResourceName": "Operations",
+     "OperationId": "Operations_async",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3826,6 +3864,7 @@
      "$id": "335",
      "Name": "await",
      "ResourceName": "Operations",
+     "OperationId": "Operations_await",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3853,6 +3892,7 @@
      "$id": "337",
      "Name": "break",
      "ResourceName": "Operations",
+     "OperationId": "Operations_break",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3880,6 +3920,7 @@
      "$id": "339",
      "Name": "class",
      "ResourceName": "Operations",
+     "OperationId": "Operations_class",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3907,6 +3948,7 @@
      "$id": "341",
      "Name": "constructor",
      "ResourceName": "Operations",
+     "OperationId": "Operations_constructor",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3934,6 +3976,7 @@
      "$id": "343",
      "Name": "continue",
      "ResourceName": "Operations",
+     "OperationId": "Operations_continue",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3961,6 +4004,7 @@
      "$id": "345",
      "Name": "def",
      "ResourceName": "Operations",
+     "OperationId": "Operations_def",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -3988,6 +4032,7 @@
      "$id": "347",
      "Name": "del",
      "ResourceName": "Operations",
+     "OperationId": "Operations_del",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4015,6 +4060,7 @@
      "$id": "349",
      "Name": "elif",
      "ResourceName": "Operations",
+     "OperationId": "Operations_elif",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4042,6 +4088,7 @@
      "$id": "351",
      "Name": "else",
      "ResourceName": "Operations",
+     "OperationId": "Operations_else",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4069,6 +4116,7 @@
      "$id": "353",
      "Name": "except",
      "ResourceName": "Operations",
+     "OperationId": "Operations_except",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4096,6 +4144,7 @@
      "$id": "355",
      "Name": "exec",
      "ResourceName": "Operations",
+     "OperationId": "Operations_exec",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4123,6 +4172,7 @@
      "$id": "357",
      "Name": "finally",
      "ResourceName": "Operations",
+     "OperationId": "Operations_finally",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4150,6 +4200,7 @@
      "$id": "359",
      "Name": "for",
      "ResourceName": "Operations",
+     "OperationId": "Operations_for",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4177,6 +4228,7 @@
      "$id": "361",
      "Name": "from",
      "ResourceName": "Operations",
+     "OperationId": "Operations_from",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4204,6 +4256,7 @@
      "$id": "363",
      "Name": "global",
      "ResourceName": "Operations",
+     "OperationId": "Operations_global",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4231,6 +4284,7 @@
      "$id": "365",
      "Name": "if",
      "ResourceName": "Operations",
+     "OperationId": "Operations_if",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4258,6 +4312,7 @@
      "$id": "367",
      "Name": "import",
      "ResourceName": "Operations",
+     "OperationId": "Operations_import",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4285,6 +4340,7 @@
      "$id": "369",
      "Name": "in",
      "ResourceName": "Operations",
+     "OperationId": "Operations_in",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4312,6 +4368,7 @@
      "$id": "371",
      "Name": "is",
      "ResourceName": "Operations",
+     "OperationId": "Operations_is",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4339,6 +4396,7 @@
      "$id": "373",
      "Name": "lambda",
      "ResourceName": "Operations",
+     "OperationId": "Operations_lambda",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4366,6 +4424,7 @@
      "$id": "375",
      "Name": "not",
      "ResourceName": "Operations",
+     "OperationId": "Operations_not",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4393,6 +4452,7 @@
      "$id": "377",
      "Name": "or",
      "ResourceName": "Operations",
+     "OperationId": "Operations_or",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4420,6 +4480,7 @@
      "$id": "379",
      "Name": "pass",
      "ResourceName": "Operations",
+     "OperationId": "Operations_pass",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4447,6 +4508,7 @@
      "$id": "381",
      "Name": "raise",
      "ResourceName": "Operations",
+     "OperationId": "Operations_raise",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4474,6 +4536,7 @@
      "$id": "383",
      "Name": "return",
      "ResourceName": "Operations",
+     "OperationId": "Operations_return",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4501,6 +4564,7 @@
      "$id": "385",
      "Name": "try",
      "ResourceName": "Operations",
+     "OperationId": "Operations_try",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4528,6 +4592,7 @@
      "$id": "387",
      "Name": "while",
      "ResourceName": "Operations",
+     "OperationId": "Operations_while",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4555,6 +4620,7 @@
      "$id": "389",
      "Name": "with",
      "ResourceName": "Operations",
+     "OperationId": "Operations_with",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4582,6 +4648,7 @@
      "$id": "391",
      "Name": "yield",
      "ResourceName": "Operations",
+     "OperationId": "Operations_yield",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -4654,6 +4721,7 @@
      "$id": "399",
      "Name": "withAnd",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withAnd",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4703,6 +4771,7 @@
      "$id": "403",
      "Name": "withAs",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withAs",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4752,6 +4821,7 @@
      "$id": "407",
      "Name": "withAssert",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withAssert",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4801,6 +4871,7 @@
      "$id": "411",
      "Name": "withAsync",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withAsync",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4850,6 +4921,7 @@
      "$id": "415",
      "Name": "withAwait",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withAwait",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4899,6 +4971,7 @@
      "$id": "419",
      "Name": "withBreak",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withBreak",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4948,6 +5021,7 @@
      "$id": "423",
      "Name": "withClass",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withClass",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -4997,6 +5071,7 @@
      "$id": "427",
      "Name": "withConstructor",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withConstructor",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5046,6 +5121,7 @@
      "$id": "431",
      "Name": "withContinue",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withContinue",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5095,6 +5171,7 @@
      "$id": "435",
      "Name": "withDef",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withDef",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5144,6 +5221,7 @@
      "$id": "439",
      "Name": "withDel",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withDel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5193,6 +5271,7 @@
      "$id": "443",
      "Name": "withElif",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withElif",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5242,6 +5321,7 @@
      "$id": "447",
      "Name": "withElse",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withElse",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5291,6 +5371,7 @@
      "$id": "451",
      "Name": "withExcept",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withExcept",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5340,6 +5421,7 @@
      "$id": "455",
      "Name": "withExec",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withExec",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5389,6 +5471,7 @@
      "$id": "459",
      "Name": "withFinally",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withFinally",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5438,6 +5521,7 @@
      "$id": "463",
      "Name": "withFor",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withFor",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5487,6 +5571,7 @@
      "$id": "467",
      "Name": "withFrom",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withFrom",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5536,6 +5621,7 @@
      "$id": "471",
      "Name": "withGlobal",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withGlobal",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5585,6 +5671,7 @@
      "$id": "475",
      "Name": "withIf",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withIf",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5634,6 +5721,7 @@
      "$id": "479",
      "Name": "withImport",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withImport",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5683,6 +5771,7 @@
      "$id": "483",
      "Name": "withIn",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withIn",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5732,6 +5821,7 @@
      "$id": "487",
      "Name": "withIs",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withIs",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5781,6 +5871,7 @@
      "$id": "491",
      "Name": "withLambda",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withLambda",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5830,6 +5921,7 @@
      "$id": "495",
      "Name": "withNot",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withNot",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5879,6 +5971,7 @@
      "$id": "499",
      "Name": "withOr",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withOr",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5928,6 +6021,7 @@
      "$id": "503",
      "Name": "withPass",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withPass",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -5977,6 +6071,7 @@
      "$id": "507",
      "Name": "withRaise",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withRaise",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6026,6 +6121,7 @@
      "$id": "511",
      "Name": "withReturn",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withReturn",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6075,6 +6171,7 @@
      "$id": "515",
      "Name": "withTry",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withTry",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6124,6 +6221,7 @@
      "$id": "519",
      "Name": "withWhile",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withWhile",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6173,6 +6271,7 @@
      "$id": "523",
      "Name": "withWith",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withWith",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6222,6 +6321,7 @@
      "$id": "527",
      "Name": "withYield",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withYield",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -6271,6 +6371,7 @@
      "$id": "531",
      "Name": "withCancellationToken",
      "ResourceName": "Parameters",
+     "OperationId": "Parameters_withCancellationToken",
      "Accessibility": "public",
      "Parameters": [
       {

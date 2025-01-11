@@ -123,6 +123,7 @@
      "$id": "14",
      "Name": "test",
      "ResourceName": "TypeChangedFrom",
+     "OperationId": "test",
      "Accessibility": "public",
      "Parameters": [
       {

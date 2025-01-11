@@ -147,6 +147,7 @@
      "$id": "18",
      "Name": "safeintAsString",
      "ResourceName": "Property",
+     "OperationId": "Property_safeintAsString",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -256,6 +257,7 @@
      "$id": "27",
      "Name": "uint32AsStringOptional",
      "ResourceName": "Property",
+     "OperationId": "Property_uint32AsStringOptional",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -365,6 +367,7 @@
      "$id": "36",
      "Name": "uint8AsString",
      "ResourceName": "Property",
+     "OperationId": "Property_uint8AsString",
      "Accessibility": "public",
      "Parameters": [
       {

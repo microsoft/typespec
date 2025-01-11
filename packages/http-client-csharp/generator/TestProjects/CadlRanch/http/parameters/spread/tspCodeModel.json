@@ -357,6 +357,7 @@
      "$id": "40",
      "Name": "spreadAsRequestBody",
      "ResourceName": "Model",
+     "OperationId": "Model_spreadAsRequestBody",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -433,6 +434,7 @@
      "$id": "46",
      "Name": "spreadCompositeRequestOnlyWithBody",
      "ResourceName": "Model",
+     "OperationId": "Model_spreadCompositeRequestOnlyWithBody",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -509,6 +511,7 @@
      "$id": "52",
      "Name": "spreadCompositeRequestWithoutBody",
      "ResourceName": "Model",
+     "OperationId": "Model_spreadCompositeRequestWithoutBody",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -579,6 +582,7 @@
      "$id": "58",
      "Name": "spreadCompositeRequest",
      "ResourceName": "Model",
+     "OperationId": "Model_spreadCompositeRequest",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -697,6 +701,7 @@
      "$id": "68",
      "Name": "spreadCompositeRequestMix",
      "ResourceName": "Model",
+     "OperationId": "Model_spreadCompositeRequestMix",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -859,6 +864,7 @@
      "$id": "84",
      "Name": "spreadAsRequestBody",
      "ResourceName": "Alias",
+     "OperationId": "Alias_spreadAsRequestBody",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -935,6 +941,7 @@
      "$id": "90",
      "Name": "spreadParameterWithInnerModel",
      "ResourceName": "Alias",
+     "OperationId": "Alias_spreadParameterWithInnerModel",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1053,6 +1060,7 @@
      "$id": "100",
      "Name": "spreadAsRequestParameter",
      "ResourceName": "Alias",
+     "OperationId": "Alias_spreadAsRequestParameter",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1171,6 +1179,7 @@
      "$id": "110",
      "Name": "spreadWithMultipleParameters",
      "ResourceName": "Alias",
+     "OperationId": "Alias_spreadWithMultipleParameters",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1289,6 +1298,7 @@
      "$id": "120",
      "Name": "spreadParameterWithInnerAlias",
      "ResourceName": "Alias",
+     "OperationId": "Alias_spreadParameterWithInnerAlias",
      "Doc": "spread an alias with contains another alias property as body.",
      "Accessibility": "public",
      "Parameters": [

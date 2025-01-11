@@ -19,6 +19,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
+import { resolveOperationId } from "@typespec/openapi";
 import { getResourceOperation } from "@typespec/rest";
 import { NetEmitterOptions } from "../options.js";
 import { BodyMediaType } from "../type/body-media-type.js";
@@ -74,6 +75,7 @@ export function fromSdkServiceMethod(
       getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
         .name ??
       getOperationGroupName(sdkContext, method.operation, sdkContext.sdkPackage.rootNamespace),
+    OperationId: resolveOperationId(sdkContext.program, method.operation.__raw.operation),
     Deprecated: getDeprecated(sdkContext.program, method.__raw!),
     Summary: method.summary,
     Doc: method.doc,

@@ -74,6 +74,7 @@
      "$id": "9",
      "Name": "addOperation",
      "ResourceName": "ServiceDriven",
+     "OperationId": "addOperation",
      "Doc": "Added operation",
      "Accessibility": "public",
      "Parameters": [],
@@ -102,6 +103,7 @@
      "$id": "11",
      "Name": "fromNone",
      "ResourceName": "AddOptionalParam",
+     "OperationId": "AddOptionalParam_fromNone",
      "Doc": "Test that grew up from accepting no parameters to an optional input parameter",
      "Accessibility": "public",
      "Parameters": [
@@ -153,6 +155,7 @@
      "$id": "15",
      "Name": "fromOneRequired",
      "ResourceName": "AddOptionalParam",
+     "OperationId": "AddOptionalParam_fromOneRequired",
      "Doc": "Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter.",
      "Accessibility": "public",
      "Parameters": [
@@ -226,6 +229,7 @@
      "$id": "21",
      "Name": "fromOneOptional",
      "ResourceName": "AddOptionalParam",
+     "OperationId": "AddOptionalParam_fromOneOptional",
      "Doc": "Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters.",
      "Accessibility": "public",
      "Parameters": [

@@ -68,6 +68,7 @@
      "$id": "9",
      "Name": "immediateSuccess",
      "ResourceName": "Repeatability",
+     "OperationId": "immediateSuccess",
      "Doc": "Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.",
      "Accessibility": "public",
      "Parameters": [
