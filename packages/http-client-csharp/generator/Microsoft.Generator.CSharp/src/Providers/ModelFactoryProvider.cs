@@ -69,7 +69,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)
             {
-                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
+                var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model) as ModelProvider;
                 if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
                     continue;
 

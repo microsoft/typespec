@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Generator.CSharp.Input;
 using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Utilities

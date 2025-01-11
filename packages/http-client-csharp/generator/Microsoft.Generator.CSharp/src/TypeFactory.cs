@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -43,6 +44,20 @@ namespace Microsoft.Generator.CSharp
 
         public CSharpType? CreateCSharpType(InputType inputType)
         {
+            var inputModelType = inputType as InputModelType;
+
+            if (inputModelType is not null)
+            {
+                if (TryGetTypeReplacement(inputModelType, out var typeReplacement))
+                {
+                    return typeReplacement.Type;
+                }
+                else if (TryGetPropertyTypeReplacement(inputModelType, out var propertyReplacement))
+                {
+                    return propertyReplacement.Type;
+                }
+            }
+
             if (TypeCache.TryGetValue(inputType, out var type))
             {
                 return type;
@@ -141,14 +156,31 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         /// <param name="model">The <see cref="InputModelType"/> to convert.</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public ModelProvider? CreateModel(InputModelType model)
+        public TypeProvider? CreateModel(InputModelType model)
         {
+            if (TryGetTypeReplacement(model, out var replacement))
+            {
+                return replacement;
+            }
+
             if (CSharpToModelProvider.TryGetValue(model, out var modelProvider))
                 return modelProvider;
 
             modelProvider = CreateModelCore(model);
             CSharpToModelProvider.Add(model, modelProvider);
             return modelProvider;
+        }
+
+        public virtual bool TryGetTypeReplacement(InputModelType inputModelType, [NotNullWhen(true)] out SystemObjectProvider? replacement)
+        {
+            replacement = null;
+            return false;
+        }
+
+        public virtual bool TryGetPropertyTypeReplacement(InputModelType inputModelType, [NotNullWhen(true)] out SystemObjectProvider? replacement)
+        {
+            replacement = null;
+            return false;
         }
 
         private ModelProvider? CreateModelCore(InputModelType model)
