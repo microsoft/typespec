@@ -9,13 +9,14 @@ import {
   DateUnixTimestampDeserializer,
   DateUnixTimestampSerializer,
   RecordSerializer,
-  TypeTransformDeclaration,
 } from "@typespec/emitter-framework/typescript";
+import { TypeTransformDeclaration } from "./transforms/type-transform.jsx";
 
 export interface ModelSerializersProps {
   types: Type[];
   path?: string;
 }
+
 export function ModelSerializers(props: ModelSerializersProps) {
   return <ts.SourceFile path={props.path ?? "serializers.ts"}>
       <RecordSerializer />

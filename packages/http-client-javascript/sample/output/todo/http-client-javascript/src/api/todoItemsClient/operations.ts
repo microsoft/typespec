@@ -64,7 +64,7 @@ export async function createJson(
 
   const httpRequestOptions = {
     headers: {
-      "Content-Type": contentType,
+      "content-type": contentType,
     },
     body: {
       item: todoItemToTransport(item),
@@ -114,11 +114,9 @@ export async function createForm(
 
   const httpRequestOptions = {
     headers: {
-      "Content-Type": contentType,
+      "content-type": contentType,
     },
-    body: {
-      body: toDoItemMultipartRequestToTransport(body),
-    },
+    body: toDoItemMultipartRequestToTransport(body),
   };
 
   const response = await client.path(path).post(httpRequestOptions);
@@ -218,7 +216,7 @@ export async function update(
 
   const httpRequestOptions = {
     headers: {
-      "Content-Type": contentType,
+      "content-type": contentType,
     },
     body: todoItemPatchToTransport(patch),
   };

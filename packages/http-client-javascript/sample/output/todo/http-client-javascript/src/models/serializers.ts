@@ -184,20 +184,32 @@ export function todoAttachmentToApplication(item: any): TodoAttachment {
   };
 }
 export function toDoItemMultipartRequestToTransport(item: ToDoItemMultipartRequest): any {
-  return {
-    item: todoItemToTransport(item.item),
-    attachments: item.attachments
-      ? arraySerializer(item.attachments, fileToTransport)
-      : item.attachments,
-  };
+  return [
+    {
+      name: "item",
+      body: todoItemToTransport(item.item),
+    },
+    ...(item.attachments ?? []).map((x: any) => ({
+      name: "attachments",
+      body: x.contents,
+      filename: x.filename,
+      contentType: x.contentType,
+    })),
+  ];
 }
-export function toDoItemMultipartRequestToApplication(item: any): ToDoItemMultipartRequest {
-  return {
-    item: todoItemToApplication(item.item),
-    attachments: item.attachments
-      ? arraySerializer(item.attachments, fileToApplication)
-      : item.attachments,
-  };
+export function toDoItemMultipartRequestToApplication(item: any): any {
+  return [
+    {
+      name: "item",
+      body: todoItemToApplication(item.item),
+    },
+    ...(item.attachments ?? []).map((x: any) => ({
+      name: "attachments",
+      body: x.contents,
+      filename: x.filename,
+      contentType: x.contentType,
+    })),
+  ];
 }
 export function fileToTransport(item: File): any {
   return {
@@ -242,16 +254,24 @@ export function todoAttachmentPageToApplication(item: any): TodoAttachmentPage {
 export function fileAttachmentMultipartRequestToTransport(
   item: FileAttachmentMultipartRequest,
 ): any {
-  return {
-    contents: fileToTransport(item.contents),
-  };
+  return [
+    {
+      name: "contents",
+      body: item.contents.contents,
+      filename: item.contents.filename,
+      contentType: item.contents.contentType,
+    },
+  ];
 }
-export function fileAttachmentMultipartRequestToApplication(
-  item: any,
-): FileAttachmentMultipartRequest {
-  return {
-    contents: fileToApplication(item.contents),
-  };
+export function fileAttachmentMultipartRequestToApplication(item: any): any {
+  return [
+    {
+      name: "contents",
+      body: item.contents.contents,
+      filename: item.contents.filename,
+      contentType: item.contents.contentType,
+    },
+  ];
 }
 export function userToTransport(item: User): any {
   return {

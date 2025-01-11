@@ -55,7 +55,7 @@ export async function createJsonAttachment(
 
   const httpRequestOptions = {
     headers: {
-      "Content-Type": contentType,
+      "content-type": contentType,
     },
     body: todoAttachmentToTransport(contents),
   };
@@ -87,11 +87,9 @@ export async function createFileAttachment(
 
   const httpRequestOptions = {
     headers: {
-      "Content-Type": contentType,
+      "content-type": contentType,
     },
-    body: {
-      body: fileAttachmentMultipartRequestToTransport(body),
-    },
+    body: fileAttachmentMultipartRequestToTransport(body),
   };
 
   const response = await client.path(path).post(httpRequestOptions);

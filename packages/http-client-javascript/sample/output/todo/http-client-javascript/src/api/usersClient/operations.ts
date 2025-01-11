@@ -16,7 +16,7 @@ export async function create(
 
   const httpRequestOptions = {
     headers: {
-      "Content-Type": "application/json",
+      "content-type": "application/json",
     },
     body: userToTransport(user),
   };

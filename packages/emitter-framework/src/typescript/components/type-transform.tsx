@@ -175,6 +175,7 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
       {mapJoin(
         modelProperties,
         (_, property) => {
+          const unpackedType = $.httpPart.unpack(property.type) ?? property.type;
           // assume "transport" target
           let targetPropertyName = property.name;
           let sourcePropertyName = namePolicy.getName(property.name, "interface-member");
@@ -190,10 +191,10 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
             itemPath.unshift(`${props.optionsBagName}?`);
           }
 
-          let value = <TypeTransformCall target={props.target} type={property.type} itemPath={itemPath} />
+          let value = <TypeTransformCall target={props.target} type={unpackedType} itemPath={itemPath} />
 
-          if(property.optional && needsTransform(property.type)) {
-            value = <>{itemPath.join(".")} ? <TypeTransformCall target={props.target} type={property.type} itemPath={itemPath} /> : {itemPath.join(".")}</>
+          if(property.optional && needsTransform(unpackedType)) {
+            value = <>{itemPath.join(".")} ? <TypeTransformCall target={props.target} type={unpackedType} itemPath={itemPath} /> : {itemPath.join(".")}</>
           }
 
           return <ts.ObjectProperty name={JSON.stringify(targetPropertyName)} value={value} />;
@@ -302,24 +303,26 @@ export function TypeTransformCall(props: TypeTransformCallProps) {
   }
   const transformType = collapsedProperty?.type ?? props.type;
   if ($.array.is(transformType)) {
+    const unpackedElement = $.httpPart.unpack($.array.getElementType(transformType)) ?? $.array.getElementType(transformType);
     return (
       <ts.FunctionCallExpression
         refkey={ArraySerializerRefkey}
         args={[
           itemName,
-          <TransformReference target={props.target} type={$.array.getElementType(transformType)} />,
+          <TransformReference target={props.target} type={unpackedElement} />,
         ]}
       />
     );
   }
 
   if ($.record.is(transformType)) {
+    const unpackedElement = $.httpPart.unpack($.array.getElementType(transformType)) ?? $.array.getElementType(transformType);
     return (
       <ts.FunctionCallExpression
         refkey={RecordSerializerRefkey}
         args={[
           itemName,
-          <TransformReference target={props.target} type={$.record.getElementType(transformType)} />,
+          <TransformReference target={props.target} type={unpackedElement} />,
         ]}
       />
     );

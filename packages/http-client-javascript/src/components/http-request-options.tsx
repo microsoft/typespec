@@ -2,8 +2,8 @@ import { Children, code, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Operation } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import * as ef from "@typespec/emitter-framework/typescript";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
+import { TypeTransformCall } from "./transforms/type-transform-call.jsx";
 
 export interface HttpRequestOptionsProps {
   operation: Operation;
@@ -34,7 +34,7 @@ HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
 
   // Prepare the default content type, to use in case no explicit content type is provided
   let contentType = $.httpRequest.getBodyParameters(httpOperation) ? (
-    <ts.ObjectProperty name='"Content-Type"' value='"application/json"' />
+    <ts.ObjectProperty name='"content-type"' value='"application/json"' />
   ) : null;
 
   // Extract the content type property from the header request parameters, if available
@@ -47,7 +47,7 @@ HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
     let contentTypePath = "contentType";
     contentTypePath = contentTypeProperty.optional ? `options.${contentTypePath}` : contentTypePath;
     // Override the default content type
-    contentType = <ts.ObjectProperty name='"Content-Type"' value={contentTypePath} />;
+    contentType = <ts.ObjectProperty name='"content-type"' value={contentTypePath} />;
   }
 
   return <ts.ObjectProperty name="headers">
@@ -84,7 +84,7 @@ HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOpti
   // The transformer to apply to the body.
   const bodyTransform =
     <>
-      {optional}<ef.TypeTransformCall type={body} target="transport" collapse={collapse} optionsBagName="options"/>
+      {optional}<TypeTransformCall type={body} target="transport" collapse={collapse} optionsBagName="options"/>
   </>;
 
   return <>

@@ -12,6 +12,7 @@ import {
   Union,
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
+import { isHttpFile } from "@typespec/http";
 import { Client } from "../../interfaces.js";
 
 interface ClientLibraryKit {
@@ -199,6 +200,10 @@ function isDataType(type: Type): type is DataType {
 }
 
 function isDeclaredType(type: Type): boolean {
+  if (isHttpFile($.program, type)) {
+    return true;
+  }
+
   if ("namespace" in type && type.namespace?.name === "TypeSpec") {
     return false;
   }
