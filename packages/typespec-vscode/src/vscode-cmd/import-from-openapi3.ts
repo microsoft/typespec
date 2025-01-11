@@ -204,7 +204,7 @@ async function tryInstallOpenApi3Locally(
           // we can't use version directly because openapi3 may not have some patch versions.
           const maj = major(compilerJson.version);
           const min = minor(compilerJson.version);
-          version = `${maj}.${min}.0`;
+          version = `${maj}.${min}`;
         }
         logger.info(
           `Compiler version: ${compilerJson?.version ?? "N/A"} found, will try to install ${TSP_OPENAPI3_PACKAGE} with version: ${version}`,
