@@ -45,7 +45,7 @@ export async function importFromOpenApi3(uri: vscode.Uri | undefined) {
       }
       const checkEmpty = await checkAndConfirmEmptyFolder(
         targetFolder,
-        "Selected folder is not empty. Do you want to continue?",
+        "The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.",
         TITLE,
       );
       if (!checkEmpty) {
@@ -242,7 +242,6 @@ async function tryInstallOpenApi3Locally(
  * @param sourceFile
  * @param targetFolder
  * @param isGlobal if true, to use the openapi3 installed globally, otherwise, to use the openapi3 installed locally.
- * @param logSink the logs of import execution will be directed to this sink if provided.
  * @returns
  */
 async function tryImport(
