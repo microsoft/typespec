@@ -16,8 +16,13 @@ import { spawn, SpawnOptions } from "child_process";
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
+import * as semver from "semver";
 import { fileURLToPath } from "url";
-import { configurationFileName, tspOutputFileName } from "./constants.js";
+import {
+  configurationFileName,
+  minVersionRequisiteForDotnet,
+  tspOutputFileName,
+} from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
 import { reportDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/log-level.js";
@@ -169,7 +174,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             { stdio: "inherit" },
           );
           if (result.exitCode !== 0) {
-            const isValid = await validateDotnet(sdkContext.program, "8.0.0");
+            const isValid = await validateDotnet(sdkContext.program, minVersionRequisiteForDotnet);
             // if the dotnet runtime is valid, the error is not runtime issue, log it as normal
             if (isValid) {
               if (result.stderr) Logger.getInstance().error(result.stderr);
@@ -178,7 +183,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             }
           }
         } catch (error: any) {
-          const isValid = await validateDotnet(sdkContext.program, "8.0.0");
+          const isValid = await validateDotnet(sdkContext.program, minVersionRequisiteForDotnet);
           // if the dotnet runtime is valid, the error is not runtime issue, log it as normal
           if (isValid) throw new Error(error);
         }
@@ -198,8 +203,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
  * @param minVersionRequisite The minimum required version
  */
 async function validateDotnet(program: Program, minVersionRequisite: string): Promise<boolean> {
-  const requiredVersions = minVersionRequisite.match(/(\d+)\.(\d+)\.(\d+)/g);
-  if (!requiredVersions) {
+  const parsedVersions = semver.parse(minVersionRequisite);
+  if (!parsedVersions) {
     Logger.getInstance().error("invalid parameter: minVersionRequisite.");
     return false;
   }
@@ -208,15 +213,15 @@ async function validateDotnet(program: Program, minVersionRequisite: string): Pr
     const dotnetVersions = findDonetVersion(result.stdout) ?? findDonetVersion(result.stderr);
     if (dotnetVersions) {
       for (const version of dotnetVersions) {
-        if (compareVersion(version, minVersionRequisite) >= 0) return true;
+        if (semver.gt(version, minVersionRequisite)) return true;
       }
       reportDiagnostic(program, {
         code: "invalid-runtime-dependency",
         messageId: "invalidVersion",
         format: {
           installedVersion: dotnetVersions?.join(","),
-          dotnetMajorVersion: requiredVersions[0],
-          downloadUrl: `https://dotnet.microsoft.com/download/dotnet/${requiredVersions[0]}.0`,
+          dotnetMajorVersion: `${parsedVersions.major}`,
+          downloadUrl: `https://dotnet.microsoft.com/download/dotnet/${parsedVersions.major}.0`,
         },
         target: NoTarget,
       });
@@ -231,8 +236,8 @@ async function validateDotnet(program: Program, minVersionRequisite: string): Pr
         code: "invalid-runtime-dependency",
         messageId: "missing",
         format: {
-          dotnetMajorVersion: requiredVersions[0],
-          downloadUrl: `https://dotnet.microsoft.com/download/dotnet/${requiredVersions[0]}.0`,
+          dotnetMajorVersion: `${parsedVersions.major}`,
+          downloadUrl: `https://dotnet.microsoft.com/download/dotnet/${parsedVersions.major}.0`,
         },
         target: NoTarget,
       });
@@ -245,30 +250,6 @@ async function validateDotnet(program: Program, minVersionRequisite: string): Pr
     const matches = output.match(regex);
     if (matches) return matches;
     return undefined;
-  }
-
-  /**
-   * Compare [semver](https://semver.org/) version strings to find greater, equal or lesser.
-   * This library supports the full semver specification, including comparing versions with different number of digits like `1.0.0`, `1.0`, `1`, and pre-release versions like `1.0.0-alpha`.
-   * @param v1 - First version to compare
-   * @param v2 - Second version to compare
-   * @returns Numeric value compatible with the [Array.sort(fn) interface](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#Parameters).
-   */
-  function compareVersion(v1: string, v2: string): number {
-    const v1Versions = v1.match(/(\d+)\.(\d+)\.(\d+)/g);
-    const v2Versions = v2.match(/(\d+)\.(\d+)\.(\d+)/g);
-    if (!v1Versions || !v2Versions) {
-      Logger.getInstance().error("invalid parameter.");
-      return -1;
-    }
-    for (const i in v1Versions) {
-      if (v1Versions[i] < v2Versions[i]) {
-        return -1;
-      } else if (v1Versions[i] > v2Versions[i]) {
-        return 1;
-      }
-    }
-    return 0;
   }
 }
 function constructCommandArg(arg: string): string {
