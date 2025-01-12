@@ -1183,6 +1183,63 @@ describe("compiler: models", () => {
       strictEqual(options[1].name, "string");
     });
 
+    it("can spread a Map<K, V>", async () => {
+      testHost.addTypeSpecFile("main.tsp", `@test model Test {...Map<string, int32>;}`);
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      strictEqual(Test.indexer?.key.name, "string");
+      strictEqual(Test.indexer?.value.kind, "Scalar");
+      strictEqual(Test.indexer?.value.name, "int32");
+    });
+
+    it("can spread a Map<K, V> with different value than existing props", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {
+          name: string;
+          ...Map<string, int32>;
+        }
+        `,
+      );
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      const nameProp = Test.properties.get("name");
+      strictEqual(nameProp?.type.kind, "Scalar");
+      strictEqual(nameProp?.type.name, "string");
+      strictEqual(Test.indexer?.key.name, "string");
+      strictEqual(Test.indexer?.value.kind, "Scalar");
+      strictEqual(Test.indexer?.value.name, "int32");
+    });
+
+    it("can spread different maps", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {
+          ...Map<string, int32>;
+          ...Map<string, string>;
+        }
+        `,
+      );
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      strictEqual(Test.indexer?.key.name, "string");
+      const indexerValue = Test.indexer?.value;
+      strictEqual(indexerValue.kind, "Union");
+      const options = [...indexerValue.variants.values()].map((x) => x.type);
+      strictEqual(options[0].kind, "Scalar");
+      strictEqual(options[0].name, "int32");
+      strictEqual(options[1].kind, "Scalar");
+      strictEqual(options[1].name, "string");
+    });
+
     it("emit diagnostic if spreading an T[]", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",

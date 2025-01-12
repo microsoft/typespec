@@ -20,6 +20,7 @@ const intrinsicTypes = [
   "decimal",
   "Array<string>",
   "Record<string>",
+  "Map<string, integer>",
   "string[]",
 ];
 

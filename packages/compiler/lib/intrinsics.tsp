@@ -184,8 +184,16 @@ scalar boolean;
 model Array<Element> {}
 
 /**
- * @dev Model with string properties where all the properties have type `Property`
+ * @dev Model with string properties where all the properties have type `Element`
  * @template Element The type of the properties
  */
 @indexer(string, Element)
 model Record<Element> {}
+
+/**
+ * @dev Model with string properties where all the keys have type `Key` and all the properties have type `Element`
+ * @template Key     The type of the keys
+ * @template Element The type of the properties
+ */
+@indexer(Key, Element)
+model Map<Key extends string, Element>  {}
