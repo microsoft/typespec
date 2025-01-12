@@ -280,7 +280,7 @@ export type NeverIndexer = {
 };
 
 export type ModelIndexer = {
-  readonly key: Scalar;
+  readonly key: Enum | Scalar | Union;
   readonly value: Type;
 };
 
