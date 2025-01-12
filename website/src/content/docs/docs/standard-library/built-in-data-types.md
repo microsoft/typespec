@@ -122,6 +122,24 @@ model ExampleOptions
 | title? | [`string`](#string) | The title of the example |
 | description? | [`string`](#string) | Description of the example |
 
+### `Map` {#Map}
+
+
+
+```typespec
+model Map<Key, Element>
+```
+
+#### Template Parameters
+| Name | Description |
+|------|-------------|
+| Key | The type of the keys |
+| Element | The type of the properties |
+
+
+#### Properties
+None
+
 ### `object` {#object}
 :::caution
 **Deprecated**: object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.
