@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.MultiPart
 {
+    /// <summary> Client options for <see cref="MultiPartClient"/>. </summary>
     public partial class MultiPartClientOptions : ClientPipelineOptions
     {
     }

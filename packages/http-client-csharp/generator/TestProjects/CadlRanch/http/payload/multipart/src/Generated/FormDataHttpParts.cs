@@ -2,24 +2,84 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
+using Payload.MultiPart.Models;
 
 namespace Payload.MultiPart
 {
+    /// <summary></summary>
     public partial class FormDataHttpParts
     {
-        protected FormDataHttpParts() => throw null;
+        private readonly Uri _endpoint;
+        private FormDataHttpPartsContentType _cachedFormDataHttpPartsContentType;
+        private FormDataHttpPartsNonString _cachedFormDataHttpPartsNonString;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of FormDataHttpParts for mocking. </summary>
+        protected FormDataHttpParts()
+        {
+        }
 
-        public virtual ClientResult JsonArrayAndFileArray(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        internal FormDataHttpParts(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual Task<ClientResult> JsonArrayAndFileArrayAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual FormDataHttpPartsContentType GetFormDataHttpPartsContentTypeClient() => throw null;
+        public virtual ClientResult JsonArrayAndFileArray(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            // CUSTOM: AssertNotNullOrEmpty for required contentType
+            Argument.AssertNotNull(contentType, nameof(contentType));
 
-        public virtual FormDataHttpPartsNonString GetFormDataHttpPartsNonStringClient() => throw null;
+            using PipelineMessage message = CreateJsonArrayAndFileArrayRequest(content, contentType, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        public virtual async Task<ClientResult> JsonArrayAndFileArrayAsync(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            // CUSTOM: AssertNotNullOrEmpty for required contentType
+            Argument.AssertNotNull(contentType, nameof(contentType));
+
+            using PipelineMessage message = CreateJsonArrayAndFileArrayRequest(content, contentType, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        // CUSTOM: Convenience method
+        public virtual ClientResult JsonArrayAndFileArray(ComplexHttpPartsModelRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return JsonArrayAndFileArray(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        // CUSTOM: Convenience method
+        public virtual async Task<ClientResult> JsonArrayAndFileArrayAsync(ComplexHttpPartsModelRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return await JsonArrayAndFileArrayAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        /// <summary> Initializes a new instance of FormDataHttpPartsContentType. </summary>
+        public virtual FormDataHttpPartsContentType GetFormDataHttpPartsContentTypeClient()
+        {
+            return Volatile.Read(ref _cachedFormDataHttpPartsContentType) ?? Interlocked.CompareExchange(ref _cachedFormDataHttpPartsContentType, new FormDataHttpPartsContentType(Pipeline, _endpoint), null) ?? _cachedFormDataHttpPartsContentType;
+        }
+
+        /// <summary> Initializes a new instance of FormDataHttpPartsNonString. </summary>
+        public virtual FormDataHttpPartsNonString GetFormDataHttpPartsNonStringClient()
+        {
+            return Volatile.Read(ref _cachedFormDataHttpPartsNonString) ?? Interlocked.CompareExchange(ref _cachedFormDataHttpPartsNonString, new FormDataHttpPartsNonString(Pipeline, _endpoint), null) ?? _cachedFormDataHttpPartsNonString;
+        }
     }
 }
