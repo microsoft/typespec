@@ -13,9 +13,9 @@ namespace Response.StatusCodeRange;
 @scenario
 @scenarioDoc("""
   Test case for range of status code in error response.
-
+  
   Verify that the result of the API is an error/exception in client, and the error response can be de-serialized to ErrorInRange model (instead of DefaultError model).
-
+  
   Expected response body:
   status code 494
   ```json
@@ -33,7 +33,9 @@ op errorResponse(): 204 | ErrorInRange | DefaultError;
 model ErrorInRange {
   @minValue(494)
   @maxValue(499)
-  @statusCode _: int32;
+  @statusCode
+  _: int32;
+
   code: string;
   message: string;
 }
