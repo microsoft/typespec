@@ -56,7 +56,7 @@ When an error is detected, it’s necessary to document the findings by using th
 
 | No | Title | Issue Description | Repro Steps | Expected Results | Actual Results | Comments |
 | ---------| :--: | :-: | :--: | :--: | :--: | :--: |
-| 1 | e.g. Import TypeSpec from OpenAPI3 failed | Failed to convert OpenAPI3 specification。 | 1. Right-click context menu of a .tsp file. <br> 2. Confirm the Project Folder. <br> 3. Specify the OpenAPI3 specification to convert. <br> 4.Verify Installa Dependencies, start converting  | Successful conversion. | Failed to convert OpenAPI3 specification. | Issue link |
+| 1 | e.g. Import TypeSpec from OpenAPI3 failed | Failed to convert OpenAPI3 specification。 | 1. Right-click context menu of a .tsp file. <br> 2. Confirm the Project Folder. <br> 3. Specify the OpenAPI3 specification to convert. <br> 4.Verify Install Dependencies, start converting  | Successful conversion. | Failed to convert OpenAPI3 specification. | Issue link |
 
 ## Test Results Summary
 
