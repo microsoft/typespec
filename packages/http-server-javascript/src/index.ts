@@ -3,7 +3,7 @@
 
 import { EmitContext, NoTarget, listServices } from "@typespec/compiler";
 import { visitAllTypes } from "./common/namespace.js";
-import { JsContext, Module, createModule, createPathCursor } from "./ctx.js";
+import { JsContext, Module, createModule, createPathCursor, gensym } from "./ctx.js";
 import { JsEmitterOptions, reportDiagnostic } from "./lib.js";
 import { parseCase } from "./util/case.js";
 import { UnimplementedError } from "./util/error.js";
@@ -82,6 +82,10 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
     globalNamespaceModule: allModule,
 
     serializations: createOnceQueue(),
+
+    gensym: (name) => {
+      return gensym(jsCtx, name);
+    },
   };
 
   await emitHttp(jsCtx);

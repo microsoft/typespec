@@ -131,7 +131,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
 
             IType parameterClientType = parameter.getClientType();
-            String defaultValue = parameterClientType.defaultValueExpression(parameter.getDefaultValue());
+            String defaultValue = parameterDefaultValueExpression(parameterClientType, parameter.getDefaultValue(),
+                JavaSettings.getInstance());
             function.line("final %s %s = %s;", parameterClientType, parameter.getName(),
                 defaultValue == null ? "null" : defaultValue);
         }
@@ -202,11 +203,24 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             if (!parameter.isFromClient()
                 && !alwaysNull
                 && ((addOptional && optionalOmitted) || (addConstant && includeConstant))) {
-                String defaultValue = parameterClientType.defaultValueExpression(parameter.getDefaultValue());
+                String defaultValue
+                    = parameterDefaultValueExpression(parameterClientType, parameter.getDefaultValue(), settings);
                 function.line("final %s %s = %s;", parameterClientType, parameter.getParameterReference(),
                     defaultValue == null ? "null" : defaultValue);
             }
         }
+    }
+
+    private static String parameterDefaultValueExpression(IType parameterClientType, String parameterDefaultValue,
+        JavaSettings settings) {
+        String defaultValue;
+        if (settings.isNullByteArrayMapsToEmptyArray() && parameterClientType == ArrayType.BYTE_ARRAY) {
+            // there's no EMPTY_BYTE_ARRAY in clients, unlike that in models
+            defaultValue = "new byte[0]";
+        } else {
+            defaultValue = parameterClientType.defaultValueExpression(parameterDefaultValue);
+        }
+        return defaultValue;
     }
 
     /**

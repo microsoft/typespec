@@ -57,6 +57,9 @@ function addDefaultOptions(sdkContext: SdkContext) {
   if (!options.flavor && sdkContext.emitContext.emitterOutputDir.includes("azure")) {
     options.flavor = "azure";
   }
+  if (options["enable-typespec-namespace"] === undefined) {
+    options["enable-typespec-namespace"] = options.flavor !== "azure";
+  }
 }
 
 async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
@@ -79,6 +82,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
   const root = path.join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const outputDir = context.emitterOutputDir;
+  addDefaultOptions(sdkContext);
   const yamlMap = emitCodeModel(sdkContext);
   if (yamlMap.clients.length === 0) {
     reportDiagnostic(program, {
@@ -88,7 +92,6 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     return;
   }
   const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
-  addDefaultOptions(sdkContext);
   const resolvedOptions = sdkContext.emitContext.options;
   const commandArgs: Record<string, string> = {};
   if (resolvedOptions["packaging-files-config"]) {
@@ -186,15 +189,38 @@ async function setupPyodideCall(root: string) {
   const pyodide = await loadPyodide({
     indexURL: path.dirname(fileURLToPath(import.meta.resolve("pyodide"))),
   });
-  // mount generator to pyodide
-  pyodide.FS.mkdirTree("/generator");
-  pyodide.FS.mount(
-    pyodide.FS.filesystems.NODEFS,
-    { root: path.join(root, "generator") },
-    "/generator",
-  );
-  await pyodide.loadPackage("micropip");
-  const micropip = pyodide.pyimport("micropip");
-  await micropip.install("emfs:/generator/dist/pygen-0.1.0-py3-none-any.whl");
+  const micropipLockPath = path.join(root, "micropip.lock");
+  while (true) {
+    if (fs.existsSync(micropipLockPath)) {
+      try {
+        const stats = fs.statSync(micropipLockPath);
+        const now = new Date().getTime();
+        const lockAge = (now - stats.mtime.getTime()) / 1000;
+        if (lockAge > 300) {
+          fs.unlinkSync(micropipLockPath);
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+    try {
+      const fd = fs.openSync(micropipLockPath, "wx");
+      // mount generator to pyodide
+      pyodide.FS.mkdirTree("/generator");
+      pyodide.FS.mount(
+        pyodide.FS.filesystems.NODEFS,
+        { root: path.join(root, "generator") },
+        "/generator",
+      );
+      await pyodide.loadPackage("micropip");
+      const micropip = pyodide.pyimport("micropip");
+      await micropip.install("emfs:/generator/dist/pygen-0.1.0-py3-none-any.whl");
+      fs.closeSync(fd);
+      fs.unlinkSync(micropipLockPath);
+      break;
+    } catch (err) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
   return pyodide;
 }

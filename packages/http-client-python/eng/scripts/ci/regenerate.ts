@@ -27,7 +27,8 @@ const exec = promisify(execCallback);
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
   : resolve(fileURLToPath(import.meta.url), "../../../../");
-const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
+const AZURE_HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@azure-tools/azure-http-specs/specs");
+const HTTP_SPECS = resolve(PLUGIN_DIR, "node_modules/@typespec/http-specs/specs");
 const GENERATED_FOLDER = argv.values.generatedFolder
   ? resolve(argv.values.generatedFolder)
   : resolve(PLUGIN_DIR, "generator");
@@ -122,6 +123,9 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "client/structure/two-operation-group": {
     "package-name": "client-structure-twooperationgroup",
   },
+  "client/namespace": {
+    "enable-typespec-namespace": "true",
+  },
 };
 
 function toPosix(dir: string): string {
@@ -129,7 +133,8 @@ function toPosix(dir: string): string {
 }
 
 function getEmitterOption(spec: string): Record<string, string>[] {
-  const relativeSpec = toPosix(relative(CADL_RANCH_DIR, spec));
+  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+  const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
     ? relativeSpec
     : dirname(relativeSpec);
@@ -167,6 +172,7 @@ interface RegenerateFlags {
   debug: boolean;
   name?: string;
   pyodide?: boolean;
+  "enable-typespec-namespace"?: boolean;
 }
 
 const SpecialFlags: Record<string, Record<string, any>> = {
@@ -189,7 +195,6 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         const clientTspPath = join(subDirPath, "client.tsp");
 
         const mainTspRelativePath = toPosix(relative(baseDir, mainTspPath));
-        if (flags.flavor === "unbranded" && mainTspRelativePath.includes("azure")) return;
 
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
@@ -227,7 +232,8 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
 }
 
 function defaultPackageName(spec: string): string {
-  return toPosix(relative(CADL_RANCH_DIR, dirname(spec)))
+  const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
+  return toPosix(relative(specDir, dirname(spec)))
     .replace(/\//g, "-")
     .toLowerCase();
 }
@@ -265,6 +271,9 @@ function addOptions(
       options["company-name"] = "Unbranded";
     }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
+    if (options["enable-typespec-namespace"] === undefined) {
+      options["enable-typespec-namespace"] = "false";
+    }
     const configs = Object.entries(options).flatMap(([k, v]) => {
       return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${v}`;
     });
@@ -290,19 +299,17 @@ async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
     await regenerate({ flavor: "unbranded", pyodide: true, ...flags });
   } else {
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
-    const CADL_RANCH_DIR = resolve(PLUGIN_DIR, "node_modules/@azure-tools/cadl-ranch-specs/http");
-    const subdirectories = await getSubdirectories(CADL_RANCH_DIR, flagsResolved);
+    const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
+    const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);
+    const subdirectories =
+      flags.flavor === "azure"
+        ? [...subdirectoriesForAzure, ...subdirectoriesForNonAzure]
+        : subdirectoriesForNonAzure;
     const cmdList: TspCommand[] = subdirectories.flatMap((subdirectory) =>
       _getCmdList(subdirectory, flagsResolved),
     );
-    const chunks: TspCommand[][] = [];
-    for (let i = 0; i < cmdList.length; i += 10) {
-      chunks.push(cmdList.slice(i, i + 10));
-    }
-    for (const chunk of chunks) {
-      const promiseCommands = chunk.map((tspCommand) => executeCommand(tspCommand));
-      await Promise.all(promiseCommands);
-    }
+    const PromiseCommands = cmdList.map((tspCommand) => executeCommand(tspCommand));
+    await Promise.all(PromiseCommands);
   }
 }
 
