@@ -1,12 +1,19 @@
 import { DocTarget, setDocData } from "../../core/intrinsic-type-state.js";
 import type { Program } from "../../core/program.js";
-import type { DecoratorContext, ModelIndexer, Scalar, Type } from "../../core/types.js";
+import type {
+  DecoratorContext,
+  Enum,
+  ModelIndexer,
+  Scalar,
+  Type,
+  Union,
+} from "../../core/types.js";
 
 const indexTypeKey = Symbol.for(`TypeSpec.index`);
 export const indexerDecorator = (
   context: DecoratorContext,
   target: Type,
-  key: Scalar,
+  key: Enum | Scalar | Union,
   value: Type,
 ) => {
   const indexer: ModelIndexer = { key, value };
