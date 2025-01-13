@@ -45,7 +45,6 @@ export async function createJsonAttachment(
   client: AttachmentsClientContext,
   itemId: number,
   contents: TodoAttachment,
-  contentType: "application/json",
 ): Promise<void | {
   code: "not-found";
 }> {
@@ -55,7 +54,7 @@ export async function createJsonAttachment(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": contentType,
+      "content-type": "application/json",
     },
     body: todoAttachmentToTransport(contents),
   };
@@ -77,7 +76,6 @@ export async function createFileAttachment(
   client: AttachmentsClientContext,
   itemId: number,
   body: FileAttachmentMultipartRequest,
-  contentType: "multipart/form-data",
 ): Promise<void | {
   code: "not-found";
 }> {
@@ -87,7 +85,7 @@ export async function createFileAttachment(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": contentType,
+      "content-type": "multipart/form-data",
     },
     body: fileAttachmentMultipartRequestToTransport(body),
   };

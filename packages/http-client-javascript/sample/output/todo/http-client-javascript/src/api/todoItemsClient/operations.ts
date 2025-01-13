@@ -44,7 +44,6 @@ export async function list(
 export async function createJson(
   client: TodoItemsClientContext,
   item: TodoItem,
-  contentType: "application/json",
   options?: {
     attachments?: Array<TodoAttachment>;
   },
@@ -64,7 +63,7 @@ export async function createJson(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": contentType,
+      "content-type": "application/json",
     },
     body: {
       item: todoItemToTransport(item),
@@ -97,7 +96,6 @@ export async function createJson(
 export async function createForm(
   client: TodoItemsClientContext,
   body: ToDoItemMultipartRequest,
-  contentType: "multipart/form-data",
 ): Promise<{
   id: number;
   title: string;
@@ -114,7 +112,7 @@ export async function createForm(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": contentType,
+      "content-type": "multipart/form-data",
     },
     body: toDoItemMultipartRequestToTransport(body),
   };
@@ -197,7 +195,6 @@ export async function update(
   client: TodoItemsClientContext,
   id: number,
   patch: TodoItemPatch,
-  contentType: "application/merge-patch+json",
 ): Promise<{
   id: number;
   title: string;
@@ -216,7 +213,7 @@ export async function update(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": contentType,
+      "content-type": "application/merge-patch+json",
     },
     body: todoItemPatchToTransport(patch),
   };

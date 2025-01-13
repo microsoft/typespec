@@ -1,6 +1,6 @@
 import { Children, code, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Operation } from "@typespec/compiler";
+import { Operation, StringLiteral } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
 import { TypeTransformCall } from "./transforms/type-transform-call.jsx";
@@ -45,9 +45,14 @@ HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
   // If the content type property is available, use it to set the content type header.
   if (contentTypeProperty) {
     let contentTypePath = "contentType";
-    contentTypePath = contentTypeProperty.optional ? `options.${contentTypePath}` : contentTypePath;
+    const contentTypeLiteral = (contentTypeProperty.type as StringLiteral).value;
+    // When there is a content type literal, use it as the content type value
+    const contentTypeValue = contentTypeLiteral ? `"${contentTypeLiteral}"` : contentTypePath;
+    contentTypePath = contentTypeProperty.optional
+      ? `options.${contentTypePath}`
+      : contentTypeValue;
     // Override the default content type
-    contentType = <ts.ObjectProperty name='"content-type"' value={contentTypePath} />;
+    contentType = <ts.ObjectProperty name='"content-type"' value={contentTypeValue} />;
   }
 
   return <ts.ObjectProperty name="headers">

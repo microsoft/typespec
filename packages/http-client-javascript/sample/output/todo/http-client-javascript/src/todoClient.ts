@@ -66,21 +66,20 @@ export class TodoItemsClient {
   }
   async createJson(
     item: TodoItem,
-    contentType: "application/json",
     options?: {
       attachments?: Array<TodoAttachment>;
     },
   ) {
-    return createJson(this.#context, item, contentType, options);
+    return createJson(this.#context, item, options);
   }
-  async createForm(body: ToDoItemMultipartRequest, contentType: "multipart/form-data") {
-    return createForm(this.#context, body, contentType);
+  async createForm(body: ToDoItemMultipartRequest) {
+    return createForm(this.#context, body);
   }
   async get(id: number) {
     return get(this.#context, id);
   }
-  async update(id: number, patch: TodoItemPatch, contentType: "application/merge-patch+json") {
-    return update(this.#context, id, patch, contentType);
+  async update(id: number, patch: TodoItemPatch) {
+    return update(this.#context, id, patch);
   }
   async delete(id: number) {
     return delete_(this.#context, id);
@@ -96,19 +95,11 @@ export class AttachmentsClient {
   async list(itemId: number) {
     return list_2(this.#context, itemId);
   }
-  async createJsonAttachment(
-    itemId: number,
-    contents: TodoAttachment,
-    contentType: "application/json",
-  ) {
-    return createJsonAttachment(this.#context, itemId, contents, contentType);
+  async createJsonAttachment(itemId: number, contents: TodoAttachment) {
+    return createJsonAttachment(this.#context, itemId, contents);
   }
-  async createFileAttachment(
-    itemId: number,
-    body: FileAttachmentMultipartRequest,
-    contentType: "multipart/form-data",
-  ) {
-    return createFileAttachment(this.#context, itemId, body, contentType);
+  async createFileAttachment(itemId: number, body: FileAttachmentMultipartRequest) {
+    return createFileAttachment(this.#context, itemId, body);
   }
 }
 

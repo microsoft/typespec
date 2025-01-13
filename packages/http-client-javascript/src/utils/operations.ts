@@ -50,10 +50,6 @@ const httpParamsMutator: Mutator = {
           {} as Record<string, ModelProperty>,
         );
 
-      if (Object.entries(optionals).length === 0) {
-        return;
-      }
-
       const optionsBag = $.model.create({
         properties: optionals,
       });
@@ -65,12 +61,26 @@ const httpParamsMutator: Mutator = {
       });
 
       for (const [key, prop] of clone.parameters.properties) {
-        if (prop.optional) {
+        if (prop.optional || isConstantContentType(prop)) {
           clone.parameters.properties.delete(key);
         }
       }
 
-      clone.parameters.properties.set("options", optionsProp);
+      if (Object.keys(optionals).length > 0) {
+        clone.parameters.properties.set("options", optionsProp);
+      }
     },
   },
 };
+
+function isConstantContentType(modelProperty: ModelProperty) {
+  if (!$.modelProperty.isHttpHeader(modelProperty)) {
+    return false;
+  }
+
+  if ("value" in modelProperty.type && modelProperty.type.value !== undefined) {
+    return true;
+  }
+
+  return false;
+}
