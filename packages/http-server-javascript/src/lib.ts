@@ -107,6 +107,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Name ${"name"} conflicts with a prior declaration and must be unique.`,
       },
     },
+    "dynamic-request-content-type": {
+      severity: "error",
+      messages: {
+        default: "Operation has multiple possible content-type values and cannot be emitted.",
+      },
+    },
   },
 });
 

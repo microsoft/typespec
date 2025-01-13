@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.2
+
+### Bug Fixes
+
+- Don't automatically overwrite version in `_version.py` file and `setup.py` file if the existing version is newer
+
 ## 0.6.1
 
 ### Bug Fixes
