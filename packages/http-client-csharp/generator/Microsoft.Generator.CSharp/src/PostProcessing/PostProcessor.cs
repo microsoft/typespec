@@ -117,7 +117,6 @@ namespace Microsoft.Generator.CSharp
             if (compilation == null)
                 return project;
 
-            Console.Error.WriteLine("[Debug] InternalizeAsync");
             // first get all the declared symbols
             var definitions = await GetTypeSymbolsAsync(compilation, project, true);
             // build the reference map
