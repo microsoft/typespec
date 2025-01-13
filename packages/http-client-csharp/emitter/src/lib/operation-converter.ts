@@ -428,7 +428,5 @@ function normalizeHeaderName(name: string): string {
 }
 
 function isExplodedParameter(p: SdkHttpParameter): boolean {
-  return (
-    (p.kind === "path" || p.kind === "query") && p.explode === true
-  );
+  return (p.kind === "path" || p.kind === "query") && p.explode === true;
 }
