@@ -21,3 +21,41 @@ it("it change tuple to a array value", async () => {
       }
     `);
 });
+
+it("it recursively changes tuple to the corresponding array value", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Tuple {
+          tuple: [ string, [ string ]] = ┆["foo", ["bar"]];
+      }
+    `,
+    (node) => {
+      strictEqual(node.kind, SyntaxKind.TupleExpression);
+      return createTupleToArrayValueCodeFix(node);
+    },
+  ).toChangeTo(`
+      model Tuple {
+          tuple: [ string, [ string ]] = #["foo", #["bar"]];
+      }
+    `);
+});
+
+it("it recursively changes the complex tuple to the corresponding object value or array value", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Bar { Baz : string }
+      model Tuple {
+          tuple: [ string, [ string,Bar ]] = ┆["foo", ["bar",{Baz: "Hello"}]];
+      }
+    `,
+    (node) => {
+      strictEqual(node.kind, SyntaxKind.TupleExpression);
+      return createTupleToArrayValueCodeFix(node);
+    },
+  ).toChangeTo(`
+      model Bar { Baz : string }
+      model Tuple {
+          tuple: [ string, [ string,Bar ]] = #["foo", #["bar",#{Baz: "Hello"}]];
+      }
+    `);
+});
