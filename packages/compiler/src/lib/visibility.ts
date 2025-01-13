@@ -243,6 +243,10 @@ export function getParameterVisibilityFilter(
 
   if (!operationVisibilityConfig.parameters) return defaultProvider.parameters(program, operation);
 
+  // If there are no parameters, return an empty filter. This has the effect of allowing `@parameterVisibility()` to
+  // disable the default visibility provider for an operation.
+  if (operationVisibilityConfig.parameters.length === 0) return {};
+
   return {
     // WARNING: the HTTP library depends on `any` being the only key in the filter object returned by this method.
     //          if you change this logic, you will need to update the HTTP library to account for differences in the
@@ -317,6 +321,10 @@ export function getReturnTypeVisibilityFilter(
   const visibilityConfig = getOperationVisibilityConfig(program, operation);
 
   if (!visibilityConfig.returnType) return defaultProvider.returnType(program, operation);
+
+  // If there are no return type visibilities, return an empty filter. This has the effect of allowing
+  // `@returnTypeVisibility()` to disable the default visibility provider for an operation.
+  if (visibilityConfig.returnType.length === 0) return {};
 
   return {
     // WARNING: the HTTP library depends on `any` being the only key in the filter object returned by this method.

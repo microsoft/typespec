@@ -13,6 +13,7 @@ import {
   Enum,
   getLifecycleVisibilityEnum,
   getParameterVisibilityFilter,
+  getReturnTypeVisibilityFilter,
   getVisibilityForClass,
   hasVisibility,
   isSealed,
@@ -25,6 +26,7 @@ import {
   resetVisibilityModifiersForClass,
   sealVisibilityModifiers,
   sealVisibilityModifiersForProgram,
+  VisibilityProvider,
 } from "../src/index.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../src/testing/index.js";
 
@@ -648,6 +650,40 @@ describe("compiler: visibility core", () => {
         strictEqual(filter.none, undefined);
 
         strictEqual(isVisible(runner.program, x, filter), false);
+      });
+
+      it("allows properties when no arguments provided to parameter/returnType visibility", async () => {
+        const { Example, foo } = (await runner.compile(`
+          @test model Example {
+            @visibility(Lifecycle.Create)
+            x: string;
+          }
+
+          @parameterVisibility
+          @returnTypeVisibility
+          @test op foo(
+            example: Example
+          ): Example;
+        `)) as { Example: Model; foo: Operation };
+
+        const x = Example.properties.get("x")!;
+
+        const provider: VisibilityProvider = {
+          parameters: (program) => {
+            const Lifecycle = getLifecycleVisibilityEnum(program);
+            return { all: new Set([Lifecycle.members.get("Read")!]) };
+          },
+          returnType: (program) => {
+            const Lifecycle = getLifecycleVisibilityEnum(program);
+            return { all: new Set([Lifecycle.members.get("Read")!]) };
+          },
+        };
+
+        const parameterFilter = getParameterVisibilityFilter(runner.program, foo, provider);
+        const returnTypeFilter = getReturnTypeVisibilityFilter(runner.program, foo, provider);
+
+        strictEqual(isVisible(runner.program, x, parameterFilter), true);
+        strictEqual(isVisible(runner.program, x, returnTypeFilter), true);
       });
     });
   });
