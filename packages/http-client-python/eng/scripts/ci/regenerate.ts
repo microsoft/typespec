@@ -132,7 +132,7 @@ function toPosix(dir: string): string {
   return dir.replace(/\\/g, "/");
 }
 
-function getEmitterOption(spec: string, flags: string): Record<string, string>[] {
+function getEmitterOption(spec: string, flavor: string): Record<string, string>[] {
   const specDir = spec.includes("azure") ? AZURE_HTTP_SPECS : HTTP_SPECS;
   const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")
@@ -142,12 +142,12 @@ function getEmitterOption(spec: string, flags: string): Record<string, string>[]
   const result = Array.isArray(emitter_options) ? emitter_options : [emitter_options];
 
   function updateOptions(options: Record<string, string>): void {
-    if (options["package-name"] && options["enalbe-typespec-namespace"] === undefined) {
+    if (options["package-name"] && options["enable-typespec-namespace"] === undefined) {
       options["enable-typespec-namespace"] = "false";
     }
   }
 
-  if (flags !== "azure") {
+  if (flavor !== "azure") {
     for (const options of result) {
       if (Array.isArray(options)) {
         for (const option of options) {
