@@ -17,7 +17,7 @@ export interface EsmResolutionContext {
    */
   readonly moduleDirs: readonly string[];
 
-  resolveId(id: string, baseDir: string | URL): any;
+  resolveId(id: string, baseDir: string | URL): Promise<string | undefined>;
 
   /** Non standard option. Do not respect the default condition. */
   readonly ignoreDefaultCondition?: boolean;
@@ -57,6 +57,12 @@ export class InvalidPackageTargetError extends EsmResolveError {
 export class NoMatchingConditionsError extends InvalidPackageTargetError {
   constructor(context: EsmResolutionContext) {
     super(context, `No conditions matched`);
+  }
+}
+
+export class PackageImportNotDefinedError extends EsmResolveError {
+  constructor(context: EsmResolutionContext) {
+    super(createErrorMsg(context, undefined, true));
   }
 }
 
