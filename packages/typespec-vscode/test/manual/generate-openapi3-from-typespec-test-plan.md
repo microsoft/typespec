@@ -58,11 +58,11 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
 ### Step 4: Select an Emitter Type.
 
-   **Validate:** There should be a prompt "Select an Emitter Type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `Protocal Schema`.
+   **Validate:** There should be a prompt "Select an Emitter Type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `Protocol Schema`.
 
    ![alt text](./images/GeneratefromTypeSpec_SelectEmitter_OpenAPI.png)
    
-### Step 5: Click `Protocal Schema`.
+### Step 5: Click `Protocol Schema`.
 
    **Validate:** There should be a prompt "Select a Language", and should see languages: `OpenAPI3`.
 
@@ -91,7 +91,7 @@ When an error is detected, it’s necessary to document the findings by using th
 
 | No | Title | Emitter Type | Language | Issue Description | Repro Steps | Expected Results | Actual Results | Comments |
 | ---------| :--: | :-: | :--: | :--: | :--: | :--: | :--: | :--: |
-| 1 | e.g. Generate schema code failed | Protocal Schema | OpenAPI3 | Exception occurred when generating schema code for OpenAPI3. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language.| Generate schema code for OpenAPI3 ...Succeeded. | Exception occurred when generating schema code for OpenAPI3. | Issue link |
+| 1 | e.g. Generate schema code failed | Protocol Schema | OpenAPI3 | Exception occurred when generating schema code for OpenAPI3. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language.| Generate schema code for OpenAPI3 ...Succeeded. | Exception occurred when generating schema code for OpenAPI3. | Issue link |
 
 ## Test Results Summary
 
