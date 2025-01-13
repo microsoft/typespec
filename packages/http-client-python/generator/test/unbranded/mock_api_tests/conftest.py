@@ -35,7 +35,8 @@ def testserver():
     server = start_server_process()
     yield
     terminate_server_process(server)
-    
+
+
 @pytest.fixture
 def png_data() -> bytes:
     with open(str(FILE_FOLDER / "data/image.png"), "rb") as file_in:
