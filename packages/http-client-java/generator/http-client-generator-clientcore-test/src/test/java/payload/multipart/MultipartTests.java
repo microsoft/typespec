@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
 import payload.multipart.formdata.httpparts.nonstring.FloatRequest;
@@ -198,7 +197,6 @@ public class MultipartTests {
     }
 
     @Test
-    @Disabled("Values not deep equal,expected:image/jpg,actual:application/octet-stream")
     public void testFilenameAndContentType() {
         client.checkFileNameAndContentType(
             new MultiPartRequest("123", new ProfileImageFileDetails(BinaryData.fromFile(FILE)).setFilename("hello.jpg")
@@ -221,7 +219,6 @@ public class MultipartTests {
     }
 
     @Test
-    @Disabled("Values not deep equal,expected:image/jpg,actual:application/octet-stream")
     public void testFileWithHttpPartSpecificContentType() {
         httpPartContentTypeClient.imageJpegContentType(new FileWithHttpPartSpecificContentTypeRequest(
             new FileSpecificContentType(BinaryData.fromFile(FILE), "hello.jpg")));
