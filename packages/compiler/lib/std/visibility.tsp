@@ -176,8 +176,7 @@ extern dec defaultVisibility(target: Enum, ...visibilities: valueof EnumMember[]
 /**
  * A visibility class for resource lifecycle phases.
  *
- * These visibilities control whether a property is visible during the create, read, and update phases of a resource's
- * lifecycle.
+ * These visibilities control whether a property is visible during the various phases of a resource's lifecycle.
  *
  * @example
  * ```typespec
@@ -195,9 +194,32 @@ extern dec defaultVisibility(target: Enum, ...visibilities: valueof EnumMember[]
  * therefore visible in all phases.
  */
 enum Lifecycle {
+  /**
+   * The property is visible when a resource is being created.
+   */
   Create,
+
+  /**
+   * The property is visible when a resource is being read.
+   */
   Read,
+
+  /**
+   * The property is visible when a resource is being updated.
+   */
   Update,
+
+  /**
+   * The property is visible when a resource is being deleted.
+   */
+  Delete,
+
+  /**
+   * The property is visible when a resource is being queried.
+   *
+   * In HTTP APIs, this visibility applies to parameters of GET or HEAD operations.
+   */
+  Query,
 }
 
 /**
@@ -306,6 +328,9 @@ model Create<T extends Reflection.Model, NameTemplate extends valueof string = "
  * A copy of the input model `T` with only the properties that are visible during the
  * "Read" resource lifecycle phase.
  *
+ * The "Read" lifecycle phase is used for properties returned by operations that read data, like
+ * HTTP GET operations.
+ *
  * This transformation is recursive, and will include only properties that have the
  * `Lifecycle.Read` visibility modifier.
  *
@@ -336,6 +361,9 @@ model Read<T extends Reflection.Model, NameTemplate extends valueof string = "Re
 /**
  * A copy of the input model `T` with only the properties that are visible during the
  * "Update" resource lifecycle phase.
+ *
+ * The "Update" lifecycle phase is used for properties passed as parameters to operations
+ * that update data, like HTTP PATCH operations.
  *
  * This transformation will include only the properties that have the `Lifecycle.Update`
  * visibility modifier, and the types of all properties will be replaced with the
@@ -369,6 +397,9 @@ model Update<T extends Reflection.Model, NameTemplate extends valueof string = "
  * A copy of the input model `T` with only the properties that are visible during the
  * "Create" or "Update" resource lifecycle phases.
  *
+ * The "CreateOrUpdate" lifecycle phase is used by default for properties passed as parameters to operations
+ * that can create _or_ update data, like HTTP PUT operations.
+ *
  * This transformation is recursive, and will include only properties that have the
  * `Lifecycle.Create` or `Lifecycle.Update` visibility modifier.
  *
@@ -396,5 +427,73 @@ model CreateOrUpdate<
   T extends Reflection.Model,
   NameTemplate extends valueof string = "CreateOrUpdate{name}"
 > {
+  ...T;
+}
+
+/**
+ * A copy of the input model `T` with only the properties that are visible during the
+ * "Delete" resource lifecycle phase.
+ *
+ * The "Delete" lifecycle phase is used for properties passed as parameters to operations
+ * that delete data, like HTTP DELETE operations.
+ *
+ * This transformation is recursive, and will include only properties that have the
+ * `Lifecycle.Delete` visibility modifier.
+ *
+ * If a `NameTemplate` is provided, the new model will be named according to the template.
+ * The template uses the same syntax as the `@friendlyName` decorator.
+ *
+ * @template T The model to transform.
+ * @template NameTemplate The name template to use for the new model.
+ *
+ *  * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * model DeleteDog is Delete<Dog>;
+ * ```
+ */
+@friendlyName(NameTemplate, T)
+@withVisibilityFilter(#{ all: #[Lifecycle.Delete] })
+model Delete<T extends Reflection.Model, NameTemplate extends valueof string = "Delete{name}"> {
+  ...T;
+}
+
+/**
+ * A copy of the input model `T` with only the properties that are visible during the
+ * "Query" resource lifecycle phase.
+ *
+ * The "Query" lifecycle phase is used for properties passed as parameters to operations
+ * that read data, like HTTP GET or HEAD operations.
+ *
+ * This transformation is recursive, and will include only properties that have the
+ * `Lifecycle.Query` visibility modifier.
+ *
+ * If a `NameTemplate` is provided, the new model will be named according to the template.
+ * The template uses the same syntax as the `@friendlyName` decorator.
+ *
+ * @template T The model to transform.
+ * @template NameTemplate The name template to use for the new model.
+ *
+ *  * @example
+ * ```typespec
+ * model Dog {
+ *   @visibility(Lifecycle.Read)
+ *   id: int32;
+ *
+ *   name: string;
+ * }
+ *
+ * model QueryDog is Query<Dog>;
+ * ```
+ */
+@friendlyName(NameTemplate, T)
+@withVisibilityFilter(#{ all: #[Lifecycle.Query] })
+model Query<T extends Reflection.Model, NameTemplate extends valueof string = "Query{name}"> {
   ...T;
 }
