@@ -43,7 +43,7 @@ importers:
         version: 22.7.9
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       c8:
         specifier: ^10.1.2
         version: 10.1.2
@@ -67,7 +67,7 @@ importers:
         version: 56.0.1(eslint@9.15.0(jiti@1.21.6))
       eslint-plugin-vitest:
         specifier: ^0.5.4
-        version: 0.5.4(eslint@9.15.0(jiti@1.21.6))(typescript@5.6.3)(vitest@2.1.5)
+        version: 0.5.4(eslint@9.15.0(jiti@1.21.6))(typescript@5.6.3)(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       micromatch:
         specifier: ^4.0.8
         version: 4.0.8
@@ -117,7 +117,7 @@ importers:
         version: 0.9.4(prettier-plugin-astro@0.14.1)(prettier@3.3.3)(typescript@5.6.3)
       '@astrojs/starlight':
         specifier: ^0.29.0
-        version: 0.29.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
+        version: 0.29.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
       '@expressive-code/core':
         specifier: ^0.38.3
         version: 0.38.3
@@ -126,7 +126,7 @@ importers:
         version: link:../playground
       astro-expressive-code:
         specifier: ^0.38.3
-        version: 0.38.3(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
+        version: 0.38.3(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
       react:
         specifier: ~18.3.1
         version: 18.3.1
@@ -138,8 +138,8 @@ importers:
         specifier: ~18.3.11
         version: 18.3.12
       astro:
-        specifier: ^4.16.10
-        version: 4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
+        specifier: ^4.16.18
+        version: 4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
 
   packages/best-practices:
     devDependencies:
@@ -151,7 +151,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -200,7 +200,7 @@ importers:
         version: 7.5.8
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -258,7 +258,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -346,7 +346,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -398,7 +398,7 @@ importers:
         version: 8.15.0
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -434,7 +434,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -504,7 +504,7 @@ importers:
         version: 4.3.3(vite@5.4.11(@types/node@22.7.9))
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -549,7 +549,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -598,7 +598,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -630,12 +630,21 @@ importers:
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
+      '@vitest/coverage-v8':
+        specifier: ^2.1.5
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
+      '@vitest/ui':
+        specifier: ^2.1.2
+        version: 2.1.5(vitest@2.1.5)
       tsx:
         specifier: ^4.19.2
         version: 4.19.2
       typescript:
         specifier: ~5.6.3
         version: 5.6.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0)
 
   packages/http-specs:
     dependencies:
@@ -712,7 +721,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -755,7 +764,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -788,7 +797,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -816,7 +825,7 @@ importers:
         version: 22.7.9
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -858,7 +867,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -919,7 +928,7 @@ importers:
         version: link:../xml
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1161,7 +1170,7 @@ importers:
         version: 4.3.3(vite@5.4.11(@types/node@22.7.9))
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1237,7 +1246,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1298,7 +1307,7 @@ importers:
         version: 4.3.3(vite@5.4.11(@types/node@22.7.9))
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1343,7 +1352,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1413,7 +1422,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1507,7 +1516,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1729,7 +1738,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1762,7 +1771,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1830,7 +1839,7 @@ importers:
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1896,7 +1905,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1950,7 +1959,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -1983,7 +1992,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.5(vitest@2.1.5)
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.5(vitest@2.1.5)
@@ -2010,13 +2019,13 @@ importers:
         version: 3.6.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.4.11(@types/node@22.7.9))
       '@astrojs/starlight':
         specifier: ^0.29.0
-        version: 0.29.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
+        version: 0.29.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
       '@astrojs/starlight-tailwind':
         specifier: ^2.0.3
-        version: 2.0.3(@astrojs/starlight@0.29.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)))(@astrojs/tailwind@5.1.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15))(tailwindcss@3.4.15)
+        version: 2.0.3(@astrojs/starlight@0.29.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)))(@astrojs/tailwind@5.1.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15))(tailwindcss@3.4.15)
       '@astrojs/tailwind':
         specifier: ^5.1.2
-        version: 5.1.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15)
+        version: 5.1.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15)
       '@docsearch/css':
         specifier: ^3.7.0
         version: 3.8.0
@@ -2039,11 +2048,11 @@ importers:
         specifier: workspace:~
         version: link:../packages/playground
       astro:
-        specifier: ^4.16.10
-        version: 4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
+        specifier: ^4.16.18
+        version: 4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
       astro-rehype-relative-markdown-links:
         specifier: ^0.15.0
-        version: 0.15.0(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
+        version: 0.15.0(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -2131,7 +2140,7 @@ importers:
         version: link:../packages/xml
       astro-expressive-code:
         specifier: ^0.38.3
-        version: 0.38.3(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
+        version: 0.38.3(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
       rehype-mermaid:
         specifier: ^3.0.0
         version: 3.0.0(playwright@1.49.0)
@@ -6120,8 +6129,8 @@ packages:
     peerDependencies:
       astro: '>=2.x <5'
 
-  astro@4.16.13:
-    resolution: {integrity: sha512-Mtd76+BC0zLWqoXpf9xc731AhdH4MNh5JFHYdLRvSH0Nqn48hA64dPGh/cWsJvh/DZFmC0NTZusM1Qq2gyNaVg==}
+  astro@4.16.18:
+    resolution: {integrity: sha512-G7zfwJt9BDHEZwlaLNvjbInIw2hPryyD654314KV/XT34pJU6SfN1S+mWa8RAkALcZNJnJXCJmT3JXLQStD3Lw==}
     engines: {node: ^18.17.1 || ^20.3.0 || >=21.0.0, npm: '>=9.6.5', pnpm: '>=7.1.0'}
     hasBin: true
 
@@ -8780,6 +8789,9 @@ packages:
   magic-string@0.30.13:
     resolution: {integrity: sha512-8rYBO+MsWkgjDSOvLomYnzhdwEG51olQ4zL5KXnNJWV5MNmrb4rTZdrtkhxjnD/QyZUqR/Z/XDsUs/4ej2nx0g==}
 
+  magic-string@0.30.17:
+    resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
+
   magicast@0.3.5:
     resolution: {integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==}
 
@@ -11206,10 +11218,10 @@ packages:
       terser:
         optional: true
 
-  vitefu@1.0.3:
-    resolution: {integrity: sha512-iKKfOMBHob2WxEJbqbJjHAkmYgvFDPhuqrO82om83S8RLk+17FtyMBfcyeH8GqD0ihShtkMW/zzJgiA51hCNCQ==}
+  vitefu@1.0.5:
+    resolution: {integrity: sha512-h4Vflt9gxODPFNGPwp4zAMZRpZR7eslzwH2c5hn5kNZ5rhnKyRJ50U+yGCdc2IRaBs8O4haIgLNGrV5CrpMsCA==}
     peerDependencies:
-      vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0-beta.0
+      vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0
     peerDependenciesMeta:
       vite:
         optional: true
@@ -11825,12 +11837,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@3.1.9(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))':
+  '@astrojs/mdx@3.1.9(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))':
     dependencies:
       '@astrojs/markdown-remark': 5.3.0
       '@mdx-js/mdx': 3.1.0(acorn@8.14.0)
       acorn: 8.14.0
-      astro: 4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
+      astro: 4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
       es-module-lexer: 1.5.4
       estree-util-visit: 2.0.0
       gray-matter: 4.0.3
@@ -11867,21 +11879,21 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 3.23.8
 
-  '@astrojs/starlight-tailwind@2.0.3(@astrojs/starlight@0.29.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)))(@astrojs/tailwind@5.1.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15))(tailwindcss@3.4.15)':
+  '@astrojs/starlight-tailwind@2.0.3(@astrojs/starlight@0.29.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)))(@astrojs/tailwind@5.1.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15))(tailwindcss@3.4.15)':
     dependencies:
-      '@astrojs/starlight': 0.29.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
-      '@astrojs/tailwind': 5.1.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15)
+      '@astrojs/starlight': 0.29.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
+      '@astrojs/tailwind': 5.1.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15)
       tailwindcss: 3.4.15
 
-  '@astrojs/starlight@0.29.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))':
+  '@astrojs/starlight@0.29.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))':
     dependencies:
-      '@astrojs/mdx': 3.1.9(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
+      '@astrojs/mdx': 3.1.9(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
       '@astrojs/sitemap': 3.2.1
       '@pagefind/default-ui': 1.2.0
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
-      astro: 4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
-      astro-expressive-code: 0.38.3(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
+      astro: 4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
+      astro-expressive-code: 0.38.3(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))
       bcp-47: 2.1.0
       hast-util-from-html: 2.0.3
       hast-util-select: 6.0.3
@@ -11902,9 +11914,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/tailwind@5.1.2(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15)':
+  '@astrojs/tailwind@5.1.2(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3))(tailwindcss@3.4.15)':
     dependencies:
-      astro: 4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
+      astro: 4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
       autoprefixer: 10.4.20(postcss@8.4.49)
       postcss: 8.4.49
       postcss-load-config: 4.0.2(postcss@8.4.49)
@@ -16380,7 +16392,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@2.1.5(vitest@2.1.5)':
+  '@vitest/coverage-v8@2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -16889,14 +16901,14 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-expressive-code@0.38.3(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)):
+  astro-expressive-code@0.38.3(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)):
     dependencies:
-      astro: 4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
+      astro: 4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
       rehype-expressive-code: 0.38.3
 
-  astro-rehype-relative-markdown-links@0.15.0(astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)):
+  astro-rehype-relative-markdown-links@0.15.0(astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)):
     dependencies:
-      astro: 4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
+      astro: 4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3)
       catch-unknown: 2.0.0
       debug: 4.3.7(supports-color@8.1.1)
       github-slugger: 2.0.0
@@ -16908,7 +16920,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  astro@4.16.13(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3):
+  astro@4.16.18(@types/node@22.7.9)(rollup@4.24.4)(typescript@5.6.3):
     dependencies:
       '@astrojs/compiler': 2.10.3
       '@astrojs/internal-helpers': 0.4.1
@@ -16947,7 +16959,7 @@ snapshots:
       http-cache-semantics: 4.1.1
       js-yaml: 4.1.0
       kleur: 4.1.5
-      magic-string: 0.30.13
+      magic-string: 0.30.17
       magicast: 0.3.5
       micromatch: 4.0.8
       mrmime: 2.0.0
@@ -16965,7 +16977,7 @@ snapshots:
       unist-util-visit: 5.0.0
       vfile: 6.0.3
       vite: 5.4.11(@types/node@22.7.9)
-      vitefu: 1.0.3(vite@5.4.11(@types/node@22.7.9))
+      vitefu: 1.0.5(vite@5.4.11(@types/node@22.7.9))
       which-pm: 3.0.0
       xxhash-wasm: 1.1.0
       yargs-parser: 21.1.1
@@ -18559,7 +18571,7 @@ snapshots:
       semver: 7.6.3
       strip-indent: 3.0.0
 
-  eslint-plugin-vitest@0.5.4(eslint@9.15.0(jiti@1.21.6))(typescript@5.6.3)(vitest@2.1.5):
+  eslint-plugin-vitest@0.5.4(eslint@9.15.0(jiti@1.21.6))(typescript@5.6.3)(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0)):
     dependencies:
       '@typescript-eslint/utils': 7.18.0(eslint@9.15.0(jiti@1.21.6))(typescript@5.6.3)
       eslint: 9.15.0(jiti@1.21.6)
@@ -20164,6 +20176,10 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
 
   magic-string@0.30.13:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.0
+
+  magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
 
@@ -23221,7 +23237,7 @@ snapshots:
       '@types/node': 22.7.9
       fsevents: 2.3.3
 
-  vitefu@1.0.3(vite@5.4.11(@types/node@22.7.9)):
+  vitefu@1.0.5(vite@5.4.11(@types/node@22.7.9)):
     optionalDependencies:
       vite: 5.4.11(@types/node@22.7.9)
 
