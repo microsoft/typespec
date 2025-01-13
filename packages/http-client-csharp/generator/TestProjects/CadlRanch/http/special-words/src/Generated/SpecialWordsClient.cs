@@ -4,6 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using SpecialWords.Models;
+using SpecialWords._ModelProperties;
 
 namespace SpecialWords
 {

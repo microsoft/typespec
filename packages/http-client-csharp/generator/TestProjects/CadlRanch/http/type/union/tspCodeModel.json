@@ -85,6 +85,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -138,6 +139,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -208,6 +210,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -278,6 +281,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -331,6 +335,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Type.Union",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -384,6 +389,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -454,6 +460,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -465,6 +472,7 @@
    "$id": "54",
    "kind": "model",
    "name": "GetResponse",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -478,6 +486,7 @@
       "$id": "56",
       "kind": "model",
       "name": "MixedTypesCases",
+      "clientNamespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.MixedTypesCases",
       "usage": "Input,Output,Json",
       "decorators": [],
@@ -497,6 +506,7 @@
            "$id": "59",
            "kind": "model",
            "name": "Cat",
+           "clientNamespace": "Type.Union",
            "crossLanguageDefinitionId": "Type.Union.Cat",
            "usage": "Input,Output,Json",
            "decorators": [],
@@ -550,6 +560,7 @@
            "decorators": []
           }
          ],
+         "clientNamespace": "",
          "decorators": []
         },
         "optional": false,
@@ -651,6 +662,7 @@
    "$id": "71",
    "kind": "model",
    "name": "SendRequest",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -676,6 +688,7 @@
    "$id": "73",
    "kind": "model",
    "name": "GetResponse1",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -689,6 +702,7 @@
       "$id": "75",
       "kind": "model",
       "name": "MixedLiteralsCases",
+      "clientNamespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases",
       "usage": "Input,Output,Json",
       "decorators": [],
@@ -757,6 +771,7 @@
            "decorators": []
           }
          ],
+         "clientNamespace": "",
          "decorators": []
         },
         "optional": false,
@@ -832,6 +847,7 @@
    "$id": "89",
    "kind": "model",
    "name": "SendRequest1",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -857,6 +873,7 @@
    "$id": "91",
    "kind": "model",
    "name": "GetResponse2",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -870,6 +887,7 @@
       "$id": "93",
       "kind": "model",
       "name": "StringAndArrayCases",
+      "clientNamespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases",
       "usage": "Input,Output,Json",
       "decorators": [],
@@ -907,6 +925,7 @@
            "decorators": []
           }
          ],
+         "clientNamespace": "",
          "decorators": []
         },
         "optional": false,
@@ -949,6 +968,7 @@
            "decorators": []
           }
          ],
+         "clientNamespace": "",
          "decorators": []
         },
         "optional": false,
@@ -976,6 +996,7 @@
    "$id": "104",
    "kind": "model",
    "name": "SendRequest2",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -1001,6 +1022,7 @@
    "$id": "106",
    "kind": "model",
    "name": "GetResponse3",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -1014,6 +1036,7 @@
       "$id": "108",
       "kind": "model",
       "name": "EnumsOnlyCases",
+      "clientNamespace": "Type.Union",
       "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases",
       "usage": "Input,Output,Json",
       "decorators": [],
@@ -1068,6 +1091,7 @@
    "$id": "111",
    "kind": "model",
    "name": "SendRequest3",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -1093,6 +1117,7 @@
    "$id": "113",
    "kind": "model",
    "name": "GetResponse4",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -1114,6 +1139,7 @@
         "$id": "116",
         "kind": "model",
         "name": "Dog",
+        "clientNamespace": "Type.Union",
         "crossLanguageDefinitionId": "Type.Union.Dog",
         "usage": "Input,Output,Json",
         "decorators": [],
@@ -1140,6 +1166,7 @@
         ]
        }
       ],
+      "clientNamespace": "",
       "decorators": []
      },
      "optional": false,
@@ -1158,6 +1185,7 @@
    "$id": "119",
    "kind": "model",
    "name": "SendRequest4",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -1183,6 +1211,7 @@
    "$id": "121",
    "kind": "model",
    "name": "GetResponse5",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -1208,6 +1237,7 @@
    "$id": "123",
    "kind": "model",
    "name": "SendRequest5",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -1233,6 +1263,7 @@
    "$id": "125",
    "kind": "model",
    "name": "GetResponse6",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -1258,6 +1289,7 @@
    "$id": "127",
    "kind": "model",
    "name": "SendRequest6",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -1283,6 +1315,7 @@
    "$id": "129",
    "kind": "model",
    "name": "GetResponse7",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -1308,6 +1341,7 @@
    "$id": "131",
    "kind": "model",
    "name": "SendRequest7",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -1333,6 +1367,7 @@
    "$id": "133",
    "kind": "model",
    "name": "GetResponse8",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -1358,6 +1393,7 @@
    "$id": "135",
    "kind": "model",
    "name": "SendRequest8",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -1383,6 +1419,7 @@
    "$id": "137",
    "kind": "model",
    "name": "GetResponse9",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
    "usage": "Output,Json",
    "decorators": [],
@@ -1408,6 +1445,7 @@
    "$id": "139",
    "kind": "model",
    "name": "SendRequest9",
+   "clientNamespace": "Type.Union",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -1434,6 +1472,7 @@
   {
    "$id": "141",
    "Name": "UnionClient",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe scenarios for various combinations of unions.",
    "Operations": [],
    "Protocol": {
@@ -1477,6 +1516,7 @@
   {
    "$id": "147",
    "Name": "StringsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string \"a\" | \"b\" | \"c\"",
    "Operations": [
     {
@@ -1659,6 +1699,7 @@
   {
    "$id": "164",
    "Name": "StringExtensible",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string string | \"b\" | \"c\"",
    "Operations": [
     {
@@ -1841,6 +1882,7 @@
   {
    "$id": "181",
    "Name": "StringExtensibleNamed",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
    "Operations": [
     {
@@ -2023,6 +2065,7 @@
   {
    "$id": "198",
    "Name": "IntsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of integer 1 | 2 | 3",
    "Operations": [
     {
@@ -2205,6 +2248,7 @@
   {
    "$id": "215",
    "Name": "FloatsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats 1.1 | 2.2 | 3.3",
    "Operations": [
     {
@@ -2387,6 +2431,7 @@
   {
    "$id": "232",
    "Name": "ModelsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of models",
    "Operations": [
     {
@@ -2569,6 +2614,7 @@
   {
    "$id": "249",
    "Name": "EnumsOnly",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of 2 different enums",
    "Operations": [
     {
@@ -2751,6 +2797,7 @@
   {
    "$id": "266",
    "Name": "StringAndArray",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of a string and an array of strings",
    "Operations": [
     {
@@ -2933,6 +2980,7 @@
   {
    "$id": "283",
    "Name": "MixedLiterals",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {
@@ -3115,6 +3163,7 @@
   {
    "$id": "300",
    "Name": "MixedTypes",
+   "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {

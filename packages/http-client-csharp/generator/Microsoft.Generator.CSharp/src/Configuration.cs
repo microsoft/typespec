@@ -13,11 +13,12 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public class Configuration
     {
-        private static readonly string[] _badNamespaces =
+        private static readonly string[] _badBuiltInNamespaceSegments =
         [
             "Type",
             "Array",
             "Enum",
+            "ClientModel", // segment of `System.ClientModel`
         ];
 
         internal enum UnreferencedTypesHandlingOption
@@ -38,6 +39,7 @@ namespace Microsoft.Generator.CSharp
             LibraryName = null!;
             RootNamespace = null!;
             ModelNamespace = null!;
+            BadNamespaceSegements = null!;
         }
 
         private Configuration(
@@ -50,11 +52,13 @@ namespace Microsoft.Generator.CSharp
             string libraryName,
             bool useModelNamespace,
             string libraryNamespace,
+            IReadOnlyList<string> badNamespaceSegments,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling)
         {
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
+            BadNamespaceSegements = [.._badBuiltInNamespaceSegments ,..badNamespaceSegments];
             ClearOutputFolder = clearOutputFolder;
             GenerateModelFactory = generateModelFactory;
             GenerateSampleProject = generateSampleProject;
@@ -67,7 +71,7 @@ namespace Microsoft.Generator.CSharp
             UnreferencedTypesHandling = unreferencedTypesHandling;
         }
 
-        private string GetCleanNameSpace(string libraryNamespace)
+        public string GetCleanNameSpace(string libraryNamespace)
         {
             Span<char> dest = stackalloc char[libraryNamespace.Length + GetSegmentCount(libraryNamespace)];
             var source = libraryNamespace.AsSpan();
@@ -100,9 +104,9 @@ namespace Microsoft.Generator.CSharp
 
         private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
         {
-            for (int i = 0; i < _badNamespaces.Length; i++)
+            for (int i = 0; i < BadNamespaceSegements.Count; i++)
             {
-                if (readOnlySpan.Equals(_badNamespaces[i], StringComparison.Ordinal))
+                if (readOnlySpan.Equals(BadNamespaceSegements[i], StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -135,6 +139,7 @@ namespace Microsoft.Generator.CSharp
             public const string LibraryName = "library-name";
             public const string Namespace = "namespace";
             public const string UseModelNamespace = "use-model-namespace";
+            public const string BadNamespaceSegments = "bad-namespace-segments";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
         }
@@ -143,6 +148,8 @@ namespace Microsoft.Generator.CSharp
         /// Gets whether XML docs are disabled.
         /// </summary>
         public bool DisableXmlDocs { get; }
+
+        internal IReadOnlyList<string> BadNamespaceSegements { get; }
 
         /// <summary> Gets the root namespace for the library. </summary>
         public string RootNamespace { get; }
@@ -223,6 +230,7 @@ namespace Microsoft.Generator.CSharp
                 ReadRequiredStringOption(root, Options.LibraryName),
                 ReadOption(root, Options.UseModelNamespace),
                 ReadRequiredStringOption(root, Options.Namespace),
+                ReadStringArrayOption(root, Options.BadNamespaceSegments),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling));
         }
@@ -255,6 +263,20 @@ namespace Microsoft.Generator.CSharp
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,
         };
+
+        private static IReadOnlyList<string> ReadStringArrayOption(JsonElement root, string option)
+        {
+            var result = new List<string>();
+            if (root.TryGetProperty(option, out JsonElement value))
+            {
+                foreach (var item in value.EnumerateArray())
+                {
+                    result.Add(item.GetString() ?? throw new InvalidOperationException($"Unable to parse required option {option} from configuration."));
+                }
+            }
+
+            return result;
+        }
 
         private static bool ReadOption(JsonElement root, string option)
         {

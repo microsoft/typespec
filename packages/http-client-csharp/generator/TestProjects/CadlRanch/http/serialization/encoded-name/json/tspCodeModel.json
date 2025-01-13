@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "JsonEncodedNameModel",
+   "clientNamespace": "Serialization.EncodedName.Json.Property",
    "crossLanguageDefinitionId": "Serialization.EncodedName.Json.Property.JsonEncodedNameModel",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -39,6 +40,7 @@
   {
    "$id": "5",
    "Name": "JsonClient",
+   "ClientNamespace": "Serialization.EncodedName.Json",
    "Doc": "Projection",
    "Operations": [],
    "Protocol": {
@@ -82,6 +84,7 @@
   {
    "$id": "11",
    "Name": "Property",
+   "ClientNamespace": "Serialization.EncodedName.Json.Property",
    "Operations": [
     {
      "$id": "12",

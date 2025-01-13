@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Encode.Duration.Models
+namespace Encode.Duration._Property
 {
     public partial class Float64SecondsDurationProperty
     {

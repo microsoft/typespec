@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Encode.Numeric.Models
+namespace Encode.Numeric._Property
 {
     public partial class SafeintAsStringProperty : IJsonModel<SafeintAsStringProperty>
     {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     /// <summary> int fixed enum. </summary>
     public enum IntFixedEnum

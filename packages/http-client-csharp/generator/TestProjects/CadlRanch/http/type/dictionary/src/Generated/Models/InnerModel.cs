@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace _Type.Dictionary.Models
+namespace _Type.Dictionary
 {
     public partial class InnerModel
     {

@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "Extension",
+   "clientNamespace": "Type.Model.Inheritance.Recursive",
    "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive.Extension",
    "usage": "Input,Output,Json",
    "doc": "extension",
@@ -16,6 +17,7 @@
     "$id": "3",
     "kind": "model",
     "name": "Element",
+    "clientNamespace": "Type.Model.Inheritance.Recursive",
     "crossLanguageDefinitionId": "Type.Model.Inheritance.Recursive.Element",
     "usage": "Input,Output,Json",
     "doc": "element",
@@ -75,6 +77,7 @@
   {
    "$id": "8",
    "Name": "RecursiveClient",
+   "ClientNamespace": "Type.Model.Inheritance.Recursive",
    "Doc": "Illustrates inheritance recursion",
    "Operations": [
     {

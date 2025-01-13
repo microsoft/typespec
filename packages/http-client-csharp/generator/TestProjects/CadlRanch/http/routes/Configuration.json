@@ -2,5 +2,9 @@
   "output-folder": ".",
   "namespace": "Routes",
   "library-name": "Routes",
+  "bad-namespace-segments": [
+    "PathParameters",
+    "QueryParameters"
+  ],
   "use-model-reader-writer": true
 }

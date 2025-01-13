@@ -30,6 +30,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData2_kind",
    "isFixed": false,
    "isFlags": false,
@@ -63,6 +64,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData1_kind",
    "isFixed": false,
    "isFlags": false,
@@ -96,6 +98,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "doc": "The WidgetData0_kind",
    "isFixed": false,
    "isFlags": false,
@@ -108,6 +111,7 @@
    "$id": "11",
    "kind": "model",
    "name": "SpreadRecordForNonDiscriminatedUnion3",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion3",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<WidgetData2[] | WidgetData1>",
@@ -125,6 +129,7 @@
        "$id": "14",
        "kind": "model",
        "name": "WidgetData2",
+       "clientNamespace": "Type.Property.AdditionalProperties",
        "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData2",
        "usage": "Input,Output,Json",
        "decorators": [],
@@ -178,6 +183,7 @@
       "$id": "19",
       "kind": "model",
       "name": "WidgetData1",
+      "clientNamespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData1",
       "usage": "Input,Output,Json",
       "decorators": [],
@@ -260,6 +266,7 @@
       ]
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -295,6 +302,7 @@
    "$id": "30",
    "kind": "model",
    "name": "SpreadRecordForNonDiscriminatedUnion2",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion2",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<WidgetData2 | WidgetData1>",
@@ -311,6 +319,7 @@
       "$ref": "19"
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -340,6 +349,7 @@
    "$id": "34",
    "kind": "model",
    "name": "SpreadRecordForNonDiscriminatedUnion",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForNonDiscriminatedUnion",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<WidgetData0 | WidgetData1>",
@@ -353,6 +363,7 @@
       "$id": "36",
       "kind": "model",
       "name": "WidgetData0",
+      "clientNamespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.WidgetData0",
       "usage": "Input,Output,Json",
       "decorators": [],
@@ -403,6 +414,7 @@
       "$ref": "19"
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -435,6 +447,7 @@
    "$id": "43",
    "kind": "model",
    "name": "SpreadRecordForDiscriminatedUnion",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForDiscriminatedUnion",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<WidgetData>",
@@ -451,6 +464,7 @@
       "$ref": "19"
      }
     ],
+    "clientNamespace": "Type.Property.AdditionalProperties",
     "decorators": []
    },
    "properties": [
@@ -480,6 +494,7 @@
    "$id": "47",
    "kind": "model",
    "name": "SpreadRecordForUnion",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadRecordForUnion",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<string | float32>",
@@ -504,6 +519,7 @@
       "decorators": []
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -533,6 +549,7 @@
    "$id": "53",
    "kind": "model",
    "name": "MultipleSpreadRecord",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.MultipleSpreadRecord",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<string> and Record<float32>",
@@ -557,6 +574,7 @@
       "decorators": []
      }
     ],
+    "clientNamespace": "",
     "decorators": []
    },
    "properties": [
@@ -586,6 +604,7 @@
    "$id": "59",
    "kind": "model",
    "name": "DifferentSpreadModelArrayDerived",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a model that spread Record<ModelForRecord[]> with the different known property type",
@@ -594,6 +613,7 @@
     "$id": "60",
     "kind": "model",
     "name": "DifferentSpreadModelArrayRecord",
+    "clientNamespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelArrayRecord",
     "usage": "Input,Output,Json",
     "doc": "The model spread Record<ModelForRecord[]> with the different known property type",
@@ -606,6 +626,7 @@
       "$id": "62",
       "kind": "model",
       "name": "ModelForRecord",
+      "clientNamespace": "Type.Property.AdditionalProperties",
       "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ModelForRecord",
       "usage": "Input,Output,Json",
       "doc": "model for record",
@@ -694,6 +715,7 @@
    "$id": "69",
    "kind": "model",
    "name": "DifferentSpreadModelDerived",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a model that spread Record<ModelForRecord> with the different known property type",
@@ -702,6 +724,7 @@
     "$id": "70",
     "kind": "model",
     "name": "DifferentSpreadModelRecord",
+    "clientNamespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadModelRecord",
     "usage": "Input,Output,Json",
     "doc": "The model spread Record<ModelForRecord> with the different known property type",
@@ -757,6 +780,7 @@
    "$id": "74",
    "kind": "model",
    "name": "DifferentSpreadFloatDerived",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a model that spread Record<float32> with the different known property type",
@@ -765,6 +789,7 @@
     "$id": "75",
     "kind": "model",
     "name": "DifferentSpreadFloatRecord",
+    "clientNamespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadFloatRecord",
     "usage": "Input,Output,Json",
     "doc": "The model spread Record<float32> with the different known property type",
@@ -829,6 +854,7 @@
    "$id": "81",
    "kind": "model",
    "name": "DifferentSpreadStringDerived",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a model that spread Record<string> with the different known property type",
@@ -837,6 +863,7 @@
     "$id": "82",
     "kind": "model",
     "name": "DifferentSpreadStringRecord",
+    "clientNamespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.DifferentSpreadStringRecord",
     "usage": "Input,Output,Json",
     "doc": "The model spread Record<string> with the different known property type",
@@ -901,6 +928,7 @@
    "$id": "88",
    "kind": "model",
    "name": "SpreadModelArrayRecord",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelArrayRecord",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -943,6 +971,7 @@
    "$id": "92",
    "kind": "model",
    "name": "IsModelArrayAdditionalProperties",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelArrayAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model is from Record<ModelForRecord[]> type.",
@@ -986,6 +1015,7 @@
    "$id": "96",
    "kind": "model",
    "name": "ExtendsModelArrayAdditionalProperties",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelArrayAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<ModelForRecord[]> type.",
@@ -1029,6 +1059,7 @@
    "$id": "100",
    "kind": "model",
    "name": "SpreadModelRecord",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadModelRecord",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<ModelForRecord> with the same known property type",
@@ -1058,6 +1089,7 @@
    "$id": "102",
    "kind": "model",
    "name": "IsModelAdditionalProperties",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsModelAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model is from Record<ModelForRecord> type.",
@@ -1087,6 +1119,7 @@
    "$id": "104",
    "kind": "model",
    "name": "ExtendsModelAdditionalProperties",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsModelAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<ModelForRecord> type.",
@@ -1116,6 +1149,7 @@
    "$id": "106",
    "kind": "model",
    "name": "SpreadFloatRecord",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadFloatRecord",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<float32> with the same known property type",
@@ -1154,6 +1188,7 @@
    "$id": "110",
    "kind": "model",
    "name": "IsFloatAdditionalProperties",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsFloatAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model is from Record<float32> type.",
@@ -1192,6 +1227,7 @@
    "$id": "114",
    "kind": "model",
    "name": "ExtendsFloatAdditionalProperties",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsFloatAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<float32> type.",
@@ -1230,6 +1266,7 @@
    "$id": "118",
    "kind": "model",
    "name": "SpreadStringRecord",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.SpreadStringRecord",
    "usage": "Input,Output,Json",
    "doc": "The model spread Record<string> with the same known property type",
@@ -1268,6 +1305,7 @@
    "$id": "122",
    "kind": "model",
    "name": "IsStringAdditionalProperties",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsStringAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model is from Record<string> type.",
@@ -1306,6 +1344,7 @@
    "$id": "126",
    "kind": "model",
    "name": "ExtendsStringAdditionalProperties",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsStringAdditionalProperties",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<string> type.",
@@ -1344,6 +1383,7 @@
    "$id": "130",
    "kind": "model",
    "name": "IsUnknownAdditionalPropertiesDiscriminated",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminated",
    "usage": "Input,Output,Json",
    "doc": "The model is Record<unknown> with a discriminator.",
@@ -1406,6 +1446,7 @@
      "$id": "137",
      "kind": "model",
      "name": "IsUnknownAdditionalPropertiesDiscriminatedDerived",
+     "clientNamespace": "Type.Property.AdditionalProperties",
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDiscriminatedDerived",
      "usage": "Input,Output,Json",
      "doc": "The derived discriminated type",
@@ -1491,6 +1532,7 @@
    "$id": "145",
    "kind": "model",
    "name": "IsUnknownAdditionalPropertiesDerived",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalPropertiesDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a type that is Record<unknown> type",
@@ -1499,6 +1541,7 @@
     "$id": "146",
     "kind": "model",
     "name": "IsUnknownAdditionalProperties",
+    "clientNamespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.IsUnknownAdditionalProperties",
     "usage": "Input,Output,Json",
     "doc": "The model is from Record<unknown> type.",
@@ -1583,6 +1626,7 @@
    "$id": "154",
    "kind": "model",
    "name": "ExtendsUnknownAdditionalPropertiesDiscriminated",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminated",
    "usage": "Input,Output,Json",
    "doc": "The model extends from Record<unknown> with a discriminator.",
@@ -1645,6 +1689,7 @@
      "$id": "161",
      "kind": "model",
      "name": "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
+     "clientNamespace": "Type.Property.AdditionalProperties",
      "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDiscriminatedDerived",
      "usage": "Input,Output,Json",
      "doc": "The derived discriminated type",
@@ -1730,6 +1775,7 @@
    "$id": "169",
    "kind": "model",
    "name": "ExtendsUnknownAdditionalPropertiesDerived",
+   "clientNamespace": "Type.Property.AdditionalProperties",
    "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalPropertiesDerived",
    "usage": "Input,Output,Json",
    "doc": "The model extends from a type that extends from Record<unknown>.",
@@ -1738,6 +1784,7 @@
     "$id": "170",
     "kind": "model",
     "name": "ExtendsUnknownAdditionalProperties",
+    "clientNamespace": "Type.Property.AdditionalProperties",
     "crossLanguageDefinitionId": "Type.Property.AdditionalProperties.ExtendsUnknownAdditionalProperties",
     "usage": "Input,Output,Json",
     "doc": "The model extends from Record<unknown> type.",
@@ -1823,6 +1870,7 @@
   {
    "$id": "178",
    "Name": "AdditionalPropertiesClient",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Doc": "Tests for additional properties of models",
    "Operations": [],
    "Protocol": {
@@ -1866,6 +1914,7 @@
   {
    "$id": "184",
    "Name": "ExtendsUnknown",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "185",
@@ -2050,6 +2099,7 @@
   {
    "$id": "201",
    "Name": "ExtendsUnknownDerived",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "202",
@@ -2234,6 +2284,7 @@
   {
    "$id": "218",
    "Name": "ExtendsUnknownDiscriminated",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "219",
@@ -2418,6 +2469,7 @@
   {
    "$id": "235",
    "Name": "IsUnknown",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "236",
@@ -2602,6 +2654,7 @@
   {
    "$id": "252",
    "Name": "IsUnknownDerived",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "253",
@@ -2786,6 +2839,7 @@
   {
    "$id": "269",
    "Name": "IsUnknownDiscriminated",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "270",
@@ -2970,6 +3024,7 @@
   {
    "$id": "286",
    "Name": "ExtendsString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "287",
@@ -3154,6 +3209,7 @@
   {
    "$id": "303",
    "Name": "IsString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "304",
@@ -3338,6 +3394,7 @@
   {
    "$id": "320",
    "Name": "SpreadString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "321",
@@ -3522,6 +3579,7 @@
   {
    "$id": "337",
    "Name": "ExtendsFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "338",
@@ -3706,6 +3764,7 @@
   {
    "$id": "354",
    "Name": "IsFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "355",
@@ -3890,6 +3949,7 @@
   {
    "$id": "371",
    "Name": "SpreadFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "372",
@@ -4074,6 +4134,7 @@
   {
    "$id": "388",
    "Name": "ExtendsModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "389",
@@ -4258,6 +4319,7 @@
   {
    "$id": "405",
    "Name": "IsModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "406",
@@ -4442,6 +4504,7 @@
   {
    "$id": "422",
    "Name": "SpreadModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "423",
@@ -4626,6 +4689,7 @@
   {
    "$id": "439",
    "Name": "ExtendsModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "440",
@@ -4810,6 +4874,7 @@
   {
    "$id": "456",
    "Name": "IsModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "457",
@@ -4994,6 +5059,7 @@
   {
    "$id": "473",
    "Name": "SpreadModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "474",
@@ -5178,6 +5244,7 @@
   {
    "$id": "490",
    "Name": "SpreadDifferentString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "491",
@@ -5362,6 +5429,7 @@
   {
    "$id": "507",
    "Name": "SpreadDifferentFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "508",
@@ -5546,6 +5614,7 @@
   {
    "$id": "524",
    "Name": "SpreadDifferentModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "525",
@@ -5730,6 +5799,7 @@
   {
    "$id": "541",
    "Name": "SpreadDifferentModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "542",
@@ -5914,6 +5984,7 @@
   {
    "$id": "558",
    "Name": "ExtendsDifferentSpreadString",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "559",
@@ -6098,6 +6169,7 @@
   {
    "$id": "575",
    "Name": "ExtendsDifferentSpreadFloat",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "576",
@@ -6282,6 +6354,7 @@
   {
    "$id": "592",
    "Name": "ExtendsDifferentSpreadModel",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "593",
@@ -6466,6 +6539,7 @@
   {
    "$id": "609",
    "Name": "ExtendsDifferentSpreadModelArray",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "610",
@@ -6650,6 +6724,7 @@
   {
    "$id": "626",
    "Name": "MultipleSpread",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "627",
@@ -6834,6 +6909,7 @@
   {
    "$id": "643",
    "Name": "SpreadRecordUnion",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "644",
@@ -7018,6 +7094,7 @@
   {
    "$id": "660",
    "Name": "SpreadRecordDiscriminatedUnion",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "661",
@@ -7202,6 +7279,7 @@
   {
    "$id": "677",
    "Name": "SpreadRecordNonDiscriminatedUnion",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "678",
@@ -7386,6 +7464,7 @@
   {
    "$id": "694",
    "Name": "SpreadRecordNonDiscriminatedUnion2",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "695",
@@ -7570,6 +7649,7 @@
   {
    "$id": "711",
    "Name": "SpreadRecordNonDiscriminatedUnion3",
+   "ClientNamespace": "Type.Property.AdditionalProperties",
    "Operations": [
     {
      "$id": "712",

@@ -3,7 +3,7 @@
 
 using System.ClientModel;
 using System.IO;
-using _Type.Model.Inheritance.SingleDiscriminator.Models;
+using _Type.Model.Inheritance.SingleDiscriminator;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using TestProjects.CadlRanch.Tests.Infrastructure;

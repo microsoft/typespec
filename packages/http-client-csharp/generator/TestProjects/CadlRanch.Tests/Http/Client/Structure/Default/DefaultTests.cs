@@ -4,9 +4,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Client.Structure.Service.Default;
-using Client.Structure.Service.Default.Models;
-using Client.Structure.Service.Renamed.Operation;
+using Client.Structure.Service;
+using Client.Structure.Service._Baz;
+using Client.Structure.Service._Qux;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.Default

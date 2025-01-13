@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Versioning.ReturnTypeChangedFrom.V2;
+using Versioning.ReturnTypeChangedFrom;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.ReturnTypeChangedFrom.V2
 {

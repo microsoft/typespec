@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "DefaultDurationProperty",
+   "clientNamespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.DefaultDurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -45,6 +46,7 @@
    "$id": "6",
    "kind": "model",
    "name": "ISO8601DurationProperty",
+   "clientNamespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.ISO8601DurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -82,6 +84,7 @@
    "$id": "10",
    "kind": "model",
    "name": "Int32SecondsDurationProperty",
+   "clientNamespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.Int32SecondsDurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -119,6 +122,7 @@
    "$id": "14",
    "kind": "model",
    "name": "FloatSecondsDurationProperty",
+   "clientNamespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.FloatSecondsDurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -156,6 +160,7 @@
    "$id": "18",
    "kind": "model",
    "name": "Float64SecondsDurationProperty",
+   "clientNamespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.Float64SecondsDurationProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -193,6 +198,7 @@
    "$id": "22",
    "kind": "model",
    "name": "FloatSecondsDurationArrayProperty",
+   "clientNamespace": "Encode.Duration.Property",
    "crossLanguageDefinitionId": "Encode.Duration.Property.FloatSecondsDurationArrayProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -253,6 +259,7 @@
   {
    "$id": "29",
    "Name": "DurationClient",
+   "ClientNamespace": "Encode.Duration",
    "Doc": "Test for encode decorator on duration.",
    "Operations": [],
    "Protocol": {
@@ -296,6 +303,7 @@
   {
    "$id": "35",
    "Name": "Query",
+   "ClientNamespace": "Encode.Duration.Query",
    "Operations": [
     {
      "$id": "36",
@@ -705,6 +713,7 @@
   {
    "$id": "74",
    "Name": "Property",
+   "ClientNamespace": "Encode.Duration.Property",
    "Operations": [
     {
      "$id": "75",
@@ -1403,6 +1412,7 @@
   {
    "$id": "134",
    "Name": "Header",
+   "ClientNamespace": "Encode.Duration.Header",
    "Operations": [
     {
      "$id": "135",

@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "DefaultBytesProperty",
+   "clientNamespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -38,6 +39,7 @@
    "$id": "5",
    "kind": "model",
    "name": "Base64BytesProperty",
+   "clientNamespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -68,6 +70,7 @@
    "$id": "8",
    "kind": "model",
    "name": "Base64urlBytesProperty",
+   "clientNamespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -98,6 +101,7 @@
    "$id": "11",
    "kind": "model",
    "name": "Base64urlArrayBytesProperty",
+   "clientNamespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -144,6 +148,7 @@
   {
    "$id": "16",
    "Name": "BytesClient",
+   "ClientNamespace": "Encode.Bytes",
    "Doc": "Test for encode decorator on bytes.",
    "Operations": [],
    "Protocol": {
@@ -187,6 +192,7 @@
   {
    "$id": "22",
    "Name": "Query",
+   "ClientNamespace": "Encode.Bytes.Query",
    "Operations": [
     {
      "$id": "23",
@@ -447,6 +453,7 @@
   {
    "$id": "46",
    "Name": "Property",
+   "ClientNamespace": "Encode.Bytes.Property",
    "Operations": [
     {
      "$id": "47",
@@ -927,6 +934,7 @@
   {
    "$id": "88",
    "Name": "Header",
+   "ClientNamespace": "Encode.Bytes.Header",
    "Operations": [
     {
      "$id": "89",
@@ -1187,6 +1195,7 @@
   {
    "$id": "112",
    "Name": "RequestBody",
+   "ClientNamespace": "Encode.Bytes.RequestBody",
    "Operations": [
     {
      "$id": "113",
@@ -1632,6 +1641,7 @@
   {
    "$id": "153",
    "Name": "ResponseBody",
+   "ClientNamespace": "Encode.Bytes.ResponseBody",
    "Operations": [
     {
      "$id": "154",

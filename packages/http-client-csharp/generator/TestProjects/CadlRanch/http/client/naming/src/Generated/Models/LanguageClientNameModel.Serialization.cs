@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Client.Naming.Models
+namespace Client.Naming.Property
 {
     public partial class LanguageClientNameModel : IJsonModel<LanguageClientNameModel>
     {

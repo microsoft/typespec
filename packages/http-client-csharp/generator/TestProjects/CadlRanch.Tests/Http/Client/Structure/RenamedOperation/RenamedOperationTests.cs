@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Client.Structure.Service;
 using Client.Structure.Service.Renamed.Operation;
-using Client.Structure.Service.Renamed.Operation.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.RenamedOperation

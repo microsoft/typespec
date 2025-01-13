@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using _Type.Property.ValueTypes;
 
 namespace _Type.Property.ValueTypes.Models
 {

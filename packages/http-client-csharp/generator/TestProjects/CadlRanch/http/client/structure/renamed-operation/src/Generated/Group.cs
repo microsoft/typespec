@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client.Structure.Service.Renamed.Operation
+namespace Client.Structure.RenamedOperation
 {
     public partial class Group
     {

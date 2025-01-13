@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     /// <summary></summary>
     public readonly partial struct IntExtensibleEnum

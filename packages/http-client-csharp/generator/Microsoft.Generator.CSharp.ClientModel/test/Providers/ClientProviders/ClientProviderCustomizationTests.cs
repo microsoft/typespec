@@ -158,7 +158,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true), isRequired: false)
+                InputFactory.Parameter("p1", InputFactory.Model("myStruct", string.Empty, modelAsStruct: true), isRequired: false)
             ]);
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
@@ -275,7 +275,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            InputClient subClient = InputFactory.Client("custom", [inputOperation], [], inputClient.Name);
+            InputClient subClient = InputFactory.Client("custom", operations: [inputOperation], parameters: [], parent: inputClient.Name);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [inputClient, subClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -302,7 +302,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
-            InputClient subClient = InputFactory.Client("dog", [], [], inputClient.Name);
+            InputClient subClient = InputFactory.Client("dog", operations: [], parameters: [], parent: inputClient.Name);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [inputClient, subClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

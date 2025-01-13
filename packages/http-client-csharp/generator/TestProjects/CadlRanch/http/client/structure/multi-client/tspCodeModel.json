@@ -102,6 +102,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Client.Structure.Service",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input",
@@ -113,6 +114,7 @@
   {
    "$id": "14",
    "Name": "ClientAClient",
+   "ClientNamespace": "Client.Structure.MultiClient",
    "Operations": [
     {
      "$id": "15",
@@ -245,6 +247,7 @@
   {
    "$id": "25",
    "Name": "ClientBClient",
+   "ClientNamespace": "Client.Structure.MultiClient",
    "Operations": [
     {
      "$id": "26",

@@ -26,6 +26,7 @@ namespace Microsoft.Generator.CSharp.Input
         public static InputEnumType CreateEnumType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             var isFirstProperty = id == null && name == null;
+            string? clientNamespace = null;
             string? crossLanguageDefinitionId = null;
             string? accessibility = null;
             string? deprecated = null;
@@ -41,6 +42,7 @@ namespace Microsoft.Generator.CSharp.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("clientNamespace", ref clientNamespace)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("access", ref accessibility)
                     || reader.TryReadString("deprecation", ref deprecated)
@@ -79,7 +81,7 @@ namespace Microsoft.Generator.CSharp.Input
                 throw new JsonException("The ValueType of an EnumType must be a primitive type.");
             }
 
-            var enumType = new InputEnumType(name, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, summary, doc, usage, inputValueType, values, !isFixed)
+            var enumType = new InputEnumType(name, clientNamespace ?? string.Empty, crossLanguageDefinitionId ?? string.Empty, accessibility, deprecated, summary, doc, usage, inputValueType, values, !isFixed)
             {
                 Decorators = decorators ?? []
             };

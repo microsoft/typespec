@@ -20,6 +20,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
     {
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
+            string.Empty,
             usage: InputModelTypeUsage.Spread,
             properties:
             [
@@ -656,6 +657,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
                 "apiVersion",
                 InputFactory.Enum(
                     "InputEnum",
+                    string.Empty,
                     InputPrimitiveType.String,
                     usage: InputModelTypeUsage.Input,
                     isExtensible: true,

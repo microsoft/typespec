@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Client.Naming.Models
+namespace Client.Naming.Model
 {
     public partial class ClientModel : IJsonModel<ClientModel>
     {

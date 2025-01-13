@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Payload.JsonMergePatch.Models
+namespace Payload.JsonMergePatch
 {
     public partial class InnerModel
     {

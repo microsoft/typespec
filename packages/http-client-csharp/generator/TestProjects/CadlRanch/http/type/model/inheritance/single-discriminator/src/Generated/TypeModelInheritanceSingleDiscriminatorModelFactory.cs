@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using _Type.Model.Inheritance.SingleDiscriminator;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator.Models
 {

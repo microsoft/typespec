@@ -2,7 +2,9 @@
 
 #nullable disable
 
-namespace _Type.Union.Models
+using _Type.Union.Models;
+
+namespace _Type.Union
 {
     public partial class EnumsOnlyCases
     {

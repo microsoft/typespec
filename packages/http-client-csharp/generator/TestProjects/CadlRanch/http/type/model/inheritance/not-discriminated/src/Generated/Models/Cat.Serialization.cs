@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace _Type.Model.Inheritance.NotDiscriminated.Models
+namespace _Type.Model.Inheritance.NotDiscriminated
 {
     public partial class Cat : IJsonModel<Cat>
     {

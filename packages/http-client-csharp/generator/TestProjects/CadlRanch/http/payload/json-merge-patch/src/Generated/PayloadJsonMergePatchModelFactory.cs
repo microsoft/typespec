@@ -3,6 +3,7 @@
 #nullable disable
 
 using System.Collections.Generic;
+using Payload.JsonMergePatch;
 
 namespace Payload.JsonMergePatch.Models
 {

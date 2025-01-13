@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InvalidAuth",
+   "clientNamespace": "Authentication.ApiKey",
    "crossLanguageDefinitionId": "Authentication.ApiKey.InvalidAuth",
    "usage": "Error,Json,Exception",
    "decorators": [],
@@ -38,6 +39,7 @@
   {
    "$id": "5",
    "Name": "ApiKeyClient",
+   "ClientNamespace": "Authentication.ApiKey",
    "Doc": "Illustrates clients generated with ApiKey authentication.",
    "Operations": [
     {

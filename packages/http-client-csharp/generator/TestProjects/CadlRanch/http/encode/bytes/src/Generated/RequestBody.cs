@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Bytes
+namespace Encode.Bytes._RequestBody
 {
     public partial class RequestBody
     {

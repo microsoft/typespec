@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Encode.Duration._Property;
 
 namespace Encode.Duration.Models
 {

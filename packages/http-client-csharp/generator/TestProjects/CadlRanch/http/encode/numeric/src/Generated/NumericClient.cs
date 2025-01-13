@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using Encode.Numeric._Property;
 
 namespace Encode.Numeric
 {

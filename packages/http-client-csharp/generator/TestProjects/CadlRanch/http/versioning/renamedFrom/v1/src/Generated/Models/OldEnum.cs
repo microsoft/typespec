@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Versioning.RenamedFrom.V1.Models
+namespace Versioning.RenamedFrom
 {
     public enum OldEnum
     {

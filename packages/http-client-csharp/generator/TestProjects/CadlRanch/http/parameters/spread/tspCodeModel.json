@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "SpreadAsRequestBodyRequest",
+   "clientNamespace": "Parameters.Spread.Alias",
    "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadAsRequestBody.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -37,6 +38,7 @@
    "$id": "5",
    "kind": "model",
    "name": "SpreadParameterWithInnerModelRequest",
+   "clientNamespace": "",
    "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadParameterWithInnerModel.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -66,6 +68,7 @@
    "$id": "8",
    "kind": "model",
    "name": "SpreadAsRequestParameterRequest",
+   "clientNamespace": "",
    "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadAsRequestParameter.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -95,6 +98,7 @@
    "$id": "11",
    "kind": "model",
    "name": "SpreadWithMultipleParametersRequest",
+   "clientNamespace": "",
    "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadWithMultipleParameters.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -199,6 +203,7 @@
    "$id": "22",
    "kind": "model",
    "name": "SpreadParameterWithInnerAliasRequest",
+   "clientNamespace": "",
    "crossLanguageDefinitionId": "Parameters.Spread.Alias.spreadParameterWithInnerAlias.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -249,6 +254,7 @@
    "$id": "27",
    "kind": "model",
    "name": "BodyParameter",
+   "clientNamespace": "Parameters.Spread.Model",
    "crossLanguageDefinitionId": "Parameters.Spread.Model.BodyParameter",
    "usage": "Input,Spread,Json",
    "doc": "This is a simple model.",
@@ -279,6 +285,7 @@
    "$id": "30",
    "kind": "model",
    "name": "SpreadCompositeRequestMixRequest",
+   "clientNamespace": "",
    "crossLanguageDefinitionId": "Parameters.Spread.Model.spreadCompositeRequestMix.Request.anonymous",
    "usage": "Spread,Json",
    "decorators": [],
@@ -309,6 +316,7 @@
   {
    "$id": "33",
    "Name": "SpreadClient",
+   "ClientNamespace": "Parameters.Spread",
    "Doc": "Test for the spread operator.",
    "Operations": [],
    "Protocol": {
@@ -352,6 +360,7 @@
   {
    "$id": "39",
    "Name": "Model",
+   "ClientNamespace": "Parameters.Spread.Model",
    "Operations": [
     {
      "$id": "40",
@@ -854,6 +863,7 @@
   {
    "$id": "83",
    "Name": "Alias",
+   "ClientNamespace": "Parameters.Spread.Alias",
    "Operations": [
     {
      "$id": "84",

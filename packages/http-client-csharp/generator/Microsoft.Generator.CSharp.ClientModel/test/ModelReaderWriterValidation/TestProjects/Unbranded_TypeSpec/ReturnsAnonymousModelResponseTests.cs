@@ -5,7 +5,7 @@ using System.ClientModel;
 using System.IO;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
-using UnbrandedTypeSpec.Models;
+using UnbrandedTypeSpec;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
 {

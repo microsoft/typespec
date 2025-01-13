@@ -20,14 +20,14 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { fromSdkType } from "./converter.js";
 import { reportDiagnostic } from "./lib.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
+import { fromSdkType } from "./type-converter.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+export function createModel(sdkContext: SdkContext<NetEmitterOptions>): [CodeModel, string[]] {
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -43,7 +43,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   const rootClients = sdkPackage.clients.filter((c) => c.initialization.access === "public");
   if (rootClients.length === 0) {
     reportDiagnostic(sdkContext.program, { code: "no-root-client", format: {}, target: NoTarget });
-    return {} as CodeModel;
+    return [{} as CodeModel, []];
   }
 
   const rootApiVersions =
@@ -51,8 +51,10 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
       : rootClients[0].apiVersions;
 
+  // this is a set tracking the bad namespace segments
+  const badNamespaceSegments = new Set<string>();
   const inputClients: InputClient[] = [];
-  fromSdkClients(rootClients, inputClients, []);
+  fromSdkClients(rootClients, inputClients, [], badNamespaceSegments);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
@@ -62,33 +64,54 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     Clients: inputClients,
     Auth: processServiceAuthentication(sdkPackage),
   };
-  return clientModel;
+
+  return [clientModel, [...badNamespaceSegments]];
 
   function fromSdkClients(
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
+    badNamespaceSegments: Set<string>,
   ) {
     for (const client of clients) {
-      const inputClient = emitClient(client, parentClientNames);
+      const inputClient = fromSdkClient(client, parentClientNames, badNamespaceSegments);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames);
+      fromSdkClients(subClients, inputClients, parentClientNames, badNamespaceSegments);
       parentClientNames.pop();
     }
   }
 
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
+  function fromSdkClient(
+    client: SdkClientType<SdkHttpOperation>,
+    parentNames: string[],
+    badNamespaceSegments: Set<string>,
+  ): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
+    const clientName = getClientName(client, parentNames);
+    // see if this namespace is a sub-namespace of an existing bad namespace
+    const segments = client.clientNamespace.split(".");
+    const lastSegment = segments[segments.length - 1];
+    if (lastSegment === clientName) {
+      // this segment is bad
+      badNamespaceSegments.add(lastSegment);
+      
+      Logger.getInstance().warn(
+        `bad namespace ${client.clientNamespace} for client ${clientName}, please use @clientNamespace to specify a different namespace or @clientName to specify a different name for the client`,
+        client.__raw.type,
+      );
+    }
+
     return {
-      Name: getClientName(client, parentNames),
+      Name: clientName,
+      ClientNamespace: client.clientNamespace,
       Summary: client.summary,
       Doc: client.doc,
       Operations: client.methods

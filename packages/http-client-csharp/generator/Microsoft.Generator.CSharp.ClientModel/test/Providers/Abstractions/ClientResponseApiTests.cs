@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
         private static ClientProvider CreateMockClientProvider()
         {
-            var client = InputFactory.Client("TestClient", [InputFactory.Operation("foo")]);
+            var client = InputFactory.Client("TestClient", operations: [InputFactory.Operation("foo")]);
             MockHelpers.LoadMockPlugin(clientResponseApi: TestClientResponseApi.Instance);
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(client);
             return clientProvider;

@@ -2,6 +2,9 @@
 
 #nullable disable
 
+using Client.Naming.Model;
+using Client.Naming.Property;
+
 namespace Client.Naming.Models
 {
     public static partial class ClientNamingModelFactory

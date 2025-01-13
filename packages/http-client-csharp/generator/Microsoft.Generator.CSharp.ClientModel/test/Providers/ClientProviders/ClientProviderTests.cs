@@ -31,11 +31,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [_inputOperation], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [_inputOperation], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [_inputOperation], [], _dogClient.Name);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", operations: [_inputOperation], parent: TestClientName);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", operations: [_inputOperation], parent: _animalClient.Name);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", operations: [_inputOperation], parent: _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
+            string.Empty,
             usage: InputModelTypeUsage.Spread,
             properties:
             [
@@ -83,7 +84,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public async Task TestNonEmptySubClient()
         {
             var client = InputFactory.Client(TestClientName);
-            var subClient = InputFactory.Client($"Sub{TestClientName}", [_inputOperation], [], client.Name);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", operations: [_inputOperation], parent: client.Name);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [client, subClient]);
 
@@ -98,7 +99,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public async Task TestEmptySubClient()
         {
             var client = InputFactory.Client(TestClientName);
-            var subClient = InputFactory.Client($"Sub{TestClientName}", [], [], client.Name);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", parent: client.Name);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [client, subClient]);
 
@@ -706,7 +707,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             List<string> apiVersions = ["1.0", "2.0"];
             var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            var inputEnum = InputFactory.Enum("ServiceVersion", string.Empty, InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
 
             MockHelpers.LoadMockPlugin(
                 apiVersions: () => apiVersions,
@@ -745,7 +746,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             List<string> apiVersions = ["value1", "value2"];
             var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            var inputEnum = InputFactory.Enum("ServiceVersion", string.Empty, InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
             MockHelpers.LoadMockPlugin(
                 apiVersions: () => apiVersions,
                 inputEnums: () => [inputEnum]);
@@ -789,6 +790,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 "queryParam",
                                 InputFactory.Enum(
                                     "InputEnum",
+                                    string.Empty,
                                     InputPrimitiveType.String,
                                     usage: InputModelTypeUsage.Input,
                                     isExtensible: true,
@@ -1146,7 +1148,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 isRequired: true),
                             InputFactory.Parameter(
                                 "p2",
-                                InputFactory.Model("SampleModel"),
+                                InputFactory.Model("SampleModel", string.Empty),
                                 location: RequestLocation.Body,
                                 isRequired: true),
                         ]), true, false);
@@ -1165,7 +1167,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 isRequired: true),
                             InputFactory.Parameter(
                                 "p2",
-                                InputFactory.Model("SampleModel"),
+                                InputFactory.Model("SampleModel", string.Empty),
                                 location: RequestLocation.Body,
                                 isRequired: false),
                         ]), true, true);
@@ -1174,7 +1176,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 yield return new TestCaseData(
                     InputFactory.Operation(
                         "TestOperation",
-                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
+                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel", string.Empty))],
                         parameters: []),
                     false, false);
             }
@@ -1222,6 +1224,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     "apiVersion",
                     InputFactory.Enum(
                         "InputEnum",
+                        string.Empty,
                         InputPrimitiveType.String,
                         usage: InputModelTypeUsage.Input,
                         isExtensible: true,

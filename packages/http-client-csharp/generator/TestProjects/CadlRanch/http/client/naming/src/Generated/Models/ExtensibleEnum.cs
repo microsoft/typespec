@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Client.Naming.Models
+namespace Client.Naming._UnionEnum
 {
     public readonly partial struct ExtensibleEnum : IEquatable<ExtensibleEnum>
     {

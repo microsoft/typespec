@@ -6,7 +6,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type.Property.AdditionalProperties.Models;
 
 namespace _Type.Property.AdditionalProperties
 {

@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Parameters.Basic
+namespace Parameters.Basic._ImplicitBody
 {
     public partial class ImplicitBody
     {

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
 using System.Threading.Tasks;
-using Resiliency.SrvDriven.V2;
+using NUnit.Framework;
+using Resiliency.ServiceDriven;
 
 namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven.V2
 {

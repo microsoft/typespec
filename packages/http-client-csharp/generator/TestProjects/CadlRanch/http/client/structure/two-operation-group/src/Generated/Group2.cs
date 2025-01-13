@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client.Structure.Service.TwoOperationGroup
+namespace Client.Structure.TwoOperationGroup
 {
     public partial class Group2
     {

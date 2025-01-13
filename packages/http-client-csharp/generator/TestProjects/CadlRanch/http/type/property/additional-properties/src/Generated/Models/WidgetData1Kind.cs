@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace _Type.Property.AdditionalProperties.Models
+namespace _Type.Property.AdditionalProperties
 {
     public readonly partial struct WidgetData1Kind : IEquatable<WidgetData1Kind>
     {

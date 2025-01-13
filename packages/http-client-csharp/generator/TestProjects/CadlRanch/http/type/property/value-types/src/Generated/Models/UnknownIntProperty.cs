@@ -4,7 +4,7 @@
 
 using System;
 
-namespace _Type.Property.ValueTypes.Models
+namespace _Type.Property.ValueTypes
 {
     public partial class UnknownIntProperty
     {

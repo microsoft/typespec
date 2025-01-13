@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using _Type.Property.Optional;
 
 namespace _Type.Property.Optional.Models
 {

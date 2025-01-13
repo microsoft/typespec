@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace _Type._Enum.Fixed.Models
+namespace _Type._Enum.Fixed
 {
     public enum DaysOfWeekEnum
     {

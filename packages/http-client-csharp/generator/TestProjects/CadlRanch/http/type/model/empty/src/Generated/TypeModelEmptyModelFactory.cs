@@ -2,6 +2,8 @@
 
 #nullable disable
 
+using _Type.Model.Empty;
+
 namespace _Type.Model.Empty.Models
 {
     public static partial class TypeModelEmptyModelFactory

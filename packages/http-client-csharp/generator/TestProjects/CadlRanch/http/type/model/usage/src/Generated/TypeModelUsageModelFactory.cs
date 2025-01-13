@@ -2,6 +2,8 @@
 
 #nullable disable
 
+using _Type.Model.Usage;
+
 namespace _Type.Model.Usage.Models
 {
     public static partial class TypeModelUsageModelFactory

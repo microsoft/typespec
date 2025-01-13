@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             [
                 InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
             ]);
-            var inputClient = InputFactory.Client("TestClient", [inputOperation]);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 clients: () => [inputClient],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

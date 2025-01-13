@@ -5,7 +5,7 @@
 using System;
 using System.ComponentModel;
 
-namespace _Type._Enum.Extensible.Models
+namespace _Type._Enum.Extensible
 {
     public readonly partial struct DaysOfWeekExtensibleEnum : IEquatable<DaysOfWeekExtensibleEnum>
     {

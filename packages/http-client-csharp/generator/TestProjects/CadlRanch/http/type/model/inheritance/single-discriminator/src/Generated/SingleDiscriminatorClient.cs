@@ -7,7 +7,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type.Model.Inheritance.SingleDiscriminator.Models;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {

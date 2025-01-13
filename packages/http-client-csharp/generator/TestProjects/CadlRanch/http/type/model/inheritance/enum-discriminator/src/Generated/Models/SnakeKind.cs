@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace _Type.Model.Inheritance.EnumDiscriminator.Models
+namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     internal enum SnakeKind
     {

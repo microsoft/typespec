@@ -6,9 +6,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.RenamedFrom.V1.Models;
 
-namespace Versioning.RenamedFrom.V1
+namespace Versioning.RenamedFrom
 {
     public partial class OldInterface
     {

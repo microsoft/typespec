@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Client.Naming.Models
+namespace Client.Naming.Property
 {
     public partial class LanguageClientNameModel
     {
