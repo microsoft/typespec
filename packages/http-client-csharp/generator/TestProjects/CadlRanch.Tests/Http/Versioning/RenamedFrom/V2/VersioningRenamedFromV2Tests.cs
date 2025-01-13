@@ -15,9 +15,12 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
         [CadlRanchTest]
         public void TestRenamedMembers()
         {
+            var assembly = typeof(RenamedFromClient).Assembly;
             /* check the renamed model from `OldModel` to `NewModel` */
-            Assert.IsNull(Type.GetType("Versioning.RenamedFrom.V2.Models.OldModel"));
-            Assert.IsNotNull(Type.GetType("Versioning.RenamedFrom.V2.Models.NewModel"));
+            var oldModel = assembly.GetType("Versioning.RenamedFrom.V2.Models.OldModel");
+            Assert.IsNull(oldModel);
+            var newModel = assembly.GetType("Versioning.RenamedFrom.V2.Models.NewModel");
+            Assert.IsNotNull(newModel);
 
             /* check the renamed property of model */
             var properties = typeof(NewModel).GetProperties();
@@ -27,8 +30,10 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
             Assert.IsNotNull(typeof(NewModel).GetProperty("NewProp"));
 
             /* check the renamed enum from `OldEnum` to `NewEnum` */
-            Assert.IsNull(Type.GetType("Versioning.RenamedFrom.V2.Models.OldEnum"));
-            Assert.IsNotNull(Type.GetType("Versioning.RenamedFrom.V2.Models.NewEnum"));
+            var oldEnum = assembly.GetType("Versioning.RenamedFrom.V2.Models.OldEnum");
+            Assert.IsNull(oldEnum);
+            var newEnum = assembly.GetType("Versioning.RenamedFrom.V2.Models.NewEnum");
+            Assert.IsNotNull(newEnum);
 
             /* check the renamed enum value */
             var enumValues = typeof(NewEnum).GetEnumNames();
@@ -44,8 +49,10 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
             Assert.AreEqual(4, newMethods.Count());
 
             /* check the renamed interface */
-            Assert.IsNull(Type.GetType("Versioning.RenamedFrom.V2.OldInterface"));
-            Assert.IsNotNull(Type.GetType("Versioning.RenamedFrom.V2.NewInterface"));
+            var oldInterface = assembly.GetType("Versioning.RenamedFrom.V2.OldInterface");
+            Assert.IsNull(oldInterface);
+            var newInterface = assembly.GetType("Versioning.RenamedFrom.V2.NewInterface");
+            Assert.IsNotNull(newInterface);
         }
 
         [CadlRanchTest]

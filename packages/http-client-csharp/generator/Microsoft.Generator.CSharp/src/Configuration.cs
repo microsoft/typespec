@@ -18,6 +18,7 @@ namespace Microsoft.Generator.CSharp
             "Type",
             "Array",
             "Enum",
+            "ClientModel", // segment of `System.ClientModel`
         ];
 
         internal enum UnreferencedTypesHandlingOption
