@@ -65,7 +65,7 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
 ### Step 4: Select an Emitter Type.
 
-   **Validate:** There should be a prompt "Select an Emitter Type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `Protocal Schema`.
+   **Validate:** There should be a prompt "Select an Emitter Type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `Protocol Schema`.
 
    ![alt text](./images/GeneratefromTypeSpec_SelectEmitter_client.png)
 
