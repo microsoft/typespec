@@ -317,7 +317,7 @@ export function createServer(host: ServerHost): Server {
     if (!validationResult.valid) {
       for (const diag of validationResult.diagnostics) {
         log({
-          level: diag.severity,
+          level: diag.severity === "hint" ? "info" : diag.severity,
           message: diag.message,
           detail: {
             code: diag.code,
@@ -490,6 +490,11 @@ export function createServer(host: ServerHost): Server {
         }
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
+        } else if (each.code === "unused-using") {
+          // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
+          // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
+          // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
         }
         diagnostic.data = { id: diagnosticIdCounter++ };
         const diagnostics = diagnosticMap.get(diagDocument);

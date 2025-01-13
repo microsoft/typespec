@@ -54,6 +54,8 @@ export interface TypeSpecTestLibrary {
 
 export interface TestHostConfig {
   libraries?: TypeSpecTestLibrary[];
+  /** the diagnostics will be ignored if this return false */
+  diagnosticFilter?: (diag: Diagnostic) => boolean;
 }
 
 export class TestHostError extends Error {

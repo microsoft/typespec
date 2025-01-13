@@ -11,6 +11,7 @@ import { numericRanges } from "../../src/core/numeric-ranges.js";
 import { Numeric } from "../../src/core/numeric.js";
 import {
   BasicTestRunner,
+  DiagnosticMatch,
   TestHost,
   createTestHost,
   createTestWrapper,
@@ -42,6 +43,18 @@ describe("compiler: checker: decorators", () => {
       });
     });
 
+    const unnecessaryDiags: DiagnosticMatch[] = [
+      {
+        code: "unused-using",
+        message: `Unused using: using TypeSpec.Reflection`,
+        severity: "hint",
+      },
+    ];
+    const compileAndCheckDiags = async (code: string) => {
+      const [_, diags] = await runner.compileAndDiagnose(code);
+      expectDiagnostics(diags, [...unnecessaryDiags]);
+    };
+
     describe("bind implementation to declaration", () => {
       let $otherDec: DecoratorFunction;
       function expectDecorator(ns: Namespace) {
@@ -57,7 +70,7 @@ describe("compiler: checker: decorators", () => {
         });
 
         it("defined at root", async () => {
-          await runner.compile(`
+          await compileAndCheckDiags(`
             extern dec otherDec(target: unknown);
           `);
 
@@ -67,7 +80,7 @@ describe("compiler: checker: decorators", () => {
         it("in a namespace", async () => {
           setTypeSpecNamespace("Foo.Bar", $otherDec);
 
-          await runner.compile(`
+          await compileAndCheckDiags(`
             namespace Foo.Bar {
               extern dec otherDec(target: unknown);
             }
@@ -86,7 +99,7 @@ describe("compiler: checker: decorators", () => {
         it("defined at root", async () => {
           testJs.$decorators = { "": { otherDec: $otherDec } };
 
-          await runner.compile(`
+          await compileAndCheckDiags(`
             extern dec otherDec(target: unknown);
           `);
 
@@ -96,7 +109,7 @@ describe("compiler: checker: decorators", () => {
         it("in a namespace", async () => {
           testJs.$decorators = { "Foo.Bar": { otherDec: $otherDec } };
 
-          await runner.compile(`
+          await compileAndCheckDiags(`
             namespace Foo.Bar {
               extern dec otherDec(target: unknown);
             }
@@ -116,30 +129,36 @@ describe("compiler: checker: decorators", () => {
       const diagnostics = await runner.diagnose(`
         dec testDec(target: unknown);
       `);
-      expectDiagnostics(diagnostics, {
-        code: "decorator-extern",
-        message: "A decorator declaration must be prefixed with the 'extern' modifier.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-extern",
+          message: "A decorator declaration must be prefixed with the 'extern' modifier.",
+        },
+      ]);
     });
 
     it("errors if rest parameter type is not an array expression", async () => {
       const diagnostics = await runner.diagnose(`
         extern dec testDec(target: unknown, ...rest: string);
       `);
-      expectDiagnostics(diagnostics, {
-        code: "rest-parameter-array",
-        message: "A rest parameter must be of an array type.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "rest-parameter-array",
+          message: "A rest parameter must be of an array type.",
+        },
+      ]);
     });
 
     it("errors if extern decorator is missing implementation", async () => {
       const diagnostics = await runner.diagnose(`
         extern dec notImplemented(target: unknown);
       `);
-      expectDiagnostics(diagnostics, {
-        code: "missing-implementation",
-        message: "Extern declaration must have an implementation in JS file.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "missing-implementation",
+          message: "Extern declaration must have an implementation in JS file.",
+        },
+      ]);
     });
   });
 
@@ -160,6 +179,19 @@ describe("compiler: checker: decorators", () => {
       });
     });
 
+    const unnecessaryDiags: DiagnosticMatch[] = [
+      {
+        code: "unused-using",
+        message: `Unused using: using TypeSpec.Reflection`,
+        severity: "hint",
+      },
+    ];
+    const compileAndCheckDiags = async (code: string) => {
+      const [r, diags] = await runner.compileAndDiagnose(code);
+      expectDiagnostics(diags, [...unnecessaryDiags]);
+      return r;
+    };
+
     function expectDecoratorCalledWith(target: unknown, ...args: unknown[]) {
       ok(calledArgs, "Decorator was not called.");
       strictEqual(calledArgs.length, 2 + args.length);
@@ -175,7 +207,7 @@ describe("compiler: checker: decorators", () => {
     }
 
     it("calls a decorator with no argument", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await compileAndCheckDiags(`
         extern dec testDec(target: unknown);
 
         @testDec
@@ -187,7 +219,7 @@ describe("compiler: checker: decorators", () => {
     });
 
     it("calls a decorator with arguments", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await compileAndCheckDiags(`
         extern dec testDec(target: unknown, arg1: valueof string, arg2: valueof string);
 
         @testDec("one", "two")
@@ -199,7 +231,7 @@ describe("compiler: checker: decorators", () => {
     });
 
     it("calls a decorator with optional arguments", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await compileAndCheckDiags(`
         extern dec testDec(target: unknown, arg1: valueof string, arg2?: valueof string);
 
         @testDec("one")
@@ -211,7 +243,7 @@ describe("compiler: checker: decorators", () => {
     });
 
     it("calls a decorator with rest arguments", async () => {
-      const { Foo } = await runner.compile(`
+      const { Foo } = await compileAndCheckDiags(`
         extern dec testDec(target: unknown, arg1: valueof string, ...args: valueof string[]);
 
         @testDec("one", "two", "three", "four")
@@ -230,10 +262,12 @@ describe("compiler: checker: decorators", () => {
         model Foo {}
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument-count",
-        message: "Expected 2 arguments, but got 1.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument-count",
+          message: "Expected 2 arguments, but got 1.",
+        },
+      ]);
       expectDecoratorNotCalled();
     });
 
@@ -245,10 +279,12 @@ describe("compiler: checker: decorators", () => {
         @test model Foo {}
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument-count",
-        message: "Expected 1-2 arguments, but got 3.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument-count",
+          message: "Expected 1-2 arguments, but got 3.",
+        },
+      ]);
       expectDecoratorCalledWith(Foo, "one", "two");
     });
 
@@ -260,10 +296,12 @@ describe("compiler: checker: decorators", () => {
         model Foo {}
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument-count",
-        message: "Expected 0 arguments, but got 1.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument-count",
+          message: "Expected 0 arguments, but got 1.",
+        },
+      ]);
     });
 
     it("errors if not calling with too few arguments with rest", async () => {
@@ -274,10 +312,12 @@ describe("compiler: checker: decorators", () => {
         model Foo {}
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument-count",
-        message: "Expected at least 1 arguments, but got 0.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument-count",
+          message: "Expected at least 1 arguments, but got 0.",
+        },
+      ]);
       expectDecoratorNotCalled();
     });
 
@@ -304,10 +344,12 @@ describe("compiler: checker: decorators", () => {
         model Foo {}
       `);
 
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument",
-        message: "Argument of type '123' is not assignable to parameter of type 'string'",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument",
+          message: "Argument of type '123' is not assignable to parameter of type 'string'",
+        },
+      ]);
       expectDecoratorNotCalled();
     });
 
@@ -334,7 +376,7 @@ describe("compiler: checker: decorators", () => {
 
     // Regresssion test for https://github.com/microsoft/typespec/issues/3211
     it("augmenting a template model property before a decorator declaration resolve the declaration correctly", async () => {
-      await runner.compile(`
+      await compileAndCheckDiags(`
         model Foo<T> {
           prop: T;
         }
@@ -353,7 +395,7 @@ describe("compiler: checker: decorators", () => {
         value: string,
         suppress?: boolean,
       ): Promise<any> {
-        await runner.compile(`
+        await compileAndCheckDiags(`
           extern dec testDec(target: unknown, arg1: ${type});
           
           ${suppress ? `#suppress "deprecated" "for testing"` : ""}
@@ -527,7 +569,9 @@ describe("compiler: checker: decorators", () => {
           @test
           model Foo {}
         `);
-        expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "deprecated"));
+        expectDiagnosticEmpty(
+          diagnostics.filter((x) => x.code !== "deprecated" && x.code !== "unused-using"),
+        );
         return calledArgs![2];
       }
 
