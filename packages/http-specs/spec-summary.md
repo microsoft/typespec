@@ -1679,9 +1679,7 @@ Two requests need to be tested.
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
-  "links": {
-    "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
-  }
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
 }
 ```
 
@@ -2082,6 +2080,24 @@ Expected request body:
   <name>foo</name>
   <age>123</age>
 </SimpleModel>
+```
+
+### Response_StatusCodeRange_errorResponse
+
+- Endpoint: `get /response/status-code-range/error-response`
+
+Test case for range of status code in error response.
+
+Verify that the result of the API is an error/exception in client, and the error response can be de-serialized to ErrorInRange model (instead of DefaultError model).
+
+Expected response body:
+status code 494
+
+```json
+{
+  "code": "request-header-too-large",
+  "message": "Request header too large"
+}
 ```
 
 ### Routes_fixed
