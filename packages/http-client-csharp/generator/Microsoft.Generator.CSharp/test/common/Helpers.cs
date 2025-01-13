@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Common
 {
@@ -48,6 +49,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "Microsoft.Generator.CSharp.Customization", "src");
             var project = CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
             var compilation = await project.GetCompilationAsync();
+            Assert.IsNotNull(compilation);
             return compilation!;
         }
 
