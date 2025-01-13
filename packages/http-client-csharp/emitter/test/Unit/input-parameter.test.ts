@@ -19,7 +19,7 @@ describe("Test Parameter Explode", () => {
 
   describe("path parameters", () => {
     describe("using simple expansion", () => {
-      it("is false with primitive parameter type", async () => {
+      it("is true with primitive parameter type", async () => {
         const program = await typeSpecCompile(
           `
             @doc("""
@@ -46,7 +46,7 @@ describe("Test Parameter Explode", () => {
 
         strictEqual(type.kind, "string");
         strictEqual(inputParam.Location, RequestLocation.Path);
-        strictEqual(inputParam.Explode, false);
+        strictEqual(inputParam.Explode, true);
         strictEqual(inputParam.ArraySerializationDelimiter, undefined);
       });
 
@@ -114,7 +114,7 @@ describe("Test Parameter Explode", () => {
     });
 
     describe("using path expansion", () => {
-      it("is false with primitive parameter type", async () => {
+      it("is true with primitive parameter type", async () => {
         const program = await typeSpecCompile(
           `
             @doc("""
@@ -141,7 +141,7 @@ describe("Test Parameter Explode", () => {
 
         strictEqual(type.kind, "string");
         strictEqual(inputParam.Location, RequestLocation.Path);
-        strictEqual(inputParam.Explode, false);
+        strictEqual(inputParam.Explode, true);
         strictEqual(inputParam.ArraySerializationDelimiter, undefined);
       });
 
@@ -209,7 +209,7 @@ describe("Test Parameter Explode", () => {
     });
 
     describe("using label expansion", () => {
-      it("is false with primitive parameter type", async () => {
+      it("is true with primitive parameter type", async () => {
         const program = await typeSpecCompile(
           `
             @doc("""
@@ -236,7 +236,7 @@ describe("Test Parameter Explode", () => {
 
         strictEqual(type.kind, "string");
         strictEqual(inputParam.Location, RequestLocation.Path);
-        strictEqual(inputParam.Explode, false);
+        strictEqual(inputParam.Explode, true);
         strictEqual(inputParam.ArraySerializationDelimiter, undefined);
       });
 
@@ -304,7 +304,7 @@ describe("Test Parameter Explode", () => {
     });
 
     describe("using matrix expansion", () => {
-      it("is false with primitive parameter type", async () => {
+      it("is true with primitive parameter type", async () => {
         const program = await typeSpecCompile(
           `
             @doc("""
@@ -331,7 +331,7 @@ describe("Test Parameter Explode", () => {
 
         strictEqual(type.kind, "string");
         strictEqual(inputParam.Location, RequestLocation.Path);
-        strictEqual(inputParam.Explode, false);
+        strictEqual(inputParam.Explode, true);
         strictEqual(inputParam.ArraySerializationDelimiter, undefined);
       });
 
@@ -401,7 +401,7 @@ describe("Test Parameter Explode", () => {
 
   describe("query parameters", () => {
     describe("using query expansion", () => {
-      it("is false with primitive parameter type", async () => {
+      it("is true with primitive parameter type", async () => {
         const program = await typeSpecCompile(
           `
             @doc("""
@@ -428,7 +428,7 @@ describe("Test Parameter Explode", () => {
 
         strictEqual(type.kind, "string");
         strictEqual(inputParam.Location, RequestLocation.Query);
-        strictEqual(inputParam.Explode, false);
+        strictEqual(inputParam.Explode, true);
         strictEqual(inputParam.ArraySerializationDelimiter, undefined);
       });
 
@@ -496,7 +496,7 @@ describe("Test Parameter Explode", () => {
     });
 
     describe("query continuation", () => {
-      it("is false with primitive parameter type", async () => {
+      it("is true with primitive parameter type", async () => {
         const program = await typeSpecCompile(
           `
             @doc("""
@@ -523,7 +523,7 @@ describe("Test Parameter Explode", () => {
 
         strictEqual(type.kind, "string");
         strictEqual(inputParam.Location, RequestLocation.Query);
-        strictEqual(inputParam.Explode, false);
+        strictEqual(inputParam.Explode, true);
         strictEqual(inputParam.ArraySerializationDelimiter, undefined);
       });
 
