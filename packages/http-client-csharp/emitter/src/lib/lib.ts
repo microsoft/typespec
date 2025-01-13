@@ -37,6 +37,14 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
+    "invalid-runtime-dependency": {
+      severity: "error",
+      messages: {
+        default: paramMessage`invalid runtime dependency installed.`,
+        missing: paramMessage`Dotnet is not found in PATH. Please install DotNet ${"dotnetMajorVersion"} or above. Dotnet can be downloaded from ${"downloadUrl"}"`,
+        invalidVersion: paramMessage`Dotnet SDK in PATH is version ${"installedVersion"}. Please install DotNet ${"dotnetMajorVersion"} or above. Dotnet can be downloaded from ${"downloadUrl"}"`,
+      },
+    },
     "no-root-client": {
       severity: "error",
       messages: {
