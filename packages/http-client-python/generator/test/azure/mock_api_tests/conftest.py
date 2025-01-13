@@ -11,6 +11,7 @@ import re
 from typing import Literal
 from pathlib import Path
 
+FILE_FOLDER = Path(__file__).parent
 
 def start_server_process():
     azure_http_path = Path(os.path.dirname(__file__)) / Path("../../../../node_modules/@azure-tools/azure-http-specs")
@@ -149,3 +150,14 @@ def authentication_policy():
     from azure.core.pipeline.policies import SansIOHTTPPolicy
 
     return SansIOHTTPPolicy()
+
+@pytest.fixture
+def png_data() -> bytes:
+    with open(str(FILE_FOLDER / "data/image.png"), "rb") as file_in:
+        return file_in.read()
+
+
+@pytest.fixture
+def jpg_data() -> bytes:
+    with open(str(FILE_FOLDER / "data/image.jpg"), "rb") as file_in:
+        return file_in.read()

@@ -147,6 +147,7 @@ function getEmitterOption(spec: string, flavor: string): Record<string, string>[
     }
   }
 
+  // when package name is different with typespec namespace, disable typespec namespace
   if (flavor !== "azure") {
     for (const options of result) {
       if (Array.isArray(options)) {
