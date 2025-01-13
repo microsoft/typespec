@@ -82,9 +82,9 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
     @Override
     protected JavaVisibility methodVisibility(ClientMethodType methodType, MethodOverloadType methodOverloadType,
         boolean hasContextParameter, boolean isProtocolMethod) {
-
+        boolean syncStack = JavaSettings.getInstance().isSyncStackEnabled();
         JavaVisibility visibility;
-        if (methodType.name().contains("Async") && JavaSettings.getInstance().isSyncStackEnabled()) {
+        if (methodType.name().contains("Async") && syncStack) {
             visibility = NOT_GENERATE;
         } else {
             if (methodType == ClientMethodType.PagingAsyncSinglePage) {
@@ -93,7 +93,7 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
                 visibility = NOT_VISIBLE;
             } else if (methodType == ClientMethodType.PagingSyncSinglePage) {
                 // wait for sync-stack to decide
-                visibility = NOT_GENERATE;
+                visibility = syncStack ? NOT_VISIBLE : NOT_GENERATE;
             } else if (hasContextParameter
                 && (methodType == ClientMethodType.SimpleAsyncRestResponse
                 || methodType == ClientMethodType.PagingAsync
