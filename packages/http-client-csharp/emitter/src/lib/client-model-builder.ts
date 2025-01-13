@@ -60,7 +60,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     Enums: Array.from(sdkTypeMap.enums.values()),
     Models: Array.from(sdkTypeMap.models.values()),
     Clients: inputClients,
-    Auth: processServiceAuthentication(sdkPackage),
+    Auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
   return clientModel;
 
