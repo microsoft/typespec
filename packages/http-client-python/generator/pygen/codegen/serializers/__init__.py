@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import logging
 from collections import namedtuple
+import re
 from typing import List, Any, Union
 from pathlib import Path
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
@@ -93,6 +94,19 @@ class JinjaSerializer(ReaderAndWriter):
         sync_loop = AsyncInfo(async_mode=False, async_path="")
         async_loop = AsyncInfo(async_mode=True, async_path="aio/")
         return [sync_loop, async_loop] if self.has_aio_folder else [sync_loop]
+
+    @property
+    def keep_version_file(self) -> bool:
+        if self.options.get("keep_version_file"):
+            return True
+        # If the version file is already there and the version is greater than the current version, keep it.
+        try:
+            serialized_version_file = self.read_file(self.exec_path(self.code_model.namespace) / "_version.py")
+            match = re.search(r'VERSION\s*=\s*"([^"]+)"', str(serialized_version_file))
+            serialized_version = match.group(1) if match else ""
+        except (FileNotFoundError, IndexError):
+            serialized_version = ""
+        return serialized_version > self.code_model.options["package_version"]
 
     def serialize(self) -> None:
         env = Environment(
@@ -193,6 +207,9 @@ class JinjaSerializer(ReaderAndWriter):
             file = template_name.replace(".jinja2", "")
             output_name = root_of_sdk / file
             if not self.read_file(output_name) or file in _REGENERATE_FILES:
+                if self.keep_version_file and file == "setup.py":
+                    # don't regenerate setup.py file if the version file is more up to date
+                    continue
                 self.write_file(
                     output_name,
                     serializer.serialize_package_file(template_name, **params),
@@ -329,10 +346,9 @@ class JinjaSerializer(ReaderAndWriter):
                 _read_version_file(original_version_file_name),
             )
 
-        keep_version_file = self.code_model.options["keep_version_file"]
-        if keep_version_file and _read_version_file("_version.py"):
+        if self.keep_version_file and _read_version_file("_version.py"):
             _write_version_file(original_version_file_name="_version.py")
-        elif keep_version_file and _read_version_file("version.py"):
+        elif self.keep_version_file and _read_version_file("version.py"):
             _write_version_file(original_version_file_name="version.py")
         elif self.code_model.options["package_version"]:
             self.write_file(
