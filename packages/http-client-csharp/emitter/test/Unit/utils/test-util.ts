@@ -55,7 +55,8 @@ export async function typeSpecCompile(
   const needAzureCore = options?.IsAzureCoreNeeded ?? false;
   const needTCGC = options?.IsTCGCNeeded ?? false;
   const needXml = options?.IsXmlNeeded ?? false;
-  const authDecorator = options?.AuthDecorator ?? `@useAuth(ApiKeyAuth<ApiKeyLocation.header, "api-key">)`;
+  const authDecorator =
+    options?.AuthDecorator ?? `@useAuth(ApiKeyAuth<ApiKeyLocation.header, "api-key">)`;
   const namespace = `
     @versioned(Versions)
     ${authDecorator}

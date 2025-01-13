@@ -24,16 +24,21 @@ describe("Test auth", () => {
       runner,
       {
         AuthDecorator: `@useAuth(ApiKeyAuth<ApiKeyLocation.cookie, "api-key-name">)`,
-      }
+      },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
-    const noAuthDiagnostic = diagnostics.find((d) => d.code === "@typespec/http-client-csharp/unsupported-auth");
+    const noAuthDiagnostic = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
+    );
     ok(noAuthDiagnostic);
-    strictEqual(noAuthDiagnostic.message, "Only header is supported for ApiKey authentication. cookie is not supported.");
+    strictEqual(
+      noAuthDiagnostic.message,
+      "Only header is supported for ApiKey authentication. cookie is not supported.",
+    );
     strictEqual(root.Auth, undefined); // we do not support it therefore it falls back to undefined
   });
 
@@ -45,16 +50,21 @@ describe("Test auth", () => {
       runner,
       {
         AuthDecorator: `@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api-key-name">)`,
-      }
+      },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
-    const noAuthDiagnostic = diagnostics.find((d) => d.code === "@typespec/http-client-csharp/unsupported-auth");
+    const noAuthDiagnostic = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
+    );
     ok(noAuthDiagnostic);
-    strictEqual(noAuthDiagnostic.message, "Only header is supported for ApiKey authentication. query is not supported.");
+    strictEqual(
+      noAuthDiagnostic.message,
+      "Only header is supported for ApiKey authentication. query is not supported.",
+    );
     strictEqual(root.Auth, undefined); // we do not support it therefore it falls back to undefined
   });
 });
