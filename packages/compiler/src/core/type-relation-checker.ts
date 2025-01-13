@@ -59,6 +59,11 @@ export interface TypeRelation {
   isReflectionType(type: Type): type is Model & { name: ReflectionTypeName };
 
   areScalarsRelated(source: Scalar, target: Scalar): boolean;
+  isUnusedTemplateParameter(
+    source: Value,
+    target: Type,
+    diagnosticTarget: Entity | Node,
+  ): [boolean, readonly Diagnostic[]];
 }
 
 enum Related {
@@ -74,7 +79,8 @@ interface TypeRelationError {
     | "missing-index"
     | "property-required"
     | "missing-property"
-    | "unexpected-property";
+    | "unexpected-property"
+    | "unused-template-parameter";
   message: string;
   children: readonly TypeRelationError[];
   target: Entity | Node;
@@ -110,6 +116,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     isValueOfType,
     isReflectionType,
     areScalarsRelated,
+    isUnusedTemplateParameter,
   };
 
   /**
@@ -145,6 +152,17 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       currentNode = currentNode.parent;
     }
     return false;
+  }
+
+  function isUnusedTemplateParameter(
+    source: Value,
+    target: Type,
+    diagnosticTarget: Entity | Node,
+  ): [boolean, readonly Diagnostic[]] {
+    const errors: TypeRelationError[] = [
+      createUnusedTemplateParameterDiagnostic(source, target, diagnosticTarget),
+    ];
+    return [true, convertErrorsToDiagnostics(errors, diagnosticTarget)];
   }
 
   function convertErrorsToDiagnostics(
@@ -1022,6 +1040,21 @@ function createUnassignableDiagnostic(
     },
     diagnosticTarget,
     details,
+  });
+}
+
+function createUnusedTemplateParameterDiagnostic(
+  source: Value,
+  target: Type,
+  diagnosticTarget: Entity | Node,
+): TypeRelationError {
+  return createTypeRelationError({
+    code: "unused-template-parameter",
+    format: {
+      parameterName: getEntityName(source),
+      type: getEntityName(target),
+    },
+    diagnosticTarget,
   });
 }
 // #endregion

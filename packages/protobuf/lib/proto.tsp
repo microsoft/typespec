@@ -135,6 +135,7 @@ alias integral = int32 | int64 | uint32 | uint64 | boolean;
  * @template Key the key type (any integral type or string)
  * @template Value the value type (any type other than another map)
  */
+#suppress "unused-template-parameter"
 @Private._map
 model Map<Key extends integral | string, Value> {}
 

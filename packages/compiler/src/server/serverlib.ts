@@ -317,7 +317,7 @@ export function createServer(host: ServerHost): Server {
     if (!validationResult.valid) {
       for (const diag of validationResult.diagnostics) {
         log({
-          level: diag.severity,
+          level: diag.severity === "hint" ? "trace" : diag.severity,
           message: diag.message,
           detail: {
             code: diag.code,
@@ -490,6 +490,13 @@ export function createServer(host: ServerHost): Server {
         }
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
+        }
+        if (each.severity === "hint") {
+          if (diagnostic.tags) {
+            diagnostic.tags.push(DiagnosticTag.Unnecessary);
+          } else {
+            diagnostic.tags = [DiagnosticTag.Unnecessary];
+          }
         }
         diagnostic.data = { id: diagnosticIdCounter++ };
         const diagnostics = diagnosticMap.get(diagDocument);
