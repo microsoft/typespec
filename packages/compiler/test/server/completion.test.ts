@@ -669,14 +669,19 @@ describe("identifiers", () => {
       `
       model Options {
         a: string;
-        b: string;
+        b: Nested;
+      }
+      model Nested {
+        c:Foo2;
+      }
+      model Foo1 {
+        foo1: string;
+      }
+      model Foo2 {
+        foo2: string;
       }
 
-      model Foo {
-        foo: string;
-      }
-
-      model Test<T extends valueof string | Foo | Options> {}
+      model Test<T extends valueof string | Foo1 | Options> {}
 
       alias A = Test<#{┆}>;
       `,
@@ -686,12 +691,30 @@ describe("identifiers", () => {
       completions,
       [
         {
-          label: "foo",
-          insertText: "foo",
+          label: "foo1",
+          insertText: "foo1",
           kind: CompletionItemKind.Field,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(model property)\n```typespec\nFoo.foo: string\n```",
+            value: "(model property)\n```typespec\nFoo1.foo1: string\n```",
+          },
+        },
+        {
+          label: "foo2",
+          insertText: "foo2",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nFoo2.foo2: string\n```",
+          },
+        },
+        {
+          label: "c",
+          insertText: "c",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nNested.c: Foo2\n```",
           },
         },
         {
@@ -709,7 +732,59 @@ describe("identifiers", () => {
           kind: CompletionItemKind.Field,
           documentation: {
             kind: MarkupKind.Markdown,
-            value: "(model property)\n```typespec\nOptions.b: string\n```",
+            value: "(model property)\n```typespec\nOptions.b: Nested\n```",
+          },
+        },
+      ],
+      {
+        allowAdditionalCompletions: false,
+      },
+    );
+  });
+
+  it("completes specific type in union variants(models) of template parameters", async () => {
+    const completions = await complete(
+      `
+      model Options {
+        a: string;
+        b: Nested;
+      }
+      model Nested {
+        c:Foo2;
+        d:string;
+      }
+      model Foo1 {
+        foo1: string;
+      }
+      model Foo2 {
+        foo2: string;
+      }
+
+      model Test<T extends valueof string | Foo1 | Options> {}
+
+      alias A = Test<#{a:"",b:#{┆}}>;
+      `,
+    );
+
+    check(
+      completions,
+      [
+        {
+          label: "c",
+          insertText: "c",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nNested.c: Foo2\n```",
+          },
+        },
+        {
+          label: "d",
+          insertText: "d",
+          kind: CompletionItemKind.Field,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "(model property)\n```typespec\nNested.d: string\n```",
           },
         },
       ],
