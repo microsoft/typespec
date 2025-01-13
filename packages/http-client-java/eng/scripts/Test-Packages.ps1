@@ -36,7 +36,6 @@ try {
             try {
                 & ./Setup.ps1
                 & ./Spector-Tests.ps1
-                Set-Location $packageRoot
             }
             finally {
                 Pop-Location
@@ -47,7 +46,6 @@ try {
             try {
                 & ./Setup.ps1
                 & ./Spector-Tests.ps1
-                Set-Location $packageRoot
             }
             finally {
                 Pop-Location
