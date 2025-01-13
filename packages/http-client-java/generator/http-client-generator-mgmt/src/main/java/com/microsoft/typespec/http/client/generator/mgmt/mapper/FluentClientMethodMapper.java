@@ -84,49 +84,53 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
         boolean hasContextParameter, boolean isProtocolMethod) {
 
         JavaVisibility visibility;
-        if (methodType == ClientMethodType.PagingAsyncSinglePage) {
-            // utility methods
-            // single page method is not visible, but the method is required for other client methods
-            visibility = NOT_VISIBLE;
-        } else if (methodType == ClientMethodType.PagingSyncSinglePage) {
-            // wait for sync-stack to decide
+        if (methodType.name().contains("Async") && JavaSettings.getInstance().isSyncStackEnabled()) {
             visibility = NOT_GENERATE;
-        } else if (hasContextParameter
-            && (methodType == ClientMethodType.SimpleAsyncRestResponse
+        } else {
+            if (methodType == ClientMethodType.PagingAsyncSinglePage) {
+                // utility methods
+                // single page method is not visible, but the method is required for other client methods
+                visibility = NOT_VISIBLE;
+            } else if (methodType == ClientMethodType.PagingSyncSinglePage) {
+                // wait for sync-stack to decide
+                visibility = NOT_GENERATE;
+            } else if (hasContextParameter
+                && (methodType == ClientMethodType.SimpleAsyncRestResponse
                 || methodType == ClientMethodType.PagingAsync
                 || methodType == ClientMethodType.LongRunningBeginAsync
                 || methodType == ClientMethodType.LongRunningAsync)) {
-            // utility methods
-            // async + Context method is not visible, but the method is required for other client methods
-            visibility = NOT_VISIBLE;
-        } else {
-            if (methodType.name().contains("Async") && hasContextParameter) {
-                // async method has both minimum overload and maximum overload, but no overload with Context parameter
-                visibility = NOT_GENERATE;
-            } else if (methodType == ClientMethodType.SimpleSync && hasContextParameter) {
-                // SimpleSync with Context is covered by SimpleSyncRestResponse with Context
-                visibility = NOT_GENERATE;
-            } else if (methodType == ClientMethodType.SimpleAsync
-                && methodOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM) {
-                // SimpleAsync with maximum overload is covered by SimpleAsyncRestResponse
-                visibility = NOT_GENERATE;
-            } else if (((methodType.name().contains("Sync") && !hasContextParameter))
-                && ((methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
-                    != MethodOverloadType.OVERLOAD_MINIMUM.value())) {
-                // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
-                // overload without Context parameter
-                visibility = NOT_GENERATE;
+                // utility methods
+                // async + Context method is not visible, but the method is required for other client methods
+                visibility = NOT_VISIBLE;
             } else {
-                visibility
-                    = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
+                if (methodType.name().contains("Async") && hasContextParameter) {
+                    // async method has both minimum overload and maximum overload, but no overload with Context parameter
+                    visibility = NOT_GENERATE;
+                } else if (methodType == ClientMethodType.SimpleSync && hasContextParameter) {
+                    // SimpleSync with Context is covered by SimpleSyncRestResponse with Context
+                    visibility = NOT_GENERATE;
+                } else if (methodType == ClientMethodType.SimpleAsync
+                    && methodOverloadType == MethodOverloadType.OVERLOAD_MAXIMUM) {
+                    // SimpleAsync with maximum overload is covered by SimpleAsyncRestResponse
+                    visibility = NOT_GENERATE;
+                } else if (((methodType.name().contains("Sync") && !hasContextParameter))
+                    && ((methodOverloadType.value() & MethodOverloadType.OVERLOAD_MINIMUM.value())
+                    != MethodOverloadType.OVERLOAD_MINIMUM.value())) {
+                    // sync method has both minimum overload and maximum overload + Context parameter, but not maximum
+                    // overload without Context parameter
+                    visibility = NOT_GENERATE;
+                } else {
+                    visibility
+                        = super.methodVisibility(methodType, methodOverloadType, hasContextParameter, isProtocolMethod);
+                }
             }
-        }
 
-        if (JavaSettings.getInstance().isFluentLite()
-            && !FluentStatic.getFluentJavaSettings().isGenerateAsyncMethods()) {
-            // by default, Fluent lite disable all async method
-            if (visibility == JavaVisibility.Public && methodType.name().contains("Async")) {
-                visibility = JavaVisibility.Private;
+            if (JavaSettings.getInstance().isFluentLite()
+                && !FluentStatic.getFluentJavaSettings().isGenerateAsyncMethods()) {
+                // by default, Fluent lite disable all async method
+                if (visibility == JavaVisibility.Public && methodType.name().contains("Async")) {
+                    visibility = JavaVisibility.Private;
+                }
             }
         }
         return visibility;
