@@ -2,6 +2,10 @@
 
 ## 0.6.3
 
+### Bug Fixes
+
+- Unify descriptions for credentials in documentation
+
 ### Other Changes
 
 - Remove Python2 specific datetime logic from internal serialization.
