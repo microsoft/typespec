@@ -35,6 +35,7 @@ from .parameter import (
 )
 from .parameter_list import ParameterList
 from .model_type import ModelType
+from .primitive_types import BinaryIteratorType
 from .base import BaseType
 from .combined_type import CombinedType
 from .request_builder import OverloadedRequestBuilder, RequestBuilder
@@ -315,7 +316,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @property
     def need_deserialize(self) -> bool:
-        return any(r.type and isinstance(r.type, ModelType) for r in self.responses)
+        return any(r.type and not isinstance(r.type, BinaryIteratorType) for r in self.responses)
 
     def imports(  # pylint: disable=too-many-branches, disable=too-many-statements
         self, async_mode: bool, **kwargs: Any
