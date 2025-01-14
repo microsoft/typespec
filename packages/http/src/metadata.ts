@@ -93,7 +93,6 @@ function visibilityToArray(visibility: Visibility): readonly string[] {
 
 function filterToVisibility(program: Program, filter: VisibilityFilter): Visibility {
   const Lifecycle = getLifecycleVisibilityEnum(program);
-  let value = Visibility.None;
 
   compilerAssert(
     !filter.all,
@@ -105,6 +104,8 @@ function filterToVisibility(program: Program, filter: VisibilityFilter): Visibil
   );
 
   if (filter.any) {
+    let value = Visibility.None;
+
     for (const item of filter.any ?? []) {
       if (item.enum !== Lifecycle) continue;
       switch (item.name) {
@@ -220,7 +221,7 @@ function visibilityToFilter(program: Program, visibility: Visibility): Visibilit
  *  */
 export function getVisibilitySuffix(
   visibility: Visibility,
-  canonicalVisibility: Visibility = Visibility.None,
+  canonicalVisibility: Visibility = Visibility.All,
 ) {
   let suffix = "";
 
@@ -376,6 +377,7 @@ export function resolveRequestVisibility(
     operation,
     HttpVisibilityProvider(verb),
   );
+
   let visibility = filterToVisibility(program, parameterVisibilityFilter);
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it
@@ -528,7 +530,7 @@ export interface MetadataInfoOptions {
   /**
    * The visibility to be used as the baseline against which
    * {@link MetadataInfo.isEmptied} and {@link MetadataInfo.isTransformed}
-   * are computed. If not specified, {@link Visibility.None} is used, which
+   * are computed. If not specified, {@link Visibility.All} is used, which
    * will consider that any model that has fields that are only visible to
    * some visibilities as transformed.
    */
@@ -546,7 +548,7 @@ export interface MetadataInfoOptions {
 }
 
 export function createMetadataInfo(program: Program, options?: MetadataInfoOptions): MetadataInfo {
-  const canonicalVisibility = options?.canonicalVisibility ?? Visibility.None;
+  const canonicalVisibility = options?.canonicalVisibility ?? Visibility.All;
   const enum State {
     NotTransformed,
     Transformed,

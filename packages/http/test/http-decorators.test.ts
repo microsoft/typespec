@@ -1272,5 +1272,17 @@ describe("http: decorators", () => {
         Visibility.Update | Visibility.Create | Visibility.Patch,
       );
     });
+
+    it("ensures all properties visible when parameterVisibility has no arguments", async () => {
+      const { test } = (await runner.compile(`
+      @parameterVisibility
+      @test op test(@path id: string, @body example: {}): void;
+      `)) as { test: Operation };
+      deepStrictEqual(
+        resolveRequestVisibility(runner.program, test, "patch"),
+        Visibility.All | Visibility.Patch,
+      );
+      deepStrictEqual(resolveRequestVisibility(runner.program, test, "get"), Visibility.All);
+    });
   });
 });
