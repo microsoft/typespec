@@ -36,7 +36,6 @@ export async function installCompilerGlobally(
       if (event.item === yes) {
         vscode.env.openExternal(vscode.Uri.parse(detailLink));
       }
-      confirmPicker.hide();
     });
     const p = new Promise<QuickPickItem[] | undefined>((resolve) => {
       confirmPicker.onDidAccept(() => {

@@ -170,7 +170,8 @@
   "$id": "18",
   "ApiKey": {
    "$id": "19",
-   "Name": "x-ms-api-key"
+   "Name": "x-ms-api-key",
+   "In": "header"
   }
  }
 }
