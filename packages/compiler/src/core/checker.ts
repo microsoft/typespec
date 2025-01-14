@@ -2549,7 +2549,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case IdentifierKind.ModelExpressionProperty:
       case IdentifierKind.ObjectLiteralProperty:
         const model = getReferencedModel(node as ModelPropertyNode | ObjectLiteralPropertyNode);
-        if (model) {
+        if (model && !Array.isArray(model)) {
           sym = getMemberSymbol(model.node!.symbol, id.sv);
         } else {
           return undefined;
@@ -2617,7 +2617,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function getReferencedModel(
     propertyNode: ObjectLiteralPropertyNode | ModelPropertyNode,
-  ): Model | undefined {
+  ): Model | Model[] | undefined {
     type ModelOrArrayValueNode = ArrayLiteralNode | ObjectLiteralNode;
     type ModelOrArrayTypeNode = ModelExpressionNode | TupleExpressionNode;
     type ModelOrArrayNode = ModelOrArrayValueNode | ModelOrArrayTypeNode;
@@ -2660,7 +2660,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         refType = getReferencedTypeFromConstAssignment(foundNode as ModelOrArrayValueNode);
         break;
     }
-    return refType?.kind === "Model" || refType?.kind === "Tuple"
+
+    return refType?.kind === "Model" || refType?.kind === "Tuple" || refType?.kind === "Union"
       ? getNestedModel(refType, path)
       : undefined;
 
@@ -2679,13 +2680,29 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ) {
         path.unshift({ propertyName: node.id.sv });
       }
+      if (node.kind === SyntaxKind.ObjectLiteral) {
+        // define tupleIndex as -1 to indicate that we are looking for union type
+        const curResult = path.find((i) => i.tupleIndex === -1);
+        if (curResult === undefined) {
+          path.unshift({ tupleIndex: -1 });
+        } else {
+          if (path.length > 1) {
+            // If it is a specific type in the union type, the previous -1 needs to be deleted
+            const removeIdx = path.findIndex((i) => i.tupleIndex === -1);
+            if (removeIdx !== -1) {
+              path.splice(removeIdx, 1);
+            }
+          }
+        }
+      }
     }
 
     function getNestedModel(
-      modelOrTuple: Model | Tuple | undefined,
+      modelOrTuple: Model | Tuple | Union | undefined,
       path: PathSeg[],
-    ): Model | undefined {
+    ): Model[] | undefined {
       let cur: Type | undefined = modelOrTuple;
+      const models: Model[] = [];
       for (const seg of path) {
         switch (cur?.kind) {
           case "Tuple":
@@ -2704,15 +2721,50 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
               cur = cur.templateMapper?.args[0] as Model;
             } else if (cur.name !== "Array" && seg.propertyName) {
               cur = cur.properties.get(seg.propertyName)?.type;
+              if (cur?.kind === "Model") {
+                const result = getNestedModel(cur, path);
+                if (result) {
+                  models.push(...result);
+                }
+              }
+            } else if (seg.tupleIndex === -1) {
+              for (const child of cur.properties.values()) {
+                if (child.type.kind === "Model") {
+                  const result = getNestedModel(child.type, path);
+                  if (result) {
+                    models.push(...result);
+                  }
+                }
+              }
             } else {
               return undefined;
+            }
+
+            break;
+          case "Union":
+            if (seg.tupleIndex === -1 || seg.propertyName) {
+              // seg.propertyName is empty and contains all,
+              // otherwise the value contains the model property corresponding to seg.propertyName
+              for (const variant of cur.variants.values()) {
+                if (variant.type.kind === "Model") {
+                  const result = getNestedModel(variant.type, path);
+                  if (result) {
+                    models.push(...result);
+                  }
+                }
+              }
             }
             break;
           default:
             return undefined;
         }
       }
-      return cur?.kind === "Model" ? cur : undefined;
+
+      if (cur?.kind === "Model") {
+        models.push(cur);
+      }
+
+      return models.length > 0 ? models : undefined;
     }
 
     function getReferencedTypeFromTemplateDeclaration(node: ModelOrArrayNode): Type | undefined {
@@ -2909,22 +2961,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return completions;
       }
       const curModelNode = ancestor.parent as ModelExpressionNode | ObjectLiteralNode;
-
-      for (const prop of walkPropertiesInherited(model)) {
-        if (
-          identifier.sv === prop.name ||
-          !curModelNode.properties.find(
-            (p) =>
-              (p.kind === SyntaxKind.ModelProperty ||
-                p.kind === SyntaxKind.ObjectLiteralProperty) &&
-              p.id.sv === prop.name,
-          )
-        ) {
-          const sym = getMemberSymbol(model.node!.symbol, prop.name);
-          if (sym) {
-            addCompletion(prop.name, sym);
-          }
+      if (Array.isArray(model)) {
+        for (const curModel of model) {
+          addInheritedPropertyCompletions(curModel, curModelNode);
         }
+      } else {
+        addInheritedPropertyCompletions(model, curModelNode);
       }
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
@@ -3003,6 +3045,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     return completions;
+
+    function addInheritedPropertyCompletions(
+      model: Model,
+      curModelNode: ModelExpressionNode | ObjectLiteralNode,
+    ) {
+      for (const prop of walkPropertiesInherited(model)) {
+        if (
+          identifier.sv === prop.name ||
+          !curModelNode.properties.find(
+            (p) =>
+              (p.kind === SyntaxKind.ModelProperty ||
+                p.kind === SyntaxKind.ObjectLiteralProperty) &&
+              p.id.sv === prop.name,
+          )
+        ) {
+          const sym = getMemberSymbol(model.node!.symbol, prop.name);
+          if (sym) {
+            addCompletion(prop.name, sym);
+          }
+        }
+      }
+    }
 
     function addCompletions(table: SymbolTable | undefined) {
       if (!table) {
