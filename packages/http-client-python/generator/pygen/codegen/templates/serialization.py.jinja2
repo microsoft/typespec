@@ -63,7 +63,6 @@ import isodate  # type: ignore
 
 from {{ code_model.core_library }}.exceptions import DeserializationError, SerializationError
 from {{ code_model.core_library }}.serialization import NULL as CoreNull
-from datetime import timezone
 
 _BOM = codecs.BOM_UTF8.decode(encoding="utf-8")
 
@@ -185,7 +184,7 @@ try:
 except NameError:
     _long_type = int
 
-TZ_UTC = timezone.utc
+TZ_UTC = datetime.timezone.utc
 
 _FLATTEN = re.compile(r"(?<!\\)\.")
 
@@ -1985,7 +1984,7 @@ class Deserializer:
         try:
             parsed_date = email.utils.parsedate_tz(attr)  # type: ignore
             date_obj = datetime.datetime(
-                *parsed_date[:6], tzinfo=timezone(datetime.timedelta(minutes=(parsed_date[9] or 0) / 60))
+                *parsed_date[:6], tzinfo=datetime.timezone(datetime.timedelta(minutes=(parsed_date[9] or 0) / 60))
             )
             if not date_obj.tzinfo:
                 date_obj = date_obj.astimezone(tz=TZ_UTC)
