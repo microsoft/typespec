@@ -5,6 +5,7 @@
 ### Other Changes
 
 - Add type annotations for initialized properties in msrest model inits
+- Remove Python2 specific datetime logic from internal serialization.
 
 ## 0.6.2
 

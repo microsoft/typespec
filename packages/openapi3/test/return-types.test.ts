@@ -1,9 +1,9 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { checkFor, openApiFor } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: return types", () => {
+worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor }) => {
   it("model used with @body and without shouldn't conflict if it contains no metadata", async () => {
     const res = await openApiFor(
       `
@@ -577,56 +577,6 @@ describe("openapi3: return types", () => {
     });
   });
 
-  describe("binary responses", () => {
-    it("bytes responses should default to application/json with byte format", async () => {
-      const res = await openApiFor(`
-        @get op read(): bytes;
-      `);
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["application/json"].schema.type, "string");
-      strictEqual(response.content["application/json"].schema.format, "byte");
-    });
-
-    it("@body body: bytes responses default to application/json with bytes format", async () => {
-      const res = await openApiFor(`
-        @get op read(): {@body body: bytes};
-      `);
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["application/json"].schema.type, "string");
-      strictEqual(response.content["application/json"].schema.format, "byte");
-    });
-
-    it("@header contentType text/plain should keep format to byte", async () => {
-      const res = await openApiFor(`
-        @get op read(): {@header contentType: "text/plain", @body body: bytes};
-      `);
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["text/plain"].schema.type, "string");
-      strictEqual(response.content["text/plain"].schema.format, "byte");
-    });
-
-    it("@header contentType not json or text should set format to binary", async () => {
-      const res = await openApiFor(`
-        @get op read(): {@header contentType: "image/png", @body body: bytes};
-      `);
-
-      const response = res.paths["/"].get.responses["200"];
-      ok(response);
-      ok(response.content);
-      strictEqual(response.content["image/png"].schema.type, "string");
-      strictEqual(response.content["image/png"].schema.format, "binary");
-    });
-  });
-
   describe("multiple responses", () => {
     it("handles multiple response types for the same status code", async () => {
       const res = await openApiFor(`
@@ -732,6 +682,115 @@ describe("openapi3: return types", () => {
           description: "An unexpected error response.",
         },
       });
+    });
+  });
+});
+
+worksFor(["3.0.0"], ({ openApiFor }) => {
+  describe("open api 3.0.0 binary responses", () => {
+    it("bytes responses should default to application/json with byte format", async () => {
+      const res = await openApiFor(`
+        @get op read(): bytes;
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["application/json"].schema.type, "string");
+      strictEqual(response.content["application/json"].schema.format, "byte");
+    });
+
+    it("@body body: bytes responses default to application/json with bytes format", async () => {
+      const res = await openApiFor(`
+        @get op read(): {@body body: bytes};
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["application/json"].schema.type, "string");
+      strictEqual(response.content["application/json"].schema.format, "byte");
+    });
+
+    it("@header contentType text/plain should keep format to byte", async () => {
+      const res = await openApiFor(`
+        @get op read(): {@header contentType: "text/plain", @body body: bytes};
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["text/plain"].schema.type, "string");
+      strictEqual(response.content["text/plain"].schema.format, "byte");
+    });
+
+    it("@header contentType not json or text should set format to binary", async () => {
+      const res = await openApiFor(`
+        @get op read(): {@header contentType: "image/png", @body body: bytes};
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      strictEqual(response.content["image/png"].schema.type, "string");
+      strictEqual(response.content["image/png"].schema.format, "binary");
+    });
+  });
+});
+
+worksFor(["3.1.0"], ({ openApiFor }) => {
+  describe("open api 3.1.0 binary responses", () => {
+    it("bytes responses should default to application/json with base64 contentEncoding", async () => {
+      const res = await openApiFor(`
+        @get op read(): bytes;
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      deepStrictEqual(response.content["application/json"].schema, {
+        type: "string",
+        contentEncoding: "base64",
+      });
+    });
+
+    it("@body body: bytes responses default to application/json with base64 contentEncoding", async () => {
+      const res = await openApiFor(`
+        @get op read(): {@body body: bytes};
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      deepStrictEqual(response.content["application/json"].schema, {
+        type: "string",
+        contentEncoding: "base64",
+      });
+    });
+
+    it("@header contentType text/plain should set contentEncoding to base64", async () => {
+      const res = await openApiFor(`
+        @get op read(): {@header contentType: "text/plain", @body body: bytes};
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      deepStrictEqual(response.content["text/plain"].schema, {
+        type: "string",
+        contentEncoding: "base64",
+      });
+    });
+
+    it("@header contentType not json or text should set contentMediaType", async () => {
+      const res = await openApiFor(`
+        @get op read(): {@header contentType: "image/png", @body body: bytes};
+      `);
+
+      const response = res.paths["/"].get.responses["200"];
+      ok(response);
+      ok(response.content);
+      deepStrictEqual(response.content["image/png"].schema, { contentMediaType: "image/png" });
     });
   });
 });
