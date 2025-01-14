@@ -57,7 +57,6 @@ versionPolicies:
       - "@typespec/xml"
   - name: python-client
     type: independent
-    step: patch
     packages:
       - "@typespec/http-client-python"
 
