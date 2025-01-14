@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.3
+
+### Other Changes
+
+- Add type annotations for initialized properties in msrest model inits
+
 ## 0.6.2
 
 ### Bug Fixes
