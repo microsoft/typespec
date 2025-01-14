@@ -8,7 +8,7 @@ import re
 from .imports import FileImport, ImportType, TypingSection
 from .base import BaseType
 from .model_type import ModelType
-from .utils import NamespaceType, OrderedSet
+from .utils import NamespaceType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -56,7 +56,7 @@ class CombinedType(BaseType):
         type_descriptions = list({t.type_description: None for t in self.types}.keys())
         if len(type_descriptions) == 2:
             return f"Is either a {type_descriptions[0]} type or a {type_descriptions[1]} type."
-        return f"Is one of the following types: {', '.join([t for t in type_descriptions])}"
+        return f"Is one of the following types: {', '.join(t for t in type_descriptions)}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return " or ".join(t.docstring_text(**kwargs) for t in self.types)
