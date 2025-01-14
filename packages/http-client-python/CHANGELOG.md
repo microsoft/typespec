@@ -8,6 +8,7 @@
 
 ### Other Changes
 
+- Add mypy typing to operation group inits
 - Remove Python2 specific datetime logic from internal serialization.
 
 ## 0.6.2
