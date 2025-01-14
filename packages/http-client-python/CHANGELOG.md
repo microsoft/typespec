@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+- Only import helpers for serialization if input body is not binary
 - Unify descriptions for credentials in documentation
 
 ### Other Changes
