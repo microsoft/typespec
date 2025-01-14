@@ -156,6 +156,8 @@ public class ClassType implements IType {
             put(TypeReference.class, new ClassDetails(TypeReference.class, "io.clientcore.core.models.TypeReference"));
             put(ClientLogger.class, new ClassDetails(ClientLogger.class, "io.clientcore.core.util.ClientLogger"));
             put(LogLevel.class, new ClassDetails(LogLevel.class, "io.clientcore.core.util.ClientLogger.LogLevel"));
+            put(com.azure.core.util.ServiceVersion.class, new ClassDetails(com.azure.core.util.ServiceVersion.class,
+                "io.clientcore.core.http.models.ServiceVersion"));
         }
     };
 
@@ -483,7 +485,7 @@ public class ClassType implements IType {
     public static final ClassType CONFIGURATION = getClassTypeBuilder(Configuration.class).build();
 
     public static final ClassType SERVICE_VERSION
-        = new ClassType.Builder(false).knownClass(ServiceVersion.class).build();
+        = getClassTypeBuilder(com.azure.core.util.ServiceVersion.class).build();
 
     public static final ClassType AZURE_KEY_CREDENTIAL
         = new ClassType.Builder(false).knownClass(AzureKeyCredential.class).build();
