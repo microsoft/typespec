@@ -14,7 +14,6 @@ $azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azu
 $cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 
 $cadlRanchRootHttp = Join-Path $cadlRanchRoot 'http'
 $directories = Get-ChildItem -Path "$cadlRanchRootHttp" -Directory -Recurse
-$cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
 
@@ -46,7 +45,7 @@ foreach ($directory in $directories) {
           $testFilter += "._$segment"
           $testPath = Join-Path $testPath "_$segment"
         }
-        else{
+        else {
           $testFilter += ".$segment"
           $testPath = Join-Path $testPath $segment
         }
@@ -87,7 +86,14 @@ foreach ($directory in $directories) {
     }
 
     Write-Host "Testing $subPath" -ForegroundColor Cyan
-    $command  = "dotnet test $cadlRanchCsproj --filter `"FullyQualifiedName~$testFilter`""
+    # find the test csproj file
+    $csprojFiles = Get-ChildItem -Path $testPath -Filter "*.csproj"
+    if ($csprojFiles.Count -ne 1) {
+        Write-Host "Expected to find exactly one csproj file in $testPath, but found $($csprojFiles.Count)" -ForegroundColor Red
+        exit 1
+    }
+    $testCsproj = $csprojFiles[0].FullName
+    $command = "dotnet test $testCsproj"
     Invoke $command
     # exit if the testing failed
     if ($LASTEXITCODE -ne 0) {
