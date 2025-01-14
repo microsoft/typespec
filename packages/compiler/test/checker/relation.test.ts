@@ -254,6 +254,7 @@ describe("compiler: checker: type relations", () => {
       "numeric",
       "float",
       "Record<string>",
+      "Map<string, string>",
       "bytes",
       "duration",
       "plainDate",
@@ -290,6 +291,7 @@ describe("compiler: checker: type relations", () => {
       "numeric",
       "float",
       "Record<string>",
+      "Map<string, string>",
       "bytes",
       "duration",
       "plainDate",
@@ -851,6 +853,97 @@ describe("compiler: checker: type relations", () => {
     it("emit diagnostic if some properties are different type", async () => {
       await expectTypeNotAssignable(
         { source: `{foo: string, bar: int32}`, target: "Record<string>" },
+        {
+          code: "unassignable",
+          message: "Type 'int32' is not assignable to type 'string'",
+        },
+      );
+    });
+  });
+
+  describe("Map<x, y> target", () => {
+    ["Map<string, integer>"].forEach((x) => {
+      it(`can assign ${x}`, async () => {
+        await expectTypeAssignable({ source: x, target: "Map<string, integer>" });
+      });
+    });
+
+    it("can assign empty object", async () => {
+      await expectTypeAssignable({ source: "{}", target: "Map<string, string>" });
+    });
+
+    it("can assign object with property being the same type", async () => {
+      await expectTypeAssignable({ source: "{foo: string}", target: "Map<string, string>" });
+      await expectTypeAssignable({
+        source: "{foo: string, bar: string}",
+        target: "Map<string, string>",
+      });
+    });
+
+    it("can assign object with property being the of subtype type", async () => {
+      await expectTypeAssignable({ source: "{foo: int32}", target: "Map<string, numeric>" });
+      await expectTypeAssignable({
+        source: "{foo: float, bar: int64}",
+        target: "Map<string, numeric>",
+      });
+    });
+
+    it("can assign a map of subtypes", async () => {
+      await expectTypeAssignable({ source: "Map<string, int32>", target: "Map<string, numeric>" });
+    });
+
+    it("can assign object that implement the same indexer", async () => {
+      await expectTypeAssignable({
+        source: "Foo",
+        target: "Map<string, string>",
+        commonCode: `
+        model Foo is Map<string, string> {
+          prop1: string;
+          prop2: string;
+        }
+      `,
+      });
+    });
+
+    it("type with spread indexer allow other properties to no match index", async () => {
+      await expectTypeAssignable({
+        source: "{age: int32, other: string}",
+        target: "Foo",
+        commonCode: `
+        model Foo {
+          age: int32;
+          ...Map<string, string>;
+        }
+      `,
+      });
+    });
+
+    it("emit diagnostic assigning other type", async () => {
+      await expectTypeNotAssignable(
+        { source: `string`, target: "Map<string, string>" },
+        {
+          code: "unassignable",
+          message: "Type 'string' is not assignable to type 'Map<string, string>'",
+        },
+      );
+    });
+
+    it("emit diagnostic assigning Map of incompatible type", async () => {
+      await expectTypeNotAssignable(
+        { source: `Map<string, int32>`, target: "Map<string, string>" },
+        {
+          code: "unassignable",
+          message: [
+            `Type 'Map<string, int32>' is not assignable to type 'Map<string, string>'`,
+            "  Type 'int32' is not assignable to type 'string'",
+          ].join("\n"),
+        },
+      );
+    });
+
+    it("emit diagnostic if some properties are different type", async () => {
+      await expectTypeNotAssignable(
+        { source: `{foo: string, bar: int32}`, target: "Map<string, string>" },
         {
           code: "unassignable",
           message: "Type 'int32' is not assignable to type 'string'",
