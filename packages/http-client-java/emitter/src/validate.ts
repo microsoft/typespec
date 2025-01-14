@@ -24,7 +24,7 @@ export async function validateDependencies(
         // // eslint-disable-next-line no-console
         // console.log("[ERROR] " + message);
         if (program && logDiagnostic) {
-          logError(program, message);
+          logError(program, message, "invalid-runtime-dependency");
         }
       }
     }
@@ -36,7 +36,7 @@ export async function validateDependencies(
     // // eslint-disable-next-line no-console
     // console.log("[ERROR] " + message);
     if (program && logDiagnostic) {
-      logError(program, message);
+      logError(program, message, "invalid-runtime-dependency");
     }
   }
 
@@ -60,7 +60,7 @@ export async function validateDependencies(
     // // eslint-disable-next-line no-console
     // console.log("[ERROR] " + message);
     if (program && logDiagnostic) {
-      logError(program, message);
+      logError(program, message, "invalid-runtime-dependency");
     }
   }
 }

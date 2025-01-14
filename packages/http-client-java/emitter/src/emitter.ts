@@ -193,7 +193,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         program.trace("http-client-java", `Code generation log: ${result.stdout}`);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
-          logError(program, JDK_NOT_FOUND_MESSAGE);
+          logError(program, JDK_NOT_FOUND_MESSAGE, "invalid-runtime-dependency");
         } else {
           logError(
             program,
