@@ -197,6 +197,10 @@ class KeyCredentialType(CredentialType[KeyCredentialPolicyType]):
 
     def type_annotation(self, **kwargs: Any) -> str:
         return self.policy.credential_name
+    
+    @property
+    def type_description(self) -> str:
+        return "key credential"
 
     @property
     def instance_check_template(self) -> str:
