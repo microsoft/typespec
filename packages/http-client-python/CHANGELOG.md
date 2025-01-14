@@ -2,6 +2,10 @@
 
 ## 0.6.3
 
+### Bug Fixes
+
+- Only import helpers for serialization if input body is not binary
+
 ### Other Changes
 
 - Remove Python2 specific datetime logic from internal serialization.
