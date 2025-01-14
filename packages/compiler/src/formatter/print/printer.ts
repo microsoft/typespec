@@ -1920,7 +1920,7 @@ export function printStringTemplateExpression(
   }
 }
 
-function splitLines(text: string): string[] {
+export function splitLines(text: string): string[] {
   const lines = [];
   let start = 0;
   let pos = 0;
