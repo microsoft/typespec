@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.3
+
+### Other Changes
+
+- Remove Python2 specific datetime logic from internal serialization.
+
 ## 0.6.2
 
 ### Bug Fixes
