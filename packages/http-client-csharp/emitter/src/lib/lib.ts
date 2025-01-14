@@ -50,6 +50,12 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
+    "bad-namespace": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`bad namespace ${"clientNamespace"} for client ${"clientName"}, please use @clientName to specify a different name for the client.`,
+      }
+    }
   },
   emitter: {
     options: NetEmitterOptionsSchema,

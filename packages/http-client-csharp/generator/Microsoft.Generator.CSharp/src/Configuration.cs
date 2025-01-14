@@ -13,12 +13,11 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public class Configuration
     {
-        private static readonly string[] _badBuiltInNamespaceSegments =
+        private static readonly string[] _badNamespaceSegments =
         [
             "Type",
             "Array",
             "Enum",
-            "ClientModel", // segment of `System.ClientModel`
         ];
 
         internal enum UnreferencedTypesHandlingOption
@@ -39,7 +38,6 @@ namespace Microsoft.Generator.CSharp
             LibraryName = null!;
             RootNamespace = null!;
             ModelNamespace = null!;
-            BadNamespaceSegements = null!;
         }
 
         private Configuration(
@@ -52,13 +50,11 @@ namespace Microsoft.Generator.CSharp
             string libraryName,
             bool useModelNamespace,
             string libraryNamespace,
-            IReadOnlyList<string> badNamespaceSegments,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling)
         {
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
-            BadNamespaceSegements = [.._badBuiltInNamespaceSegments ,..badNamespaceSegments];
             ClearOutputFolder = clearOutputFolder;
             GenerateModelFactory = generateModelFactory;
             GenerateSampleProject = generateSampleProject;
@@ -104,9 +100,9 @@ namespace Microsoft.Generator.CSharp
 
         private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
         {
-            for (int i = 0; i < BadNamespaceSegements.Count; i++)
+            for (int i = 0; i < _badNamespaceSegments.Length; i++)
             {
-                if (readOnlySpan.Equals(BadNamespaceSegements[i], StringComparison.Ordinal))
+                if (readOnlySpan.Equals(_badNamespaceSegments[i], StringComparison.Ordinal))
                 {
                     return true;
                 }
@@ -148,8 +144,6 @@ namespace Microsoft.Generator.CSharp
         /// Gets whether XML docs are disabled.
         /// </summary>
         public bool DisableXmlDocs { get; }
-
-        internal IReadOnlyList<string> BadNamespaceSegements { get; }
 
         /// <summary> Gets the root namespace for the library. </summary>
         public string RootNamespace { get; }
@@ -230,7 +224,6 @@ namespace Microsoft.Generator.CSharp
                 ReadRequiredStringOption(root, Options.LibraryName),
                 ReadOption(root, Options.UseModelNamespace),
                 ReadRequiredStringOption(root, Options.Namespace),
-                ReadStringArrayOption(root, Options.BadNamespaceSegments),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling));
         }

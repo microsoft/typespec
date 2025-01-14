@@ -27,7 +27,7 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): [CodeModel, string[]] {
+export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -43,7 +43,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): [CodeMod
   const rootClients = sdkPackage.clients.filter((c) => c.initialization.access === "public");
   if (rootClients.length === 0) {
     reportDiagnostic(sdkContext.program, { code: "no-root-client", format: {}, target: NoTarget });
-    return [{} as CodeModel, []];
+    return {} as CodeModel;
   }
 
   const rootApiVersions =
@@ -52,9 +52,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): [CodeMod
       : rootClients[0].apiVersions;
 
   // this is a set tracking the bad namespace segments
-  const badNamespaceSegments = new Set<string>();
   const inputClients: InputClient[] = [];
-  fromSdkClients(rootClients, inputClients, [], badNamespaceSegments);
+  fromSdkClients(sdkContext, rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
@@ -65,30 +64,30 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): [CodeMod
     Auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
 
-  return [clientModel, [...badNamespaceSegments]];
+  return clientModel;
 
   function fromSdkClients(
+    sdkContext: SdkContext<NetEmitterOptions>,
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
-    badNamespaceSegments: Set<string>,
   ) {
     for (const client of clients) {
-      const inputClient = fromSdkClient(client, parentClientNames, badNamespaceSegments);
+      const inputClient = fromSdkClient(sdkContext, client, parentClientNames);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames, badNamespaceSegments);
+      fromSdkClients(sdkContext, subClients, inputClients, parentClientNames);
       parentClientNames.pop();
     }
   }
 
   function fromSdkClient(
+    sdkContext: SdkContext<NetEmitterOptions>,
     client: SdkClientType<SdkHttpOperation>,
     parentNames: string[],
-    badNamespaceSegments: Set<string>,
   ): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint",
@@ -101,12 +100,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): [CodeMod
     const lastSegment = segments[segments.length - 1];
     if (lastSegment === clientName) {
       // this segment is bad
-      badNamespaceSegments.add(lastSegment);
-      
-      Logger.getInstance().warn(
-        `bad namespace ${client.clientNamespace} for client ${clientName}, please use @clientNamespace to specify a different namespace or @clientName to specify a different name for the client`,
-        client.__raw.type,
-      );
+      reportDiagnostic(sdkContext.program, {
+        code: "bad-namespace",
+        format: { clientNamespace: client.clientNamespace, clientName },
+        target: client.__raw.type ?? NoTarget,
+      });
     }
 
     return {
