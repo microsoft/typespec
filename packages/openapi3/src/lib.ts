@@ -121,9 +121,11 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         type: "string",
         enum: ["3.0.0", "3.1.0"],
         nullable: true,
-        description: "The versions of OpenAPI to emit. Defaults to `v3.0`",
+        description: "The versions of OpenAPI to emit. Defaults to `3.0.0`",
       },
       nullable: true,
+      uniqueItems: true,
+      minItems: 1,
     },
     "new-line": {
       type: "string",
