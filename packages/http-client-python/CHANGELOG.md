@@ -2,8 +2,13 @@
 
 ## 0.6.3
 
+### Bug Fixes
+
+- Unify descriptions for credentials in documentation
+
 ### Other Changes
 
+- Add mypy typing to operation group inits
 - Remove Python2 specific datetime logic from internal serialization.
 
 ## 0.6.2
