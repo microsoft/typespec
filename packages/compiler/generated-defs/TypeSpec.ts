@@ -927,9 +927,12 @@ export type WithVisibilityDecorator = (
 ) => void;
 
 /**
- * Sets which visibilities apply to parameters for the given operation.
+ * Declares the visibility constraint of the parameters of a given operation.
  *
- * @param visibilities List of visibility strings which apply to this operation.
+ * A parameter or property nested within a parameter will be visible if it has _any_ of the visibilities
+ * in the list, or if the list is empty (in which case the parameter or property is always visible).
+ *
+ * @param visibilities List of visibility modifiers that apply to the parameters of this operation.
  */
 export type ParameterVisibilityDecorator = (
   context: DecoratorContext,
@@ -938,9 +941,12 @@ export type ParameterVisibilityDecorator = (
 ) => void;
 
 /**
- * Sets which visibilities apply to the return type for the given operation.
+ * Declares the visibility constraint of the return type of a given operation.
  *
- * @param visibilities List of visibility strings which apply to this operation.
+ * A property within the return type of the operation will be visible if it has _any_ of the visibilities
+ * in the list, or if the list is empty (in which case the property is always visible).
+ *
+ * @param visibilities List of visibility modifiers that apply to the return type of this operation.
  */
 export type ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
