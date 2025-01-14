@@ -54,7 +54,6 @@ $failingSpecs = @(
     Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'templated'
-    # Join-Path 'http' 'client' 'naming'
     Join-Path 'http' 'parameters' 'spread'
     Join-Path 'http' 'resiliency' 'srv-driven' 'v2'
     Join-Path 'http' 'special-words'
