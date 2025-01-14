@@ -819,13 +819,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("res.getBody(),");
                 function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                     .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+                // continuation token
+                function.line("null,");
+                // next link
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                     String nextLinkLine = nextLinkLine(clientMethod);
                     nextLinkLine = nextLinkLine.substring(0, nextLinkLine.length() - 1);
-                    function.line(nextLinkLine + ");");
+                    function.line(nextLinkLine + ",");
                 } else {
-                    function.line("null);");
+                    function.line("null,");
                 }
+                // previous link, first link, last link
+                function.line("null,null,null);");
             }
         });
     }
@@ -1584,9 +1589,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
-            Optional<String> serializedName
+            Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
-            if (serializedName.isPresent()) {
+            if (maxPageSizeSerializedName.isPresent() && settings.isBranded()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
                 expression.append("(pageSize) -> {");
@@ -1596,7 +1601,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
                     .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
                     .append("    urlBuilder.setQueryParameter(\"")
-                    .append(serializedName.get())
+                    .append(maxPageSizeSerializedName.get())
                     .append("\", String.valueOf(pageSize));")
                     .append("    requestLocal.setUrl(urlBuilder.toString());")
                     .append("  });")
@@ -1607,15 +1612,20 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        return String.format("() -> %s(%s)", methodName, argumentLine);
+        String lambdaParameters = "";
+        if (!settings.isBranded()) {
+            lambdaParameters = "pagingOptions";
+        }
+
+        return String.format("(%s) -> %s(%s)", lambdaParameters, methodName, argumentLine);
     }
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
-            Optional<String> serializedName
+            Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
-            if (serializedName.isPresent()) {
+            if (maxPageSizeSerializedName.isPresent() && settings.isBranded()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
                 expression.append("(nextLink, pageSize) -> {");
@@ -1625,7 +1635,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
                     .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
                     .append("    urlBuilder.setQueryParameter(\"")
-                    .append(serializedName.get())
+                    .append(maxPageSizeSerializedName.get())
                     .append("\", String.valueOf(pageSize));")
                     .append("    requestLocal.setUrl(urlBuilder.toString());")
                     .append("  });")
@@ -1636,10 +1646,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
+        String lambdaParameters = "nextLink";
+        if (!settings.isBranded()) {
+            lambdaParameters = "(pagingOptions, nextLink)";
+        }
+
         if (settings.isDataPlaneClient()) {
             argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
         }
-        return String.format("nextLink -> %s(%s)", methodName, argumentLine);
+
+        return String.format("%s -> %s(%s)", lambdaParameters, methodName, argumentLine);
     }
 
     private String getPollingStrategy(ClientMethod clientMethod, String contextParam) {
