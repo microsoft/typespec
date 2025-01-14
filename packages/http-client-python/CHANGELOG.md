@@ -8,6 +8,7 @@
 
 ### Other Changes
 
+- Add type annotations for initialized properties in msrest model inits
 - Add mypy typing to operation group inits
 - Remove Python2 specific datetime logic from internal serialization.
 
