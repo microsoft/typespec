@@ -80,20 +80,18 @@ import {
   getParameterKey,
   getTagsMetadata,
   isReadonlyProperty,
-  resolveInfo,
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
 import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
-import { applyEncoding } from "./encoding.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
-import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
-import { getDefaultValue, isBytesKeptRaw, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
+import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
+import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
-  OpenAPI3Document,
   OpenAPI3Encoding,
   OpenAPI3Header,
   OpenAPI3MediaType,
@@ -111,9 +109,17 @@ import {
   OpenAPI3StatusCode,
   OpenAPI3Tag,
   OpenAPI3VersionedServiceRecord,
+  OpenAPISchema3_1,
   Refable,
+  SupportedOpenAPIDocuments,
 } from "./types.js";
-import { deepEquals, isSharedHttpOperation, SharedHttpOperation } from "./util.js";
+import {
+  deepEquals,
+  getDefaultValue,
+  isBytesKeptRaw,
+  isSharedHttpOperation,
+  SharedHttpOperation,
+} from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
 
@@ -127,8 +133,10 @@ const defaultOptions = {
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
-  const emitter = createOAPIEmitter(context, options);
-  await emitter.emitOpenAPI();
+  for (const specVersion of options.openapiVersions) {
+    const emitter = createOAPIEmitter(context, options, specVersion);
+    await emitter.emitOpenAPI();
+  }
 }
 
 type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
@@ -158,8 +166,12 @@ export async function getOpenAPI3(
   };
 
   const resolvedOptions = resolveOptions(context);
-  const emitter = createOAPIEmitter(context, resolvedOptions);
-  return emitter.getOpenAPI();
+  const serviceRecords: OpenAPI3ServiceRecord[] = [];
+  for (const specVersion of resolvedOptions.openapiVersions) {
+    const emitter = createOAPIEmitter(context, resolvedOptions, specVersion);
+    serviceRecords.push(...(await emitter.getOpenAPI()));
+  }
+  return serviceRecords;
 }
 
 function findFileTypeFromFilename(filename: string | undefined): FileType {
@@ -186,19 +198,26 @@ export function resolveOptions(
 
   const outputFile =
     resolvedOptions["output-file"] ?? `openapi.{service-name}.{version}.${fileType}`;
+
+  const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
+
+  const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
+
   return {
     fileType,
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     includeXTypeSpecName: resolvedOptions["include-x-typespec-name"],
     safeintStrategy: resolvedOptions["safeint-strategy"],
-    outputFile: resolvePath(context.emitterOutputDir, outputFile),
+    outputFile: resolvePath(context.emitterOutputDir, specDir, outputFile),
+    openapiVersions,
   };
 }
 
 export interface ResolvedOpenAPI3EmitterOptions {
   fileType: FileType;
   outputFile: string;
+  openapiVersions: OpenAPIVersion[];
   newLine: NewLine;
   omitUnreachableTypes: boolean;
   includeXTypeSpecName: "inline-only" | "never";
@@ -208,11 +227,19 @@ export interface ResolvedOpenAPI3EmitterOptions {
 function createOAPIEmitter(
   context: EmitContext<OpenAPI3EmitterOptions>,
   options: ResolvedOpenAPI3EmitterOptions,
+  specVersion: OpenAPIVersion = "3.0.0",
 ) {
+  const {
+    applyEncoding,
+    createRootDoc,
+    createSchemaEmitter,
+    getRawBinarySchema,
+    isRawBinarySchema,
+  } = getOpenApiSpecProps(specVersion);
   let program = context.program;
-  let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
+  let schemaEmitter: AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
-  let root: OpenAPI3Document;
+  let root: SupportedOpenAPIDocuments;
   let diagnostics: DiagnosticCollector;
   let currentService: Service;
   let serviceAuth: HttpServiceAuthentication;
@@ -290,7 +317,7 @@ function createOAPIEmitter(
     service: Service,
     allHttpAuthentications: HttpAuth[],
     defaultAuth: AuthenticationReference,
-    xmlModule: XmlModule | undefined,
+    optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
     version?: string,
   ) {
     diagnostics = createDiagnosticCollector();
@@ -306,40 +333,23 @@ function createOAPIEmitter(
       options.omitUnreachableTypes,
     );
 
-    schemaEmitter = createAssetEmitter(
+    schemaEmitter = createSchemaEmitter({
       program,
-      class extends OpenAPI3SchemaEmitter {
-        constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-          super(emitter, metadataInfo, visibilityUsage, options, xmlModule);
-        }
-      } as any,
       context,
-    );
+      metadataInfo,
+      visibilityUsage,
+      options,
+      optionalDependencies,
+    });
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
     const security = getOpenAPISecurity(defaultAuth);
 
-    const info = resolveInfo(program, service.type);
-    root = {
-      openapi: "3.0.0",
-      info: {
-        title: "(title)",
-        ...info,
-        version: version ?? info?.version ?? "0.0.0",
-      },
-      externalDocs: getExternalDocs(program, service.type),
-      tags: [],
-      paths: {},
-      security: security.length > 0 ? security : undefined,
-      components: {
-        parameters: {},
-        requestBodies: {},
-        responses: {},
-        schemas: {},
-        examples: {},
-        securitySchemes: securitySchemes,
-      },
-    };
+    root = createRootDoc(program, service.type, version);
+    if (security.length > 0) {
+      root.security = security;
+    }
+    root.components!.securitySchemes = securitySchemes;
 
     const servers = getServers(program, service.type);
     if (servers) {
@@ -515,6 +525,7 @@ function createOAPIEmitter(
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     return interpolatePath(options.outputFile, {
+      "openapi-version": specVersion,
       "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
       version,
     });
@@ -627,13 +638,20 @@ function createOAPIEmitter(
   async function getOpenApiFromVersion(
     service: Service,
     version?: string,
-  ): Promise<[OpenAPI3Document, Readonly<Diagnostic[]>] | undefined> {
+  ): Promise<[SupportedOpenAPIDocuments, Readonly<Diagnostic[]>] | undefined> {
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       const auth = (serviceAuth = resolveAuthentication(httpService));
 
       const xmlModule = await resolveXmlModule();
-      initializeEmitter(service, auth.schemes, auth.defaultAuth, xmlModule, version);
+      const jsonSchemaModule = await resolveJsonSchemaModule();
+      initializeEmitter(
+        service,
+        auth.schemes,
+        auth.defaultAuth,
+        { xmlModule, jsonSchemaModule },
+        version,
+      );
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {
@@ -1079,7 +1097,7 @@ function createOAPIEmitter(
   ): OpenAPI3MediaType {
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
-      return { schema: { type: "string", format: "binary" } };
+      return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
     }
 
     const oai3Examples = examples && getExampleOrExamples(program, examples);
@@ -1128,7 +1146,7 @@ function createOAPIEmitter(
     for (const [partIndex, part] of body.parts.entries()) {
       const partName = part.name ?? `part${partIndex}`;
       let schema = isBytesKeptRaw(program, part.body.type)
-        ? { type: "string", format: "binary" }
+        ? getRawBinarySchema()
         : getSchemaForSingleBody(
             part.body.type,
             visibility,
@@ -1218,10 +1236,8 @@ function createOAPIEmitter(
         return schema.type === "string" || schema.type === "number";
       case "application/octet-stream":
         return (
-          (schema.type === "string" && schema.format === "binary") ||
-          (schema.type === "array" &&
-            (schema.items as any)?.type === "string" &&
-            (schema.items as any)?.format === "binary")
+          isRawBinarySchema(schema) ||
+          (schema.type === "array" && !!schema.items && isRawBinarySchema(schema.items as any))
         );
       case "application/json":
         return schema.type === "object";
@@ -1834,7 +1850,7 @@ function createOAPIEmitter(
   }
 }
 
-function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
+function serializeDocument(root: SupportedOpenAPIDocuments, fileType: FileType): string {
   sortOpenAPIDocument(root);
   switch (fileType) {
     case "json":
@@ -1868,7 +1884,7 @@ function sortObjectByKeys<T extends Record<string, unknown>>(obj: T): T {
     }, {});
 }
 
-function sortOpenAPIDocument(doc: OpenAPI3Document): void {
+function sortOpenAPIDocument(doc: SupportedOpenAPIDocuments): void {
   doc.paths = sortObjectByKeys(doc.paths);
   if (doc.components?.schemas) {
     doc.components.schemas = sortObjectByKeys(doc.components.schemas);
