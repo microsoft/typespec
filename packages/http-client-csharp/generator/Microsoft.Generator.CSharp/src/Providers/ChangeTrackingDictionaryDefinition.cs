@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override string BuildName() => "ChangeTrackingDictionary";
+        protected override string BuildNameCore() => "ChangeTrackingDictionary";
 
         protected override CSharpType[] GetTypeArguments()
         {

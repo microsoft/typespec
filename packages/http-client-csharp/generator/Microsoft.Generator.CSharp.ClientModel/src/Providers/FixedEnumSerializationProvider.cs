@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _enumProvider = enumProvider;
         }
 
-        protected override string GetNamespace() => _enumProvider.Type.Namespace;
+        protected override string BuildNamespaceCore() => _enumProvider.Type.Namespace;
         protected override TypeSignatureModifiers GetDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
@@ -38,7 +38,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return Path.Combine("src", "Generated", "Models", $"{_enumProvider.Name}.Serialization.cs");
         }
 
-        protected override string BuildName() => $"{_enumProvider.Name}Extensions";
+        protected override string BuildNameCore() => $"{_enumProvider.Name}Extensions";
 
         /// <summary>
         /// Returns if this enum type needs an extension method for serialization

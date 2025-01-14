@@ -252,7 +252,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
 
             protected override string BuildRelativeFilePath() => ".";
 
-            protected override string BuildName() => "MockInputClient";
+            protected override string BuildNameCore() => "MockInputClient";
 
             protected override MethodProvider[] BuildMethods() => MethodProviders;
 

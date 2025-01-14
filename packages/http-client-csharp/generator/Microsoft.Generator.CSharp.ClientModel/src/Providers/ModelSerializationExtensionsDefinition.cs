@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override string BuildName() => "ModelSerializationExtensions";
+        protected override string BuildNameCore() => "ModelSerializationExtensions";
 
         protected override FieldProvider[] BuildFields()
         {

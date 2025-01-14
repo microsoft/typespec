@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override string BuildName() => "ClientUriBuilder";
+        protected override string BuildNameCore() => "ClientUriBuilder";
 
         protected override FieldProvider[] BuildFields()
         {

@@ -33,9 +33,9 @@ namespace Microsoft.Generator.CSharp.Providers
         }
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
-        protected override string BuildName() => _generatedTypeProvider.Name;
+        protected override string BuildNameCore() => _generatedTypeProvider.Name;
 
-        protected override string GetNamespace() => _generatedTypeProvider.Namespace;
+        protected override string BuildNamespaceCore() => _generatedTypeProvider.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 

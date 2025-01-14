@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _isNotEqualToWireConditionSnippet = _mrwOptionsParameterSnippet.Format().NotEqual(ModelReaderWriterOptionsSnippets.WireFormat);
         }
 
-        protected override string GetNamespace() => _model.Type.Namespace;
+        protected override string BuildNamespaceCore() => _model.Type.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
         private ConstructorProvider SerializationConstructor => _serializationConstructor ??= _model.FullConstructor;
@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToCleanName();
+        protected override string BuildNameCore() => _inputModel.Name.ToCleanName();
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {

@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override string BuildName() => "Argument";
+        protected override string BuildNameCore() => "Argument";
 
         protected override MethodProvider[] BuildMethods()
         {

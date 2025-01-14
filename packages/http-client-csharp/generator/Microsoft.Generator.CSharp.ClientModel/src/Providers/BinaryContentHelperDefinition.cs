@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private readonly MethodSignatureModifiers _methodModifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static;
 
-        protected override string BuildName() => "BinaryContentHelper";
+        protected override string BuildNameCore() => "BinaryContentHelper";
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

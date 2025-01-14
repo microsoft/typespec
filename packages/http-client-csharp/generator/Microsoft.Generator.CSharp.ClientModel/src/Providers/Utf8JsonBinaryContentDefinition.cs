@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override string BuildName() => "Utf8JsonBinaryContent";
+        protected override string BuildNameCore() => "Utf8JsonBinaryContent";
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             {
             }
 
-            protected override string BuildName() => "ProviderWithAttributes";
+            protected override string BuildNameCore() => "ProviderWithAttributes";
 
             protected override string BuildRelativeFilePath() => ".";
 

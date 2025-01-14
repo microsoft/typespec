@@ -65,7 +65,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         {
             protected override string BuildRelativeFilePath() => ".";
 
-            protected override string BuildName() => "Model";
+            protected override string BuildNameCore() => "Model";
 
             protected override CSharpType[] BuildImplements()
             {

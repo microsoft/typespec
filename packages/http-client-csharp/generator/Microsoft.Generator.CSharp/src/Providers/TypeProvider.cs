@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
-            => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
+            => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespaceCore(), BuildNameCore());
 
         public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
 
@@ -86,11 +86,11 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _relativeFilePath;
 
-        public string Name => _name ??= CustomCodeView?.Name ?? BuildName();
+        public string Name => _name ??= CustomCodeView?.Name ?? BuildNameCore();
 
         private string? _name;
 
-        public string Namespace => _namespace ??= GetNamespace();
+        public string Namespace => _namespace ??= BuildNamespaceCore();
         private string? _namespace;
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
@@ -112,14 +112,14 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            CustomCodeView?.GetNamespace() ?? GetNamespace(),
+            CustomCodeView?.BuildNamespaceCore() ?? BuildNamespaceCore(),
             GetTypeArguments(),
             GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
 
-        protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
+        protected virtual string BuildNamespaceCore() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
 
@@ -319,7 +319,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         protected abstract string BuildRelativeFilePath();
-        protected abstract string BuildName();
+        protected abstract string BuildNameCore();
 
         public void Update(
             IEnumerable<MethodProvider>? methods = null,

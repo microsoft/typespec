@@ -55,9 +55,9 @@ namespace Microsoft.Generator.CSharp.Tests.PostProcessing
 
             protected override string BuildRelativeFilePath() => "TypeUsingSharedSourceType.cs";
 
-            protected override string BuildName() => "TypeUsingSharedSourceType";
+            protected override string BuildNameCore() => "TypeUsingSharedSourceType";
 
-            protected override string GetNamespace() => "Sample.Models";
+            protected override string BuildNamespaceCore() => "Sample.Models";
         }
     }
 }

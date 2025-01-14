@@ -11,7 +11,7 @@ namespace Microsoft.Generator.CSharp.Tests
         private readonly TypeSignatureModifiers? _declarationModifiers;
         protected override string BuildRelativeFilePath() => $"{Name}.cs";
 
-        protected override string BuildName() => "TestName";
+        protected override string BuildNameCore() => "TestName";
 
         public static readonly TypeProvider Empty = new TestTypeProvider();
 

@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
-        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+        protected override string BuildNamespaceCore() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override CSharpType? GetBaseType()
         {
@@ -100,7 +100,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputModel.Name.ToCleanName();
+        protected override string BuildNameCore() => _inputModel.Name.ToCleanName();
 
         protected override TypeSignatureModifiers GetDeclarationModifiers()
         {
