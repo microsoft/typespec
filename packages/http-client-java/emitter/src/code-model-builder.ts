@@ -1068,7 +1068,6 @@ export class CodeModelBuilder {
           lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
           lroMetadata.finalResponse.resultPath
         ) {
-          // final result is the value in lroMetadata.finalStep.target
           const finalResultPropertyClientName = lroMetadata.finalResponse.resultPath;
 
           // find serializedName for lro result
