@@ -1070,6 +1070,8 @@ export class CodeModelBuilder {
         ) {
           // final result is the value in lroMetadata.finalStep.target
           const finalResultPropertyClientName = lroMetadata.finalResponse.resultPath;
+
+          // find serializedName for lro result
           if (finalResultPropertyClientName) {
             lroMetadata.finalResponse.envelopeResult.properties?.forEach((p) => {
               // TODO: "p.__raw?.name" should be "p.name", after TCGC fix https://github.com/Azure/typespec-azure/issues/2072
