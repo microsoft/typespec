@@ -37,7 +37,6 @@ namespace Microsoft.Generator.CSharp
             AdditionalConfigOptions = null!;
             LibraryName = null!;
             RootNamespace = null!;
-            ModelNamespace = null!;
         }
 
         private Configuration(
@@ -48,7 +47,6 @@ namespace Microsoft.Generator.CSharp
             bool generateSampleProject,
             bool generateTestProject,
             string libraryName,
-            bool useModelNamespace,
             string libraryNamespace,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling)
@@ -60,9 +58,7 @@ namespace Microsoft.Generator.CSharp
             GenerateSampleProject = generateSampleProject;
             GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
-            UseModelNamespace = useModelNamespace;
             RootNamespace = GetCleanNameSpace(libraryNamespace);
-            ModelNamespace = useModelNamespace ? $"{RootNamespace}.Models" : RootNamespace;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
         }
@@ -148,9 +144,6 @@ namespace Microsoft.Generator.CSharp
         /// <summary> Gets the root namespace for the library. </summary>
         public string RootNamespace { get; }
 
-        /// <summary> Gets the namespace for the models. </summary>
-        public string ModelNamespace { get; }
-
         internal string OutputDirectory { get; }
 
         internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
@@ -194,11 +187,6 @@ namespace Microsoft.Generator.CSharp
         public Dictionary<string, BinaryData> AdditionalConfigOptions { get; }
 
         /// <summary>
-        /// True if the models contain a separate namespace.
-        /// </summary>
-        internal bool UseModelNamespace { get; private set; }
-
-        /// <summary>
         /// Initializes the configuration from the given path to the configuration file.
         /// </summary>
         /// <param name="outputPath">The path to the configuration JSON file.</param>
@@ -222,7 +210,6 @@ namespace Microsoft.Generator.CSharp
                 ReadOption(root, Options.GenerateSampleProject),
                 ReadOption(root, Options.GenerateTestProject),
                 ReadRequiredStringOption(root, Options.LibraryName),
-                ReadOption(root, Options.UseModelNamespace),
                 ReadRequiredStringOption(root, Options.Namespace),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling));

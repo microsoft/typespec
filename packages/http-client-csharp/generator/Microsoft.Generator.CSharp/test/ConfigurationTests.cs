@@ -100,16 +100,6 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(expected, ns);
         }
 
-        // Validates that the output folder is parsed correctly from the configuration
-        [TestCaseSource("ParseConfigUseModelNamespaceTestCases")]
-        public void TestParseConfig_UseModelNamespace(string mockJson, bool expected)
-        {
-            MockHelpers.LoadMockPlugin(configuration: mockJson);
-            var useModelNs = CodeModelPlugin.Instance.Configuration.UseModelNamespace;
-
-            Assert.AreEqual(expected, useModelNs);
-        }
-
         // Validates that additional configuration options are parsed correctly
         [Test]
         public void TestParseConfig_AdditionalConfigOptions()

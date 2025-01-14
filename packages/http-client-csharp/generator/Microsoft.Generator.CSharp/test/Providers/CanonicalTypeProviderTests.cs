@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             protected override string BuildName() => "TestName";
 
-            protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+            protected override string GetNamespace() => "TestNamespace";
 
             protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
 

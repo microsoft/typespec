@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this)];
         }
         protected override string GetNamespace() => string.IsNullOrEmpty(_inputType.ClientNamespace) ?
-            CodeModelPlugin.Instance.Configuration.ModelNamespace : // we default to this model namespace when the namespace is empty
+            CodeModelPlugin.Instance.Configuration.RootNamespace : // we default to this model namespace when the namespace is empty
             CodeModelPlugin.Instance.Configuration.GetCleanNameSpace(_inputType.ClientNamespace);
 
         protected override bool GetIsEnum() => true;
