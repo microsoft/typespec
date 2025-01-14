@@ -69,7 +69,6 @@ foreach ($directory in $directories) {
 
 # test all
 Write-Host "Generating CadlRanch coverage" -ForegroundColor Cyan
-
 foreach ($csprojFile in $csprojFiles) {
     Write-Host "Testing $csprojFile" -ForegroundColor Cyan
     $command = "dotnet test $csprojFile"
