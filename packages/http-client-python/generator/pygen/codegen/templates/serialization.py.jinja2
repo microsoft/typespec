@@ -184,73 +184,7 @@ try:
 except NameError:
     _long_type = int
 
-
-class UTC(datetime.tzinfo):
-    """Time Zone info for handling UTC"""
-
-    def utcoffset(self, dt):
-        """UTF offset for UTC is 0.
-
-        :param datetime.datetime dt: The datetime
-        :returns: The offset
-        :rtype: datetime.timedelta
-        """
-        return datetime.timedelta(0)
-
-    def tzname(self, dt):
-        """Timestamp representation.
-
-        :param datetime.datetime dt: The datetime
-        :returns: The timestamp representation
-        :rtype: str
-        """
-        return "Z"
-
-    def dst(self, dt):
-        """No daylight saving for UTC.
-
-        :param datetime.datetime dt: The datetime
-        :returns: The daylight saving time
-        :rtype: datetime.timedelta
-        """
-        return datetime.timedelta(hours=1)
-
-
-try:
-    from datetime import timezone as _FixedOffset  # type: ignore
-except ImportError:  # Python 2.7
-
-    class _FixedOffset(datetime.tzinfo):  # type: ignore
-        """Fixed offset in minutes east from UTC.
-        Copy/pasted from Python doc
-        :param datetime.timedelta offset: offset in timedelta format
-        """
-
-        def __init__(self, offset) -> None:
-            self.__offset = offset
-
-        def utcoffset(self, dt):
-            return self.__offset
-
-        def tzname(self, dt):
-            return str(self.__offset.total_seconds() / 3600)
-
-        def __repr__(self):
-            return "<FixedOffset {}>".format(self.tzname(None))
-
-        def dst(self, dt):
-            return datetime.timedelta(0)
-
-        def __getinitargs__(self):
-            return (self.__offset,)
-
-
-try:
-    from datetime import timezone
-
-    TZ_UTC = timezone.utc
-except ImportError:
-    TZ_UTC = UTC()  # type: ignore
+TZ_UTC = datetime.timezone.utc
 
 _FLATTEN = re.compile(r"(?<!\\)\.")
 
@@ -2050,7 +1984,7 @@ class Deserializer:
         try:
             parsed_date = email.utils.parsedate_tz(attr)  # type: ignore
             date_obj = datetime.datetime(
-                *parsed_date[:6], tzinfo=_FixedOffset(datetime.timedelta(minutes=(parsed_date[9] or 0) / 60))
+                *parsed_date[:6], tzinfo=datetime.timezone(datetime.timedelta(minutes=(parsed_date[9] or 0) / 60))
             )
             if not date_obj.tzinfo:
                 date_obj = date_obj.astimezone(tz=TZ_UTC)
