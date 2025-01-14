@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.3
+
+### Bug Fixes
+
+- Fix import issues for typespec namespace
+
 ## 0.6.2
 
 ### Bug Fixes
