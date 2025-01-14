@@ -192,9 +192,9 @@ class MsrestModelSerializer(_ModelSerializer):
             if prop.is_discriminator:
                 init_args.append(self.initialize_discriminator_property(model, prop))
             elif prop.readonly:
-                init_args.append(f"self.{prop.client_name} = None")
+                init_args.append(f"self.{prop.client_name}: {prop.type_annotation()} = None")
             elif not prop.constant:
-                init_args.append(f"self.{prop.client_name} = {prop.client_name}")
+                init_args.append(f"self.{prop.client_name}: {prop.type_annotation()} = {prop.client_name}")
         return init_args
 
     @staticmethod
