@@ -70,6 +70,7 @@
     "pyodide": "0.26.2"
   },
   "devDependencies": {
+    "@chronus/chronus": "^0.12.1",
     "@typespec/compiler": "~0.63.0",
     "@typespec/versioning": "~0.63.0",
     "@typespec/openapi": "~0.63.0",
