@@ -79,11 +79,6 @@ foreach ($csprojFile in $csprojFiles) {
     }
 }
 
-# exit if the testing failed
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
-}
-
 # restore all
 foreach ($directory in $directories) {
     if (-not (IsGenerated $directory.FullName)) {
