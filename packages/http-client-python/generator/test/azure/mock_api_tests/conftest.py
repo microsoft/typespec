@@ -8,7 +8,7 @@ import subprocess
 import signal
 import pytest
 import re
-from typing import Literal
+from typing import Literal, List
 from pathlib import Path
 
 FILE_FOLDER = Path(__file__).parent
@@ -151,6 +151,48 @@ def authentication_policy():
     from azure.core.pipeline.policies import SansIOHTTPPolicy
 
     return SansIOHTTPPolicy()
+
+
+SPECIAL_WORDS = [
+    "and",
+    "as",
+    "assert",
+    "async",
+    "await",
+    "break",
+    "class",
+    "constructor",
+    "continue",
+    "def",
+    "del",
+    "elif",
+    "else",
+    "except",
+    "exec",
+    "finally",
+    "for",
+    "from",
+    "global",
+    "if",
+    "import",
+    "in",
+    "is",
+    "lambda",
+    "not",
+    "or",
+    "pass",
+    "raise",
+    "return",
+    "try",
+    "while",
+    "with",
+    "yield",
+]
+
+
+@pytest.fixture
+def special_words() -> List[str]:
+    return SPECIAL_WORDS
 
 
 @pytest.fixture

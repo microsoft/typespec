@@ -9,6 +9,7 @@ import signal
 import pytest
 import re
 from pathlib import Path
+from typing import List
 
 FILE_FOLDER = Path(__file__).parent
 
@@ -35,6 +36,48 @@ def testserver():
     server = start_server_process()
     yield
     terminate_server_process(server)
+
+
+SPECIAL_WORDS = [
+    "and",
+    "as",
+    "assert",
+    "async",
+    "await",
+    "break",
+    "class",
+    "constructor",
+    "continue",
+    "def",
+    "del",
+    "elif",
+    "else",
+    "except",
+    "exec",
+    "finally",
+    "for",
+    "from",
+    "global",
+    "if",
+    "import",
+    "in",
+    "is",
+    "lambda",
+    "not",
+    "or",
+    "pass",
+    "raise",
+    "return",
+    "try",
+    "while",
+    "with",
+    "yield",
+]
+
+
+@pytest.fixture
+def special_words() -> List[str]:
+    return SPECIAL_WORDS
 
 
 @pytest.fixture
