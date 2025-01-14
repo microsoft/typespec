@@ -6,6 +6,7 @@ export enum EmitterKind {
   Schema = "openapi",
   Client = "client",
   Server = "server",
+  Unknown = "unknown",
 }
 
 export interface Emitter {
@@ -73,6 +74,15 @@ export function getRegisterEmitterTypes(): ReadonlyArray<EmitterKind> {
   const emitters: ReadonlyArray<Emitter> =
     extensionConfig.get(SettingName.GenerateCodeEmitters) ?? [];
   return Array.from(new Set(emitters.map((emitter) => emitter.kind)));
+}
+
+export function getRegisterEmittersByPackage(packageName: string): Emitter | undefined {
+  const extensionConfig = vscode.workspace.getConfiguration();
+  const emitters: ReadonlyArray<Emitter> =
+    extensionConfig.get(SettingName.GenerateCodeEmitters) ?? [];
+  return emitters.find(
+    (emitter) => emitter.package === packageName || emitter.package.startsWith(packageName + "@"),
+  );
 }
 
 const languageAlias: Record<string, string> = {
