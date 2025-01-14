@@ -1,114 +1,91 @@
+import { splitLines } from "../../formatter/print/printer.js";
 import { CharCode, isWhiteSpaceSingleLine } from "../charcode.js";
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
-import type { CodeFixEdit, DiagnosticTarget } from "../types.js";
+import type { DiagnosticTarget } from "../types.js";
 
 export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarget) {
   return defineCodeFix({
     id: "triple-quote-indent",
     label: "Format triple-quote-indent",
     fix: (context) => {
-      const result: CodeFixEdit[] = [];
       const location = getSourceLocation(diagnosticTarget);
-      const startPos = location.pos + 3;
-      const endPos = location.end - 3;
+      const text = location.file.text.slice(location.pos + 3, location.end - 3);
       const splitStr = "\r\n";
+      const tripleQuote = '"""';
 
-      const lines = splitLines(location.file.text, startPos, endPos);
+      const lines = splitLines(text);
+      if (lines.length === 0) {
+        return;
+      }
 
-      const firstLine = lines[0];
-      if (lines.length > 0 && firstLine.lineText.trim() === "") {
+      if (lines.length === 1) {
+        const indentNumb = getIndentNumbInLine(lines[0]);
+        const prefix = " ".repeat(indentNumb);
+        return context.replaceText(
+          location,
+          [tripleQuote, lines[0], `${prefix}${tripleQuote}`].join(splitStr),
+        );
+      }
+
+      let firstTripleQuoteOnNewLine = false;
+      let lastTripleQuoteOnNewLine = false;
+      let firstLine = lines[0];
+      if (firstLine.trim() === "") {
         lines.shift();
+        firstTripleQuoteOnNewLine = true;
       }
 
-      const lastLine = lines[lines.length - 1];
-      if (lines.length > 0 && lastLine.lineText.trim() === "") {
+      let lastLine = lines[lines.length - 1];
+      if (lastLine.trim() === "") {
         lines.pop();
+        lastTripleQuoteOnNewLine = true;
       }
 
-      const minIndentLine: { startPos: number; indent: number } = lines.reduce((prev, curr) => {
-        return prev.indent < curr.indent ? prev : curr;
-      });
-      if (minIndentLine.indent <= lastLine.indent) {
-        let indentDiff = lastLine.indent - minIndentLine.indent;
+      const minIndentNumb = Math.min(...lines.map((line) => getIndentNumbInLine(line)));
+      const lastLineIndentNumb = getIndentNumbInLine(lastLine);
+      if (minIndentNumb <= lastLineIndentNumb) {
+        const indentDiff =
+          minIndentNumb === lastLineIndentNumb ? minIndentNumb : lastLineIndentNumb - minIndentNumb;
         const prefix = " ".repeat(indentDiff);
-        // start triple-quote is not on a new line
-        if (firstLine.lineText.trim() !== "") {
-          result.push(context.prependText({ ...location, pos: startPos }, splitStr + prefix));
-        }
 
-        if (lastLine.lineText.trim() === lines[lines.length - 1].lineText.trim()) {
-          lines.pop();
-        }
-
-        if (lines.length > 0 && firstLine.lineText.trim() === lines[0].lineText.trim()) {
+        if (firstTripleQuoteOnNewLine) {
+          firstLine = tripleQuote;
+        } else {
+          // start triple-quote is not on a new line,
+          // this has already been processed, so the removal will not be processed again.
+          firstLine = `${tripleQuote}${splitStr}${prefix}${firstLine}`;
           lines.shift();
         }
 
-        lines.map((line) => {
-          result.push(context.prependText({ ...location, pos: line.startPos }, prefix));
-        });
-        // end triple-quote is not on a new line
-        if (lastLine.lineText.trim() !== "") {
-          indentDiff =
-            minIndentLine.indent === lastLine.indent
-              ? lastLine.indent
-              : lastLine.indent - minIndentLine.indent;
-          result.push(
-            context.prependText({ ...location, pos: endPos }, splitStr + " ".repeat(indentDiff)),
-          );
+        if (lastTripleQuoteOnNewLine) {
+          lastLine = `${lastLine}${tripleQuote}`;
+        } else {
+          // end triple-quote is not on a new line
+          // this has already been processed, so the removal will not be processed again.
+          lastLine = `${lastLine}${splitStr}${prefix}${tripleQuote}`;
+          lines.pop();
         }
+
+        // Only indentation is left in the middle
+        const middle = lines
+          .map((line) => {
+            return `${line.slice(0, 2)}${prefix}${line.slice(2, line.length)}`;
+          })
+          .join("");
+
+        return context.replaceText(location, `${firstLine}${middle}${lastLine}`);
       }
 
-      return result;
+      return;
     },
   });
 }
 
-function splitLines(
-  text: string,
-  start: number,
-  end: number,
-): { startPos: number; indent: number; lineText: string }[] {
-  const lines: { startPos: number; indent: number; lineText: string }[] = [];
-  let pos = start;
-
-  while (pos <= end) {
-    const ch = text.charCodeAt(pos);
-    switch (ch) {
-      case CharCode.CarriageReturn:
-        if (text.charCodeAt(pos + 1) === CharCode.LineFeed) {
-          addObjToArray();
-          pos++;
-        } else {
-          addObjToArray();
-        }
-        break;
-      case CharCode.LineFeed:
-        addObjToArray();
-        break;
-    }
-    pos++;
-  }
-
-  const lineText = text.slice(start, end);
-  const indentNumb = getIndentNumbInLine(lineText);
-  lines.push({ startPos: start + 2, indent: indentNumb, lineText });
-
-  return lines;
-
-  function addObjToArray() {
-    const lineText = text.slice(start, pos);
-    const indentNumb = getIndentNumbInLine(lineText);
-    lines.push({ startPos: start + 2, indent: indentNumb, lineText });
-    start = pos;
-  }
-}
-
 function getIndentNumbInLine(lineText: string): number {
   let curStart = 0;
-  const curEnd = lineText.length;
+  const len = lineText.length;
   const flag =
-    curEnd >= 2 &&
+    len >= 2 &&
     lineText.charCodeAt(curStart) === CharCode.CarriageReturn &&
     lineText.charCodeAt(curStart + 1) === CharCode.LineFeed;
 
@@ -116,7 +93,7 @@ function getIndentNumbInLine(lineText: string): number {
     curStart += 2;
   }
 
-  while (curStart < curEnd && isWhiteSpaceSingleLine(lineText.charCodeAt(curStart))) {
+  while (curStart < len && isWhiteSpaceSingleLine(lineText.charCodeAt(curStart))) {
     curStart++;
   }
 
