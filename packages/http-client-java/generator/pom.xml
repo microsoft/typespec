@@ -33,6 +33,7 @@
       </activation>
       <modules>
         <module>http-client-generator-test</module>
+        <module>http-client-generator-clientcore-test</module>
       </modules>
     </profile>
   </profiles>
