@@ -25,7 +25,7 @@ interface EmitQuickPickButton extends QuickInputButton {
   uri: string;
 }
 
-async function selectEmitter(
+async function configureEmitter(
   context: vscode.ExtensionContext,
   existingEmitters: string[],
 ): Promise<Emitter | undefined> {
@@ -129,7 +129,7 @@ async function selectEmitter(
     kind: selectedEmitter.emitterKind,
   };
 }
-async function doEmit(context: vscode.ExtensionContext, mainTspFile: string, emitter: Emitter) {
+async function doEmit(mainTspFile: string, emitter: Emitter) {
   if (!mainTspFile || !(await isFile(mainTspFile))) {
     logger.error(
       "Invalid typespec project. There is no main tsp file in the project. Generating Cancelled.",
@@ -466,7 +466,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     logger.error(error);
   }
 
-  const toQuickPickItem = (e: Emitter): EmitQuickPickItem => {
+  const toEmitterQuickPickItem = (e: Emitter): EmitQuickPickItem => {
     const buttons = e.sourceRepo
       ? [
           {
@@ -504,7 +504,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     const existingEmitterQuickPickItems = existingEmitters.map((e) => {
       const emitter = getRegisterEmittersByPackage(e);
       if (emitter) {
-        return toQuickPickItem(emitter);
+        return toEmitterQuickPickItem(emitter);
       } else {
         return {
           label: e,
@@ -553,10 +553,10 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       existingEmittersSelector.onDidAccept(async () => {
         const selectedItem = existingEmittersSelector.selectedItems[0];
         if (selectedItem === newEmitterQuickPickItem) {
-          const newEmitter = await selectEmitter(context, existingEmitters);
+          const newEmitter = await configureEmitter(context, existingEmitters);
           const allPickItems = [];
           if (newEmitter) {
-            allPickItems.push(toQuickPickItem(newEmitter));
+            allPickItems.push(toEmitterQuickPickItem(newEmitter));
           }
           allPickItems.push(...existingEmitterQuickPickItems);
           allPickItems.push(separatorItem, newEmitterQuickPickItem);
@@ -573,7 +573,6 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       return;
     }
     await doEmit(
-      context,
       tspProjectFile,
       getRegisterEmittersByPackage(selectedExistingEmitter.package) ?? {
         package: selectedExistingEmitter.package,
@@ -582,9 +581,9 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       },
     );
   } else {
-    const newEmitter = await selectEmitter(context, existingEmitters ?? []);
+    const newEmitter = await configureEmitter(context, existingEmitters ?? []);
     if (newEmitter) {
-      await doEmit(context, tspProjectFile, newEmitter);
+      await doEmit(tspProjectFile, newEmitter);
     } else {
       logger.info("No emitter selected. Generating Cancelled.");
       return;
