@@ -152,6 +152,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(2, methodSignature?.Parameters.Count);
             var expectedReturnType = expectedJsonInterface.Arguments[0];
             Assert.AreEqual(expectedReturnType, methodSignature?.ReturnType);
+
+            var invocationExpression = method!.BodyExpression;
+            Assert.IsNotNull(invocationExpression);
+            Assert.AreEqual("this.JsonModelCreateCore(ref reader, options)", invocationExpression!.ToDisplayString());
         }
 
         // This test validates the json model serialization create core method is built correctly
@@ -353,13 +357,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             // Validate body
             var methodBody = method?.BodyStatements;
             Assert.IsNull(methodBody);
-            var bodyExpression = method?.BodyExpression as CastExpression;
+            var bodyExpression = method?.BodyExpression;
             Assert.IsNotNull(bodyExpression);
-            var invocationExpression = bodyExpression?.Inner as InvokeMethodExpression;
-            Assert.IsNotNull(invocationExpression);
-            Assert.AreEqual("PersistableModelCreateCore", invocationExpression?.MethodName);
-            Assert.IsNotNull(invocationExpression?.InstanceReference);
-            Assert.AreEqual(2, invocationExpression?.Arguments.Count);
+            Assert.AreEqual("this.PersistableModelCreateCore(data, options)", bodyExpression!.ToDisplayString());
         }
 
         // This test validates the persistable model serialization create core method is built correctly
@@ -611,10 +611,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.AreEqual(1, methodBodyString.Split(sardDeclaration).Length - 1);
         }
 
-        [Test]
-        public void TestBuildImplicitToBinaryContent()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestBuildImplicitToBinaryContent(bool useStruct)
         {
-            var inputModel = InputFactory.Model("mockInputModel");
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: useStruct);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var methods = serialization.Methods;
 
@@ -637,6 +638,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
 
             var methodBody = method?.BodyStatements;
             Assert.IsNotNull(methodBody);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(useStruct.ToString()), methodBody!.ToDisplayString());
         }
 
         [Test]
@@ -688,10 +690,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var name = kind.ToString().ToLower();
             var properties = new List<InputModelProperty>
             {
-                new InputModelProperty("requiredInt", "requiredInt", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false),
+                new InputModelProperty("requiredInt", "requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false),
              };
 
-            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
+            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false);
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
@@ -710,7 +712,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)
         {
-            var expr = MrwSerializationTypeDefinition.GetValueTypeDeserializationExpression(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
+            var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
             return expr.ToDisplayString();
         }
 

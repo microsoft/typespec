@@ -150,12 +150,6 @@ const diagnostics = {
       typeofTarget: "Typeof expects a value literal or value reference.",
     },
   },
-  "trailing-token": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Trailing ${"token"}`,
-    },
-  },
   "unknown-directive": {
     severity: "error",
     messages: {
@@ -321,18 +315,6 @@ const diagnostics = {
       default: paramMessage`Intersection contains duplicate property definitions for ${"propName"}`,
     },
   },
-  "unknown-identifier": {
-    severity: "error",
-    messages: {
-      default: paramMessage`Unknown identifier ${"id"}`,
-    },
-  },
-  "unknown-decorator": {
-    severity: "error",
-    messages: {
-      default: "Unknown decorator",
-    },
-  },
   "invalid-decorator": {
     severity: "error",
     messages: {
@@ -343,9 +325,11 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Cannot resolve ${"id"}`,
+      identifier: paramMessage`Unknown identifier ${"id"}`,
+      decorator: paramMessage`Unknown decorator @${"id"}`,
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
-      underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
+      member: paramMessage`${"kind"} doesn't have member ${"id"}`,
       metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
     },
@@ -797,6 +781,13 @@ const diagnostics = {
   /**
    * Decorator
    */
+  "invalid-pattern-regex": {
+    severity: "warning",
+    messages: {
+      default: "@pattern decorator expects a valid regular expression pattern.",
+    },
+  },
+
   "decorator-wrong-target": {
     severity: "error",
     messages: {
@@ -903,6 +894,32 @@ const diagnostics = {
     },
   },
 
+  "incompatible-paging-props": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paging property has multiple types: '${"kinds"}'`,
+    },
+  },
+  "invalid-paging-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paging property '${"kind"}' is not valid in this context.`,
+      input: paramMessage`Paging property '${"kind"}' cannot be used in the parameters of an operation.`,
+      output: paramMessage`Paging property '${"kind"}' cannot be used in the return type of an operation.`,
+    },
+  },
+  "duplicate-paging-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Duplicate property paging '${"kind"}' for operation ${"operationName"}.`,
+    },
+  },
+  "missing-paging-items": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Paged operation '${"operationName"}' return type must have a property annotated with @pageItems.`,
+    },
+  },
   /**
    * Service
    */
@@ -1000,6 +1017,28 @@ const diagnostics = {
       default: "Conflict marker encountered.",
     },
   },
+
+  // #region Visibility
+  "visibility-sealed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Visibility of property '${"propName"}' is sealed and cannot be changed.`,
+    },
+  },
+  "visibility-mixed-legacy": {
+    severity: "error",
+    messages: {
+      default:
+        "Cannot apply both string (legacy) visibility modifiers and enum-based visibility modifiers to a property.",
+    },
+  },
+  "default-visibility-not-member": {
+    severity: "error",
+    messages: {
+      default: "The default visibility modifiers of a class must be members of the class enum.",
+    },
+  },
+  // #endregion
 
   // #region CLI
   "no-compatible-vs-installed": {

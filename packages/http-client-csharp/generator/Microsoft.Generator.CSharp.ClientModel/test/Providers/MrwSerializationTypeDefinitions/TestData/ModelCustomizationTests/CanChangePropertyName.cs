@@ -11,7 +11,7 @@ namespace Sample.Models
     public partial class MockInputModel
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         internal MockInputModel()
         {

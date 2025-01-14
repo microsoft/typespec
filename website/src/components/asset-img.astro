@@ -1,0 +1,21 @@
+---
+/**
+ * Component for rendering an image resolving the relative path.
+ */
+import { baseUrl } from "@site/src/utils";
+import type { HTMLAttributes } from "astro/types";
+
+export interface AssetImgProps extends HTMLAttributes<"img"> {
+  src: string;
+}
+
+const { src, alt, ...rest } = Astro.props;
+---
+
+<img class="img" src={baseUrl(`/img/${src}`)} alt={alt ?? ""} {...rest} />
+
+<style>
+  .img {
+    display: block;
+  }
+</style>

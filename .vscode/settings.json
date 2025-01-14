@@ -28,7 +28,7 @@
     "editor.detectIndentation": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[json][[jsonc][yaml][typespec][markdown][css]": {
+  "[json][[jsonc][yaml][typespec][markdown][css][astro][mdx]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.insertSpaces": true,
@@ -58,8 +58,6 @@
   "vitest.enable": true,
   "vitest.commandLine": "node ./node_modules/vitest/vitest.mjs",
   "prettier.prettierPath": "./node_modules/prettier/index.cjs",
-  "prettier.documentSelectors": ["**/*.tsp"],
-  "testExplorer.errorDecoration": false,
-  "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler",
-  "eslint.experimental.useFlatConfig": true // Still needed new version coming soon should work without https://github.com/microsoft/vscode-eslint/issues/1644
+  "prettier.documentSelectors": ["**/*.tsp", "**/*.astro"],
+  "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler"
 }

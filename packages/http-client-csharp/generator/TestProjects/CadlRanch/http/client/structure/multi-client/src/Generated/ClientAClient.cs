@@ -5,10 +5,11 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
-using Client.Structure.Service.Models;
+using Client.Structure.Service.Multi.Client.Models;
 
-namespace Client.Structure.Service
+namespace Client.Structure.Service.Multi.Client
 {
     public partial class ClientAClient
     {
@@ -24,24 +25,24 @@ namespace Client.Structure.Service
 
         public virtual Task<ClientResult> RenamedOneAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult RenamedOne() => throw null;
+        public virtual ClientResult RenamedOne(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RenamedOneAsync() => throw null;
+        public virtual Task<ClientResult> RenamedOneAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult RenamedThree(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> RenamedThreeAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult RenamedThree() => throw null;
+        public virtual ClientResult RenamedThree(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RenamedThreeAsync() => throw null;
+        public virtual Task<ClientResult> RenamedThreeAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult RenamedFive(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> RenamedFiveAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult RenamedFive() => throw null;
+        public virtual ClientResult RenamedFive(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RenamedFiveAsync() => throw null;
+        public virtual Task<ClientResult> RenamedFiveAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

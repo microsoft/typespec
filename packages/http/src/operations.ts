@@ -253,6 +253,7 @@ function validateProgram(program: Program, diagnostics: DiagnosticCollector) {
   // itself as that would be a layering violation, putting a REST
   // interpretation of visibility into the core.
   function checkForUnsupportedVisibility(property: ModelProperty) {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     if (getVisibility(program, property)?.includes("write")) {
       // NOTE: Check for name equality instead of function equality
       // to deal with multiple copies of core being used.

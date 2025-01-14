@@ -29,23 +29,16 @@ packages/compiler/test/formatter/**/*.tsp
 
 # That is an example with error and can't be formatted
 packages/samples/specs/local-typespec/test.tsp
-packages/website/build/
-packages/website/versioned_sidebars/
-packages/website/versions.json
 
 spec.emu.html
 
 # Auto generated reference docs.
-docs/**/reference/
-docs/standard-library/built-in-decorators.md
-docs/standard-library/built-in-data-types.md
-packages/website/versioned_docs/**/reference/
-packages/website/versioned_docs/**/standard-library/built-in-decorators.md
-packages/website/versioned_docs/**/standard-library/built-in-data-types.md
+website/src/content/docs/docs/**/reference/
+website/src/content/docs/docs/standard-library/built-in-decorators.md
+website/src/content/docs/docs/standard-library/built-in-data-types.md
 
 # Auto generated version list
-packages/website/playground-versions.json
-packages/website-astro/playground-versions.json
+website/playground-versions.json
 
 # Auto generated built-in template list
 packages/compiler/templates/scaffolding.json
@@ -66,3 +59,4 @@ packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
 
 # auto generated api view properties files
 packages/http-client-java/generator/http-client-generator-test/src/main/**/*.json
+packages/http-client-java/generator/http-client-generator-clientcore-test/src/main/**/*.json

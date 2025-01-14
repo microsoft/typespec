@@ -257,6 +257,9 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getStreamStyleSerialization() != null) {
             SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
         }
+        if (options.getUseObjectForUnknown()) {
+            SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());
+        }
 
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("regenerate-pom", sdkIntegration);
@@ -291,6 +294,7 @@ public class TypeSpecPlugin extends Javagen {
             SETTINGS_MAP.put("license-header", "SMALL_TYPESPEC");
 
             SETTINGS_MAP.put("sync-methods", "sync-only");
+            SETTINGS_MAP.put("use-default-http-status-code-to-exception-type-mapping", false);
             SETTINGS_MAP.put("generate-samples", false);
             SETTINGS_MAP.put("generate-tests", false);
         }

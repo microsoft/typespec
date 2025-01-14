@@ -1,0 +1,74 @@
+---
+import { Icon } from "@astrojs/starlight/components";
+---
+
+<style>
+  .theme-picker {
+    display: flex;
+    cursor: pointer;
+    align-items: flex-start;
+    padding: 4px 6px;
+    gap: 6px;
+    border: 1px solid var(--colorNeutralStroke1);
+    border-radius: 70px;
+  }
+
+  .theme-picker:hover {
+    background-color: var(--colorNeutralBackground3Hover);
+  }
+
+  .theme-picker > input {
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+
+  .theme-picker:focus-within {
+    outline: auto;
+  }
+
+  .theme-option {
+    display: flex;
+    padding: 2px;
+    justify-content: center;
+    align-items: center;
+    color: var(--colorNeutralForeground2);
+  }
+
+  .theme-option:hover {
+    color: var(--colorNeutralForeground1);
+    border-radius: 50%;
+  }
+
+  :global(html[data-theme="light"]) .light,
+  :global(html[data-theme="dark"]) .dark {
+    background-color: var(--colorBrandForeground1);
+    border-radius: 50%;
+  }
+
+  :global(html[data-theme="light"]) .light {
+    color: var(--colorNeutralStroke1);
+  }
+</style>
+
+<script>
+  import { getTheme, setTheme } from "../utils/theme";
+  const themePickers = document.querySelectorAll(".theme-picker") as NodeListOf<HTMLDivElement>;
+  const handleToggleClick = () => {
+    const current = getTheme();
+    const next = current === "dark" ? "light" : "dark";
+    setTheme(next);
+  };
+
+  themePickers.forEach((x) => x.addEventListener("change", handleToggleClick));
+</script>
+
+<label class="theme-picker">
+  <input type="checkbox" aria-label="Toggle Light/Dark theme" />
+  <div title="Light mode" class="theme-option light">
+    <Icon name="sun" />
+  </div>
+  <div title="Dark mode" class="theme-option dark">
+    <Icon name="moon" />
+  </div>
+</label>

@@ -1,5 +1,6 @@
 import { Model } from "@typespec/compiler";
 import { assert, describe, expect, it } from "vitest";
+import { expectDecorators } from "./utils/expect.js";
 import { tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level schemas", () => {
@@ -14,6 +15,7 @@ describe("converts top-level schemas", () => {
           format: "int32",
         },
         CustomString: {
+          title: "Custom String",
           type: "string",
         },
       },
@@ -24,8 +26,11 @@ describe("converts top-level schemas", () => {
     expect(scalars.get("CustomBoolean")?.baseScalar?.name).toBe("boolean");
     /* scalar CustomInteger extends int32; */
     expect(scalars.get("CustomInteger")?.baseScalar?.name).toBe("int32");
-    /* scalar CustomString extends string; */
+    /* @summary("Custom String") scalar CustomString extends string; */
     expect(scalars.get("CustomString")?.baseScalar?.name).toBe("string");
+    expectDecorators(scalars.get("CustomString")!.decorators, [
+      { name: "summary", args: ["Custom String"] },
+    ]);
   });
 
   it("handles arrays", async () => {
@@ -40,6 +45,11 @@ describe("converts top-level schemas", () => {
         ArrayOfArrays: {
           type: "array",
           items: { $ref: "#/components/schemas/CustomArray" },
+        },
+        ArrayWithTitle: {
+          title: "Array With Title",
+          type: "array",
+          items: { type: "string" },
         },
       },
     });
@@ -61,6 +71,19 @@ describe("converts top-level schemas", () => {
     expect(arrayOfArrays?.indexer).toBeDefined();
     expect(arrayOfArrays?.indexer?.key.name).toBe("integer");
     expect(arrayOfArrays?.indexer?.value).toBe(customArray);
+
+    /* @summary("Array With Title") model ArrayWithTitle is string[]; */
+    const arrayWithTitle = models.get("ArrayWithTitle");
+    expect(arrayWithTitle?.indexer).toBeDefined();
+    expect(arrayWithTitle?.indexer?.key.name).toBe("integer");
+    assert(
+      arrayWithTitle?.indexer?.value.kind === "Scalar",
+      `Expected indexer.value.kind to be "Scalar", got "${arrayWithTitle?.indexer?.value.kind}"`,
+    );
+    expect(arrayWithTitle.indexer.value.name).toBe("string");
+    expectDecorators(arrayWithTitle.decorators, [{ name: "summary", args: ["Array With Title"] }], {
+      strict: false,
+    });
   });
 
   describe("handles enums", () => {
@@ -70,15 +93,16 @@ describe("converts top-level schemas", () => {
           SimpleEnum: {
             type: "string",
             enum: ["foo", "bar"],
+            title: "Simple Enum",
           },
         },
       });
 
       expect(serviceNamespace.enums.size).toBe(1);
 
-      /* enum SimpleEnum { "foo", "bar", } */
+      /* @summary("Simple Enum") enum SimpleEnum { "foo", "bar", } */
       const simpleEnum = serviceNamespace.enums.get("SimpleEnum");
-      expect(simpleEnum?.decorators.length).toBe(0);
+      expectDecorators(simpleEnum!.decorators, [{ name: "summary", args: ["Simple Enum"] }]);
       const simpleEnumMembers = [...(simpleEnum?.members.values() ?? [])];
       expect(simpleEnumMembers.length).toBe(2);
       expect(simpleEnumMembers[0]).toMatchObject({ kind: "EnumMember", name: "foo" });
@@ -142,6 +166,7 @@ describe("converts top-level schemas", () => {
             },
           },
           AnyOfUnion: {
+            title: "Any Of Union",
             anyOf: [{ type: "string" }, { type: "boolean" }, { $ref: "#/components/schemas/Foo" }],
           },
         },
@@ -152,9 +177,9 @@ describe("converts top-level schemas", () => {
 
       expect(serviceNamespace.unions.size).toBe(1);
 
-      /* union AnyOfUnion { string, boolean, Foo, } */
+      /* @summary("Any of Union") union AnyOfUnion { string, boolean, Foo, } */
       const anyOfUnion = serviceNamespace.unions.get("AnyOfUnion");
-      expect(anyOfUnion?.decorators.length).toBe(0);
+      expectDecorators(anyOfUnion!.decorators, [{ name: "summary", args: ["Any Of Union"] }]);
       const anyOfUnionVariants = [...(anyOfUnion?.variants.values() ?? [])];
       expect(anyOfUnionVariants.length).toBe(3);
       expect(anyOfUnionVariants[0].type).toMatchObject({ kind: "Scalar", name: "string" });
@@ -522,6 +547,33 @@ describe("converts top-level schemas", () => {
         optional: false,
         type: { kind: "Scalar", name: "string" },
       });
+    });
+
+    it("converts title to summary decorator", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              name: { type: "string", title: "Name Summary" },
+            },
+            title: "Foo Summary",
+          },
+        },
+      });
+
+      /* @summary("Foo Summary") model Foo { @summary("Foo Summary") name?: string } */
+      const Foo = serviceNamespace.models.get("Foo");
+      assert(Foo, "Foo model not found");
+      expectDecorators(Foo.decorators, [{ name: "summary", args: ["Foo Summary"] }]);
+      expect(Foo.properties.size).toBe(1);
+      expect(Foo.properties.get("name")).toMatchObject({
+        optional: true,
+        type: { kind: "Scalar", name: "string" },
+      });
+      expectDecorators(Foo.properties.get("name")!.decorators, [
+        { name: "summary", args: ["Name Summary"] },
+      ]);
     });
   });
 });

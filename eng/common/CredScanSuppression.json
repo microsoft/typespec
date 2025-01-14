@@ -10,7 +10,7 @@
       "_justification": "Files contains publicly disclosed application key."
     },
     {
-      "file": ["packages/website-astro/algolia.ts"],
+      "file": ["website/algolia.ts"],
       "_justification": "Files contains publicly disclosed application key."
     }
   ]

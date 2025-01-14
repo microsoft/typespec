@@ -14,17 +14,22 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
     public class ClientProviderSubClientTests
     {
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = new("animal", "AnimalClient description", [], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "DogClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _catClient = new("cat", "CatClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputOperation _inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+        private static readonly InputClient _animalClient = new("animal", string.Empty, "AnimalClient description", [_inputOperation], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", string.Empty, "DogClient description", [_inputOperation], [], _animalClient.Name);
+        private static readonly InputClient _catClient = new("cat", string.Empty, "CatClient description", [_inputOperation], [], _animalClient.Name);
+        private static readonly InputClient _hawkClient = new("hawkClient", string.Empty, "HawkClient description", [_inputOperation], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", string.Empty, "HuskyClient description", [_inputOperation], [], _dogClient.Name);
 
         [SetUp]
         public void SetUp()
         {
             MockHelpers.LoadMockPlugin(
                     apiKeyAuth: () => new InputApiKeyAuth("mock", null),
-                    clients: () => [_animalClient, _dogClient, _catClient, _huskyClient]);
+                    clients: () => [_animalClient, _dogClient, _catClient, _huskyClient, _hawkClient]);
         }
 
         // This test validates that the generated code is correct when the client has one direct subclient.
@@ -57,7 +62,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             string[] expectedSubClientFactoryMethodNames =
             [
                 $"Get{_dogClient.Name.ToCleanName()}Client",
-                $"Get{_catClient.Name.ToCleanName()}Client"
+                $"Get{_catClient.Name.ToCleanName()}Client",
+                $"Get{_hawkClient.Name.ToCleanName()}"
             ];
             var clientProvider = new MockClientProvider(_animalClient, expectedSubClientFactoryMethodNames);
             var writer = new TypeProviderWriter(clientProvider);

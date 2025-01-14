@@ -6,10 +6,6 @@ namespace _Type.Union.Models
 {
     public partial class GetResponse7
     {
-        public StringExtensibleNamedUnion Prop
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public StringExtensibleNamedUnion Prop => throw null;
     }
 }

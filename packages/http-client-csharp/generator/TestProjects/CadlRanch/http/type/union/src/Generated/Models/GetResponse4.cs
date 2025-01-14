@@ -8,10 +8,6 @@ namespace _Type.Union.Models
 {
     public partial class GetResponse4
     {
-        public BinaryData Prop
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public BinaryData Prop => throw null;
     }
 }

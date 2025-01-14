@@ -1,0 +1,95 @@
+---
+import LearnMoreCard from "../components/learn-more-card.astro";
+import ShowcaseLayout from "@site/src/layouts/showcase.astro";
+import Section from "../components/section.astro";
+import SectionedLayout from "../components/sectioned-layout.astro";
+import UseCaseOverview from "../components/use-case-overview.astro";
+import { Links } from "../constants";
+import multiFileTsp from "@site/src/assets/tsp-samples/json-schema/multi-file/main.tsp?raw";
+import multiFileAddress from "@site/src/assets/tsp-samples/json-schema/multi-file/out/Address.yaml?raw";
+import multiFileCar from "@site/src/assets/tsp-samples/json-schema/multi-file/out/Car.yaml?raw";
+import multiFilePerson from "@site/src/assets/tsp-samples/json-schema/multi-file/out/Person.yaml?raw";
+import extensionsTsp from "@site/src/assets/tsp-samples/json-schema/extensions/main.tsp?raw";
+import extensionsYaml from "@site/src/assets/tsp-samples/json-schema/extensions/out/output.yaml?raw";
+import { Code, TabItem } from "@astrojs/starlight/components";
+import validationDecoratorsTsp from "@site/src/assets/tsp-samples/data-validation/validation-decorators.tsp?raw";
+import IllustrationCard from "../components/illustration-card.astro";
+import DataValidationHeroIllustration from "../components/homepage/data-validation-hero-illustration.astro";
+import EditorTabs from "../components/editor-tabs.astro";
+---
+
+<ShowcaseLayout>
+  <SectionedLayout>
+    <UseCaseOverview
+      title="Ensure data consistency"
+      subtitle="Benefit from the reusability and modularity of TypeSpec types to ensure data consistency across your APIs."
+      link={Links.libraryReferences.jsonSchema.index}
+    >
+      <DataValidationHeroIllustration slot="illustration" />
+    </UseCaseOverview>
+    <Section
+      header="Standard library"
+      title="Use built-in decorators"
+      description="TypeSpec standard library provides decorators for common validation patterns."
+    >
+      <IllustrationCard slot="illustration">
+        <Code lang="tsp" code={validationDecoratorsTsp} />
+      </IllustrationCard>
+
+      <LearnMoreCard
+        title="Standard library reference"
+        description="Browse the standard library reference documentation for details."
+        image="people-shield"
+        link={Links.standardLibrary.decorators}
+      />
+    </Section>
+    <Section
+      layout="text-right"
+      header="Output"
+      title="Produce JSON Schema"
+      description="Benefit from the JSON Schema ecosystem to validate your data while writing more concise and readable code."
+    >
+      <EditorTabs slot="illustration">
+        <TabItem label="main.tsp">
+          <Code lang="tsp" code={multiFileTsp} />
+        </TabItem>
+        <TabItem label="Address.yaml">
+          <Code lang="yaml" code={multiFileAddress} />
+        </TabItem>
+        <TabItem label="Car.yaml">
+          <Code lang="yaml" code={multiFileCar} />
+        </TabItem>
+        <TabItem label="Person.yaml">
+          <Code lang="yaml" code={multiFilePerson} />
+        </TabItem>
+      </EditorTabs>
+      <LearnMoreCard
+        title="Configure the JSON schema emitter"
+        description="Change how the JSON schema is emitted: specify a bundleId to combine all schemas into a single file or use JSON instead of yaml."
+        image="shield-settings"
+        link={Links.libraryReferences.jsonSchema.index}
+      />
+    </Section>
+
+    <Section
+      header="Customize"
+      title="JSON Schema Decorators"
+      description="The JSON schema library provides decorators to customize the output with JSON schema specific concepts."
+    >
+      <EditorTabs slot="illustration">
+        <TabItem label="main.tsp">
+          <Code lang="tsp" code={extensionsTsp} />
+        </TabItem>
+        <TabItem label="output.yaml">
+          <Code lang="yaml" code={extensionsYaml} />
+        </TabItem>
+      </EditorTabs>
+      <LearnMoreCard
+        title="JSON Schema Decorators Reference"
+        description="Read the reference documentation for available options."
+        image="design"
+        link={Links.libraryReferences.jsonSchema.decorators}
+      />
+    </Section>
+  </SectionedLayout>
+</ShowcaseLayout>

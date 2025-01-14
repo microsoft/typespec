@@ -1,6 +1,7 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
+export type OpenAPIVersion = "3.0.0" | "3.1.0";
 export interface OpenAPI3EmitterOptions {
   /**
    * If the content should be serialized as YAML or JSON.
@@ -35,6 +36,16 @@ export interface OpenAPI3EmitterOptions {
    *  - `openapi.Org1.Service2.v1.1.yaml`
    */
   "output-file"?: string;
+
+  /**
+   * The Open API specification versions to emit.
+   * If more than one version is specified, then the output file
+   * will be created inside a directory matching each specification version.
+   *
+   * @default ["v3.0"]
+   * @internal
+   */
+  "openapi-versions"?: OpenAPIVersion[];
 
   /**
    * Set the newline character for emitting files.
@@ -103,6 +114,18 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "  - `openapi.Org1.Service2.v1.0.yaml`",
         "  - `openapi.Org1.Service2.v1.1.yaml`    ",
       ].join("\n"),
+    },
+    "openapi-versions": {
+      type: "array",
+      items: {
+        type: "string",
+        enum: ["3.0.0", "3.1.0"],
+        nullable: true,
+        description: "The versions of OpenAPI to emit. Defaults to `[3.0.0]`",
+      },
+      nullable: true,
+      uniqueItems: true,
+      minItems: 1,
     },
     "new-line": {
       type: "string",
@@ -261,6 +284,24 @@ export const libDef = {
       severity: "warning",
       messages: {
         default: paramMessage`Authentication "${"authType"}" is not a known authentication by the openapi3 emitter, it will be ignored.`,
+      },
+    },
+    "xml-attribute-invalid-property-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`XML \`@attribute\` can only be primitive types in the OpenAPI 3 emitter, Property '${"name"}' type will be changed to type: string.`,
+      },
+    },
+    "xml-unwrapped-invalid-property-type": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`XML \`@unwrapped\` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property '${"name"}' will be ignored.`,
+      },
+    },
+    "invalid-component-fixed-field-key": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
       },
     },
   },

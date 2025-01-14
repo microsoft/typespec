@@ -26,7 +26,11 @@ describe("Test string format", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
     const root = createModel(sdkContext);
-    const type = root.Clients[0].Operations[0].Parameters[1].Type;
+    const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
+      (p) => p.Name === "sourceUrl",
+    );
+    strictEqual(1, inputParamArray.length);
+    const type = inputParamArray[0].Type;
     strictEqual(type.kind, "url");
   });
 

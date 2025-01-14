@@ -43,6 +43,10 @@ namespace Microsoft.Generator.CSharp.Providers
             {
                 declaredModifiers |= TypeSignatureModifiers.Static;
             }
+            if (_namedTypeSymbol.IsAbstract)
+            {
+                declaredModifiers |= TypeSignatureModifiers.Abstract;
+            }
             switch (_namedTypeSymbol.TypeKind)
             {
                 case TypeKind.Class:

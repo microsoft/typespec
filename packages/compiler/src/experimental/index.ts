@@ -6,7 +6,9 @@ export {
   MutatorFn as unsafe_MutatorFn,
   MutatorRecord as unsafe_MutatorRecord,
   MutatorReplaceFn as unsafe_MutatorReplaceFn,
+  MutatorWithNamespace as unsafe_MutatorWithNamespace,
   mutateSubgraph as unsafe_mutateSubgraph,
+  mutateSubgraphWithNamespace as unsafe_mutateSubgraphWithNamespace,
 } from "./mutators.js";
 export { Realm as unsafe_Realm } from "./realm.js";
 export { unsafe_useStateMap, unsafe_useStateSet } from "./state-accessor.js";

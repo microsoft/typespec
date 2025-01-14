@@ -6,20 +6,19 @@
 from typing import List
 from jinja2 import Environment
 
-from ..models.operation_group import OperationGroup
-from ..models import CodeModel, Client
+from ..models import CodeModel, OperationGroup
 
 
 class OperationsInitSerializer:
     def __init__(
         self,
         code_model: CodeModel,
-        clients: List[Client],
+        operation_groups: List[OperationGroup],
         env: Environment,
         async_mode: bool,
     ) -> None:
         self.code_model = code_model
-        self.clients = clients
+        self.operation_groups = [og for og in operation_groups if not og.has_parent_operation_group]
         self.env = env
         self.async_mode = async_mode
 
@@ -27,11 +26,7 @@ class OperationsInitSerializer:
         def _get_filename(operation_group: OperationGroup) -> str:
             return "_operations" if self.code_model.options["combine_operation_files"] else operation_group.filename
 
-        return [
-            f"from .{_get_filename(og)} import {og.class_name}"
-            for client in self.clients
-            for og in client.operation_groups
-        ]
+        return [f"from .{_get_filename(og)} import {og.class_name}  # type: ignore" for og in self.operation_groups]
 
     def serialize(self) -> str:
         operation_group_init_template = self.env.get_template("operations_folder_init.py.jinja2")
@@ -40,5 +35,5 @@ class OperationsInitSerializer:
             code_model=self.code_model,
             async_mode=self.async_mode,
             operation_group_imports=self.operation_group_imports,
-            clients=self.clients,
+            operation_groups=self.operation_groups,
         )

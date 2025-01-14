@@ -9,7 +9,7 @@ namespace Microsoft.Generator.CSharp.Statements
 {
     public sealed class IfStatement : MethodBodyStatement, IEnumerable<MethodBodyStatement>
     {
-        public ValueExpression Condition { get; }
+        public ValueExpression Condition { get; set; }
         public bool Inline { get; }
         public bool AddBraces { get; }
 

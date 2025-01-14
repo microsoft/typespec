@@ -8,6 +8,8 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class CollectionsModelProperty
     {
+        public CollectionsModelProperty(string requiredProperty, IEnumerable<InnerModel> nullableProperty) => throw null;
+
         public string RequiredProperty
         {
             get => throw null;

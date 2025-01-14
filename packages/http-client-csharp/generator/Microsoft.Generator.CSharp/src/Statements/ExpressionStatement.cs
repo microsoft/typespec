@@ -5,7 +5,7 @@ using Microsoft.Generator.CSharp.Expressions;
 
 namespace Microsoft.Generator.CSharp.Statements
 {
-    internal class ExpressionStatement : MethodBodyStatement
+    public class ExpressionStatement : MethodBodyStatement
     {
         public ExpressionStatement(ValueExpression expression)
         {

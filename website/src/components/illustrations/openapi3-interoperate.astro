@@ -1,0 +1,50 @@
+---
+import interoperateTsp from "@site/src/assets/tsp-samples/openapi3/interoperate/main.tsp?raw";
+import interoperateOpenapi from "@site/src/assets/tsp-samples/openapi3/interoperate/openapi.yaml?raw";
+import interoperateSpectral from "@site/src/assets/tsp-samples/openapi3/interoperate/spectral.txt";
+import { Painter } from "@site/src/components/painter/painter";
+import Terminal from "@site/src/components/terminal.astro";
+import AssetImg from "../asset-img.astro";
+import WindowCarousel from "../window-carousel.astro";
+import { Code } from "@astrojs/starlight/components";
+---
+
+<style>
+  .illustration-main {
+    display: grid;
+    grid-template-areas:
+      "tsp openapi"
+      "swagger-ui openapi"
+      "spectral spectral";
+    gap: 5px;
+    background-color: var(--colorNeutralBackground1);
+  }
+
+  .tsp {
+    grid-area: tsp;
+  }
+  .openapi {
+    grid-area: openapi;
+  }
+  .spectral {
+    grid-area: spectral;
+  }
+</style>
+<WindowCarousel>
+  <Fragment slot="TypeSpec">
+    <div class="illustration-main">
+      <div class="tsp">
+        <Code lang="tsp" code={interoperateTsp} />
+      </div>
+      <div class="openapi">
+        <Code lang="yaml" code={interoperateOpenapi} />
+      </div>
+      <Terminal class="spectral" hideHeader>
+        <Painter content={interoperateSpectral} />
+      </Terminal>
+    </div>
+  </Fragment>
+  <Fragment slot="Swagger UI">
+    <AssetImg className="swagger-ui" src="illustrations/swagger-ui.png" />
+  </Fragment>
+</WindowCarousel>

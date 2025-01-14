@@ -14,7 +14,7 @@ namespace UnbrandedTypeSpec.Models
     public partial class Thing
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
         /// <param name="name"> name of the Thing. </param>

@@ -42,7 +42,7 @@ model Operations_putThing200ApplicationJsonResponse {
 
   @minValue(0)
   @maxValue(10)
-  @query
+  @query(#{ explode: true })
   count: int32,
 ): Operations_getThing200ApplicationJsonResponse;
 

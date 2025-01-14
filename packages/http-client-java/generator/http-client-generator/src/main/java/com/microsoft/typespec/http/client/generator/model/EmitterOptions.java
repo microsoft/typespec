@@ -17,7 +17,7 @@ import java.util.Map;
 public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String namespace;
     private String outputDir;
-    private String flavor = "Azure";
+    private String flavor = "generic";
     private String serviceName;
     private List<String> serviceVersions;
     private Boolean generateTests = true;
@@ -29,6 +29,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String customTypeSubpackage;
     private String customizationClass;
     private Boolean includeApiViewProperties = true;
+    private String packageVersion;
+    private Boolean useObjectForUnknown = false;
     private Map<String, JavaSettings.PollingDetails> polling = new HashMap<>();
     private Boolean arm = false;
     private String modelsSubpackage;
@@ -66,6 +68,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return streamStyleSerialization;
     }
 
+    public Boolean getUseObjectForUnknown() {
+        return useObjectForUnknown;
+    }
+
     public EmitterOptions setNamespace(String namespace) {
         this.namespace = namespace;
         return this;
@@ -96,7 +102,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return customizationClass;
     }
 
-    public Boolean includeApiViewProperties() {
+    public Boolean getIncludeApiViewProperties() {
         return includeApiViewProperties;
     }
 
@@ -120,28 +126,14 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return flavor;
     }
 
+    public String getPackageVersion() {
+        return packageVersion;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
-        return jsonWriter.writeStartObject()
-            .writeStringField("namespace", namespace)
-            .writeStringField("output-dir", outputDir)
-            .writeStringField("flavor", flavor)
-            .writeStringField("service-name", serviceName)
-            .writeArrayField("service-versions", serviceVersions, JsonWriter::writeString)
-            .writeBooleanField("generate-tests", generateTests)
-            .writeBooleanField("generate-samples", generateSamples)
-            .writeBooleanField("enable-sync-stack", enableSyncStack)
-            .writeBooleanField("stream-style-serialization", streamStyleSerialization)
-            .writeBooleanField("partial-update", partialUpdate)
-            .writeStringField("custom-types", customTypes)
-            .writeStringField("custom-types-subpackage", customTypeSubpackage)
-            .writeStringField("customization-class", customizationClass)
-            .writeBooleanField("include-api-view-properties", includeApiViewProperties)
-            .writeMapField("polling", polling, JsonWriter::writeJson)
-            .writeBooleanField("arm", arm)
-            .writeStringField("models-subpackage", modelsSubpackage)
-            .writeJsonField("dev-options", devOptions)
-            .writeEndObject();
+        // it does not need to be written to JSON
+        return jsonWriter.writeStartObject().writeEndObject();
     }
 
     public static EmitterOptions fromJson(JsonReader jsonReader) throws IOException {
@@ -174,12 +166,16 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.customizationClass = emptyToNull(reader.getString());
             } else if ("include-api-view-properties".equals(fieldName)) {
                 options.includeApiViewProperties = reader.getNullable(JsonReader::getBoolean);
+            } else if ("use-object-for-unknown".equals(fieldName)) {
+                options.useObjectForUnknown = reader.getNullable(JsonReader::getBoolean);
             } else if ("polling".equals(fieldName)) {
                 options.polling = reader.readMap(JavaSettings.PollingDetails::fromJson);
             } else if ("arm".equals(fieldName)) {
                 options.arm = reader.getNullable(JsonReader::getBoolean);
             } else if ("models-subpackage".equals(fieldName)) {
                 options.modelsSubpackage = emptyToNull(reader.getString());
+            } else if ("package-version".equals(fieldName)) {
+                options.packageVersion = emptyToNull(reader.getString());
             } else if ("dev-options".equals(fieldName)) {
                 options.devOptions = DevOptions.fromJson(reader);
             } else {

@@ -13,10 +13,10 @@ import {
   CompilerHost,
   Diagnostic,
   DiagnosticTarget,
+  MutableSymbolTable,
   NoTarget,
   RekeyableMap,
   SourceFile,
-  Sym,
   SymbolTable,
 } from "../core/types.js";
 
@@ -256,6 +256,42 @@ export function isDefined<T>(arg: T | undefined): arg is T {
   return arg !== undefined;
 }
 
+export function isWhitespaceStringOrUndefined(str: string | undefined): boolean {
+  return !str || /^\s*$/.test(str);
+}
+
+export function firstNonWhitespaceCharacterIndex(line: string): number {
+  return line.search(/\S/);
+}
+
+export function distinctArray<T, P>(arr: T[], keySelector: (item: T) => P): T[] {
+  const map = new Map<P, T>();
+  for (const item of arr) {
+    map.set(keySelector(item), item);
+  }
+  return Array.from(map.values());
+}
+
+export function tryParseJson(content: string): any | undefined {
+  try {
+    return JSON.parse(content);
+  } catch {
+    return undefined;
+  }
+}
+
+export function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: number): T {
+  let timer: NodeJS.Timeout | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, delayInMs);
+  } as T;
+}
+
 /**
  * Remove undefined properties from object.
  */
@@ -419,12 +455,21 @@ export class Queue<T> {
  */
 //prettier-ignore
 export type Mutable<T> =
-  T extends SymbolTable ? T & { set(key: string, value: Sym): void } :
+  T extends SymbolTable ? T & MutableSymbolTable :
   T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
   T extends ReadonlySet<infer T> ? Set<T> :
   T extends readonly (infer V)[] ? V[] :
   // brand to force explicit conversion.
-  { -readonly [P in keyof T]: T[P] } & { __writableBrand: never };
+  { -readonly [P in keyof T]: T[P] };
+
+//prettier-ignore
+type MutableExt<T> =
+T extends SymbolTable ? T & MutableSymbolTable :
+T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
+T extends ReadonlySet<infer T> ? Set<T> :
+T extends readonly (infer V)[] ? V[] :
+// brand to force explicit conversion.
+{ -readonly [P in keyof T]: T[P] } & { __writableBrand: never };
 
 /**
  * Casts away readonly typing.
@@ -432,8 +477,8 @@ export type Mutable<T> =
  * Use it like this when it is safe to override readonly typing:
  *   mutate(item).prop = value;
  */
-export function mutate<T>(value: T): Mutable<T> {
-  return value as Mutable<T>;
+export function mutate<T>(value: T): MutableExt<T> {
+  return value as MutableExt<T>;
 }
 
 export function createStringMap<T>(caseInsensitive: boolean): Map<string, T> {
@@ -455,7 +500,7 @@ class CaseInsensitiveMap<T> extends Map<string, T> {
   }
 }
 
-export function createRekeyableMap<K, V>(entries?: [K, V][]): RekeyableMap<K, V> {
+export function createRekeyableMap<K, V>(entries?: Iterable<[K, V]>): RekeyableMap<K, V> {
   return new RekeyableMapImpl<K, V>(entries);
 }
 
@@ -467,7 +512,7 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
   #keys = new Map<K, RekeyableMapKey<K>>();
   #values = new Map<RekeyableMapKey<K>, V>();
 
-  constructor(entries?: [K, V][]) {
+  constructor(entries?: Iterable<[K, V]>) {
     if (entries) {
       for (const [key, value] of entries) {
         this.set(key, value);

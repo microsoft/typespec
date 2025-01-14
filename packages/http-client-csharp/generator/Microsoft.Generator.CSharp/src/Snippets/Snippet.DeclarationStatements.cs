@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
@@ -36,9 +37,10 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static MethodBodyStatement Declare(string name, ScopedApi value, out ScopedApi variable)
         {
-            var declaration = new VariableExpression(value.Type, name);
-            variable = declaration.As(value.Type);
-            return Declare(declaration, value);
+            var declaration = new CodeWriterDeclaration(name);
+            var variableExpression = new VariableExpression(TypeReferenceExpression.GetTypeFromDefinition(value.Type)!, declaration);
+            variable = variableExpression.As(value.Type);
+            return Declare(variableExpression, value);
         }
 
         public static MethodBodyStatement Declare(VariableExpression variable, ValueExpression value)
@@ -50,6 +52,26 @@ namespace Microsoft.Generator.CSharp.Snippets
             var variableExpression = new VariableExpression(TypeReferenceExpression.GetTypeFromDefinition(value.Type)!, declaration);
             variable = variableExpression.As<T>();
             return UsingDeclare(variableExpression, value);
+        }
+
+        public static MethodBodyStatement UsingDeclare<T>(string name, T value, out T variable) where T : ScopedApi
+        {
+            var declaration = new CodeWriterDeclaration(name);
+            var variableExpression = new VariableExpression(TypeReferenceExpression.GetTypeFromDefinition(value.Type)!, declaration);
+
+            // TODO: need to constraint that subtype should have the corresponding constructor
+            variable = (T)Activator.CreateInstance(value.GetType(), variableExpression)!;
+            return UsingDeclare(variableExpression, value);
+        }
+
+        public static MethodBodyStatement Declare<T>(string name, T value, out T variable) where T : ScopedApi
+        {
+            var declaration = new CodeWriterDeclaration(name);
+            var variableExpression = new VariableExpression(TypeReferenceExpression.GetTypeFromDefinition(value.Type)!, declaration);
+
+            // TODO: need to constraint that subtype should have the corresponding constructor
+            variable = (T)Activator.CreateInstance(value.GetType(), variableExpression)!;
+            return new DeclarationExpression(variableExpression).Assign(value).Terminate();
         }
 
         public static MethodBodyStatement Declare<T>(string name, ScopedApi<T> value, out ScopedApi<T> variable)
@@ -65,6 +87,13 @@ namespace Microsoft.Generator.CSharp.Snippets
             var variableExpression = new VariableExpression(typeof(T), name);
             variable = variableExpression.As<T>();
             return new DeclarationExpression(variableExpression);
+        }
+
+        public static DeclarationExpression Declare(string name, CSharpType variableType, out VariableExpression variable)
+        {
+            var variableRef = new VariableExpression(variableType, name);
+            variable = variableRef;
+            return new DeclarationExpression(variableRef);
         }
     }
 }

@@ -2,13 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
+using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
@@ -19,9 +22,21 @@ namespace Microsoft.Generator.CSharp.ClientModel
 
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
-        public virtual CSharpType KeyCredentialType => typeof(ApiKeyCredential);
+        public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;
 
-        public virtual CSharpType TokenCredentialType => throw new NotImplementedException("Token credential is not supported in Scm libraries yet");
+        public virtual IHttpResponseApi HttpResponseApi => PipelineResponseProvider.Instance;
+
+        public virtual IHttpMessageApi HttpMessageApi => PipelineMessageProvider.Instance;
+
+        public virtual IHttpRequestOptionsApi HttpRequestOptionsApi => RequestOptionsProvider.Instance;
+
+        public virtual IExpressionApi<HttpRequestApi> HttpRequestApi => PipelineRequestProvider.Instance;
+
+        public virtual IClientPipelineApi ClientPipelineApi => ClientPipelineProvider.Instance;
+
+        public virtual IStatusCodeClassifierApi StatusCodeClassifierApi => PipelineMessageClassifierProvider.Instance;
+
+        public virtual IRequestContentApi RequestContentApi => BinaryContentProvider.Instance;
 
         /// <summary>
         /// Returns the serialization type providers for the given input type.
@@ -102,5 +117,16 @@ namespace Microsoft.Generator.CSharp.ClientModel
             }
             return methods;
         }
+
+        public virtual ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, format);
+
+        public virtual MethodBodyStatement SerializeJsonValue(
+            Type valueType,
+            ValueExpression value,
+            ScopedApi<Utf8JsonWriter> utf8JsonWriter,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat serializationFormat)
+            => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
     }
 }

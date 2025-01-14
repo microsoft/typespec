@@ -359,5 +359,81 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             Assert.IsTrue(fullCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
             Assert.AreEqual(2, fullCtor.Signature.Parameters.Count);
         }
+
+        [Test]
+        public async Task CanChangeToNonNullableProp()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", new InputNullableType(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("Model", properties: props, usage: InputModelTypeUsage.Json);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var deserializationMethod = serializationProvider!.Methods.Where(m => m.Signature.Name.StartsWith("Deserialize")).FirstOrDefault();
+            Assert.IsNotNull(deserializationMethod);
+
+            var deserializationStatements = deserializationMethod!.BodyStatements;
+
+            Assert.IsTrue(deserializationStatements!.ToDisplayString().Contains(
+                "if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))"));
+            // since the customized property is non-nullable, the assignment to null should not be present
+            Assert.IsFalse(deserializationStatements!.ToDisplayString().Contains("prop1 = null;"));
+        }
+
+        [Test]
+        public async Task CanChangeListOfEnumPropToListOfExtensibleEnum()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
+                    "MyEnum",
+                    InputPrimitiveType.String,
+                    usage: InputModelTypeUsage.Input,
+                    values: [InputFactory.EnumMember.String("foo", "bar")])))
+            };
+
+            var inputModel = InputFactory.Model("Model", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task CanChangePropertyNameAndRedefineOriginal()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModels: () => new[] { inputModel },
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = plugin.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

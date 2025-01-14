@@ -1,12 +1,13 @@
 import { spawn } from "child_process";
 import fetch from "node-fetch";
+import { resolve } from "path";
 import { MockApiApp } from "../app/app.js";
 import { AdminUrls } from "../constants.js";
 import { logger } from "../logger.js";
 import { ensureScenariosPathExists } from "../utils/index.js";
 
 export interface ServeConfig {
-  scenariosPath: string;
+  scenariosPath: string | string[];
   coverageFile: string;
   port: number;
 }
@@ -16,7 +17,14 @@ export interface StopConfig {
 }
 
 export async function serve(config: ServeConfig) {
-  await ensureScenariosPathExists(config.scenariosPath);
+  if (Array.isArray(config.scenariosPath)) {
+    for (let idx = 0; idx < config.scenariosPath.length; idx++) {
+      config.scenariosPath[idx] = resolve(process.cwd(), config.scenariosPath[idx]);
+      await ensureScenariosPathExists(config.scenariosPath[idx]);
+    }
+  } else {
+    await ensureScenariosPathExists(config.scenariosPath);
+  }
 
   const server = new MockApiApp({
     port: config.port,
@@ -30,12 +38,15 @@ export async function startInBackground(config: ServeConfig) {
   return new Promise<void>((resolve) => {
     const [nodeExe, entrypoint] = process.argv;
     logger.info(`Starting server in background at port ${config.port}`);
+    const scenariosPath = Array.isArray(config.scenariosPath)
+      ? config.scenariosPath
+      : [config.scenariosPath];
     const cp = spawn(
       nodeExe,
       [
         entrypoint,
         "serve",
-        config.scenariosPath,
+        ...scenariosPath,
         "--port",
         config.port.toString(),
         "--coverageFile",

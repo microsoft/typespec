@@ -66,7 +66,11 @@ function generateScalar(scalar: TypeSpecScalar, context: Context): string {
   definitions.push(...generateDecorators(scalar.decorators));
   const type = context.generateTypeFromRefableSchema(scalar.schema, scalar.scope);
 
-  definitions.push(`scalar ${scalar.name} extends ${type};`);
+  if (type === "unknown") {
+    definitions.push(`scalar ${scalar.name};`);
+  } else {
+    definitions.push(`scalar ${scalar.name} extends ${type};`);
+  }
 
   return definitions.join("\n");
 }

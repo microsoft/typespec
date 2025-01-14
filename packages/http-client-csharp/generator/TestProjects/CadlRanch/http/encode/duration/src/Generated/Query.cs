@@ -6,6 +6,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Encode.Duration
@@ -20,48 +21,48 @@ namespace Encode.Duration
 
         public virtual Task<ClientResult> DefaultAsync(TimeSpan input, RequestOptions options) => throw null;
 
-        public virtual ClientResult Default(TimeSpan input) => throw null;
+        public virtual ClientResult Default(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> DefaultAsync(TimeSpan input) => throw null;
+        public virtual Task<ClientResult> DefaultAsync(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Iso8601(TimeSpan input, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> Iso8601Async(TimeSpan input, RequestOptions options) => throw null;
 
-        public virtual ClientResult Iso8601(TimeSpan input) => throw null;
+        public virtual ClientResult Iso8601(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Iso8601Async(TimeSpan input) => throw null;
+        public virtual Task<ClientResult> Iso8601Async(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Int32Seconds(TimeSpan input, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> Int32SecondsAsync(TimeSpan input, RequestOptions options) => throw null;
 
-        public virtual ClientResult Int32Seconds(TimeSpan input) => throw null;
+        public virtual ClientResult Int32Seconds(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Int32SecondsAsync(TimeSpan input) => throw null;
+        public virtual Task<ClientResult> Int32SecondsAsync(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult FloatSeconds(TimeSpan input, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> FloatSecondsAsync(TimeSpan input, RequestOptions options) => throw null;
 
-        public virtual ClientResult FloatSeconds(TimeSpan input) => throw null;
+        public virtual ClientResult FloatSeconds(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> FloatSecondsAsync(TimeSpan input) => throw null;
+        public virtual Task<ClientResult> FloatSecondsAsync(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Float64Seconds(TimeSpan input, RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> Float64SecondsAsync(TimeSpan input, RequestOptions options) => throw null;
 
-        public virtual ClientResult Float64Seconds(TimeSpan input) => throw null;
+        public virtual ClientResult Float64Seconds(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Float64SecondsAsync(TimeSpan input) => throw null;
+        public virtual Task<ClientResult> Float64SecondsAsync(TimeSpan input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Int32SecondsArray(IList<TimeSpan> input, RequestOptions options) => throw null;
+        public virtual ClientResult Int32SecondsArray(IEnumerable<TimeSpan> input, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> Int32SecondsArrayAsync(IList<TimeSpan> input, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> Int32SecondsArrayAsync(IEnumerable<TimeSpan> input, RequestOptions options) => throw null;
 
-        public virtual ClientResult Int32SecondsArray(IList<TimeSpan> input) => throw null;
+        public virtual ClientResult Int32SecondsArray(IEnumerable<TimeSpan> input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> Int32SecondsArrayAsync(IList<TimeSpan> input) => throw null;
+        public virtual Task<ClientResult> Int32SecondsArrayAsync(IEnumerable<TimeSpan> input, CancellationToken cancellationToken = default) => throw null;
     }
 }

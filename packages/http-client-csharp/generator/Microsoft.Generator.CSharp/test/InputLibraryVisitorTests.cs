@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockVisitor.Object.Visit(_mockPlugin.Object.OutputLibrary);
 
             _mockVisitor.Protected().Verify<TypeProvider>("Visit", Times.Once(), inputModel, ItExpr.Is<ModelProvider>(m => m.Name == new ModelProvider(inputModel).Name));
-            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), inputModelProperty, ItExpr.Is<PropertyProvider>(m => m.Name == new PropertyProvider(inputModelProperty, new TestTypeProvider()).Name));
+            _mockVisitor.Protected().Verify<PropertyProvider>("Visit", Times.Once(), inputModelProperty, ItExpr.Is<PropertyProvider>(m => m.Name == new PropertyProvider(inputModelProperty, TestTypeProvider.Empty).Name));
         }
 
         [Test]

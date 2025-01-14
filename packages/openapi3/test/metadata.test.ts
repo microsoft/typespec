@@ -1,8 +1,8 @@
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { openApiFor } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: metadata", () => {
+worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
   it("will expose all properties on unreferenced models but filter properties on referenced models", async () => {
     const res = await openApiFor(`
       model M {
@@ -610,6 +610,7 @@ describe("openapi3: metadata", () => {
        @query q: string;
        @path p: string;
        @header h: string;
+       @cookie c: string;
       }
       @route("/single") @get op single(...Parameters): string;
       @route("/batch") @get op batch(@bodyRoot _: Parameters[]): string;
@@ -623,6 +624,7 @@ describe("openapi3: metadata", () => {
             { $ref: "#/components/parameters/Parameters.q" },
             { $ref: "#/components/parameters/Parameters.p" },
             { $ref: "#/components/parameters/Parameters.h" },
+            { $ref: "#/components/parameters/Parameters.c" },
           ],
           responses: {
             "200": {
@@ -677,10 +679,20 @@ describe("openapi3: metadata", () => {
           required: true,
           schema: { type: "string" },
         },
+        "Parameters.c": {
+          name: "c",
+          in: "cookie",
+          explode: false,
+          required: true,
+          schema: { type: "string" },
+        },
       },
       schemas: {
         Parameters: {
           properties: {
+            c: {
+              type: "string",
+            },
             h: {
               type: "string",
             },
@@ -691,7 +703,7 @@ describe("openapi3: metadata", () => {
               type: "string",
             },
           },
-          required: ["q", "p", "h"],
+          required: ["q", "p", "h", "c"],
           type: "object",
         },
       },
@@ -704,6 +716,7 @@ describe("openapi3: metadata", () => {
       @route("/test") @post op test(
         @query q: string;
         @header h: string;
+        @cookie c: string;
         foo: string;
         bar: int32;
       ): string;
@@ -725,6 +738,13 @@ describe("openapi3: metadata", () => {
               name: "h",
               in: "header",
               required: true,
+              schema: { type: "string" },
+            },
+            {
+              name: "c",
+              in: "cookie",
+              required: true,
+              explode: false,
               schema: { type: "string" },
             },
           ],
@@ -766,6 +786,7 @@ describe("openapi3: metadata", () => {
         @query q: string;
         @path p: string;
         @header h: string;
+        @cookie c: string;
       }
       @route("/batch") @post op batch(@bodyRoot body?: Parameters[]): string;
       `,
@@ -799,6 +820,9 @@ describe("openapi3: metadata", () => {
       schemas: {
         Parameters: {
           properties: {
+            c: {
+              type: "string",
+            },
             h: {
               type: "string",
             },
@@ -809,7 +833,7 @@ describe("openapi3: metadata", () => {
               type: "string",
             },
           },
-          required: ["q", "p", "h"],
+          required: ["q", "p", "h", "c"],
           type: "object",
         },
       },
@@ -1056,40 +1080,6 @@ describe("openapi3: metadata", () => {
     });
   });
 
-  it("supports nested bodies", async () => {
-    const res = await openApiFor(
-      `
-      model Image {
-        @header contentType: "application/octet-stream";
-        @body body: bytes;
-      }
-      op doStuffWithBytes(data: Image): int32;
-      `,
-    );
-
-    const requestSchema =
-      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
-
-    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
-  });
-
-  it("supports deeply nested bodies", async () => {
-    const res = await openApiFor(
-      `
-      model Image {
-        @header contentType: "application/octet-stream";
-        moreNesting: { @body body: bytes };
-      }
-      op doStuffWithBytes(data: Image): int32;
-      `,
-    );
-
-    const requestSchema =
-      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
-
-    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
-  });
-
   it("don't create multiple scalars with different visibility if they are the same", async () => {
     const res = await openApiFor(`
       scalar uuid extends string;
@@ -1216,5 +1206,77 @@ describe("openapi3: metadata", () => {
       },
       required: ["name"],
     });
+  });
+});
+
+worksFor(["3.0.0"], ({ openApiFor }) => {
+  it("supports nested bodies (binary payloads)", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        @body body: bytes;
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `,
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
+
+  it("supports deeply nested bodies (binary payloads)", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        moreNesting: { @body body: bytes };
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `,
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
+});
+
+worksFor(["3.1.0"], ({ openApiFor }) => {
+  it("supports nested bodies (unencoded binary payloads)", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        @body body: bytes;
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `,
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { contentMediaType: "application/octet-stream" });
+  });
+
+  it("supports deeply nested bodies (unencoded binary payloads)", async () => {
+    const res = await openApiFor(
+      `
+      model Image {
+        @header contentType: "application/octet-stream";
+        moreNesting: { @body body: bytes };
+      }
+      op doStuffWithBytes(data: Image): int32;
+      `,
+    );
+
+    const requestSchema =
+      res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
+
+    deepStrictEqual(requestSchema, { contentMediaType: "application/octet-stream" });
   });
 });

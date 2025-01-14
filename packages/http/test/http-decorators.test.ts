@@ -8,6 +8,7 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   getAuthentication,
+  getCookieParamOptions,
   getHeaderFieldName,
   getHeaderFieldOptions,
   getPathParamName,
@@ -20,6 +21,7 @@ import {
   isBody,
   isBodyIgnore,
   isBodyRoot,
+  isCookieParam,
   isHeader,
   isPathParam,
   isQueryParam,
@@ -129,6 +131,74 @@ describe("http: decorators", () => {
         name: "x-single-string",
       });
       strictEqual(getHeaderFieldName(runner.program, SingleString), "x-single-string");
+    });
+  });
+
+  describe("@cookie", () => {
+    it("emit diagnostics when @cookie is not used on model property", async () => {
+      const diagnostics = await runner.diagnose(`
+          @cookie op test(): string;
+
+          @cookie model Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @cookie decorator to test since it is not assignable to ModelProperty",
+        },
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @cookie decorator to Foo since it is not assignable to ModelProperty",
+        },
+      ]);
+    });
+
+    it("emit diagnostics when cookie name is not a string or of type CookieOptions", async () => {
+      const diagnostics = await runner.diagnose(`
+          op test(@cookie(123) MyCookie: string): string;
+          op test2(@cookie(#{ name: 123 }) MyCookie: string): string;
+          op test3(@cookie(#{ format: "invalid" }) MyCookie: string): string;
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-argument",
+        },
+        {
+          code: "invalid-argument",
+        },
+        {
+          code: "invalid-argument",
+        },
+      ]);
+    });
+
+    it("generate cookie name from property name", async () => {
+      const { myCookie } = await runner.compile(`
+          op test(@test @cookie myCookie: string): string;
+        `);
+
+      ok(isCookieParam(runner.program, myCookie));
+      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my_cookie");
+    });
+
+    it("override cookie name with 1st parameter", async () => {
+      const { myCookie } = await runner.compile(`
+          op test(@test @cookie("my-cookie") myCookie: string): string;
+        `);
+
+      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my-cookie");
+    });
+
+    it("override cookie with CookieOptions", async () => {
+      const { myCookie } = await runner.compile(`
+          op test(@test @cookie(#{name: "my-cookie"}) myCookie: string): string;
+        `);
+
+      strictEqual(getCookieParamOptions(runner.program, myCookie)?.name, "my-cookie");
     });
   });
 
@@ -638,18 +708,6 @@ describe("http: decorators", () => {
       });
     });
 
-    it("emit diagnostics when description is not provided", async () => {
-      const diagnostics = await runner.diagnose(`
-        @server("https://example.com")
-        namespace MyService {}
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "invalid-argument-count",
-        message: "Expected 2-3 arguments, but got 1.",
-      });
-    });
-
     it("emit diagnostics when parameters is not a model", async () => {
       const diagnostics = await runner.diagnose(`
         @server("https://example.com", "My service url", 123)
@@ -671,6 +729,22 @@ describe("http: decorators", () => {
         code: "@typespec/http/missing-server-param",
         message: "Server url contains parameter 'name' but wasn't found in given parameters",
       });
+    });
+
+    it("define a simple server without description", async () => {
+      const { MyService } = (await runner.compile(`
+        @server("https://example.com")
+        @test namespace MyService {}
+      `)) as { MyService: Namespace };
+
+      const servers = getServers(runner.program, MyService);
+      deepStrictEqual(servers, [
+        {
+          description: undefined,
+          parameters: new Map(),
+          url: "https://example.com",
+        },
+      ]);
     });
 
     it("define a simple server with a fixed url", async () => {

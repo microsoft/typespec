@@ -25,11 +25,6 @@ namespace Sample.Models
             {
                 if (prop.NameEquals("stringProperty"u8))
                 {
-                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
-                    {
-                        stringProperty = null;
-                        continue;
-                    }
                     stringProperty = prop.Value.GetString();
                     continue;
                 }

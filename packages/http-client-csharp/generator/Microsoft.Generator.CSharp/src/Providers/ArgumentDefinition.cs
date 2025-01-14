@@ -229,7 +229,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static ScopedApi<bool> IsCollectionEmpty(ParameterProvider valueParam, VariableExpression collection)
         {
-            return valueParam.AsExpression.Is(new DeclarationExpression(collection)).And(new MemberExpression(collection, "Count").Equal(Literal(0)));
+            return valueParam.Is(new DeclarationExpression(collection)).And(new MemberExpression(collection, "Count").Equal(Literal(0)));
         }
 
         private MethodBodyStatement ThrowArgumentException(ValueExpression expression)
@@ -266,7 +266,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private IfStatement AssertNotNullSnippet(ParameterProvider value)
         {
-            return new IfStatement(value.AsExpression.Is(Null))
+            return new IfStatement(value.Is(Null))
             {
                 Throw(New.ArgumentNullException(_nameParam, false))
             };

@@ -1,0 +1,18 @@
+---
+import BaseLayout from "./base-layout.astro";
+---
+
+<style>
+  .showcase {
+    /* background-color: var(--colorNeutralBackground3); */
+    max-width: 1024px;
+    margin: auto;
+    padding: 1rem 2rem;
+  }
+</style>
+
+<BaseLayout>
+  <div class="showcase">
+    <slot />
+  </div>
+</BaseLayout>

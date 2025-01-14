@@ -1,11 +1,14 @@
 import { codeFrameColumns } from "@babel/code-frame";
+import { relative } from "path/posix";
 import pc from "picocolors";
 import { Formatter } from "picocolors/types.js";
 import { LogLevel, LogSink, ProcessedLog, SourceLocation } from "../types.js";
 import { supportsHyperlink } from "./support-hyperlinks.js";
 
 export interface FormatLogOptions {
+  pathRelativeTo?: string;
   pretty?: boolean;
+  excludeLogLevel?: boolean;
 }
 
 export interface ConsoleSinkOptions extends FormatLogOptions {}
@@ -31,13 +34,21 @@ function hyperlink(text: string, url: string | undefined, options: FormatLogOpti
 
 export function formatLog(log: ProcessedLog, options: FormatLogOptions): string {
   const code = log.code ? ` ${hyperlink(color(options, log.code, pc.gray), log.url, options)}` : "";
-  const level = formatLevel(options, log.level);
-  const content = `${level}${code}: ${log.message}`;
-  const location = log.sourceLocation;
-  if (location?.file) {
-    const formattedLocation = formatSourceLocation(options, location);
-    const sourcePreview = formatSourcePreview(options, location);
-    return `${formattedLocation} - ${content}${sourcePreview}`;
+  const level: string = options.excludeLogLevel === true ? "" : formatLevel(options, log.level);
+  const content = level || code ? `${level}${code}: ${log.message}` : log.message;
+  const root = log.sourceLocation;
+  if (root?.file) {
+    const formattedLocation = formatSourceLocation(options, root);
+    const sourcePreview = formatSourcePreview(options, root);
+    const message = [`${formattedLocation} - ${content}${sourcePreview}`];
+
+    for (const related of log.related ?? []) {
+      const formattedLocation = formatSourceLocation(options, related.location);
+      const sourcePreview = formatSourcePreview(options, related.location);
+      message.push(indent(`${formattedLocation} - ${related.message}${sourcePreview}`));
+    }
+
+    return message.join("\n");
   } else {
     return content;
   }
@@ -60,8 +71,11 @@ function formatLevel(options: FormatLogOptions, level: LogLevel) {
 
 function formatSourceLocation(options: FormatLogOptions, location: SourceLocation) {
   const postition = getLineAndColumn(location);
-  const path = color(options, location.file.path, pc.cyan);
+  const prePath = options.pathRelativeTo
+    ? relative(process.cwd(), location.file.path)
+    : location.file.path;
 
+  const path = color(options, prePath, pc.cyan);
   const line = color(options, postition.start.line.toString(), pc.yellow);
   const column = color(options, postition.start.column.toString(), pc.yellow);
   return `${path}:${line}:${column}`;
@@ -90,6 +104,13 @@ function formatSourcePreview(options: FormatLogOptions, location: SourceLocation
     linesBelow: 0,
   });
   return `\n${result}`;
+}
+
+function indent(code: string) {
+  return code
+    .split("\n")
+    .map((x) => `  ${x}`)
+    .join("\n");
 }
 
 interface RealLocation {

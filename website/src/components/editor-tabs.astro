@@ -1,0 +1,36 @@
+---
+import { Tabs } from "@astrojs/starlight/components";
+---
+
+<style>
+  .editor-style-tabs :global(> starlight-tabs .tablist-wrapper > [role="tablist"]) {
+    margin: 0;
+    border: 0;
+    box-shadow: var(--shadow8);
+  }
+  .editor-style-tabs :global(> starlight-tabs [role="tab"]) {
+    background: var(--colorNeutralBackground2);
+    padding: calc(var(--ec-uiPadBlk) + var(--ec-frm-edActTabIndHt)) var(--ec-uiPadInl);
+    border: 0;
+    border-top: 1px solid transparent;
+  }
+
+  .editor-style-tabs :global(> starlight-tabs [role="tab"][aria-selected="true"]) {
+    background: var(--ec-frm-edBg);
+    box-shadow: var(--shadow2);
+    border-top: 1px solid var(--colorBrandForeground1);
+  }
+  .editor-style-tabs :global(> starlight-tabs [role="tabpanel"]) {
+    margin: 0;
+    border-top: 1px solid var(--colorNeutralStroke3);
+  }
+
+  .editor-style-tabs :global(> starlight-tabs .tab) {
+    margin: 0;
+  }
+</style>
+<div class="editor-style-tabs">
+  <Tabs>
+    <slot />
+  </Tabs>
+</div>

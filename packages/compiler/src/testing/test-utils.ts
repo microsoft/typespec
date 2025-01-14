@@ -1,5 +1,6 @@
+import { fail, ok } from "assert";
 import { fileURLToPath } from "url";
-import { NodeHost, resolvePath } from "../core/index.js";
+import { getTypeName, NodeHost, resolvePath, Type } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { findProjectRoot } from "../utils/misc.js";
 import {
@@ -133,4 +134,23 @@ export function trimBlankLines(code: string) {
   }
 
   return code.slice(start, end);
+}
+
+/**
+ * Compare 2 TypeSpec type and make sure they are the exact same(a === b).
+ * Show a better diff than just having ok(a===b) while not crashing like strictEqual/expect.toEqual
+ */
+export function expectTypeEquals(actual: Type | undefined, expected: Type) {
+  if (actual === expected) return;
+
+  ok(actual, "Expected value to be defined");
+
+  const message = [`Expected type ${getTypeName(actual)} to be ${getTypeName(expected)}:`];
+  if (actual.kind !== expected.kind) {
+    message.push(`kind: ${actual.kind} !== ${expected.kind}`);
+  }
+  if ("symbol" in actual && "symbol" in expected) {
+    message.push(`symbol: ${expected && actual.symbol === expected.symbol}`);
+  }
+  fail(message.join("\n"));
 }

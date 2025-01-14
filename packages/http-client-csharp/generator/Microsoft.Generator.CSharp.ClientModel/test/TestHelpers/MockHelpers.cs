@@ -47,22 +47,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
-            Func<CSharpType>? keyCredentialType = null,
             Func<InputParameter, ParameterProvider>? createParameterCore = null,
             Func<InputApiKeyAuth>? apiKeyAuth = null,
+            Func<InputOAuth2Auth>? oauth2Auth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
             Func<InputLibrary>? createInputLibrary = null,
             Func<InputClient, ClientProvider>? createClientCore = null,
-            string? configuration = null)
+            string? configuration = null,
+            ClientResponseApi? clientResponseApi = null,
+            ClientPipelineApi? clientPipelineApi = null,
+            HttpMessageApi? httpMessageApi = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
             IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
-            InputAuth inputNsAuth = apiKeyAuth != null ? new InputAuth(apiKeyAuth(), null) : new InputAuth();
+            InputAuth inputNsAuth = new InputAuth(apiKeyAuth?.Invoke(), oauth2Auth?.Invoke());
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
                 string.Empty,
@@ -77,11 +80,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             if (matchConditionsType is not null)
             {
                 mockTypeFactory.Setup(p => p.MatchConditionsType).Returns(matchConditionsType);
-            }
-
-            if (keyCredentialType is not null)
-            {
-                mockTypeFactory.Setup(p => p.KeyCredentialType).Returns(keyCredentialType);
             }
 
             if (createParameterCore is not null)
@@ -115,6 +113,20 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             mockPluginInstance.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
+            if (clientResponseApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.ClientResponseApi).Returns(clientResponseApi);
+            }
+
+            if (clientPipelineApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.ClientPipelineApi).Returns(clientPipelineApi);
+            }
+
+            if (httpMessageApi is not null)
+            {
+                mockTypeFactory.Setup(p => p.HttpMessageApi).Returns(httpMessageApi);
+            }
 
             if (createInputLibrary is not null)
             {

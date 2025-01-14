@@ -2,22 +2,24 @@ import { type ModelProperty, Program, type Scalar, getEncode } from "@typespec/c
 import { ObjectBuilder } from "@typespec/compiler/emitter-framework";
 import type { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
-import type { OpenAPI3Schema } from "./types.js";
+import type { OpenAPI3Schema, OpenAPISchema3_1 } from "./types.js";
 
 export function applyEncoding(
   program: Program,
   typespecType: Scalar | ModelProperty,
-  target: OpenAPI3Schema,
+  target: OpenAPI3Schema | OpenAPISchema3_1,
+  getEncodedFieldName: (typespecType: Scalar | ModelProperty) => string,
   options: ResolvedOpenAPI3EmitterOptions,
-): OpenAPI3Schema {
+): OpenAPI3Schema & OpenAPISchema3_1 {
   const encodeData = getEncode(program, typespecType);
   if (encodeData) {
     const newTarget = new ObjectBuilder(target);
     const newType = getSchemaForStdScalars(encodeData.type as any, options);
     newTarget.type = newType.type;
     // If the target already has a format it takes priority. (e.g. int32)
-    newTarget.format = mergeFormatAndEncoding(
-      newTarget.format,
+    const encodedFieldName = getEncodedFieldName(typespecType);
+    newTarget[encodedFieldName] = mergeFormatAndEncoding(
+      newTarget[encodedFieldName],
       encodeData.encoding,
       newType.format,
     );

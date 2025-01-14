@@ -55,7 +55,6 @@ export function emitBasicHttpMethod(
     {
       ...emitHttpOperation(context, rootClient, operationGroupName, method.operation, method),
       abstract: isAbstract(method),
-      internal: method.access === "internal",
       name: camelToSnakeCase(method.name),
       description: method.doc ?? "",
       summary: method.summary,
@@ -205,8 +204,9 @@ function emitHttpOperation(
     apiVersions: [],
     wantTracing: true,
     exposeStreamKeyword: true,
-    crossLanguageDefinitionId: method?.crossLanguageDefintionId,
+    crossLanguageDefinitionId: method?.crossLanguageDefinitionId,
     samples: arrayToRecord(method?.operation.examples),
+    internal: method.access === "internal",
   };
   if (result.bodyParameter && isSpreadBody(operation.bodyParam)) {
     result.bodyParameter["propertyToParameterName"] = {};
@@ -379,7 +379,7 @@ function emitHttpResponse(
     headers: response.headers.map((x) => emitHttpResponseHeader(context, x)),
     statusCodes:
       typeof statusCodes === "object"
-        ? [(statusCodes as HttpStatusCodeRange).start]
+        ? [[(statusCodes as HttpStatusCodeRange).start, (statusCodes as HttpStatusCodeRange).end]]
         : statusCodes === "*"
           ? ["default"]
           : [statusCodes],

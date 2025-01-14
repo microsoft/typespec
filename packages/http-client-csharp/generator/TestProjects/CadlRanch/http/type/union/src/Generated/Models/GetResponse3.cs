@@ -6,10 +6,6 @@ namespace _Type.Union.Models
 {
     public partial class GetResponse3
     {
-        public EnumsOnlyCases Prop
-        {
-            get => throw null;
-            set => throw null;
-        }
+        public EnumsOnlyCases Prop => throw null;
     }
 }

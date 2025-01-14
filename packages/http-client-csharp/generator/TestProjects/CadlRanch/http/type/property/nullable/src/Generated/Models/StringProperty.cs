@@ -6,6 +6,8 @@ namespace _Type.Property.Nullable.Models
 {
     public partial class StringProperty
     {
+        public StringProperty(string requiredProperty, string nullableProperty) => throw null;
+
         public string RequiredProperty
         {
             get => throw null;

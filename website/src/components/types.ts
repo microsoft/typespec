@@ -1,0 +1,18 @@
+export type FluentImageName =
+  | "book-pencil"
+  | "chat"
+  | "checkmark"
+  | "data-trending"
+  | "design-layout"
+  | "design"
+  | "devices-multiple"
+  | "document-add"
+  | "document-cloud"
+  | "editor"
+  | "eye-dev"
+  | "firework"
+  | "people-shield"
+  | "shield-blue"
+  | "shield-settings"
+  | "tasks"
+  | "text-edit";

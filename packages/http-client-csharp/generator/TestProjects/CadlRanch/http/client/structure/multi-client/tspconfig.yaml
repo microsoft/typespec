@@ -1,0 +1,3 @@
+options:
+  "@typespec/http-client-csharp":
+    namespace: Client.Structure.Service.Multi.Client

@@ -52,8 +52,32 @@ export function parseTemplateForScalar(ctx: JsContext, scalar: Scalar): string {
       return "Number({})";
     case "bigint":
       return "BigInt({})";
+    case "Uint8Array":
+      return "Buffer.from({}, 'base64')";
     default:
       throw new UnimplementedError(`parse template for scalar '${jsScalar}'`);
+  }
+}
+
+/**
+ * Get the string encoding template for a given scalar.
+ * @param ctx
+ * @param scalar
+ */
+export function encodeTemplateForScalar(ctx: JsContext, scalar: Scalar): string {
+  const jsScalar = getJsScalar(ctx.program, scalar, scalar);
+
+  switch (jsScalar) {
+    case "string":
+      return "{}";
+    case "number":
+      return "String({})";
+    case "bigint":
+      return "String({})";
+    case "Uint8Array":
+      return "{}.toString('base64')";
+    default:
+      throw new UnimplementedError(`encode template for scalar '${jsScalar}'`);
   }
 }
 
@@ -94,7 +118,7 @@ function createScalarsMap(program: Program): Map<Scalar, string> {
 
   for (const [[type, diagnostics]] of entries) {
     if (!type) {
-      const diagnosticString = diagnostics.map(formatDiagnostic).join("\n");
+      const diagnosticString = diagnostics.map((x) => formatDiagnostic(x)).join("\n");
       throw new Error(`failed to construct TypeSpec -> JavaScript scalar map: ${diagnosticString}`);
     } else if (type.kind !== "Scalar") {
       throw new Error(

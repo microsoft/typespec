@@ -2,11 +2,12 @@ import { Fail, KeyedMockResponse, MockResponse, PassByKeyScenario, PassByService
 import { logger } from "../logger.js";
 import { CoverageReport, ScenariosMetadata, ScenarioStatus } from "@typespec/spec-coverage-sdk";
 import { writeFileSync } from "fs";
+import { ScenariosAndScenariosMetadata } from "../app/app.js";
 
 export class CoverageTracker {
   private scenarios: Record<string, ScenarioMockApi> = {};
+  private scenariosAndScenariosMetaData: ScenariosAndScenariosMetadata[] = [];
   private hits = new Map<string, Map<string, MockResponse[]>>();
-  private scenariosMetadata: ScenariosMetadata = { commit: "", version: "" };
 
   public constructor(private coverageFile: string) {
     process.on("exit", () => {
@@ -16,9 +17,23 @@ export class CoverageTracker {
     });
   }
 
-  public setScenarios(scenariosMetadata: ScenariosMetadata, scenarios: Record<string, ScenarioMockApi>) {
-    this.scenariosMetadata = scenariosMetadata;
-    this.scenarios = scenarios;
+  public setScenarios(scenariosMetadata: ScenariosMetadata, scenarios: Record<string, ScenarioMockApi>): void;
+  public setScenarios(scenariosAndScenariosMetaData: ScenariosAndScenariosMetadata[]): void;
+
+  public setScenarios(arg1: ScenariosMetadata | ScenariosAndScenariosMetadata[], arg2?: Record<string, ScenarioMockApi>) {
+    if (arg1 instanceof Array === false && arg2 !== undefined) {
+      this.scenariosAndScenariosMetaData = [
+        {
+          scenariosMetadata: arg1,
+          scenarios: arg2,
+        }
+      ];
+    } else {
+      this.scenariosAndScenariosMetaData = arg1 as ScenariosAndScenariosMetadata[];
+      for (const {scenarios} of this.scenariosAndScenariosMetaData) {
+        this.scenarios = {...this.scenarios, ...scenarios};
+      }
+    }
   }
 
   public async trackEndpointResponse(scenarioName: string, endpoint: string, response: MockResponse) {
@@ -36,17 +51,20 @@ export class CoverageTracker {
     responses.push(response);
   }
 
-  public computeCoverage(): CoverageReport {
-    const results: Record<string, ScenarioStatus> = {};
-
-    for (const [name, mockApi] of Object.entries(this.scenarios)) {
-      results[name] = this.computeScenarioStatus(name, mockApi);
+  public computeCoverage(): CoverageReport[] {
+    const coverageReports:CoverageReport[] = [];
+    for(const {scenarios, scenariosMetadata} of this.scenariosAndScenariosMetaData) {
+      const results: Record<string, ScenarioStatus> = {};
+      for (const [name, mockApi] of Object.entries(scenarios)) {
+        results[name] = this.computeScenarioStatus(name, mockApi);        
+      }
+      coverageReports.push({
+        scenariosMetadata: scenariosMetadata,
+        results,
+        createdAt: new Date().toISOString(),
+      })
     }
-    return {
-      scenariosMetadata: this.scenariosMetadata,
-      results,
-      createdAt: new Date().toISOString(),
-    };
+    return coverageReports;
   }
 
   private saveCoverageSync() {

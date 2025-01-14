@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Property.Optional.Models;
 
@@ -19,32 +20,32 @@ namespace _Type.Property.Optional
 
         public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<UnionStringLiteralProperty> GetAll() => throw null;
+        public virtual ClientResult<UnionStringLiteralProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<UnionStringLiteralProperty>> GetAllAsync() => throw null;
+        public virtual Task<ClientResult<UnionStringLiteralProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult GetDefault(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> GetDefaultAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<UnionStringLiteralProperty> GetDefault() => throw null;
+        public virtual ClientResult<UnionStringLiteralProperty> GetDefault(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<UnionStringLiteralProperty>> GetDefaultAsync() => throw null;
+        public virtual Task<ClientResult<UnionStringLiteralProperty>> GetDefaultAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutAll(UnionStringLiteralProperty body) => throw null;
+        public virtual ClientResult PutAll(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAllAsync(UnionStringLiteralProperty body) => throw null;
+        public virtual Task<ClientResult> PutAllAsync(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult PutDefault(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult PutDefault(UnionStringLiteralProperty body) => throw null;
+        public virtual ClientResult PutDefault(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutDefaultAsync(UnionStringLiteralProperty body) => throw null;
+        public virtual Task<ClientResult> PutDefaultAsync(UnionStringLiteralProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

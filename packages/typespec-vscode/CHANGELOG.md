@@ -1,5 +1,26 @@
 # Change Log - typespec-vscode
 
+## 0.63.0
+
+No changes, version bump only.
+
+## 0.62.0
+
+### Bug Fixes
+
+- [#4912](https://github.com/microsoft/typespec/pull/4912) Fix the issue when Typespec Language Server can't be restarted when the server wasn't running before
+
+### Bump dependencies
+
+- [#4679](https://github.com/microsoft/typespec/pull/4679) Upgrade dependencies - October 2024
+
+### Features
+
+- [#4790](https://github.com/microsoft/typespec/pull/4790) Support completion for tspconfig.yaml file in vscode
+- [#4737](https://github.com/microsoft/typespec/pull/4737) Add basic snippets for typespec
+- [#4912](https://github.com/microsoft/typespec/pull/4912) TypeSpec Language Server would be restarted with new settings when setting "typespec.tsp-server.path" is changed
+
+
 ## 0.61.0
 
 ### Bug Fixes

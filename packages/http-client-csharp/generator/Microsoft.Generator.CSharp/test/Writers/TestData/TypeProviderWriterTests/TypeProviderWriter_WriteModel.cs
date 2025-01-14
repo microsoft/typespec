@@ -12,7 +12,7 @@ namespace Sample.Models
     public partial class TestModel
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
+        private protected readonly global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="global::Sample.Models.TestModel"/>. </summary>
         /// <param name="requiredString"> Description for requiredString. </param>

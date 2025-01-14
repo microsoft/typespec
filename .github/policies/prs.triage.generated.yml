@@ -104,6 +104,13 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
+                    - packages/graphql/**/*
+            then:
+              - addLabel:
+                  label: emitter:graphql
+          - if:
+              - includesModifiedFiles:
+                  files:
                     - packages/json-schema/**/*
             then:
               - addLabel:
@@ -131,16 +138,24 @@ configuration:
                   label: openapi3:converter
           - if:
               - includesModifiedFiles:
-                  files: []
+                  files:
+                    - packages/http-server-csharp
             then:
               - addLabel:
                   label: emitter:service:csharp
           - if:
               - includesModifiedFiles:
-                  files: []
+                  files:
+                    - packages/http-server-javascript
             then:
               - addLabel:
                   label: emitter:service:js
+          - if:
+              - includesModifiedFiles:
+                  files: []
+            then:
+              - addLabel:
+                  label: emitter:service:java
           - if:
               - includesModifiedFiles:
                   files:

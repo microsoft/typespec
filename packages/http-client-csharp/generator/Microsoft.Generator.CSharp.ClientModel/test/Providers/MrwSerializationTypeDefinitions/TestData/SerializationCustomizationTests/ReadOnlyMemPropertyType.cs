@@ -64,7 +64,7 @@ namespace Sample.Models
             }
         }
 
-        global::Sample.Models.Model global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Model>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Model)this.JsonModelCreateCore(ref reader, options));
+        global::Sample.Models.Model global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Model>.Create(ref global::System.Text.Json.Utf8JsonReader reader, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -96,12 +96,14 @@ namespace Sample.Models
                     {
                         continue;
                     }
-                    global::System.Collections.Generic.List<byte> array = new global::System.Collections.Generic.List<byte>();
+                    int index = 0;
+                    global::System.Byte[] array = new byte[prop.Value.GetArrayLength()];
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(item.GetByte());
+                        array[index] = item.GetByte();
+                        index++;
                     }
-                    newProp1 = array;
+                    newProp1 = new global::System.ReadOnlyMemory<byte>(array);
                     continue;
                 }
                 if (prop.NameEquals("prop2"u8))
@@ -110,12 +112,14 @@ namespace Sample.Models
                     {
                         continue;
                     }
-                    global::System.Collections.Generic.List<byte> array = new global::System.Collections.Generic.List<byte>();
+                    int index = 0;
+                    global::System.Byte[] array = new byte[prop.Value.GetArrayLength()];
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(item.GetByte());
+                        array[index] = item.GetByte();
+                        index++;
                     }
-                    newProp2 = array;
+                    newProp2 = new global::System.ReadOnlyMemory<byte>(array);
                     continue;
                 }
                 if ((options.Format != "W"))
@@ -141,7 +145,7 @@ namespace Sample.Models
             }
         }
 
-        global::Sample.Models.Model global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => ((global::Sample.Models.Model)this.PersistableModelCreateCore(data, options));
+        global::Sample.Models.Model global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>.Create(global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
@@ -165,6 +169,10 @@ namespace Sample.Models
         /// <param name="model"> The <see cref="global::Sample.Models.Model"/> to serialize into <see cref="global::System.ClientModel.BinaryContent"/>. </param>
         public static implicit operator BinaryContent(global::Sample.Models.Model model)
         {
+            if ((model == null))
+            {
+                return null;
+            }
             return global::System.ClientModel.BinaryContent.Create(model, global::Sample.ModelSerializationExtensions.WireOptions);
         }
 

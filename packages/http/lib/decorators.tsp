@@ -40,6 +40,38 @@ model HeaderOptions {
 extern dec header(target: ModelProperty, headerNameOrOptions?: string | HeaderOptions);
 
 /**
+ * Cookie Options.
+ */
+model CookieOptions {
+  /**
+   * Name in the cookie.
+   */
+  name?: string;
+}
+
+/**
+ * Specify this property is to be sent or received in the cookie.
+ *
+ * @param cookieNameOrOptions Optional name of the cookie in the cookie or cookie options.
+ *  By default the cookie name will be the property name converted from camelCase to snake_case. (e.g. `authToken` -> `auth_token`)
+ *
+ * @example
+ *
+ * ```typespec
+ * op read(@cookie token: string): {data: string[]};
+ * op create(@cookie({name: "auth_token"}) data: string[]): void;
+ * ```
+ *
+ * @example Implicit header name
+ *
+ * ```typespec
+ * op read(): {@cookie authToken: string}; // headerName: auth_token
+ * op update(@cookie AuthToken: string): void; // headerName: auth_token
+ * ```
+ */
+extern dec cookie(target: ModelProperty, cookieNameOrOptions?: valueof string | CookieOptions);
+
+/**
  * Query parameter options.
  */
 model QueryOptions {
@@ -270,6 +302,14 @@ extern dec head(target: Operation);
  *
  * ```typespec
  * @service
+ * @server("https://example.com")
+ * namespace PetStore;
+ * ```
+ *
+ * @example With a description
+ *
+ * ```typespec
+ * @service
  * @server("https://example.com", "Single server endpoint")
  * namespace PetStore;
  * ```
@@ -297,7 +337,7 @@ extern dec head(target: Operation);
 extern dec server(
   target: Namespace,
   url: valueof string,
-  description: valueof string,
+  description?: valueof string,
   parameters?: Record<unknown>
 );
 

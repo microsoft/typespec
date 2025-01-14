@@ -1,10 +1,26 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: servers", () => {
-  it("set a basic server", async () => {
+worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
+  it("set a basic server(url)", async () => {
+    const res = await openApiFor(
+      `
+      @service({title: "My service"})
+      @server("https://example.com")
+      namespace MyService {}
+      `,
+    );
+    deepStrictEqual(res.servers, [
+      {
+        url: "https://example.com",
+        variables: {},
+      },
+    ]);
+  });
+
+  it("set a basic server(url and desc)", async () => {
     const res = await openApiFor(
       `
       @service({title: "My service"})

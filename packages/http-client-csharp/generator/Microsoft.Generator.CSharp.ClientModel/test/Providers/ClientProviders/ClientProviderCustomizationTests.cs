@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var helloAgainMethod = clientProviderMethods.FirstOrDefault(m
                 => m.Signature.Name == "HelloAgain" && m.Signature.Parameters.Count > 0 && m.Signature.Parameters[0].Name == "p1");
             Assert.IsNotNull(helloAgainMethod);
-            Assert.AreEqual(1, helloAgainMethod!.Signature.Parameters.Count);
+            Assert.AreEqual(2, helloAgainMethod!.Signature.Parameters.Count);
 
             // The custom code view should contain the method
             var customCodeView = clientProvider.CustomCodeView;
@@ -187,7 +187,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual("HelloAgain", customMethods[0].Signature.Name);
 
             var customMethodParams = customMethods[0].Signature.Parameters;
-            Assert.AreEqual(1, customMethodParams.Count);
+            Assert.AreEqual(2, customMethodParams.Count);
             Assert.AreEqual("p1", customMethodParams[0].Name);
             Assert.AreEqual("MyStruct", customMethodParams[0].Type.Name);
             Assert.AreEqual(isStructCustomized ? "Sample.TestClient" : string.Empty, customMethodParams[0].Type.Namespace);
@@ -265,6 +265,59 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             {
                 Assert.IsNull(method.XmlDocs);
             }
+        }
+
+        [Test]
+        public async Task CanRenameSubClient()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            InputClient subClient = InputFactory.Client("custom", [inputOperation], [], inputClient.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [inputClient, subClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Find the sub-client provider
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "CustomClient");
+            Assert.IsNotNull(subClientProvider);
+
+            // find the parent client provider
+            var parentClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "TestClient");
+            Assert.IsNotNull(parentClientProvider);
+
+            // find the sub-client factory method
+            var subClientFactoryMethod = parentClientProvider!.Methods.SingleOrDefault(m => m.Signature.Name == "GetCustomClient");
+            Assert.IsNotNull(subClientFactoryMethod);
+        }
+
+        // Validates that the sub-client caching field is removed when the field is suppressed.
+        [Test]
+        public async Task CanRemoveCachingField()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
+            InputClient subClient = InputFactory.Client("dog", [], [], inputClient.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [inputClient, subClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // find the parent client provider
+            var parentClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == "TestClient");
+            Assert.IsNotNull(parentClientProvider);
+
+            // the sub-client caching field should not be present
+            var fields = parentClientProvider!.Fields;
+            Assert.AreEqual(1, fields.Count);
+            Assert.AreEqual("_endpoint", fields[0].Name);
+
+            var cachingField = fields.SingleOrDefault(f => f.Name == "_cachedDog");
+            Assert.IsNull(cachingField);
         }
     }
 }

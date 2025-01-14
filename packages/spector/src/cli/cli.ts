@@ -16,7 +16,7 @@ export const DEFAULT_PORT = 3000;
 
 async function main() {
   await yargs(process.argv.slice(2))
-    .scriptName("spec")
+    .scriptName("tsp-spector")
     .strict()
     .help()
     .strict()
@@ -35,29 +35,39 @@ async function main() {
       }
     })
     .command(
-      "validate-scenarios <scenariosPath>",
+      "validate-scenarios <scenariosPaths..>",
       "Compile and validate all the Spec scenarios.",
       (cmd) => {
-        return cmd.positional("scenariosPath", {
-          description: "Path to the scenarios",
+        return cmd.positional("scenariosPaths", {
+          description: "Path(s) to the scenarios",
           type: "string",
+          array: true,
           demandOption: true,
         });
       },
       async (args) => {
-        await validateScenarios({
-          scenariosPath: resolve(process.cwd(), args.scenariosPath),
-        });
+        let exitDueToPreviousError = false;
+        let hasMoreScenarios = true;
+        for (let idx = 0; idx < args.scenariosPaths.length; idx++) {
+          logger.info(`Validating scenarios at ${args.scenariosPaths[idx]}`);
+          if (idx === args.scenariosPaths.length - 1) hasMoreScenarios = false;
+          exitDueToPreviousError = await validateScenarios({
+            scenariosPath: resolve(process.cwd(), args.scenariosPaths[idx]),
+            exitDueToPreviousError,
+            hasMoreScenarios,
+          });
+        }
       },
     )
     .command(
-      "generate-scenarios-summary <scenariosPath>",
+      "generate-scenarios-summary <scenariosPaths..>",
       "Compile and validate all the Spec scenarios.",
       (cmd) => {
         return cmd
-          .positional("scenariosPath", {
-            description: "Path to the scenarios",
+          .positional("scenariosPaths", {
+            description: "Path(s) to the scenarios",
             type: "string",
+            array: true,
             demandOption: true,
           })
           .option("outputFile", {
@@ -67,22 +77,29 @@ async function main() {
           });
       },
       async (args) => {
-        await generateScenarioSummary({
-          scenariosPath: resolve(process.cwd(), args.scenariosPath),
-          outputFile: resolve(process.cwd(), args.outputFile),
-        });
+        let overrideOutputFile = false;
+        for (const scenariosPath of args.scenariosPaths) {
+          logger.info(`Generating scenarios summary for ${scenariosPath}`);
+          await generateScenarioSummary({
+            scenariosPath: resolve(process.cwd(), scenariosPath),
+            outputFile: resolve(process.cwd(), args.outputFile),
+            overrideOutputFile,
+          });
+          overrideOutputFile = true;
+        }
       },
     )
     .command("server", "Server management", (cmd) => {
       cmd
         .command(
-          "start <scenariosPath>",
+          "start <scenariosPaths..>",
           "Start the server in the background.",
           (cmd) => {
             return cmd
-              .positional("scenariosPath", {
-                description: "Path to the scenarios and mock apis",
+              .positional("scenariosPaths", {
+                description: "Path(s) to the scenarios and mock apis",
                 type: "string",
+                array: true,
                 demandOption: true,
               })
               .option("port", {
@@ -99,7 +116,7 @@ async function main() {
           },
           async (args) =>
             startInBackground({
-              scenariosPath: resolve(process.cwd(), args.scenariosPath),
+              scenariosPath: args.scenariosPaths,
               port: args.port,
               coverageFile: args.coverageFile,
             }),
@@ -119,13 +136,14 @@ async function main() {
         );
     })
     .command(
-      "serve <scenariosPath>",
+      "serve <scenariosPaths..>",
       "Serve the mock api at the given paths.",
       (cmd) => {
         return cmd
-          .positional("scenariosPath", {
-            description: "Path to the scenarios and mock apis",
+          .positional("scenariosPaths", {
+            description: "Path(s) to the scenarios and mock apis",
             type: "string",
+            array: true,
             demandOption: true,
           })
           .option("port", {
@@ -142,20 +160,21 @@ async function main() {
       },
       async (args) => {
         await serve({
-          scenariosPath: resolve(process.cwd(), args.scenariosPath),
+          scenariosPath: args.scenariosPaths,
           port: args.port,
           coverageFile: args.coverageFile,
         });
       },
     )
     .command(
-      "server-test <scenariosPath>",
+      "server-test <scenariosPaths..>",
       "Executes the test cases against the service",
       (cmd) => {
         return cmd
-          .positional("scenariosPath", {
-            description: "Path to the scenarios and mock apis",
+          .positional("scenariosPaths", {
+            description: "Path(s) to the scenarios and mock apis",
             type: "string",
+            array: true,
             demandOption: true,
           })
           .option("baseUrl", {
@@ -170,23 +189,26 @@ async function main() {
             description: "File that has the Scenarios to run",
             type: "string",
           })
-          .demandOption("scenariosPath", "serverBasePath");
+          .demandOption("scenariosPaths", "serverBasePath");
       },
       async (args) => {
-        await serverTest(args.scenariosPath, {
-          baseUrl: args.baseUrl,
-          runSingleScenario: args.runSingleScenario,
-          runScenariosFromFile: args.runScenariosFromFile,
-        });
+        for (const scenariosPath of args.scenariosPaths) {
+          logger.info(`Executing server tests for scenarios at ${scenariosPath}`);
+          await serverTest(scenariosPath, {
+            baseUrl: args.baseUrl,
+            runSingleScenario: args.runSingleScenario,
+            runScenariosFromFile: args.runScenariosFromFile,
+          });
+        }
       },
     )
     .command(
-      "check-coverage <scenariosPath>",
+      "check-coverage <scenariosPaths..>",
       "Serve the mock api at the given paths.",
       (cmd) => {
         return cmd
-          .positional("scenariosPath", {
-            description: "Path to the scenarios and mock apis",
+          .positional("scenariosPaths", {
+            description: "Path(s) to the scenarios and mock apis",
             type: "string",
             demandOption: true,
           })
@@ -213,51 +235,82 @@ async function main() {
           });
       },
       async (args) => {
-        await checkCoverage({
-          scenariosPath: resolve(process.cwd(), args.scenariosPath),
-          configFile: args.configFile,
-          mergedCoverageFile: resolve(process.cwd(), args.mergedCoverageFile),
-          coverageFiles: args.coverageFiles.map((x) => resolve(process.cwd(), x)),
-          ignoreNotImplemented: args.ignoreNotImplemented,
-        });
+        let exitDueToPreviousError = false;
+        let hasMoreScenarios = true;
+        for (let idx = 0; idx < args.scenariosPaths.length; idx++) {
+          logger.info(`Checking coverage for scenarios at ${args.scenariosPaths[idx]}`);
+          if (idx === args.scenariosPaths.length - 1) hasMoreScenarios = false;
+          exitDueToPreviousError = await checkCoverage({
+            scenariosPath: resolve(process.cwd(), args.scenariosPaths[idx]),
+            configFile: args.configFile,
+            mergedCoverageFile: resolve(process.cwd(), args.mergedCoverageFile),
+            coverageFiles: args.coverageFiles.map((x) => resolve(process.cwd(), x)),
+            ignoreNotImplemented: args.ignoreNotImplemented,
+            exitDueToPreviousError,
+            hasMoreScenarios,
+          });
+        }
       },
     )
     .command(
-      "validate-mock-apis <scenariosPath>",
+      "validate-mock-apis <scenariosPaths..>",
       "Validate mock apis have all the scenarios specified",
       (cmd) => {
-        return cmd.positional("scenariosPath", {
+        return cmd.positional("scenariosPaths", {
           description: "Path to the scenarios and mock apis",
           type: "string",
+          array: true,
           demandOption: true,
         });
       },
       async (args) => {
-        await validateMockApis({
-          scenariosPath: resolve(process.cwd(), args.scenariosPath),
-        });
+        let exitDueToPreviousError = false;
+        let hasMoreScenarios = true;
+        for (let idx = 0; idx < args.scenariosPaths.length; idx++) {
+          logger.info(`Validating mock apis for scenarios at ${args.scenariosPaths[idx]}`);
+          if (idx === args.scenariosPaths.length - 1) hasMoreScenarios = false;
+          exitDueToPreviousError = await validateMockApis({
+            scenariosPath: resolve(process.cwd(), args.scenariosPaths[idx]),
+            exitDueToPreviousError,
+            hasMoreScenarios,
+          });
+        }
       },
     )
     .command(
-      "upload-manifest <scenariosPath>",
+      "upload-manifest <scenariosPaths..>",
       "Upload the scenario manifest. DO NOT CALL in generator.",
       (cmd) => {
         return cmd
-          .positional("scenariosPath", {
+          .positional("scenariosPaths", {
             description: "Path to the scenarios and mock apis",
             type: "string",
+            array: true,
+            demandOption: true,
+          })
+          .option("setName", {
+            type: "string",
+            description: "Set used to generate the manifest.",
+            array: true,
             demandOption: true,
           })
           .option("storageAccountName", {
             type: "string",
             description: "Name of the storage account",
           })
+          .option("containerName", {
+            type: "string",
+            description: "Name of the Container",
+            demandOption: true,
+          })
           .demandOption("storageAccountName");
       },
       async (args) => {
         await uploadScenarioManifest({
-          scenariosPath: resolve(process.cwd(), args.scenariosPath),
+          scenariosPaths: args.scenariosPaths,
           storageAccountName: args.storageAccountName,
+          setNames: args.setName,
+          containerName: args.containerName,
         });
       },
     )
@@ -297,6 +350,11 @@ async function main() {
             type: "string",
             description: "Mode of generator to upload.",
           })
+          .option("containerName", {
+            type: "string",
+            description: "Name of the Container",
+            demandOption: true,
+          })
           .demandOption("generatorMode");
       },
       async (args) => {
@@ -307,6 +365,7 @@ async function main() {
           generatorVersion: args.generatorVersion,
           generatorCommit: args.generatorCommit ?? getCommit(process.cwd()),
           generatorMode: args.generatorMode,
+          containerName: args.containerName,
         });
       },
     )

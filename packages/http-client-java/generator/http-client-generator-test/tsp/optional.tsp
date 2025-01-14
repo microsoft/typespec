@@ -5,7 +5,7 @@ using TypeSpec.Http;
 @service({
   title: "Optional",
 })
-namespace Cadl.Optional;
+namespace TspTest.Optional;
 
 model Optional {
   boolean?: boolean = true;

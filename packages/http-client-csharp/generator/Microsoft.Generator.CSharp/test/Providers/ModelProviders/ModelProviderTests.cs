@@ -86,6 +86,36 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(1, derivedModelProperties.Count);
         }
 
+        [Test]
+        public void ValidateListParameterHandlingInConstructor()
+        {
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+            };
+
+            var inputModel = InputFactory.Model(
+                "model",
+                usage: InputModelTypeUsage.Input,
+                properties: properties);
+
+            var model = CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.NotNull(model);
+            Assert.IsNotNull(model);
+            Assert.AreEqual(1, model!.Properties.Count);
+
+            var fullCtor = model.Constructors.Last();
+            Assert.IsTrue(fullCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            // the internal full ctor should use IList
+            Assert.IsTrue(fullCtor.Signature.Parameters.First().Type.Equals(typeof(IList<string>)));
+
+            var publicCtor = model.Constructors.First();
+            Assert.IsTrue(publicCtor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            // the public ctor should use IEnumerable
+            Assert.IsTrue(publicCtor.Signature.Parameters.First().Type.Equals(typeof(IEnumerable<string>)));
+        }
+
         public static IEnumerable<TestCaseData> BuildProperties_ValidatePropertySettersTestCases
         {
             get
@@ -234,9 +264,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("prop1", baseParameters[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), baseParameters[0].Type);
             Assert.AreEqual(2, derivedParameters.Count);
-            Assert.AreEqual("prop3", derivedParameters[0].Name);
+            Assert.AreEqual("prop1", derivedParameters[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[0].Type);
-            Assert.AreEqual("prop1", derivedParameters[1].Name);
+            Assert.AreEqual("prop3", derivedParameters[1].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedParameters[1].Type);
 
             // validate the secondary constructor
@@ -260,18 +290,18 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), secondaryCtorParameters[3].Type);
             // validate derived secondary constructor
             Assert.AreEqual(6, derivedSecondaryCtorParams.Count); // all base props + 2 properties + 1 additionalRawData + additional props
-            Assert.AreEqual("prop3", derivedSecondaryCtorParams[0].Name);
+            Assert.AreEqual("prop1", derivedSecondaryCtorParams[0].Name);
             Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[0].Type);
-            Assert.AreEqual("prop4", derivedSecondaryCtorParams[1].Name);
+            Assert.AreEqual("prop2", derivedSecondaryCtorParams[1].Name);
             Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[1].Type);
-            Assert.AreEqual("prop1", derivedSecondaryCtorParams[2].Name);
-            Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[2].Type);
-            Assert.AreEqual("prop2", derivedSecondaryCtorParams[3].Name);
-            Assert.AreEqual(new CSharpType(typeof(string), true), derivedSecondaryCtorParams[3].Type);
-            Assert.AreEqual("additionalProperties", derivedSecondaryCtorParams[4].Name);
-            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), derivedSecondaryCtorParams[4].Type);
-            Assert.AreEqual("additionalBinaryDataProperties", derivedSecondaryCtorParams[5].Name);
-            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[5].Type);
+            Assert.AreEqual("additionalProperties", derivedSecondaryCtorParams[2].Name);
+            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, string>)), derivedSecondaryCtorParams[2].Type);
+            Assert.AreEqual("additionalBinaryDataProperties", derivedSecondaryCtorParams[3].Name);
+            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), derivedSecondaryCtorParams[3].Type);
+            Assert.AreEqual("prop3", derivedSecondaryCtorParams[4].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), derivedSecondaryCtorParams[4].Type);
+            Assert.AreEqual("prop4", derivedSecondaryCtorParams[5].Name);
+            Assert.AreEqual(new CSharpType(typeof(string), isNullable: true), derivedSecondaryCtorParams[5].Type);
         }
 
         [TestCase(true)]
@@ -348,14 +378,16 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(TypeSignatureModifiers.Public | TypeSignatureModifiers.Struct | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly, modelTypeProvider.DeclarationModifiers);
         }
 
-        [TestCase(true)]
-        [TestCase(false)]
-        public void TestBuildFields(bool containsMixedAdditionalProperties)
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(false, false)]
+        public void TestBuildFields(bool containsMixedAdditionalProperties, bool modelAsStruct)
         {
             InputType? additionalProperties = containsMixedAdditionalProperties
                 ? InputFactory.Union([InputPrimitiveType.Float64, InputPrimitiveType.Int64, InputPrimitiveType.String])
                 : null;
-            var inputModel = InputFactory.Model("TestModel", properties: [], additionalProperties: additionalProperties);
+            var inputModel = InputFactory.Model("TestModel", properties: [], additionalProperties: additionalProperties, modelAsStruct: modelAsStruct);
             var modelTypeProvider = new ModelProvider(inputModel);
             var fields = modelTypeProvider.Fields;
 
@@ -364,8 +396,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             if (containsMixedAdditionalProperties)
             {
                 Assert.AreEqual(4, fields.Count);
-                Assert.AreEqual("_additionalBinaryDataProperties", fields[0].Name);
-                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), fields[0].Type);
+                ValidateAdditionalPropertiesField(fields[0], modelAsStruct);
                 Assert.AreEqual("_additionalDoubleProperties", fields[1].Name);
                 Assert.AreEqual(new CSharpType(typeof(IDictionary<string, double>)), fields[1].Type);
                 Assert.AreEqual("_additionalInt64Properties", fields[2].Name);
@@ -375,10 +406,17 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             }
             else
             {
-                Assert.AreEqual(1, fields.Count);
-                Assert.AreEqual("_additionalBinaryDataProperties", fields[0].Name);
-                Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), fields[0].Type);
+                ValidateAdditionalPropertiesField(fields[0], modelAsStruct);
             }
+        }
+
+        private static void ValidateAdditionalPropertiesField(FieldProvider field, bool isStruct)
+        {
+            Assert.AreEqual("_additionalBinaryDataProperties", field.Name);
+            Assert.IsTrue(field.Modifiers.HasFlag(FieldModifiers.Private));
+            Assert.AreEqual(!isStruct, field.Modifiers.HasFlag(FieldModifiers.Protected));
+            Assert.IsTrue(field.Modifiers.HasFlag(FieldModifiers.ReadOnly));
+            Assert.AreEqual(new CSharpType(typeof(IDictionary<string, BinaryData>)), field.Type);
         }
 
         [TestCaseSource(nameof(BuildAdditionalPropertiesTestCases))]

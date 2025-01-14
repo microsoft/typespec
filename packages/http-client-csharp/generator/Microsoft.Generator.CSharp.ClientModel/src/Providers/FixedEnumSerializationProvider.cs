@@ -97,9 +97,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // in general, this loop builds up if statements for each value, it looks like:
             // if (<condition>) { return EnumType.TheValue; }
             // the condition could be different depending on the type of the underlying value type of the enum
-            for (int i = 0; i < _enumProvider.Fields.Count; i++)
+            for (int i = 0; i < _enumProvider.EnumValues.Count; i++)
             {
-                var enumField = _enumProvider.Fields[i];
                 var enumValue = _enumProvider.EnumValues[i];
                 ScopedApi<bool> condition;
                 if (_enumProvider.EnumUnderlyingType.Equals(typeof(string)))
@@ -121,7 +120,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 }
                 deserializationBody.Add(new IfStatement(condition)
                     {
-                        Return(new MemberExpression(_enumProvider.Type, enumField.Name))
+                        Return(new MemberExpression(_enumProvider.Type, enumValue.Name))
                     });
             }
 

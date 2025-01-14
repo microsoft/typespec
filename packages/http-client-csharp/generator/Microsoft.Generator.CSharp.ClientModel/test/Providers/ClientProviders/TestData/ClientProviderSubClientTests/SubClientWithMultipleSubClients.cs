@@ -20,5 +20,11 @@ namespace Sample
         {
             return (global::System.Threading.Volatile.Read(ref _cachedCat) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedCat, new global::Sample.Cat(), null) ?? _cachedCat));
         }
+
+        /// <summary> Initializes a new instance of HawkClient. </summary>
+        public virtual global::Sample.HawkClient GetHawkClient()
+        {
+            return (global::System.Threading.Volatile.Read(ref _cachedHawkClient) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedHawkClient, new global::Sample.HawkClient(), null) ?? _cachedHawkClient));
+        }
     }
 }

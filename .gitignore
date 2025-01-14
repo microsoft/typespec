@@ -48,6 +48,7 @@ coverage.xml
 .pytest_cache/
 test-results.xml
 test-results/
+__snapshots__/
 
 # Translations
 *.mo
@@ -128,6 +129,7 @@ lib-cov
 coverage
 !packages/spector/src/coverage
 spec-coverage.json
+manifest.json
 
 # nyc test coverage
 .nyc_output
@@ -206,8 +208,7 @@ vite.config.ts.timestamp-*
 
 # Api extractor
 packages/*/etc/
-docs/**/js-api/
-packages/website-astro/src/content/docs/current/**/js-api/
+**/docs/**/js-api/
 
 # VS Code test web temp files
 .vscode-test-web/
@@ -224,4 +225,4 @@ BenchmarkDotnet.Artifacts/
 packages/http-client-python/generator/test/**/generated/
 packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
-
+packages/http-client-python/micropip.lock
