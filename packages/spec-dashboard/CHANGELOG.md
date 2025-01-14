@@ -2,4 +2,4 @@
 
 ## 0.1.0-alpha.0
 
-- Initial Release of Spec Dashboard
+- Initial Release of Spector Dashboard
