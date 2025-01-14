@@ -1860,6 +1860,7 @@ function serializeDocument(root: SupportedOpenAPIDocuments, fileType: FileType):
         singleQuote: true,
         aliasDuplicateObjects: false,
         lineWidth: 0,
+        compat: "yaml-1.1",
       });
   }
 }
