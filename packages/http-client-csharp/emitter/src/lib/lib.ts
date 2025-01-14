@@ -44,6 +44,12 @@ const $lib = createTypeSpecLibrary({
           "Cannot generate CSharp SDK since no public root client is defined in typespec file.",
       },
     },
+    "unsupported-auth": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`${"message"}`,
+      },
+    },
   },
   emitter: {
     options: NetEmitterOptionsSchema,
