@@ -53,9 +53,10 @@ class CombinedType(BaseType):
         return self.yaml_data.get("clientDefaultValue")
 
     def description(self, *, is_operation_file: bool) -> str:
-        if len(self.types) == 2:
-            return f"Is either a {self.types[0].type_description} type or a {self.types[1].type_description} type."
-        return f"Is one of the following types: {', '.join([t.type_description for t in self.types])}"
+        type_descriptions = list({t.type_description: None for t in self.types}.keys())
+        if len(type_descriptions) == 2:
+            return f"Is either a {type_descriptions[0]} type or a {type_descriptions[1]} type."
+        return f"Is one of the following types: {', '.join(t for t in type_descriptions)}"
 
     def docstring_text(self, **kwargs: Any) -> str:
         return " or ".join(t.docstring_text(**kwargs) for t in self.types)

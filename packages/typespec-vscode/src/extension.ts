@@ -13,6 +13,7 @@ import {
   SettingName,
 } from "./types.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
+import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
 
 let client: TspLanguageClient | undefined;
@@ -41,6 +42,20 @@ export async function activate(context: ExtensionContext) {
       } catch (error) {
         logger.error(`Failed to open URL: ${url}`, [error as any]);
       }
+    }),
+  );
+
+  /* emit command. */
+  context.subscriptions.push(
+    commands.registerCommand(CommandName.GenerateCode, async (uri: vscode.Uri) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Window,
+          title: "Generate from TypeSpec...",
+          cancellable: false,
+        },
+        async () => await emitCode(context, uri),
+      );
     }),
   );
 
