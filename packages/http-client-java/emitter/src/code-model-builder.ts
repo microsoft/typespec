@@ -322,13 +322,22 @@ export class CodeModelBuilder {
         switch (scheme.type) {
           case "oauth2":
             {
-              const oauth2Scheme = new OAuth2SecurityScheme({
-                scopes: [],
-              });
-              scheme.flows.forEach((it) =>
-                oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
-              );
-              securitySchemes.push(oauth2Scheme);
+              if (this.isBranded()) {
+                const oauth2Scheme = new OAuth2SecurityScheme({
+                  scopes: [],
+                });
+                scheme.flows.forEach((it) =>
+                  oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
+                );
+                securitySchemes.push(oauth2Scheme);
+              } else {
+                // there is no TokenCredential in clientcore, hence use Bearer Authentication directly
+                const keyScheme = new KeySecurityScheme({
+                  name: "authorization",
+                });
+                (keyScheme as any).prefix = "Bearer";
+                securitySchemes.push(keyScheme);
+              }
             }
             break;
 
