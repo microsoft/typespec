@@ -3,6 +3,7 @@ import { logError, spawnAsync, trace } from "./utils.js";
 
 export const JDK_NOT_FOUND_MESSAGE =
   "Java Development Kit (JDK) is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download";
+export const CODE_RUNTIME_DEPENDENCY = "invalid-runtime-dependency";
 
 export async function validateDependencies(
   program: Program | undefined,
@@ -24,7 +25,7 @@ export async function validateDependencies(
         // // eslint-disable-next-line no-console
         // console.log("[ERROR] " + message);
         if (program && logDiagnostic) {
-          logError(program, message);
+          logError(program, message, CODE_RUNTIME_DEPENDENCY);
         }
       }
     }
@@ -36,7 +37,7 @@ export async function validateDependencies(
     // // eslint-disable-next-line no-console
     // console.log("[ERROR] " + message);
     if (program && logDiagnostic) {
-      logError(program, message);
+      logError(program, message, CODE_RUNTIME_DEPENDENCY);
     }
   }
 
@@ -60,7 +61,7 @@ export async function validateDependencies(
     // // eslint-disable-next-line no-console
     // console.log("[ERROR] " + message);
     if (program && logDiagnostic) {
-      logError(program, message);
+      logError(program, message, CODE_RUNTIME_DEPENDENCY);
     }
   }
 }

@@ -9,6 +9,7 @@ export const enum CommandName {
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",
   OpenUrl = "typespec.openUrl",
+  GenerateCode = "typespec.generateCode",
   ImportFromOpenApi3 = "typespec.importFromOpenApi3",
 }
 
