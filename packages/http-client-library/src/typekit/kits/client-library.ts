@@ -44,7 +44,7 @@ interface ClientLibraryKit {
    * @param namespace namespace to get the enums of
    */
   listEnums(namespace: Namespace): Enum[];
-  listDataTypes(namespace: Client): Type[];
+  listDataTypes(namespace: Client): Array<Model | Enum | Union>;
 }
 
 interface TK {

@@ -8,6 +8,7 @@ import { httpRuntimeTemplateLib } from "./components/external-packages/ts-http-r
 import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 import { Models } from "./components/models.js";
 import { ModelSerializers } from "./components/serializers.js";
+import { MultipartHelpers } from "./components/static-helpers/multipart-helpers.jsx";
 
 export async function $onEmit(context: EmitContext) {
   const tsNamePolicy = ts.createTSNamePolicy();
@@ -27,6 +28,9 @@ export async function $onEmit(context: EmitContext) {
             </ay.SourceDirectory>
             <ay.SourceDirectory path="api">
                 <OperationsDirectory client={topLevelClient} />
+            </ay.SourceDirectory>
+            <ay.SourceDirectory path="helpers">
+              <MultipartHelpers />
             </ay.SourceDirectory>
           </ay.SourceDirectory>
         </ts.PackageDirectory>

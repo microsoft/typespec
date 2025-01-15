@@ -1,3 +1,5 @@
+import { File as File_2 } from "../helpers/multipart-helpers.js";
+
 export interface ConstructorParameters {
   endpoint: string;
   credential: "http" | "apiKey";
@@ -58,11 +60,7 @@ export interface ToDoItemMultipartRequest {
   attachments?: Array<File>;
 }
 
-export interface File {
-  contentType?: string;
-  filename?: string;
-  contents: Uint8Array;
-}
+export type File = File_2;
 
 export interface TodoItemPatch {
   title?: string;

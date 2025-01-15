@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { ModelProperty, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { isHttpFile } from "@typespec/http";
+import { getCreateFilePartDescriptorReference } from "../static-helpers/multipart-helpers.jsx";
 import { TypeTransformCall } from "./type-transform-call.jsx";
 
 export interface BodyPartProps {
@@ -26,12 +27,7 @@ export function BodyPart(props: BodyPartProps) {
   }
 
   if (isFile(partType)) {
-    return <ts.ObjectExpression>
-    <ts.ObjectProperty name="name" jsValue={transportName} />,
-    <ts.ObjectProperty name="body" value={`${itemRef}.contents`} />,
-    <ts.ObjectProperty name="filename" value={`${itemRef}.filename`} />,
-    <ts.ObjectProperty name="contentType" value={`${itemRef}.contentType`} />,
-    </ts.ObjectExpression>;
+    return <ts.FunctionCallExpression refkey={getCreateFilePartDescriptorReference()} args={[ts.ValueExpression({jsValue: transportName}), itemRef]} />;
   }
 
   return <ts.ObjectExpression>
