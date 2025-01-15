@@ -1,6 +1,5 @@
 import vscode from "vscode";
 import logger from "../../log/logger.js";
-import { SettingName } from "../../types.js";
 
 export enum EmitterKind {
   Schema = "openapi",
@@ -34,6 +33,54 @@ export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = 
   },
 };
 
+// TODO: remove this when we can load default emitters from the compiler
+const PreDefiniedEmitters: ReadonlyArray<Emitter> = [
+  {
+    language: ".NET",
+    package: "@typespec/http-client-csharp",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-client-csharp",
+    requisites: [".NET 8.0 SDK"],
+    kind: EmitterKind.Client,
+  },
+  {
+    language: "Java",
+    package: "@typespec/http-client-java",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-client-java",
+    requisites: ["Java 17 or above", "Maven"],
+    kind: EmitterKind.Client,
+  },
+  {
+    language: "JavaScript",
+    package: "@azure-tools/typespec-ts",
+    sourceRepo: "https://github.com/Azure/autorest.typescript/tree/main/packages/typespec-ts",
+    kind: EmitterKind.Client,
+  },
+  {
+    language: "Python",
+    package: "@typespec/http-client-python",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-client-python",
+    kind: EmitterKind.Client,
+  },
+  {
+    language: ".NET",
+    package: "@typespec/http-server-csharp",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-server-csharp",
+    kind: EmitterKind.Server,
+  },
+  {
+    language: "JavaScript",
+    package: "@typespec/http-server-javascript",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/http-server-javascript",
+    kind: EmitterKind.Server,
+  },
+  {
+    language: "OpenAPI3",
+    package: "@typespec/openapi3",
+    sourceRepo: "https://github.com/microsoft/typespec/tree/main/packages/openapi3",
+    kind: EmitterKind.Schema,
+  },
+];
+
 function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter | undefined {
   let packageFullName: string = emitter.package;
   if (!packageFullName) {
@@ -60,9 +107,7 @@ function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter | undefined {
 }
 
 export function getRegisterEmitters(kind: EmitterKind): ReadonlyArray<Emitter> {
-  const extensionConfig = vscode.workspace.getConfiguration();
-  const emitters: ReadonlyArray<Emitter> =
-    extensionConfig.get(SettingName.GenerateCodeEmitters) ?? [];
+  const emitters: ReadonlyArray<Emitter> = PreDefiniedEmitters;
   return emitters
     .filter((emitter) => emitter.kind === kind)
     .map((emitter) => getEmitter(kind, emitter))
@@ -70,16 +115,12 @@ export function getRegisterEmitters(kind: EmitterKind): ReadonlyArray<Emitter> {
 }
 
 export function getRegisterEmitterTypes(): ReadonlyArray<EmitterKind> {
-  const extensionConfig = vscode.workspace.getConfiguration();
-  const emitters: ReadonlyArray<Emitter> =
-    extensionConfig.get(SettingName.GenerateCodeEmitters) ?? [];
+  const emitters: ReadonlyArray<Emitter> = PreDefiniedEmitters;
   return Array.from(new Set(emitters.map((emitter) => emitter.kind)));
 }
 
 export function getRegisterEmittersByPackage(packageName: string): Emitter | undefined {
-  const extensionConfig = vscode.workspace.getConfiguration();
-  const emitters: ReadonlyArray<Emitter> =
-    extensionConfig.get(SettingName.GenerateCodeEmitters) ?? [];
+  const emitters: ReadonlyArray<Emitter> = PreDefiniedEmitters;
   return emitters.find(
     (emitter) => emitter.package === packageName || emitter.package.startsWith(packageName + "@"),
   );
