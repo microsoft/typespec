@@ -4,6 +4,9 @@ import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { createHttpTestRunner } from "./../../test-host.js";
 
+// Activate  Http TypeKit augmentation
+import "../../../src/experimental/typekit/index.js";
+
 let runner: BasicTestRunner;
 
 beforeEach(async () => {
