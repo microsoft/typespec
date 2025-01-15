@@ -59,8 +59,8 @@ public final class NotVersionedClientImpl {
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      */
     public NotVersionedClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = endpoint;
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(NotVersionedClientService.class, this.httpPipeline);
     }
 

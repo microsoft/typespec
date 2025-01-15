@@ -61,8 +61,8 @@ public final class NestedDiscriminatorClientImpl {
      * @param endpoint Service host.
      */
     public NestedDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(NestedDiscriminatorClientService.class, this.httpPipeline);
     }
 

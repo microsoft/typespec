@@ -71,8 +71,8 @@ public final class CollectionFormatClientImpl {
      * @param endpoint Service host.
      */
     public CollectionFormatClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.queries = new QueriesImpl(this);
         this.headers = new HeadersImpl(this);
     }
