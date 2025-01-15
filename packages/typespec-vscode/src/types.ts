@@ -1,7 +1,6 @@
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
   InitTemplatesUrls = "typespec.initTemplatesUrls",
-  GenerateCodeEmitters = "typespec.generateCode.emitters",
 }
 
 export const enum CommandName {
