@@ -9,7 +9,6 @@ import signal
 import pytest
 import importlib
 from pathlib import Path
-from typing import List
 
 FILE_FOLDER = Path(__file__).parent
 
@@ -62,48 +61,6 @@ def key_credential(core_library):
         return core_library.credentials.AzureKeyCredential
     except AttributeError:
         return core_library.credentials.ServiceKeyCredential
-
-
-SPECIAL_WORDS = [
-    "and",
-    "as",
-    "assert",
-    "async",
-    "await",
-    "break",
-    "class",
-    "constructor",
-    "continue",
-    "def",
-    "del",
-    "elif",
-    "else",
-    "except",
-    "exec",
-    "finally",
-    "for",
-    "from",
-    "global",
-    "if",
-    "import",
-    "in",
-    "is",
-    "lambda",
-    "not",
-    "or",
-    "pass",
-    "raise",
-    "return",
-    "try",
-    "while",
-    "with",
-    "yield",
-]
-
-
-@pytest.fixture
-def special_words() -> List[str]:
-    return SPECIAL_WORDS
 
 
 @pytest.fixture

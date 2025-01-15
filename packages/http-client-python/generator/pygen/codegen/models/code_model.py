@@ -402,3 +402,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @property
     def is_legacy(self) -> bool:
         return _is_legacy(self.options)
+
+    @staticmethod
+    def has_non_json_models(models: List[ModelType]) -> bool:
+        return any(m for m in models if m.base != "json")
