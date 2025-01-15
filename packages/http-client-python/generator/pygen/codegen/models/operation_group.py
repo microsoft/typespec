@@ -159,7 +159,11 @@ class OperationGroup(BaseModel):
                 ImportType.SDKCORE,
             )
             file_import.add_submodule_import(
-                ".._configuration",
+                self.code_model.get_relative_import_path(
+                    serialize_namespace,
+                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
+                    module_name="_configuration",
+                ),
                 f"{self.client.name}Configuration",
                 ImportType.LOCAL,
             )
