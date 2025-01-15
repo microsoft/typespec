@@ -20,7 +20,7 @@ import * as semver from "semver";
 import { fileURLToPath } from "url";
 import {
   configurationFileName,
-  minVersionRequisiteForDotnet,
+  minSupportedDotNetSdkVersion,
   tspOutputFileName,
 } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
@@ -174,7 +174,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             { stdio: "inherit" },
           );
           if (result.exitCode !== 0) {
-            const isValid = await validateDotnet(sdkContext.program, minVersionRequisiteForDotnet);
+            const isValid = await validateDotNetSdk(
+              sdkContext.program,
+              minSupportedDotNetSdkVersion,
+            );
             // if the dotnet runtime is valid, the error is not runtime issue, log it as normal
             if (isValid) {
               if (result.stderr) Logger.getInstance().error(result.stderr);
@@ -183,7 +186,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             }
           }
         } catch (error: any) {
-          const isValid = await validateDotnet(sdkContext.program, minVersionRequisiteForDotnet);
+          const isValid = await validateDotNetSdk(sdkContext.program, minSupportedDotNetSdkVersion);
           // if the dotnet runtime is valid, the error is not runtime issue, log it as normal
           if (isValid) throw new Error(error);
         }
@@ -203,7 +206,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
  * @param minVersionRequisite The minimum required version
  */
 async function validateDotNetSdk(program: Program, minVersion: string): Promise<boolean> {
-  const parsedVersions = semver.parse(minVersionRequisite);
+  const parsedVersions = semver.parse(minVersion);
   if (!parsedVersions) {
     Logger.getInstance().error("invalid parameter: minVersionRequisite.");
     return false;
@@ -213,7 +216,7 @@ async function validateDotNetSdk(program: Program, minVersion: string): Promise<
     const dotnetVersions = findDonetVersion(result.stdout) ?? findDonetVersion(result.stderr);
     if (dotnetVersions) {
       for (const version of dotnetVersions) {
-        if (semver.gt(version, minVersionRequisite)) return true;
+        if (semver.gt(version, minVersion)) return true;
       }
       reportDiagnostic(program, {
         code: "invalid-runtime-dependency",
