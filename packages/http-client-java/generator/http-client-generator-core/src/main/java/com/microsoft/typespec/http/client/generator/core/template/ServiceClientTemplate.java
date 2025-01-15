@@ -203,29 +203,8 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                         if (!settings.isBranded()) {
                             if (constructor.getParameters()
                                 .equals(Arrays.asList(serviceClient.getHttpPipelineParameter()))) {
-
-                                constructorBlock.line("this.httpPipeline = httpPipeline;");
-                                writeSerializerMemberInitialization(constructorBlock);
-                                constructorParametersCodes.accept(constructorBlock);
-
-                                for (ServiceClientProperty serviceClientProperty : serviceClient.getProperties()
-                                    .stream()
-                                    .filter(ServiceClientProperty::isReadOnly)
-                                    .collect(Collectors.toList())) {
-                                    if (serviceClientProperty.getDefaultValueExpression() != null) {
-                                        constructorBlock.line("this.%s = %s;", serviceClientProperty.getName(),
-                                            serviceClientProperty.getDefaultValueExpression());
-                                    }
-                                }
-
-                                for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
-                                    constructorBlock.line("this.%s = new %s(this);",
-                                        methodGroupClient.getVariableName(), methodGroupClient.getClassName());
-                                }
-
-                                if (serviceClient.getProxy() != null) {
-                                    TemplateHelper.createRestProxyInstance(this, serviceClient, constructorBlock);
-                                }
+                                writeMaxOverloadedDataPlaneConstructorImplementation(constructorBlock, serviceClient,
+                                    constructorParametersCodes);
                             }
                         } else if (settings.isFluent()) {
                             if (constructor.getParameters()
@@ -283,28 +262,8 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                             } else if (constructor.getParameters()
                                 .equals(Arrays.asList(serviceClient.getHttpPipelineParameter(),
                                     serviceClient.getSerializerAdapterParameter()))) {
-                                constructorBlock.line("this.httpPipeline = httpPipeline;");
-                                writeSerializerMemberInitialization(constructorBlock);
-                                constructorParametersCodes.accept(constructorBlock);
-
-                                for (ServiceClientProperty serviceClientProperty : serviceClient.getProperties()
-                                    .stream()
-                                    .filter(ServiceClientProperty::isReadOnly)
-                                    .collect(Collectors.toList())) {
-                                    if (serviceClientProperty.getDefaultValueExpression() != null) {
-                                        constructorBlock.line("this.%s = %s;", serviceClientProperty.getName(),
-                                            serviceClientProperty.getDefaultValueExpression());
-                                    }
-                                }
-
-                                for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
-                                    constructorBlock.line("this.%s = new %s(this);",
-                                        methodGroupClient.getVariableName(), methodGroupClient.getClassName());
-                                }
-
-                                if (serviceClient.getProxy() != null) {
-                                    TemplateHelper.createRestProxyInstance(this, serviceClient, constructorBlock);
-                                }
+                                writeMaxOverloadedDataPlaneConstructorImplementation(constructorBlock, serviceClient,
+                                    constructorParametersCodes);
                             }
                         }
                     });
@@ -426,5 +385,31 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
             constructorArgs = ", " + constructorArgs;
         }
         return constructorArgs;
+    }
+
+    private void writeMaxOverloadedDataPlaneConstructorImplementation(JavaBlock constructorBlock,
+        ServiceClient serviceClient, Consumer<JavaBlock> constructorParametersCodes) {
+        constructorBlock.line("this.httpPipeline = httpPipeline;");
+        writeSerializerMemberInitialization(constructorBlock);
+        constructorParametersCodes.accept(constructorBlock);
+
+        for (ServiceClientProperty serviceClientProperty : serviceClient.getProperties()
+            .stream()
+            .filter(ServiceClientProperty::isReadOnly)
+            .collect(Collectors.toList())) {
+            if (serviceClientProperty.getDefaultValueExpression() != null) {
+                constructorBlock.line("this.%s = %s;", serviceClientProperty.getName(),
+                    serviceClientProperty.getDefaultValueExpression());
+            }
+        }
+
+        for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
+            constructorBlock.line("this.%s = new %s(this);", methodGroupClient.getVariableName(),
+                methodGroupClient.getClassName());
+        }
+
+        if (serviceClient.getProxy() != null) {
+            TemplateHelper.createRestProxyInstance(this, serviceClient, constructorBlock);
+        }
     }
 }
