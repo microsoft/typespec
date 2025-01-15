@@ -95,7 +95,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
                 [.. parameters, options]);
-            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.WireInfo.SerializedName));
 
             foreach (var param in ClientProvider.ClientParameters)
             {
@@ -411,7 +411,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             }
             else
             {
-                var paramProvider = paramMap[inputParam.Name];
+                var paramProvider = paramMap[inputParam.NameInRequest];
                 GetParamInfo(paramProvider, out type, out format, out valueExpression);
             }
         }
