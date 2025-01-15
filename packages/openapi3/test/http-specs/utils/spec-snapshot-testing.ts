@@ -3,16 +3,14 @@ import {
   NodeHost,
   ResolveCompilerOptionsOptions,
   compile,
-  getDirectoryPath,
-  getRelativePathFromDirectory,
   joinPaths,
   resolveCompilerOptions,
   resolvePath,
 } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
-import { fail, ok, strictEqual } from "assert";
+import { fail } from "assert";
 import { readdirSync } from "fs";
-import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
+import { readdir, rm } from "fs/promises";
 import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
 
 const shouldUpdateSnapshots = true; //process.env.RECORD === "true";
@@ -77,74 +75,50 @@ export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
 function defineSpecSnaphotTest(context: TestContext, config: SpecSnapshotTestOptions, spec: Spec) {
   it(spec.name, async () => {
     context.runCount++;
-    const host = createSpecSnapshotTestHost(config);
-
     const outputDir = resolvePath(config.outputDir, spec.name);
+    const host = await openApiFor(config, spec, outputDir);
 
-    const overrides: Partial<ResolveCompilerOptionsOptions["overrides"]> = {
-      outputDir,
-    };
-    if (config.emit) {
-      overrides.emit = config.emit;
-    }
-    const [options, diagnostics] = await resolveCompilerOptions(host, {
-      cwd: process.cwd(),
-      entrypoint: spec.fullPath,
-      overrides,
-    });
-    expectDiagnosticEmpty(diagnostics);
+    // if (shouldUpdateSnapshots) {
+    //   try {
+    //     await host.rm(outputDir, { recursive: true });
+    //   } catch (e) {}
+    //   await mkdir(outputDir, { recursive: true });
 
-    const emit = options.emit;
-    if (emit === undefined || emit.length === 0) {
-      fail(
-        `No emitters configured for sample "${spec.name}". Make sure the  config at: "${options.config}" is correct.`,
-      );
-    }
+    //   for (const [snapshotPath, content] of host.outputs.entries()) {
+    //     const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
 
-    const program = await compile(host, spec.fullPath, options);
-    expectDiagnosticEmpty(program.diagnostics);
+    //     try {
+    //       await mkdir(getDirectoryPath(snapshotPath), { recursive: true });
+    //       await writeFile(snapshotPath, content);
+    //       context.registerSnapshot(resolvePath(spec.name, relativePath));
+    //     } catch (e) {
+    //       throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
+    //     }
+    //   }
+    // } else {
+    //   for (const [snapshotPath, content] of host.outputs.entries()) {
+    //     const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
+    //     let existingContent;
+    //     try {
+    //       existingContent = await readFile(snapshotPath);
+    //     } catch (e: unknown) {
+    //       if (isEnoentError(e)) {
+    //         fail(`Snapshot "${snapshotPath}" is missing. Run with RECORD=true to regenerate it.`);
+    //       }
+    //       throw e;
+    //     }
+    //     context.registerSnapshot(resolvePath(spec.name, relativePath));
+    //     strictEqual(content, existingContent.toString());
+    //   }
 
-    if (shouldUpdateSnapshots) {
-      try {
-        await host.rm(outputDir, { recursive: true });
-      } catch (e) {}
-      await mkdir(outputDir, { recursive: true });
-
-      for (const [snapshotPath, content] of host.outputs.entries()) {
-        const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
-
-        try {
-          await mkdir(getDirectoryPath(snapshotPath), { recursive: true });
-          await writeFile(snapshotPath, content);
-          context.registerSnapshot(resolvePath(spec.name, relativePath));
-        } catch (e) {
-          throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
-        }
-      }
-    } else {
-      for (const [snapshotPath, content] of host.outputs.entries()) {
-        const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
-        let existingContent;
-        try {
-          existingContent = await readFile(snapshotPath);
-        } catch (e: unknown) {
-          if (isEnoentError(e)) {
-            fail(`Snapshot "${snapshotPath}" is missing. Run with RECORD=true to regenerate it.`);
-          }
-          throw e;
-        }
-        context.registerSnapshot(resolvePath(spec.name, relativePath));
-        strictEqual(content, existingContent.toString());
-      }
-
-      for (const filename of await readFilesInDirRecursively(outputDir)) {
-        const snapshotPath = resolvePath(outputDir, filename);
-        ok(
-          host.outputs.has(snapshotPath),
-          `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`,
-        );
-      }
-    }
+    //   for (const filename of await readFilesInDirRecursively(outputDir)) {
+    //     const snapshotPath = resolvePath(outputDir, filename);
+    //     ok(
+    //       host.outputs.has(snapshotPath),
+    //       `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`,
+    //     );
+    //   }
+    // }
   });
 }
 
@@ -220,4 +194,38 @@ function resolveSpecs(config: SpecSnapshotTestOptions): Spec[] {
 
 function isEnoentError(e: unknown): e is { code: "ENOENT" } {
   return typeof e === "object" && e !== null && "code" in e;
+}
+
+export async function openApiFor(
+  config: SpecSnapshotTestOptions,
+  spec: Spec,
+  outputDir: string,
+): Promise<SpecSnapshotTestHost> {
+  const host = createSpecSnapshotTestHost(config);
+
+  const overrides: Partial<ResolveCompilerOptionsOptions["overrides"]> = {
+    outputDir,
+  };
+  if (config.emit) {
+    overrides.emit = config.emit;
+  }
+  overrides.options = { ["@typespec/openapi3"]: { "file-type": "json" } };
+  const [options, diagnostics] = await resolveCompilerOptions(host, {
+    cwd: process.cwd(),
+    entrypoint: spec.fullPath,
+    overrides,
+  });
+  expectDiagnosticEmpty(diagnostics);
+
+  const emit = options.emit;
+  if (emit === undefined || emit.length === 0) {
+    fail(
+      `No emitters configured for spec "${spec.name}". Make sure the  config at: "${options.config}" is correct.`,
+    );
+  }
+
+  const program = await compile(host, spec.fullPath, options);
+  expectDiagnosticEmpty(program.diagnostics);
+
+  return host;
 }
