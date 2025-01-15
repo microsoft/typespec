@@ -202,7 +202,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
  * @param program The typespec compiler program
  * @param minVersionRequisite The minimum required version
  */
-async function validateDotnet(program: Program, minVersionRequisite: string): Promise<boolean> {
+async function validateDotNetSdk(program: Program, minVersion: string): Promise<boolean> {
   const parsedVersions = semver.parse(minVersionRequisite);
   if (!parsedVersions) {
     Logger.getInstance().error("invalid parameter: minVersionRequisite.");
