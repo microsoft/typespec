@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Providers
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
         public ParameterProvider(InputParameter inputParameter)
         {
-            Name = inputParameter.Name;
+            Name = inputParameter.Name.ToVariableName();
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             if (!inputParameter.IsRequired && !type.IsCollection)
@@ -83,7 +83,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
-            Name = name;
+            Name = name.ToVariableName();
             Type = type;
             Description = description;
             IsRef = isRef;
@@ -172,7 +172,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             if (parameter._asVariable == null)
             {
-                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name.ToVariableName(), parameter.IsRef);
+                parameter._asVariable = new VariableExpression(parameter.Type, parameter.Name, parameter.IsRef);
             }
 
             return parameter._asVariable;
