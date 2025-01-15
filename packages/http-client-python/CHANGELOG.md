@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.4
+
+### Bug Fixes
+
+- Fix pack issue for typespec namespace
+- Fix typing issue for unbranded test case
+
 ## 0.6.3
 
 ### Bug Fixes
