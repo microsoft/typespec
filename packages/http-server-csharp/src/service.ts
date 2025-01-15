@@ -674,7 +674,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         ]);
       }
       const responseInfo = this.#getOperationResponse(httpOperation);
-      const status: ResponseInfo["statusCode"] = responseInfo?.statusCode ?? 200;
+      const status = responseInfo?.statusCode ?? 200;
       const response: CSharpType =
         responseInfo?.resultType ??
         new CSharpType({
