@@ -1,5 +1,5 @@
 import { Children, code, mapJoin, Refkey } from "@alloy-js/core";
-import { Operation } from "@typespec/compiler";
+import { isVoidType, Operation } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { TypeTransformCall } from "./transforms/type-transform-call.jsx";
 
@@ -26,7 +26,7 @@ export function HttpResponses(props: HttpResponsesProps) {
   // Handle response by status code and content type
   const responses = $.httpOperation.getResponses(props.operation);
   return mapJoin(
-    responses.filter((r) => !$.httpResponse.isErrorResponse(r.responseContent)),
+    responses.filter((r) => !$.httpResponse.isErrorResponse(r)),
     ({ statusCode, contentType, responseContent, type }) => {
       const body = responseContent.body;
 
@@ -40,7 +40,7 @@ export function HttpResponses(props: HttpResponsesProps) {
         contentTypeCheck = "";
       }
 
-      if ((body && body.bodyKind === "single") || type) {
+      if ((body && body.bodyKind === "single") || (type && !isVoidType(type))) {
         expression =
           <>
       return <TypeTransformCall type={body?.type ?? type} target="application" itemPath={["response", "body"]} />;

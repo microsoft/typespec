@@ -140,23 +140,18 @@ export async function createForm(
 export async function get(
   client: TodoItemsClientContext,
   id: number,
-): Promise<
-  | {
-      id: number;
-      title: string;
-      createdBy: number;
-      assignedTo?: number;
-      description?: string;
-      status: "NotStarted" | "InProgress" | "Completed";
-      createdAt: Date;
-      updatedAt: Date;
-      completedAt?: Date;
-      labels?: TodoLabels;
-    }
-  | {
-      code: "not-found";
-    }
-> {
+): Promise<{
+  id: number;
+  title: string;
+  createdBy: number;
+  assignedTo?: number;
+  description?: string;
+  status: "NotStarted" | "InProgress" | "Completed";
+  createdAt: Date;
+  updatedAt: Date;
+  completedAt?: Date;
+  labels?: TodoLabels;
+}> {
   const path = parse("/items/{id}").expand({
     id: id,
   });
@@ -180,12 +175,6 @@ export async function get(
         ? dateDeserializer(response.body.completedAt)
         : response.body.completedAt,
       labels: response.body.labels,
-    };
-  }
-
-  if (+response.status === 200) {
-    return {
-      code: response.body.code,
     };
   }
 
@@ -238,12 +227,7 @@ export async function update(
 
   throw new Error("Unhandled response");
 }
-export async function delete_(
-  client: TodoItemsClientContext,
-  id: number,
-): Promise<void | {
-  code: "not-found";
-}> {
+export async function delete_(client: TodoItemsClientContext, id: number): Promise<void> {
   const path = parse("/items/{id}").expand({
     id: id,
   });
@@ -254,13 +238,7 @@ export async function delete_(
 
   const response = await client.path(path).delete(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
-    return response.body;
-  }
-
-  if (+response.status === 200) {
-    return {
-      code: response.body.code,
-    };
+    return;
   }
 
   throw new Error("Unhandled response");

@@ -14,12 +14,7 @@ import { AttachmentsClientContext } from "./clientContext.js";
 export async function list(
   client: AttachmentsClientContext,
   itemId: number,
-): Promise<
-  | TodoAttachmentPage
-  | {
-      code: "not-found";
-    }
-> {
+): Promise<TodoAttachmentPage> {
   const path = parse("/items/{itemId}/attachments").expand({
     itemId: itemId,
   });
@@ -33,21 +28,13 @@ export async function list(
     return todoAttachmentPageToApplication(response.body);
   }
 
-  if (+response.status === 200) {
-    return {
-      code: response.body.code,
-    };
-  }
-
   throw new Error("Unhandled response");
 }
 export async function createJsonAttachment(
   client: AttachmentsClientContext,
   itemId: number,
   contents: TodoAttachment,
-): Promise<void | {
-  code: "not-found";
-}> {
+): Promise<void> {
   const path = parse("/items/{itemId}/attachments").expand({
     itemId: itemId,
   });
@@ -61,13 +48,7 @@ export async function createJsonAttachment(
 
   const response = await client.path(path).post(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
-    return response.body;
-  }
-
-  if (+response.status === 200) {
-    return {
-      code: response.body.code,
-    };
+    return;
   }
 
   throw new Error("Unhandled response");
@@ -76,9 +57,7 @@ export async function createFileAttachment(
   client: AttachmentsClientContext,
   itemId: number,
   body: FileAttachmentMultipartRequest,
-): Promise<void | {
-  code: "not-found";
-}> {
+): Promise<void> {
   const path = parse("/items/{itemId}/attachments").expand({
     itemId: itemId,
   });
@@ -92,13 +71,7 @@ export async function createFileAttachment(
 
   const response = await client.path(path).post(httpRequestOptions);
   if (+response.status === 204 && !response.body) {
-    return response.body;
-  }
-
-  if (+response.status === 200) {
-    return {
-      code: response.body.code,
-    };
+    return;
   }
 
   throw new Error("Unhandled response");

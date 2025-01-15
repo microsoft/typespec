@@ -63,7 +63,7 @@ defineKit<TypekitExtension>({
       let responses = this.httpOperation.getResponses(operation);
 
       if (!options?.includeErrors) {
-        responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r.responseContent));
+        responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r));
       }
 
       const voidType = { kind: "Intrinsic", name: "void" } as VoidType;
