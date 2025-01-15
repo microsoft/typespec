@@ -99,8 +99,8 @@ public final class SpecialWordsClientImpl {
      * @param endpoint Service host.
      */
     public SpecialWordsClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.models = new ModelsImpl(this);
         this.modelProperties = new ModelPropertiesImpl(this);
         this.operations = new OperationsImpl(this);

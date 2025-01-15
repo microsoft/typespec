@@ -151,7 +151,7 @@ namespace Microsoft.Generator.CSharp
             return modelProvider;
         }
 
-        private ModelProvider? CreateModelCore(InputModelType model)
+        protected virtual ModelProvider? CreateModelCore(InputModelType model)
         {
             ModelProvider? type = new ModelProvider(model);
             if (Visitors.Count == 0)

@@ -57,8 +57,8 @@ public final class SingleClientImpl {
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
      */
     public SingleClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = endpoint;
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(SingleClientService.class, this.httpPipeline);
     }
 

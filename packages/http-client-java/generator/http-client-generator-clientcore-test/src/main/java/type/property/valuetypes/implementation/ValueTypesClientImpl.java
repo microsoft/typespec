@@ -449,8 +449,8 @@ public final class ValueTypesClientImpl {
      * @param endpoint Service host.
      */
     public ValueTypesClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.booleanOperations = new BooleanOperationsImpl(this);
         this.stringOperations = new StringOperationsImpl(this);
         this.bytes = new BytesImpl(this);
