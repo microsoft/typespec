@@ -4,7 +4,14 @@
 
 ### Bug Fixes
 
-- Fix import issues for typespec namespace
+- Only import helpers for serialization if input body is not binary
+- Unify descriptions for credentials in documentation
+
+### Other Changes
+
+- Add type annotations for initialized properties in msrest model inits
+- Add mypy typing to operation group inits
+- Remove Python2 specific datetime logic from internal serialization.
 
 ## 0.6.2
 
