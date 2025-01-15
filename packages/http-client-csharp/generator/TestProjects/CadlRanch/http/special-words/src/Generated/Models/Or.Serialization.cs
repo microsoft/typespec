@@ -29,7 +29,7 @@ namespace SpecialWords.Models
 
         string IPersistableModel<Or>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Or @or) => throw null;
+        public static implicit operator BinaryContent(Or or) => throw null;
 
         public static explicit operator Or(ClientResult result) => throw null;
     }

@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class IntProperty
     {
-        public IntProperty(int @property) => throw null;
+        public IntProperty(int property) => throw null;
 
         public int Property
         {

@@ -8,7 +8,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class UnknownIntProperty
     {
-        public UnknownIntProperty(BinaryData @property) => throw null;
+        public UnknownIntProperty(BinaryData property) => throw null;
 
         public BinaryData Property
         {

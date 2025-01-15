@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class FloatProperty
     {
-        public FloatProperty(float @property) => throw null;
+        public FloatProperty(float property) => throw null;
 
         public float Property
         {

@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class ExtensibleEnumProperty
     {
-        public ExtensibleEnumProperty(InnerEnum @property) => throw null;
+        public ExtensibleEnumProperty(InnerEnum property) => throw null;
 
         public InnerEnum Property
         {

@@ -98,9 +98,9 @@ namespace UnbrandedTypeSpec
         }
 
         [Conditional("DEBUG")]
-        public static void ThrowNonNullablePropertyIsNull(this JsonProperty @property)
+        public static void ThrowNonNullablePropertyIsNull(this JsonProperty property)
         {
-            throw new JsonException($"A property '{@property.Name}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build");
+            throw new JsonException($"A property '{property.Name}' defined as non-nullable but received as null from the service. This exception only happens in DEBUG builds of the library and would be ignored in the release build");
         }
 
         public static string GetRequiredString(this JsonElement element)

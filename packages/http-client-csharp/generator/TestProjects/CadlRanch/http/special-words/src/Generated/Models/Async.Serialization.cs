@@ -29,7 +29,7 @@ namespace SpecialWords.Models
 
         string IPersistableModel<Async>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        public static implicit operator BinaryContent(Async @async) => throw null;
+        public static implicit operator BinaryContent(Async async) => throw null;
 
         public static explicit operator Async(ClientResult result) => throw null;
     }

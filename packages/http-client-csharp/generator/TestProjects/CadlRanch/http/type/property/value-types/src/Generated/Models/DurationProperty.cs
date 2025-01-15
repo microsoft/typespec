@@ -8,7 +8,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class DurationProperty
     {
-        public DurationProperty(TimeSpan @property) => throw null;
+        public DurationProperty(TimeSpan property) => throw null;
 
         public TimeSpan Property
         {

@@ -8,6 +8,6 @@ namespace _Type._Array.Models
 {
     public static partial class TypeArrayModelFactory
     {
-        public static InnerModel InnerModel(string @property = default, IEnumerable<InnerModel> children = default) => throw null;
+        public static InnerModel InnerModel(string property = default, IEnumerable<InnerModel> children = default) => throw null;
     }
 }

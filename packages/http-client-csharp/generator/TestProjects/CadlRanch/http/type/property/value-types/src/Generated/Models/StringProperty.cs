@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class StringProperty
     {
-        public StringProperty(string @property) => throw null;
+        public StringProperty(string property) => throw null;
 
         public string Property
         {

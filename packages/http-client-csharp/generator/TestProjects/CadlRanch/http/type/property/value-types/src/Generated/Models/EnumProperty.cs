@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class EnumProperty
     {
-        public EnumProperty(FixedInnerEnum @property) => throw null;
+        public EnumProperty(FixedInnerEnum property) => throw null;
 
         public FixedInnerEnum Property
         {

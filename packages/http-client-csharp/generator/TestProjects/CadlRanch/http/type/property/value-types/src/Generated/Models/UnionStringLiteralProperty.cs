@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class UnionStringLiteralProperty
     {
-        public UnionStringLiteralProperty(UnionStringLiteralPropertyProperty @property) => throw null;
+        public UnionStringLiteralProperty(UnionStringLiteralPropertyProperty property) => throw null;
 
         public UnionStringLiteralPropertyProperty Property
         {

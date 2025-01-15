@@ -199,10 +199,6 @@ namespace Microsoft.Generator.CSharp
             }
 
             SyntaxKind kind = SyntaxFacts.GetKeywordKind(name);
-            if (kind == SyntaxKind.None)
-            {
-                kind = SyntaxFacts.GetContextualKeywordKind(name);
-            }
 
             return SyntaxFacts.IsKeywordKind(kind);
         }

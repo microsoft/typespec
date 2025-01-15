@@ -29,13 +29,13 @@ namespace Versioning.Removed.V2Preview
 
         public virtual Task<ClientResult<ModelV1>> V1Async(ModelV1 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult V2(string @param, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual ClientResult V2(string param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> V2Async(string @param, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> V2Async(string param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<ModelV2> V2(string @param, ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<ModelV2> V2(string param, ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<ModelV2>> V2Async(string @param, ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<ModelV2>> V2Async(string param, ModelV2 body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult ModelV3(BinaryContent content, RequestOptions options = null) => throw null;
 

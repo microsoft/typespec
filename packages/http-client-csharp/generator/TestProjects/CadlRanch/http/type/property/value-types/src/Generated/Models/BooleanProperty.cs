@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class BooleanProperty
     {
-        public BooleanProperty(bool @property) => throw null;
+        public BooleanProperty(bool property) => throw null;
 
         public bool Property
         {
