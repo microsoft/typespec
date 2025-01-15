@@ -227,7 +227,7 @@ async function validateDotnet(program: Program, minVersionRequisite: string): Pr
       });
       return false;
     } else {
-      Logger.getInstance().error("Cannot get the installed dotnet version.");
+      Logger.getInstance().error("Cannot get the installed .NET SDK version.");
       return false;
     }
   } catch (error: any) {
