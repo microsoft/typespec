@@ -1,10 +1,11 @@
-import { DecoratorContext, Namespace, getNamespaceFullName } from "@typespec/compiler";
+import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
 import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
+import { createOpenAPITestHost, createOpenAPITestRunner } from "./test-host.js";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: versioning", () => {
+worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
   it("works with models", async () => {
     const { v1, v2, v3 } = await openApiFor(
       `
@@ -120,7 +121,10 @@ describe("openapi3: versioning", () => {
     const runner = createTestWrapper(host, {
       autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
       autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "TypeSpec.OpenAPI", "TypeSpec.Versioning"],
-      compilerOptions: { emit: ["@typespec/openapi3"] },
+      compilerOptions: {
+        emit: ["@typespec/openapi3"],
+        options: { "@typespec/openapi3": { "openapi-versions": [specVersion] } },
+      },
     });
 
     await runner.compile(`
@@ -152,7 +156,10 @@ describe("openapi3: versioning", () => {
   it("doesn't throw errors when using UpdateableProperties", async () => {
     // if this test throws a duplicate name diagnostic, check that getEffectiveType
     // is returning the projected type.
-    const runner = await createOpenAPITestRunner({ withVersioning: true });
+    const runner = await createOpenAPITestRunner({
+      withVersioning: true,
+      emitterOptions: { "openapi-versions": [specVersion] },
+    });
     await runner.compile(`
       @versioned(Library.Versions)
       namespace Library {
@@ -179,7 +186,10 @@ describe("openapi3: versioning", () => {
 
   describe("versioned resource", () => {
     it("reports diagnostic without crashing for mismatched versions", async () => {
-      const runner = await createOpenAPITestRunner({ withVersioning: true });
+      const runner = await createOpenAPITestRunner({
+        withVersioning: true,
+        emitterOptions: { "openapi-versions": [specVersion] },
+      });
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
         @service
@@ -216,7 +226,10 @@ describe("openapi3: versioning", () => {
     });
 
     it("succeeds for aligned versions", async () => {
-      const runner = await createOpenAPITestRunner({ withVersioning: true });
+      const runner = await createOpenAPITestRunner({
+        withVersioning: true,
+        emitterOptions: { "openapi-versions": [specVersion] },
+      });
       await runner.compile(`
         @versioned(Versions)
         @service
