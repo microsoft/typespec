@@ -178,7 +178,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
               sdkContext.program,
               minSupportedDotNetSdkVersion,
             );
-            // if the dotnet runtime is valid, the error is not runtime issue, log it as normal
+            // if the dotnet sdk is valid, the error is not runtime dependency issue, log it as normal
             if (isValid) {
               if (result.stderr) Logger.getInstance().error(result.stderr);
               if (result.stdout) Logger.getInstance().verbose(result.stdout);
@@ -187,7 +187,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           }
         } catch (error: any) {
           const isValid = await validateDotNetSdk(sdkContext.program, minSupportedDotNetSdkVersion);
-          // if the dotnet runtime is valid, the error is not runtime issue, log it as normal
+          // if the dotnet sdk is valid, the error is not runtime dependency issue, log it as normal
           if (isValid) throw new Error(error);
         }
         if (!options["save-inputs"]) {
