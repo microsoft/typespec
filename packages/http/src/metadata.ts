@@ -50,8 +50,6 @@ export enum Visibility {
    * and therefore no metadata is applicable.
    *
    * Never use this flag. It is used internally by the HTTP core.
-   *
-   * @internal
    */
   Item = 1 << 20,
 
@@ -60,8 +58,6 @@ export enum Visibility {
    * will have fields made optional if request visibility includes update.
    *
    * Never use this flag. It is used internally by the HTTP core.
-   *
-   * @internal
    */
   Patch = 1 << 21,
 
@@ -70,8 +66,6 @@ export enum Visibility {
    * allowing the shape of PATCH request bodies to be represented exactly.
    *
    * Never use this flag. It is used internally by the HTTP core.
-   *
-   * @internal
    */
   SkipEffectiveOptionality = 1 << 22,
 
@@ -79,8 +73,6 @@ export enum Visibility {
    * Additional flags to indicate the treatment of properties in specific contexts.
    *
    * Never use these flags. They are used internally by the HTTP core.
-   *
-   * @internal
    */
   Synthetic = Visibility.Item | Visibility.Patch | Visibility.SkipEffectiveOptionality,
 }
