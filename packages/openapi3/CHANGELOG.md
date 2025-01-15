@@ -1,5 +1,19 @@
 # Change Log - @typespec/openapi3
 
+## 0.64.0
+
+### Bug Fixes
+
+- [234eaeb](https://github.com/microsoft/typespec/commit/234eaeb223b85689f73ac3971e09f26c985f6c87) Allow void to be the response body type when other fields are present in the model. Previously, using `void` as a response body type would fail compilation if the model contained other fields (like `statusCode`).
+- [#5456](https://github.com/microsoft/typespec/pull/5456) Fix: OpenAPI YAML converts strings to boolean
+
+### Features
+
+- [#5372](https://github.com/microsoft/typespec/pull/5372) Adds support for @typespec/json-schema decorators with Open API 3.0 and 3.1 emitters.
+- [#5372](https://github.com/microsoft/typespec/pull/5372) Adds support for emitting Open API 3.1 models using the `openapi-versions` emitter configuration option.
+Open API 3.0 is emitted by default.
+
+
 ## 0.63.0
 
 ### Bug Fixes
