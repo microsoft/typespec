@@ -1,18 +1,18 @@
 import { NoTarget, Program, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 
-export function logError(program: Program, msg: string) {
+export function logError(program: Program, msg: string, code: string = "http-client-java") {
   program.reportDiagnostic({
-    code: "http-client-java",
+    code: code,
     severity: "error",
     message: msg,
     target: NoTarget,
   });
 }
 
-export function logWarning(program: Program, msg: string) {
+export function logWarning(program: Program, msg: string, code: string = "http-client-java") {
   program.reportDiagnostic({
-    code: "http-client-java",
+    code: code,
     severity: "warning",
     message: msg,
     target: NoTarget,

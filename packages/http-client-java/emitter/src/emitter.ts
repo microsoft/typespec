@@ -12,7 +12,11 @@ import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
 import { logError, spawnAsync, SpawnError } from "./utils.js";
-import { JDK_NOT_FOUND_MESSAGE, validateDependencies } from "./validate.js";
+import {
+  CODE_RUNTIME_DEPENDENCY,
+  JDK_NOT_FOUND_MESSAGE,
+  validateDependencies,
+} from "./validate.js";
 
 export interface EmitterOptions {
   namespace?: string;
@@ -193,7 +197,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
         program.trace("http-client-java", `Code generation log: ${result.stdout}`);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
-          logError(program, JDK_NOT_FOUND_MESSAGE);
+          logError(program, JDK_NOT_FOUND_MESSAGE, CODE_RUNTIME_DEPENDENCY);
         } else {
           logError(
             program,

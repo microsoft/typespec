@@ -1,11 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Formatting;
+using NUnit.Framework;
 
 namespace Microsoft.Generator.CSharp.Tests.Common
 {
@@ -43,8 +47,36 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         {
             var directory = GetAssetFileOrDirectoryPath(false, parameters, method, filePath);
             var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "Microsoft.Generator.CSharp.Customization", "src");
-            var workspace = GeneratedCodeWorkspace.CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
-            return await workspace.GetCompilationAsync();
+            var project = CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
+            var compilation = await project.GetCompilationAsync();
+            Assert.IsNotNull(compilation);
+            return compilation!;
+        }
+
+        private static Project CreateExistingCodeProject(IEnumerable<string> projectDirectories, string generatedDirectory)
+        {
+            var workspace = new AdhocWorkspace();
+            var newOptionSet = workspace.Options.WithChangedOption(FormattingOptions.NewLine, LanguageNames.CSharp, "\n");
+            workspace.TryApplyChanges(workspace.CurrentSolution.WithOptions(newOptionSet));
+            Project project = workspace.AddProject("ExistingCode", LanguageNames.CSharp);
+
+            foreach (var projectDirectory in projectDirectories)
+            {
+                if (Path.IsPathRooted(projectDirectory))
+                {
+                    project = GeneratedCodeWorkspace.AddDirectory(project, Path.GetFullPath(projectDirectory), skipPredicate: sourceFile => sourceFile.StartsWith(generatedDirectory));
+                }
+            }
+
+            project = project
+                .AddMetadataReferences([
+                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                    ..CodeModelPlugin.Instance.AdditionalMetadataReferences
+                    ])
+                .WithCompilationOptions(new CSharpCompilationOptions(
+                    OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: new WorkspaceMetadataReferenceResolver(), nullableContextOptions: NullableContextOptions.Disable));
+
+            return project;
         }
     }
 }
