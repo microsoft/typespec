@@ -34,7 +34,7 @@ export const PreDefinedEmitterPickItems: Record<string, vscode.QuickPickItem> = 
 };
 
 // TODO: remove this when we can load default emitters from the compiler
-const PreDefiniedEmitters: ReadonlyArray<Emitter> = [
+const PreDefinedEmitters: ReadonlyArray<Emitter> = [
   {
     language: ".NET",
     package: "@typespec/http-client-csharp",
@@ -107,7 +107,7 @@ function getEmitter(kind: EmitterKind, emitter: Emitter): Emitter | undefined {
 }
 
 export function getRegisterEmitters(kind: EmitterKind): ReadonlyArray<Emitter> {
-  const emitters: ReadonlyArray<Emitter> = PreDefiniedEmitters;
+  const emitters: ReadonlyArray<Emitter> = PreDefinedEmitters;
   return emitters
     .filter((emitter) => emitter.kind === kind)
     .map((emitter) => getEmitter(kind, emitter))
@@ -115,12 +115,12 @@ export function getRegisterEmitters(kind: EmitterKind): ReadonlyArray<Emitter> {
 }
 
 export function getRegisterEmitterTypes(): ReadonlyArray<EmitterKind> {
-  const emitters: ReadonlyArray<Emitter> = PreDefiniedEmitters;
+  const emitters: ReadonlyArray<Emitter> = PreDefinedEmitters;
   return Array.from(new Set(emitters.map((emitter) => emitter.kind)));
 }
 
 export function getRegisterEmittersByPackage(packageName: string): Emitter | undefined {
-  const emitters: ReadonlyArray<Emitter> = PreDefiniedEmitters;
+  const emitters: ReadonlyArray<Emitter> = PreDefinedEmitters;
   return emitters.find(
     (emitter) => emitter.package === packageName || emitter.package.startsWith(packageName + "@"),
   );
