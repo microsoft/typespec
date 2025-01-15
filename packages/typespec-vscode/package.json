@@ -71,7 +71,7 @@
           "typespec.tsp-server.path": {
             "type": "string",
             "default": "",
-            "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
+            "description": "Path to 'tsp-server' command that runs the TypeSpec language server. If not specified, then 'tsp-server' will be resolved in following sequence:\n\n1. from workspace node_modules folder\nExample: ${workspaceFolder}/node_modules/@typespec/compiler\n\n2. from PATH environment variable\nExample: /usr/local/bin/tsp-server",
             "scope": "machine-overridable"
           },
           "typespec.initTemplatesUrls": {
@@ -142,6 +142,11 @@
         "category": "TypeSpec"
       },
       {
+        "command": "typespec.generateCode",
+        "title": "Generate from TypeSpec",
+        "category": "TypeSpec"
+      },
+      {
         "command": "typespec.createProject",
         "title": "Create TypeSpec Project",
         "category": "TypeSpec"
@@ -152,6 +157,22 @@
         "category": "TypeSpec"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "typespec.generateCode",
+          "when": "explorerResourceIsFolder || resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "typespec.generateCode",
+          "when": "resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ]
+    },
     "semanticTokenScopes": [
       {
         "scopes": {
@@ -229,6 +250,7 @@
     "typescript": "~5.6.3",
     "vitest": "^2.1.5",
     "vscode-languageclient": "~9.0.1",
-    "semver": "^7.6.3"
+    "semver": "^7.6.3",
+    "yaml": "~2.5.1"
   }
 }

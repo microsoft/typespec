@@ -172,8 +172,6 @@ export class CodeModelBuilder {
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
 
-  private loggingEnabled: boolean = false;
-
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
   );
@@ -186,9 +184,6 @@ export class CodeModelBuilder {
     this.options = context.options;
     this.program = program1;
     this.emitterContext = context;
-    if (this.options["dev-options"]?.loglevel) {
-      this.loggingEnabled = true;
-    }
 
     if (this.options["skip-special-headers"]) {
       this.options["skip-special-headers"].forEach((it) =>
@@ -587,7 +582,7 @@ export class CodeModelBuilder {
               }
             }
           } else if (initializationProperty.type.variantTypes.length > 2) {
-            this.logError("Multiple server url defined for one client is not supported yet.");
+            this.logError("Multiple server URL defined for one client is not supported yet.");
           }
         } else if (initializationProperty.type.kind === "endpoint") {
           sdkPathParameters = initializationProperty.type.templateArguments;
@@ -817,7 +812,7 @@ export class CodeModelBuilder {
     });
 
     codeModelOperation.language.default.crossLanguageDefinitionId =
-      sdkMethod.crossLanguageDefintionId;
+      sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
@@ -2321,7 +2316,7 @@ export class CodeModelBuilder {
 
   private getUnionVariantName(type: Type | undefined, option: any): string {
     if (type === undefined) {
-      this.logError("type is undefined.");
+      this.logWarning("Union variant type is undefined.");
       return "UnionVariant";
     }
     switch (type.kind) {
@@ -2374,7 +2369,7 @@ export class CodeModelBuilder {
       case "UnionVariant":
         return (typeof type.name === "string" ? type.name : undefined) ?? "UnionVariant";
       default:
-        this.logError(`Unrecognized type for union variable: '${type.kind}'.`);
+        this.logWarning(`Unrecognized type for union variable: '${type.kind}'.`);
         return "UnionVariant";
     }
   }
@@ -2584,9 +2579,7 @@ export class CodeModelBuilder {
   }
 
   private logWarning(msg: string) {
-    if (this.loggingEnabled) {
-      logWarning(this.program, msg);
-    }
+    logWarning(this.program, msg);
   }
 
   private trace(msg: string) {

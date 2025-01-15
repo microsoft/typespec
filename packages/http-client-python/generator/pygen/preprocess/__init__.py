@@ -501,10 +501,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for client in yaml_data["clients"]:
             self.update_client(client)
             self.update_operation_groups(yaml_data, client)
-        for clients in yaml_data["subnamespaceToClients"].values():
-            for client in clients:
-                self.update_client(client)
-                self.update_operation_groups(yaml_data, client)
         if yaml_data.get("namespace"):
             yaml_data["namespace"] = pad_builtin_namespaces(yaml_data["namespace"])
 

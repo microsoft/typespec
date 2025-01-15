@@ -266,6 +266,7 @@ ignorePaths:
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
   - packages/http-client-java/generator/http-client-generator-test/**
+  - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - pnpm-lock.yaml
   - "**/*.mp4"
   - .git/**

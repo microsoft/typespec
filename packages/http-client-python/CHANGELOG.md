@@ -1,5 +1,47 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.3
+
+### Bug Fixes
+
+- Only import helpers for serialization if input body is not binary
+- Unify descriptions for credentials in documentation
+
+### Other Changes
+
+- Add type annotations for initialized properties in msrest model inits
+- Add mypy typing to operation group inits
+- Remove Python2 specific datetime logic from internal serialization.
+
+## 0.6.2
+
+### Bug Fixes
+
+- Don't automatically overwrite version in `_version.py` file and `setup.py` file if the existing version is newer
+
+## 0.6.1
+
+### Bug Fixes
+
+- Only add linting disables for a file with too many lines if the file doesn't already disable this linter rule
+- Generate `__init__` for internal models to allow for discriminator needs
+
+## 0.6.0
+
+### Features
+
+- Add support for typespec namespace
+
+### Bug Fixes
+
+- Only add linting disables for a file with too many lines if the file doesn't already disable this linter rule
+
+## 0.5.1
+
+### Bug Fixes
+
+- Do not do exception sort if there is no operation groups
+
 ## 0.5.0
 
 ### Features
