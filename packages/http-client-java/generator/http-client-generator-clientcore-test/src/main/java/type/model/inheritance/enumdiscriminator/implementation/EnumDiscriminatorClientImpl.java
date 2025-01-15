@@ -62,8 +62,8 @@ public final class EnumDiscriminatorClientImpl {
      * @param endpoint Service host.
      */
     public EnumDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(EnumDiscriminatorClientService.class, this.httpPipeline);
     }
 

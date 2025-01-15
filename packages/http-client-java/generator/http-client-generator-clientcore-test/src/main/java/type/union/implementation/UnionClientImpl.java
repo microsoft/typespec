@@ -183,8 +183,8 @@ public final class UnionClientImpl {
      * @param endpoint Service host.
      */
     public UnionClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.stringsOnlies = new StringsOnliesImpl(this);
         this.stringExtensibles = new StringExtensiblesImpl(this);
         this.stringExtensibleNameds = new StringExtensibleNamedsImpl(this);

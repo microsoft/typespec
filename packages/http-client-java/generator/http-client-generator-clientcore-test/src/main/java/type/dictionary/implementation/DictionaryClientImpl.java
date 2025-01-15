@@ -197,8 +197,8 @@ public final class DictionaryClientImpl {
      * @param endpoint Service host.
      */
     public DictionaryClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.int32Values = new Int32ValuesImpl(this);
         this.int64Values = new Int64ValuesImpl(this);
         this.booleanValues = new BooleanValuesImpl(this);

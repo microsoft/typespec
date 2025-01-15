@@ -71,8 +71,8 @@ public final class BasicClientImpl {
      * @param endpoint Service host.
      */
     public BasicClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.explicitBodies = new ExplicitBodiesImpl(this);
         this.implicitBodies = new ImplicitBodiesImpl(this);
     }

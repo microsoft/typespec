@@ -1,5 +1,25 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.4
+
+### Bug Fixes
+
+- Fix pack issue for typespec namespace
+- Fix typing issue for unbranded test case
+
+## 0.6.3
+
+### Bug Fixes
+
+- Only import helpers for serialization if input body is not binary
+- Unify descriptions for credentials in documentation
+
+### Other Changes
+
+- Add type annotations for initialized properties in msrest model inits
+- Add mypy typing to operation group inits
+- Remove Python2 specific datetime logic from internal serialization.
+
 ## 0.6.2
 
 ### Bug Fixes

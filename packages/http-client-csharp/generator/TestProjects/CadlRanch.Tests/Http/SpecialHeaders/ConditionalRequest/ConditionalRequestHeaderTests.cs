@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SpecialHeaders.ConditionalRequest;
 
-namespace TestProjects.CadlRanch.Tests.Http.SpecialHeaders.ConditionalRequests
+namespace TestProjects.CadlRanch.Tests.Http.SpecialHeaders.ConditionalRequest
 {
     public class ConditionalRequestHeaderTests : CadlRanchTestBase
     {
         [CadlRanchTest]
         public Task Special_Headers_Conditional_Request_PostIfMatch() => Test(async (host) =>
         {
-            string ifMatch = new string("valid");
+            string ifMatch = "\"valid\"";
             var response = await new ConditionalRequestClient(host, null).PostIfMatchAsync(ifMatch);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
@@ -21,7 +21,7 @@ namespace TestProjects.CadlRanch.Tests.Http.SpecialHeaders.ConditionalRequests
         [CadlRanchTest]
         public Task Special_Headers_Conditional_Request_PostIfNoneMatch() => Test(async (host) =>
         {
-            string ifNoneMatch = new string("invalid");
+            string ifNoneMatch = "\"invalid\"";
             var response = await new ConditionalRequestClient(host, null).PostIfNoneMatchAsync(ifNoneMatch);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
