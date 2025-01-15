@@ -1,20 +1,18 @@
 import { NoTarget, Program, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 
-export function logError(program: Program, msg: string) {
-  trace(program, msg);
+export function logError(program: Program, msg: string, code: string = "http-client-java") {
   program.reportDiagnostic({
-    code: "http-client-java",
+    code: code,
     severity: "error",
     message: msg,
     target: NoTarget,
   });
 }
 
-export function logWarning(program: Program, msg: string) {
-  trace(program, msg);
+export function logWarning(program: Program, msg: string, code: string = "http-client-java") {
   program.reportDiagnostic({
-    code: "http-client-java",
+    code: code,
     severity: "warning",
     message: msg,
     target: NoTarget,
@@ -70,6 +68,17 @@ export type SpawnReturns = {
   stderr: string;
 };
 
+export class SpawnError extends Error {
+  stdout: string;
+  stderr: string;
+
+  constructor(message: string, stdout: string, stderr: string) {
+    super(message);
+    this.stdout = stdout;
+    this.stderr = stderr;
+  }
+}
+
 export async function spawnAsync(
   command: string,
   args: readonly string[],
@@ -103,7 +112,11 @@ export async function spawnAsync(
     childProcess.on("exit", (code, signal) => {
       if (code !== 0) {
         if (code) {
-          error = new Error(`${command} ended with code '${code}'.`);
+          error = new SpawnError(
+            `${command} ended with code '${code}'.`,
+            stdout.join(""),
+            stderr.join(""),
+          );
         } else {
           error = new Error(`${command} terminated by signal '${signal}'.`);
         }

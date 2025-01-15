@@ -7,7 +7,7 @@
    "$id": "2",
    "kind": "enum",
    "name": "UnionFloatLiteralPropertyProperty",
-   "crossLanguageDefinitionId": "UnionFloatLiteralProperty.property.anonymous",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property.anonymous",
    "valueType": {
     "$id": "3",
     "kind": "float32",
@@ -60,7 +60,7 @@
    "$id": "8",
    "kind": "enum",
    "name": "UnionIntLiteralPropertyProperty",
-   "crossLanguageDefinitionId": "UnionIntLiteralProperty.property.anonymous",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property.anonymous",
    "valueType": {
     "$id": "9",
     "kind": "int32",
@@ -113,7 +113,7 @@
    "$id": "14",
    "kind": "enum",
    "name": "UnionStringLiteralPropertyProperty",
-   "crossLanguageDefinitionId": "UnionStringLiteralProperty.property.anonymous",
+   "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property.anonymous",
    "valueType": {
     "$id": "15",
     "kind": "string",

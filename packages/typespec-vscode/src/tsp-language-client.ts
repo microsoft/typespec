@@ -7,6 +7,7 @@ import type {
 } from "@typespec/compiler";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
+import { TspConfigFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
 import {
@@ -142,9 +143,10 @@ export class TspLanguageClient {
     }
   }
 
-  async start(showPopupWhenError: boolean): Promise<void> {
+  async start(): Promise<void> {
     try {
       if (this.client.needsStart()) {
+        // please be aware that this method would popup error notification in vscode directly
         await this.client.start();
         logger.info("TypeSpec server started");
       } else {
@@ -162,13 +164,13 @@ export class TspLanguageClient {
             " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
           ].join("\n"),
           [],
-          { showOutput: false, showPopup: showPopupWhenError },
+          { showOutput: false, showPopup: true },
         );
         logger.error("Error detail", [e]);
       } else {
         logger.error("Unexpected error when starting TypeSpec server", [e], {
           showOutput: false,
-          showPopup: showPopupWhenError,
+          showPopup: true,
         });
       }
     }
@@ -190,7 +192,7 @@ export class TspLanguageClient {
       workspace.createFileSystemWatcher("**/*.cadl"),
       workspace.createFileSystemWatcher("**/cadl-project.yaml"),
       workspace.createFileSystemWatcher("**/*.tsp"),
-      workspace.createFileSystemWatcher("**/tspconfig.yaml"),
+      workspace.createFileSystemWatcher(`**/${TspConfigFileName}`),
       // please be aware that the vscode watch with '**' will honer the files.watcherExclude settings
       // so we won't get notification for those package.json under node_modules
       // if our customers exclude the node_modules folder in files.watcherExclude settings.
@@ -212,7 +214,7 @@ export class TspLanguageClient {
       documentSelector: [
         { scheme: "file", language: "typespec" },
         { scheme: "untitled", language: "typespec" },
-        { scheme: "file", language: "yaml", pattern: "**/tspconfig.yaml" },
+        { scheme: "file", language: "yaml", pattern: `**/${TspConfigFileName}` },
       ],
       outputChannel,
     };

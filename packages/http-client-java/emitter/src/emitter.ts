@@ -11,8 +11,12 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
-import { logError, spawnAsync } from "./utils.js";
-import { JDK_NOT_FOUND_MESSAGE, validateDependencies } from "./validate.js";
+import { logError, spawnAsync, SpawnError } from "./utils.js";
+import {
+  CODE_RUNTIME_DEPENDENCY,
+  JDK_NOT_FOUND_MESSAGE,
+  validateDependencies,
+} from "./validate.js";
 
 export interface EmitterOptions {
   namespace?: string;
@@ -117,7 +121,9 @@ export const $lib = createTypeSpecLibrary({
 
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const program = context.program;
-  await validateDependencies(program, true);
+  if (!program.compilerOptions.noEmit) {
+    await validateDependencies(program, true);
+  }
 
   if (!program.hasError()) {
     const options = context.options;
@@ -187,12 +193,19 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       javaArgs.push(jarFileName);
       javaArgs.push(codeModelFileName);
       try {
-        await spawnAsync("java", javaArgs, { stdio: "inherit" });
+        const result = await spawnAsync("java", javaArgs, { stdio: "pipe" });
+        program.trace("http-client-java", `Code generation log: ${result.stdout}`);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
-          logError(program, JDK_NOT_FOUND_MESSAGE);
+          logError(program, JDK_NOT_FOUND_MESSAGE, CODE_RUNTIME_DEPENDENCY);
         } else {
-          logError(program, error.message);
+          logError(
+            program,
+            'The emitter was unable to generate client code from this TypeSpec, please run this command again with "--trace http-client-java" to get diagnostic information, and open an issue on https://github.com/microsoft/typespec',
+          );
+          if (error instanceof SpawnError) {
+            program.trace("http-client-java", `Code generation error: ${error.stdout}`);
+          }
         }
       }
 
