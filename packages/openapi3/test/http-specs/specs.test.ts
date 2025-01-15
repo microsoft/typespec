@@ -15,24 +15,24 @@ const config = {
 
 describe("http-specs convert", () => {
   defineSpecSnaphotTests(config);
+});
 
-  describe("http-specs cases", () => {
-    it("authentication/api-key", async () => {
-      const currRoot = resolvePath(specsRoot, "authentication/api-key");
-      const host = await openApiFor(
-        config,
-        {
-          name: "authentication/api-key",
-          fullPath: currRoot,
-        },
-        rootOutputDir,
-      );
-      expect(host.outputs.size).toBe(1);
-      for (const [snapshotPath, content] of host.outputs.entries()) {
-        const res = JSON.parse(content);
-        const getThing = res.paths["/authentication/api-key/invalid"].get;
-        strictEqual(getThing.operationId, "invalid");
-      }
-    });
+describe("http-specs cases", () => {
+  it("authentication/api-key", async () => {
+    const currRoot = resolvePath(specsRoot, "authentication/api-key");
+    const host = await openApiFor(
+      config,
+      {
+        name: "authentication/api-key",
+        fullPath: currRoot,
+      },
+      rootOutputDir,
+    );
+    expect(host.outputs.size).toBe(1);
+    for (const [snapshotPath, content] of host.outputs.entries()) {
+      const res = JSON.parse(content);
+      const getThing = res.paths["/authentication/api-key/invalid"].get;
+      strictEqual(getThing.operationId, "invalid");
+    }
   });
 });
