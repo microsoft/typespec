@@ -2549,8 +2549,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case IdentifierKind.ModelExpressionProperty:
       case IdentifierKind.ObjectLiteralProperty:
         const model = getReferencedModel(node as ModelPropertyNode | ObjectLiteralPropertyNode);
-        if (model && !Array.isArray(model)) {
-          sym = getMemberSymbol(model.node!.symbol, id.sv);
+        if (model.length === 1) {
+          sym = getMemberSymbol(model[0].node!.symbol, id.sv);
         } else {
           return undefined;
         }
@@ -2617,7 +2617,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function getReferencedModel(
     propertyNode: ObjectLiteralPropertyNode | ModelPropertyNode,
-  ): Model | Model[] | undefined {
+  ): Model[] {
     type ModelOrArrayValueNode = ArrayLiteralNode | ObjectLiteralNode;
     type ModelOrArrayTypeNode = ModelExpressionNode | TupleExpressionNode;
     type ModelOrArrayNode = ModelOrArrayValueNode | ModelOrArrayTypeNode;
@@ -2661,9 +2661,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         break;
     }
 
-    return refType?.kind === "Model" || refType?.kind === "Tuple" || refType?.kind === "Union"
-      ? getNestedModel(refType, path)
-      : undefined;
+    return getNestedModel(refType, path);
 
     function pushToModelPath(node: Node, preNode: Node | undefined, path: PathSeg[]) {
       if (node.kind === SyntaxKind.ArrayLiteral || node.kind === SyntaxKind.TupleExpression) {
@@ -2680,91 +2678,77 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ) {
         path.unshift({ propertyName: node.id.sv });
       }
-      if (node.kind === SyntaxKind.ObjectLiteral) {
-        // define tupleIndex as -1 to indicate that we are looking for union type
-        const curResult = path.find((i) => i.tupleIndex === -1);
-        if (curResult === undefined) {
-          path.unshift({ tupleIndex: -1 });
+    }
+
+    function getNestedModel(modelOrTupleOrUnion: Type | undefined, path: PathSeg[]): Model[] {
+      let cur = modelOrTupleOrUnion;
+      const models: Model[] = [];
+      if (cur?.kind === "Model" || cur?.kind === "Tuple" || cur?.kind === "Union") {
+        if (path.length <= 0) {
+          // Handle union type nesting when path is empty
+          switch (cur?.kind) {
+            case "Model":
+              models.push(cur);
+              for (const child of cur.properties.values()) {
+                if (child.type.kind === "Model") {
+                  models.push(...(getNestedModel(child.type, path) ?? []));
+                }
+              }
+              return models;
+            case "Union":
+              for (const variant of cur.variants.values()) {
+                if (variant.type.kind === "Model" || variant.type.kind === "Tuple") {
+                  models.push(...(getNestedModel(variant.type, path) ?? []));
+                }
+              }
+              return models;
+            default:
+              return models;
+          }
         } else {
-          if (path.length > 1) {
-            // If it is a specific type in the union type, the previous -1 needs to be deleted
-            const removeIdx = path.findIndex((i) => i.tupleIndex === -1);
-            if (removeIdx !== -1) {
-              path.splice(removeIdx, 1);
+          for (const seg of path) {
+            switch (cur?.kind) {
+              case "Tuple":
+                if (
+                  seg.tupleIndex !== undefined &&
+                  seg.tupleIndex >= 0 &&
+                  seg.tupleIndex < cur.values.length
+                ) {
+                  cur = cur.values[seg.tupleIndex];
+                } else {
+                  return models;
+                }
+                break;
+              case "Model":
+                if (cur.name === "Array" && seg.tupleIndex !== undefined) {
+                  cur = cur.templateMapper?.args[0] as Model;
+                } else if (cur.name !== "Array" && seg.propertyName) {
+                  cur = cur.properties.get(seg.propertyName)?.type;
+                } else {
+                  return models;
+                }
+                break;
+              case "Union":
+                // When seg.property name exists, it means that it is in the union model or tuple,
+                // and the corresponding model or tuple needs to be found recursively.
+                for (const variant of cur.variants.values()) {
+                  if (variant.type.kind === "Model" || variant.type.kind === "Tuple") {
+                    models.push(...(getNestedModel(variant.type, path) ?? []));
+                  }
+                }
+                break;
+              default:
+                return models;
             }
+          }
+
+          if (cur?.kind === "Model") {
+            models.push(cur);
           }
         }
       }
-    }
 
-    function getNestedModel(
-      modelOrTuple: Model | Tuple | Union | undefined,
-      path: PathSeg[],
-    ): Model[] | undefined {
-      let cur: Type | undefined = modelOrTuple;
-      const models: Model[] = [];
-      for (const seg of path) {
-        switch (cur?.kind) {
-          case "Tuple":
-            if (
-              seg.tupleIndex !== undefined &&
-              seg.tupleIndex >= 0 &&
-              seg.tupleIndex < cur.values.length
-            ) {
-              cur = cur.values[seg.tupleIndex];
-            } else {
-              return undefined;
-            }
-            break;
-          case "Model":
-            if (cur.name === "Array" && seg.tupleIndex !== undefined) {
-              cur = cur.templateMapper?.args[0] as Model;
-            } else if (cur.name !== "Array" && seg.propertyName) {
-              cur = cur.properties.get(seg.propertyName)?.type;
-              if (cur?.kind === "Model") {
-                const result = getNestedModel(cur, path);
-                if (result) {
-                  models.push(...result);
-                }
-              }
-            } else if (seg.tupleIndex === -1) {
-              for (const child of cur.properties.values()) {
-                if (child.type.kind === "Model") {
-                  const result = getNestedModel(child.type, path);
-                  if (result) {
-                    models.push(...result);
-                  }
-                }
-              }
-            } else {
-              return undefined;
-            }
-
-            break;
-          case "Union":
-            if (seg.tupleIndex === -1 || seg.propertyName) {
-              // seg.propertyName is empty and contains all,
-              // otherwise the value contains the model property corresponding to seg.propertyName
-              for (const variant of cur.variants.values()) {
-                if (variant.type.kind === "Model") {
-                  const result = getNestedModel(variant.type, path);
-                  if (result) {
-                    models.push(...result);
-                  }
-                }
-              }
-            }
-            break;
-          default:
-            return undefined;
-        }
-      }
-
-      if (cur?.kind === "Model") {
-        models.push(cur);
-      }
-
-      return models.length > 0 ? models : undefined;
+      return models;
     }
 
     function getReferencedTypeFromTemplateDeclaration(node: ModelOrArrayNode): Type | undefined {
@@ -2957,16 +2941,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       kind === IdentifierKind.ObjectLiteralProperty
     ) {
       const model = getReferencedModel(ancestor as ModelPropertyNode | ObjectLiteralPropertyNode);
-      if (!model) {
+      if (model.length <= 0) {
         return completions;
       }
       const curModelNode = ancestor.parent as ModelExpressionNode | ObjectLiteralNode;
-      if (Array.isArray(model)) {
-        for (const curModel of model) {
-          addInheritedPropertyCompletions(curModel, curModelNode);
-        }
-      } else {
-        addInheritedPropertyCompletions(model, curModelNode);
+      for (const curModel of model) {
+        addInheritedPropertyCompletions(curModel, curModelNode);
       }
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
