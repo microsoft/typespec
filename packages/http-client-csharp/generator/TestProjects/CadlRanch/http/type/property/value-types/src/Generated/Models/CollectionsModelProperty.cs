@@ -8,7 +8,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class CollectionsModelProperty
     {
-        public CollectionsModelProperty(IEnumerable<InnerModel> property) => throw null;
+        public CollectionsModelProperty(IEnumerable<InnerModel> @property) => throw null;
 
         public IList<InnerModel> Property => throw null;
     }

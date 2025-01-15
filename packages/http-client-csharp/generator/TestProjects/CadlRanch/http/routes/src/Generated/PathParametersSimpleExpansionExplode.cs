@@ -16,28 +16,28 @@ namespace Routes
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Primitive(string param, RequestOptions options) => throw null;
+        public virtual ClientResult Primitive(string @param, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> PrimitiveAsync(string param, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> PrimitiveAsync(string @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult Primitive(string param, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Primitive(string @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PrimitiveAsync(string param, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> PrimitiveAsync(string @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Array(IEnumerable<string> param, RequestOptions options) => throw null;
+        public virtual ClientResult Array(IEnumerable<string> @param, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> param, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult Array(IEnumerable<string> param, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Array(IEnumerable<string> @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> param, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> ArrayAsync(IEnumerable<string> @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult Record(IDictionary<string, int> param, RequestOptions options) => throw null;
+        public virtual ClientResult Record(IDictionary<string, int> @param, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> param, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param, RequestOptions options) => throw null;
 
-        public virtual ClientResult Record(IDictionary<string, int> param, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult Record(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> param, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> RecordAsync(IDictionary<string, int> @param, CancellationToken cancellationToken = default) => throw null;
     }
 }

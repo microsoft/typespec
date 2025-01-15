@@ -8,7 +8,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class BytesProperty
     {
-        public BytesProperty(BinaryData property) => throw null;
+        public BytesProperty(BinaryData @property) => throw null;
 
         public BinaryData Property
         {

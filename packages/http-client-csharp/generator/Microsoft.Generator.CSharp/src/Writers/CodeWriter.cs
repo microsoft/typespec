@@ -679,6 +679,10 @@ namespace Microsoft.Generator.CSharp
 
         internal CodeWriter WriteIdentifier(string identifier)
         {
+            if (_writingXmlDocumentation)
+            {
+                return AppendRaw(identifier.ToXmlDocIdentifierName());
+            }
             if (StringExtensions.IsCSharpKeyword(identifier))
             {
                 AppendRaw("@");

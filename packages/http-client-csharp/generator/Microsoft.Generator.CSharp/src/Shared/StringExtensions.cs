@@ -199,8 +199,29 @@ namespace Microsoft.Generator.CSharp
             }
 
             SyntaxKind kind = SyntaxFacts.GetKeywordKind(name);
+            if (kind == SyntaxKind.None)
+            {
+                kind = SyntaxFacts.GetContextualKeywordKind(name);
+            }
 
             return SyntaxFacts.IsKeywordKind(kind);
+        }
+
+        [return: NotNullIfNotNull(nameof(name))]
+        public static string ToXmlDocIdentifierName(this string name)
+        {
+            var span = name.AsSpan();
+            if (span.Length == 0)
+            {
+                return name;
+            }
+
+            if (name[0] != '@')
+            {
+                return name;
+            }
+
+            return span[1..].ToString();
         }
 
         public static string ToApiVersionMemberName(this string version)

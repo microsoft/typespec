@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class UnionFloatLiteralProperty
     {
-        public UnionFloatLiteralProperty(UnionFloatLiteralPropertyProperty property) => throw null;
+        public UnionFloatLiteralProperty(UnionFloatLiteralPropertyProperty @property) => throw null;
 
         public UnionFloatLiteralPropertyProperty Property
         {

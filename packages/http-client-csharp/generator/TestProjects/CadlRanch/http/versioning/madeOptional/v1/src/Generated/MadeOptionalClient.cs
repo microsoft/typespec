@@ -21,12 +21,12 @@ namespace Versioning.MadeOptional.V1
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Test(string param, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual ClientResult Test(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> TestAsync(string param, BinaryContent content, RequestOptions options = null) => throw null;
+        public virtual Task<ClientResult> TestAsync(string @param, BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<TestModel> Test(string param, TestModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult<TestModel> Test(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<TestModel>> TestAsync(string param, TestModel body, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult<TestModel>> TestAsync(string @param, TestModel body, CancellationToken cancellationToken = default) => throw null;
     }
 }

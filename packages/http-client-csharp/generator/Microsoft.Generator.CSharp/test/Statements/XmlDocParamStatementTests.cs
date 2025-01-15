@@ -9,6 +9,19 @@ namespace Microsoft.Generator.CSharp.Tests.Statements
 {
     public class XmlDocParamStatementTests
     {
+        [TestCase("new-parameter", ExpectedResult = "/// <param name=\"newParameter\"></param>\n")]
+        [TestCase("param", ExpectedResult = "/// <param name=\"param\"></param>\n")]
+        [TestCase("void", ExpectedResult = "/// <param name=\"void\"></param>\n")]
+        [TestCase("@what", ExpectedResult = "/// <param name=\"what\"></param>\n")]
+        public string XmlDocForParameterWithInvalidIdentifierName(string parameterName)
+        {
+            var parameter = new ParameterProvider(parameterName, FormattableStringHelpers.Empty, typeof(string));
+            var statement = new XmlDocParamStatement(parameter);
+            using var writer = new CodeWriter();
+            statement.Write(writer);
+            return writer.ToString(false);
+        }
+
         [Test]
         public void InvalidDocComment()
         {

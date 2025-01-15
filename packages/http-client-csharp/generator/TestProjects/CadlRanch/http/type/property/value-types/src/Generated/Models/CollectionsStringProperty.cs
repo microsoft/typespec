@@ -8,7 +8,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class CollectionsStringProperty
     {
-        public CollectionsStringProperty(IEnumerable<string> property) => throw null;
+        public CollectionsStringProperty(IEnumerable<string> @property) => throw null;
 
         public IList<string> Property => throw null;
     }

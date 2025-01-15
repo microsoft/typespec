@@ -8,7 +8,7 @@ namespace _Type._Array.Models
 {
     public partial class InnerModel
     {
-        public InnerModel(string property) => throw null;
+        public InnerModel(string @property) => throw null;
 
         public string Property
         {

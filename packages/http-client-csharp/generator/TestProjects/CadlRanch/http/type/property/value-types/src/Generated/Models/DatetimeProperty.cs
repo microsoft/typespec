@@ -8,7 +8,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class DatetimeProperty
     {
-        public DatetimeProperty(DateTimeOffset property) => throw null;
+        public DatetimeProperty(DateTimeOffset @property) => throw null;
 
         public DateTimeOffset Property
         {

@@ -15,13 +15,13 @@ namespace SpecialWords
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult WithAnd(string and, RequestOptions options) => throw null;
+        public virtual ClientResult WithAnd(string @and, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithAndAsync(string and, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithAndAsync(string @and, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithAnd(string and, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithAnd(string @and, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithAndAsync(string and, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithAndAsync(string @and, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult WithAs(string @as, RequestOptions options) => throw null;
 
@@ -39,21 +39,21 @@ namespace SpecialWords
 
         public virtual Task<ClientResult> WithAssertAsync(string assert, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithAsync(string async, RequestOptions options) => throw null;
+        public virtual ClientResult WithAsync(string @async, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithAsyncAsync(string async, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithAsyncAsync(string @async, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithAsync(string async, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithAsync(string @async, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithAsyncAsync(string async, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithAsyncAsync(string @async, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithAwait(string await, RequestOptions options) => throw null;
+        public virtual ClientResult WithAwait(string @await, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithAwaitAsync(string await, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithAwaitAsync(string @await, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithAwait(string await, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithAwait(string @await, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithAwaitAsync(string await, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithAwaitAsync(string @await, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult WithBreak(string @break, RequestOptions options) => throw null;
 
@@ -151,21 +151,21 @@ namespace SpecialWords
 
         public virtual Task<ClientResult> WithForAsync(string @for, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithFrom(string from, RequestOptions options) => throw null;
+        public virtual ClientResult WithFrom(string @from, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithFromAsync(string from, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithFromAsync(string @from, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithFrom(string from, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithFrom(string @from, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithFromAsync(string from, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithFromAsync(string @from, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithGlobal(string global, RequestOptions options) => throw null;
+        public virtual ClientResult WithGlobal(string @global, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithGlobalAsync(string global, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithGlobalAsync(string @global, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithGlobal(string global, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithGlobal(string @global, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithGlobalAsync(string global, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithGlobalAsync(string @global, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult WithIf(string @if, RequestOptions options) => throw null;
 
@@ -207,21 +207,21 @@ namespace SpecialWords
 
         public virtual Task<ClientResult> WithLambdaAsync(string lambda, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithNot(string not, RequestOptions options) => throw null;
+        public virtual ClientResult WithNot(string @not, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithNotAsync(string not, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithNotAsync(string @not, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithNot(string not, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithNot(string @not, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithNotAsync(string not, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithNotAsync(string @not, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithOr(string or, RequestOptions options) => throw null;
+        public virtual ClientResult WithOr(string @or, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithOrAsync(string or, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithOrAsync(string @or, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithOr(string or, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithOr(string @or, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithOrAsync(string or, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithOrAsync(string @or, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult WithPass(string pass, RequestOptions options) => throw null;
 
@@ -263,21 +263,21 @@ namespace SpecialWords
 
         public virtual Task<ClientResult> WithWhileAsync(string @while, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithWith(string with, RequestOptions options) => throw null;
+        public virtual ClientResult WithWith(string @with, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithWithAsync(string with, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithWithAsync(string @with, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithWith(string with, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithWith(string @with, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithWithAsync(string with, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithWithAsync(string @with, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult WithYield(string yield, RequestOptions options) => throw null;
+        public virtual ClientResult WithYield(string @yield, RequestOptions options) => throw null;
 
-        public virtual Task<ClientResult> WithYieldAsync(string yield, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> WithYieldAsync(string @yield, RequestOptions options) => throw null;
 
-        public virtual ClientResult WithYield(string yield, CancellationToken cancellationToken = default) => throw null;
+        public virtual ClientResult WithYield(string @yield, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> WithYieldAsync(string yield, CancellationToken cancellationToken = default) => throw null;
+        public virtual Task<ClientResult> WithYieldAsync(string @yield, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult WithCancellationToken(string cancellationToken, RequestOptions options) => throw null;
 

@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class Decimal128Property
     {
-        public Decimal128Property(decimal property) => throw null;
+        public Decimal128Property(decimal @property) => throw null;
 
         public decimal Property
         {

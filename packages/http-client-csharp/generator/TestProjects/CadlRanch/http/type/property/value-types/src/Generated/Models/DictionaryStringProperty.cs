@@ -8,7 +8,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class DictionaryStringProperty
     {
-        public DictionaryStringProperty(IDictionary<string, string> property) => throw null;
+        public DictionaryStringProperty(IDictionary<string, string> @property) => throw null;
 
         public IDictionary<string, string> Property => throw null;
     }

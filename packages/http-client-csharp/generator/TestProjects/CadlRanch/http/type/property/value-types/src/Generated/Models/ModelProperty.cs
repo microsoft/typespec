@@ -6,7 +6,7 @@ namespace _Type.Property.ValueTypes.Models
 {
     public partial class ModelProperty
     {
-        public ModelProperty(InnerModel property) => throw null;
+        public ModelProperty(InnerModel @property) => throw null;
 
         public InnerModel Property
         {

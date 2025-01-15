@@ -13,7 +13,7 @@ namespace _Type.Property.Nullable.Models
 
         public static CollectionsModelProperty CollectionsModelProperty(string requiredProperty = default, IEnumerable<InnerModel> nullableProperty = default) => throw null;
 
-        public static InnerModel InnerModel(string property = default) => throw null;
+        public static InnerModel InnerModel(string @property = default) => throw null;
 
         public static CollectionsByteProperty CollectionsByteProperty(string requiredProperty = default, IEnumerable<BinaryData> nullableProperty = default) => throw null;
 
