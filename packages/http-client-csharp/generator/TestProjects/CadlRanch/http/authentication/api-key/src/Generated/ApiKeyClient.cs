@@ -10,144 +10,30 @@ using System.Threading.Tasks;
 
 namespace Authentication.ApiKey
 {
-    /// <summary></summary>
     public partial class ApiKeyClient
     {
-        private readonly Uri _endpoint;
-        /// <summary> A credential used to authenticate to the service. </summary>
-        private readonly ApiKeyCredential _keyCredential;
-        private const string AuthorizationHeader = "x-ms-api-key";
+        protected ApiKeyClient() => throw null;
 
-        /// <summary> Initializes a new instance of ApiKeyClient for mocking. </summary>
-        protected ApiKeyClient()
-        {
-        }
+        public ApiKeyClient(ApiKeyCredential keyCredential) : this(new Uri("http://localhost:3000"), keyCredential, new ApiKeyClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of ApiKeyClient. </summary>
-        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="keyCredential"/> is null. </exception>
-        public ApiKeyClient(ApiKeyCredential keyCredential) : this(new Uri("http://localhost:3000"), keyCredential, new ApiKeyClientOptions())
-        {
-        }
+        public ApiKeyClient(Uri endpoint, ApiKeyCredential keyCredential, ApiKeyClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of ApiKeyClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="keyCredential"> A credential used to authenticate to the service. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="keyCredential"/> is null. </exception>
-        public ApiKeyClient(Uri endpoint, ApiKeyCredential keyCredential, ApiKeyClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
-            Argument.AssertNotNull(keyCredential, nameof(keyCredential));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new ApiKeyClientOptions();
+        public virtual ClientResult Valid(RequestOptions options) => throw null;
 
-            _endpoint = endpoint;
-            _keyCredential = keyCredential;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { ApiKeyAuthenticationPolicy.CreateHeaderApiKeyPolicy(_keyCredential, AuthorizationHeader) }, Array.Empty<PipelinePolicy>());
-        }
+        public virtual Task<ClientResult> ValidAsync(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual ClientResult Valid(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Check whether client is authenticated
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Valid(RequestOptions options)
-        {
-            using PipelineMessage message = CreateValidRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Check whether client is authenticated
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ValidAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateValidRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual ClientResult Invalid(RequestOptions options) => throw null;
 
-        /// <summary> Check whether client is authenticated. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Valid(CancellationToken cancellationToken = default)
-        {
-            return Valid(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-        }
+        public virtual Task<ClientResult> InvalidAsync(RequestOptions options) => throw null;
 
-        /// <summary> Check whether client is authenticated. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ValidAsync(CancellationToken cancellationToken = default)
-        {
-            return await ValidAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-        }
+        public virtual ClientResult Invalid(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Check whether client is authenticated.
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Invalid(RequestOptions options)
-        {
-            using PipelineMessage message = CreateInvalidRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Check whether client is authenticated.
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> InvalidAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateInvalidRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Check whether client is authenticated. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Invalid(CancellationToken cancellationToken = default)
-        {
-            return Invalid(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-        }
-
-        /// <summary> Check whether client is authenticated. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> InvalidAsync(CancellationToken cancellationToken = default)
-        {
-            return await InvalidAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> InvalidAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

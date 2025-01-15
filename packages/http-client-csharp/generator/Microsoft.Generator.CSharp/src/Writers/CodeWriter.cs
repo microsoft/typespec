@@ -180,22 +180,23 @@ namespace Microsoft.Generator.CSharp
         {
             ArgumentNullException.ThrowIfNull(method, nameof(method));
 
-            WriteXmlDocs(method.XmlDocs);
-
-            if (method.BodyStatements is { } body)
+            using (WriteXmlDocs(method.XmlDocs))
             {
-                using (WriteMethodDeclaration(method.Signature))
+                if (method.BodyStatements is { } body)
                 {
-                    body.Write(this);
+                    using (WriteMethodDeclaration(method.Signature))
+                    {
+                        body.Write(this);
+                    }
                 }
-            }
-            else if (method.BodyExpression is { } expression)
-            {
-                using (WriteMethodDeclarationNoScope(method.Signature))
+                else if (method.BodyExpression is { } expression)
                 {
-                    AppendRaw(" => ");
-                    expression.Write(this);
-                    WriteRawLine(";");
+                    using (WriteMethodDeclarationNoScope(method.Signature))
+                    {
+                        AppendRaw(" => ");
+                        expression.Write(this);
+                        WriteRawLine(";");
+                    }
                 }
             }
         }
@@ -204,27 +205,40 @@ namespace Microsoft.Generator.CSharp
         {
             ArgumentNullException.ThrowIfNull(ctor, nameof(ctor));
 
-            WriteXmlDocs(ctor.XmlDocs);
-
-            if (ctor.BodyStatements is { } body)
+            using (WriteXmlDocs(ctor.XmlDocs))
             {
-                using (WriteMethodDeclaration(ctor.Signature))
+                if (ctor.BodyStatements is { } body)
                 {
-                    body.Write(this);
+                    using (WriteMethodDeclaration(ctor.Signature))
+                    {
+                        body.Write(this);
+                    }
                 }
-            }
-            else if (ctor.BodyExpression is { } expression)
-            {
-                using (WriteMethodDeclarationNoScope(ctor.Signature))
+                else if (ctor.BodyExpression is { } expression)
                 {
-                    AppendRaw(" => ");
-                    expression.Write(this);
-                    WriteRawLine(";");
+                    using (WriteMethodDeclarationNoScope(ctor.Signature))
+                    {
+                        AppendRaw(" => ");
+                        expression.Write(this);
+                        WriteRawLine(";");
+                    }
                 }
             }
         }
 
-        internal void WriteXmlDocs(XmlDocProvider? docs)
+        internal IDisposable WriteXmlDocs(XmlDocProvider? docs)
+        {
+            var scope = AmbientScope();
+            if (CodeModelPlugin.Instance.Configuration.DisableXmlDocs || docs is null)
+            {
+                return scope;
+            }
+
+            WriteXmlDocsNoScope(docs);
+            return scope;
+        }
+
+        internal void WriteXmlDocsNoScope(XmlDocProvider? docs)
         {
             if (CodeModelPlugin.Instance.Configuration.DisableXmlDocs || docs is null)
                 return;
@@ -259,7 +273,7 @@ namespace Microsoft.Generator.CSharp
         public void WriteProperty(PropertyProvider property, bool isPublicContext = false)
         {
             if (isPublicContext)
-                WriteXmlDocs(property.XmlDocs);
+                WriteXmlDocsNoScope(property.XmlDocs);
 
             CodeScope? indexerScope = null;
 
@@ -417,7 +431,7 @@ namespace Microsoft.Generator.CSharp
 
         public CodeWriter WriteField(FieldProvider field)
         {
-            WriteXmlDocs(field.XmlDocs);
+            WriteXmlDocsNoScope(field.XmlDocs);
 
             var modifiers = field.Modifiers;
 
@@ -686,11 +700,6 @@ namespace Microsoft.Generator.CSharp
 
         public CodeWriter WriteDeclaration(CodeWriterDeclaration declaration)
         {
-            if (_writingXmlDocumentation)
-            {
-                throw new InvalidOperationException("Can't declare variables inside documentation.");
-            }
-
             var currentScope = _scopes.Peek();
 
             if (!declaration.HasBeenDeclared(_scopes))
