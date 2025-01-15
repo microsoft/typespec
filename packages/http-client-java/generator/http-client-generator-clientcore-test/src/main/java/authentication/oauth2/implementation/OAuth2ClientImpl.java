@@ -59,8 +59,8 @@ public final class OAuth2ClientImpl {
      * @param endpoint Service host.
      */
     public OAuth2ClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(OAuth2ClientService.class, this.httpPipeline);
     }
 

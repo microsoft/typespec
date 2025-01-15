@@ -57,8 +57,8 @@ public final class UnionClientImpl {
      * @param endpoint Service host.
      */
     public UnionClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(UnionClientService.class, this.httpPipeline);
     }
 
