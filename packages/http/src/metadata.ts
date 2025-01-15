@@ -48,22 +48,47 @@ export enum Visibility {
   /**
    * Additional flag to indicate when something is nested in a collection
    * and therefore no metadata is applicable.
+   *
+   * Never use this flag. It is used internally by the HTTP core.
+   *
+   * @internal
    */
   Item = 1 << 20,
 
   /**
    * Additional flag to indicate when the verb is path and therefore
    * will have fields made optional if request visibility includes update.
+   *
+   * Never use this flag. It is used internally by the HTTP core.
+   *
+   * @internal
    */
   Patch = 1 << 21,
+
+  /**
+   * Additional flag to indicate that effective-optionality analysis should be skipped,
+   * allowing the shape of PATCH request bodies to be represented exactly.
+   *
+   * Never use this flag. It is used internally by the HTTP core.
+   *
+   * @internal
+   */
+  SkipEffectiveOptionality = 1 << 22,
+
+  /**
+   * Additional flags to indicate the treatment of properties in specific contexts.
+   *
+   * Never use these flags. They are used internally by the HTTP core.
+   *
+   * @internal
+   */
+  Synthetic = Visibility.Item | Visibility.Patch | Visibility.SkipEffectiveOptionality,
 }
 
 const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
 function visibilityToArray(visibility: Visibility): readonly string[] {
-  // Item and Patch flags are not real visibilities.
-  visibility &= ~Visibility.Item;
-  visibility &= ~Visibility.Patch;
-
+  // Synthetic flags are not real visibilities.
+  visibility &= ~Visibility.Synthetic;
   let result = visibilityToArrayMap.get(visibility);
   if (!result) {
     result = [];
@@ -103,38 +128,38 @@ function filterToVisibility(program: Program, filter: VisibilityFilter): Visibil
     "Unexpected: `none` constraint in visibility filter passed to filterToVisibility",
   );
 
-  if (filter.any) {
-    let value = Visibility.None;
+  if (!filter.any) {
+    return Visibility.All;
+  } else {
+    let visibility = Visibility.None;
 
-    for (const item of filter.any ?? []) {
-      if (item.enum !== Lifecycle) continue;
-      switch (item.name) {
+    for (const modifierConstraint of filter.any ?? []) {
+      if (modifierConstraint.enum !== Lifecycle) continue;
+      switch (modifierConstraint.name) {
         case "Read":
-          value |= Visibility.Read;
+          visibility |= Visibility.Read;
           break;
         case "Create":
-          value |= Visibility.Create;
+          visibility |= Visibility.Create;
           break;
         case "Update":
-          value |= Visibility.Update;
+          visibility |= Visibility.Update;
           break;
         case "Delete":
-          value |= Visibility.Delete;
+          visibility |= Visibility.Delete;
           break;
         case "Query":
-          value |= Visibility.Query;
+          visibility |= Visibility.Query;
           break;
         default:
           compilerAssert(
             false,
-            `Unreachable: unrecognized Lifecycle visibility member: '${item.name}'`,
+            `Unreachable: unrecognized Lifecycle visibility member: '${modifierConstraint.name}'`,
           );
       }
     }
 
-    return value;
-  } else {
-    return Visibility.All;
+    return visibility;
   }
 }
 
@@ -159,13 +184,15 @@ function getVisibilityFilterCache(program: Program): Map<Visibility, VisibilityF
  * @returns a VisibilityFilter object that selects properties having any of the given visibility flags
  */
 function visibilityToFilter(program: Program, visibility: Visibility): VisibilityFilter {
+  // Synthetic flags are not real visibilities.
+  visibility &= ~Visibility.Synthetic;
+
+  if (visibility === Visibility.All) return {};
+
   const cache = getVisibilityFilterCache(program);
   let filter = cache.get(visibility);
 
   if (!filter) {
-    // Item and Patch flags are not real visibilities.
-    visibility &= ~(Visibility.Item | Visibility.Patch);
-
     const LifecycleEnum = getLifecycleVisibilityEnum(program);
 
     const Lifecycle = {
@@ -225,7 +252,7 @@ export function getVisibilitySuffix(
 ) {
   let suffix = "";
 
-  if ((visibility & ~Visibility.Item & ~Visibility.Patch) !== canonicalVisibility) {
+  if ((visibility & ~Visibility.Synthetic) !== canonicalVisibility) {
     const visibilities = visibilityToArray(visibility);
     suffix += visibilities.map((v) => v[0].toUpperCase() + v.slice(1)).join("Or");
   }
@@ -356,6 +383,10 @@ export function HttpVisibilityProvider(
   };
 }
 
+// Hidden internal symbol to mark that parameter visibility was empty. This is used by HTTP
+// to set the SkipEffectiveOptionality flag. This is a hack.
+const parameterVisibilityIsEmpty = Symbol.for("TypeSpec::Visibility::ParameterVisibilityIsEmpty");
+
 /**
  * Returns the applicable parameter visibility or visibilities for the request if `@requestVisibility` was used.
  * Otherwise, returns the default visibility based on the HTTP verb for the operation.
@@ -380,10 +411,17 @@ export function resolveRequestVisibility(
 
   let visibility = filterToVisibility(program, parameterVisibilityFilter);
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
-  // later processes to properly apply it
+  // later processes to properly apply it.
   if (verb === "patch") {
     visibility |= Visibility.Patch;
   }
+
+  const isEmptyParameterVisibility = program.stateSet(parameterVisibilityIsEmpty).has(operation);
+
+  if (isEmptyParameterVisibility) {
+    visibility |= Visibility.SkipEffectiveOptionality;
+  }
+
   return visibility;
 }
 
@@ -672,7 +710,8 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     const hasUpdate = (visibility & Visibility.Update) !== 0;
     const isPatch = (visibility & Visibility.Patch) !== 0;
     const isItem = (visibility & Visibility.Item) !== 0;
-    return property.optional || (hasUpdate && isPatch && !isItem);
+    const skipEffectiveOptionality = (visibility & Visibility.SkipEffectiveOptionality) !== 0;
+    return property.optional || (!skipEffectiveOptionality && hasUpdate && isPatch && !isItem);
   }
 
   function isPayloadProperty(

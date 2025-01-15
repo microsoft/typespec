@@ -1273,16 +1273,19 @@ describe("http: decorators", () => {
       );
     });
 
-    it("ensures all properties visible when parameterVisibility has no arguments", async () => {
+    it("ensures all properties visible ane effective optionality skipped when parameterVisibility has no arguments", async () => {
       const { test } = (await runner.compile(`
       @parameterVisibility
       @test op test(@path id: string, @body example: {}): void;
       `)) as { test: Operation };
       deepStrictEqual(
         resolveRequestVisibility(runner.program, test, "patch"),
-        Visibility.All | Visibility.Patch,
+        Visibility.All | Visibility.Patch | Visibility.SkipEffectiveOptionality,
       );
-      deepStrictEqual(resolveRequestVisibility(runner.program, test, "get"), Visibility.All);
+      deepStrictEqual(
+        resolveRequestVisibility(runner.program, test, "get"),
+        Visibility.All | Visibility.SkipEffectiveOptionality,
+      );
     });
   });
 });
