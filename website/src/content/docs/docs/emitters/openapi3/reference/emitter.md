@@ -68,6 +68,10 @@ Example Multiple service with versioning
 - `openapi.Org1.Service2.v1.0.yaml`
 - `openapi.Org1.Service2.v1.1.yaml`
 
+### `openapi-versions`
+
+**Type:** `array`
+
 ### `new-line`
 
 **Type:** `"crlf" | "lf"`

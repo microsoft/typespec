@@ -102,7 +102,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         if self.is_base_discriminator:
             return "str"
         types_type_annotation = self.type.type_annotation(is_operation_file=is_operation_file, **kwargs)
-        if self.optional and self.client_default_value is None:
+        if (self.optional and self.client_default_value is None) or self.readonly:
             return f"Optional[{types_type_annotation}]"
         return types_type_annotation
 
@@ -144,7 +144,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         if self.is_discriminator and isinstance(self.type, EnumType):
             return file_import
         file_import.merge(self.type.imports(**kwargs))
-        if self.optional and self.client_default_value is None:
+        if (self.optional and self.client_default_value is None) or self.readonly:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models_mode"] == "dpg":
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
