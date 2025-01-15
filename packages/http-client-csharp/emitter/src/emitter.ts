@@ -182,7 +182,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             if (isValid) {
               if (result.stderr) Logger.getInstance().error(result.stderr);
               if (result.stdout) Logger.getInstance().verbose(result.stdout);
-              throw new Error(`Failed to generate SDK. Exit code: ${result.exitCode}`);
+              throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
             }
           }
         } catch (error: any) {
