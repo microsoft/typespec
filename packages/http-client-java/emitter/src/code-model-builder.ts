@@ -332,6 +332,8 @@ export class CodeModelBuilder {
                 securitySchemes.push(oauth2Scheme);
               } else {
                 // there is no TokenCredential in clientcore, hence use Bearer Authentication directly
+                this.logWarning(`OAuth2 auth scheme is generated as KeyCredential.`);
+
                 const keyScheme = new KeySecurityScheme({
                   name: "authorization",
                 });
