@@ -579,7 +579,7 @@ const diagnostics = {
   "unused-using": {
     severity: "hint",
     messages: {
-      default: paramMessage`Unused using: ${"code"}`,
+      default: paramMessage`'${"code"}' is declared but never used.`,
     },
   },
 
