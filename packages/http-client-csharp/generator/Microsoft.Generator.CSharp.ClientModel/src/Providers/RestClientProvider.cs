@@ -99,7 +99,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
             foreach (var param in ClientProvider.ClientParameters)
             {
-                paramMap[param.Name] = param;
+                paramMap[param.WireInfo.SerializedName] = param;
             }
 
             var classifier = GetClassifier(operation);
