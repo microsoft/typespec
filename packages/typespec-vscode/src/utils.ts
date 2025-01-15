@@ -280,7 +280,6 @@ export function spawnExecution(
 }
 
 export function isExecOutputCmdNotFound(output: ExecOutput): boolean {
-  // check whether this works for windows, linux and mac
   if (output.exitCode === 0 || output.exitCode === null) {
     return false;
   }
