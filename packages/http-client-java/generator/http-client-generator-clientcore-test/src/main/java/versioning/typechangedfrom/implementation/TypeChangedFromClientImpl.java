@@ -95,10 +95,10 @@ public final class TypeChangedFromClientImpl {
      */
     public TypeChangedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
         TypeChangedFromServiceVersion serviceVersion) {
+        this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
-        this.serviceVersion = TypeChangedFromServiceVersion.getLatest();
-        this.httpPipeline = httpPipeline;
+        this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(TypeChangedFromClientService.class, this.httpPipeline);
     }
 

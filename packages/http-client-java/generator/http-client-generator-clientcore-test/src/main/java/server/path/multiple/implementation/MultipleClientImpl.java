@@ -74,9 +74,9 @@ public final class MultipleClientImpl {
      * @param serviceVersion Service version.
      */
     public MultipleClientImpl(HttpPipeline httpPipeline, String endpoint, MultipleServiceVersion serviceVersion) {
-        this.endpoint = endpoint;
-        this.serviceVersion = MultipleServiceVersion.getLatest();
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
+        this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(MultipleClientService.class, this.httpPipeline);
     }
 
