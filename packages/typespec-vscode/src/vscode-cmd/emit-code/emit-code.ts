@@ -29,7 +29,19 @@ async function configureEmitter(
   context: vscode.ExtensionContext,
   existingEmitters: string[],
 ): Promise<Emitter | undefined> {
-  const emitterKinds = getRegisterEmitterTypes();
+  const emitterKinds = getRegisterEmitterTypes().filter((kind) => {
+    return (
+      getRegisterEmitters(kind).filter((emitter) => !existingEmitters.includes(emitter.package))
+        .length > 0
+    );
+  });
+  if (emitterKinds.length === 0) {
+    logger.info("No new emitter available. All emitters are already configured.", [], {
+      showOutput: true,
+      showPopup: true,
+    });
+    return undefined;
+  }
   const toEmitterTypeQuickPickItem = (kind: EmitterKind): any => {
     const registerEmitters = getRegisterEmitters(kind);
     const supportedLanguages = registerEmitters.map((e) => e.language).join(", ");
@@ -290,7 +302,7 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
     return;
   }
   /*Config emitter output dir and emit in tspconfig.yaml. */
-  const defaultEmitOutputDirInConfig = `{project-root}/${emitter.kind}/${getLanguageAlias(emitter.language)}`;
+  const defaultEmitOutputDirInConfig = `{output-dir}/{emitter-name}`;
   const tspConfigFile = path.join(baseDir, TspConfigFileName);
   let configYaml = parseDocument(""); //generate a empty yaml
   if (await isFile(tspConfigFile)) {
@@ -517,8 +529,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       }
     });
     const separatorItem = {
-      label: "Settings",
-      description: "settings",
+      label: "New Emitter",
+      description: "Configure a new emitter",
       kind: vscode.QuickPickItemKind.Separator,
       info: undefined,
       package: "",
@@ -532,12 +544,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       fromConfig: false,
       package: "",
       kind: vscode.QuickPickItemKind.Default,
-      buttons: [
-        {
-          iconPath: new vscode.ThemeIcon("settings-gear"),
-          tooltip: "Configure a new emitter for code generation",
-        },
-      ],
+      iconPath: new vscode.ThemeIcon("settings-gear"),
     };
 
     const allPickItems = [];
