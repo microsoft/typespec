@@ -10,13 +10,12 @@ import azure.resourcemanager.operationtemplates.models.OrderProperties;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.management.Region;
 import com.azure.core.management.profile.AzureProfile;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.utils.ArmUtils;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.time.Duration;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.utils.ArmUtils;
 
 public class OperationTests {
     private final OperationTemplatesManager manager = buildManager();
@@ -44,10 +43,11 @@ public class OperationTests {
     // for LRO operations, we need to override default poll interval
     private static OperationTemplatesManager buildManager() {
         try {
-            Constructor<OperationTemplatesManager> constructor
-                = OperationTemplatesManager.class.getDeclaredConstructor(HttpPipeline.class, AzureProfile.class, Duration.class);
+            Constructor<OperationTemplatesManager> constructor = OperationTemplatesManager.class
+                .getDeclaredConstructor(HttpPipeline.class, AzureProfile.class, Duration.class);
             setAccessible(constructor);
-            return constructor.newInstance(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile(), Duration.ofMillis(1));
+            return constructor.newInstance(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile(),
+                Duration.ofMillis(1));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
