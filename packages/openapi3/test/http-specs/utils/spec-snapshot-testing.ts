@@ -1,13 +1,21 @@
-import { getRelativePathFromDirectory, joinPaths, resolvePath } from "@typespec/compiler";
-import { type ResolveModuleHost, resolveModule } from "@typespec/compiler/module-resolver";
+import {
+  CompilerHost,
+  NodeHost,
+  ResolveCompilerOptionsOptions,
+  compile,
+  getDirectoryPath,
+  getRelativePathFromDirectory,
+  joinPaths,
+  resolveCompilerOptions,
+  resolvePath,
+} from "@typespec/compiler";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
-import { readFile, readdir, realpath, rm, stat } from "fs/promises";
-import { pathToFileURL } from "url";
+import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
 import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
-import { getOpenAPI3 } from "../../../src/openapi.js";
 
-const shouldUpdateSnapshots = false;
+const shouldUpdateSnapshots = true; //process.env.RECORD === "true";
 
 export interface SpecSnapshotTestOptions {
   /**  Spec root directory. */
@@ -15,6 +23,12 @@ export interface SpecSnapshotTestOptions {
 
   /** Output directory for snapshots. */
   outputDir: string;
+
+  /** Folders to exclude from testing. */
+  exclude?: string[];
+
+  /** Override the emitters to use. */
+  emit?: string[];
 }
 
 export interface TestContext {
@@ -57,91 +71,76 @@ export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
       }
     }
   });
-  specs.forEach((specs) => defineSpecSnaphotTest(context, config, specs));
-}
-
-export async function importTypeSpecLibrary(baseDir: string): Promise<any> {
-  try {
-    const host: ResolveModuleHost = {
-      realpath,
-      readFile: async (path: string) => await readFile(path, "utf-8"),
-      stat,
-    };
-    const resolved = await resolveModule(host, "@typespec/compiler", {
-      baseDir,
-      conditions: ["import"],
-    });
-    return import(
-      pathToFileURL(resolved.type === "module" ? resolved.mainFile : resolved.path).toString()
-    );
-  } catch (err: any) {
-    if (err.code === "MODULE_NOT_FOUND") {
-      // Resolution from cwd failed: use current package.
-      return import("@typespec/compiler");
-    } else {
-      throw err;
-    }
-  }
+  specs.forEach((spec) => defineSpecSnaphotTest(context, config, spec));
 }
 
 function defineSpecSnaphotTest(context: TestContext, config: SpecSnapshotTestOptions, spec: Spec) {
   it(spec.name, async () => {
     context.runCount++;
-    const outputDir = resolvePath(config.outputDir, spec.name);
-    const typespecCompiler = await importTypeSpecLibrary(config.specDir);
+    const host = createSpecSnapshotTestHost(config);
 
-    const options = shouldUpdateSnapshots
-      ? {
-          additionalImports: ["@typespec/spector", "@typespec/xml"],
-          noEmit: false,
-          emit: ["@typespec/openapi3"],
-          warningAsError: false,
-          options: {
-            "@typespec/openapi3": { "emitter-output-dir": outputDir, "file-type": "json" },
-          },
-        }
-      : {
-          additionalImports: ["@typespec/spector", "@typespec/xml"],
-          noEmit: false,
-          emit: ["@typespec/openapi3"],
-          warningAsError: false,
-        };
-    const program = await typespecCompiler.compile(
-      typespecCompiler.NodeHost,
-      spec.fullPath,
-      options,
-    );
-    if (!shouldUpdateSnapshots) {
-      const outputs = new Set<string>();
-      const services = await getOpenAPI3(program, { "omit-unreachable-types": false });
-      for (const serviceRecord of services) {
-        if (serviceRecord.versioned) {
-          for (const documentRecord of serviceRecord.versions) {
-            const snapshotFileName = "openapi." + documentRecord.version + ".json";
-            const snapshotPath = resolvePath(outputDir, snapshotFileName);
-            const relativePath = getRelativePathFromDirectory(
-              config.outputDir,
-              snapshotPath,
-              false,
-            );
-            context.registerSnapshot(resolvePath(spec.name, relativePath));
-            await assertResult(snapshotPath, serializeDocument(documentRecord.document));
-            outputs.add(snapshotPath);
-          }
-        } else {
-          const snapshotFileName = "openapi.json";
-          const snapshotPath = resolvePath(outputDir, snapshotFileName);
-          const relativePath = getRelativePathFromDirectory(config.outputDir, snapshotPath, false);
+    const outputDir = resolvePath(config.outputDir, spec.name);
+
+    const overrides: Partial<ResolveCompilerOptionsOptions["overrides"]> = {
+      outputDir,
+    };
+    if (config.emit) {
+      overrides.emit = config.emit;
+    }
+    const [options, diagnostics] = await resolveCompilerOptions(host, {
+      cwd: process.cwd(),
+      entrypoint: spec.fullPath,
+      overrides,
+    });
+    expectDiagnosticEmpty(diagnostics);
+
+    const emit = options.emit;
+    if (emit === undefined || emit.length === 0) {
+      fail(
+        `No emitters configured for sample "${spec.name}". Make sure the  config at: "${options.config}" is correct.`,
+      );
+    }
+
+    const program = await compile(host, spec.fullPath, options);
+    expectDiagnosticEmpty(program.diagnostics);
+
+    if (shouldUpdateSnapshots) {
+      try {
+        await host.rm(outputDir, { recursive: true });
+      } catch (e) {}
+      await mkdir(outputDir, { recursive: true });
+
+      for (const [snapshotPath, content] of host.outputs.entries()) {
+        const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
+
+        try {
+          await mkdir(getDirectoryPath(snapshotPath), { recursive: true });
+          await writeFile(snapshotPath, content);
           context.registerSnapshot(resolvePath(spec.name, relativePath));
-          await assertResult(snapshotPath, serializeDocument(serviceRecord.document));
-          outputs.add(snapshotPath);
+        } catch (e) {
+          throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
         }
+      }
+    } else {
+      for (const [snapshotPath, content] of host.outputs.entries()) {
+        const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
+        let existingContent;
+        try {
+          existingContent = await readFile(snapshotPath);
+        } catch (e: unknown) {
+          if (isEnoentError(e)) {
+            fail(`Snapshot "${snapshotPath}" is missing. Run with RECORD=true to regenerate it.`);
+          }
+          throw e;
+        }
+        context.registerSnapshot(resolvePath(spec.name, relativePath));
+        strictEqual(content, existingContent.toString());
       }
 
       for (const filename of await readFilesInDirRecursively(outputDir)) {
         const snapshotPath = resolvePath(outputDir, filename);
         ok(
-          outputs.has(snapshotPath),
+          host.outputs.has(snapshotPath),
           `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`,
         );
       }
@@ -149,48 +148,22 @@ function defineSpecSnaphotTest(context: TestContext, config: SpecSnapshotTestOpt
   });
 }
 
-async function assertResult(snapshotPath: any, expected: any) {
-  let existingContent;
-  try {
-    existingContent = await readFile(snapshotPath);
-  } catch (e: unknown) {
-    if (isEnoentError(e)) {
-      fail(`Snapshot "${snapshotPath}" is missing. Run with RECORD=true to regenerate it.`);
-    }
-    throw e;
-  }
-
-  strictEqual(expected, existingContent.toString());
+interface SpecSnapshotTestHost extends CompilerHost {
+  outputs: Map<string, string>;
 }
 
-function prettierOutput(output: string) {
-  return output + "\n";
+function createSpecSnapshotTestHost(config: SpecSnapshotTestOptions): SpecSnapshotTestHost {
+  const outputs = new Map<string, string>();
+  return {
+    ...NodeHost,
+    outputs,
+    mkdirp: (path: string) => Promise.resolve(path),
+    rm: (path: string) => Promise.resolve(),
+    writeFile: async (path: string, content: string) => {
+      outputs.set(path, content);
+    },
+  };
 }
-
-function serializeDocument(root: any): string {
-  sortOpenAPIDocument(root);
-  return prettierOutput(JSON.stringify(root, null, 2));
-}
-
-function sortObjectByKeys<T extends Record<string, unknown>>(obj: T): T {
-  return Object.keys(obj)
-    .sort()
-    .reduce((sortedObj: any, key: string) => {
-      sortedObj[key] = obj[key];
-      return sortedObj;
-    }, {});
-}
-
-function sortOpenAPIDocument(doc: any): void {
-  doc.paths = sortObjectByKeys(doc.paths);
-  if (doc.components?.schemas) {
-    doc.components.schemas = sortObjectByKeys(doc.components.schemas);
-  }
-  if (doc.components?.parameters) {
-    doc.components.parameters = sortObjectByKeys(doc.components.parameters);
-  }
-}
-
 async function readFilesInDirRecursively(dir: string): Promise<string[]> {
   let entries;
   try {
@@ -223,10 +196,14 @@ interface Spec {
 
 function resolveSpecs(config: SpecSnapshotTestOptions): Spec[] {
   const specs: Spec[] = [];
+  const excludes = new Set(config.exclude);
   walk("");
   return specs;
 
   function walk(relativeDir: string) {
+    if (excludes.has(relativeDir)) {
+      return;
+    }
     const fullDir = joinPaths(config.specDir, relativeDir);
     for (const entry of readdirSync(fullDir, { withFileTypes: true })) {
       if (entry.isDirectory()) {
@@ -234,7 +211,7 @@ function resolveSpecs(config: SpecSnapshotTestOptions): Spec[] {
       } else if (relativeDir && entry.name === "main.tsp") {
         specs.push({
           name: relativeDir,
-          fullPath: joinPaths(config.specDir, relativeDir, entry.name),
+          fullPath: joinPaths(config.specDir, relativeDir),
         });
       }
     }

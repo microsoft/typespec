@@ -11,5 +11,6 @@ describe("http-specs convert", () => {
   defineSpecSnaphotTests({
     specDir: specsRoot,
     outputDir: rootOutputDir,
+    emit: ["@typespec/openapi3"],
   });
 });
