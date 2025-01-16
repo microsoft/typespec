@@ -227,7 +227,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // add sub-client caching fields
             foreach (var subClient in _subClients.Value)
             {
-                if (subClient.Methods.Count != 0 && subClient._clientCachingField != null)
+                if (subClient._clientCachingField != null)
                 {
                     fields.Add(subClient._clientCachingField);
                 }
@@ -484,7 +484,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build factory accessor methods for the sub-clients
             foreach (var subClient in subClients)
             {
-                if (subClient._clientCachingField is null || subClient.Methods.Count == 0)
+                if (subClient._clientCachingField is null)
                 {
                     continue;
                 }
