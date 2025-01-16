@@ -383,14 +383,14 @@ class Model:
         return client_models
 
     @classmethod
-    def deserialize(cls: Type[ModelType], data: Any, content_type: Optional[str] = None) -> ModelType:
+    def deserialize(cls: Type[ModelType], data: Any, content_type: Optional[str] = None) -> Self:
         """Parse a str using the RestAPI syntax and return a model.
 
         :param str data: A str using RestAPI structure. JSON by default.
         :param str content_type: JSON by default, set application/xml if XML.
         :returns: An instance of this model
         :raises: DeserializationError if something went wrong
-        :rtype: ModelType
+        :rtype: Self
         """
         deserializer = Deserializer(cls._infer_class_models())
         return deserializer(cls.__name__, data, content_type=content_type)  # type: ignore
@@ -401,7 +401,7 @@ class Model:
         data: Any,
         key_extractors: Optional[Callable[[str, Dict[str, Any], Any], Any]] = None,
         content_type: Optional[str] = None,
-    ) -> ModelType:
+    ) -> Self:
         """Parse a dict using given key extractor return a model.
 
         By default consider key
@@ -413,7 +413,7 @@ class Model:
         :param str content_type: JSON by default, set application/xml if XML.
         :returns: An instance of this model
         :raises: DeserializationError if something went wrong
-        :rtype: ModelType
+        :rtype: Self
         """
         deserializer = Deserializer(cls._infer_class_models())
         deserializer.key_extractors = (  # type: ignore
