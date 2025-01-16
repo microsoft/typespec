@@ -6,6 +6,10 @@
 
 - only add type annotation during initialization for readonly
 
+### Bump dependencies
+
+- Bump `@typespec/*` 0.64.0 and `@azure-tools/*` 0.50.0
+
 ## 0.6.4
 
 ### Bug Fixes
