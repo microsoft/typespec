@@ -1192,3 +1192,56 @@ it("handles multipartBody requests and shared routes", async () => {
     false,
   );
 });
+
+it("Produces NoContent result", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      @error
+  model NotFoundErrorResponse {
+     @statusCode statusCode: 404;
+     code: "not-found";
+  }
+model ApiError {
+  /** A machine readable error code */
+  code: string;
+
+  /** A human readable message */
+  message: string;
+}
+    /**
+ * Something is wrong with you.
+ */
+model Standard4XXResponse extends ApiError {
+  @minValue(400)
+  @maxValue(499)
+  @statusCode
+  statusCode: int32;
+}
+
+/**
+ * Something is wrong with me.
+ */
+model Standard5XXResponse extends ApiError {
+  @minValue(500)
+  @maxValue(599)
+  @statusCode
+  statusCode: int32;
+}
+
+model FileAttachmentMultipartRequest {
+  contents: HttpPart<File>;
+}
+
+    alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
+
+    @post
+    op createFileAttachment(
+      @header contentType: "multipart/form-data",
+      @path itemId: int32,
+      @multipartBody body: FileAttachmentMultipartRequest,
+    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+    `,
+    [["ContosoOperationsControllerBase.cs", ["return NoContent()"]]],
+  );
+});
