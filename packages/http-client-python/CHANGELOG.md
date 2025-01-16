@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.7.0
+
+### Other Changes
+
+- Rename `apiview_mapping_python.json` cross-language id file to `apiview-properties.json` for cross-language compatibility
+
 ## 0.6.5
 
 ### Bug Fixes
