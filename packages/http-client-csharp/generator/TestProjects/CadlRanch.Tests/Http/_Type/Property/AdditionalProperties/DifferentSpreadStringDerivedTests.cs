@@ -4,6 +4,7 @@
 using System.ClientModel;
 using System.IO;
 using _Type.Property.AdditionalProperties.Models;
+using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using TestProjects.CadlRanch.Tests.Infrastructure;
 
@@ -11,9 +12,9 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
 {
     internal class DifferentSpreadStringDerivedTests : CadlRanchModelJsonTests<DifferentSpreadStringDerived>
     {
-        protected override string JsonPayload => File.ReadAllText("./TestData/DifferentSpreadStringDerived/Derived.json");
+        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/DifferentSpreadStringDerived/Derived.json"));
 
-        protected override string WirePayload => File.ReadAllText("./TestData/DifferentSpreadStringDerived/DerivedWire.json");
+        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/DifferentSpreadStringDerived/DerivedWire.json"));
 
         protected override void CompareModels(DifferentSpreadStringDerived model, DifferentSpreadStringDerived model2, string format)
         {

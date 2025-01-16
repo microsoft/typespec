@@ -82,4 +82,10 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\typeChangedFrom\v2\src\Versioning.TypeChangedFrom.V2.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Http\**\TestData\**\*.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

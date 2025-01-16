@@ -12,9 +12,9 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
 {
     internal class MultipleSpreadRecordTests : CadlRanchModelJsonTests<MultipleSpreadRecord>
     {
-        protected override string JsonPayload => File.ReadAllText("./TestData/MultipleSpreadRecord/MultipleSpreadRecord.json");
+        protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/MultipleSpreadRecord/MultipleSpreadRecord.json"));
 
-        protected override string WirePayload => File.ReadAllText("./TestData/MultipleSpreadRecord/MultipleSpreadRecordWire.json");
+        protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/MultipleSpreadRecord/MultipleSpreadRecordWire.json"));
 
         protected override void CompareModels(MultipleSpreadRecord model, MultipleSpreadRecord model2, string format)
         {
