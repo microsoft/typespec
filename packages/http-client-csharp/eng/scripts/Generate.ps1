@@ -54,9 +54,6 @@ $failingSpecs = @(
     Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'templated'
-    Join-Path 'http' 'parameters' 'spread'
-    Join-Path 'http' 'resiliency' 'srv-driven' 'v2'
-    Join-Path 'http' 'special-words'
 )
 
 $azureAllowSpecs = @(
@@ -66,6 +63,7 @@ $azureAllowSpecs = @(
     Join-Path 'http' 'client' 'structure' 'multi-client'
     Join-Path 'http' 'client' 'structure' 'renamed-operation'
     Join-Path 'http' 'client' 'structure' 'two-operation-group'
+    Join-Path 'http' 'resiliency' 'srv-driven'
 )
 
 $cadlRanchLaunchProjects = @{}
