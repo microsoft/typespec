@@ -1,124 +1,45 @@
-import {
-  CompilerHost,
-  NodeHost,
-  ResolveCompilerOptionsOptions,
-  compile,
-  joinPaths,
-  resolveCompilerOptions,
-  resolvePath,
-} from "@typespec/compiler";
+import { CompilerHost, NodeHost, compile, joinPaths, resolvePath } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
-import { fail } from "assert";
 import { readdirSync } from "fs";
-import { readdir, rm } from "fs/promises";
-import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
-
-const shouldUpdateSnapshots = true; //process.env.RECORD === "true";
+import { RunnerTestFile, RunnerTestSuite, afterAll, it } from "vitest";
+import { OpenAPI3EmitterOptions } from "../../../src/lib.js";
+import { worksFor } from "./../../works-for.js";
 
 export interface SpecSnapshotTestOptions {
   /**  Spec root directory. */
   specDir: string;
 
-  /** Output directory for snapshots. */
-  outputDir: string;
-
   /** Folders to exclude from testing. */
   exclude?: string[];
-
-  /** Override the emitters to use. */
-  emit?: string[];
 }
 
 export interface TestContext {
   runCount: number;
-  registerSnapshot(filename: string): void;
 }
 export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
   const specs = resolveSpecs(config);
-  let existingSnapshots: string[];
-  const writtenSnapshots: string[] = [];
   const context = {
     runCount: 0,
-    registerSnapshot(filename: string) {
-      writtenSnapshots.push(filename);
-    },
   };
-  beforeAll(async () => {
-    existingSnapshots = await readFilesInDirRecursively(config.outputDir);
-  });
 
   afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
     if (context.tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }
-
-    const missingSnapshots = new Set<string>(existingSnapshots);
-    for (const writtenSnapshot of writtenSnapshots) {
-      missingSnapshots.delete(writtenSnapshot);
-    }
-    if (missingSnapshots.size > 0) {
-      if (shouldUpdateSnapshots) {
-        for (const file of [...missingSnapshots].map((x) => joinPaths(config.outputDir, x))) {
-          await rm(file);
-        }
-      } else {
-        const snapshotList = [...missingSnapshots].map((x) => `  ${x}`).join("\n");
-        fail(
-          `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`,
-        );
-      }
-    }
   });
-  specs.forEach((spec) => defineSpecSnaphotTest(context, config, spec));
+  worksFor(["3.0.0", "3.1.0"], ({ openApiForFile }) => {
+    specs.forEach((spec) => defineSpecSnaphotTest(context, spec, openApiForFile));
+  });
 }
 
-function defineSpecSnaphotTest(context: TestContext, config: SpecSnapshotTestOptions, spec: Spec) {
+function defineSpecSnaphotTest(
+  context: TestContext,
+  spec: Spec,
+  openApiForFile: (spec: Spec) => Promise<typeof openApiForFile>,
+) {
   it(spec.name, async () => {
     context.runCount++;
-    const outputDir = resolvePath(config.outputDir, spec.name);
-    const host = await openApiFor(config, spec, outputDir);
-
-    // if (shouldUpdateSnapshots) {
-    //   try {
-    //     await host.rm(outputDir, { recursive: true });
-    //   } catch (e) {}
-    //   await mkdir(outputDir, { recursive: true });
-
-    //   for (const [snapshotPath, content] of host.outputs.entries()) {
-    //     const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
-
-    //     try {
-    //       await mkdir(getDirectoryPath(snapshotPath), { recursive: true });
-    //       await writeFile(snapshotPath, content);
-    //       context.registerSnapshot(resolvePath(spec.name, relativePath));
-    //     } catch (e) {
-    //       throw new Error(`Failure to write snapshot: "${snapshotPath}"\n Error: ${e}`);
-    //     }
-    //   }
-    // } else {
-    //   for (const [snapshotPath, content] of host.outputs.entries()) {
-    //     const relativePath = getRelativePathFromDirectory(outputDir, snapshotPath, false);
-    //     let existingContent;
-    //     try {
-    //       existingContent = await readFile(snapshotPath);
-    //     } catch (e: unknown) {
-    //       if (isEnoentError(e)) {
-    //         fail(`Snapshot "${snapshotPath}" is missing. Run with RECORD=true to regenerate it.`);
-    //       }
-    //       throw e;
-    //     }
-    //     context.registerSnapshot(resolvePath(spec.name, relativePath));
-    //     strictEqual(content, existingContent.toString());
-    //   }
-
-    //   for (const filename of await readFilesInDirRecursively(outputDir)) {
-    //     const snapshotPath = resolvePath(outputDir, filename);
-    //     ok(
-    //       host.outputs.has(snapshotPath),
-    //       `Snapshot for "${snapshotPath}" was not emitted. Run with RECORD=true to remove it.`,
-    //     );
-    //   }
-    // }
+    await openApiForFile(spec);
   });
 }
 
@@ -126,40 +47,16 @@ interface SpecSnapshotTestHost extends CompilerHost {
   outputs: Map<string, string>;
 }
 
-function createSpecSnapshotTestHost(config: SpecSnapshotTestOptions): SpecSnapshotTestHost {
+function createSpecSnapshotTestHost(): SpecSnapshotTestHost {
   const outputs = new Map<string, string>();
   return {
     ...NodeHost,
     outputs,
     mkdirp: (path: string) => Promise.resolve(path),
-    rm: (path: string) => Promise.resolve(),
     writeFile: async (path: string, content: string) => {
       outputs.set(path, content);
     },
   };
-}
-async function readFilesInDirRecursively(dir: string): Promise<string[]> {
-  let entries;
-  try {
-    entries = await readdir(dir, { withFileTypes: true });
-  } catch (e) {
-    if (isEnoentError(e)) {
-      return [];
-    } else {
-      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`);
-    }
-  }
-  const files: string[] = [];
-  for (const entry of entries) {
-    if (entry.isDirectory()) {
-      for (const file of await readFilesInDirRecursively(resolvePath(dir, entry.name))) {
-        files.push(resolvePath(entry.name, file));
-      }
-    } else {
-      files.push(entry.name);
-    }
-  }
-  return files;
 }
 
 interface Spec {
@@ -192,40 +89,19 @@ function resolveSpecs(config: SpecSnapshotTestOptions): Spec[] {
   }
 }
 
-function isEnoentError(e: unknown): e is { code: "ENOENT" } {
-  return typeof e === "object" && e !== null && "code" in e;
-}
-
-export async function openApiFor(
-  config: SpecSnapshotTestOptions,
-  spec: Spec,
-  outputDir: string,
-): Promise<SpecSnapshotTestHost> {
-  const host = createSpecSnapshotTestHost(config);
-
-  const overrides: Partial<ResolveCompilerOptionsOptions["overrides"]> = {
-    outputDir,
-  };
-  if (config.emit) {
-    overrides.emit = config.emit;
-  }
-  overrides.options = { ["@typespec/openapi3"]: { "file-type": "json" } };
-  const [options, diagnostics] = await resolveCompilerOptions(host, {
-    cwd: process.cwd(),
-    entrypoint: spec.fullPath,
-    overrides,
+export async function openApiForFile(spec: Spec, options: OpenAPI3EmitterOptions = {}) {
+  const host = createSpecSnapshotTestHost();
+  const program = await compile(host, spec.fullPath, {
+    noEmit: false,
+    emit: ["@typespec/openapi3"],
+    options: { "@typespec/openapi3": { ...options, "file-type": "json" } },
   });
-  expectDiagnosticEmpty(diagnostics);
-
-  const emit = options.emit;
-  if (emit === undefined || emit.length === 0) {
-    fail(
-      `No emitters configured for spec "${spec.name}". Make sure the  config at: "${options.config}" is correct.`,
-    );
-  }
-
-  const program = await compile(host, spec.fullPath, options);
   expectDiagnosticEmpty(program.diagnostics);
-
-  return host;
+  const openApiVersion = options["openapi-versions"]?.[0];
+  const output: any = {};
+  for (const [path, content] of host.outputs.entries()) {
+    const snapshotPath = resolvePath(spec.name, openApiVersion, path);
+    output[snapshotPath] = JSON.parse(content);
+  }
+  return output;
 }

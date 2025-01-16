@@ -1,5 +1,6 @@
 import { describe } from "vitest";
 import { OpenAPIVersion } from "../src/lib.js";
+import { openApiForFile } from "./http-specs/utils/spec-snapshot-testing.js";
 import {
   checkFor,
   diagnoseOpenApiFor,
@@ -22,6 +23,7 @@ export type SpecHelper = {
   checkFor: typeof checkFor;
   diagnoseOpenApiFor: typeof diagnoseOpenApiFor;
   emitOpenApiWithDiagnostics: typeof emitOpenApiWithDiagnostics;
+  openApiForFile: typeof openApiForFile;
 };
 
 export type WorksForCb = (specHelpers: SpecHelper) => void;
@@ -42,6 +44,8 @@ function createSpecHelpers(version: OpenAPIVersion): SpecHelper {
     emitOpenApiWithDiagnostics: (
       ...[code, options]: Parameters<typeof emitOpenApiWithDiagnostics>
     ) => emitOpenApiWithDiagnostics(code, { ...options, "openapi-versions": [version] }),
+    openApiForFile: (...[path, options]: Parameters<typeof openApiForFile>) =>
+      openApiForFile(path, { ...options, "openapi-versions": [version] }),
   };
 }
 
