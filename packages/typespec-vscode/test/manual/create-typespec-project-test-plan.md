@@ -55,7 +55,7 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 #### Step 2: Trigger create TypeSpec Project
 
-_Option 1_. Clicking “Create TypeSpec Project” button/link in the “No Folder Opened” View of Explore.
+_Option 1_. Clicking "Create TypeSpec Project" button/link in the "No Folder Opened" View of Explore.
 
 ![alt text](./images/TriggerCreateTypeSpecProject_NoFolderOpened.png)
 
