@@ -67,7 +67,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 
 - Select a non-empty folder.
   **Validate:** Will it appear: `Folder C:\xxx\xxx\xxx is not empty. Are you sure you want to initialize a new project here?`
-  
+
   ![alt text](./images/CreateTypeSpecProject_SelectFolderTest.png)
   ![alt text](./images/CreateTypeSpecProject_VerifyFolderIsEmpty.png)
 
@@ -79,7 +79,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 #### Step 4. Check if TypeSpec Compiler CLI is install. (optional)
 
 - If the TypeSpec Compiler is not installed. Will initiate the installation of the typespec compiler.
-  
+
   ![alt text](./images/CreateTypeSpecProject_InstallTypeSpecCompiler.png)
 
 - If the compiler is already installed locally. Skip the installation prompt and go to the next step.
