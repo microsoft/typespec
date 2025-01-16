@@ -141,6 +141,7 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
      > Note: JavaScript server code emitter is experimental.
 
      - For `DotNet`:
+       
        ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodeInstallDependencies_DotNet.png)
        ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodePrompt_DotNet.png)
        ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodeFolder_DotNet.png)
