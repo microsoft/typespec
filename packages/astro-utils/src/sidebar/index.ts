@@ -81,6 +81,7 @@ export async function processSidebar(
     if (order === "desc") {
       result.reverse();
     }
+
     return result;
   }
 

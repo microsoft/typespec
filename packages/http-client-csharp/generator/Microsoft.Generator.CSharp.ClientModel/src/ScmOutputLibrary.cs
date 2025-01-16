@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
                 clients.Add(client);
                 clients.Add(client.RestClient);
-                var clientOptions = client.ClientOptions;
+                var clientOptions = client.ClientOptions.Value;
                 if (clientOptions != null)
                 {
                     clients.Add(clientOptions);

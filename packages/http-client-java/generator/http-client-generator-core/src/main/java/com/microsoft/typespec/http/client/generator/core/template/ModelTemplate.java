@@ -158,14 +158,13 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 : JavaVisibility.Public;
             addModelConstructor(model, modelConstructorVisibility, settings, classBlock);
 
+            boolean streamStyle = settings.isStreamStyleSerialization();
+
             for (ClientModelProperty property : getFieldProperties(propertiesManager)) {
                 final boolean propertyIsReadOnly = immutableModel || property.isReadOnly();
 
                 IType propertyWireType = property.getWireType();
                 IType propertyClientType = propertyWireType.getClientType();
-
-                JavaVisibility methodVisibility
-                    = property.getClientFlatten() ? JavaVisibility.Private : JavaVisibility.Public;
 
                 if (!property.isPolymorphicDiscriminator()
                     || PolymorphicDiscriminatorHandler.generateGetter(model, property, settings)) {
@@ -177,6 +176,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     if (!propertyIsReadOnly) {
                         TemplateUtil.addJsonGetter(classBlock, settings, property.getSerializedName());
                     }
+                    JavaVisibility methodVisibility = getGetterVisibility(model, property, streamStyle);
 
                     if (addOverrideAnnotationToGetter(methodVisibility, model, property, settings)) {
                         classBlock.annotation("Override");
@@ -191,42 +191,19 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     generateSetterJavadoc(classBlock, model, property);
                     addGeneratedAnnotation(classBlock);
                     TemplateUtil.addJsonSetter(classBlock, settings, property.getSerializedName());
-                    classBlock.method(methodVisibility, null,
+                    classBlock.method(JavaVisibility.Public, null,
                         model.getName() + " " + property.getSetterName() + "(" + propertyClientType + " "
                             + property.getName() + ")",
                         methodBlock -> addSetterMethod(propertyWireType, propertyClientType, property, treatAsXml,
                             methodBlock, settings, ClientModelUtil.isJsonMergePatchModel(model, settings)));
-                } else {
-                    // If stream-style serialization is being generated, some additional setters may need to be added to
-                    // support read-only properties that aren't included in the constructor.
-                    // Jackson handles this by reflectively setting the value in the parent model, but stream-style
-                    // serialization doesn't perform reflective cracking like Jackson Databind does, so it needs a way
-                    // to access the readonly property (aka one without a public setter method).
-                    //
-                    // The package-private setter is added when the property isn't included in the constructor and is
-                    // defined by this model, except for JSON merge patch models as those use the access helper pattern
-                    // to enable subtypes to set the property.
-                    boolean streamStyle = settings.isStreamStyleSerialization();
-                    boolean hasDerivedTypes = !CoreUtils.isNullOrEmpty(model.getDerivedModels());
-                    boolean notIncludedInConstructor
-                        = !ClientModelUtil.includePropertyInConstructor(property, settings);
-                    boolean definedByModel = ClientModelUtil.modelDefinesProperty(model, property);
-                    boolean modelIsJsonMergePatch = ClientModelUtil.isJsonMergePatchModel(model, settings);
-                    if (hasDerivedTypes
-                        && notIncludedInConstructor
-                        && definedByModel
-                        && streamStyle
-                        && !property.isPolymorphicDiscriminator()
-                        && !modelIsJsonMergePatch
-                        && !property.isConstant()) {
-                        generateSetterJavadoc(classBlock, model, property);
-                        addGeneratedAnnotation(classBlock);
-                        classBlock.method(JavaVisibility.PackagePrivate, null,
-                            model.getName() + " " + property.getSetterName() + "(" + propertyClientType + " "
-                                + property.getName() + ")",
-                            methodBlock -> addSetterMethod(propertyWireType, propertyClientType, property, treatAsXml,
-                                methodBlock, settings, ClientModelUtil.isJsonMergePatchModel(model, settings)));
-                    }
+                } else if (ClientModelUtil.needsPackagePrivateSetter(model, property, settings, streamStyle)) {
+                    generateSetterJavadoc(classBlock, model, property);
+                    addGeneratedAnnotation(classBlock);
+                    classBlock.method(JavaVisibility.PackagePrivate, null,
+                        model.getName() + " " + property.getSetterName() + "(" + propertyClientType + " "
+                            + property.getName() + ")",
+                        methodBlock -> addSetterMethod(propertyWireType, propertyClientType, property, treatAsXml,
+                            methodBlock, settings, ClientModelUtil.isJsonMergePatchModel(model, settings)));
                 }
 
                 // If the property is additional properties, and stream-style serialization isn't being used, add a
@@ -307,15 +284,14 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                         });
 
                     // setter
-                    if (!propertyIsReadOnly) {
+                    if (!propertyIsReadOnly && !property.isConstant()) {
                         generateSetterJavadoc(classBlock, model, property);
                         addGeneratedAnnotation(classBlock);
                         ClientModelPropertyReference propertyReferenceFinal = propertyReference;
                         classBlock.publicMethod(String.format("%s %s(%s %s)", model.getName(),
                             propertyReference.getSetterName(), propertyClientType, property.getName()), methodBlock -> {
-                                methodBlock.ifBlock(String.format("this.%s() == null", targetProperty.getGetterName()),
-                                    ifBlock -> methodBlock.line(String.format("this.%s = new %s();",
-                                        targetProperty.getName(), propertyReferenceFinal.getTargetModelType())));
+                                initializeFlattenedProperty(methodBlock, model, targetProperty, propertyReferenceFinal,
+                                    streamStyle);
 
                                 methodBlock.line(String.format("this.%s().%s(%s);", targetProperty.getGetterName(),
                                     property.getSetterName(), property.getName()));
@@ -335,6 +311,72 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                 writeStreamStyleSerialization(classBlock, propertiesManager);
             }
         });
+    }
+
+    /**
+     * Initialize the flattened property in flattening properties setter method.
+     * 
+     * <pre>
+     * public ClientModel withFlatteningProperty(FlatteningProperty property) {
+     *     if (this.innerFlattenedProperty() == null) {
+     *         // initializeFlattenedProperty
+     *     }
+     *     this.innerFlattenedProperty().withFlatteningProperty(property);
+     * }
+     * </pre>
+     *
+     * @param methodBlock the setter method block
+     * @param model the client model
+     * @param targetFlattenedProperty flattened property (property.clientFlatten() == true)
+     * @param flatteningProperty flattening property (the property of the flattened property model)
+     * @param streamStyle whether stream-style-serialization is enabled
+     */
+    private static void initializeFlattenedProperty(JavaBlock methodBlock, ClientModel model,
+        ClientModelProperty targetFlattenedProperty, ClientModelPropertyReference flatteningProperty,
+        boolean streamStyle) {
+        String initializeLine;
+        if (streamStyle
+            && model.isAllPolymorphicModelsInSamePackage()
+            && ClientModelUtil.needsPackagePrivateSetter(
+                ClientModelUtil.getDefiningModel(model, targetFlattenedProperty), targetFlattenedProperty,
+                JavaSettings.getInstance(), streamStyle)) {
+            // if all polymorphic models are in the same package, and parent has package-private setter for the
+            // flattened property,
+            // use parent flattened property's setter to initialize
+            initializeLine = String.format("this.%s(new %s());", targetFlattenedProperty.getSetterName(),
+                flatteningProperty.getTargetModelType());
+        } else {
+            initializeLine = String.format("this.%s = new %s();", targetFlattenedProperty.getName(),
+                flatteningProperty.getTargetModelType());
+        }
+        methodBlock.ifBlock(String.format("this.%s() == null", targetFlattenedProperty.getGetterName()),
+            ifBlock -> methodBlock.line(initializeLine));
+    }
+
+    /**
+     * Get getter method visibility for the field property.
+     *
+     * @param model the model to generate getter for
+     * @param property the field property to generate getter for, either defined by model itself, or the shadow one from
+     * parent
+     * @param streamStyle whether stream-style-serialization is enabled
+     * @return the getter method visibility for the field property
+     */
+    private static JavaVisibility getGetterVisibility(ClientModel model, ClientModelProperty property,
+        boolean streamStyle) {
+        JavaVisibility methodVisibility;
+        if (!property.getClientFlatten()) {
+            methodVisibility = JavaVisibility.Public;
+        } else {
+            if (streamStyle && model.isAllPolymorphicModelsInSamePackage()) {
+                // If all polymorphic models are in the same package, flattened property won't shadow in child class,
+                // package-private here is to make parent getter accessible for children.
+                methodVisibility = JavaVisibility.PackagePrivate;
+            } else {
+                methodVisibility = JavaVisibility.Private;
+            }
+        }
+        return methodVisibility;
     }
 
     private static boolean addOverrideAnnotationToGetter(JavaVisibility visibility, ClientModel model,
@@ -637,7 +679,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
      */
     protected List<ClientModelProperty> getFieldProperties(ClientModelPropertiesManager propertiesManager) {
         ClientModel model = propertiesManager.getModel();
-        return Stream.concat(model.getParentPolymorphicDiscriminators().stream(), model.getProperties().stream())
+        return Stream
+            .concat(model.isPolymorphic() ? model.getParentPolymorphicDiscriminators().stream() : Stream.empty(),
+                model.getProperties().stream())
             .collect(Collectors.toList());
     }
 

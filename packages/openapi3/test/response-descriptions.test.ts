@@ -1,8 +1,8 @@
 import { strictEqual } from "assert";
-import { describe, it } from "vitest";
-import { openApiFor } from "./test-host.js";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-describe("openapi3: response descriptions", () => {
+worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
   it("use a default message by status code if not specified", async () => {
     const res = await openApiFor(
       `

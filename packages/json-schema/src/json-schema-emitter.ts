@@ -848,7 +848,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   modelInstantiationContext(model: Model, name: string | undefined): Context {
     if (name === undefined) {
-      return {};
+      return { scope: this.emitter.createScope({}, "", this.emitter.getContext().scope) };
     } else {
       return this.#newFileScope(model);
     }

@@ -15,7 +15,7 @@ Next, we'll discuss how to define CRUD operations for our API. We'll cover opera
 
 Let's define the CRUD operations for our `Pet` model:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;
@@ -138,7 +138,7 @@ In a real-world API, different operations might return different types of succes
 
 Let's update our pet operations to return different status codes based on the outcome.
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;

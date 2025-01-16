@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.62.0",
+  "version": "0.64.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -18,7 +18,7 @@
   ],
   "preview": true,
   "publisher": "typespec",
-  "displayName": "TypeSpec for VS Code",
+  "displayName": "TypeSpec",
   "categories": [
     "Programming Languages",
     "Snippets"
@@ -32,10 +32,18 @@
   "activationEvents": [
     "onLanguage:typespec",
     "onCommand:typespec.restartServer",
+    "onCommand:typespec.createProject",
     "workspaceContains:**/tspconfig.yaml"
   ],
   "icon": "./icons/logo.png",
   "contributes": {
+    "viewsWelcome": [
+      {
+        "view": "explorer",
+        "contents": "You may [open a folder](command:vscode.openFolder) of an existing TypeSpec project; or create a new TypeSpec project in VS Code.\n[Create TypeSpec Project](command:typespec.createProject)\nTo manually create a  TypeSpec project, follow [this guide](https://typespec.io/docs/).",
+        "when": "!workspaceFolderCount"
+      }
+    ],
     "languages": [
       {
         "id": "typespec",
@@ -63,8 +71,32 @@
           "typespec.tsp-server.path": {
             "type": "string",
             "default": "",
-            "description": "Path to `tsp-server` command that runs the TypeSpec language server.\n\nIf not specified, then `tsp-server` found on PATH is used.\n\nExample (User): /usr/local/bin/tsp-server\nExample (Workspace): ${workspaceFolder}/node_modules/@typespec/compiler",
+            "description": "Path to 'tsp-server' command that runs the TypeSpec language server. If not specified, then 'tsp-server' will be resolved in following sequence:\n\n1. from workspace node_modules folder\nExample: ${workspaceFolder}/node_modules/@typespec/compiler\n\n2. from PATH environment variable\nExample: /usr/local/bin/tsp-server",
             "scope": "machine-overridable"
+          },
+          "typespec.initTemplatesUrls": {
+            "type": "array",
+            "default": [],
+            "description": "List of URLs to fetch templates from when creating a new project.",
+            "scope": "machine-overridable",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "url"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the template."
+                },
+                "url": {
+                  "type": "string",
+                  "description": "URL to fetch the template from."
+                }
+              },
+              "additionalProperties": false
+            }
           },
           "typespec.trace.server": {
             "scope": "window",
@@ -108,8 +140,39 @@
         "command": "typespec.showOutputChannel",
         "title": "Show Output Channel",
         "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.generateCode",
+        "title": "Generate from TypeSpec",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.createProject",
+        "title": "Create TypeSpec Project",
+        "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.installGlobalCompilerCli",
+        "title": "Install TypeSpec Compiler/CLI globally",
+        "category": "TypeSpec"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "typespec.generateCode",
+          "when": "explorerResourceIsFolder || resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "typespec.generateCode",
+          "when": "resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ]
+    },
     "semanticTokenScopes": [
       {
         "scopes": {
@@ -171,11 +234,12 @@
     "@rollup/plugin-node-resolve": "~15.3.0",
     "@rollup/plugin-typescript": "~12.1.0",
     "@types/mocha": "^10.0.9",
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@types/vscode": "~1.94.0",
+    "@types/semver": "^7.5.8",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/coverage-v8": "^2.1.5",
     "@vitest/ui": "^2.1.2",
     "@vscode/test-web": "^0.0.62",
     "@vscode/vsce": "~3.1.1",
@@ -184,7 +248,9 @@
     "rimraf": "~6.0.1",
     "rollup": "~4.24.0",
     "typescript": "~5.6.3",
-    "vitest": "^2.1.2",
-    "vscode-languageclient": "~9.0.1"
+    "vitest": "^2.1.5",
+    "vscode-languageclient": "~9.0.1",
+    "semver": "^7.6.3",
+    "yaml": "~2.5.1"
   }
 }

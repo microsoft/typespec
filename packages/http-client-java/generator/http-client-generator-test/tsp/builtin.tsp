@@ -7,7 +7,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "Builtin",
 })
-namespace Cadl.Builtin;
+namespace TspTest.Builtin;
 
 model Builtin {
   boolean: boolean;

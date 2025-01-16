@@ -6,7 +6,7 @@ title: Decorators
 TypeSpec decorators are implemented as JavaScript functions. The process of creating a decorator can be divided into two parts:
 
 1. [Declare the decorator signature in TypeSpec](#declare-the-decorator-signature) (optional but recommended)
-2. [Implement the decorator in JavaScript](#implement-the-decorator-in-javascript)
+2. [Implement the decorator in JavaScript](#javascript-decorator-implementation)
 
 ## Declare the decorator signature
 
@@ -94,7 +94,7 @@ A decorator implementation takes the following parameters:
 import type { DecoratorContext, Type } from "@typespec/compiler";
 
 export function $logType(context: DecoratorContext, target: Type, name: string) {
-  console.log(name + ": " + targetType.kind);
+  console.log(name + ": " + target.kind);
 }
 ```
 
@@ -103,7 +103,7 @@ Or in JavaScript:
 ```ts
 // model.js
 export function $logType(context, target, name) {
-  console.log(name + ": " + targetType.kind);
+  console.log(name + ": " + target.kind);
 }
 ```
 

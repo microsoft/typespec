@@ -14,7 +14,7 @@ Let's start by defining a model for common parameters. This model will include p
 
 For the sake of demonstration, we're going to require each API call in our Pet Store service to include a request ID, a locale, and a client version. Let's define a model for these common parameters, which we'll label `requestID`, `locale`, and `clientVersion`:
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;
@@ -71,7 +71,7 @@ Now that we have defined our common parameters model, let's reuse it across mult
 
 ### Example: Reusing Common Parameters in Operations
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using TypeSpec.Http;

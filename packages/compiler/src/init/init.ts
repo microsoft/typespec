@@ -4,12 +4,12 @@ import prompts from "prompts";
 import * as semver from "semver";
 import { createDiagnostic } from "../core/messages.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
-import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { MANIFEST } from "../manifest.js";
 import { readUrlOrPath } from "../utils/misc.js";
-import { TypeSpecCoreTemplates } from "./core-templates.js";
-import { InitTemplate, InitTemplateLibrarySpec, InitTemplateSchema } from "./init-template.js";
+import { getTypeSpecCoreTemplates } from "./core-templates.js";
+import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
+import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "./init-template.js";
 import { makeScaffoldingConfig, normalizeLibrary, scaffoldNewProject } from "./scaffold.js";
 
 export interface InitTypeSpecProjectOptions {
@@ -30,15 +30,16 @@ export async function initTypeSpecProject(
 
   // Download template configuration and prompt user to select a template
   // No validation is done until one has been selected
+  const typeSpecCoreTemplates = await getTypeSpecCoreTemplates(host);
   const result =
     options.templatesUrl === undefined
-      ? (TypeSpecCoreTemplates as LoadedTemplate)
+      ? (typeSpecCoreTemplates as LoadedTemplate)
       : await downloadTemplates(host, options.templatesUrl);
   const templateName = options.template ?? (await promptTemplateSelection(result.templates));
 
   // Validate minimum compiler version for non built-in templates
   if (
-    result !== TypeSpecCoreTemplates &&
+    result !== typeSpecCoreTemplates &&
     !(await validateTemplate(result.templates[templateName], result))
   ) {
     return;
@@ -65,6 +66,7 @@ export async function initTypeSpecProject(
   ]);
 
   const libraries = await selectLibraries(template);
+  const emitters = await selectEmitters(template);
   const parameters = await promptCustomParameters(template);
   const scaffoldingConfig = makeScaffoldingConfig(template, {
     baseUri: result.baseUri,
@@ -74,6 +76,7 @@ export async function initTypeSpecProject(
     folderName,
     parameters,
     includeGitignore,
+    emitters,
   });
 
   await scaffoldNewProject(host, scaffoldingConfig);
@@ -85,6 +88,18 @@ export async function initTypeSpecProject(
 
   // eslint-disable-next-line no-console
   console.log(pc.green("Project created successfully."));
+
+  if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
+    // eslint-disable-next-line no-console
+    console.log(pc.yellow("\nPlease review the following messages from emitters:"));
+
+    for (const key of Object.keys(emitters)) {
+      if (emitters[key].message) {
+        // eslint-disable-next-line no-console
+        console.log(`  ${key}: \n\t${emitters[key].message}`);
+      }
+    }
+  }
 }
 
 async function promptCustomParameters(template: InitTemplate): Promise<Record<string, any>> {
@@ -193,11 +208,6 @@ async function promptTemplateSelection(templates: Record<string, any>): Promise<
   return templateName;
 }
 
-type ValidationResult = {
-  valid: boolean;
-  diagnostics: readonly Diagnostic[];
-};
-
 async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<boolean> {
   // After selection, validate the template definition
   const currentCompilerVersion = MANIFEST.version;
@@ -239,6 +249,33 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
   return true;
 }
 
+async function selectEmitters(template: InitTemplate): Promise<Record<string, EmitterTemplate>> {
+  if (!template.emitters) {
+    return {};
+  }
+
+  const promptList = [...Object.entries(template.emitters)].map(([name, emitter]) => {
+    return {
+      title: name,
+      description: emitter.description,
+      selected: emitter.selected ?? false,
+    };
+  });
+
+  const { emitters } = await prompts({
+    type: "multiselect",
+    name: "emitters",
+    message: "Select emitters?",
+    choices: promptList,
+  });
+
+  const selectedEmitters = [...Object.entries(template.emitters)].filter((_, index) =>
+    emitters.includes(index),
+  );
+
+  return Object.fromEntries(selectedEmitters);
+}
+
 async function selectLibraries(template: InitTemplate): Promise<InitTemplateLibrarySpec[]> {
   if (template.libraries === undefined || template.libraries.length === 0) {
     return [];
@@ -276,18 +313,6 @@ export class InitTemplateError extends Error {
   constructor(public diagnostics: readonly Diagnostic[]) {
     super();
   }
-}
-
-function validateTemplateDefinitions(
-  template: unknown,
-  templateName: SourceFile,
-  strictValidation: boolean,
-): ValidationResult {
-  const validator = createJSONSchemaValidator(InitTemplateSchema, {
-    strict: strictValidation,
-  });
-  const diagnostics = validator.validate(template, templateName);
-  return { valid: diagnostics.length === 0, diagnostics };
 }
 
 function logDiagnostics(diagnostics: readonly Diagnostic[]): void {

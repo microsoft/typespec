@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace _Type.Scalar
@@ -18,16 +19,16 @@ namespace _Type.Scalar
 
         public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<string> Get() => throw null;
+        public virtual ClientResult<string> Get(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<string>> GetAsync() => throw null;
+        public virtual Task<ClientResult<string>> GetAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
 
         public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Put(string body) => throw null;
+        public virtual ClientResult Put(string body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> PutAsync(string body) => throw null;
+        public virtual Task<ClientResult> PutAsync(string body, CancellationToken cancellationToken = default) => throw null;
     }
 }

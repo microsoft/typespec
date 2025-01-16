@@ -11,7 +11,7 @@ namespace _Type.Model.Inheritance.SingleDiscriminator.Models
     {
         public Eagle(int wingspan) : base("eagle", wingspan) => throw null;
 
-        internal Eagle(IList<Bird> friends, IDictionary<string, Bird> hate, Bird partner, string kind, int wingspan, IDictionary<string, BinaryData> additionalBinaryDataProperties) : base(kind, wingspan, additionalBinaryDataProperties) => throw null;
+        internal Eagle(string kind, int wingspan, IDictionary<string, BinaryData> additionalBinaryDataProperties, IList<Bird> friends, IDictionary<string, Bird> hate, Bird partner) : base(kind, wingspan, additionalBinaryDataProperties) => throw null;
 
         public IList<Bird> Friends => throw null;
 

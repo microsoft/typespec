@@ -171,7 +171,6 @@ interface ListKind {
   readonly delimiter: DelimiterToken;
   readonly toleratedDelimiter: DelimiterToken;
   readonly toleratedDelimiterIsValid: boolean;
-  readonly trailingDelimiterIsValid: boolean;
   readonly invalidAnnotationTarget?: string;
   readonly allowedStatementKeyword: Token;
 }
@@ -193,7 +192,6 @@ namespace ListKind {
   const PropertiesBase = {
     allowEmpty: true,
     toleratedDelimiterIsValid: true,
-    trailingDelimiterIsValid: true,
     allowedStatementKeyword: Token.None,
   } as const;
 
@@ -269,7 +267,6 @@ namespace ListKind {
     delimiter: Token.Comma,
     toleratedDelimiter: Token.Semicolon,
     toleratedDelimiterIsValid: false,
-    trailingDelimiterIsValid: false,
     invalidAnnotationTarget: "expression",
     allowedStatementKeyword: Token.None,
   } as const;
@@ -3230,23 +3227,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       }
 
       r.items.push(item);
-      const delimiter = token();
-      const delimiterPos = tokenPos();
 
       if (parseOptionalDelimiter(kind)) {
         // Delimiter found: check if it's trailing.
         if (parseOptional(kind.close)) {
           mutate(r.range).end = previousTokenEnd;
-          if (!kind.trailingDelimiterIsValid) {
-            error({
-              code: "trailing-token",
-              format: { token: TokenDisplay[delimiter] },
-              target: {
-                pos: delimiterPos,
-                end: delimiterPos + 1,
-              },
-            });
-          }
           // It was trailing and we've consumed the close token.
           break;
         }

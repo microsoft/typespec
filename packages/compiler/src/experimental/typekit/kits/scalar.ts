@@ -1,10 +1,11 @@
 import { isIntrinsicType } from "../../../core/decorator-utils.js";
 import type { IntrinsicScalarName, Scalar, Type } from "../../../core/types.js";
 import { type EncodeData, getEncode, getFormat } from "../../../lib/decorators.js";
-import { defineKit, type TypekitPrototype } from "../define-kit.js";
+import { defineKit, Typekit } from "../define-kit.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { ModelPropertyKit } from "./model-property.js";
 
+/** @experimental */
 interface ScalarKit {
   /**
    * Operations for scalar types like strings, numerics, booleans, dates, etc.
@@ -406,7 +407,7 @@ interface ScalarKit {
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends ScalarKit {}
+  interface Typekit extends ScalarKit {}
 }
 
 defineKit<ScalarKit>({
@@ -490,13 +491,13 @@ defineKit<ScalarKit>({
 });
 
 function isStdType(typeName: IntrinsicScalarName) {
-  return function (this: TypekitPrototype, type: Type) {
+  return function (this: Typekit, type: Type) {
     return type === this.program.checker.getStdType(typeName);
   };
 }
 
 function extendsStdType(typeName: IntrinsicScalarName) {
-  return function (this: TypekitPrototype, type: Type) {
+  return function (this: Typekit, type: Type) {
     if (!this.scalar.is(type)) {
       return false;
     }
