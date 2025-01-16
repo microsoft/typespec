@@ -67,6 +67,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 
 - Select a non-empty folder.
   **Validate:** Will it appear: `Folder C:\xxx\xxx\xxx is not empty. Are you sure you want to initialize a new project here?`
+  
   ![alt text](./images/CreateTypeSpecProject_SelectFolderTest.png)
   ![alt text](./images/CreateTypeSpecProject_VerifyFolderIsEmpty.png)
 
@@ -78,6 +79,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 #### Step 4. Check if TypeSpec Compiler CLI is install. (optional)
 
 - If the TypeSpec Compiler is not installed. Will initiate the installation of the typespec compiler.
+  
   ![alt text](./images/CreateTypeSpecProject_InstallTypeSpecCompiler.png)
 
 - If the compiler is already installed locally. Skip the installation prompt and go to the next step.
@@ -91,9 +93,11 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
    &emsp;&emsp;![alt text](./images/CreateTypeSpecProject_SelectTemplate.png)
 
 2. Input project name - _(Text input)_ by default, it is the project root folder name.
+
    ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
 
 3. Choose whether to generate a .ignore file. _(Single choice)_ `Y/N`
+
    ![alt text](./images/CreateTypeSpecProject_Generate_ignoreFile.png)
 
 4. Select libraries to update. _(Multiple choice)_
@@ -137,6 +141,7 @@ Configure more initialization templates.
 #### Step 2. Config settings "initTemplatesUrls".
 
 1. Open settings.
+
    ![alt text](./images/CreateTypeSpecProject_testcase2_opensettings_1.png)
    ![alt text](./images/CreateTypeSpecProject_testcase2_opensettings_2.png)
 
@@ -169,23 +174,29 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
 1. Select a template _(Single choice)_.
    **Validate:** There should be a prompt "Select a template", and should see some options.
+
    ![alt text](./images/CreateTypeSpecProject_SelectMoreTemplate.png)
 
 2. Input project name - _(Text input)_ by default, it is the project root folder name.
+
    ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
 
 3. Choose whether to generate a .ignore file. _(Single choice)_ `Y/N`
+
    ![alt text](./images/CreateTypeSpecProject_Generate_ignoreFile.png)
 
 4. Install the libraries. _(optional)_
    If you choose the stand alone project, need to install some libraries. If you choose the rest-api-spec repo project, skip to the next step.
+
    ![alt text](./images/CreateTypeSpecProject_StandAlone_InstallLibraries.png)
 
 5. Input service namespace - _(Text input)_ requires Pascal format.
+
    ![alt text](./images/CreateTypeSpecProject_InputServiceNamespace.png)
 
 6. Press "Enter" and the project will be created.
    **Validate:** Verify that the project was created correctly.
+
    ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateProject.png)
    ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder.png)
 
