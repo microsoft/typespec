@@ -80,6 +80,7 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
   Generate `client code` from TypeSpec. In VS Code extension, we can complete code generation with step-by-step guidance. TypeSpec Extension support will be extended to client code generation for first-class languages: `.NET`, `Python`, `Java`, and `JavaScript`.
 
   1. Click `Client Code`.
+
      **Validate:** There should be a prompt "Select a Language", and should see four languages: `DotNet`, `Java`, `JavaScript`, `Python`.
 
      ![alt text](./images/GeneratefromTypeSpec_SelectClientLanguage.png)
@@ -131,7 +132,9 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
      ![alt text](./images/GeneratefromTypeSpec_SelectServerStubLanguage.png)
 
   2. Select a Language, confirm the TypeSpec emitters you want to install and their minimum requirements.
+
      **Validate:** There should be a prompt `Here are libraries to install or update`, and TypeSpec emitters to install and their minimum requirements.
+
      ![alt text](./images/GenerateClientCode_ConfirmTypeSpecEmitters_serverstub.png)
 
   3. Initiate the generation of Server Stub on the backend.
@@ -152,7 +155,8 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
   The TypeSpec file itself is not sufficient to generate OpenAPI3. The conversion process will always reference the entry point (main.tsp) of the TypeSpec build, which includes the main definitions of models, services, and operations.
 
-  1. Click `Protocol Schema`
+  1. Click `Protocol Schema`.
+
      **Validate:** There should be a prompt "Select a Language", and should see languages: `OpenAPI3`.
 
      ![alt text](./images/GeneratefromTypeSpec_SelectOpenAPILanguage.png)
