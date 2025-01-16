@@ -132,7 +132,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 
 Configure more initialization templates.
 
-#### Step 1 are the same as [Tast Case 1](#step-1-install-the-typespec-extension).
+#### Step 1 are the same as [Test Case 1](#step-1-install-the-typespec-extension).
 
 #### Step 2. Config settings "initTemplatesUrls".
 
