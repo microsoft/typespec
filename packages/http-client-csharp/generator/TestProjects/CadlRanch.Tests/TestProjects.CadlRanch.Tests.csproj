@@ -7,10 +7,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Http\**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <AssemblyAttribute Include="TestProjects.CadlRanch.Tests.BuildProperties">
       <_Parameter1>$(RepoRoot)</_Parameter1>
       <_Parameter2>$(ArtifactsDir)</_Parameter2>
@@ -19,6 +15,71 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\array\src\_Type._Array.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\enum\extensible\src\_Type._Enum.Extensible.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\authentication\api-key\src\Authentication.ApiKey.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\authentication\http\custom\src\Authentication.Http.Custom.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\authentication\oauth2\src\Authentication.OAuth2.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\authentication\union\src\Authentication.Union.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\client\naming\src\Client.Naming.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\client\structure\client-operation-group\src\Client.Structure.Service.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\client\structure\default\src\Client.Structure.Service.Default.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\client\structure\multi-client\src\Client.Structure.Service.Multi.Client.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\client\structure\renamed-operation\src\Client.Structure.Service.Renamed.Operation.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\client\structure\two-operation-group\src\Client.Structure.Service.TwoOperationGroup.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\encode\bytes\src\Encode.Bytes.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\encode\datetime\src\Encode.Datetime.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\encode\duration\src\Encode.Duration.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\encode\numeric\src\Encode.Numeric.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\parameters\basic\src\Parameters.Basic.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\parameters\body-optionality\src\Parameters.BodyOptionality.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\parameters\collection-format\src\Parameters.CollectionFormat.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\parameters\spread\src\Parameters.Spread.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\payload\content-negotiation\src\Payload.ContentNegotiation.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\payload\json-merge-patch\src\Payload.JsonMergePatch.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\payload\media-type\src\Payload.MediaType.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\payload\multipart\src\Payload.MultiPart.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\resiliency\srv-driven\v1\src\Resiliency.SrvDriven.V1.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\resiliency\srv-driven\v2\src\Resiliency.SrvDriven.V2.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\routes\src\Routes.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\serialization\encoded-name\json\src\Serialization.EncodedName.Json.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\server\endpoint\not-defined\src\Server.Endpoint.NotDefined.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\server\path\multiple\src\Server.Path.Multiple.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\server\path\single\src\Server.Path.Single.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\server\versions\not-versioned\src\Server.Versions.NotVersioned.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\server\versions\versioned\src\Server.Versions.Versioned.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\special-headers\conditional-request\src\SpecialHeaders.ConditionalRequest.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\special-headers\repeatability\src\SpecialHeaders.Repeatability.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\special-words\src\SpecialWords.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\dictionary\src\_Type.Dictionary.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\enum\fixed\src\_Type._Enum.Fixed.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\empty\src\_Type.Model.Empty.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\enum-discriminator\src\_Type.Model.Inheritance.EnumDiscriminator.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\nested-discriminator\src\_Type.Model.Inheritance.NestedDiscriminator.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\not-discriminated\src\_Type.Model.Inheritance.NotDiscriminated.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\recursive\src\_Type.Model.Inheritance.Recursive.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\single-discriminator\src\_Type.Model.Inheritance.SingleDiscriminator.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\usage\src\_Type.Model.Usage.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\visibility\src\_Type.Model.Visibility.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\additional-properties\src\_Type.Property.AdditionalProperties.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\nullable\src\_Type.Property.Nullable.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\optionality\src\_Type.Property.Optional.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\value-types\src\_Type.Property.ValueTypes.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\scalar\src\_Type.Scalar.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\union\src\_Type.Union.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\added\v1\src\Versioning.Added.V1.csproj" Aliases="VersioningAddedV1" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\added\v2\src\Versioning.Added.V2.csproj" Aliases="VersioningAddedV2"/>
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\madeOptional\v1\src\Versioning.MadeOptional.V1.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\madeOptional\v2\src\Versioning.MadeOptional.V2.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\removed\v1\src\Versioning.Removed.V1.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\removed\v2\src\Versioning.Removed.V2.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\removed\v2Preview\src\Versioning.Removed.V2Preview.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\renamedFrom\v1\src\Versioning.RenamedFrom.V1.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\renamedFrom\v2\src\Versioning.RenamedFrom.V2.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\returnTypeChangedFrom\v1\src\Versioning.ReturnTypeChangedFrom.V1.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\returnTypeChangedFrom\v2\src\Versioning.ReturnTypeChangedFrom.V2.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\typeChangedFrom\v1\src\Versioning.TypeChangedFrom.V1.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\typeChangedFrom\v2\src\Versioning.TypeChangedFrom.V2.csproj" />
   </ItemGroup>
 
 </Project>
