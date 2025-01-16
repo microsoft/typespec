@@ -8,7 +8,7 @@ namespace Microsoft.Generator.CSharp.Statements
     public sealed class XmlDocReturnsStatement : XmlDocStatement
     {
         public XmlDocReturnsStatement(FormattableString text)
-            : base("<returns>", "</returns>", [text])
+            : base($"<returns>", $"</returns>", [text])
         {
         }
     }

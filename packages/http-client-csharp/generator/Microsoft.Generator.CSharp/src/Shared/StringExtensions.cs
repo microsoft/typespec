@@ -207,6 +207,23 @@ namespace Microsoft.Generator.CSharp
             return SyntaxFacts.IsKeywordKind(kind);
         }
 
+        [return: NotNullIfNotNull(nameof(name))]
+        public static string ToXmlDocIdentifierName(this string name)
+        {
+            var span = name.AsSpan();
+            if (span.Length == 0)
+            {
+                return name;
+            }
+
+            if (name[0] != '@')
+            {
+                return name;
+            }
+
+            return span[1..].ToString();
+        }
+
         public static string ToApiVersionMemberName(this string version)
         {
             var sb = new StringBuilder("V");
