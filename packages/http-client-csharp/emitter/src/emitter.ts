@@ -224,7 +224,7 @@ async function validateDotNetSdk(program: Program, minVersion: string): Promise<
         format: {
           installedVersion: dotnetVersions?.join(","),
           dotnetMajorVersion: `${parsedVersions.major}`,
-          downloadUrl: `https://dotnet.microsoft.com/download/dotnet/${parsedVersions.major}.0`,
+          downloadUrl: "https://dotnet.microsoft.com/",
         },
         target: NoTarget,
       });
@@ -240,7 +240,7 @@ async function validateDotNetSdk(program: Program, minVersion: string): Promise<
         messageId: "missing",
         format: {
           dotnetMajorVersion: `${parsedVersions.major}`,
-          downloadUrl: `https://dotnet.microsoft.com/download/dotnet/${parsedVersions.major}.0`,
+          downloadUrl: "https://dotnet.microsoft.com/",
         },
         target: NoTarget,
       });
