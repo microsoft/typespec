@@ -86,14 +86,7 @@ foreach ($directory in $directories) {
     }
 
     Write-Host "Testing $subPath" -ForegroundColor Cyan
-    # find the test csproj file
-    $csprojFiles = Get-ChildItem -Path $testPath -Filter "*.csproj"
-    if ($csprojFiles.Count -ne 1) {
-        Write-Host "Expected to find exactly one csproj file in $testPath, but found $($csprojFiles.Count)" -ForegroundColor Red
-        exit 1
-    }
-    $testCsproj = $csprojFiles[0].FullName
-    $command = "dotnet test $testCsproj"
+    $command  = "dotnet test $cadlRanchCsproj --filter `"FullyQualifiedName~$testFilter`""
     Invoke $command
     # exit if the testing failed
     if ($LASTEXITCODE -ne 0) {

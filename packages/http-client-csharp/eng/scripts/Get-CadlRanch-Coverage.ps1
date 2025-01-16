@@ -11,9 +11,7 @@ $specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs'
 $azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
 $cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 'http'
 $directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
-$cadlRanchTestDir = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests'
-# Get all .csproj files recursively
-$csprojFiles = Get-ChildItem -Path $cadlRanchTestDir -Recurse -Filter *.csproj
+$cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
 
@@ -80,14 +78,11 @@ foreach ($directory in $directories) {
 
 # test all
 Write-Host "Generating CadlRanch coverage" -ForegroundColor Cyan
-foreach ($csprojFile in $csprojFiles) {
-    Write-Host "Testing $csprojFile" -ForegroundColor Cyan
-    $command = "dotnet test $csprojFile"
-    Invoke $command
-    # exit if the testing failed
-    if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
-    }
+$command  = "dotnet test $cadlRanchCsproj"
+Invoke $command
+# exit if the testing failed
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
 }
 
 # restore all

@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
-using NUnit.Framework;
+extern alias VersioningAddedV2;
+
 using System;
 using System.Linq;
-using Versioning.Added.V2;
-using Versioning.Added.V2.Models;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using VersioningAddedV2::Versioning.Added.V2;
+using VersioningAddedV2::Versioning.Added.V2.Models;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
 {
