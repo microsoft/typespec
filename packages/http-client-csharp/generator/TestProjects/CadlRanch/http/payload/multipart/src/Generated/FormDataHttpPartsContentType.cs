@@ -2,28 +2,146 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
+using Payload.MultiPart.Models;
 
 namespace Payload.MultiPart
 {
+    /// <summary></summary>
     public partial class FormDataHttpPartsContentType
     {
-        protected FormDataHttpPartsContentType() => throw null;
+        private readonly Uri _endpoint;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of FormDataHttpPartsContentType for mocking. </summary>
+        protected FormDataHttpPartsContentType()
+        {
+        }
 
-        public virtual ClientResult ImageJpegContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        internal FormDataHttpPartsContentType(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual Task<ClientResult> ImageJpegContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult RequiredContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual ClientResult ImageJpegContentType(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            // CUSTOM: AssertNotNullOrEmpty for required contentType
+            Argument.AssertNotNull(contentType, nameof(contentType));
 
-        public virtual Task<ClientResult> RequiredContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+            using PipelineMessage message = CreateImageJpegContentTypeRequest(content, contentType, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult OptionalContentType(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+        public virtual async Task<ClientResult> ImageJpegContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            // CUSTOM: AssertNotNullOrEmpty for required contentType
+            Argument.AssertNotNull(contentType, nameof(contentType));
 
-        public virtual Task<ClientResult> OptionalContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
+            using PipelineMessage message = CreateImageJpegContentTypeRequest(content, contentType, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        // CUSTOM: Convenience method
+        public virtual ClientResult ImageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return ImageJpegContentType(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        // CUSTOM: Convenience method
+        public virtual async Task<ClientResult> ImageJpegContentTypeAsync(FileWithHttpPartSpecificContentTypeRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return await ImageJpegContentTypeAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        public virtual ClientResult RequiredContentType(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            // CUSTOM: AssertNotNullOrEmpty for required contentType
+            Argument.AssertNotNull(contentType, nameof(contentType));
+
+            using PipelineMessage message = CreateRequiredContentTypeRequest(content, contentType, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        public virtual async Task<ClientResult> RequiredContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            // CUSTOM: AssertNotNullOrEmpty for required contentType
+            Argument.AssertNotNull(contentType, nameof(contentType));
+
+            using PipelineMessage message = CreateRequiredContentTypeRequest(content, contentType, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        // CUSTOM: Convenience method
+        public virtual ClientResult RequiredContentType(FileWithHttpPartRequiredContentTypeRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return RequiredContentType(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        // CUSTOM: Convenience method
+        public virtual async Task<ClientResult> RequiredContentTypeAsync(FileWithHttpPartRequiredContentTypeRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return await RequiredContentTypeAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        public virtual ClientResult OptionalContentType(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            // CUSTOM: AssertNotNullOrEmpty for required contentType
+            Argument.AssertNotNull(contentType, nameof(contentType));
+
+            using PipelineMessage message = CreateOptionalContentTypeRequest(content, contentType, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        public virtual async Task<ClientResult> OptionalContentTypeAsync(BinaryContent content, string contentType, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+            // CUSTOM: AssertNotNullOrEmpty for required contentType
+            Argument.AssertNotNull(contentType, nameof(contentType));
+
+            using PipelineMessage message = CreateOptionalContentTypeRequest(content, contentType, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        // CUSTOM: Convenience method
+        public virtual ClientResult OptionalContentType(FileWithHttpPartOptionalContentTypeRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return OptionalContentType(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        // CUSTOM: Convenience method
+        public virtual async Task<ClientResult> OptionalContentTypeAsync(FileWithHttpPartOptionalContentTypeRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
+            return await OptionalContentTypeAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
     }
 }
