@@ -1,14 +1,16 @@
 import type {
   InitProjectConfig,
   InitProjectTemplate,
+  InitProjectTemplateEmitterTemplate,
   InitProjectTemplateLibrarySpec,
 } from "@typespec/compiler";
 import { readdir } from "fs/promises";
 import * as semver from "semver";
 import vscode, { OpenDialogOptions, QuickPickItem, window } from "vscode";
 import { State } from "vscode-languageclient";
+import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
-import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
+import { getBaseFileName, getDirectoryPath, joinPaths, normalizePath } from "../path-utils.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
 import {
   CommandName,
@@ -50,9 +52,17 @@ interface LibraryQuickPickItem extends QuickPickItem {
   version?: string;
 }
 
+interface EmitterQuickPickItem extends QuickPickItem {
+  name: string;
+  emitterTemplate: InitProjectTemplateEmitterTemplate;
+}
+
 const COMPILER_CORE_TEMPLATES = "compiler-core-templates";
 const TITLE = "Create a TypeSpec project";
-export async function createTypeSpecProject(client: TspLanguageClient | undefined) {
+export async function createTypeSpecProject(
+  client: TspLanguageClient | undefined,
+  stateManager: ExtensionStateManager,
+) {
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Window,
@@ -173,13 +183,18 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         return;
       }
 
+      const selectedEmitters = await selectEmitters(info);
+      if (selectedEmitters === undefined) {
+        logger.info("Creating TypeSpec Project cancelled when selecting emitters.");
+        return;
+      }
+
       const inputs = await setInputs(info);
       if (inputs === undefined) {
         logger.info("Creating TypeSpec Project cancelled when setting inputs.");
         return;
       }
 
-      // TODO: add support for emitters picking
       const initTemplateConfig: InitProjectConfig = {
         template: info.template!,
         directory: selectedRootFolder,
@@ -189,7 +204,7 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         parameters: inputs ?? {},
         includeGitignore: includeGitignore,
         libraries: librariesToInclude,
-        emitters: {},
+        emitters: selectedEmitters,
       };
       const initResult = await initProject(client, initTemplateConfig);
       if (!initResult) {
@@ -207,14 +222,81 @@ export async function createTypeSpecProject(client: TspLanguageClient | undefine
         // just ignore the result from tsp install. We will open the project folder anyway.
         await tspInstall(client, selectedRootFolder);
       }
+
+      const msg = Object.entries(selectedEmitters)
+        .filter(([_k, e]) => !isWhitespaceStringOrUndefined(e.message))
+        .map(([k, e]) => `\t${k}: \n\t\t${e.message}`)
+        .join("\n");
+
+      if (!isWhitespaceStringOrUndefined(msg)) {
+        const p = normalizePath(selectedRootFolder);
+        if (
+          vscode.workspace.workspaceFolders?.find((x) => normalizePath(x.uri.fsPath) === p) ===
+          undefined
+        ) {
+          // if the folder is not opened as workspace, persist the message to extension state because
+          // openProjectFolder will reinitialize the extension.
+          stateManager.saveStartUpMessage(
+            {
+              popupMessage:
+                "Please review the message from emitters when creating TypeSpec Project",
+              detail: msg,
+              level: "warn",
+            },
+            selectedRootFolder,
+          );
+        } else {
+          logger.warning("Please review the message from emitters\n", [msg], {
+            showPopup: true,
+            notificationButtonText: "Review in Output",
+          });
+        }
+      }
+
       vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(selectedRootFolder), {
         forceNewWindow: false,
         forceReuseWindow: true,
         noRecentEntry: false,
       });
-      return;
+      logger.info(`Creating TypeSpec Project completed successfully in ${selectedRootFolder}.`);
     },
   );
+}
+
+async function selectEmitters(
+  info: InitTemplateInfo,
+): Promise<Record<string, InitProjectTemplateEmitterTemplate> | undefined> {
+  if (!info.template.emitters || typeof info.template.emitters !== "object") {
+    return {};
+  }
+
+  const emitterList: EmitterQuickPickItem[] = Object.entries(info.template.emitters).map(
+    ([name, emitter]) => {
+      return {
+        label: emitter.version ? `${name} (ver: ${emitter.version})` : name,
+        name: name,
+        detail: emitter.description,
+        picked: emitter.selected,
+        emitterTemplate: emitter,
+      };
+    },
+  );
+  if (emitterList.length === 0) {
+    return {};
+  }
+
+  const selectedEmitters = await vscode.window.showQuickPick<EmitterQuickPickItem>(emitterList, {
+    title: "Select emitters?",
+    canPickMany: true,
+    placeHolder: "Select emitters?",
+    ignoreFocusOut: true,
+  });
+
+  if (!selectedEmitters) {
+    return undefined;
+  }
+
+  return Object.fromEntries(selectedEmitters.map((x) => [x.name, x.emitterTemplate]));
 }
 
 async function tspInstall(

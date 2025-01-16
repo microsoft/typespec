@@ -1,5 +1,33 @@
 # Change Log - typespec-vscode
 
+## 0.64.0
+
+### Bug Fixes
+
+- [#5413](https://github.com/microsoft/typespec/pull/5413) Do not start TypeSpec Language Server when there is no workspace opened
+- [#5131](https://github.com/microsoft/typespec/pull/5131) Support 'See Document' quick action to view the details of linter rules
+- [#5428](https://github.com/microsoft/typespec/pull/5428) improve console output when tsp-server not found
+
+### Features
+
+- [#5312](https://github.com/microsoft/typespec/pull/5312) integrate client SDK generation
+- [#5314](https://github.com/microsoft/typespec/pull/5314) Rename vscode extension from "TypeSpec for VS Code" to "TypeSpec"
+- [#5594](https://github.com/microsoft/typespec/pull/5594) Support Emitters section in Init Template when creating TypeSpec project in vscode
+- [#5294](https://github.com/microsoft/typespec/pull/5294) Support "Create TypeSpec Project" in vscode command and EXPLORER when no folder opened
+Add Setting "typespec.initTemplatesUrls" where user can configure additional template to use to create TypeSpec project
+example:
+```
+{
+  "typespec.initTemplatesUrls": [
+    {
+      "name": "displayName",
+      "url": "https://urlToTheFileContainsTemplates"
+    }],
+}
+```
+Support "Install TypeSpec Compiler/CLI globally" in vscode command to install TypeSpec compiler globally easily
+
+
 ## 0.63.0
 
 No changes, version bump only.

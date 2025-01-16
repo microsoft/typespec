@@ -59,8 +59,8 @@ public final class CustomClientImpl {
      * @param endpoint Service host.
      */
     public CustomClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(CustomClientService.class, this.httpPipeline);
     }
 
