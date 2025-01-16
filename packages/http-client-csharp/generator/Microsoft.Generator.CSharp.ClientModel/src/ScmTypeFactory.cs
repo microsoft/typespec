@@ -17,8 +17,8 @@ namespace Microsoft.Generator.CSharp.ClientModel
 {
     public class ScmTypeFactory : TypeFactory
     {
-        private Dictionary<InputClient, ClientProvider>? _clientCache;
-        private Dictionary<InputClient, ClientProvider> ClientCache => _clientCache ??= [];
+        private Dictionary<InputClient, ClientProvider?>? _clientCache;
+        private Dictionary<InputClient, ClientProvider?> ClientCache => _clientCache ??= [];
 
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
 
@@ -81,7 +81,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return [new ExtensibleEnumSerializationProvider(inputEnumType, typeProvider)];
         }
 
-        public ClientProvider CreateClient(InputClient inputClient)
+        public ClientProvider? CreateClient(InputClient inputClient)
         {
             if (ClientCache.TryGetValue(inputClient, out var client))
             {
@@ -89,11 +89,20 @@ namespace Microsoft.Generator.CSharp.ClientModel
             }
 
             client = CreateClientCore(inputClient);
+
+            foreach (var visitor in ClientModelPlugin.Instance.Visitors)
+            {
+                if (visitor is ScmLibraryVisitor scmVisitor)
+                {
+                    client = scmVisitor.Visit(inputClient, client);
+                }
+            }
+
             ClientCache[inputClient] = client;
             return client;
         }
 
-        protected virtual ClientProvider CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
+        protected virtual ClientProvider? CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
 
         /// <summary>
         /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
