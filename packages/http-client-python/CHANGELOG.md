@@ -4,7 +4,8 @@
 
 ### Bug Fixes
 
-- only add type annotation during initialization for readonly
+- Only add type annotation during initialization for readonly
+- Fix pylint issues
 
 ### Bump dependencies
 
