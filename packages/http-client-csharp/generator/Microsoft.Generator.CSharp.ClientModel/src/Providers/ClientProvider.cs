@@ -254,7 +254,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type.WithNullable(!p.IsRequired),
                             "_" + p.Name.ToVariableName(),
-                            this);
+                            this,
+                            wireInfo: new PropertyWireInformation(
+                                ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(p.Type),
+                                p.IsRequired,
+                                false,
+                                p.Type is InputNullableType,
+                                false,
+                                p.NameInRequest));
                         if (p.IsApiVersion)
                         {
                             _apiVersionField = field;

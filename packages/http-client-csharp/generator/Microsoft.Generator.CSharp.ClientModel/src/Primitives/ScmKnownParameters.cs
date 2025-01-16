@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
+using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
@@ -56,6 +57,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Primitives
             DefaultValue = Static(typeof(DateTimeOffset)).Property(nameof(DateTimeOffset.Now))
         };
 
-        public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string));
+        public static readonly ParameterProvider ContentType = new("contentType", $"The contentType to use which has the multipart/form-data boundary.", typeof(string), wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, false, false, false, "Content-Type"));
     }
 }

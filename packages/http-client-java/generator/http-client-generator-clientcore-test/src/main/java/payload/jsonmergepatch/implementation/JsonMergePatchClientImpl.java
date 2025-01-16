@@ -62,8 +62,8 @@ public final class JsonMergePatchClientImpl {
      * @param endpoint Service host.
      */
     public JsonMergePatchClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(JsonMergePatchClientService.class, this.httpPipeline);
     }
 

@@ -239,8 +239,8 @@ public final class ArrayClientImpl {
      * @param endpoint Service host.
      */
     public ArrayClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.int32Values = new Int32ValuesImpl(this);
         this.int64Values = new Int64ValuesImpl(this);
         this.booleanValues = new BooleanValuesImpl(this);

@@ -59,8 +59,8 @@ public final class ApiKeyClientImpl {
      * @param endpoint Service host.
      */
     public ApiKeyClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(ApiKeyClientService.class, this.httpPipeline);
     }
 

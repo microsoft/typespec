@@ -322,13 +322,24 @@ export class CodeModelBuilder {
         switch (scheme.type) {
           case "oauth2":
             {
-              const oauth2Scheme = new OAuth2SecurityScheme({
-                scopes: [],
-              });
-              scheme.flows.forEach((it) =>
-                oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
-              );
-              securitySchemes.push(oauth2Scheme);
+              if (this.isBranded()) {
+                const oauth2Scheme = new OAuth2SecurityScheme({
+                  scopes: [],
+                });
+                scheme.flows.forEach((it) =>
+                  oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
+                );
+                securitySchemes.push(oauth2Scheme);
+              } else {
+                // there is no TokenCredential in clientcore, hence use Bearer Authentication directly
+                this.logWarning(`OAuth2 auth scheme is generated as KeyCredential.`);
+
+                const keyScheme = new KeySecurityScheme({
+                  name: "authorization",
+                });
+                (keyScheme as any).prefix = "Bearer";
+                securitySchemes.push(keyScheme);
+              }
             }
             break;
 
@@ -959,20 +970,45 @@ export class CodeModelBuilder {
       for (const response of responses) {
         const bodyType = response.type;
         if (bodyType && bodyType.kind === "model") {
-          const itemName = sdkMethod.response.resultPath;
-          const nextLinkName = sdkMethod.nextLinkPath;
+          const itemClientName = sdkMethod.response.resultPath;
+          const nextLinkClientName = sdkMethod.nextLinkPath;
 
-          op.extensions = op.extensions ?? {};
-          op.extensions["x-ms-pageable"] = {
-            itemName: itemName,
-            nextLinkName: nextLinkName,
-          };
+          let itemSerializedName: string | undefined = undefined;
+          let nextLinkSerializedName: string | undefined = undefined;
 
           op.responses?.forEach((r) => {
             if (r instanceof SchemaResponse) {
               this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+
+              // find serializedName for items and nextLink
+              if (r.schema instanceof ObjectSchema) {
+                r.schema.properties?.forEach((p) => {
+                  if (
+                    itemClientName &&
+                    !itemSerializedName &&
+                    p.serializedName &&
+                    p.language.default.name === itemClientName
+                  ) {
+                    itemSerializedName = p.serializedName;
+                  }
+                  if (
+                    nextLinkClientName &&
+                    !nextLinkSerializedName &&
+                    p.serializedName &&
+                    p.language.default.name === nextLinkClientName
+                  ) {
+                    nextLinkSerializedName = p.serializedName;
+                  }
+                });
+              }
             }
           });
+
+          op.extensions = op.extensions ?? {};
+          op.extensions["x-ms-pageable"] = {
+            itemName: itemSerializedName,
+            nextLinkName: nextLinkSerializedName,
+          };
           break;
         }
       }
@@ -1038,8 +1074,21 @@ export class CodeModelBuilder {
           lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
           lroMetadata.finalResponse.resultPath
         ) {
-          // final result is the value in lroMetadata.finalStep.target
-          finalResultPropertySerializedName = lroMetadata.finalResponse.resultPath;
+          const finalResultPropertyClientName = lroMetadata.finalResponse.resultPath;
+
+          // find serializedName for lro result
+          if (finalResultPropertyClientName) {
+            lroMetadata.finalResponse.envelopeResult.properties?.forEach((p) => {
+              // TODO: "p.__raw?.name" should be "p.name", after TCGC fix https://github.com/Azure/typespec-azure/issues/2072
+              if (
+                p.kind === "property" &&
+                p.serializedName &&
+                p.__raw?.name === finalResultPropertyClientName
+              ) {
+                finalResultPropertySerializedName = p.serializedName;
+              }
+            });
+          }
         }
       }
 

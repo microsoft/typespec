@@ -52,17 +52,23 @@ async function findThirdPartyPackages() {
     const sources = contents.sources;
     for (const source of sources) {
       const sourcePath = resolve(dirname(map), source);
-      const packageRoot = await getPackageRoot(sourcePath);
+      let packageRoot = await getPackageRoot(sourcePath);
       if (packageRoot === undefined) {
         continue;
       }
-      const pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
-
-      if (pkg.name === rootName || /microsoft/i.test(JSON.stringify(pkg.author))) {
-        continue;
-      }
-
       if (!packages.has(packageRoot)) {
+        let pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
+
+        if (!pkg.name) {
+          packageRoot = await getPackageRoot(packageRoot);
+          while (!pkg.name && packageRoot) {
+            pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
+            packageRoot = await getPackageRoot(packageRoot);
+          }
+        }
+        if (!pkg.name || pkg.name === rootName || /microsoft/i.test(JSON.stringify(pkg.author))) {
+          continue;
+        }
         packages.set(packageRoot, pkg);
       }
     }
