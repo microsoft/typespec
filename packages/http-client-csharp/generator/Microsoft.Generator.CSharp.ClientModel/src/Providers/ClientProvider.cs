@@ -227,7 +227,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // add sub-client caching fields
             foreach (var subClient in _subClients.Value)
             {
-                if (subClient.Methods.Count != 0 && subClient._clientCachingField != null)
+                if (subClient._clientCachingField != null)
                 {
                     fields.Add(subClient._clientCachingField);
                 }
@@ -254,7 +254,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type.WithNullable(!p.IsRequired),
                             "_" + p.Name.ToVariableName(),
-                            this);
+                            this,
+                            wireInfo: new PropertyWireInformation(
+                                ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(p.Type),
+                                p.IsRequired,
+                                false,
+                                p.Type is InputNullableType,
+                                false,
+                                p.NameInRequest));
                         if (p.IsApiVersion)
                         {
                             _apiVersionField = field;
@@ -477,7 +484,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build factory accessor methods for the sub-clients
             foreach (var subClient in subClients)
             {
-                if (subClient._clientCachingField is null || subClient.Methods.Count == 0)
+                if (subClient._clientCachingField is null)
                 {
                     continue;
                 }

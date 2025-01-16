@@ -1679,9 +1679,7 @@ Two requests need to be tested.
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
-  "links": {
-    "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
-  }
+  "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
 }
 ```
 
