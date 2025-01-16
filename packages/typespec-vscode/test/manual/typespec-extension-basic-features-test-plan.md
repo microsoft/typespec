@@ -77,11 +77,11 @@ _Option 2_. Install typespec with vscode extension marketplace:
   **Validate:** Whether to automatically pop up a completion prompt to list possible types, attributes, and operations.
 
   - For `.tsp` file, press `ctrl + space`.
-    
+
     ![alt text](./images/TypeSpecForvscodeFeatures_CompletionHints.png)
 
   - For `tspconfig.yaml` file, press `ctrl + space`.
-    
+
     ![alt text](./images/TypeSpecForvscodeFeatures_CompletionHints_tspconfigFile.png)
 
 - #### For Code folding:
