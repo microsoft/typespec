@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.7
+
+### Bug Fixes
+
+- [#5505](https://github.com/microsoft/typespec/pull/5505) [http-server-csharp]: Fix routing issues with MFD requests
+- [#5417](https://github.com/microsoft/typespec/pull/5417) Handle multipart operations in c-sharp service emitter
+
+
 ## 0.58.0-alpha.6
 
 ### Bug Fixes
