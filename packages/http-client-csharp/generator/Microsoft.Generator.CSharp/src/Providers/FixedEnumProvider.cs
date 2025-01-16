@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()

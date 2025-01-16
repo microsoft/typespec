@@ -102,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildName() => _inputModel.Name.ToCleanName();
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             var isStruct = false;

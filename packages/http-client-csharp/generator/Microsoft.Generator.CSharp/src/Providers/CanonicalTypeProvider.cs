@@ -37,7 +37,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildNamespace() => _generatedTypeProvider.Namespace;
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
         private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
         private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;

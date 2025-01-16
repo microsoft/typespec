@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;

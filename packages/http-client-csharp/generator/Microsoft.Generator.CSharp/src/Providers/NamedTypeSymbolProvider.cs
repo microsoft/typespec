@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var declaredModifiers = GetAccessModifiers(_namedTypeSymbol.DeclaredAccessibility);
             if (_namedTypeSymbol.IsReadOnly)
