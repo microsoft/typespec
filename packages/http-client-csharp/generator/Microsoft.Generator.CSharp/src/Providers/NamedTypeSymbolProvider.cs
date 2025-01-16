@@ -28,7 +28,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildName() => _namedTypeSymbol.Name;
 
-        protected override string GetNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
+        protected override string BuildNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
 
         public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 

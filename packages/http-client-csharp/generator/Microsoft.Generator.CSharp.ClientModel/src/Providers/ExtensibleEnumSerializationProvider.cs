@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputEnumType _enumType;
         private TypeProvider _enumProvider;
 
-        protected override string GetNamespace() => _enumProvider.Type.Namespace;
+        protected override string BuildNamespace() => _enumProvider.Type.Namespace;
 
         public ExtensibleEnumSerializationProvider(InputEnumType enumType, TypeProvider enumProvider)
         {

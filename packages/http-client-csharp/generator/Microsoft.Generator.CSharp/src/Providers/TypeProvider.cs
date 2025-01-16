@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Providers
         protected TypeProvider(InputType? inputType = default)
         {
             _customCodeView = new(GetCustomCodeView);
-            _canonicalView = new(GetCanonicalView);
+            _canonicalView = new(BuildCanonicalView);
             _inputType = inputType;
         }
 
@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
-            => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
+            => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
 
         public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
 
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return allCustomProperties;
         }
 
-        private IReadOnlyList<FieldProvider> GetAllCustomFields()
+        private IReadOnlyList<FieldProvider> BuildAllCustomFields()
         {
             var allCustomFields = CustomCodeView?.Fields != null
                 ? new List<FieldProvider>(CustomCodeView.Fields)
@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return allCustomFields;
         }
 
-        private protected virtual CanonicalTypeProvider GetCanonicalView() => new CanonicalTypeProvider(this, _inputType);
+        private protected virtual CanonicalTypeProvider BuildCanonicalView() => new CanonicalTypeProvider(this, _inputType);
         public TypeProvider CanonicalView => _canonicalView.Value;
 
         protected string? _deprecated;
@@ -90,7 +90,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _name;
 
-        public string Namespace => _namespace ??= GetNamespace();
+        public string Namespace => _namespace ??= BuildNamespace();
         private string? _namespace;
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
@@ -112,14 +112,14 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            CustomCodeView?.GetNamespace() ?? GetNamespace(),
+            CustomCodeView?.BuildNamespace() ?? BuildNamespace(),
             GetTypeArguments(),
             GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
 
-        protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
+        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
 
@@ -216,7 +216,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            foreach (var customField in GetAllCustomFields())
+            foreach (var customField in BuildAllCustomFields())
             {
                 customProperties.Add(customField.Name);
                 if (customField.OriginalName != null)
@@ -241,7 +241,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var fields = new List<FieldProvider>();
             var customFields = new HashSet<string>();
 
-            foreach (var customField in GetAllCustomFields())
+            foreach (var customField in BuildAllCustomFields())
             {
                 customFields.Add(customField.Name);
                 if (customField.OriginalName != null)

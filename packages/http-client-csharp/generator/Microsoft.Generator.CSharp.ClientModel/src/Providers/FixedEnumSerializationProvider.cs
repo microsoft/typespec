@@ -29,7 +29,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _enumProvider = enumProvider;
         }
 
-        protected override string GetNamespace() => _enumProvider.Type.Namespace;
+        protected override string BuildNamespace() => _enumProvider.Type.Namespace;
         protected override TypeSignatureModifiers GetDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 

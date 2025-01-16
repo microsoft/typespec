@@ -43,8 +43,8 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override FormattableString Description
             => _isApiVersionEnum ? $"The version of the service to use." : base.Description;
 
-        protected override string GetNamespace()
-            => _isApiVersionEnum ? CodeModelPlugin.Instance.Configuration.RootNamespace : base.GetNamespace();
+        protected override string BuildNamespace()
+            => _isApiVersionEnum ? CodeModelPlugin.Instance.Configuration.RootNamespace : base.BuildNamespace();
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
