@@ -37,6 +37,7 @@ import {
   getClientNamespace,
   getImplementation,
   removeUnderscoresFromNamespace,
+  getRootNamespace,
 } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
@@ -281,7 +282,7 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   // Get types
   const sdkPackage = sdkContext.sdkPackage;
   const codeModel: Record<string, any> = {
-    namespace: removeUnderscoresFromNamespace(sdkPackage.rootNamespace).toLowerCase(),
+    namespace: getRootNamespace(sdkContext),
     clients: [],
   };
   for (const client of sdkPackage.clients) {
