@@ -16,7 +16,7 @@ export interface SpecSnapshotTestOptions {
 export interface TestContext {
   runCount: number;
 }
-export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
+export function defineSpecTests(config: SpecSnapshotTestOptions) {
   const specs = resolveSpecs(config);
   const context = {
     runCount: 0,
@@ -28,11 +28,11 @@ export function defineSpecSnaphotTests(config: SpecSnapshotTestOptions) {
     }
   });
   worksFor(["3.0.0", "3.1.0"], ({ openApiForFile }) => {
-    specs.forEach((spec) => defineSpecSnaphotTest(context, spec, openApiForFile));
+    specs.forEach((spec) => defineSpecTest(context, spec, openApiForFile));
   });
 }
 
-function defineSpecSnaphotTest(
+function defineSpecTest(
   context: TestContext,
   spec: Spec,
   openApiForFile: (spec: Spec) => Promise<typeof openApiForFile>,
@@ -47,7 +47,7 @@ interface SpecSnapshotTestHost extends CompilerHost {
   outputs: Map<string, string>;
 }
 
-function createSpecSnapshotTestHost(): SpecSnapshotTestHost {
+function createSpecTestHost(): SpecSnapshotTestHost {
   const outputs = new Map<string, string>();
   return {
     ...NodeHost,
@@ -90,7 +90,7 @@ function resolveSpecs(config: SpecSnapshotTestOptions): Spec[] {
 }
 
 export async function openApiForFile(spec: Spec, options: OpenAPI3EmitterOptions = {}) {
-  const host = createSpecSnapshotTestHost();
+  const host = createSpecTestHost();
   const program = await compile(host, spec.fullPath, {
     noEmit: false,
     emit: ["@typespec/openapi3"],
