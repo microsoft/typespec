@@ -109,10 +109,10 @@ public final class AddedClientImpl {
      */
     public AddedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
         AddedServiceVersion serviceVersion) {
+        this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
-        this.serviceVersion = AddedServiceVersion.getLatest();
-        this.httpPipeline = httpPipeline;
+        this.serviceVersion = serviceVersion;
         this.interfaceV2s = new InterfaceV2sImpl(this);
         this.service = RestProxy.create(AddedClientService.class, this.httpPipeline);
     }
