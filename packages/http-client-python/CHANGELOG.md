@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.6
+
+### Bug Fixes
+
+- Fix sphinx typing for raising documentation
+
 ## 0.6.5
 
 ### Bug Fixes
