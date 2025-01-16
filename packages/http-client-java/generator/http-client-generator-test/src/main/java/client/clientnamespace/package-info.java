@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the data models for Pageable.
- * Test for pageable payload.
+ * Package containing the classes for ClientNamespace.
+ * Illustrates the clientNamespace cases.
  * <!-- end generated doc -->
  */
-package payload.pageable.serverdrivenpagination.models;
+package client.clientnamespace;
