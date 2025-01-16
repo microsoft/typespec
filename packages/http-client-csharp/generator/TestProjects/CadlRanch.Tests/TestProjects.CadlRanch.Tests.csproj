@@ -21,10 +21,4 @@
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
   </ItemGroup>
 
-  <!-- <ItemGroup>
-    <None Update="Http\**\TestData\**\*.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup> -->
-
 </Project>
