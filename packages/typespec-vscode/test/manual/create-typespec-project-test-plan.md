@@ -66,6 +66,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 #### Step 3. Select a folder as the root folder for the new TypeSpec project.
 
 - Select a non-empty folder.
+
   **Validate:** Will it appear: `Folder C:\xxx\xxx\xxx is not empty. Are you sure you want to initialize a new project here?`
 
   ![alt text](./images/CreateTypeSpecProject_SelectFolderTest.png)
@@ -89,6 +90,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 #### Step 5. After successfully installing TypeSpec Compiler, will go through the questions of `tsp init`.
 
 1. Select a template _(Single choice)_.
+
    **Validate:** There should be a prompt "Select a template", and should see four options: `Empty project`, `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`.
    &emsp;&emsp;![alt text](./images/CreateTypeSpecProject_SelectTemplate.png)
 
@@ -173,6 +175,7 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 #### Step 6: Create a template.
 
 1. Select a template _(Single choice)_.
+
    **Validate:** There should be a prompt "Select a template", and should see some options.
 
    ![alt text](./images/CreateTypeSpecProject_SelectMoreTemplate.png)
@@ -195,6 +198,7 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
    ![alt text](./images/CreateTypeSpecProject_InputServiceNamespace.png)
 
 6. Press "Enter" and the project will be created.
+
    **Validate:** Verify that the project was created correctly.
 
    ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateProject.png)
