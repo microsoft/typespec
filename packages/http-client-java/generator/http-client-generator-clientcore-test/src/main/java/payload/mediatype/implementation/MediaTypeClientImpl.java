@@ -57,8 +57,8 @@ public final class MediaTypeClientImpl {
      * @param endpoint Service host.
      */
     public MediaTypeClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.stringBodies = new StringBodiesImpl(this);
     }
 }

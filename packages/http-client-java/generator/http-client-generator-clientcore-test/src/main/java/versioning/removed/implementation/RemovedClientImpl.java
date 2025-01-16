@@ -95,10 +95,10 @@ public final class RemovedClientImpl {
      */
     public RemovedClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
         RemovedServiceVersion serviceVersion) {
+        this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
-        this.serviceVersion = RemovedServiceVersion.getLatest();
-        this.httpPipeline = httpPipeline;
+        this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(RemovedClientService.class, this.httpPipeline);
     }
 

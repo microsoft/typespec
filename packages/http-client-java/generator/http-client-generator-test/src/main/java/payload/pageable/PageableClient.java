@@ -12,11 +12,11 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.RequestOptions;
-import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import payload.pageable.implementation.ServerDrivenPaginationsImpl;
-import payload.pageable.serverdrivenpagination.models.LinkResponse;
+import payload.pageable.models.Pet;
 
 /**
  * Initializes a new instance of the synchronous PageableClient type.
@@ -43,18 +43,8 @@ public final class PageableClient {
      * <pre>
      * {@code
      * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     links (Required): {
-     *         next: String (Optional)
-     *         prev: String (Optional)
-     *         first: String (Optional)
-     *         last: String (Optional)
-     *     }
+     *     id: String (Required)
+     *     name: String (Required)
      * }
      * }
      * </pre>
@@ -64,12 +54,12 @@ public final class PageableClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response}.
+     * @return the paginated response with {@link PagedIterable}.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> linkWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.linkWithResponse(requestOptions);
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> link(RequestOptions requestOptions) {
+        return this.serviceClient.link(requestOptions);
     }
 
     /**
@@ -80,13 +70,13 @@ public final class PageableClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the paginated response with {@link PagedIterable}.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public LinkResponse link() {
-        // Generated convenience method for linkWithResponse
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> link() {
+        // Generated convenience method for link
         RequestOptions requestOptions = new RequestOptions();
-        return linkWithResponse(requestOptions).getValue().toObject(LinkResponse.class);
+        return serviceClient.link(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 }

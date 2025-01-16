@@ -491,8 +491,8 @@ public final class AdditionalPropertiesClientImpl {
      * @param endpoint Service host.
      */
     public AdditionalPropertiesClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.extendsUnknowns = new ExtendsUnknownsImpl(this);
         this.extendsUnknownDeriveds = new ExtendsUnknownDerivedsImpl(this);
         this.extendsUnknownDiscriminateds = new ExtendsUnknownDiscriminatedsImpl(this);

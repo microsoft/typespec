@@ -94,10 +94,10 @@ public final class MadeOptionalClientImpl {
      */
     public MadeOptionalClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
         MadeOptionalServiceVersion serviceVersion) {
+        this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
-        this.serviceVersion = MadeOptionalServiceVersion.getLatest();
-        this.httpPipeline = httpPipeline;
+        this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(MadeOptionalClientService.class, this.httpPipeline);
     }
 
