@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override string BuildNameCore() => "PipelineRequestHeadersExtensions";
+        protected override string BuildName() => "PipelineRequestHeadersExtensions";
 
         protected override MethodProvider[] BuildMethods()
         {

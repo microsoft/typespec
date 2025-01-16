@@ -62,7 +62,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         {
             protected override string BuildRelativeFilePath() => ".";
 
-            protected override string BuildNameCore() => nameof(InvalidPropertyDocsModel);
+            protected override string BuildName() => nameof(InvalidPropertyDocsModel);
 
             protected override PropertyProvider[] BuildProperties()
             {
@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         {
             protected override string BuildRelativeFilePath() => ".";
 
-            protected override string BuildNameCore() => nameof(InvalidParameterDocsModel);
+            protected override string BuildName() => nameof(InvalidParameterDocsModel);
 
             protected override MethodProvider[] BuildMethods()
             {
@@ -93,7 +93,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
         {
             protected override string BuildRelativeFilePath() => ".";
 
-            protected override string BuildNameCore() => nameof(ValidDocsModel);
+            protected override string BuildName() => nameof(ValidDocsModel);
 
             protected override PropertyProvider[] BuildProperties()
             {

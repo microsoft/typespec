@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
-        protected override string BuildNameCore() => $"{_clientProvider.Name}Options";
+        protected override string BuildName() => $"{_clientProvider.Name}Options";
         protected override FormattableString Description => $"Client options for {_clientProvider.Type:C}.";
 
         protected override CSharpType[] BuildImplements()

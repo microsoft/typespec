@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
-        protected override string BuildNameCore() => _inputClient.Name.ToCleanName();
+        protected override string BuildName() => _inputClient.Name.ToCleanName();
 
         protected override PropertyProvider[] BuildProperties()
         {

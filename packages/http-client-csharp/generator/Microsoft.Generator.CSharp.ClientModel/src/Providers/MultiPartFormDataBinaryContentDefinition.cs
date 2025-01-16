@@ -76,7 +76,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override string BuildNameCore() => "MultiPartFormDataBinaryContent";
+        protected override string BuildName() => "MultiPartFormDataBinaryContent";
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Class | TypeSignatureModifiers.Internal;
 

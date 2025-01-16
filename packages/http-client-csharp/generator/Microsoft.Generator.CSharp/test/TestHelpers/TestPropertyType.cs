@@ -15,6 +15,6 @@ namespace Microsoft.Generator.CSharp.Tests
 
         protected override string BuildRelativeFilePath() => ".";
 
-        protected override string BuildNameCore() => "PropertyType";
+        protected override string BuildName() => "PropertyType";
     }
 }

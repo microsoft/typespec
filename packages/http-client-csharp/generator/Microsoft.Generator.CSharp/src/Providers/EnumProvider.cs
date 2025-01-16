@@ -48,14 +48,14 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildNameCore() => _inputType.Name.ToCleanName();
+        protected override string BuildName() => _inputType.Name.ToCleanName();
         protected override FormattableString Description { get; }
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
             return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this)];
         }
-        protected override string BuildNamespaceCore() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+        protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override bool GetIsEnum() => true;
         protected override CSharpType BuildEnumUnderlyingType() => CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(_inputType.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");

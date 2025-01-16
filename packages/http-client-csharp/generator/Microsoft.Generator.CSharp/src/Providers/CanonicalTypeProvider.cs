@@ -33,16 +33,16 @@ namespace Microsoft.Generator.CSharp.Providers
         }
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
-        protected override string BuildNameCore() => _generatedTypeProvider.Name;
+        protected override string BuildName() => _generatedTypeProvider.Name;
 
-        protected override string BuildNamespaceCore() => _generatedTypeProvider.Namespace;
+        protected override string BuildNamespace() => _generatedTypeProvider.Namespace;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
         private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
         private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;
 
-        private protected override CanonicalTypeProvider GetCanonicalView() => this;
+        private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
         // TODO - Implement BuildMethods, etc as needed
         protected override ConstructorProvider[] BuildConstructors()

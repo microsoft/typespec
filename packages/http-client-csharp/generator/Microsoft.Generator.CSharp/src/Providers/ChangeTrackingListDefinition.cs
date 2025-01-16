@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override string BuildNameCore() => "ChangeTrackingList";
+        protected override string BuildName() => "ChangeTrackingList";
 
         protected override ConstructorProvider[] BuildConstructors()
         {

@@ -26,9 +26,9 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
-        protected override string BuildNameCore() => _namedTypeSymbol.Name;
+        protected override string BuildName() => _namedTypeSymbol.Name;
 
-        protected override string BuildNamespaceCore() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
+        protected override string BuildNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
 
         public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 

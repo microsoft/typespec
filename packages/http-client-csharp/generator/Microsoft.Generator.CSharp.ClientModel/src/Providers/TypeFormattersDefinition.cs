@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override string BuildNameCore() => "TypeFormatters";
+        protected override string BuildName() => "TypeFormatters";
 
         private readonly FieldProvider _roundtripZFormatField;
         private readonly FieldProvider _defaultNumberFormatField;

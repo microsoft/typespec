@@ -37,14 +37,14 @@ namespace Microsoft.Generator.CSharp.Providers
             DeclaringTypeProvider = declaringType;
         }
 
-        protected override string BuildNameCore()
-            => _isApiVersionEnum ? ApiVersionEnumName : base.BuildNameCore();
+        protected override string BuildName()
+            => _isApiVersionEnum ? ApiVersionEnumName : base.BuildName();
 
         protected override FormattableString Description
             => _isApiVersionEnum ? $"The version of the service to use." : base.Description;
 
-        protected override string BuildNamespaceCore()
-            => _isApiVersionEnum ? CodeModelPlugin.Instance.Configuration.RootNamespace : base.BuildNamespaceCore();
+        protected override string BuildNamespace()
+            => _isApiVersionEnum ? CodeModelPlugin.Instance.Configuration.RootNamespace : base.BuildNamespace();
 
         protected override TypeProvider[] BuildSerializationProviders()
         {

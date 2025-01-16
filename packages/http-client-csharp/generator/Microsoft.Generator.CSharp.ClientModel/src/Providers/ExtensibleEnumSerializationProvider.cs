@@ -17,7 +17,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private readonly InputEnumType _enumType;
         private TypeProvider _enumProvider;
 
-        protected override string BuildNamespaceCore() => _enumProvider.Type.Namespace;
+        protected override string BuildNamespace() => _enumProvider.Type.Namespace;
 
         public ExtensibleEnumSerializationProvider(InputEnumType enumType, TypeProvider enumProvider)
         {
@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return Path.Combine("src", "Generated", "Models", $"{_enumProvider.Name}.Serialization.cs");
         }
 
-        protected override string BuildNameCore() => _enumProvider.Name;
+        protected override string BuildName() => _enumProvider.Name;
 
         protected override TypeSignatureModifiers GetDeclarationModifiers() => _enumProvider.DeclarationModifiers;
 

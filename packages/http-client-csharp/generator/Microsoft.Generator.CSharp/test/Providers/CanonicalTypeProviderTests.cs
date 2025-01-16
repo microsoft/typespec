@@ -78,9 +78,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             protected override string BuildRelativeFilePath() => "NamedSymbol";
 
-            protected override string BuildNameCore() => "TestName";
+            protected override string BuildName() => "TestName";
 
-            protected override string BuildNamespaceCore() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+            protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
             protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
 

@@ -36,7 +36,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
-        protected override string BuildNameCore() => "Optional";
+        protected override string BuildName() => "Optional";
 
         protected override MethodProvider[] BuildMethods()
         {
