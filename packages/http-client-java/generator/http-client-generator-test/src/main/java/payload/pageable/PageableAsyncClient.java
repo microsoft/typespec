@@ -12,13 +12,15 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.rest.PagedFlux;
+import com.azure.core.http.rest.PagedResponse;
+import com.azure.core.http.rest.PagedResponseBase;
 import com.azure.core.http.rest.RequestOptions;
-import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.FluxUtil;
+import java.util.stream.Collectors;
 import payload.pageable.implementation.ServerDrivenPaginationsImpl;
-import payload.pageable.serverdrivenpagination.models.LinkResponse;
-import reactor.core.publisher.Mono;
+import payload.pageable.models.Pet;
+import reactor.core.publisher.Flux;
 
 /**
  * Initializes a new instance of the asynchronous PageableClient type.
@@ -45,18 +47,8 @@ public final class PageableAsyncClient {
      * <pre>
      * {@code
      * {
-     *     pets (Required): [
-     *          (Required){
-     *             id: String (Required)
-     *             name: String (Required)
-     *         }
-     *     ]
-     *     links (Required): {
-     *         next: String (Optional)
-     *         prev: String (Optional)
-     *         first: String (Optional)
-     *         last: String (Optional)
-     *     }
+     *     id: String (Required)
+     *     name: String (Required)
      * }
      * }
      * </pre>
@@ -66,12 +58,12 @@ public final class PageableAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     * @return the paginated response with {@link PagedFlux}.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> linkWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.linkWithResponseAsync(requestOptions);
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> link(RequestOptions requestOptions) {
+        return this.serviceClient.linkAsync(requestOptions);
     }
 
     /**
@@ -82,14 +74,25 @@ public final class PageableAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * @return the paginated response with {@link PagedFlux}.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<LinkResponse> link() {
-        // Generated convenience method for linkWithResponse
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<Pet> link() {
+        // Generated convenience method for link
         RequestOptions requestOptions = new RequestOptions();
-        return linkWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(LinkResponse.class));
+        PagedFlux<BinaryData> pagedFluxResponse = link(requestOptions);
+        return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
+            Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
+                ? pagedFluxResponse.byPage().take(1)
+                : pagedFluxResponse.byPage(continuationTokenParam).take(1);
+            return flux.map(pagedResponse -> new PagedResponseBase<Void, Pet>(pagedResponse.getRequest(),
+                pagedResponse.getStatusCode(), pagedResponse.getHeaders(),
+                pagedResponse.getValue()
+                    .stream()
+                    .map(protocolMethodData -> protocolMethodData.toObject(Pet.class))
+                    .collect(Collectors.toList()),
+                pagedResponse.getContinuationToken(), null));
+        });
     }
 }
