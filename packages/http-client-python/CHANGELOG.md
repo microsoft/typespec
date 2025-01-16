@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.5
+
+### Bug Fixes
+
+- only add type annotation during initialization for readonly
+
 ## 0.6.4
 
 ### Bug Fixes
