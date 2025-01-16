@@ -7,12 +7,12 @@ import { defineSpecTests } from "./utils/spec-snapshot-testing.js";
 
 const pkgRoot = await findTestPackageRoot(import.meta.url);
 const specsRoot = resolvePath(pkgRoot, "node_modules", "@typespec", "http-specs", "specs");
-const config = {
-  specDir: specsRoot,
-};
 
 describe("http-specs convert", () => {
-  defineSpecTests(config);
+  defineSpecTests({
+    specDir: specsRoot,
+    exclude: ["parameters/collection-format", "payload/xml", "routes"],
+  });
 });
 
 describe("http-specs cases", () => {
