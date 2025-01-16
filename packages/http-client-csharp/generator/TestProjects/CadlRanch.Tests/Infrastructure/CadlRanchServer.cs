@@ -19,13 +19,13 @@ namespace TestProjects.CadlRanch.Tests
             return Path.Combine(nodeModules, "@typespec", "spector", "dist", "src", "cli", "cli.js");
         }
 
-        public static string GetSpecDirectory()
+        internal static string GetSpecDirectory()
         {
             var nodeModules = GetNodeModulesDirectory();
             return Path.Combine(nodeModules, "@typespec", "http-specs");
         }
 
-        public static string GetAzureSpecDirectory()
+        internal static string GetAzureSpecDirectory()
         {
             var nodeModules = GetNodeModulesDirectory();
             return Path.Combine(nodeModules, "@azure-tools", "azure-http-specs");
