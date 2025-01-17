@@ -117,7 +117,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputFactory.EnumMember.String("three", "val3")
             };
 
-            var inputEnum = InputFactory.Enum("mockInputEnum", string.Empty, underlyingType: InputPrimitiveType.String, values: props, isExtensible: false);
+            var inputEnum = InputFactory.Enum("mockInputEnum", underlyingType: InputPrimitiveType.String, values: props, isExtensible: false);
 
             var modelProp = InputFactory.Property("prop1", inputEnum);
             var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: [modelProp], usage: InputModelTypeUsage.Json);
@@ -180,7 +180,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputFactory.EnumMember.String("three", "val3")
             };
 
-            var inputEnum = InputFactory.Enum("mockInputEnum", string.Empty, underlyingType: InputPrimitiveType.String, values: props, isExtensible: true);
+            var inputEnum = InputFactory.Enum("mockInputEnum", underlyingType: InputPrimitiveType.String, values: props, isExtensible: true);
             var modelProp = InputFactory.Property("prop1", inputEnum);
             var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: [modelProp], usage: InputModelTypeUsage.Json);
 
@@ -205,7 +205,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputFactory.EnumMember.String("three", "val3")
             };
 
-            var inputEnum = InputFactory.Enum("mockInputEnum", string.Empty, underlyingType: InputPrimitiveType.String, values: props, isExtensible: true);
+            var inputEnum = InputFactory.Enum("mockInputEnum", underlyingType: InputPrimitiveType.String, values: props, isExtensible: true);
             var modelProp = InputFactory.Property("prop1", inputEnum);
             var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: [modelProp], usage: InputModelTypeUsage.Json);
 

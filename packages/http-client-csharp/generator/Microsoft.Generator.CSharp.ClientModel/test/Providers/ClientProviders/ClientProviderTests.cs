@@ -65,50 +65,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [Test]
-<<<<<<< HEAD
-        public async Task TestEmptyClient()
-        {
-            var client = InputFactory.Client(TestClientName);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                clients: () => [client]);
-
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
-            Assert.IsNull(clientProvider);
-        }
-
-        [Test]
-        public async Task TestNonEmptySubClient()
-        {
-            var client = InputFactory.Client(TestClientName);
-            var subClient = InputFactory.Client($"Sub{TestClientName}", operations: [_inputOperation], parent: client.Name);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                clients: () => [client, subClient]);
-
-            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
-            Assert.IsNotNull(subClientProvider);
-
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
-            Assert.IsNotNull(clientProvider);
-        }
-
-        [Test]
-        public async Task TestEmptySubClient()
-        {
-            var client = InputFactory.Client(TestClientName);
-            var subClient = InputFactory.Client($"Sub{TestClientName}", parent: client.Name);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                clients: () => [client, subClient]);
-
-            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
-            Assert.IsNull(subClientProvider);
-
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
-            Assert.IsNull(clientProvider);
-        }
-
-        [Test]
-=======
->>>>>>> origin/main
         public void TestBuildProperties()
         {
             var client = InputFactory.Client(TestClientName);
@@ -707,7 +663,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             List<string> apiVersions = ["1.0", "2.0"];
             var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-            var inputEnum = InputFactory.Enum("ServiceVersion", string.Empty, InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
 
             MockHelpers.LoadMockPlugin(
                 apiVersions: () => apiVersions,
@@ -746,7 +702,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         {
             List<string> apiVersions = ["value1", "value2"];
             var enumValues = apiVersions.Select(a => InputFactory.EnumMember.String(a, a));
-            var inputEnum = InputFactory.Enum("ServiceVersion", string.Empty, InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
+            var inputEnum = InputFactory.Enum("ServiceVersion", InputPrimitiveType.Int64, values: [.. enumValues], usage: InputModelTypeUsage.ApiVersionEnum);
             MockHelpers.LoadMockPlugin(
                 apiVersions: () => apiVersions,
                 inputEnums: () => [inputEnum]);
@@ -781,7 +737,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public void ClientProviderIsAddedToLibrary()
         {
             var plugin = MockHelpers.LoadMockPlugin(
-                clients: () => [new InputClient("test", "test", "test", [], [], null)]);
+                clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "test")]);
 
             Assert.AreEqual(1, plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Count());
         }
@@ -790,7 +746,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public void NullClientProviderIsNotAddedToLibrary()
         {
             var plugin = MockHelpers.LoadMockPlugin(
-                clients: () => [new InputClient("test", "test", "test", [], [], null)],
+                clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "test")],
                 createClientCore: (client) => null);
 
             Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());
@@ -809,7 +765,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 "queryParam",
                                 InputFactory.Enum(
                                     "InputEnum",
-                                    string.Empty,
                                     InputPrimitiveType.String,
                                     usage: InputModelTypeUsage.Input,
                                     isExtensible: true,
@@ -1243,7 +1198,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     "apiVersion",
                     InputFactory.Enum(
                         "InputEnum",
-                        string.Empty,
                         InputPrimitiveType.String,
                         usage: InputModelTypeUsage.Input,
                         isExtensible: true,

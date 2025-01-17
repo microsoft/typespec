@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+extern alias SrvDrivenV1;
+
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Resiliency.ServiceDriven;
-using Resiliency.SrvDriven.V2;
+using SrvDrivenV1::Resiliency.ServiceDriven;
 
 namespace TestProjects.CadlRanch.Tests.Http.Resiliency.SrvDriven.V1
 {

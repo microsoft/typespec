@@ -1,16 +1,17 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
- using System.Threading.Tasks;
- using Client.Naming;
- using Client.Naming.Model;
- using Client.Naming.Property;
- using NUnit.Framework;
- using ClientModel = Client.Naming.Model.ClientModel;
+using System.Threading.Tasks;
+using Client.Naming;
+using Client.Naming._UnionEnum;
+using Client.Naming.Model;
+using Client.Naming.Property;
+using NUnit.Framework;
+using ClientModel = Client.Naming.Model.ClientModel;
 
- namespace TestProjects.CadlRanch.Tests.Http.Client.Naming
- {
-     public class ClientNamingTests : CadlRanchTestBase
+namespace TestProjects.CadlRanch.Tests.Http.Client.Naming
+{
+    public class ClientNamingTests : CadlRanchTestBase
      {
          [CadlRanchTest]
          public Task Client() => Test(async (host) =>

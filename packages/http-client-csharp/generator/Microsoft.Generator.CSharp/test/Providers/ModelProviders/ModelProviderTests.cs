@@ -668,7 +668,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public void InitCtorShouldAssignBaseFieldDerivedRequired()
         {
             MockHelpers.LoadMockPlugin();
-            var enumType = InputFactory.Enum("enumType", string.Empty, InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", string.Empty, properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", string.Empty, properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -699,7 +699,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public void SerializationCtorShouldNotAssignBaseFieldDerivedRequired()
         {
             MockHelpers.LoadMockPlugin();
-            var enumType = InputFactory.Enum("enumType", string.Empty, InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", string.Empty, properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", string.Empty, properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -727,7 +727,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public void InitCtorShouldNotAssignBaseFieldBothRequired()
         {
             MockHelpers.LoadMockPlugin();
-            var enumType = InputFactory.Enum("enumType", string.Empty, InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", string.Empty, properties: [InputFactory.Property("prop1", enumType, isRequired: true)]);
             var baseInputModel = InputFactory.Model("baseModel", string.Empty, properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -752,7 +752,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public void SerializationCtorShouldNotAssignBaseField()
         {
             MockHelpers.LoadMockPlugin();
-            var enumType = InputFactory.Enum("enumType", string.Empty, InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", string.Empty, properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", string.Empty, properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -776,7 +776,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public void SerializationCtorShouldNotDuplicateBaseProperties()
         {
             MockHelpers.LoadMockPlugin();
-            var enumType = InputFactory.Enum("enumType", string.Empty, InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", string.Empty, properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", string.Empty, properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);
@@ -794,7 +794,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public void SerializationCtorInitializerHasToStringForEnumParam()
         {
             MockHelpers.LoadMockPlugin();
-            var enumType = InputFactory.Enum("enumType", string.Empty, InputPrimitiveType.String, isExtensible: true, values: [InputFactory.EnumMember.String("value1", "value1")]);
+            var enumType = InputFactory.Enum("enumType", InputPrimitiveType.String, isExtensible: true, values: [InputFactory.EnumMember.String("value1", "value1")]);
             var derivedInputModel = InputFactory.Model("derivedModel", string.Empty, properties: [InputFactory.Property("prop1", enumType)]);
             var baseInputModel = InputFactory.Model("baseModel", string.Empty, properties: [InputFactory.Property("prop1", InputPrimitiveType.String)], derivedModels: [derivedInputModel]);
             var derivedModel = CodeModelPlugin.Instance.TypeFactory.CreateModel(derivedInputModel);

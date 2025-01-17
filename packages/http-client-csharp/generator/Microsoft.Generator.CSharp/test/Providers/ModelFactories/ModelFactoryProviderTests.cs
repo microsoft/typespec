@@ -139,7 +139,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             InputModelProperty[] inheritanceProperties = properties.Concat(new[]
             {
                 InputFactory.Property("EnumProp",
-                    InputFactory.Enum("inputEnum", string.Empty, InputPrimitiveType.Int32, isExtensible: true,
+                    InputFactory.Enum("inputEnum", InputPrimitiveType.Int32, isExtensible: true,
                         values: [InputFactory.EnumMember.String("foo", "bar")]), isDiscriminator: true)
             }).ToArray();
 

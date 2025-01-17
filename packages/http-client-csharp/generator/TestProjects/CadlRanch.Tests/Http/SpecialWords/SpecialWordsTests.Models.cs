@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Threading.Tasks;
-using NUnit.Framework;
 using SpecialWords;
+using SpecialWords._ModelProperties;
 using SpecialWords.Models;
 using SpecialWordsAssert = SpecialWords.Models.Assert;
 using SpecialWordsIs = SpecialWords.Models.Is;

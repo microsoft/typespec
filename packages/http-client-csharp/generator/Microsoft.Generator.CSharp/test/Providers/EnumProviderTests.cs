@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(int));
 
-            var input = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.Int32, values:
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, values:
             [
                 InputFactory.EnumMember.Int32("One", 1),
                 InputFactory.EnumMember.Int32("Two", 2)
@@ -48,7 +48,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(float));
 
-            var input = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.Float32, values:
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, values:
             [
                 InputFactory.EnumMember.Float32("One", 1f),
                 InputFactory.EnumMember.Float32("Two", 2f)
@@ -70,7 +70,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
 
-            var input = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.String, values:
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, values:
             [
                 InputFactory.EnumMember.String("One", "1"),
                 InputFactory.EnumMember.String("Two", "2")
@@ -93,7 +93,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
 
             string[] apiVersions = ["2024-07-16", "2024-07-17"];
-            var input = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.Int32, usage: InputModelTypeUsage.ApiVersionEnum, values:
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.ApiVersionEnum, values:
             [
                 InputFactory.EnumMember.Int32(apiVersions[0], 1),
                 InputFactory.EnumMember.Int32(apiVersions[1], 2)
@@ -115,7 +115,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(int));
 
-            var input = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.Int32, isExtensible: true, values:
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, isExtensible: true, values:
             [
                 InputFactory.EnumMember.Int32("One", 1),
                 InputFactory.EnumMember.Int32("Two", 2)
@@ -159,7 +159,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(float));
 
-            var input = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.Float32, isExtensible: true, values:
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, isExtensible: true, values:
             [
                 InputFactory.EnumMember.Float32("One", 1f),
                 InputFactory.EnumMember.Float32("Two", 2f)
@@ -203,7 +203,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
         {
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: (inputType) => typeof(string));
 
-            var input = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.String, isExtensible: true, values:
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, isExtensible: true, values:
             [
                 InputFactory.EnumMember.String("One", "1"),
                 InputFactory.EnumMember.String("Two", "2")

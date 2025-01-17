@@ -28,21 +28,21 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.EnumProvider
                 InputFactory.EnumMember.Int32("One", 1),
                 InputFactory.EnumMember.Int32("Two", 2)
             };
-            var intType = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.Int32, isExtensible: isExtensible, values: intValues);
+            var intType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, isExtensible: isExtensible, values: intValues);
 
             var floatValues = new List<InputEnumTypeValue>
             {
                 InputFactory.EnumMember.Float32("One", 1f),
                 InputFactory.EnumMember.Float32("Two", 2f)
             };
-            var floatType = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.Float32, isExtensible: isExtensible, values: floatValues);
+            var floatType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Float32, isExtensible: isExtensible, values: floatValues);
 
             var stringValues = new List<InputEnumTypeValue>
             {
                 InputFactory.EnumMember.String("One", "1"),
                 InputFactory.EnumMember.String("Two", "2")
             };
-            var stringType = InputFactory.Enum("mockInputEnum", string.Empty, InputPrimitiveType.String, isExtensible: isExtensible, values: stringValues);
+            var stringType = InputFactory.Enum("mockInputEnum", InputPrimitiveType.String, isExtensible: isExtensible, values: stringValues);
 
             return [intType, floatType, stringType];
         }

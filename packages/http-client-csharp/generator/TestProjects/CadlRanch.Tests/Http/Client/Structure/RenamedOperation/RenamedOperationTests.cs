@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+extern alias ClientStructureRenamedOperation;
 using System.Linq;
 using System.Threading.Tasks;
-using Client.Structure.Service;
-using Client.Structure.Service.Renamed.Operation;
+using ClientStructureRenamedOperation::Client.Structure.RenamedOperation;
+using ClientStructureRenamedOperation::Client.Structure.Service;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.RenamedOperation

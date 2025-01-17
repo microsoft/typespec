@@ -19,15 +19,11 @@ namespace Microsoft.Generator.CSharp.Tests
         [Test]
         public void TestInitialize()
         {
-            string ns = "Sample";
             string? unknownStringProperty = "unknownPropertyValue";
             bool? unknownBoolProp = false;
 
             var configuration = Configuration.Load(MockHelpers.TestHelpersFolder);
 
-            var parsedNs = configuration.RootNamespace;
-
-            Assert.AreEqual(ns, parsedNs);
             // get the unknown property from the configuration
             var additionalConfigOptions = configuration.AdditionalConfigOptions;
             Assert.IsNotNull(additionalConfigOptions);
@@ -84,22 +80,6 @@ namespace Microsoft.Generator.CSharp.Tests
             Assert.AreEqual(expected, library);
         }
 
-        // Validates that the namespace field is parsed correctly from the configuration
-        [TestCaseSource("ParseConfigNamespaceTestCases")]
-        public void TestParseConfig_Namespace(string mockJson, bool throwsError)
-        {
-            if (throwsError)
-            {
-                Assert.Throws<InvalidOperationException>(() => MockHelpers.LoadMockPlugin(configuration: mockJson));
-                return;
-            }
-
-            var ns = CodeModelPlugin.Instance.Configuration.RootNamespace;
-            var expected = "namespace";
-
-            Assert.AreEqual(expected, ns);
-        }
-
         // Validates that additional configuration options are parsed correctly
         [Test]
         public void TestParseConfig_AdditionalConfigOptions()
@@ -107,7 +87,6 @@ namespace Microsoft.Generator.CSharp.Tests
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
                 ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace"",
                 ""unknown-string-property"": ""unknownPropertyValue"",
                 ""unknown-bool-property"": true
                 }";
@@ -132,7 +111,6 @@ namespace Microsoft.Generator.CSharp.Tests
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
                 ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace"",
                 ""disable-xml-docs"": true
                 }";
 
@@ -155,7 +133,6 @@ namespace Microsoft.Generator.CSharp.Tests
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
                 ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace"",
                 ""unreferenced-types-handling"": ""keepAll""
                 }";
 
@@ -177,7 +154,6 @@ namespace Microsoft.Generator.CSharp.Tests
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
                 ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace"",
                 ""disable-xml-docs"": true
                 }";
 
@@ -205,7 +181,6 @@ namespace Microsoft.Generator.CSharp.Tests
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
                 ""library-name"": ""libraryName"",
-                ""namespace"": ""Test"",
                 ""disable-xml-docs"": true
                 }";
 
@@ -223,7 +198,6 @@ namespace Microsoft.Generator.CSharp.Tests
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
                 ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace"",
                 ""disable-xml-docs"": true
                 }";
 
@@ -241,9 +215,8 @@ namespace Microsoft.Generator.CSharp.Tests
             get
             {
                 yield return new TestCaseData(@"{
-                ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace""
+                    ""output-folder"": ""outputFolder"",
+                    ""library-name"": ""libraryName"",
                 }", false);
                 yield return new TestCaseData(@"{
                 ""library-name"": ""libraryName"",
@@ -257,12 +230,11 @@ namespace Microsoft.Generator.CSharp.Tests
             get
             {
                 yield return new TestCaseData(@"{
-                ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace""
+                    ""output-folder"": ""outputFolder"",
+                    ""library-name"": ""libraryName"",
                 }", false);
                 yield return new TestCaseData(@"{
-                ""output-folder"": ""outputFolder""
+                    ""output-folder"": ""outputFolder""
                 }", true);
             }
         }
@@ -272,13 +244,12 @@ namespace Microsoft.Generator.CSharp.Tests
             get
             {
                 yield return new TestCaseData(@"{
-                ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace""
+                    ""output-folder"": ""outputFolder"",
+                    ""library-name"": ""libraryName"",
                 }", false);
                 yield return new TestCaseData(@"{
-                ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName""
+                    ""output-folder"": ""outputFolder"",
+                    ""library-name"": ""libraryName""
                 }", true);
             }
         }
@@ -288,15 +259,13 @@ namespace Microsoft.Generator.CSharp.Tests
             get
             {
                 yield return new TestCaseData(@"{
-                ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace"",
+                    ""output-folder"": ""outputFolder"",
+                    ""library-name"": ""libraryName"",
                 ""use-model-namespace"": true
                 }", true);
                 yield return new TestCaseData(@"{
-                ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace""
+                    ""output-folder"": ""outputFolder"",
+                    ""library-name"": ""libraryName"",
                 }", true);
             }
         }

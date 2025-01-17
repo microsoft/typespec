@@ -121,12 +121,12 @@ namespace Microsoft.Generator.CSharp.Tests.Common
 
         public static InputEnumType Enum(
             string name,
-            string clientNamespace,
             InputPrimitiveType underlyingType,
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
             IEnumerable<InputEnumTypeValue>? values = null,
-            bool isExtensible = false)
+            bool isExtensible = false,
+            string clientNamespace = "Sample")
         {
             return new InputEnumType(
                 name,

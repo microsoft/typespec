@@ -63,7 +63,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 { "otherAnimal", _anotherAnimal }
             });
 
-        private static readonly InputEnumType _petEnum = InputFactory.Enum("pet", string.Empty, InputPrimitiveType.String, isExtensible: true, values:
+        private static readonly InputEnumType _petEnum = InputFactory.Enum("pet", InputPrimitiveType.String, isExtensible: true, values:
         [
             InputFactory.EnumMember.String("cat", "cat"),
             InputFactory.EnumMember.String("dog", "dog")

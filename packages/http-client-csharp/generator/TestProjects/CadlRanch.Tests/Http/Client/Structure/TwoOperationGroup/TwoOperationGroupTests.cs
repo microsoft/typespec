@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+extern alias ClientStructureTwoOperationGroup;
 using System.ClientModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Client.Structure.Service;
-using Client.Structure.Service.TwoOperationGroup;
+using ClientStructureTwoOperationGroup::Client.Structure.TwoOperationGroup;
+using ClientStructureTwoOperationGroup::Client.Structure.Service;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.TwoOperationGroup

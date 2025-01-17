@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+extern alias ReturnTypeChangedFromV2;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Versioning.ReturnTypeChangedFrom;
+using ReturnTypeChangedFromV2::Versioning.ReturnTypeChangedFrom;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.ReturnTypeChangedFrom.V2
 {

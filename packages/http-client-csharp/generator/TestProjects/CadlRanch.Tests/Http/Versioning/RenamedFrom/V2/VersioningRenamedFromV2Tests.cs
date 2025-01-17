@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
+extern alias RenamedFromV2;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Versioning.RenamedFrom.V2;
-using Versioning.RenamedFrom.V2.Models;
+using NUnit.Framework;
+using RenamedFromV2::Versioning.RenamedFrom;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
 {

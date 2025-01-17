@@ -657,7 +657,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
                 "apiVersion",
                 InputFactory.Enum(
                     "InputEnum",
-                    string.Empty,
                     InputPrimitiveType.String,
                     usage: InputModelTypeUsage.Input,
                     isExtensible: true,

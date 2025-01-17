@@ -220,7 +220,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         {
             var inputModel = InputFactory.Model("mockInputModel", string.Empty,
                 properties: [
-                    InputFactory.Property("Prop1", InputFactory.Enum("EnumType", string.Empty, enumType, isExtensible: true))
+                    InputFactory.Property("Prop1", InputFactory.Enum("EnumType", enumType, isExtensible: true))
                     ],
                 usage: InputModelTypeUsage.Json);
             var plugin = await MockHelpers.LoadMockPluginAsync(
@@ -249,7 +249,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             var inputModel = InputFactory.Model("mockInputModel", string.Empty,
                 properties: [
                     InputFactory.Property("Prop1", InputFactory.Literal.Enum(
-                        InputFactory.Enum("EnumType", string.Empty, enumType, isExtensible: true),
+                        InputFactory.Enum("EnumType", enumType, isExtensible: true),
                         value: value))
                     ],
                 usage: InputModelTypeUsage.Json);
@@ -385,7 +385,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 properties: [
                     InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
                         "MyEnum",
-                        string.Empty,
                         InputPrimitiveType.String,
                         usage: InputModelTypeUsage.Input,
                         values: [InputFactory.EnumMember.String("foo", "bar")])))

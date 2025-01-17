@@ -7,8 +7,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using VersioningAddedV2::Versioning.Added.V2;
-using VersioningAddedV2::Versioning.Added.V2.Models;
+using VersioningAddedV2::Versioning.Added;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
 {

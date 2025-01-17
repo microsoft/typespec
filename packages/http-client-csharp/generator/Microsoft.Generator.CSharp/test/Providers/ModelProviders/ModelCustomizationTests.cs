@@ -156,7 +156,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             {
                 InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
                     "MyEnum",
-                    string.Empty,
                     InputPrimitiveType.String,
                     usage: InputModelTypeUsage.Input,
                     values: [InputFactory.EnumMember.String("foo", "bar")])))
@@ -195,7 +194,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             {
                 InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
                     "MyEnum",
-                    string.Empty,
                     InputPrimitiveType.String,
                     usage: InputModelTypeUsage.Input,
                     values: [InputFactory.EnumMember.String("foo", "bar")])))
@@ -234,7 +232,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             {
                 InputFactory.Property("Prop1", InputFactory.Dictionary(InputFactory.Enum(
                     "MyEnum",
-                    string.Empty,
                     InputPrimitiveType.String,
                     usage: InputModelTypeUsage.Input,
                     values: [InputFactory.EnumMember.String("foo", "bar")])))
@@ -366,7 +363,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.EnumMember.Int32("val3", 3)
             };
 
-            var inputEnum = InputFactory.Enum("mockInputModel", string.Empty, underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: false);
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: false);
             var enumProvider = EnumProvider.Create(inputEnum);
 
             Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
@@ -383,7 +380,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.EnumMember.Int32("val3", 3)
             };
 
-            var inputEnum = InputFactory.Enum("mockInputModel", string.Empty, underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: true);
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.Int32, values: props, isExtensible: true);
             var enumProvider = EnumProvider.Create(inputEnum);
 
             Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum));
@@ -468,7 +465,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.EnumMember.Int32("Green", 2),
                 InputFactory.EnumMember.Int32("Blue", 3)
             };
-            var inputEnum = InputFactory.Enum("mockInputModel", string.Empty, underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
             await MockHelpers.LoadMockPluginAsync(
                 inputEnumTypes: [inputEnum],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -672,7 +669,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         {
             var enumType = InputFactory.Enum(
                 "originalEnum",
-                string.Empty,
                 InputPrimitiveType.String,
                 values: [InputFactory.EnumMember.String("bar", "bar")]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
@@ -790,7 +786,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
-            var discriminatorValues = InputFactory.Enum("discriminatorValue", string.Empty, InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
+            var discriminatorValues = InputFactory.Enum("discriminatorValue", InputPrimitiveType.String, usage: InputModelTypeUsage.Input, isExtensible: true, values:
             [
                 InputFactory.EnumMember.String("Foo", "foo"),
                 InputFactory.EnumMember.String("Bar", "bar")

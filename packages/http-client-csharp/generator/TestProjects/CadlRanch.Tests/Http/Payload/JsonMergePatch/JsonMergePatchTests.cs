@@ -7,7 +7,6 @@ using System.ClientModel;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Payload.JsonMergePatch;
-using Payload.JsonMergePatch.Models;
 
 namespace TestProjects.CadlRanch.Tests.Http.Payload.JsonMergePatch
 {

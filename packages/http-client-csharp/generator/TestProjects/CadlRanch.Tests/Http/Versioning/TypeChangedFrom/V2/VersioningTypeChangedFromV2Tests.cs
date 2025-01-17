@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
+extern alias TypeChangedFromV2;
 using System.Threading.Tasks;
-using Versioning.TypeChangedFrom.V2;
-using Versioning.TypeChangedFrom.V2.Models;
+using NUnit.Framework;
+using TypeChangedFromV2::Versioning.TypeChangedFrom;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.TypeChangedFrom.V2
 {
