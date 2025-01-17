@@ -7,6 +7,7 @@ import pytest
 from type.enum.fixed import FixedClient, models
 from corehttp.exceptions import HttpResponseError
 
+
 @pytest.fixture
 def client():
     with FixedClient() as client:

@@ -7,6 +7,7 @@ import pytest
 from typetest.enum.fixed import FixedClient, models
 from azure.core.exceptions import HttpResponseError
 
+
 @pytest.fixture
 def client():
     with FixedClient() as client:
