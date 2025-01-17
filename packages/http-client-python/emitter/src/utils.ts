@@ -200,9 +200,37 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
+const LIB_NAMESPACE = [
+  "azure.core",
+  "azure.resourcemanager",
+  "azure.clientgenerator.core",
+  "typespec.rest",
+  "typespec.http",
+  "typespec.versioning",
+];
+
+function getRootTypespecNamespace(context: PythonSdkContext<SdkServiceOperation>): string {
+  if (context.sdkPackage.clients.length > 0) {
+    return context.sdkPackage.clients[0].clientNamespace;
+  }
+  if (context.sdkPackage.models.length > 0) {
+    const result = context.sdkPackage.models
+      .map((model) => model.clientNamespace)
+      .filter((namespace) => !LIB_NAMESPACE.includes(namespace));
+    if (result.length > 0) {
+      result.sort();
+      return result[0];
+    }
+  }
+  if (context.sdkPackage.namespaces.length > 0) {
+    return context.sdkPackage.namespaces[0].fullName;
+  }
+  return "";
+}
+
 export function getRootNamespace(context: PythonSdkContext<SdkServiceOperation>): string {
   const rootNamespace = context.emitContext.options["enable-typespec-namespace"]
-    ? context.sdkPackage.namespaces[0].fullName
+    ? getRootTypespecNamespace(context)
     : context.sdkPackage.rootNamespace;
   return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
 }
@@ -215,16 +243,7 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   if (!context.emitContext.options["enable-typespec-namespace"]) {
     return rootNamespace;
   }
-  if (
-    [
-      "azure.core",
-      "azure.resourcemanager",
-      "azure.clientgenerator.core",
-      "typespec.rest",
-      "typespec.http",
-      "typespec.versioning",
-    ].some((item) => clientNamespace.toLowerCase().startsWith(item))
-  ) {
+  if (LIB_NAMESPACE.some((item) => clientNamespace.toLowerCase().startsWith(item))) {
     return rootNamespace;
   }
   return clientNamespace === ""

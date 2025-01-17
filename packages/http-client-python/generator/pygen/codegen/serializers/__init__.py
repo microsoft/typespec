@@ -465,7 +465,10 @@ class JinjaSerializer(ReaderAndWriter):
         return get_namespace_from_package_name(self.code_model.options["package_name"])
 
     def _name_space(self) -> str:
-        if self.code_model.namespace.count(".") >= self._namespace_from_package_name.count("."):
+        if (
+            self.code_model.namespace.count(".") >= self._namespace_from_package_name.count(".")
+            or self.code_model.options["enable_typespec_namespace"]
+        ):
             return self.code_model.namespace
 
         return self._namespace_from_package_name
