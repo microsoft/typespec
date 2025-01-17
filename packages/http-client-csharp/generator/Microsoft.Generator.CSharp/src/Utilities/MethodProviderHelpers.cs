@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
+using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
 using static Microsoft.Generator.CSharp.Snippets.ArgumentSnippets;
 
@@ -84,7 +85,7 @@ namespace Microsoft.Generator.CSharp
 
             foreach (var parameter in parameters)
             {
-                docs.Params.Add(new XmlDocParamStatement(parameter.Name, parameter.Description));
+                docs.Params.Add(new XmlDocParamStatement(parameter));
             }
 
             if (paramHash is not null)

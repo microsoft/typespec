@@ -66,12 +66,7 @@ public final class ServerDrivenPaginationsImpl {
      *             name: String (Required)
      *         }
      *     ]
-     *     links (Required): {
-     *         next: String (Optional)
-     *         prev: String (Optional)
-     *         first: String (Optional)
-     *         last: String (Optional)
-     *     }
+     *     next: String (Optional)
      * }
      * }
      * </pre>

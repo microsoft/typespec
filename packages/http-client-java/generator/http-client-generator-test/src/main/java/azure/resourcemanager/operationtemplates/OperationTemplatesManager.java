@@ -5,9 +5,13 @@
 package azure.resourcemanager.operationtemplates;
 
 import azure.resourcemanager.operationtemplates.fluent.OperationTemplatesClient;
+import azure.resourcemanager.operationtemplates.implementation.CheckNameAvailabilitiesImpl;
 import azure.resourcemanager.operationtemplates.implementation.LroesImpl;
 import azure.resourcemanager.operationtemplates.implementation.OperationTemplatesClientBuilder;
+import azure.resourcemanager.operationtemplates.implementation.OperationsImpl;
+import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilities;
 import azure.resourcemanager.operationtemplates.models.Lroes;
+import azure.resourcemanager.operationtemplates.models.Operations;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpPipeline;
@@ -39,6 +43,10 @@ import java.util.stream.Collectors;
  * Arm Resource Provider management API.
  */
 public final class OperationTemplatesManager {
+    private Operations operations;
+
+    private CheckNameAvailabilities checkNameAvailabilities;
+
     private Lroes lroes;
 
     private final OperationTemplatesClient clientObject;
@@ -249,6 +257,31 @@ public final class OperationTemplatesManager {
                 .build();
             return new OperationTemplatesManager(httpPipeline, profile, defaultPollInterval);
         }
+    }
+
+    /**
+     * Gets the resource collection API of Operations.
+     * 
+     * @return Resource collection API of Operations.
+     */
+    public Operations operations() {
+        if (this.operations == null) {
+            this.operations = new OperationsImpl(clientObject.getOperations(), this);
+        }
+        return operations;
+    }
+
+    /**
+     * Gets the resource collection API of CheckNameAvailabilities.
+     * 
+     * @return Resource collection API of CheckNameAvailabilities.
+     */
+    public CheckNameAvailabilities checkNameAvailabilities() {
+        if (this.checkNameAvailabilities == null) {
+            this.checkNameAvailabilities
+                = new CheckNameAvailabilitiesImpl(clientObject.getCheckNameAvailabilities(), this);
+        }
+        return checkNameAvailabilities;
     }
 
     /**
