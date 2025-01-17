@@ -197,6 +197,8 @@ class JinjaSerializer(ReaderAndWriter):
             env = Environment(
                 loader=PackageLoader("pygen.codegen", "templates/packaging_templates"),
                 undefined=StrictUndefined,
+                trim_blocks=True,
+                lstrip_blocks=True,
             )
 
             package_files = _PACKAGE_FILES
