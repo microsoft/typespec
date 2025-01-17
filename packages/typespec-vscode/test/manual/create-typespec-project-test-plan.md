@@ -105,6 +105,8 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 
    > Note: Select libraries to update is required only when you select `Generic REST API`. This step will not appear if you select other templates.
 
+   **Validate:** Will it appear: `Here are libraries to install or update.`
+
    ![alt text](./images/CreateTypeSpecProject_InstallOrUpdateLibraries.png)
 
 5. Click `OK` and the project will be created, the folder structure will be set up, dependencies will be installed, and tspconfig.yaml will be updated.
