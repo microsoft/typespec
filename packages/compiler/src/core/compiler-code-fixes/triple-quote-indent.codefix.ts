@@ -44,8 +44,7 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
       const minIndentNumb = Math.min(...lines.map((line) => getIndentNumbInLine(line)));
       const lastLineIndentNumb = getIndentNumbInLine(lastLine);
       if (minIndentNumb <= lastLineIndentNumb) {
-        const indentDiff =
-          minIndentNumb === lastLineIndentNumb ? minIndentNumb : lastLineIndentNumb - minIndentNumb;
+        const indentDiff = lastLineIndentNumb - minIndentNumb;
         const prefix = " ".repeat(indentDiff);
 
         if (firstTripleQuoteOnNewLine) {
@@ -69,7 +68,9 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
         // Only indentation is left in the middle
         const middle = lines
           .map((line) => {
-            return `${line.slice(0, 2)}${prefix}${line.slice(2, line.length)}`;
+            return minIndentNumb !== lastLineIndentNumb
+              ? `${splitStr}${prefix}${line.trim()}`
+              : line;
           })
           .join("");
 
@@ -83,17 +84,18 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
 
 function getIndentNumbInLine(lineText: string): number {
   let curStart = 0;
-  const len = lineText.length;
+  const text = lineText.replace(/(\r\n|\n|\r)/gm, "\r\n");
+  const len = text.length;
   const flag =
     len >= 2 &&
-    lineText.charCodeAt(curStart) === CharCode.CarriageReturn &&
-    lineText.charCodeAt(curStart + 1) === CharCode.LineFeed;
+    text.charCodeAt(curStart) === CharCode.CarriageReturn &&
+    text.charCodeAt(curStart + 1) === CharCode.LineFeed;
 
   if (flag) {
     curStart += 2;
   }
 
-  while (curStart < len && isWhiteSpaceSingleLine(lineText.charCodeAt(curStart))) {
+  while (curStart < len && isWhiteSpaceSingleLine(text.charCodeAt(curStart))) {
     curStart++;
   }
 
