@@ -536,7 +536,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             //protocol and convenience methods should have a different type for enum query parameters
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
-            var methods = clientProvider.Methods;
+            var methods = clientProvider!.Methods;
             //4 methods, sync / async + protocol / convenience
             Assert.AreEqual(4, methods.Count);
             //two methods need to have the query parameter as an enum
@@ -553,8 +553,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client, isAsync));
 
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            Assert.IsNotNull(clientProvider);
 
-            TypeProviderWriter writer = new(clientProvider);
+            TypeProviderWriter writer = new(clientProvider!);
             var codeFile = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(isAsync.ToString()), codeFile.Content);
         }
@@ -579,7 +580,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         ])
                 ]);
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
-            var convenienceMethod = clientProvider.Methods.FirstOrDefault(
+            Assert.IsNotNull(clientProvider);
+            var convenienceMethod = clientProvider!.Methods.FirstOrDefault(
                 m => m.Signature.Name == "Foo" &&
                      !m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
             Assert.IsNotNull(convenienceMethod);
@@ -728,6 +730,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(method);
             /* verify that the method does not have apiVersion parameter */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
+        [TestCase]
+        public void ClientProviderIsAddedToLibrary()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                clients: () => [new InputClient("test", "test", "test", [], [], null)]);
+
+            Assert.AreEqual(1, plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Count());
+        }
+
+        [TestCase]
+        public void NullClientProviderIsNotAddedToLibrary()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                clients: () => [new InputClient("test", "test", "test", [], [], null)],
+                createClientCore: (client) => null);
+
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());
         }
 
         private static InputClient GetEnumQueryParamClient()
@@ -1233,7 +1254,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
-                
+
             public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
                 => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
 
