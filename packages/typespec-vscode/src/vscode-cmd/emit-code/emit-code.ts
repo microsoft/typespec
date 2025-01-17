@@ -25,23 +25,8 @@ interface EmitQuickPickButton extends QuickInputButton {
   uri: string;
 }
 
-async function configureEmitter(
-  context: vscode.ExtensionContext,
-  existingEmitters: string[],
-): Promise<Emitter | undefined> {
-  const emitterKinds = getRegisterEmitterTypes().filter((kind) => {
-    return (
-      getRegisterEmitters(kind).filter((emitter) => !existingEmitters.includes(emitter.package))
-        .length > 0
-    );
-  });
-  if (emitterKinds.length === 0) {
-    logger.info("No new emitter available. All emitters are already configured.", [], {
-      showOutput: true,
-      showPopup: true,
-    });
-    return undefined;
-  }
+async function configureEmitter(context: vscode.ExtensionContext): Promise<Emitter | undefined> {
+  const emitterKinds = getRegisterEmitterTypes();
   const toEmitterTypeQuickPickItem = (kind: EmitterKind): any => {
     const registerEmitters = getRegisterEmitters(kind);
     const supportedLanguages = registerEmitters.map((e) => e.language).join(", ");
@@ -103,9 +88,7 @@ async function configureEmitter(
   };
 
   /* filter out already existing emitters. */
-  const registerEmitters = getRegisterEmitters(codeType.emitterKind).filter(
-    (emitter) => !existingEmitters.includes(emitter.package),
-  );
+  const registerEmitters = getRegisterEmitters(codeType.emitterKind);
   const all: EmitQuickPickItem[] = [...registerEmitters].map((e) => toQuickPickItem(e));
 
   const emitterSelector = vscode.window.createQuickPick<EmitQuickPickItem>();
@@ -513,6 +496,15 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
   };
   /* display existing emitters in config.yaml. */
   if (existingEmitters && existingEmitters.length > 0) {
+    const recentlyUsedSeparator = {
+      label: "recently used",
+      description: "Recently used emitters",
+      kind: vscode.QuickPickItemKind.Separator,
+      info: undefined,
+      package: "",
+      fromConfig: false,
+      picked: false,
+    };
     const existingEmitterQuickPickItems = existingEmitters.map((e) => {
       const emitter = getRegisterEmittersByPackage(e);
       if (emitter) {
@@ -529,8 +521,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       }
     });
     const separatorItem = {
-      label: "New Emitter",
-      description: "Configure a new emitter",
+      label: "another emitter",
+      description: "another emitter",
       kind: vscode.QuickPickItemKind.Separator,
       info: undefined,
       package: "",
@@ -538,8 +530,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       picked: false,
     };
     const newEmitterQuickPickItem = {
-      label: "Configure a new emitter",
-      description: "Configure a new emitter for code generation",
+      label: "Choose another emitter",
+      description: "Choose another emitter for code generation",
       picked: false,
       fromConfig: false,
       package: "",
@@ -548,7 +540,12 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     };
 
     const allPickItems = [];
-    allPickItems.push(...existingEmitterQuickPickItems, separatorItem, newEmitterQuickPickItem);
+    allPickItems.push(
+      recentlyUsedSeparator,
+      ...existingEmitterQuickPickItems,
+      separatorItem,
+      newEmitterQuickPickItem,
+    );
     const existingEmittersSelector = vscode.window.createQuickPick<any>();
     existingEmittersSelector.items = allPickItems;
     existingEmittersSelector.title = `Generate from TypeSpec`;
@@ -560,15 +557,11 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       existingEmittersSelector.onDidAccept(async () => {
         const selectedItem = existingEmittersSelector.selectedItems[0];
         if (selectedItem === newEmitterQuickPickItem) {
-          const newEmitter = await configureEmitter(context, existingEmitters);
-          const allPickItems = [];
-          if (newEmitter) {
-            allPickItems.push(toEmitterQuickPickItem(newEmitter));
+          const newEmitter = await configureEmitter(context);
+          if (!newEmitter) {
+            return;
           }
-          allPickItems.push(...existingEmitterQuickPickItems);
-          allPickItems.push(separatorItem, newEmitterQuickPickItem);
-          existingEmittersSelector.items = allPickItems;
-          existingEmittersSelector.show();
+          resolve(toEmitterQuickPickItem(newEmitter));
         } else {
           resolve(existingEmittersSelector.selectedItems[0]);
           existingEmittersSelector.dispose();
@@ -588,9 +581,9 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       },
     );
   } else {
-    const newEmitter = await configureEmitter(context, existingEmitters ?? []);
-    if (newEmitter) {
-      await doEmit(tspProjectFile, newEmitter);
+    const selectedEmitter = await configureEmitter(context);
+    if (selectedEmitter) {
+      await doEmit(tspProjectFile, selectedEmitter);
     } else {
       logger.info("No emitter selected. Generating Cancelled.");
       return;
