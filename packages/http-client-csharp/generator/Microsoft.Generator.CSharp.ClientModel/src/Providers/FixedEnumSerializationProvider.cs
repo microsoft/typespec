@@ -30,7 +30,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         }
 
         protected override string BuildNamespace() => _enumProvider.Type.Namespace;
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
         protected override string BuildRelativeFilePath()

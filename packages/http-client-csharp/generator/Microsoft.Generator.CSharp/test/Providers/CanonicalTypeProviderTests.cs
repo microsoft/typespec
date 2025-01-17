@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
-            protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
+            protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
 
             protected override PropertyProvider[] BuildProperties()
             {

@@ -81,7 +81,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildNamespace() => _model.Type.Namespace;
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _model.DeclarationModifiers;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _model.DeclarationModifiers;
         private ConstructorProvider SerializationConstructor => _serializationConstructor ??= _model.FullConstructor;
         private PropertyProvider[] AdditionalProperties => _additionalProperties.Value;
 

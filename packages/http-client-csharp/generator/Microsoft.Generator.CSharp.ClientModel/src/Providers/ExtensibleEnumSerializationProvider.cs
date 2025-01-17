@@ -32,7 +32,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildName() => _enumProvider.Name;
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _enumProvider.DeclarationModifiers;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _enumProvider.DeclarationModifiers;
 
         protected override MethodProvider[] BuildMethods()
         {
