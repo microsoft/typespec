@@ -9,12 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 
-class DatetimeOperationClientTest {
+public class DatetimeOperationClientTest {
 
-    DatetimeOperationClient client = new NullableClientBuilder().buildDatetimeOperationClient();
+    private final DatetimeOperationClient client = new NullableClientBuilder().buildDatetimeOperationClient();
 
     @Test
-    void patchNonNullWithResponse() {
+    public void patchNonNullWithResponse() {
         OffsetDateTime offsetDateTime = OffsetDateTime.parse("2022-08-26T18:38:00Z");
         DatetimeProperty datetimeProperty
             = new DatetimeProperty().setRequiredProperty("foo").setNullableProperty(offsetDateTime);
@@ -22,18 +22,18 @@ class DatetimeOperationClientTest {
     }
 
     @Test
-    void patchNullWithResponse() {
+    public void patchNullWithResponse() {
         client.patchNull(new DatetimeProperty().setRequiredProperty("foo").setNullableProperty(null));
     }
 
     @Test
-    void getNonNull() {
+    public void getNonNull() {
         DatetimeProperty response = client.getNonNull();
         assertNotNull(response.getNullableProperty());
     }
 
     @Test
-    void getNull() {
+    public void getNull() {
         DatetimeProperty response = client.getNull();
         assertNull(response.getNullableProperty());
     }
