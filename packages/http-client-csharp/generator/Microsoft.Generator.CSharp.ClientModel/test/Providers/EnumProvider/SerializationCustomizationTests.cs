@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.EnumProvider
                 InputFactory.EnumMember.Int32("Green", 2),
                 InputFactory.EnumMember.Int32("Blue", 3)
             };
-            var inputEnum = InputFactory.Enum("mockInputModel", clientNamespace: "Sample.Models", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.EnumProvider
                 InputFactory.EnumMember.Int32("Green", 2),
                 InputFactory.EnumMember.Int32("Blue", 3)
             };
-            var inputEnum = InputFactory.Enum("mockInputModel", clientNamespace: "Sample.Models", underlyingType: InputPrimitiveType.String, values: enumValues);
+            var inputEnum = InputFactory.Enum("mockInputModel", underlyingType: InputPrimitiveType.String, values: enumValues);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

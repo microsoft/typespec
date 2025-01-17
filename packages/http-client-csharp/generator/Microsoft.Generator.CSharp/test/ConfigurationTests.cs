@@ -216,11 +216,10 @@ namespace Microsoft.Generator.CSharp.Tests
             {
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""library-name"": ""libraryName"",
+                    ""library-name"": ""libraryName""
                 }", false);
                 yield return new TestCaseData(@"{
-                ""library-name"": ""libraryName"",
-                ""namespace"": ""namespace""
+                    ""library-name"": ""libraryName""
                 }", true);
             }
         }

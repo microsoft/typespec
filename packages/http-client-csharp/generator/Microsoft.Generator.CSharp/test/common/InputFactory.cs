@@ -126,7 +126,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
             IEnumerable<InputEnumTypeValue>? values = null,
             bool isExtensible = false,
-            string clientNamespace = "Sample")
+            string clientNamespace = "Sample.Models")
         {
             return new InputEnumType(
                 name,
@@ -165,7 +165,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
 
         public static InputModelType Model(
             string name,
-            string clientNamespace = "Sample",
+            string clientNamespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
             IEnumerable<InputModelProperty>? properties = null,

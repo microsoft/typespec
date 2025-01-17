@@ -765,7 +765,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 InputFactory.Enum(
                                     "InputEnum",
                                     InputPrimitiveType.String,
-                                    clientNamespace: "Sample.Models",
                                     usage: InputModelTypeUsage.Input,
                                     isExtensible: true,
                                     values:

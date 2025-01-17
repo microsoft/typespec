@@ -1,7 +1,7 @@
 using Microsoft.Generator.CSharp.Customization;
 using System;
 
-namespace Sample.Models
+namespace Sample
 {
     internal static partial class SampleNamespaceModelFactory
     {
