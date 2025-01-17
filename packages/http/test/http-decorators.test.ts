@@ -1280,11 +1280,11 @@ describe("http: decorators", () => {
       `)) as { test: Operation };
       deepStrictEqual(
         resolveRequestVisibility(runner.program, test, "patch"),
-        Visibility.All | Visibility.Patch | Visibility.SkipEffectiveOptionality,
+        Visibility.All | Visibility.Patch | Visibility.LegacyParameterVisibility,
       );
       deepStrictEqual(
         resolveRequestVisibility(runner.program, test, "get"),
-        Visibility.All | Visibility.SkipEffectiveOptionality,
+        Visibility.All | Visibility.LegacyParameterVisibility,
       );
     });
   });

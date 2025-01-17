@@ -62,19 +62,23 @@ export enum Visibility {
   Patch = 1 << 21,
 
   /**
-   * Additional flag to indicate that effective-optionality analysis should be skipped,
-   * allowing the shape of PATCH request bodies to be represented exactly.
+   * Additional flag to indicate that legacy parameter visibility behavior
+   * should be used. This disables effective optionality for the body of
+   * PATCH operations, and considers only properties that do not have _explicit_
+   * visibility visible. This flag is activated by default when an operation
+   * uses `@parameterVisibility` without arguments, and should not be enabled
+   * in any other circumstances.
    *
    * Never use this flag. It is used internally by the HTTP core.
    */
-  SkipEffectiveOptionality = 1 << 22,
+  LegacyParameterVisibility = 1 << 22,
 
   /**
    * Additional flags to indicate the treatment of properties in specific contexts.
    *
    * Never use these flags. They are used internally by the HTTP core.
    */
-  Synthetic = Visibility.Item | Visibility.Patch | Visibility.SkipEffectiveOptionality,
+  Synthetic = Visibility.Item | Visibility.Patch | Visibility.LegacyParameterVisibility,
 }
 
 const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
@@ -411,7 +415,7 @@ export function resolveRequestVisibility(
   const isEmptyParameterVisibility = program.stateSet(parameterVisibilityIsEmpty).has(operation);
 
   if (isEmptyParameterVisibility) {
-    visibility |= Visibility.SkipEffectiveOptionality;
+    visibility |= Visibility.LegacyParameterVisibility;
   }
 
   return visibility;
@@ -435,7 +439,13 @@ export function isMetadata(program: Program, property: ModelProperty) {
  * Determines if the given property is visible with the given visibility.
  */
 export function isVisible(program: Program, property: ModelProperty, visibility: Visibility) {
-  return isVisibleCore(program, property, visibilityToFilter(program, visibility));
+  if (visibility & Visibility.LegacyParameterVisibility) {
+    // This is a hack that preserves the behavior of `@parameterVisibility()` with no arguments for now.
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    return isVisibleCore(program, property, []);
+  } else {
+    return isVisibleCore(program, property, visibilityToFilter(program, visibility));
+  }
 }
 
 /**
@@ -702,7 +712,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     const hasUpdate = (visibility & Visibility.Update) !== 0;
     const isPatch = (visibility & Visibility.Patch) !== 0;
     const isItem = (visibility & Visibility.Item) !== 0;
-    const skipEffectiveOptionality = (visibility & Visibility.SkipEffectiveOptionality) !== 0;
+    const skipEffectiveOptionality = (visibility & Visibility.LegacyParameterVisibility) !== 0;
     return property.optional || (!skipEffectiveOptionality && hasUpdate && isPatch && !isItem);
   }
 
