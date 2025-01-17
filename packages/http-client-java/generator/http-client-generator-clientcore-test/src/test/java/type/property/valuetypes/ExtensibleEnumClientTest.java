@@ -6,19 +6,19 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class ExtensibleEnumClientTest {
+public class ExtensibleEnumClientTest {
 
-    ExtensibleEnumClient client = new ValueTypesClientBuilder().buildExtensibleEnumClient();
+    private final ExtensibleEnumClient client = new ValueTypesClientBuilder().buildExtensibleEnumClient();
 
     @Test
-    void get() {
+    public void get() {
         ExtensibleEnumProperty extensibleEnumProperty = client.get();
         InnerEnum innerExtensibleEnum = extensibleEnumProperty.getProperty();
         Assertions.assertEquals("UnknownValue", innerExtensibleEnum.toString());
     }
 
     @Test
-    void put() {
+    public void put() {
         ExtensibleEnumProperty extensibleEnumProperty = new ExtensibleEnumProperty(InnerEnum.fromValue("UnknownValue"));
         client.put(extensibleEnumProperty);
     }

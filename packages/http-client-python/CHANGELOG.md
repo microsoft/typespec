@@ -6,6 +6,10 @@
 
 - Fix sphinx typing for raising documentation
 
+### Other Changes
+
+- Order keyword-only args overload first in generated operations
+
 ## 0.6.5
 
 ### Bug Fixes

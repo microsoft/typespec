@@ -6,18 +6,18 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class BytesClientTest {
+public class BytesClientTest {
 
-    BytesClient client = new ValueTypesClientBuilder().buildBytesClient();
+    private final BytesClient client = new ValueTypesClientBuilder().buildBytesClient();
 
     @Test
-    void get() {
+    public void get() {
         BytesProperty bytesProperty = client.get();
         Assertions.assertNotNull(bytesProperty.getProperty());
     }
 
     @Test
-    void put() {
+    public void put() {
         byte[] input = new byte[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33 };
         BytesProperty bytesProperty = new BytesProperty(input);
         client.put(bytesProperty);

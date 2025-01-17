@@ -8,19 +8,19 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class StringValueClientTest {
+public class StringValueClientTest {
 
-    StringValueClient client = new DictionaryClientBuilder().buildStringValueClient();
+    private final StringValueClient client = new DictionaryClientBuilder().buildStringValueClient();
 
     @Test
-    void get() {
+    public void get() {
         Map<String, String> response = client.get();
         Assertions.assertEquals("hello", response.get("k1"));
         Assertions.assertEquals("", response.get("k2"));
     }
 
     @Test
-    void put() {
+    public void put() {
         Map<String, String> map = new HashMap<>();
         map.put("k1", "hello");
         map.put("k2", "");

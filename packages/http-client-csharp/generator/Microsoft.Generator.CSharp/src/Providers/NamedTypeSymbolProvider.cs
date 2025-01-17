@@ -28,11 +28,11 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildName() => _namedTypeSymbol.Name;
 
-        protected override string GetNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
+        protected override string BuildNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
 
         public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var declaredModifiers = GetAccessModifiers(_namedTypeSymbol.DeclaredAccessibility);
             if (_namedTypeSymbol.IsReadOnly)
