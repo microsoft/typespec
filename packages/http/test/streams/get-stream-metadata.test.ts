@@ -20,6 +20,7 @@ let getHttpServiceWithProgram: (
 beforeEach(async () => {
   const host = await createTestHost({
     libraries: [StreamsTestLibrary, HttpTestLibrary],
+    diagnosticFilter: (d) => d.severity !== "hint",
   });
   runner = createTestWrapper(host, {
     autoImports: [`@typespec/http/streams`, "@typespec/streams"],
