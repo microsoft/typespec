@@ -8,12 +8,12 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class CollectionsModelClientTest {
+public class CollectionsModelClientTest {
 
-    CollectionsModelClient client = new ValueTypesClientBuilder().buildCollectionsModelClient();
+    private final CollectionsModelClient client = new ValueTypesClientBuilder().buildCollectionsModelClient();
 
     @Test
-    void get() {
+    public void get() {
         CollectionsModelProperty collectionsModelProperty = client.get();
         List<InnerModel> properties = collectionsModelProperty.getProperty();
         Assertions.assertEquals("hello", properties.get(0).getProperty());
@@ -21,7 +21,7 @@ class CollectionsModelClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         InnerModel innerModel1 = new InnerModel("hello");
         InnerModel innerModel2 = new InnerModel("world");
         List<InnerModel> properties = Arrays.asList(innerModel1, innerModel2);
