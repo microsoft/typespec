@@ -13,6 +13,7 @@ Install [Maven](https://maven.apache.org/download.cgi). (Verify by running `mvn 
 ["Setup.ps1" script](https://github.com/microsoft/typespec/blob/main/packages/http-client-java/Setup.ps1) builds TypeScript code and Java code, and packs them into "typespec-http-client-java-[version].tgz".
 
 One can use npm to install the `@typespec/http-client-java` tgz locally.
+
 ```
 npm install [path-to-typespec-http-client-java-tgz]
 ```
@@ -20,6 +21,7 @@ npm install [path-to-typespec-http-client-java-tgz]
 ## End-to-end Tests
 
 There is 2 end-to-end test modules:
+
 - `packages/http-client-java/generator/http-client-generator-clientcore-test` for testing of unbranded code
 - `packages/http-client-java/generator/http-client-generator-test` for testing of branded code
 
