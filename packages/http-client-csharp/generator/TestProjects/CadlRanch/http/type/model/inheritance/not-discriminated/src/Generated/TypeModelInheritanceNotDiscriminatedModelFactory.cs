@@ -2,9 +2,7 @@
 
 #nullable disable
 
-using _Type.Model.Inheritance.NotDiscriminated;
-
-namespace _Type.Model.Inheritance.NotDiscriminated.Models
+namespace _Type.Model.Inheritance.NotDiscriminated
 {
     public static partial class TypeModelInheritanceNotDiscriminatedModelFactory
     {

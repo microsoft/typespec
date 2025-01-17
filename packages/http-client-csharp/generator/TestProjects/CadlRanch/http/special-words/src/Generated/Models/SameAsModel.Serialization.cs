@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace SpecialWords._ModelProperties
+namespace SpecialWords.ModelProperties
 {
     public partial class SameAsModel : IJsonModel<SameAsModel>
     {

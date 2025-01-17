@@ -5,7 +5,7 @@
 using Client.Naming.Model;
 using Client.Naming.Property;
 
-namespace Client.Naming.Models
+namespace Client.Naming
 {
     public static partial class ClientNamingModelFactory
     {

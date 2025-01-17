@@ -2,8 +2,6 @@
 
 #nullable disable
 
-using _Type.Property.ValueTypes.Models;
-
 namespace _Type.Property.ValueTypes
 {
     public partial class UnionStringLiteralProperty

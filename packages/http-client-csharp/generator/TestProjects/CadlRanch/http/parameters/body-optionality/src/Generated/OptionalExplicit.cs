@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Parameters.BodyOptionality;
 
-namespace Parameters.BodyOptionality._OptionalExplicit
+namespace Parameters.BodyOptionality.OptionalExplicit
 {
     public partial class OptionalExplicit
     {

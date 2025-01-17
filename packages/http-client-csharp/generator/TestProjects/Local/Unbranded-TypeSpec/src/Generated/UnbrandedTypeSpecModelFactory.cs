@@ -5,9 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnbrandedTypeSpec;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class UnbrandedTypeSpecModelFactory

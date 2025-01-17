@@ -3,9 +3,8 @@
 #nullable disable
 
 using System;
-using Versioning.Added;
 
-namespace Versioning.Added.V2.Models
+namespace Versioning.Added
 {
     public static partial class VersioningAddedV2ModelFactory
     {

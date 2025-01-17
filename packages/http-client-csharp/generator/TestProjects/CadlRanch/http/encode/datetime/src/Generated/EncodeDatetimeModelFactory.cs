@@ -4,9 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using Encode.Datetime;
 
-namespace Encode.Datetime.Models
+namespace Encode.Datetime
 {
     public static partial class EncodeDatetimeModelFactory
     {

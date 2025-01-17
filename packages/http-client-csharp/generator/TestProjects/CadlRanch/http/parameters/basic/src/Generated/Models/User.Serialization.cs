@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Parameters.Basic._ExplicitBody
+namespace Parameters.Basic.ExplicitBody
 {
     public partial class User : IJsonModel<User>
     {

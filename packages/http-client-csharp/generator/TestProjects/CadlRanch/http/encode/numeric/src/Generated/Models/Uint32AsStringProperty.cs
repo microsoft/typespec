@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Encode.Numeric._Property
+namespace Encode.Numeric.Property
 {
     public partial class Uint32AsStringProperty
     {

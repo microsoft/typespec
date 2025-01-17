@@ -3,9 +3,9 @@
 #nullable disable
 
 using System;
-using Payload.ContentNegotiation._DifferentBody;
+using Payload.ContentNegotiation.DifferentBody;
 
-namespace Payload.ContentNegotiation.Models
+namespace Payload.ContentNegotiation
 {
     public static partial class PayloadContentNegotiationModelFactory
     {

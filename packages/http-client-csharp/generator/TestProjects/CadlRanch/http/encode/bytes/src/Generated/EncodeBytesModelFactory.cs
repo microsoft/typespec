@@ -4,9 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using Encode.Bytes;
 
-namespace Encode.Bytes.Models
+namespace Encode.Bytes
 {
     public static partial class EncodeBytesModelFactory
     {

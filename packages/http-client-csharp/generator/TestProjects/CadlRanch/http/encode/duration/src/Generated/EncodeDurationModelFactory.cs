@@ -4,9 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using Encode.Duration._Property;
+using Encode.Duration.Property;
 
-namespace Encode.Duration.Models
+namespace Encode.Duration
 {
     public static partial class EncodeDurationModelFactory
     {

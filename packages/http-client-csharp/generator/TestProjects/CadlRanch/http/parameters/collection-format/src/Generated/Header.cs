@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Parameters.CollectionFormat._Header
+namespace Parameters.CollectionFormat.Header
 {
     public partial class Header
     {

@@ -2,9 +2,7 @@
 
 #nullable disable
 
-using Versioning.MadeOptional;
-
-namespace Versioning.MadeOptional.V1.Models
+namespace Versioning.MadeOptional
 {
     public static partial class VersioningMadeOptionalV1ModelFactory
     {

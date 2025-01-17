@@ -3,9 +3,8 @@
 #nullable disable
 
 using System.Collections.Generic;
-using _Type.Model.Inheritance.SingleDiscriminator;
 
-namespace _Type.Model.Inheritance.SingleDiscriminator.Models
+namespace _Type.Model.Inheritance.SingleDiscriminator
 {
     public static partial class TypeModelInheritanceSingleDiscriminatorModelFactory
     {

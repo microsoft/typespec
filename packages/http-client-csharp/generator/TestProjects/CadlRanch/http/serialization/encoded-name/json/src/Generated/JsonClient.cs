@@ -4,7 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Serialization.EncodedName.Json._Property;
+using Serialization.EncodedName.Json.Property;
 
 namespace Serialization.EncodedName.Json
 {
@@ -16,6 +16,6 @@ namespace Serialization.EncodedName.Json
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Property GetPropertyClient() => throw null;
+        public virtual Property.Property GetPropertyClient() => throw null;
     }
 }

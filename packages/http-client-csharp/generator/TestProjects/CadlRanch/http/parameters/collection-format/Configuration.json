@@ -2,9 +2,5 @@
   "output-folder": ".",
   "namespace": "Parameters.CollectionFormat",
   "library-name": "Parameters.CollectionFormat",
-  "bad-namespace-segments": [
-    "Query",
-    "Header"
-  ],
   "use-model-reader-writer": true
 }

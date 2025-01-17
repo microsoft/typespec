@@ -4,7 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Payload.MultiPart._FormData;
+using Payload.MultiPart.FormData;
 
 namespace Payload.MultiPart
 {
@@ -16,6 +16,6 @@ namespace Payload.MultiPart
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual FormData GetFormDataClient() => throw null;
+        public virtual FormData.FormData GetFormDataClient() => throw null;
     }
 }

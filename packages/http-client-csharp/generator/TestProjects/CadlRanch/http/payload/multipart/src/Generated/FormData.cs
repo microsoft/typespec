@@ -5,9 +5,9 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
-using Payload.MultiPart._FormData.HttpParts;
+using Payload.MultiPart.FormData.HttpParts;
 
-namespace Payload.MultiPart._FormData
+namespace Payload.MultiPart.FormData
 {
     public partial class FormData
     {

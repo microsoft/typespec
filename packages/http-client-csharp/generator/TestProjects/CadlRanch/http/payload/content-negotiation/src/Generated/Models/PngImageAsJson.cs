@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Payload.ContentNegotiation._DifferentBody
+namespace Payload.ContentNegotiation.DifferentBody
 {
     public partial class PngImageAsJson
     {

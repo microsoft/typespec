@@ -2,12 +2,5 @@
   "output-folder": ".",
   "namespace": "Encode.Bytes",
   "library-name": "Encode.Bytes",
-  "bad-namespace-segments": [
-    "Query",
-    "Property",
-    "Header",
-    "RequestBody",
-    "ResponseBody"
-  ],
   "use-model-reader-writer": true
 }

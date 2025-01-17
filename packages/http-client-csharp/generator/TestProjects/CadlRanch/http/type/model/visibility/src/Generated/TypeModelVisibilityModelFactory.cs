@@ -3,9 +3,8 @@
 #nullable disable
 
 using System.Collections.Generic;
-using _Type.Model.Visibility;
 
-namespace _Type.Model.Visibility.Models
+namespace _Type.Model.Visibility
 {
     public static partial class TypeModelVisibilityModelFactory
     {

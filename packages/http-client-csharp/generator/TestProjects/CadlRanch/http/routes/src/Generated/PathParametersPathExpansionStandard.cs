@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Routes._PathParameters.PathExpansion.Standard
+namespace Routes.PathParameters.PathExpansion.Standard
 {
     public partial class PathParametersPathExpansionStandard
     {

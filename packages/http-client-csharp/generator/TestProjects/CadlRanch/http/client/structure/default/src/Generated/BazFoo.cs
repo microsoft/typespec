@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client.Structure.Service._Baz
+namespace Client.Structure.Service.Baz
 {
     public partial class BazFoo
     {

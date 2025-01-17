@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Bytes._Header
+namespace Encode.Bytes.Header
 {
     public partial class Header
     {

@@ -3,10 +3,10 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
-using Routes._QueryParameters.QueryContinuation.Explode;
-using Routes._QueryParameters.QueryContinuation.Standard;
+using Routes.QueryParameters.QueryContinuation.Explode;
+using Routes.QueryParameters.QueryContinuation.Standard;
 
-namespace Routes._QueryParameters.QueryContinuation
+namespace Routes.QueryParameters.QueryContinuation
 {
     public partial class QueryParametersQueryContinuation
     {

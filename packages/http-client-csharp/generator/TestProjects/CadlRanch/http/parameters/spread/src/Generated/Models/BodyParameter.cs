@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Parameters.Spread._Model
+namespace Parameters.Spread.Model
 {
     public partial class BodyParameter
     {

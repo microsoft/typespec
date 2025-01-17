@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Encode.Duration._Property
+namespace Encode.Duration.Property
 {
     public partial class Float64SecondsDurationProperty : IJsonModel<Float64SecondsDurationProperty>
     {

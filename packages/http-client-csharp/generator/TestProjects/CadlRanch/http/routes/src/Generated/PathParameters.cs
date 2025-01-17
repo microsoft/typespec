@@ -6,13 +6,13 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Routes._PathParameters.LabelExpansion;
-using Routes._PathParameters.MatrixExpansion;
-using Routes._PathParameters.PathExpansion;
-using Routes._PathParameters.ReservedExpansion;
-using Routes._PathParameters.SimpleExpansion;
+using Routes.PathParameters.LabelExpansion;
+using Routes.PathParameters.MatrixExpansion;
+using Routes.PathParameters.PathExpansion;
+using Routes.PathParameters.ReservedExpansion;
+using Routes.PathParameters.SimpleExpansion;
 
-namespace Routes._PathParameters
+namespace Routes.PathParameters
 {
     public partial class PathParameters
     {

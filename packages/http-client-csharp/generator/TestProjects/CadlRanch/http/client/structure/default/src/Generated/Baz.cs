@@ -4,7 +4,7 @@
 
 using System.ClientModel.Primitives;
 
-namespace Client.Structure.Service._Baz
+namespace Client.Structure.Service.Baz
 {
     public partial class Baz
     {

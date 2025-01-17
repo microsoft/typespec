@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Numeric._Property
+namespace Encode.Numeric.Property
 {
     public partial class Property
     {

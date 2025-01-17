@@ -2,8 +2,5 @@
   "output-folder": ".",
   "namespace": "Parameters.BodyOptionality",
   "library-name": "Parameters.BodyOptionality",
-  "bad-namespace-segments": [
-    "OptionalExplicit"
-  ],
   "use-model-reader-writer": true
 }

@@ -5,10 +5,10 @@
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
-using Payload.MultiPart._FormData.HttpParts.ContentType;
-using Payload.MultiPart._FormData.HttpParts.NonString;
+using Payload.MultiPart.FormData.HttpParts.ContentType;
+using Payload.MultiPart.FormData.HttpParts.NonString;
 
-namespace Payload.MultiPart._FormData.HttpParts
+namespace Payload.MultiPart.FormData.HttpParts
 {
     public partial class FormDataHttpParts
     {

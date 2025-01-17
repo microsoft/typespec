@@ -2,9 +2,5 @@
   "output-folder": ".",
   "namespace": "Parameters.Spread",
   "library-name": "Parameters.Spread",
-  "bad-namespace-segments": [
-    "Model",
-    "Alias"
-  ],
   "use-model-reader-writer": true
 }

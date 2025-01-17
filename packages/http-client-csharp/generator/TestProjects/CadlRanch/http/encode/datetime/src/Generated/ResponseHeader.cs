@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Datetime._ResponseHeader
+namespace Encode.Datetime.ResponseHeader
 {
     public partial class ResponseHeader
     {

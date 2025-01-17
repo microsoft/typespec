@@ -7,9 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Client.Structure.Service.Baz;
 using Client.Structure.Service.Default;
-using Client.Structure.Service._Baz;
-using Client.Structure.Service._Qux;
+using Client.Structure.Service.Qux;
 
 namespace Client.Structure.Service
 {
@@ -39,9 +39,9 @@ namespace Client.Structure.Service
 
         public virtual Task<ClientResult> TwoAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Baz GetBazClient() => throw null;
+        public virtual Baz.Baz GetBazClient() => throw null;
 
-        public virtual Qux GetQuxClient() => throw null;
+        public virtual Qux.Qux GetQuxClient() => throw null;
 
         public virtual Foo GetFooClient() => throw null;
 

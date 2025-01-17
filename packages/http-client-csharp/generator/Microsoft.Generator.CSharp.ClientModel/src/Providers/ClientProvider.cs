@@ -143,8 +143,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _subClients = new(GetSubClients);
         }
 
-        protected override string GetNamespace() => string.IsNullOrEmpty(_inputClient.ClientNamespace) ?
-            base.GetNamespace() :
+        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputClient.ClientNamespace) ?
+            base.BuildNamespace() :
             ClientModelPlugin.Instance.Configuration.GetCleanNameSpace(_inputClient.ClientNamespace);
 
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()

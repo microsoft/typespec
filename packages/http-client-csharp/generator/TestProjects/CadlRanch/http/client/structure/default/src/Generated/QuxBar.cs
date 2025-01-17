@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client.Structure.Service._Qux
+namespace Client.Structure.Service.Qux
 {
     public partial class QuxBar
     {

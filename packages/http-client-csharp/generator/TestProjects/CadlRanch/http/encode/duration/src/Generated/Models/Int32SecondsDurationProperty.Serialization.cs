@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Encode.Duration._Property
+namespace Encode.Duration.Property
 {
     public partial class Int32SecondsDurationProperty : IJsonModel<Int32SecondsDurationProperty>
     {

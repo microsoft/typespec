@@ -4,9 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Property.ValueTypes;
 
-namespace _Type.Property.ValueTypes.Models
+namespace _Type.Property.ValueTypes
 {
     public static partial class TypePropertyValueTypesModelFactory
     {

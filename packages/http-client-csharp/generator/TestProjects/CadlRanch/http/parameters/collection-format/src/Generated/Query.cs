@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Parameters.CollectionFormat._Query
+namespace Parameters.CollectionFormat.Query
 {
     public partial class Query
     {

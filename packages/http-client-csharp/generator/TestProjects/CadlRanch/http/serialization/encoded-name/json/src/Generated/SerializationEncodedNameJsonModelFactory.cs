@@ -2,9 +2,9 @@
 
 #nullable disable
 
-using Serialization.EncodedName.Json._Property;
+using Serialization.EncodedName.Json.Property;
 
-namespace Serialization.EncodedName.Json.Models
+namespace Serialization.EncodedName.Json
 {
     public static partial class SerializationEncodedNameJsonModelFactory
     {

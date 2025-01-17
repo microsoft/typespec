@@ -4,9 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Property.Nullable;
 
-namespace _Type.Property.Nullable.Models
+namespace _Type.Property.Nullable
 {
     public static partial class TypePropertyNullableModelFactory
     {

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Routes._QueryParameters.QueryContinuation.Explode
+namespace Routes.QueryParameters.QueryContinuation.Explode
 {
     public partial class QueryParametersQueryContinuationExplode
     {

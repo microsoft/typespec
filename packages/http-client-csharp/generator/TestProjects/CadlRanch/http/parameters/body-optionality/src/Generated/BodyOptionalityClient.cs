@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Parameters.BodyOptionality._OptionalExplicit;
+using Parameters.BodyOptionality.OptionalExplicit;
 
 namespace Parameters.BodyOptionality
 {
@@ -35,6 +35,6 @@ namespace Parameters.BodyOptionality
 
         public virtual Task<ClientResult> RequiredImplicitAsync(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual OptionalExplicit GetOptionalExplicitClient() => throw null;
+        public virtual OptionalExplicit.OptionalExplicit GetOptionalExplicitClient() => throw null;
     }
 }

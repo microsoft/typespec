@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Encode.Duration._Property
+namespace Encode.Duration.Property
 {
     public partial class ISO8601DurationProperty
     {

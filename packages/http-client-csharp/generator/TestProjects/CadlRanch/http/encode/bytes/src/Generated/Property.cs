@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Encode.Bytes;
 
-namespace Encode.Bytes._Property
+namespace Encode.Bytes.Property
 {
     public partial class Property
     {

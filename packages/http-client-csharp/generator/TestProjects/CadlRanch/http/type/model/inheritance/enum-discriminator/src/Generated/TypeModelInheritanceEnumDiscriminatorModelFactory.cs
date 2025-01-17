@@ -2,9 +2,7 @@
 
 #nullable disable
 
-using _Type.Model.Inheritance.EnumDiscriminator;
-
-namespace _Type.Model.Inheritance.EnumDiscriminator.Models
+namespace _Type.Model.Inheritance.EnumDiscriminator
 {
     public static partial class TypeModelInheritanceEnumDiscriminatorModelFactory
     {

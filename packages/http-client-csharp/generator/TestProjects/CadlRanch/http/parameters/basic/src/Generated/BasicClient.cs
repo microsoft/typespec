@@ -4,8 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Parameters.Basic._ExplicitBody;
-using Parameters.Basic._ImplicitBody;
+using Parameters.Basic.ExplicitBody;
+using Parameters.Basic.ImplicitBody;
 
 namespace Parameters.Basic
 {
@@ -17,8 +17,8 @@ namespace Parameters.Basic
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ExplicitBody GetExplicitBodyClient() => throw null;
+        public virtual ExplicitBody.ExplicitBody GetExplicitBodyClient() => throw null;
 
-        public virtual ImplicitBody GetImplicitBodyClient() => throw null;
+        public virtual ImplicitBody.ImplicitBody GetImplicitBodyClient() => throw null;
     }
 }

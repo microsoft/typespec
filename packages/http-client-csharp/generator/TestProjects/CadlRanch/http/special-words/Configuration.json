@@ -2,8 +2,5 @@
   "output-folder": ".",
   "namespace": "SpecialWords",
   "library-name": "SpecialWords",
-  "bad-namespace-segments": [
-    "ModelProperties"
-  ],
   "use-model-reader-writer": true
 }

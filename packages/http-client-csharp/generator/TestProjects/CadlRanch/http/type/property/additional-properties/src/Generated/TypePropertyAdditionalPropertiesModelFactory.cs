@@ -4,9 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Property.AdditionalProperties;
 
-namespace _Type.Property.AdditionalProperties.Models
+namespace _Type.Property.AdditionalProperties
 {
     public static partial class TypePropertyAdditionalPropertiesModelFactory
     {

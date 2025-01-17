@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SpecialWords._ModelProperties
+namespace SpecialWords.ModelProperties
 {
     public partial class ModelProperties
     {

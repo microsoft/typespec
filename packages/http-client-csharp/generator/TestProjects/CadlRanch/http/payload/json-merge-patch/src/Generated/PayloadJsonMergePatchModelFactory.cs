@@ -3,9 +3,8 @@
 #nullable disable
 
 using System.Collections.Generic;
-using Payload.JsonMergePatch;
 
-namespace Payload.JsonMergePatch.Models
+namespace Payload.JsonMergePatch
 {
     public static partial class PayloadJsonMergePatchModelFactory
     {

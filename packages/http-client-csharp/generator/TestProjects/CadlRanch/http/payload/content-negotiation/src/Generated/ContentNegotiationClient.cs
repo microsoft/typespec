@@ -4,8 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Payload.ContentNegotiation._DifferentBody;
-using Payload.ContentNegotiation._SameBody;
+using Payload.ContentNegotiation.DifferentBody;
+using Payload.ContentNegotiation.SameBody;
 
 namespace Payload.ContentNegotiation
 {
@@ -17,8 +17,8 @@ namespace Payload.ContentNegotiation
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual SameBody GetSameBodyClient() => throw null;
+        public virtual SameBody.SameBody GetSameBodyClient() => throw null;
 
-        public virtual DifferentBody GetDifferentBodyClient() => throw null;
+        public virtual DifferentBody.DifferentBody GetDifferentBodyClient() => throw null;
     }
 }

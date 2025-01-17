@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Duration._Property
+namespace Encode.Duration.Property
 {
     public partial class Property
     {

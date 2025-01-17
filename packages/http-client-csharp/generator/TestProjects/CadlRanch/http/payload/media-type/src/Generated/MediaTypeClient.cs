@@ -4,7 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Payload.MediaType._StringBody;
+using Payload.MediaType.StringBody;
 
 namespace Payload.MediaType
 {
@@ -16,6 +16,6 @@ namespace Payload.MediaType
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual StringBody GetStringBodyClient() => throw null;
+        public virtual StringBody.StringBody GetStringBodyClient() => throw null;
     }
 }

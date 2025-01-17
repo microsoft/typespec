@@ -4,8 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using SpecialWords.ModelProperties;
 using SpecialWords.Models;
-using SpecialWords._ModelProperties;
 
 namespace SpecialWords
 {
@@ -19,7 +19,7 @@ namespace SpecialWords
 
         public virtual ModelsOps GetModelsOpsClient() => throw null;
 
-        public virtual ModelProperties GetModelPropertiesClient() => throw null;
+        public virtual ModelProperties.ModelProperties GetModelPropertiesClient() => throw null;
 
         public virtual Operations GetOperationsClient() => throw null;
 

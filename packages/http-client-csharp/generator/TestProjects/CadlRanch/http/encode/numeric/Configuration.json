@@ -2,8 +2,5 @@
   "output-folder": ".",
   "namespace": "Encode.Numeric",
   "library-name": "Encode.Numeric",
-  "bad-namespace-segments": [
-    "Property"
-  ],
   "use-model-reader-writer": true
 }

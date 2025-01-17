@@ -3,9 +3,8 @@
 #nullable disable
 
 using System.Collections.Generic;
-using _Type._Array;
 
-namespace _Type._Array.Models
+namespace _Type._Array
 {
     public static partial class TypeArrayModelFactory
     {

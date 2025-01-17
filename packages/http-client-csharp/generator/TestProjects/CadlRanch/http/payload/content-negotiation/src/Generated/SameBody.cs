@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Payload.ContentNegotiation._SameBody
+namespace Payload.ContentNegotiation.SameBody
 {
     public partial class SameBody
     {

@@ -3,9 +3,8 @@
 #nullable disable
 
 using System.Collections.Generic;
-using _Type.Model.Inheritance.Recursive;
 
-namespace _Type.Model.Inheritance.Recursive.Models
+namespace _Type.Model.Inheritance.Recursive
 {
     public static partial class TypeModelInheritanceRecursiveModelFactory
     {

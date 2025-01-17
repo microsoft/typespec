@@ -2,9 +2,10 @@
 
 #nullable disable
 
-using SpecialWords._ModelProperties;
+using SpecialWords.ModelProperties;
+using SpecialWords.Models;
 
-namespace SpecialWords.Models
+namespace SpecialWords
 {
     public static partial class SpecialWordsModelFactory
     {

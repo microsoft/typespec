@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Payload.ContentNegotiation._DifferentBody
+namespace Payload.ContentNegotiation.DifferentBody
 {
     public partial class PngImageAsJson : IJsonModel<PngImageAsJson>
     {

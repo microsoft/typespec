@@ -4,8 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Parameters.CollectionFormat._Header;
-using Parameters.CollectionFormat._Query;
+using Parameters.CollectionFormat.Header;
+using Parameters.CollectionFormat.Query;
 
 namespace Parameters.CollectionFormat
 {
@@ -17,8 +17,8 @@ namespace Parameters.CollectionFormat
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Query GetQueryClient() => throw null;
+        public virtual Query.Query GetQueryClient() => throw null;
 
-        public virtual Header GetHeaderClient() => throw null;
+        public virtual Header.Header GetHeaderClient() => throw null;
     }
 }

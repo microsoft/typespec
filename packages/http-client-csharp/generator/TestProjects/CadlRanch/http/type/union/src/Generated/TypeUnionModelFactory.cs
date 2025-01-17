@@ -4,9 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using _Type.Union;
 
-namespace _Type.Union.Models
+namespace _Type.Union
 {
     public static partial class TypeUnionModelFactory
     {

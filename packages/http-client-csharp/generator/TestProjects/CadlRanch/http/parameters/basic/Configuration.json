@@ -2,9 +2,5 @@
   "output-folder": ".",
   "namespace": "Parameters.Basic",
   "library-name": "Parameters.Basic",
-  "bad-namespace-segments": [
-    "ExplicitBody",
-    "ImplicitBody"
-  ],
   "use-model-reader-writer": true
 }

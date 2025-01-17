@@ -130,8 +130,6 @@ namespace Microsoft.Generator.CSharp
             public const string GenerateTestProject = "generate-test-project";
             public const string LibraryName = "library-name";
             public const string Namespace = "namespace";
-            public const string UseModelNamespace = "use-model-namespace";
-            public const string BadNamespaceSegments = "bad-namespace-segments";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
         }
@@ -220,7 +218,6 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
-            { Options.UseModelNamespace, true },
             { Options.GenerateModelFactory, true },
             { Options.GenerateSampleProject, true },
             { Options.ClearOutputFolder, true },
@@ -238,7 +235,6 @@ namespace Microsoft.Generator.CSharp
             Options.GenerateSampleProject,
             Options.GenerateTestProject,
             Options.LibraryName,
-            Options.UseModelNamespace,
             Options.Namespace,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,

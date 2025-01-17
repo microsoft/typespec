@@ -2,8 +2,6 @@
 
 #nullable disable
 
-using _Type.Property.Optional.Models;
-
 namespace _Type.Property.Optional
 {
     public partial class UnionStringLiteralProperty

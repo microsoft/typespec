@@ -4,8 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Parameters.Spread._Alias;
-using Parameters.Spread._Model;
+using Parameters.Spread.Alias;
+using Parameters.Spread.Model;
 
 namespace Parameters.Spread
 {
@@ -17,8 +17,8 @@ namespace Parameters.Spread
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Model GetModelClient() => throw null;
+        public virtual Model.Model GetModelClient() => throw null;
 
-        public virtual Alias GetAliasClient() => throw null;
+        public virtual Alias.Alias GetAliasClient() => throw null;
     }
 }

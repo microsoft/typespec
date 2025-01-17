@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Encode.Numeric._Property
+namespace Encode.Numeric.Property
 {
     public partial class Uint8AsStringProperty : IJsonModel<Uint8AsStringProperty>
     {

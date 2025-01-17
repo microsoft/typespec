@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Datetime._Header
+namespace Encode.Datetime.Header
 {
     public partial class Header
     {

@@ -4,7 +4,6 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.SingleDiscriminator;
-using _Type.Model.Inheritance.SingleDiscriminator.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.SingleDiscriminator
