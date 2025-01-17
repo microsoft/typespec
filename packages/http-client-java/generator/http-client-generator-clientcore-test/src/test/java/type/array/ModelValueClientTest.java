@@ -9,13 +9,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class ModelValueClientTest {
+public class ModelValueClientTest {
 
-    ModelValueClient client = new ArrayClientBuilder().buildModelValueClient();
+    private final ModelValueClient client = new ArrayClientBuilder().buildModelValueClient();
 
     @Test
     @Disabled("java.lang.ClassCastException: class java.util.LinkedHashMap cannot be cast to class type.array.InnerModel")
-    void get() {
+    public void get() {
         List<InnerModel> response = client.get();
         Assertions.assertEquals(2, response.size());
         Assertions.assertEquals("hello", response.get(0).getProperty());
@@ -23,7 +23,7 @@ class ModelValueClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         InnerModel model1 = new InnerModel("hello");
         InnerModel model2 = new InnerModel("world");
         client.put(Arrays.asList(model1, model2));
