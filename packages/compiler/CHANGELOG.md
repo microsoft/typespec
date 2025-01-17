@@ -1,5 +1,25 @@
 # Change Log - @typespec/compiler
 
+## 0.64.0
+
+### Bug Fixes
+
+- [#5295](https://github.com/microsoft/typespec/pull/5295) Fix incorrectly returning a positive `BigInt` for a negative `Numeric`.
+- [#5353](https://github.com/microsoft/typespec/pull/5353) Meta property are auto-completed, current only supported '::type', '::parameters', '::returnType'
+- [#5180](https://github.com/microsoft/typespec/pull/5180) Fixed serialization of object examples on unions
+- [#5525](https://github.com/microsoft/typespec/pull/5525) Enum-driven visibility decorators and projections now interact correctly.
+
+Projections now project EnumValue values to preserve consistency with projected Enum/EnumMember types using a best-effort
+strategy.
+
+### Features
+
+- [#5415](https://github.com/microsoft/typespec/pull/5415) Added support for emitter selections for init template.
+- [#5316](https://github.com/microsoft/typespec/pull/5316) Compiler trace will be sent to IDE as trace log through language server
+- [#5594](https://github.com/microsoft/typespec/pull/5594) Support Emitters section in Init Template when creating TypeSpec project in vscode
+- [#5294](https://github.com/microsoft/typespec/pull/5294) Add capacities in TypeSpec Language Server to support "Scaffolding new TypeSpec project" in IDE
+
+
 ## 0.63.0
 
 ### Bug Fixes

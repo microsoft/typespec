@@ -7,12 +7,19 @@ import {
   Scope,
   SourceFile,
 } from "@typespec/compiler/emitter-framework";
+import { HttpStatusCodeRange } from "@typespec/http";
 
 export const HelperNamespace: string = "TypeSpec.Helpers.JsonConverters";
 
 export interface CSharpTypeMetadata {
   name: string;
   namespace?: string;
+}
+
+export interface ResponseInfo {
+  statusCode: number | HttpStatusCodeRange | "*";
+  csharpStatusCode: string;
+  resultType: CSharpType;
 }
 
 export class CSharpType implements CSharpTypeMetadata {

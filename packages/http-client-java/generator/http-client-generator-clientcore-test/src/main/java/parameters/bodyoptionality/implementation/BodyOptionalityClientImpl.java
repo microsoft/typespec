@@ -74,8 +74,8 @@ public final class BodyOptionalityClientImpl {
      * @param endpoint Service host.
      */
     public BodyOptionalityClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.optionalExplicits = new OptionalExplicitsImpl(this);
         this.service = RestProxy.create(BodyOptionalityClientService.class, this.httpPipeline);
     }

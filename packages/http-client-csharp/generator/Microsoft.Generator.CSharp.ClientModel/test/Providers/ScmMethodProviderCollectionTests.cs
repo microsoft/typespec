@@ -33,7 +33,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
-            var methodCollection = new ScmMethodProviderCollection(inputOperation, ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
+            var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(4, methodCollection.Count);
 
@@ -73,7 +75,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
-            var methodCollection = new ScmMethodProviderCollection(inputOperation, ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient));
+            var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+            var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             Assert.IsNotNull(methodCollection);
             Assert.AreEqual(4, methodCollection.Count);
 

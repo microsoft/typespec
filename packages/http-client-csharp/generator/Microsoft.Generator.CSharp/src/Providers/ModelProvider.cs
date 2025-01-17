@@ -86,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
-        protected override string GetNamespace() => string.IsNullOrEmpty(_inputModel.ClientNamespace) ?
+        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.ClientNamespace) ?
             CodeModelPlugin.Instance.Configuration.RootNamespace :
             CodeModelPlugin.Instance.Configuration.GetCleanNameSpace(_inputModel.ClientNamespace);
 
@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildName() => _inputModel.Name.ToCleanName();
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             var isStruct = false;

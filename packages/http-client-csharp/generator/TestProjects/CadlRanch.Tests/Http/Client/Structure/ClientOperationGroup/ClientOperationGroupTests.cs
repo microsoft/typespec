@@ -3,9 +3,8 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Client.Structure.AnotherClientOperationGroup;
-using Client.Structure.ClientOperationGroup;
 using Client.Structure.Service;
+using Client.Structure.Service.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGroup

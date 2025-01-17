@@ -14,15 +14,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
     public class ClientProviderSubClientTests
     {
         private const string TestClientName = "TestClient";
-        private static readonly InputOperation _inputOperation = InputFactory.Operation("HelloAgain", parameters:
-            [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
-            ]);
-        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", operations: [_inputOperation], parent: TestClientName);
-        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", operations: [_inputOperation], parent: _animalClient.Name);
-        private static readonly InputClient _catClient = InputFactory.Client("cat", doc: "CatClient description", operations: [_inputOperation], parent: _animalClient.Name);
-        private static readonly InputClient _hawkClient = InputFactory.Client("hawkClient", doc: "HawkClient description", operations: [_inputOperation], parent: _animalClient.Name);
-        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", operations: [_inputOperation], parent: _dogClient.Name);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: TestClientName);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient.Name);
+        private static readonly InputClient _catClient = InputFactory.Client("cat", doc: "CatClient description", parent: _animalClient.Name);
+        private static readonly InputClient _hawkClient = InputFactory.Client("hawkClient", doc: "HawkClient description", parent: _animalClient.Name);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient.Name);
 
         [SetUp]
         public void SetUp()

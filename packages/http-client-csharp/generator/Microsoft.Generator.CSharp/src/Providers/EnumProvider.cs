@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.Providers
         {
             return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this)];
         }
-        protected override string GetNamespace() => string.IsNullOrEmpty(_inputType.ClientNamespace) ?
+        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputType.ClientNamespace) ?
             CodeModelPlugin.Instance.Configuration.RootNamespace : // we default to this model namespace when the namespace is empty
             CodeModelPlugin.Instance.Configuration.GetCleanNameSpace(_inputType.ClientNamespace);
 

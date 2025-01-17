@@ -65,6 +65,17 @@ foreach ($directory in $directories) {
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
+
+    # build the generated project
+    Write-Host "Building $subPath" -ForegroundColor Cyan
+    Get-ChildItem -Path $outputDir -Recurse -Filter '*.csproj' | ForEach-Object {
+        $command = "dotnet build $_"
+        Invoke $command
+        # exit if the build failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
+    }
 }
 
 # test all

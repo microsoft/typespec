@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.63.0",
+  "version": "0.64.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -142,6 +142,11 @@
         "category": "TypeSpec"
       },
       {
+        "command": "typespec.generateCode",
+        "title": "Generate from TypeSpec",
+        "category": "TypeSpec"
+      },
+      {
         "command": "typespec.createProject",
         "title": "Create TypeSpec Project",
         "category": "TypeSpec"
@@ -152,6 +157,22 @@
         "category": "TypeSpec"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "typespec.generateCode",
+          "when": "explorerResourceIsFolder || resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "typespec.generateCode",
+          "when": "resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ]
+    },
     "semanticTokenScopes": [
       {
         "scopes": {
@@ -229,6 +250,7 @@
     "typescript": "~5.6.3",
     "vitest": "^2.1.5",
     "vscode-languageclient": "~9.0.1",
-    "semver": "^7.6.3"
+    "semver": "^7.6.3",
+    "yaml": "~2.5.1"
   }
 }
