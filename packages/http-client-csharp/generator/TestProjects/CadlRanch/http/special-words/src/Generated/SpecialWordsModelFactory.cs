@@ -2,8 +2,8 @@
 
 #nullable disable
 
-using SpecialWords.ModelProperties;
 using SpecialWords.Models;
+using SpecialWords._ModelProperties;
 
 namespace SpecialWords
 {

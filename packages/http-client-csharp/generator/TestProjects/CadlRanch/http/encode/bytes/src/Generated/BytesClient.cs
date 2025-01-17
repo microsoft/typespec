@@ -4,11 +4,11 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Encode.Bytes.Header;
-using Encode.Bytes.Property;
-using Encode.Bytes.Query;
-using Encode.Bytes.RequestBody;
-using Encode.Bytes.ResponseBody;
+using Encode.Bytes._Header;
+using Encode.Bytes._Property;
+using Encode.Bytes._Query;
+using Encode.Bytes._RequestBody;
+using Encode.Bytes._ResponseBody;
 
 namespace Encode.Bytes
 {
@@ -20,14 +20,14 @@ namespace Encode.Bytes
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Query.Query GetQueryClient() => throw null;
+        public virtual Query GetQueryClient() => throw null;
 
-        public virtual Property.Property GetPropertyClient() => throw null;
+        public virtual Property GetPropertyClient() => throw null;
 
-        public virtual Header.Header GetHeaderClient() => throw null;
+        public virtual Header GetHeaderClient() => throw null;
 
-        public virtual RequestBody.RequestBody GetRequestBodyClient() => throw null;
+        public virtual RequestBody GetRequestBodyClient() => throw null;
 
-        public virtual ResponseBody.ResponseBody GetResponseBodyClient() => throw null;
+        public virtual ResponseBody GetResponseBodyClient() => throw null;
     }
 }

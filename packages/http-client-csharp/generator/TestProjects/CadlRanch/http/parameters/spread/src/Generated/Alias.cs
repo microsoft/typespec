@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Parameters.Spread.Alias
+namespace Parameters.Spread._Alias
 {
     public partial class Alias
     {

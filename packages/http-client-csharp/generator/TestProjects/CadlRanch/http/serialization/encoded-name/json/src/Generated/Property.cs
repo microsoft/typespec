@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Serialization.EncodedName.Json.Property
+namespace Serialization.EncodedName.Json._Property
 {
     public partial class Property
     {

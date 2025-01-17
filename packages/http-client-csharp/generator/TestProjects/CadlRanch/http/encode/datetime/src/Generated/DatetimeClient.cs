@@ -4,10 +4,10 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Encode.Datetime.Header;
-using Encode.Datetime.Property;
-using Encode.Datetime.Query;
-using Encode.Datetime.ResponseHeader;
+using Encode.Datetime._Header;
+using Encode.Datetime._Property;
+using Encode.Datetime._Query;
+using Encode.Datetime._ResponseHeader;
 
 namespace Encode.Datetime
 {
@@ -19,12 +19,12 @@ namespace Encode.Datetime
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Query.Query GetQueryClient() => throw null;
+        public virtual Query GetQueryClient() => throw null;
 
-        public virtual Property.Property GetPropertyClient() => throw null;
+        public virtual Property GetPropertyClient() => throw null;
 
-        public virtual Header.Header GetHeaderClient() => throw null;
+        public virtual Header GetHeaderClient() => throw null;
 
-        public virtual ResponseHeader.ResponseHeader GetResponseHeaderClient() => throw null;
+        public virtual ResponseHeader GetResponseHeaderClient() => throw null;
     }
 }

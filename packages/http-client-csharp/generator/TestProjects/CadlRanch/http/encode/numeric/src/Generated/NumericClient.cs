@@ -4,7 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Encode.Numeric.Property;
+using Encode.Numeric._Property;
 
 namespace Encode.Numeric
 {
@@ -16,6 +16,6 @@ namespace Encode.Numeric
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Property.Property GetPropertyClient() => throw null;
+        public virtual Property GetPropertyClient() => throw null;
     }
 }

@@ -3,8 +3,8 @@
 #nullable disable
 
 using System.Collections.Generic;
-using Parameters.Spread.Alias;
-using Parameters.Spread.Model;
+using Parameters.Spread._Alias;
+using Parameters.Spread._Model;
 
 namespace Parameters.Spread
 {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-using Encode.Numeric.Property;
+using Encode.Numeric._Property;
 
 namespace Encode.Numeric
 {

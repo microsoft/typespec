@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Encode.Datetime;
 
-namespace Encode.Datetime.Property
+namespace Encode.Datetime._Property
 {
     public partial class Property
     {

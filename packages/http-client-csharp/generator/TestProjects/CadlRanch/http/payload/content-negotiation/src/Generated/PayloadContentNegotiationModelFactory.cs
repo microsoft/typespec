@@ -3,7 +3,7 @@
 #nullable disable
 
 using System;
-using Payload.ContentNegotiation.DifferentBody;
+using Payload.ContentNegotiation._DifferentBody;
 
 namespace Payload.ContentNegotiation
 {

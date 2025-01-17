@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Parameters.Spread.Model
+namespace Parameters.Spread._Model
 {
     public partial class Model
     {

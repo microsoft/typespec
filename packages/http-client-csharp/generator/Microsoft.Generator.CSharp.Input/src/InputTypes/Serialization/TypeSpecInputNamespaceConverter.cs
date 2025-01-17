@@ -30,6 +30,9 @@ namespace Microsoft.Generator.CSharp.Input
                 reader.Read();
             }
 
+            var badNamespaceSegments = new List<string>();
+            resolver.AddReference(TypeSpecSerialization.BadNamespaceSegmentsKey, badNamespaceSegments);
+
             string? name = null;
             IReadOnlyList<string>? apiVersions = null;
             IReadOnlyList<InputEnumType>? enums = null;
@@ -65,7 +68,8 @@ namespace Microsoft.Generator.CSharp.Input
                 enums,
                 models,
                 clients,
-                auth);
+                auth,
+                badNamespaceSegments);
         }
     }
 }

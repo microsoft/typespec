@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Encode.Numeric.Property
+namespace Encode.Numeric._Property
 {
     public partial class Uint8AsStringProperty
     {

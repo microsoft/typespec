@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Payload.ContentNegotiation.DifferentBody
+namespace Payload.ContentNegotiation._DifferentBody
 {
     public partial class DifferentBody
     {

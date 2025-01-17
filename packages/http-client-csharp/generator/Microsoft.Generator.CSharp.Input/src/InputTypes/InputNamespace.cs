@@ -8,7 +8,14 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public class InputNamespace
     {
-        public InputNamespace(string name, IReadOnlyList<string> apiVersions, IReadOnlyList<InputEnumType> enums, IReadOnlyList<InputModelType> models, IReadOnlyList<InputClient> clients, InputAuth auth)
+        private static readonly string[] _knownBadNamespaceSegments =
+        [
+            "Type",
+            "Array",
+            "Enum",
+        ];
+
+        public InputNamespace(string name, IReadOnlyList<string> apiVersions, IReadOnlyList<InputEnumType> enums, IReadOnlyList<InputModelType> models, IReadOnlyList<InputClient> clients, InputAuth auth, IReadOnlyList<string>? badNamespaceSegments = null)
         {
             Name = name;
             ApiVersions = apiVersions;
@@ -16,6 +23,9 @@ namespace Microsoft.Generator.CSharp.Input
             Models = models;
             Clients = clients;
             Auth = auth;
+            BadNamespaceSegments = badNamespaceSegments != null ?
+                [.._knownBadNamespaceSegments, ..badNamespaceSegments] :
+                _knownBadNamespaceSegments;
         }
 
         public InputNamespace() : this(name: string.Empty, apiVersions: Array.Empty<string>(), enums: Array.Empty<InputEnumType>(), models: Array.Empty<InputModelType>(), clients: Array.Empty<InputClient>(), auth: new InputAuth()) { }
@@ -26,5 +36,6 @@ namespace Microsoft.Generator.CSharp.Input
         public IReadOnlyList<InputModelType> Models { get; init; }
         public IReadOnlyList<InputClient> Clients { get; init; }
         public InputAuth Auth { get; init; }
+        public IReadOnlyList<string> BadNamespaceSegments { get; init; }
     }
 }

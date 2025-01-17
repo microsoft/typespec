@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client.Naming.UnionEnum
+namespace Client.Naming._UnionEnum
 {
     public partial class UnionEnum
     {

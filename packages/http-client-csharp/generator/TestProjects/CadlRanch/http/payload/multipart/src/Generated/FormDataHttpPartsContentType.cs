@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
 
-namespace Payload.MultiPart.FormData.HttpParts.ContentType
+namespace Payload.MultiPart._FormData.HttpParts.ContentType
 {
     public partial class FormDataHttpPartsContentType
     {

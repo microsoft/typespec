@@ -7,7 +7,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.RenamedFrom.V2;
 
 namespace Versioning.RenamedFrom
 {

@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Client.Naming.Model;
 using Client.Naming.Property;
-using Client.Naming.UnionEnum;
+using Client.Naming._UnionEnum;
 
 namespace Client.Naming
 {
@@ -79,6 +79,6 @@ namespace Client.Naming
 
         public virtual ClientModel GetClientModelClient() => throw null;
 
-        public virtual UnionEnum.UnionEnum GetUnionEnumClient() => throw null;
+        public virtual UnionEnum GetUnionEnumClient() => throw null;
     }
 }

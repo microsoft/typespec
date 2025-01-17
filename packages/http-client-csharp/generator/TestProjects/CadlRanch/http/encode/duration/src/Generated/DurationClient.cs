@@ -4,9 +4,9 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Encode.Duration.Header;
-using Encode.Duration.Property;
-using Encode.Duration.Query;
+using Encode.Duration._Header;
+using Encode.Duration._Property;
+using Encode.Duration._Query;
 
 namespace Encode.Duration
 {
@@ -18,10 +18,10 @@ namespace Encode.Duration
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual Query.Query GetQueryClient() => throw null;
+        public virtual Query GetQueryClient() => throw null;
 
-        public virtual Property.Property GetPropertyClient() => throw null;
+        public virtual Property GetPropertyClient() => throw null;
 
-        public virtual Header.Header GetHeaderClient() => throw null;
+        public virtual Header GetHeaderClient() => throw null;
     }
 }

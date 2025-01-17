@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace SpecialWords.ModelProperties
+namespace SpecialWords._ModelProperties
 {
     public partial class SameAsModel
     {

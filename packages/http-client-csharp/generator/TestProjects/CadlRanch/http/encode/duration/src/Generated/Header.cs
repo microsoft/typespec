@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Duration.Header
+namespace Encode.Duration._Header
 {
     public partial class Header
     {

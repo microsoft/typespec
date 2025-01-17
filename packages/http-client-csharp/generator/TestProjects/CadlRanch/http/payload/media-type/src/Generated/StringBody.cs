@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Payload.MediaType.StringBody
+namespace Payload.MediaType._StringBody
 {
     public partial class StringBody
     {

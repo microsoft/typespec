@@ -9,6 +9,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public static class TypeSpecSerialization
     {
+        internal const string BadNamespaceSegmentsKey = "BadNamespaceSegments";
         public static InputNamespace? Deserialize(string json)
         {
             var referenceHandler = new TypeSpecReferenceHandler();

@@ -69,7 +69,28 @@ namespace Microsoft.Generator.CSharp.Input
             client.Parent = parent;
             client.Decorators = decorators ?? [];
 
+            if (GetLastSegment(client.ClientNamespace) == client.Name)
+            {
+                // bad namespace segment found
+                // check if the list is already there
+                // get the list out
+                var badNamespaceSegments = (List<string>)resolver.ResolveReference(TypeSpecSerialization.BadNamespaceSegmentsKey);
+                badNamespaceSegments.Add(client.Name);
+            }
+
             return client;
+        }
+
+        private static string GetLastSegment(string clientNamespace)
+        {
+            var span = clientNamespace.AsSpan();
+            var index = span.LastIndexOf('.');
+            if (index == -1)
+            {
+                return clientNamespace;
+            }
+
+            return span.Slice(index + 1).ToString();
         }
     }
 }

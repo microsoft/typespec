@@ -8,7 +8,6 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 using Client.Structure.Service;
-using Client.Structure.Service.Multi.Client;
 
 namespace Client.Structure.MultiClient
 {

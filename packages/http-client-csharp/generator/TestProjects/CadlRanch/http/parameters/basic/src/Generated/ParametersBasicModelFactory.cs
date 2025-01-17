@@ -2,8 +2,8 @@
 
 #nullable disable
 
-using Parameters.Basic.ExplicitBody;
-using Parameters.Basic.ImplicitBody;
+using Parameters.Basic._ExplicitBody;
+using Parameters.Basic._ImplicitBody;
 
 namespace Parameters.Basic
 {

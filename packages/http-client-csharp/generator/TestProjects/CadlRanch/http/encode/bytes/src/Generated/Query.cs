@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Encode.Bytes.Query
+namespace Encode.Bytes._Query
 {
     public partial class Query
     {

@@ -87,8 +87,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.ClientNamespace) ?
-            CodeModelPlugin.Instance.Configuration.RootNamespace :
-            CodeModelPlugin.Instance.Configuration.GetCleanNameSpace(_inputModel.ClientNamespace);
+            CodeModelPlugin.Instance.TypeFactory.RootNamespace :
+            CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputModel.ClientNamespace);
 
         protected override CSharpType? GetBaseType()
         {

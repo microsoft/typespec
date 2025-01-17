@@ -7,8 +7,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Routes.PathParameters;
-using Routes.QueryParameters;
+using Routes._PathParameters;
+using Routes._QueryParameters;
 
 namespace Routes
 {
@@ -28,9 +28,9 @@ namespace Routes
 
         public virtual Task<ClientResult> FixedAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual PathParameters.PathParameters GetPathParametersClient() => throw null;
+        public virtual PathParameters GetPathParametersClient() => throw null;
 
-        public virtual QueryParameters.QueryParameters GetQueryParametersClient() => throw null;
+        public virtual QueryParameters GetQueryParametersClient() => throw null;
 
         public virtual InInterface GetInInterfaceClient() => throw null;
     }

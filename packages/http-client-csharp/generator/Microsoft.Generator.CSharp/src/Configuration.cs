@@ -13,13 +13,6 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public class Configuration
     {
-        private static readonly string[] _badNamespaceSegments =
-        [
-            "Type",
-            "Array",
-            "Enum",
-        ];
-
         internal enum UnreferencedTypesHandlingOption
         {
             RemoveOrInternalize = 0,
@@ -36,7 +29,6 @@ namespace Microsoft.Generator.CSharp
             OutputDirectory = null!;
             AdditionalConfigOptions = null!;
             LibraryName = null!;
-            RootNamespace = null!;
         }
 
         private Configuration(
@@ -47,7 +39,6 @@ namespace Microsoft.Generator.CSharp
             bool generateSampleProject,
             bool generateTestProject,
             string libraryName,
-            string libraryNamespace,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling)
         {
@@ -58,65 +49,8 @@ namespace Microsoft.Generator.CSharp
             GenerateSampleProject = generateSampleProject;
             GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
-            RootNamespace = GetCleanNameSpace(libraryNamespace);
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
-        }
-
-        public string GetCleanNameSpace(string libraryNamespace)
-        {
-            Span<char> dest = stackalloc char[libraryNamespace.Length + GetSegmentCount(libraryNamespace)];
-            var source = libraryNamespace.AsSpan();
-            var destIndex = 0;
-            var nextDot = source.IndexOf('.');
-            while (nextDot != -1)
-            {
-                var segment = source.Slice(0, nextDot);
-                if (IsSpecialSegment(segment))
-                {
-                    dest[destIndex] = '_';
-                    destIndex++;
-                }
-                segment.CopyTo(dest.Slice(destIndex));
-                destIndex += segment.Length;
-                dest[destIndex] = '.';
-                destIndex++;
-                source = source.Slice(nextDot + 1);
-                nextDot = source.IndexOf('.');
-            }
-            if (IsSpecialSegment(source))
-            {
-                dest[destIndex] = '_';
-                destIndex++;
-            }
-            source.CopyTo(dest.Slice(destIndex));
-            destIndex += source.Length;
-            return dest.Slice(0, destIndex).ToString();
-        }
-
-        private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
-        {
-            for (int i = 0; i < _badNamespaceSegments.Length; i++)
-            {
-                if (readOnlySpan.Equals(_badNamespaceSegments[i], StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static int GetSegmentCount(string libraryNamespace)
-        {
-            int count = 0;
-            for (int i = 0; i < libraryNamespace.Length; i++)
-            {
-                if (libraryNamespace[i] == '.')
-                {
-                    count++;
-                }
-            }
-            return ++count;
         }
 
         /// <summary>
@@ -129,7 +63,6 @@ namespace Microsoft.Generator.CSharp
             public const string GenerateSampleProject = "generate-sample-project";
             public const string GenerateTestProject = "generate-test-project";
             public const string LibraryName = "library-name";
-            public const string Namespace = "namespace";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
         }
@@ -138,9 +71,6 @@ namespace Microsoft.Generator.CSharp
         /// Gets whether XML docs are disabled.
         /// </summary>
         public bool DisableXmlDocs { get; }
-
-        /// <summary> Gets the root namespace for the library. </summary>
-        public string RootNamespace { get; }
 
         internal string OutputDirectory { get; }
 
@@ -208,7 +138,6 @@ namespace Microsoft.Generator.CSharp
                 ReadOption(root, Options.GenerateSampleProject),
                 ReadOption(root, Options.GenerateTestProject),
                 ReadRequiredStringOption(root, Options.LibraryName),
-                ReadRequiredStringOption(root, Options.Namespace),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling));
         }
@@ -235,24 +164,9 @@ namespace Microsoft.Generator.CSharp
             Options.GenerateSampleProject,
             Options.GenerateTestProject,
             Options.LibraryName,
-            Options.Namespace,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,
         };
-
-        private static IReadOnlyList<string> ReadStringArrayOption(JsonElement root, string option)
-        {
-            var result = new List<string>();
-            if (root.TryGetProperty(option, out JsonElement value))
-            {
-                foreach (var item in value.EnumerateArray())
-                {
-                    result.Add(item.GetString() ?? throw new InvalidOperationException($"Unable to parse required option {option} from configuration."));
-                }
-            }
-
-            return result;
-        }
 
         private static bool ReadOption(JsonElement root, string option)
         {

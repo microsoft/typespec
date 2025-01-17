@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Serialization.EncodedName.Json.Property
+namespace Serialization.EncodedName.Json._Property
 {
     public partial class JsonEncodedNameModel : IJsonModel<JsonEncodedNameModel>
     {

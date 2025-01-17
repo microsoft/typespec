@@ -2,7 +2,7 @@
 
 #nullable disable
 
-using Serialization.EncodedName.Json.Property;
+using Serialization.EncodedName.Json._Property;
 
 namespace Serialization.EncodedName.Json
 {
