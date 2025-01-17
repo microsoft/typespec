@@ -32,13 +32,7 @@ import {
   simpleTypesMap,
   typesMap,
 } from "./types.js";
-import {
-  emitParamBase,
-  getClientNamespace,
-  getImplementation,
-  removeUnderscoresFromNamespace,
-  getRootNamespace,
-} from "./utils.js";
+import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,

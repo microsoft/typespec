@@ -200,9 +200,10 @@ export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
 }
 
-
 export function getRootNamespace(context: PythonSdkContext<SdkServiceOperation>): string {
-  const rootNamespace = context.emitContext.options["enable-typespec-namespace"] ? context.sdkPackage.namespaces[0].fullName : context.sdkPackage.rootNamespace;
+  const rootNamespace = context.emitContext.options["enable-typespec-namespace"]
+    ? context.sdkPackage.namespaces[0].fullName
+    : context.sdkPackage.rootNamespace;
   return removeUnderscoresFromNamespace(rootNamespace).toLowerCase();
 }
 

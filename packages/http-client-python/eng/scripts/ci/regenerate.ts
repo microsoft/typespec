@@ -123,9 +123,6 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "client/structure/two-operation-group": {
     "package-name": "client-structure-twooperationgroup",
   },
-  "client/namespace": {
-    "enable-typespec-namespace": "true",
-  },
 };
 
 function toPosix(dir: string): string {
@@ -139,28 +136,7 @@ function getEmitterOption(spec: string, flavor: string): Record<string, string>[
     ? relativeSpec
     : dirname(relativeSpec);
   const emitter_options = EMITTER_OPTIONS[key] || [{}];
-  const result = Array.isArray(emitter_options) ? emitter_options : [emitter_options];
-
-  function updateOptions(options: Record<string, string>): void {
-    if (options["package-name"] && options["enable-typespec-namespace"] === undefined) {
-      options["enable-typespec-namespace"] = "false";
-    }
-  }
-
-  // when package name is different with typespec namespace, disable typespec namespace
-  if (flavor !== "azure") {
-    for (const options of result) {
-      if (Array.isArray(options)) {
-        for (const option of options) {
-          updateOptions(option);
-        }
-      } else {
-        updateOptions(options);
-      }
-    }
-  }
-
-  return result;
+  return Array.isArray(emitter_options) ? emitter_options : [emitter_options];
 }
 
 // Function to execute CLI commands asynchronously
