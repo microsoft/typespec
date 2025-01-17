@@ -700,24 +700,6 @@ describe("identifiers", () => {
           },
         },
         {
-          label: "foo2",
-          insertText: "foo2",
-          kind: CompletionItemKind.Field,
-          documentation: {
-            kind: MarkupKind.Markdown,
-            value: "(model property)\n```typespec\nFoo2.foo2: string\n```",
-          },
-        },
-        {
-          label: "c",
-          insertText: "c",
-          kind: CompletionItemKind.Field,
-          documentation: {
-            kind: MarkupKind.Markdown,
-            value: "(model property)\n```typespec\nNested.c: Foo2\n```",
-          },
-        },
-        {
           label: "a",
           insertText: "a",
           kind: CompletionItemKind.Field,
