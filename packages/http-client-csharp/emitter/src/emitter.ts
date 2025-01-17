@@ -207,32 +207,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 async function validateDotNetSdk(program: Program, minMajorVersion: number): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    const dotnetVersion = result.stdout;
-    if (dotnetVersion) {
-      const versions = dotnetVersion.split(".");
-      if (versions.length < 3) {
-        Logger.getInstance().error("Invalid .NET SDK version.");
-        return false;
-      }
-      const major = +versions[0];
-      if (major < minMajorVersion) {
-        reportDiagnostic(program, {
-          code: "invalid-dotnet-sdk-dependency",
-          messageId: "invalidVersion",
-          format: {
-            installedVersion: dotnetVersion,
-            dotnetMajorVersion: `${minMajorVersion}`,
-            downloadUrl: "https://dotnet.microsoft.com/",
-          },
-          target: NoTarget,
-        });
-        return false;
-      }
-      return true;
-    } else {
-      Logger.getInstance().error("Cannot get the installed .NET SDK version.");
-      return false;
-    }
+    return validateDotNetSdkVersion(program, result.stdout, minMajorVersion);
   } catch (error: any) {
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
       reportDiagnostic(program, {
@@ -248,6 +223,39 @@ async function validateDotNetSdk(program: Program, minMajorVersion: number): Pro
     return false;
   }
 }
+
+export function validateDotNetSdkVersion(
+  program: Program,
+  version: string,
+  minMajorVersion: number,
+): boolean {
+  if (version) {
+    const versions = version.split(".");
+    if (versions.length < 3) {
+      Logger.getInstance().error("Invalid .NET SDK version.");
+      return false;
+    }
+    const major = +versions[0];
+    if (major < minMajorVersion) {
+      reportDiagnostic(program, {
+        code: "invalid-dotnet-sdk-dependency",
+        messageId: "invalidVersion",
+        format: {
+          installedVersion: version,
+          dotnetMajorVersion: `${minMajorVersion}`,
+          downloadUrl: "https://dotnet.microsoft.com/",
+        },
+        target: NoTarget,
+      });
+      return false;
+    }
+    return true;
+  } else {
+    Logger.getInstance().error("Cannot get the installed .NET SDK version.");
+    return false;
+  }
+}
+
 function constructCommandArg(arg: string): string {
   return arg !== "" ? ` ${arg}` : "";
 }
