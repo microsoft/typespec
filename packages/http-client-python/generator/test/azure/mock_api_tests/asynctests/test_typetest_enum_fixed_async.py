@@ -5,6 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from typetest.enum.fixed import aio, models
+from azure.core.exceptions import HttpResponseError
 
 
 @pytest.fixture
@@ -20,8 +21,8 @@ async def test_known_value(client):
 
 
 @pytest.mark.asyncio
-async def test_unknown_value(client: aio.FixedClient, core_library):
+async def test_unknown_value(client: aio.FixedClient):
     try:
         await client.string.put_unknown_value("Weekend")
-    except core_library.exceptions.HttpResponseError as err:
+    except HttpResponseError as err:
         assert err.status_code == 500

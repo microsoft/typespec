@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from typetest.enum.fixed import FixedClient, models
-
+from azure.core.exceptions import HttpResponseError
 
 @pytest.fixture
 def client():
@@ -18,8 +18,8 @@ def test_known_value(client):
     client.string.put_known_value(models.DaysOfWeekEnum.MONDAY)
 
 
-def test_unknown_value(client: FixedClient, core_library):
+def test_unknown_value(client: FixedClient):
     try:
         client.string.put_unknown_value("Weekend")
-    except core_library.exceptions.HttpResponseError as err:
+    except HttpResponseError as err:
         assert err.status_code == 500

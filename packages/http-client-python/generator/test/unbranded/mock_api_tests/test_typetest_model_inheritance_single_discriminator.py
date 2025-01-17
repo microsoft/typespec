@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from type.model.singlediscriminator import SingleDiscriminatorClient
-from type.model.singlediscriminator.models import Sparrow, Eagle, Bird, Dinosaur
+from type.model.inheritance.singlediscriminator import SingleDiscriminatorClient
+from type.model.inheritance.singlediscriminator.models import Sparrow, Eagle, Bird, Dinosaur
 
 
 @pytest.fixture

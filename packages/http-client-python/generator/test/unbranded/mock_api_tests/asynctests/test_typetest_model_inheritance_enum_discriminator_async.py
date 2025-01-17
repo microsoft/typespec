@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from type.model.enumdiscriminator.aio import EnumDiscriminatorClient
-from type.model.enumdiscriminator import models
+from type.model.inheritance.enumdiscriminator.aio import EnumDiscriminatorClient
+from type.model.inheritance.enumdiscriminator import models
 
 
 @pytest.fixture

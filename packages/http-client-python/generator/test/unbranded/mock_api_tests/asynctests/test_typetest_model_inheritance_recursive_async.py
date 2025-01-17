@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from type.model.recursive.aio import RecursiveClient
-from type.model.recursive.models import Extension
+from type.model.inheritance.recursive.aio import RecursiveClient
+from type.model.inheritance.recursive.models import Extension
 
 
 @pytest.fixture

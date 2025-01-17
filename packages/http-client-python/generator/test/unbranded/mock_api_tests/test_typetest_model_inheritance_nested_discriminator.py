@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from type.model.nesteddiscriminator import NestedDiscriminatorClient
-from type.model.nesteddiscriminator.models import GoblinShark, Salmon, Fish
+from type.model.inheritance.nesteddiscriminator import NestedDiscriminatorClient
+from type.model.inheritance.nesteddiscriminator.models import GoblinShark, Salmon, Fish
 
 
 @pytest.fixture

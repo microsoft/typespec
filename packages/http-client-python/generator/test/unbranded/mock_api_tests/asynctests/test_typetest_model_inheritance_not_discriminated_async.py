@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from type.model.notdiscriminated.aio import NotDiscriminatedClient
-from type.model.notdiscriminated.models import Siamese
+from type.model.inheritance.notdiscriminated.aio import NotDiscriminatedClient
+from type.model.inheritance.notdiscriminated.models import Siamese
 
 
 @pytest.fixture
