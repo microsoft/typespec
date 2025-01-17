@@ -195,11 +195,11 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
    ![alt text](./images/CreateTypeSpecProject_StandAlone_InstallLibraries.png)
 
-6. Input service namespace - _(Text input)_ requires Pascal format.
+5. Input service namespace - _(Text input)_ requires Pascal format.
 
    ![alt text](./images/CreateTypeSpecProject_InputServiceNamespace.png)
 
-7. Press "Enter" and the project will be created.
+6. Press "Enter" and the project will be created.
 
    - For `rest-api-spec repo`:
 
