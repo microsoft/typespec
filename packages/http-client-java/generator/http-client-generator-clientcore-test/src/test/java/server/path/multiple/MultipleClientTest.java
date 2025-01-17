@@ -5,17 +5,17 @@ package server.path.multiple;
 
 import org.junit.jupiter.api.Test;
 
-class MultipleClientTest {
+public class MultipleClientTest {
 
-    MultipleClient client = new MultipleClientBuilder().endpoint("http://localhost:3000").buildClient();
+    private final MultipleClient client = new MultipleClientBuilder().endpoint("http://localhost:3000").buildClient();
 
     @Test
-    void noOperationParams() {
+    public void noOperationParams() {
         client.noOperationParams();
     }
 
     @Test
-    void withOperationPathParam() {
+    public void withOperationPathParam() {
         client.withOperationPathParam("test");
     }
 }

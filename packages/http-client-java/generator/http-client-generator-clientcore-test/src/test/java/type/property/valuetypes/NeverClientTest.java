@@ -6,18 +6,18 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class NeverClientTest {
+public class NeverClientTest {
 
-    NeverClient client = new ValueTypesClientBuilder().buildNeverClient();
+    private final NeverClient client = new ValueTypesClientBuilder().buildNeverClient();
 
     @Test
-    void get() {
+    public void get() {
         NeverProperty response = client.get();
         Assertions.assertNotNull(response);
     }
 
     @Test
-    void put() {
+    public void put() {
         client.put(new NeverProperty());
     }
 }

@@ -3,18 +3,18 @@
 
 package type.property.nullable;
 
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
-class CollectionsByteClientTest {
+public class CollectionsByteClientTest {
 
-    CollectionsByteClient client = new NullableClientBuilder().buildCollectionsByteClient();
+    private final CollectionsByteClient client = new NullableClientBuilder().buildCollectionsByteClient();
 
     @Test
-    void patchNonNullWithResponse() {
+    public void patchNonNullWithResponse() {
         CollectionsByteProperty collectionsByteProperty = new CollectionsByteProperty().setRequiredProperty("foo")
             .setNullableProperty(
                 Arrays.asList(new byte[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33 },
@@ -23,18 +23,18 @@ class CollectionsByteClientTest {
     }
 
     @Test
-    void patchNullWithResponse() {
+    public void patchNullWithResponse() {
         client.patchNull(new CollectionsByteProperty().setRequiredProperty("foo").setNullableProperty(null));
     }
 
     @Test
-    void getNonNull() {
+    public void getNonNull() {
         CollectionsByteProperty response = client.getNonNull();
         assertNotNull(response.getNullableProperty());
     }
 
     @Test
-    void getNull() {
+    public void getNull() {
         CollectionsByteProperty response = client.getNull();
         assertNull(response.getNullableProperty());
     }

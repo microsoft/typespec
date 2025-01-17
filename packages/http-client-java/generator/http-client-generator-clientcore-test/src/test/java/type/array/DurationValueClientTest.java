@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class DurationValueClientTest {
+public class DurationValueClientTest {
 
-    DurationValueClient client = new ArrayClientBuilder().buildDurationValueClient();
+    private final DurationValueClient client = new ArrayClientBuilder().buildDurationValueClient();
 
     @Test
-    void get() {
+    public void get() {
         List<Duration> response = client.get();
         Assertions.assertEquals(1, response.size());
         Assertions.assertEquals("P123DT22H14M12.011S", response.get(0));
@@ -23,7 +23,7 @@ class DurationValueClientTest {
 
     @Test
     @Disabled("Body provided doesn't match expected body,\"expected\":[\"P123DT22H14M12.011S\"],\"actual\":[\"PT2974H14M12.011S\"]")
-    void put() {
+    public void put() {
         Duration duration = Duration.parse("P123DT22H14M12.011S");
         client.put(Arrays.asList(duration));
     }

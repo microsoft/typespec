@@ -3,38 +3,38 @@
 
 package type.property.nullable;
 
+import java.time.Duration;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.time.Duration;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class DurationOperationClientTest {
+public class DurationOperationClientTest {
 
-    DurationOperationClient client = new NullableClientBuilder().buildDurationOperationClient();
+    private final DurationOperationClient client = new NullableClientBuilder().buildDurationOperationClient();
 
     @Test
     @Disabled("Body provided doesn't match expected body, \"expected\":{\"requiredProperty\":\"foo\",\"nullableProperty\":\"P123DT22H14M12.011S\"},\"actual\":{\"requiredProperty\":\"foo\",\"nullableProperty\":\"PT2974H14M12.011S\"}")
-    void patchNonNullWithResponse() {
+    public void patchNonNullWithResponse() {
         DurationProperty property = new DurationProperty().setRequiredProperty("foo")
             .setNullableProperty(Duration.parse("PT2974H14M12.011S"));
         client.patchNonNull(property);
     }
 
     @Test
-    void patchNullWithResponse() {
+    public void patchNullWithResponse() {
         client.patchNull(new DurationProperty().setRequiredProperty("foo").setNullableProperty(null));
     }
 
     @Test
-    void getNonNull() {
+    public void getNonNull() {
         DurationProperty response = client.getNonNull();
         assertNotNull(response.getNullableProperty());
     }
 
     @Test
-    void getNull() {
+    public void getNull() {
         DurationProperty response = client.getNull();
         assertNull(response.getNullableProperty());
 

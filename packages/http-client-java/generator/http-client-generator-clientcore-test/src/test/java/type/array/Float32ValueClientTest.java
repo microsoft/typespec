@@ -5,22 +5,23 @@ package type.array;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class Float32ValueClientTest {
+public class Float32ValueClientTest {
 
-    Float32ValueClient client = new ArrayClientBuilder().buildFloat32ValueClient();
+    private final Float32ValueClient client = new ArrayClientBuilder().buildFloat32ValueClient();
 
     @Test
-    void get() {
+    public void get() {
         List<Double> response = client.get();
         Assertions.assertEquals(1, response.size());
         Assertions.assertEquals(43.125, response.get(0));
     }
 
     @Test
-    void put() {
+    public void put() {
         client.put(Arrays.asList(43.125));
     }
 }

@@ -5,15 +5,16 @@ package type.property.valuetypes;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class DictionaryStringClientTest {
+public class DictionaryStringClientTest {
 
-    DictionaryStringClient client = new ValueTypesClientBuilder().buildDictionaryStringClient();
+    private final DictionaryStringClient client = new ValueTypesClientBuilder().buildDictionaryStringClient();
 
     @Test
-    void get() {
+    public void get() {
         DictionaryStringProperty dictionaryStringProperty = client.get();
         Map<String, String> property = dictionaryStringProperty.getProperty();
         Assertions.assertEquals("hello", property.get("k1"));
@@ -21,7 +22,7 @@ class DictionaryStringClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         Map<String, String> property = new HashMap<>();
         property.put("k1", "hello");
         property.put("k2", "world");

@@ -4,22 +4,23 @@
 package type.property.valuetypes;
 
 import java.util.Arrays;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class CollectionsStringClientTest {
+public class CollectionsStringClientTest {
 
-    CollectionsStringClient client = new ValueTypesClientBuilder().buildCollectionsStringClient();
+    private final CollectionsStringClient client = new ValueTypesClientBuilder().buildCollectionsStringClient();
 
     @Test
-    void get() {
+    public void get() {
         CollectionsStringProperty collectionsStringProperty = client.get();
         Assertions.assertEquals("hello", collectionsStringProperty.getProperty().get(0));
         Assertions.assertEquals("world", collectionsStringProperty.getProperty().get(1));
     }
 
     @Test
-    void put() {
+    public void put() {
         CollectionsStringProperty collectionsStringProperty
             = new CollectionsStringProperty(Arrays.asList("hello", "world"));
         client.put(collectionsStringProperty);

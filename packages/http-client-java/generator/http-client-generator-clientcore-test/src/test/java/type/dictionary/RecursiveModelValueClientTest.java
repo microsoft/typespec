@@ -5,17 +5,18 @@ package type.dictionary;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class RecursiveModelValueClientTest {
+public class RecursiveModelValueClientTest {
 
-    RecursiveModelValueClient client = new DictionaryClientBuilder().buildRecursiveModelValueClient();
+    private final RecursiveModelValueClient client = new DictionaryClientBuilder().buildRecursiveModelValueClient();
 
     @Test
     @Disabled("java.lang.ClassCastException: class java.util.LinkedHashMap cannot be cast to class type.dictionary.InnerModel")
-    void get() {
+    public void get() {
         Map<String, InnerModel> response = client.get();
         Assertions.assertTrue(response.containsKey("k1"));
         InnerModel innerModel1 = response.get("k1");
@@ -29,7 +30,7 @@ class RecursiveModelValueClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         Map<String, InnerModel> map = new HashMap<>();
         InnerModel innerModel1 = new InnerModel("hello");
         innerModel1.setChildren(new HashMap<>());

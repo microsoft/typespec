@@ -5,15 +5,16 @@ package type.array;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class BooleanValueClientTest {
+public class BooleanValueClientTest {
 
-    BooleanValueClient client = new ArrayClientBuilder().buildBooleanValueClient();
+    private final BooleanValueClient client = new ArrayClientBuilder().buildBooleanValueClient();
 
     @Test
-    void get() {
+    public void get() {
         List<Boolean> response = client.get();
         Assertions.assertEquals(2, response.size());
         Assertions.assertEquals(true, response.get(0));
@@ -21,7 +22,7 @@ class BooleanValueClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         List<Boolean> body = Arrays.asList(true, false);
         client.put(body);
     }

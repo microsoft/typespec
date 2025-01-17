@@ -5,15 +5,16 @@ package type.array;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class StringValueClientTest {
+public class StringValueClientTest {
 
-    StringValueClient client = new ArrayClientBuilder().buildStringValueClient();
+    private final StringValueClient client = new ArrayClientBuilder().buildStringValueClient();
 
     @Test
-    void get() {
+    public void get() {
         List<String> response = client.get();
         Assertions.assertEquals(2, response.size());
         Assertions.assertEquals("hello", response.get(0));
@@ -21,7 +22,7 @@ class StringValueClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         client.put(Arrays.asList("hello", ""));
     }
 }

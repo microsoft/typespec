@@ -4,40 +4,41 @@
 package parameters.collectionformat;
 
 import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 
-class CollectionFormatClientTest {
+public class CollectionFormatClientTest {
 
     private final QueryClient client = new CollectionFormatClientBuilder().buildQueryClient();
     private final HeaderClient headerClient = new CollectionFormatClientBuilder().buildHeaderClient();
 
     @Test
-    void testMulti() {
+    public void testMulti() {
         client.multi(Arrays.asList("blue", "red", "green"));
     }
 
     @Test
-    void testCsv() {
+    public void testCsv() {
         client.csv(Arrays.asList("blue", "red", "green"));
     }
 
     @Test
-    void testSsv() {
+    public void testSsv() {
         client.ssv(Arrays.asList("blue", "red", "green"));
     }
 
     @Test
-    void testTsv() {
+    public void testTsv() {
         client.tsv(Arrays.asList("blue", "red", "green"));
     }
 
     @Test
-    void testPipe() {
+    public void testPipe() {
         client.pipes(Arrays.asList("blue", "red", "green"));
     }
 
     @Test
-    void testCsvHeader() {
+    public void testCsvHeader() {
         headerClient.csv(Arrays.asList("blue", "red", "green"));
     }
 

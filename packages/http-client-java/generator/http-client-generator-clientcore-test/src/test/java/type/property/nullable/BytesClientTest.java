@@ -6,30 +6,30 @@ package type.property.nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class BytesClientTest {
+public class BytesClientTest {
 
-    BytesClient client = new NullableClientBuilder().buildBytesClient();
+    private final BytesClient client = new NullableClientBuilder().buildBytesClient();
 
     @Test
-    void patchNonNullWithResponse() {
+    public void patchNonNullWithResponse() {
         byte[] input = new byte[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33 };
         BytesProperty bytesProperty = new BytesProperty().setRequiredProperty("foo").setNullableProperty(input);
         client.patchNonNull(bytesProperty);
     }
 
     @Test
-    void patchNullWithResponse() {
+    public void patchNullWithResponse() {
         client.patchNull(new BytesProperty().setRequiredProperty("foo").setNullableProperty(null));
     }
 
     @Test
-    void getNonNull() {
+    public void getNonNull() {
         BytesProperty response = client.getNonNull();
         Assertions.assertNotNull(response.getNullableProperty());
     }
 
     @Test
-    void getNull() {
+    public void getNull() {
         BytesProperty response = client.getNull();
         Assertions.assertNull(response.getNullableProperty());
     }

@@ -5,12 +5,12 @@ package server.path.single;
 
 import org.junit.jupiter.api.Test;
 
-class SingleClientTest {
+public class SingleClientTest {
 
-    SingleClient client = new SingleClientBuilder().endpoint("http://localhost:3000").buildClient();
+    private final SingleClient client = new SingleClientBuilder().endpoint("http://localhost:3000").buildClient();
 
     @Test
-    void myOp() {
+    public void myOp() {
         client.myOp();
     }
 }

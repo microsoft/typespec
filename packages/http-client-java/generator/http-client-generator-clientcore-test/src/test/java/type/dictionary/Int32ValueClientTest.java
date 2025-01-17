@@ -5,15 +5,16 @@ package type.dictionary;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class Int32ValueClientTest {
+public class Int32ValueClientTest {
 
-    Int32ValueClient client = new DictionaryClientBuilder().buildInt32ValueClient();
+    private final Int32ValueClient client = new DictionaryClientBuilder().buildInt32ValueClient();
 
     @Test
-    void get() {
+    public void get() {
         Map<String, Integer> response = client.get();
         Assertions.assertTrue(response.containsKey("k1"));
         Assertions.assertEquals(1, response.get("k1"));
@@ -22,7 +23,7 @@ class Int32ValueClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         Map<String, Integer> map = new HashMap<>();
         map.put("k1", 1);
         map.put("k2", 2);

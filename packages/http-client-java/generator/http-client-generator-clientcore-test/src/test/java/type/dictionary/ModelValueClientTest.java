@@ -5,17 +5,18 @@ package type.dictionary;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class ModelValueClientTest {
+public class ModelValueClientTest {
 
-    ModelValueClient client = new DictionaryClientBuilder().buildModelValueClient();
+    private final ModelValueClient client = new DictionaryClientBuilder().buildModelValueClient();
 
     @Test
     @Disabled("java.lang.ClassCastException: class java.util.LinkedHashMap cannot be cast to class type.dictionary.InnerModel")
-    void get() {
+    public void get() {
         Map<String, InnerModel> response = client.get();
         Assertions.assertTrue(response.containsKey("k1"));
         InnerModel innerModel1 = response.get("k1");
@@ -29,7 +30,7 @@ class ModelValueClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         Map<String, InnerModel> map = new HashMap<>();
         InnerModel innerModel1 = new InnerModel("hello");
         map.put("k1", innerModel1);

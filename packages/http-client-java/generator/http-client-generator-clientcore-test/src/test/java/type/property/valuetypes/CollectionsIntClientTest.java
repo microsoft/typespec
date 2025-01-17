@@ -5,15 +5,16 @@ package type.property.valuetypes;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class CollectionsIntClientTest {
+public class CollectionsIntClientTest {
 
-    CollectionsIntClient client = new ValueTypesClientBuilder().buildCollectionsIntClient();
+    private final CollectionsIntClient client = new ValueTypesClientBuilder().buildCollectionsIntClient();
 
     @Test
-    void get() {
+    public void get() {
         CollectionsIntProperty collectionsIntProperty = client.get();
         List<Integer> properties = collectionsIntProperty.getProperty();
         Assertions.assertEquals(1, properties.get(0));
@@ -21,7 +22,7 @@ class CollectionsIntClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         CollectionsIntProperty collectionsIntProperty = new CollectionsIntProperty(Arrays.asList(1, 2));
         client.put(collectionsIntProperty);
     }

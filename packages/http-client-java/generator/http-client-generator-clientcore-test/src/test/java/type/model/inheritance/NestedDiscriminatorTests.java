@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
 import type.model.inheritance.nesteddiscriminator.Fish;
 import type.model.inheritance.nesteddiscriminator.GoblinShark;
 import type.model.inheritance.nesteddiscriminator.NestedDiscriminatorClient;
@@ -17,24 +19,24 @@ import type.model.inheritance.nesteddiscriminator.Salmon;
 import type.model.inheritance.nesteddiscriminator.SawShark;
 import type.model.inheritance.nesteddiscriminator.Shark;
 
-class NestedDiscriminatorTests {
+public class NestedDiscriminatorTests {
 
-    NestedDiscriminatorClient client = new NestedDiscriminatorClientBuilder().buildClient();
+    private final NestedDiscriminatorClient client = new NestedDiscriminatorClientBuilder().buildClient();
 
     @Test
-    void getModel() {
+    public void getModel() {
         Fish fish = client.getModel();
         Assertions.assertEquals(1, fish.getAge());
     }
 
     @Test
-    void putModel() {
+    public void putModel() {
         Shark body = new GoblinShark(1);
         client.putModel(body);
     }
 
     @Test
-    void getRecursiveModel() {
+    public void getRecursiveModel() {
         Salmon salmon = (Salmon) client.getRecursiveModel();
         Assertions.assertEquals(2, salmon.getFriends().size());
         Assertions.assertEquals(2, salmon.getHate().size());
@@ -44,7 +46,7 @@ class NestedDiscriminatorTests {
     }
 
     @Test
-    void putRecursiveModel() {
+    public void putRecursiveModel() {
         Salmon salmon = new Salmon(1);
         salmon.setPartner(new SawShark(2));
 
@@ -73,13 +75,13 @@ class NestedDiscriminatorTests {
     }
 
     @Test
-    void getMissingDiscriminator() {
+    public void getMissingDiscriminator() {
         Fish fish = client.getMissingDiscriminator();
         Assertions.assertEquals(1, fish.getAge());
     }
 
     @Test
-    void getWrongDiscriminator() {
+    public void getWrongDiscriminator() {
         Fish fish = client.getWrongDiscriminator();
         Assertions.assertEquals(1, fish.getAge());
     }

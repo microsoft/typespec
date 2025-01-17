@@ -5,15 +5,16 @@ package type.property.optional;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class CollectionsModelClientTest {
+public class CollectionsModelClientTest {
 
-    CollectionsModelClient client = new OptionalClientBuilder().buildCollectionsModelClient();
+    private final CollectionsModelClient client = new OptionalClientBuilder().buildCollectionsModelClient();
 
     @Test
-    void getAll() {
+    public void getAll() {
         CollectionsModelProperty collectionsModelProperty = client.getAll();
         List<StringProperty> properties = collectionsModelProperty.getProperty();
         Assertions.assertEquals("hello", properties.get(0).getProperty());
@@ -21,13 +22,13 @@ class CollectionsModelClientTest {
     }
 
     @Test
-    void getDefault() {
+    public void getDefault() {
         CollectionsModelProperty collectionsModelProperty = client.getDefault();
         Assertions.assertNull(collectionsModelProperty.getProperty());
     }
 
     @Test
-    void putAll() {
+    public void putAll() {
         CollectionsModelProperty collectionsModelProperty = new CollectionsModelProperty();
         StringProperty stringProperty1 = new StringProperty();
         StringProperty stringProperty2 = new StringProperty();
@@ -38,7 +39,7 @@ class CollectionsModelClientTest {
     }
 
     @Test
-    void putDefault() {
+    public void putDefault() {
         CollectionsModelProperty collectionsModelProperty = new CollectionsModelProperty();
         client.putDefault(collectionsModelProperty);
     }

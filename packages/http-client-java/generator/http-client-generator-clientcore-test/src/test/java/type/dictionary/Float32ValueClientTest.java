@@ -5,22 +5,23 @@ package type.dictionary;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class Float32ValueClientTest {
+public class Float32ValueClientTest {
 
-    Float32ValueClient client = new DictionaryClientBuilder().buildFloat32ValueClient();
+    private final Float32ValueClient client = new DictionaryClientBuilder().buildFloat32ValueClient();
 
     @Test
-    void get() {
+    public void get() {
         Map<String, Double> response = client.get();
         Assertions.assertTrue(response.containsKey("k1"));
         Assertions.assertEquals(43.125, response.get("k1"));
     }
 
     @Test
-    void put() {
+    public void put() {
         Map<String, Double> map = new HashMap<>();
         map.put("k1", 43.125);
         client.put(map);

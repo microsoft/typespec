@@ -4,15 +4,16 @@
 package type.property.optional;
 
 import java.util.Arrays;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class CollectionsByteClientTest {
+public class CollectionsByteClientTest {
 
-    CollectionsByteClient client = new OptionalClientBuilder().buildCollectionsByteClient();
+    private final CollectionsByteClient client = new OptionalClientBuilder().buildCollectionsByteClient();
 
     @Test
-    void getAll() {
+    public void getAll() {
         CollectionsByteProperty collectionsByteProperty = client.getAll();
         for (byte[] p : collectionsByteProperty.getProperty()) {
             Assertions.assertNotNull(p);
@@ -20,13 +21,13 @@ class CollectionsByteClientTest {
     }
 
     @Test
-    void getDefault() {
+    public void getDefault() {
         CollectionsByteProperty collectionsByteProperty = client.getDefault();
         Assertions.assertNull(collectionsByteProperty.getProperty());
     }
 
     @Test
-    void putAll() {
+    public void putAll() {
         CollectionsByteProperty collectionsByteProperty = new CollectionsByteProperty();
         byte[] byteProperty = new byte[] { 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33 };
         collectionsByteProperty.setProperty(Arrays.asList(byteProperty, byteProperty));
@@ -34,7 +35,7 @@ class CollectionsByteClientTest {
     }
 
     @Test
-    void putDefault() {
+    public void putDefault() {
         CollectionsByteProperty collectionsByteProperty = new CollectionsByteProperty();
         client.putDefault(collectionsByteProperty);
     }
