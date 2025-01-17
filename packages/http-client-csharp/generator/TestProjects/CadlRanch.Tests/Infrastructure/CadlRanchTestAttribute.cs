@@ -15,7 +15,7 @@ using NUnit.Framework.Internal;
 namespace TestProjects.CadlRanch.Tests
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public partial class CadlRanchTestAttribute : TestAttribute, IApplyToTest
+    internal partial class CadlRanchTestAttribute : TestAttribute, IApplyToTest
     {
         [GeneratedRegex("(?<=[a-z])([A-Z])")]
         private static partial Regex ToKebabCase();

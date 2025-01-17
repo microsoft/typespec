@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var inputOperation = InputFactory.Operation("testOperation", parameters: [param], responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
             var inputClient = InputFactory.Client("fooClient", operations: [inputOperation], parameters: [param]);
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
-                "test library",
+                "Sample",
                 models: [inputModel],
                 clients: [inputClient]));
 
@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
 
             var inputClient = InputFactory.Client("fooClient");
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
-                "test library",
+                "Sample",
                 clients: [inputClient]));
 
             var mockOutputLibrary = new Mock<ScmOutputLibrary> { CallBase = true };
