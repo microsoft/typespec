@@ -73,7 +73,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N",
+        message: "'using N' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -109,12 +109,12 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N",
+        message: "'using N' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using N",
+        message: "'using N' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -151,12 +151,12 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N",
+        message: "'using N' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using M",
+        message: "'using M' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -193,7 +193,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using M",
+        message: "'using M' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -226,7 +226,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using M",
+        message: "'using M' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -251,7 +251,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N",
+        message: "'using N' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -288,12 +288,12 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N.M",
+        message: "'using N.M' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using N.M",
+        message: "'using N.M' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -335,12 +335,12 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using TypeSpec.Xyz",
+        message: "'using TypeSpec.Xyz' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Xyz",
+        message: "'using Xyz' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -371,12 +371,12 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N.A",
+        message: "'using N.A' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using M.A",
+        message: "'using M.A' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -443,7 +443,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N.M",
+        message: "'using N.M' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -543,7 +543,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using M",
+        message: "'using M' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -615,47 +615,47 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using Ns1",
+        message: "'using Ns1' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Ns1.Ns2",
+        message: "'using Ns1.Ns2' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Ns1.Ns2.Ns3",
+        message: "'using Ns1.Ns2.Ns3' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Ns1.Ns2",
+        message: "'using Ns1.Ns2' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Ns1.Ns2.Ns3",
+        message: "'using Ns1.Ns2.Ns3' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Ns1",
+        message: "'using Ns1' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Ns1.Ns2.Ns3",
+        message: "'using Ns1.Ns2.Ns3' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Ns1",
+        message: "'using Ns1' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using Ns1.Ns2",
+        message: "'using Ns1.Ns2' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -730,7 +730,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using TypeSpec",
+        message: "'using TypeSpec' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -764,7 +764,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using Other",
+        message: "'using Other' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -807,7 +807,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using LibNs",
+        message: "'using LibNs' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -877,7 +877,7 @@ describe("compiler: unused using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using Other",
+        message: "'using Other' is declared but never used.",
         severity: "hint",
       },
     ]);

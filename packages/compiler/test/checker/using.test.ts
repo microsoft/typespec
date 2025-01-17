@@ -127,7 +127,7 @@ describe("compiler: using statements", () => {
     expectDiagnostics(diags, [
       {
         code: "unused-using",
-        message: "Unused using: using A",
+        message: "'using A' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -197,12 +197,12 @@ describe("compiler: using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N.A",
+        message: "'using N.A' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using M.A",
+        message: "'using M.A' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -230,17 +230,17 @@ describe("compiler: using statements", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "unused-using",
-          message: "Unused using: using A",
+          message: "'using A' is declared but never used.",
           severity: "hint",
         },
         {
           code: "unused-using",
-          message: "Unused using: using A",
+          message: "'using A' is declared but never used.",
           severity: "hint",
         },
         {
           code: "unused-using",
-          message: "Unused using: using A",
+          message: "'using A' is declared but never used.",
           severity: "hint",
         },
       ]);
@@ -311,12 +311,12 @@ describe("compiler: using statements", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "unused-using",
-        message: "Unused using: using N",
+        message: "'using N' is declared but never used.",
         severity: "hint",
       },
       {
         code: "unused-using",
-        message: "Unused using: using M",
+        message: "'using M' is declared but never used.",
         severity: "hint",
       },
     ]);
@@ -560,7 +560,7 @@ describe("compiler: using statements", () => {
     expectDiagnostics(diags, [
       {
         code: "unused-using",
-        message: "Unused using: using N",
+        message: "'using N' is declared but never used.",
         severity: "hint",
       },
     ]);

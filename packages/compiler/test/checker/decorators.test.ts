@@ -46,7 +46,7 @@ describe("compiler: checker: decorators", () => {
     const unnecessaryDiags: DiagnosticMatch[] = [
       {
         code: "unused-using",
-        message: `Unused using: using TypeSpec.Reflection`,
+        message: `'using TypeSpec.Reflection' is declared but never used.`,
         severity: "hint",
       },
     ];
@@ -182,7 +182,7 @@ describe("compiler: checker: decorators", () => {
     const unnecessaryDiags: DiagnosticMatch[] = [
       {
         code: "unused-using",
-        message: `Unused using: using TypeSpec.Reflection`,
+        message: `'using TypeSpec.Reflection' is declared but never used.`,
         severity: "hint",
       },
     ];
