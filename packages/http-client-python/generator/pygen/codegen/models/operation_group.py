@@ -9,7 +9,7 @@ from .utils import OrderedSet
 
 from .base import BaseModel
 from .operation import get_operation
-from .imports import FileImport, ImportType, TypingSection
+from .imports import FileImport, ImportType, TypingSection, MsrestImportType
 from .utils import add_to_pylint_disable, NamespaceType
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation
@@ -151,6 +151,31 @@ class OperationGroup(BaseModel):
                 ),
                 f"{self.client.name}MixinABC",
                 ImportType.LOCAL,
+            )
+        else:
+            file_import.add_submodule_import(
+                "" if self.code_model.is_azure_flavor else "runtime",
+                f"{'Async' if async_mode else ''}PipelineClient",
+                ImportType.SDKCORE,
+            )
+            file_import.add_submodule_import(
+                self.code_model.get_relative_import_path(
+                    serialize_namespace,
+                    self.code_model.get_imported_namespace_for_client(self.client.client_namespace, async_mode),
+                    module_name="_configuration",
+                ),
+                f"{self.client.name}Configuration",
+                ImportType.LOCAL,
+            )
+            file_import.add_msrest_import(
+                serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
+                msrest_import_type=MsrestImportType.Serializer,
+                typing_section=TypingSection.REGULAR,
+            )
+            file_import.add_msrest_import(
+                serialize_namespace=kwargs.get("serialize_namespace", self.code_model.namespace),
+                msrest_import_type=MsrestImportType.SerializerDeserializer,
+                typing_section=TypingSection.REGULAR,
             )
         if self.has_abstract_operations:
             file_import.add_submodule_import(

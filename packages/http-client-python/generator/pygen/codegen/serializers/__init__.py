@@ -159,7 +159,9 @@ class JinjaSerializer(ReaderAndWriter):
                 self._serialize_and_write_top_level_folder(env=env, namespace=client_namespace)
 
             # add models folder if there are models in this namespace
-            if (client_namespace_type.models or client_namespace_type.enums) and self.code_model.options["models_mode"]:
+            if (
+                self.code_model.has_non_json_models(client_namespace_type.models) or client_namespace_type.enums
+            ) and self.code_model.options["models_mode"]:
                 self._serialize_and_write_models_folder(
                     env=env,
                     namespace=client_namespace,
@@ -180,6 +182,14 @@ class JinjaSerializer(ReaderAndWriter):
                 )
                 if self.code_model.options["multiapi"]:
                     self._serialize_and_write_metadata(env=env, namespace=client_namespace)
+
+            # if there are only operations under this namespace, we need to add general __init__.py into `aio` folder
+            # to make sure all generated files could be packed into .zip/.whl/.tgz package
+            if not client_namespace_type.clients and client_namespace_type.operation_groups and self.has_aio_folder:
+                self.write_file(
+                    exec_path / Path("aio/__init__.py"),
+                    general_serializer.serialize_pkgutil_init_file(),
+                )
 
     def _serialize_and_write_package_files(self, client_namespace: str) -> None:
         root_of_sdk = self.exec_path(client_namespace)
@@ -230,7 +240,7 @@ class JinjaSerializer(ReaderAndWriter):
         # Write the models folder
         models_path = self.exec_path(namespace + ".models")
         serializer = DpgModelSerializer if self.code_model.options["models_mode"] == "dpg" else MsrestModelSerializer
-        if models:
+        if self.code_model.has_non_json_models(models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
                 serializer(code_model=self.code_model, env=env, client_namespace=namespace, models=models).serialize(),

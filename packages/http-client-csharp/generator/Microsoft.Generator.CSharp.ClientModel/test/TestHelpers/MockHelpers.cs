@@ -55,7 +55,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
             Func<InputLibrary>? createInputLibrary = null,
-            Func<InputClient, ClientProvider>? createClientCore = null,
+            Func<InputClient, ClientProvider?>? createClientCore = null,
             string? configuration = null,
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
@@ -97,9 +97,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns(createCSharpTypeCore);
             }
 
-            if ( createClientCore is not null)
+            if (createClientCore is not null)
             {
-                mockTypeFactory.Protected().Setup<ClientProvider>("CreateClientCore", ItExpr.IsAny<InputClient>()).Returns(createClientCore);
+                mockTypeFactory.Protected().Setup<ClientProvider?>("CreateClientCore", ItExpr.IsAny<InputClient>()).Returns(createClientCore);
             }
 
             // initialize the mock singleton instance of the plugin

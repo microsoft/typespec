@@ -1,11 +1,29 @@
 import vscode from "vscode";
-import { LogItem, LogListener, LogOptions } from "./logger.js";
+import { LogItem, LogLevel, LogListener, LogOptions } from "./logger.js";
 
 export interface ExtensionLogOptions extends LogOptions {
   /** show the Output window in vscode */
-  showOutput: boolean;
+  showOutput?: boolean;
   /** show the log in vscode popup */
-  showPopup: boolean;
+  showPopup?: boolean;
+  /** the text of the button in the popup notification, default is 'View details in Output' */
+  popupButtonText?: string;
+  /** callback when the button in the popup notification is clicked, default is to open the TypeSpec Output */
+  onPopupButtonClicked?: () => void;
+}
+
+export function getPopupAction(loglevel: LogLevel) {
+  switch (loglevel) {
+    case "error":
+      return vscode.window.showErrorMessage;
+    case "warn":
+      return vscode.window.showWarningMessage;
+    case "debug":
+    case "info":
+      return vscode.window.showInformationMessage;
+    default: // trace
+      return undefined;
+  }
 }
 
 export class ExtensionLogListener implements LogListener {
@@ -13,27 +31,30 @@ export class ExtensionLogListener implements LogListener {
 
   Log(log: LogItem) {
     const VIEW_DETAIL_IN_OUTPUT = "View details in Output";
-    const { showOutput, showPopup } = log.options ?? { showOutput: false, showPopup: false };
+    const { showOutput, showPopup, popupButtonText, onPopupButtonClicked } = log.options ?? {
+      showOutput: false,
+      showPopup: false,
+    };
     let popupAction: ((msg: string, ...items: string[]) => Thenable<string>) | undefined;
     switch (log.level) {
       case "error":
         this.outputChannel?.error(log.message, ...(log.details ?? []));
-        popupAction = vscode.window.showErrorMessage;
+        popupAction = getPopupAction(log.level);
         break;
       case "trace":
         this.outputChannel?.trace(log.message, ...(log.details ?? []));
         break;
       case "debug":
         this.outputChannel?.debug(log.message, ...(log.details ?? []));
-        popupAction = vscode.window.showInformationMessage;
+        popupAction = getPopupAction(log.level);
         break;
       case "info":
         this.outputChannel?.info(log.message, ...(log.details ?? []));
-        popupAction = vscode.window.showInformationMessage;
+        popupAction = getPopupAction(log.level);
         break;
       case "warn":
         this.outputChannel?.warn(log.message, ...(log.details ?? []));
-        popupAction = vscode.window.showWarningMessage;
+        popupAction = getPopupAction(log.level);
         break;
     }
     if (showOutput && this.outputChannel) {
@@ -41,9 +62,14 @@ export class ExtensionLogListener implements LogListener {
     }
 
     if (showPopup && popupAction) {
-      void popupAction(log.message, VIEW_DETAIL_IN_OUTPUT).then((value) => {
-        if (value === VIEW_DETAIL_IN_OUTPUT) {
-          this.outputChannel?.show(true /*preserveFocus*/);
+      const buttonText = popupButtonText ?? VIEW_DETAIL_IN_OUTPUT;
+      void popupAction(log.message, buttonText).then((value) => {
+        if (value === buttonText) {
+          if (onPopupButtonClicked) {
+            onPopupButtonClicked();
+          } else {
+            this.outputChannel?.show(true /*preserveFocus*/);
+          }
         }
       });
     }

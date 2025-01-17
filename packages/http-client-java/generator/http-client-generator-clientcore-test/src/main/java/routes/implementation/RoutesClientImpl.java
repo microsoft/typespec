@@ -281,8 +281,8 @@ public final class RoutesClientImpl {
      * @param endpoint Service host.
      */
     public RoutesClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.pathParameters = new PathParametersImpl(this);
         this.pathParametersReservedExpansions = new PathParametersReservedExpansionsImpl(this);
         this.pathParametersSimpleExpansionStandards = new PathParametersSimpleExpansionStandardsImpl(this);

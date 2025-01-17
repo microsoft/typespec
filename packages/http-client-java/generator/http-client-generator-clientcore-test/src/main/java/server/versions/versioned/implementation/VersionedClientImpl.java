@@ -75,9 +75,9 @@ public final class VersionedClientImpl {
      * @param serviceVersion Service version.
      */
     public VersionedClientImpl(HttpPipeline httpPipeline, String endpoint, VersionedServiceVersion serviceVersion) {
-        this.endpoint = endpoint;
-        this.serviceVersion = VersionedServiceVersion.getLatest();
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
+        this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(VersionedClientService.class, this.httpPipeline);
     }
 

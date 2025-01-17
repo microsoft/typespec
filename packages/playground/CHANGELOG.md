@@ -1,5 +1,12 @@
 # Change Log - @typespec/playground
 
+## 0.7.0
+
+### Features
+
+- [#5372](https://github.com/microsoft/typespec/pull/5372) Add support for displaying array-based emitter options
+
+
 ## 0.6.1
 
 No changes, version bump only.

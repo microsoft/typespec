@@ -51,10 +51,10 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+        protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override XmlDocProvider BuildXmlDocs()
         {
@@ -115,7 +115,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 docs.Returns = new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking.");
                 foreach (var param in signature.Parameters)
                 {
-                    docs.Params.Add(new XmlDocParamStatement(param.Name, param.Description));
+                    docs.Params.Add(new XmlDocParamStatement(param));
                 }
 
                 var statements = new MethodBodyStatements(

@@ -62,8 +62,8 @@ public final class VisibilityClientImpl {
      * @param endpoint Service host.
      */
     public VisibilityClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(VisibilityClientService.class, this.httpPipeline);
     }
 

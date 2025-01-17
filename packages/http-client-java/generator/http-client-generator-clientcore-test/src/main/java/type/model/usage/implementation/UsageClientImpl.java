@@ -62,8 +62,8 @@ public final class UsageClientImpl {
      * @param endpoint Service host.
      */
     public UsageClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(UsageClientService.class, this.httpPipeline);
     }
 

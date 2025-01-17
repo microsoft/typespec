@@ -3,7 +3,6 @@
 
 using System;
 using System.ClientModel;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
