@@ -4,7 +4,7 @@
 # ------------------------------------
 import traceback
 import pytest
-from typetest.scalar.aio import ScalarClient
+from type.scalar.aio import ScalarClient
 from corehttp.exceptions import HttpResponseError
 
 
