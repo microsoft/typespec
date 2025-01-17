@@ -69,7 +69,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.SingleDiscri
             var result = await new SingleDiscriminatorClient(host, null).GetMissingDiscriminatorAsync();
             Assert.IsTrue(result.Value is Bird);
 
-            var unknownBirdType = typeof(Bird).Assembly.GetType("_Type.Model.Inheritance.SingleDiscriminator.Models.UnknownBird");
+            var unknownBirdType = typeof(Bird).Assembly.GetType("_Type.Model.Inheritance.SingleDiscriminator.UnknownBird");
+            Assert.IsNotNull(unknownBirdType);
             Assert.AreEqual(unknownBirdType, result.Value.GetType());
             Assert.AreEqual(1, result.Value.Wingspan);
 
@@ -83,7 +84,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.SingleDiscri
             var result = await new SingleDiscriminatorClient(host, null).GetWrongDiscriminatorAsync();
             Assert.IsTrue(result.Value is Bird);
 
-            var unknownBirdType = typeof(Bird).Assembly.GetType("_Type.Model.Inheritance.SingleDiscriminator.Models.UnknownBird");
+            var unknownBirdType = typeof(Bird).Assembly.GetType("_Type.Model.Inheritance.SingleDiscriminator.UnknownBird");
+            Assert.IsNotNull(unknownBirdType);
             Assert.AreEqual(unknownBirdType, result.Value.GetType());
             Assert.AreEqual(1, result.Value.Wingspan);
 

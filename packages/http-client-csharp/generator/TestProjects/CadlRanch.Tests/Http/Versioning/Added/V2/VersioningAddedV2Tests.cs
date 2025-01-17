@@ -32,11 +32,11 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.IsTrue(enumValues.Contains("EnumMemberV2"));
 
             /* check existence of the added model ModelV2. */
-            var modelV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.V2.Models.ModelV2");
+            var modelV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.ModelV2");
             Assert.IsNotNull(modelV2Type);
 
             /* check existence of the added enum EnumV2. */
-            var enumV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.V2.Models.EnumV2");
+            var enumV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.EnumV2");
             Assert.IsNotNull(enumV2Type);
 
             /* check the added parameter. */
@@ -55,7 +55,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.AreEqual(4, addedMethods.Count());
 
             /* check the existence of added interface in V2. */
-            var interfaceV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.V2.InterfaceV2");
+            var interfaceV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.InterfaceV2");
             Assert.IsNotNull(interfaceV2Type);
         }
 
