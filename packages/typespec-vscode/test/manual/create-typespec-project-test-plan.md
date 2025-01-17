@@ -189,15 +189,17 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
 4. Install the libraries. _(optional)_
 
-   If you choose the stand alone project, need to install some libraries. If you choose the rest-api-spec repo project, skip to the next step.
+   If you choose the `stand alone` project, need to install some libraries. If you choose the `rest-api-spec repo` project, skip to the next step.
+
+   **Validate:** Will it appear: `Here are libraries to install.`
 
    ![alt text](./images/CreateTypeSpecProject_StandAlone_InstallLibraries.png)
 
-5. Input service namespace - _(Text input)_ requires Pascal format.
+6. Input service namespace - _(Text input)_ requires Pascal format.
 
    ![alt text](./images/CreateTypeSpecProject_InputServiceNamespace.png)
 
-6. Press "Enter" and the project will be created.
+7. Press "Enter" and the project will be created.
 
    - For `rest-api-spec repo`:
 
