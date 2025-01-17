@@ -73,7 +73,7 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
 ![alt text](./images/GeneratefromTypeSpec_SelectEmitter_client.png)
 
-### Step 4: Click an Emitter Type, Select a Language and Generate Code.
+### Step 5: Click an Emitter Type, Select a Language and Generate Code.
 
 - For Emitter Type `Client Code`:
 
@@ -85,13 +85,25 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      ![alt text](./images/GeneratefromTypeSpec_SelectClientLanguage.png)
 
-  2. Select a Language, confirm the TypeSpec emitters you want to install and their minimum requirements.
+  2. Select a Language, Confirm the emitter type. (e.g. Select `DotNet`)
 
-     **Validate:** There should be a prompt `Here are libraries to install or update`, and TypeSpec emitters to install and their minimum requirements.
+     **Validate**: There should be a prompt `Select an emitter for code generation`.
 
-     ![alt text](./images/GenerateClientCode_ConfirmTypeSpecEmitters.png)
+     ![alt text](./images/GenerateClientCode_ConfirmEmittersType_DotNet.png)
 
-  3. Initiate the generation of client code on the backend.
+  3. Check if the package needs to be installed or updated.
+
+     ![alt text](./images/GenerateClientCode_CheckPackageInstalledOrUpdated_DotNet.png)
+
+     - If installation or update is required, it will prompt `Here are libraries to install or update`.
+
+       **Validate:** There should be a prompt `Here are libraries to install or update`, and TypeSpec emitters to install and their minimum requirements.
+
+       ![alt text](./images/GenerateClientCode_ConfirmTypeSpecEmitters.png)
+
+     - If already installed, it will be skipped.
+
+  4. Initiate the generation of client code on the backend.
 
      **Validate:** The emitter package is already installed and the client folder is generated. The result appears in the lower right corner as a notification.
 
@@ -161,9 +173,9 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      ![alt text](./images/GeneratefromTypeSpec_SelectOpenAPILanguage.png)
 
-  2. Select a Language, confirming installation of the required TypeSpec library @typespec/openapi3.
+  2. Select a Language, confirming installation of the required TypeSpec library `@typespec/openapi3`.
 
-     **Validate**: There should be a prompt `Here are libraries to install or update`, and confirming installation of the required TypeSpec library @typespec/openapi3.
+     **Validate**: There should be a prompt `Select an emitter for code generation`, and confirming installation of the required TypeSpec library `@typespec/openapi3`.
 
      ![alt text](./images/GenerateOpenAPI_ConfirmTypeSpecEmitters.png)
 
@@ -180,7 +192,7 @@ When an error is detected, it's necessary to document the findings by using the 
 
 | No  |              Title               | Emitter Type |              Language              |                       Issue Description                        |                                                                                       Repro Steps                                                                                       |                 Expected Results                  |                         Actual Results                         |  Comments  |
 | --- | :------------------------------: | :----------: | :--------------------------------: | :------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------: | :------------------------------------------------------------: | :--------: |
-| 1   | e.g. Generate Client Code failed | Client Code  | DotNet/ Java / JavaScript / Python | Exception occurred when generating client code for JavaScript. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language. | Generate client code for JavaScript ...Succeeded. | Exception occurred when generating client code for JavaScript. | Issue link |
+| 1   | e.g. Generate Client Code failed | Client Code  | DotNet/ Java / JavaScript / Python | Exception occurred when generating client code for JavaScript. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. Choose a project. <br> 3. Select a template. <br> 4. Select an Emitter Type. <br> 5. Select a Language. | Generate client code for JavaScript ...Succeeded. | Exception occurred when generating client code for JavaScript. | Issue link |
 
 ## Test Results Summary
 

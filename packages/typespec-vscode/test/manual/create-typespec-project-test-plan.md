@@ -189,6 +189,7 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
    ![alt text](./images/CreateTypeSpecProject_Generate_ignoreFile.png)
 
 4. Install the libraries. _(optional)_
+
    If you choose the stand alone project, need to install some libraries. If you choose the rest-api-spec repo project, skip to the next step.
 
    ![alt text](./images/CreateTypeSpecProject_StandAlone_InstallLibraries.png)
@@ -199,10 +200,20 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
 6. Press "Enter" and the project will be created.
 
-   **Validate:** Verify that the project was created correctly.
+   - For `rest-api-spec repo`:
 
-   ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateProject.png)
-   ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder.png)
+     **Validate:** Verify that the project was created correctly.
+
+     ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateProject.png)
+     ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder.png)
+
+   - For `stand alone`:
+
+     **Validate:** Verify that the project was created correctly.
+
+     ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateProject.png)
+     ![alt text](./images/CreateTypeSpecProject_TestCase_2_InstallDependencies.png)
+     ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder_standalone.png)
 
 ## Issue Report
 

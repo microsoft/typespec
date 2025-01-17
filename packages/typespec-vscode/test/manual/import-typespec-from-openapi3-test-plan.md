@@ -42,6 +42,16 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_ConfirmProjectFolder.png)
 
+- Select a non-empty folder:
+
+  **Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
+
+  ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
+
+- Select a empty folder:
+
+  If the folder is empty, skip the query and go to the next step.
+
 ### Step 4: Specify the OpenAPI3 specification to convert.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_SpecifyOpenAPI3Specification.png)
@@ -49,6 +59,15 @@ _Option 2_. Install typespec with vscode extension marketplace:
 ### Step 5: Verify that `@typespec/http` and `@typespec/openapi3` are installed.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyInstallaDependencies.png)
+
+### Step 6: Importing from OpenAPI will run on the backend.
+
+![alt text](./images/ImportTypeSpecfromOpenAPI3_ImportingOpenapi3.png)
+![alt text](./images/ImportTypeSpecfromOpenAPI3_ImportingOpenapi3Succeeded.png)
+
+After Importing from OpenAPI succeeded, the corresponding .tsp file will be generated in the target file.
+
+![alt text](./images/ImportTypeSpecfromOpenAPI3_ImportingOpenapi3_TspFile.png)
 
 ## Issue Report
 
