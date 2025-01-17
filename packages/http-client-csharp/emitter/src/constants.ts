@@ -7,4 +7,4 @@ export const projectedNameClientKey = "client";
 export const mockApiVersion = "0000-00-00";
 export const tspOutputFileName = "tspCodeModel.json";
 export const configurationFileName = "Configuration.json";
-export const minSupportedDotNetSdkVersion = "8";
+export const minSupportedDotNetSdkVersion = 8;

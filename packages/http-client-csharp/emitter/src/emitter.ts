@@ -204,7 +204,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
  * @param program The typespec compiler program
  * @param minVersionRequisite The minimum required major version
  */
-async function validateDotNetSdk(program: Program, minMajorVersion: string): Promise<boolean> {
+async function validateDotNetSdk(program: Program, minMajorVersion: number): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
     const dotnetVersion = result.stdout;
@@ -214,14 +214,14 @@ async function validateDotNetSdk(program: Program, minMajorVersion: string): Pro
         Logger.getInstance().error("Invalid .NET SDK version.");
         return false;
       }
-      const major = versions[0];
+      const major = +versions[0];
       if (major < minMajorVersion) {
         reportDiagnostic(program, {
           code: "invalid-dotnet-sdk-dependency",
           messageId: "invalidVersion",
           format: {
             installedVersion: dotnetVersion,
-            dotnetMajorVersion: minMajorVersion,
+            dotnetMajorVersion: `${minMajorVersion}`,
             downloadUrl: "https://dotnet.microsoft.com/",
           },
           target: NoTarget,
@@ -239,7 +239,7 @@ async function validateDotNetSdk(program: Program, minMajorVersion: string): Pro
         code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
         format: {
-          dotnetMajorVersion: minMajorVersion,
+          dotnetMajorVersion: `${minMajorVersion}`,
           downloadUrl: "https://dotnet.microsoft.com/",
         },
         target: NoTarget,
