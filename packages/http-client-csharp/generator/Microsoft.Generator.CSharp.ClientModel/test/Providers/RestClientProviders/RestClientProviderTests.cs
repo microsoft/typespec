@@ -20,7 +20,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.RestClientProvi
     {
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
-            string.Empty,
             usage: InputModelTypeUsage.Spread,
             properties:
             [

@@ -12,10 +12,10 @@ namespace Microsoft.Generator.CSharp.Input.Tests
         public void EnclosingTypeIsSet()
         {
             var property = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
-            var model1 = InputFactory.Model("foo", "internal", usage: InputModelTypeUsage.Input, properties: [property]);
+            var model1 = InputFactory.Model("foo", usage: InputModelTypeUsage.Input, properties: [property]);
             Assert.AreEqual(model1, property.EnclosingType);
 
-            var model2 = InputFactory.Model("bar", "internal", usage: InputModelTypeUsage.Input, properties: [property]);
+            var model2 = InputFactory.Model("bar", usage: InputModelTypeUsage.Input, properties: [property]);
             Assert.AreEqual(model2, property.EnclosingType);
         }
     }

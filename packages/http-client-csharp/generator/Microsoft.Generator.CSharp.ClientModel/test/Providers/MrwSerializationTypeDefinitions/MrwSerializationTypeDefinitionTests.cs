@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public void TestBuildImplements()
         {
             // mock the model type provider
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
 
             var interfaces = serialization.Implements;
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(false)]
         public void TestBuildJsonModelWriteCoreMethod(bool isStruct)
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: isStruct);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: isStruct);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelWriteCoreMethod();
 
@@ -104,7 +104,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildJsonModelWriteMethodObjectDeclaration()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelWriteMethodObjectDeclaration();
 
@@ -138,7 +138,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildJsonModelCreateMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelCreateMethod();
 
@@ -163,7 +163,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(false)]
         public void TestBuildJsonModelCreateCoreMethod(bool isStruct)
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: isStruct);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: isStruct);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelCreateCoreMethod();
 
@@ -206,7 +206,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildJsonModelCreateMethodObjectDeclaration()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildJsonModelCreateMethodObjectDeclaration();
 
@@ -241,7 +241,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelWriteMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelWriteMethod();
 
@@ -262,7 +262,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(false)]
         public void TestBuildPersistableModelWriteCoreMethod(bool isStruct)
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: isStruct);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: isStruct);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelWriteCoreMethod();
 
@@ -306,7 +306,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelWriteMethodObjectDeclaration()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelWriteMethodObjectDeclaration();
 
@@ -340,7 +340,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelCreateMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelCreateMethod();
 
@@ -367,7 +367,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(false)]
         public void TestBuildPersistableModelCreateCoreMethod(bool isStruct)
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: isStruct);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: isStruct);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
 
             Assert.IsNotNull(serialization);
@@ -413,7 +413,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void BuildPersistableModelCreateMethodObjectDeclaration()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelCreateMethodObjectDeclaration();
 
@@ -447,7 +447,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelDeserializationMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelCreateMethod();
 
@@ -467,7 +467,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelGetFormatMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelGetFormatFromOptionsMethod();
 
@@ -490,7 +490,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildPersistableModelGetFormatMethodObjectDeclaration()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: true);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: true);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var method = serialization.BuildPersistableModelGetFormatFromOptionsObjectDeclaration();
 
@@ -523,7 +523,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildFields()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (_, serialization) = CreateModelAndSerialization(inputModel);
             var fields = serialization.Fields;
 
@@ -542,7 +542,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputFactory.Property("requiredDictionary", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: true),
              };
 
-            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: properties);
+            var inputModel = InputFactory.Model("TestModel", properties: properties);
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
             var ctors = serialization.Constructors;
@@ -558,7 +558,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildDeserializationMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
 
             var deserializationMethod = serialization.BuildDeserializationMethod();
@@ -580,9 +580,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildDeserializationMethodNestedSARD()
         {
-            var baseModel = InputFactory.Model("BaseModel", string.Empty);
-            var nestedModel = InputFactory.Model("NestedModel", string.Empty, baseModel: baseModel);
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, baseModel: nestedModel);
+            var baseModel = InputFactory.Model("BaseModel");
+            var nestedModel = InputFactory.Model("NestedModel", baseModel: baseModel);
+            var inputModel = InputFactory.Model("mockInputModel", baseModel: nestedModel);
             var (baseModelProvider, baseSerialization) = CreateModelAndSerialization(baseModel);
             var (nestedModelProvider, nestedSerialization) = CreateModelAndSerialization(nestedModel);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
@@ -615,7 +615,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(false)]
         public void TestBuildImplicitToBinaryContent(bool useStruct)
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, modelAsStruct: useStruct);
+            var inputModel = InputFactory.Model("mockInputModel", modelAsStruct: useStruct);
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var methods = serialization.Methods;
 
@@ -644,7 +644,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void TestBuildExplicitFromClientResult()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty);
+            var inputModel = InputFactory.Model("mockInputModel");
             var (model, serialization) = CreateModelAndSerialization(inputModel);
             var methods = serialization.Methods;
 

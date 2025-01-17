@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: MockPluginSetValue(properties));
 
-            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: properties);
+            var inputModel = InputFactory.Model("TestModel", properties: properties);
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();
@@ -60,7 +60,7 @@ namespace Microsoft.Generator.CSharp.Tests.Writers
             var properties = new List<InputModelProperty> { RequiredStringProperty, RequiredIntProperty };
             MockHelpers.LoadMockPlugin(createCSharpTypeCore: MockPluginSetValue(properties));
 
-            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: properties, modelAsStruct: true);
+            var inputModel = InputFactory.Model("TestModel", properties: properties, modelAsStruct: true);
 
             var modelProvider = new ModelProvider(inputModel);
             var codeFile = new TypeProviderWriter(modelProvider).Write();

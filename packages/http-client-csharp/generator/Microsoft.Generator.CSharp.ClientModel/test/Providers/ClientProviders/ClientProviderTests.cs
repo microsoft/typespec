@@ -31,7 +31,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
-            string.Empty,
             usage: InputModelTypeUsage.Spread,
             properties:
             [
@@ -1123,7 +1122,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 isRequired: true),
                             InputFactory.Parameter(
                                 "p2",
-                                InputFactory.Model("SampleModel", string.Empty),
+                                InputFactory.Model("SampleModel"),
                                 location: RequestLocation.Body,
                                 isRequired: true),
                         ]), true, false);
@@ -1142,7 +1141,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                                 isRequired: true),
                             InputFactory.Parameter(
                                 "p2",
-                                InputFactory.Model("SampleModel", string.Empty),
+                                InputFactory.Model("SampleModel"),
                                 location: RequestLocation.Body,
                                 isRequired: false),
                         ]), true, true);
@@ -1151,7 +1150,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 yield return new TestCaseData(
                     InputFactory.Operation(
                         "TestOperation",
-                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel", string.Empty))],
+                        responses: [InputFactory.OperationResponse([201], InputFactory.Model("testModel"))],
                         parameters: []),
                     false, false);
             }

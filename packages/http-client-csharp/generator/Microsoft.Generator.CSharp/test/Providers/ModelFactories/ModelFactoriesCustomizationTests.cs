@@ -22,7 +22,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         properties:
                         [
                             InputFactory.Property("Prop1", InputPrimitiveType.String),
@@ -30,7 +29,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                         ]),
                     InputFactory.Model(
                         "otherModel",
-                        string.Empty,
                         properties: [InputFactory.Property("Prop2", InputPrimitiveType.String)]),
                ],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -69,7 +67,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         // specify a different property to ensure the method is not replaced
                         properties: [InputFactory.Property("Prop2", InputPrimitiveType.String)])
                 ]);
@@ -104,7 +101,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         properties:
                         [
                             InputFactory.Property("Prop1", InputPrimitiveType.String),
@@ -112,7 +108,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                         ]),
                     InputFactory.Model(
                         "otherModel",
-                        string.Empty,
                         properties: [InputFactory.Property("Prop2", InputPrimitiveType.String)]),
                 ],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -138,7 +133,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         properties:
                         [
                             InputFactory.Property("Prop1", InputPrimitiveType.String, isRequired: true),

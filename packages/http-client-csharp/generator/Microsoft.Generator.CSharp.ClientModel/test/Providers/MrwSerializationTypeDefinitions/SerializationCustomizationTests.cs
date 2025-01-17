@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("Model", string.Empty, properties: props, usage: InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("Model", properties: props, usage: InputModelTypeUsage.Json);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModels: () => [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -42,8 +42,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task ReadOnlyMemPropertyType()
         {
-            var inputModel = InputFactory.Model("Model", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("Model", properties: [
                     InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String)),
                     InputFactory.Property("Prop2", InputFactory.Array(InputPrimitiveType.String))
                     ],
@@ -66,8 +65,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanCustomizeSerializationMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                         InputFactory.Property("Prop1", InputPrimitiveType.String),
                         InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
                     ],
@@ -89,8 +87,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanCustomizeSerializationMethodForRenamedProperty()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     InputFactory.Property("Prop1", InputPrimitiveType.String),
                     InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
                     ],
@@ -117,14 +114,12 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         {
             var baseModel = InputFactory.Model(
                 "baseModel",
-                string.Empty,
                 usage: InputModelTypeUsage.Input,
                 properties: [InputFactory.Property("Prop1", InputPrimitiveType.Int32, isRequired: true)]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModels: () => [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         usage: InputModelTypeUsage.Json,
                         properties:
                         [
@@ -148,8 +143,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanChangePropertySerializedName()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     InputFactory.Property("Name", InputPrimitiveType.String),
                     InputFactory.Property("Color", InputPrimitiveType.String),
                     InputFactory.Property("Flavor", InputPrimitiveType.String)
@@ -189,8 +183,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanChangeDictionaryToBinaryData()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     // generated type is a dictionary of string to BinaryData
                     InputFactory.Property("Prop1", InputFactory.Dictionary(InputPrimitiveType.Any))
                     ],
@@ -218,8 +211,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCaseSource(nameof(ExtensibleEnumCases))]
         public async Task CanCustomizeExtensibleEnum(InputPrimitiveType enumType)
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     InputFactory.Property("Prop1", InputFactory.Enum("EnumType", enumType, isExtensible: true))
                     ],
                 usage: InputModelTypeUsage.Json);
@@ -246,8 +238,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCaseSource(nameof(ExtensibleEnumCasesFromLiteral))]
         public async Task CanCustomizeLiteralExtensibleEnum(InputPrimitiveType enumType, object value)
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     InputFactory.Property("Prop1", InputFactory.Literal.Enum(
                         InputFactory.Enum("EnumType", enumType, isExtensible: true),
                         value: value))
@@ -271,8 +262,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanReplaceSerializationMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     InputFactory.Property("Prop1", InputPrimitiveType.String),
                     InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
                     ],
@@ -299,8 +289,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanReplaceDeserializationMethod()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     InputFactory.Property("Prop1", InputPrimitiveType.String),
                     InputFactory.Property("Prop2", new InputNullableType(InputPrimitiveType.String))
                     ],
@@ -328,8 +317,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCase(false)]
         public async Task CanCustomizePropertyUsingField(bool redefineProperty)
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     InputFactory.Property("Prop1", InputPrimitiveType.String),
                     ],
                 usage: InputModelTypeUsage.Json);
@@ -354,8 +342,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanChangeToNonNullableProp()
         {
-            var inputModel = InputFactory.Model("Model", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("Model", properties: [
                     InputFactory.Property("Prop1", new InputNullableType(InputPrimitiveType.String))
                     ],
                 usage: InputModelTypeUsage.Json);
@@ -381,8 +368,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanChangeListOfEnumPropToListOfExtensibleEnum()
         {
-            var inputModel = InputFactory.Model("Model", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("Model", properties: [
                     InputFactory.Property("Prop1", InputFactory.Array(InputFactory.Enum(
                         "MyEnum",
                         InputPrimitiveType.String,
@@ -405,8 +391,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public async Task CanChangePropertyNameAndRedefineOriginal()
         {
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty,
-                properties: [
+            var inputModel = InputFactory.Model("mockInputModel", properties: [
                     InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
                 ]);
 

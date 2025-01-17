@@ -12,24 +12,23 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
 {
     internal class DiscriminatorTests
     {
-        private static readonly InputModelType _catModel = InputFactory.Model("cat", string.Empty, discriminatedKind: "cat", properties:
+        private static readonly InputModelType _catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("willScratchOwner", InputPrimitiveType.Boolean, isRequired: true, isDiscriminator: true),
         ]);
-        private static readonly InputModelType _birdModel = InputFactory.Model("bird", string.Empty, discriminatedKind: "bird", properties:
+        private static readonly InputModelType _birdModel = InputFactory.Model("bird", discriminatedKind: "bird", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("color", InputFactory.Literal.String("red"), isRequired: true, isDiscriminator: true)
         ]);
-        private static readonly InputModelType _dogModel = InputFactory.Model("dog", string.Empty, discriminatedKind: "dog", properties:
+        private static readonly InputModelType _dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
         [
             InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
             InputFactory.Property("likesBones", InputPrimitiveType.Boolean, isRequired: true)
         ]);
         private static readonly InputModelType _baseModel = InputFactory.Model(
             "pet",
-            string.Empty,
             properties:
             [
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),

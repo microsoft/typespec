@@ -40,7 +40,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void DeserializeStruct()
         {
-            var inputModel = InputFactory.Model("TestModel", string.Empty, modelAsStruct: true);
+            var inputModel = InputFactory.Model("TestModel", modelAsStruct: true);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(mrwProvider);
@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [TestCaseSource(nameof(TestDeserializationStatementTestCases))]
         public void TestDeserializationStatement(InputModelProperty prop, bool hasNullCheck, bool hasNullAssignment)
         {
-            var inputModel = InputFactory.Model("TestModel", string.Empty, properties: [prop]);
+            var inputModel = InputFactory.Model("TestModel", properties: [prop]);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(mrwProvider);
@@ -88,7 +88,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                     false);
                 // reference type property
                 yield return new TestCaseData(
-                    InputFactory.Property("prop1", InputFactory.Model("TestModel2", string.Empty)),
+                    InputFactory.Property("prop1", InputFactory.Model("TestModel2")),
                     true,
                     false);
             }

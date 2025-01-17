@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
             var modelTypeProvider = new ModelProvider(inputModel);
 
             AssertCommon(modelTypeProvider, "NewNamespace.Models", "CustomizedModel");
@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: new[] { inputModel },
@@ -71,7 +71,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: new[] { inputModel },
@@ -110,7 +110,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: new[] { inputModel },
@@ -133,7 +133,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("Prop1", InputPrimitiveType.String)
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: [inputModel],
@@ -161,7 +161,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                     values: [InputFactory.EnumMember.String("foo", "bar")])))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: [inputModel],
@@ -199,7 +199,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                     values: [InputFactory.EnumMember.String("foo", "bar")])))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: [inputModel],
@@ -237,7 +237,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                     values: [InputFactory.EnumMember.String("foo", "bar")])))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: [inputModel],
@@ -268,7 +268,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         {
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: new[] {
-                    InputFactory.Model("mockInputModel", string.Empty, properties: new[] {
+                    InputFactory.Model("mockInputModel", properties: new[] {
                         InputFactory.Property("prop1", InputPrimitiveType.String)
                     })
                 },
@@ -310,7 +310,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
             var modelTypeProvider = new ModelProvider(inputModel);
 
             Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct));
@@ -327,7 +327,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
             var modelTypeProvider = new ModelProvider(inputModel);
 
             Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.ReadOnly | TypeSignatureModifiers.Struct));
@@ -345,7 +345,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
             var modelTypeProvider = new ModelProvider(inputModel);
 
             Assert.IsTrue(modelTypeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class));
@@ -400,7 +400,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.Property("Prop1", InputFactory.Array(InputPrimitiveType.String))
             };
 
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: props);
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
             var modelTypeProvider = new ModelProvider(inputModel);
             var customCodeView = modelTypeProvider.CustomCodeView;
 
@@ -435,7 +435,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         {
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: new[] {
-                    InputFactory.Model("mockInputModel", string.Empty, properties: new[] {
+                    InputFactory.Model("mockInputModel", properties: new[] {
                         InputFactory.Property("Prop1", InputPrimitiveType.String)
                     })
                 },
@@ -449,7 +449,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         public async Task CanRemoveField()
         {
             var plugin = await MockHelpers.LoadMockPluginAsync(
-                inputModelTypes: [InputFactory.Model("mockInputModel", string.Empty, properties: [])],
+                inputModelTypes: [InputFactory.Model("mockInputModel", properties: [])],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
             var csharpGen = new CSharpGen();
             await csharpGen.ExecuteAsync();
@@ -498,7 +498,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         // use Input so that we generate a public ctor
                         usage: InputModelTypeUsage.Input,
                         properties:
@@ -541,14 +540,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         {
             var baseModel = InputFactory.Model(
                 "baseModel",
-                string.Empty,
                 usage: InputModelTypeUsage.Input,
                 properties: [InputFactory.Property("BaseProp", InputPrimitiveType.Int32, isRequired: true)]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         // use Input so that we generate a public ctor
                         usage: InputModelTypeUsage.Input,
                         properties:
@@ -593,7 +590,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
         {
             var subModel = InputFactory.Model(
                 "subModel",
-                string.Empty,
                 usage: InputModelTypeUsage.Input,
                 properties: new[] { InputFactory.Property("SubProperty", InputPrimitiveType.Int32) });
 
@@ -601,7 +597,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         // use Input so that we generate a public ctor
                         usage: InputModelTypeUsage.Input,
                         properties: new[]
@@ -626,7 +621,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         // use Input so that we generate a public ctor
                         usage: InputModelTypeUsage.Input,
                         properties: []),
@@ -647,7 +641,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         // use Input so that we generate a public ctor
                         usage: InputModelTypeUsage.Input,
                         properties: new[] { InputFactory.Property("Prop1", InputPrimitiveType.String) })
@@ -675,7 +668,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         usage: InputModelTypeUsage.Input,
                         properties:
                         [
@@ -708,7 +700,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         usage: InputModelTypeUsage.Input,
                         properties:
                         [
@@ -741,7 +732,6 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 inputModelTypes: new[] {
                     InputFactory.Model(
                         "mockInputModel",
-                        string.Empty,
                         // use Input so that we generate a public ctor
                         usage: InputModelTypeUsage.Input,
                         properties: []),
@@ -767,7 +757,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockPluginAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProp = InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.Int32));
-            var inputModel = InputFactory.Model("mockInputModel", string.Empty, properties: [modelProp], usage: InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: [inputModel],
@@ -792,13 +782,12 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
                 InputFactory.EnumMember.String("Bar", "bar")
             ]);
             var discriminatorProp = InputFactory.Property("discriminator", discriminatorValues, isDiscriminator: true, isRequired: true);
-            var fooModel = InputFactory.Model("fooModel", string.Empty, properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "foo");
-            var barModel = InputFactory.Model("barModel", string.Empty, properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "bar");
+            var fooModel = InputFactory.Model("fooModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "foo");
+            var barModel = InputFactory.Model("barModel", properties: [modelProp, discriminatorProp], usage: InputModelTypeUsage.Json, discriminatedKind: "bar");
             var inputModel = InputFactory.Model(
                 "mockInputModel",
-                string.Empty,
-                properties: [modelProp, discriminatorProp], derivedModels: [fooModel, barModel],
-                usage: InputModelTypeUsage.Json);
+                properties: [modelProp, discriminatorProp],
+                derivedModels: [fooModel, barModel], usage: InputModelTypeUsage.Json);
 
             var plugin = await MockHelpers.LoadMockPluginAsync(
                 inputModelTypes: [inputModel, fooModel, barModel],
