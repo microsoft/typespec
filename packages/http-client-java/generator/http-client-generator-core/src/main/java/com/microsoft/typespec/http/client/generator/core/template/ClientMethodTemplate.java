@@ -433,19 +433,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         } else {
                             if (elementType == ClassType.STRING
                                 || (elementType instanceof ClassType && ((ClassType) elementType).isBoxedType())) {
-                                if (alreadyNullChecked) {
-                                    expression = parameterName + ".stream()\n"
-                                        + "    .map(paramItemValue -> Objects.toString(paramItemValue, \"\"))\n"
-                                        + "    .collect(Collectors.joining(" + delimiter + "))";
-                                } else {
-                                    expression
-                                        = "(" + parameterName + " == null) ? null : " + parameterName + ".stream()\n"
-                                            + "    .map(paramItemValue -> Objects.toString(paramItemValue, \"\"))\n"
-                                            + "    .collect(Collectors.joining(" + delimiter + "))";
+                                String streamSource = parameterName;
+                                if (!alreadyNullChecked) {
+                                    streamSource = "(" + parameterName + " == null) ? null : " + parameterName;
                                 }
+                                expression = streamSource + ".stream()\n"
+                                    + "    .map(paramItemValue -> Objects.toString(paramItemValue, \"\"))\n"
+                                    + "    .collect(Collectors.joining(" + delimiter + "))";
                             } else {
-                                // Always use serializeIterable as Iterable supports both Iterable and List.
-
                                 // this logic depends on rawType of proxy method parameter be List<WireType>
                                 // alternative would be check wireType of client method parameter
                                 IType elementWireType = parameter.getRawType() instanceof IterableType
@@ -461,9 +456,23 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                                 }
 
                                 // convert List<WireType> to String
-                                expression = String.format(
-                                    "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
-                                    serializeIterableInput, collectionFormat.toString().toUpperCase(Locale.ROOT));
+                                if (JavaSettings.getInstance().isBranded()) {
+                                    // Always use serializeIterable as Iterable supports both Iterable and List.
+                                    expression = String.format(
+                                        "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
+                                        serializeIterableInput, collectionFormat.toString().toUpperCase(Locale.ROOT));
+                                } else {
+                                    String streamSource = serializeIterableInput;
+                                    if (!alreadyNullChecked) {
+                                        streamSource = "(" + parameterName + " == null) ? null : " + parameterName;
+                                    }
+                                    // mostly code from
+                                    // https://github.com/Azure/azure-sdk-for-java/blob/e1f8f21b1111f8ac9372e0b039f3de92485a5a66/sdk/core/azure-core/src/main/java/com/azure/core/util/serializer/JacksonAdapter.java#L250-L304
+                                    String serializeItemValueCode
+                                        = TemplateUtil.loadTextFromResource("ClientMethodSerializeItemValue.java");
+                                    expression = streamSource + ".stream().map(" + serializeItemValueCode
+                                        + ").collect(Collectors.joining(" + delimiter + "))";
+                                }
                             }
                         }
                     } else {
