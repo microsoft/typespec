@@ -47,6 +47,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         private Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
 
         private Lazy<ParameterProvider?> ClientOptionsParameter { get; }
+        internal IReadOnlyList<ClientProvider> SubClients => _subClients.Value;
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

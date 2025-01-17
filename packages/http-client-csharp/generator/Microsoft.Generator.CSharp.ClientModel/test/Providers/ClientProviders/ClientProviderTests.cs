@@ -26,9 +26,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputOperation _inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [_inputOperation], [], TestClientName);
+        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [_inputOperation], [], _animalClient.Name);
+        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [_inputOperation], [], _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -61,6 +65,54 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 oauth2Auth: oauth2Auth,
                 clients: clients,
                 clientPipelineApi: TestClientPipelineApi.Instance);
+        }
+
+        [Test]
+        public void TestEmptyClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var plugin = MockHelpers.LoadMockPlugin(clients: () => [client]);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            var restClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider && t.Name == TestClientName);
+            Assert.IsNull(clientProvider);
+            Assert.IsNull(restClientProvider);
+        }
+
+        [Test]
+        public void TestNonEmptySubClient()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [inputOperation], [], client.Name);
+            var plugin = MockHelpers.LoadMockPlugin(clients: () => [client, subClient]);
+
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
+            Assert.IsNotNull(subClientProvider);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNotNull(clientProvider);
+        }
+
+        [Test]
+        public void TestEmptySubClient()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [], [], client.Name);
+            var plugin = MockHelpers.LoadMockPlugin(clients: () => [client, subClient]);
+
+            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
+            var subRestClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider && t.Name == subClient.Name);
+            Assert.IsNull(subClientProvider);
+            Assert.IsNull(subRestClientProvider);
+
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            var restClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is RestClientProvider && t.Name == TestClientName);
+            Assert.IsNull(clientProvider);
+            Assert.IsNull(restClientProvider);
         }
 
         [Test]
@@ -736,7 +788,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public void ClientProviderIsAddedToLibrary()
         {
             var plugin = MockHelpers.LoadMockPlugin(
-                clients: () => [new InputClient("test", "test", "test", [], [], null)]);
+                clients: () => [new InputClient("test", "test", "test", [_inputOperation], [], null)]);
 
             Assert.AreEqual(1, plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Count());
         }
