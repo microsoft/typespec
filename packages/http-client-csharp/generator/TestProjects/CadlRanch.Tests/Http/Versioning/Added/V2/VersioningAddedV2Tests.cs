@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
-using NUnit.Framework;
+extern alias VersioningAddedV2;
+
 using System;
 using System.Linq;
-using Versioning.Added.V2;
-using Versioning.Added.V2.Models;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using VersioningAddedV2::Versioning.Added.V2;
+using VersioningAddedV2::Versioning.Added.V2.Models;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
 {
@@ -31,10 +33,12 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.IsTrue(enumValues.Contains("EnumMemberV2"));
 
             /* check existence of the added model ModelV2. */
-            Assert.IsNotNull(Type.GetType("Versioning.Added.V2.Models.ModelV2"));
+            var modelV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.V2.Models.ModelV2");
+            Assert.IsNotNull(modelV2Type);
 
             /* check existence of the added enum EnumV2. */
-            Assert.IsNotNull(Type.GetType("Versioning.Added.V2.Models.EnumV2"));
+            var enumV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.V2.Models.EnumV2");
+            Assert.IsNotNull(enumV2Type);
 
             /* check the added parameter. */
             var methods = typeof(AddedClient).GetMethods().Where(m => m.Name == "V1" || m.Name == "V1Async");
@@ -52,7 +56,8 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V2
             Assert.AreEqual(4, addedMethods.Count());
 
             /* check the existence of added interface in V2. */
-            Assert.IsNotNull(Type.GetType("Versioning.Added.V2.InterfaceV2"));
+            var interfaceV2Type = typeof(ModelV1).Assembly.GetType("Versioning.Added.V2.InterfaceV2");
+            Assert.IsNotNull(interfaceV2Type);
         }
 
         [CadlRanchTest]

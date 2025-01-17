@@ -562,7 +562,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // add direct child clients
                 if (client.Parent != null && client.Parent == _inputClient.Key)
                 {
-                    subClients.Add(ClientModelPlugin.Instance.TypeFactory.CreateClient(client));
+                    var subClient = ClientModelPlugin.Instance.TypeFactory.CreateClient(client);
+                    if (subClient != null)
+                    {
+                        subClients.Add(subClient);
+                    }
                 }
             }
 
