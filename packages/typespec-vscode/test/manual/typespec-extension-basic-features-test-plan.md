@@ -48,7 +48,7 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 [Install TypeSpec Compiler CLI](https://typespec.io/docs/) command: `"npm install -g @typespec/compiler"`.
 
-### Step 4:
+### Step 4: Verify Basic Features
 
 - #### For Syntax highlighting:
 
@@ -72,15 +72,15 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 - #### For Code completion:
 
-  Start typing keywords in the file.
+  Start typing keywords or press `ctrl + space` in the file.
 
   **Validate:** Whether to automatically pop up a completion prompt to list possible types, attributes, and operations.
 
-  - For `.tsp` file, press `ctrl + space`.
+  - For `.tsp` file:
 
     ![alt text](./images/TypeSpecForvscodeFeatures_CompletionHints.png)
 
-  - For `tspconfig.yaml` file, press `ctrl + space`.
+  - For `tspconfig.yaml` file:
 
     ![alt text](./images/TypeSpecForvscodeFeatures_CompletionHints_tspconfigFile.png)
 

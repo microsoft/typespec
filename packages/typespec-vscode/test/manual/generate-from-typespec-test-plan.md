@@ -95,7 +95,7 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      ![alt text](./images/GenerateClientCode_CheckPackageInstalledOrUpdated_DotNet.png)
 
-     - If installation or update is required, it will prompt `Here are libraries to install or update`.
+     - If installation or update is required, it will prompt `Here are libraries to install or update`. Click `OK` to install.
 
        **Validate:** There should be a prompt `Here are libraries to install or update`, and TypeSpec emitters to install and their minimum requirements.
 
@@ -173,13 +173,25 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      ![alt text](./images/GeneratefromTypeSpec_SelectOpenAPILanguage.png)
 
-  2. Select a Language, confirming installation of the required TypeSpec library `@typespec/openapi3`.
+  2. Select a Language, Confirm the emitter type.
 
-     **Validate**: There should be a prompt `Select an emitter for code generation`, and confirming installation of the required TypeSpec library `@typespec/openapi3`.
+     **Validate**: There should be a prompt `Select an emitter for code generation`.
 
-     ![alt text](./images/GenerateOpenAPI_ConfirmTypeSpecEmitters.png)
+     ![alt text](./images/GenerateOpenAPI_ConfirmEmittersType_OpenAPI3.png)
 
-  3. Initiate the generation of OpenAPI on the backend.
+  3. Check if the package needs to be installed or updated.
+
+     ![alt text](./images/GenerateClientCode_CheckPackageInstalledOrUpdated_DotNet.png)
+
+     - If installation or update is required, it will prompt `Here are libraries to install or update`. Click `OK` to install.
+
+       **Validate**: There should be a prompt `Here are libraries to install or update`, and confirming installation of the required TypeSpec library `@typespec/openapi3`.
+
+       ![alt text](./images/GenerateOpenAPI_ConfirmTypeSpecEmitters.png)
+
+     - If already installed, it will be skipped.
+
+  4. Initiate the generation of OpenAPI on the backend.
 
      **Validate:** A detailed trace log should be printed in the OUTPUT window. The result appears as a Notification in the bottom right corner, and generate the schema folder.
 

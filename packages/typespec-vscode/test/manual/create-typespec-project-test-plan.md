@@ -16,7 +16,7 @@ Selecting a template involves:
 ## Test Environment
 
 - OS : Windows or Linux
-- Template : Empty Project, Generic REST API, TypeSpec Library (With TypeScript), TypeSpec Emitter (With TypeScript), Azure Templates
+- Template : Empty Project, Generic REST API, TypeSpec Library (With TypeScript), TypeSpec Emitter (With TypeScript) ...
 
 > Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
 
@@ -65,17 +65,14 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 
 #### Step 3. Select a folder as the root folder for the new TypeSpec project.
 
-- Select a non-empty folder.
+- Select a non-empty folder. _(Single choice)_ `Y/N`
 
-  **Validate:** Will it appear: `Folder C:\xxx\xxx\xxx is not empty. Are you sure you want to initialize a new project here?`
+  **Validate:** Will it appear: `The folder to create project is not empty. Do you want to continue?`
 
-  ![alt text](./images/CreateTypeSpecProject_SelectFolderTest.png)
   ![alt text](./images/CreateTypeSpecProject_VerifyFolderIsEmpty.png)
 
 - Select a empty folder.
   If the folder is empty, skip the query and go to the next step.
-
-  ![alt text](./images/CreateTypeSpecProject_SelectFolderTest.png)
 
 #### Step 4. Check if TypeSpec Compiler CLI is install. (optional)
 
@@ -84,7 +81,9 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
   ![alt text](./images/CreateTypeSpecProject_InstallTypeSpecCompiler.png)
 
 - If the compiler is already installed locally. Skip the installation prompt and go to the next step.
-  The compiler is installed locally. Even the compiler is also installed globally, the local compiler will be used.
+
+  > Note: Even the compiler is also installed globally, the local compiler will be used.
+
 - The compiler has been installed globally. Skip the installation prompt and go to the next step.
 
 #### Step 5. After successfully installing TypeSpec Compiler, will go through the questions of `tsp init`.
@@ -176,7 +175,7 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
 1. Select a template _(Single choice)_.
 
-   **Validate:** There should be a prompt "Select a template", and should see some options.
+   **Validate:** There should be a prompt "Select a template", and should see more options.
 
    ![alt text](./images/CreateTypeSpecProject_SelectMoreTemplate.png)
 
@@ -212,7 +211,9 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
      **Validate:** Verify that the project was created correctly.
 
      ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateProject.png)
+
      ![alt text](./images/CreateTypeSpecProject_TestCase_2_InstallDependencies.png)
+
      ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder_standalone.png)
 
 ## Issue Report
