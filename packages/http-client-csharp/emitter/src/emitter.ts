@@ -16,7 +16,6 @@ import { spawn, SpawnOptions } from "child_process";
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
-import * as semver from "semver";
 import { fileURLToPath } from "url";
 import {
   configurationFileName,
@@ -178,7 +177,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
               sdkContext.program,
               minSupportedDotNetSdkVersion,
             );
-            // if the dotnet sdk is valid, the error is not runtime dependency issue, log it as normal
+            // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
             if (isValid) {
               if (result.stderr) Logger.getInstance().error(result.stderr);
               if (result.stdout) Logger.getInstance().verbose(result.stdout);
@@ -187,7 +186,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           }
         } catch (error: any) {
           const isValid = await validateDotNetSdk(sdkContext.program, minSupportedDotNetSdkVersion);
-          // if the dotnet sdk is valid, the error is not runtime dependency issue, log it as normal
+          // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) throw new Error(error);
         }
         if (!options["save-inputs"]) {
@@ -203,32 +202,33 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 /** check the dotnet sdk installation.
  * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
  * @param program The typespec compiler program
- * @param minVersionRequisite The minimum required version
+ * @param minVersionRequisite The minimum required major version
  */
-async function validateDotNetSdk(program: Program, minVersion: string): Promise<boolean> {
-  const parsedVersions = semver.parse(minVersion);
-  if (!parsedVersions) {
-    Logger.getInstance().error("invalid parameter: minVersionRequisite.");
-    return false;
-  }
+async function validateDotNetSdk(program: Program, minMajorVersion: string): Promise<boolean> {
   try {
-    const result = await execAsync("dotnet", ["--list-sdks"]);
-    const dotnetVersions = findDonetVersion(result.stdout) ?? findDonetVersion(result.stderr);
-    if (dotnetVersions) {
-      for (const version of dotnetVersions) {
-        if (semver.gt(version, minVersion)) return true;
+    const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
+    const dotnetVersion = result.stdout;
+    if (dotnetVersion) {
+      const versions = dotnetVersion.split(".");
+      if (versions.length < 3) {
+        Logger.getInstance().error("Invalid .NET SDK version.");
+        return false;
       }
-      reportDiagnostic(program, {
-        code: "invalid-runtime-dependency",
-        messageId: "invalidVersion",
-        format: {
-          installedVersion: dotnetVersions?.join(","),
-          dotnetMajorVersion: `${parsedVersions.major}`,
-          downloadUrl: "https://dotnet.microsoft.com/",
-        },
-        target: NoTarget,
-      });
-      return false;
+      const major = versions[0];
+      if (major < minMajorVersion) {
+        reportDiagnostic(program, {
+          code: "invalid-dotnet-sdk-dependency",
+          messageId: "invalidVersion",
+          format: {
+            installedVersion: dotnetVersion,
+            dotnetMajorVersion: minMajorVersion,
+            downloadUrl: "https://dotnet.microsoft.com/",
+          },
+          target: NoTarget,
+        });
+        return false;
+      }
+      return true;
     } else {
       Logger.getInstance().error("Cannot get the installed .NET SDK version.");
       return false;
@@ -236,23 +236,16 @@ async function validateDotNetSdk(program: Program, minVersion: string): Promise<
   } catch (error: any) {
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
       reportDiagnostic(program, {
-        code: "invalid-runtime-dependency",
+        code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
         format: {
-          dotnetMajorVersion: `${parsedVersions.major}`,
+          dotnetMajorVersion: minMajorVersion,
           downloadUrl: "https://dotnet.microsoft.com/",
         },
         target: NoTarget,
       });
     }
     return false;
-  }
-
-  function findDonetVersion(output: string): string[] | undefined {
-    const regex = /(\d+)\.(\d+)\.(\d)/g;
-    const matches = output.match(regex);
-    if (matches) return matches;
-    return undefined;
   }
 }
 function constructCommandArg(arg: string): string {

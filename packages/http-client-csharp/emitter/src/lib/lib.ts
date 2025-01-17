@@ -37,7 +37,7 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
-    "invalid-runtime-dependency": {
+    "invalid-dotnet-sdk-dependency": {
       severity: "error",
       messages: {
         default: paramMessage`Invalid .NET SDK installed.`,
