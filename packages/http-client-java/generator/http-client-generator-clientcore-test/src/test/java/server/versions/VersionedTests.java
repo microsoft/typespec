@@ -4,7 +4,6 @@
 package server.versions;
 
 import org.junit.jupiter.api.Test;
-
 import server.versions.versioned.VersionedClient;
 import server.versions.versioned.VersionedClientBuilder;
 import server.versions.versioned.VersionedServiceVersion;
@@ -24,8 +23,8 @@ public class VersionedTests {
         client.withQueryApiVersion();
 
         VersionedClient oldClient = new VersionedClientBuilder().endpoint("http://localhost:3000")
-          .serviceVersion(VersionedServiceVersion.V2021_01_01_PREVIEW)
-          .buildClient();
+            .serviceVersion(VersionedServiceVersion.V2021_01_01_PREVIEW)
+            .buildClient();
         oldClient.withQueryOldApiVersion();
     }
 }

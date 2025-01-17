@@ -7,10 +7,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import type.model.inheritance.nesteddiscriminator.Fish;
 import type.model.inheritance.nesteddiscriminator.GoblinShark;
 import type.model.inheritance.nesteddiscriminator.NestedDiscriminatorClient;

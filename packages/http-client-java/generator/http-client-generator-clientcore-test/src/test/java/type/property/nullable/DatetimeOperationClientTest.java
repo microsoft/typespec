@@ -3,10 +3,10 @@
 
 package type.property.nullable;
 
-import java.time.OffsetDateTime;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 
 public class DatetimeOperationClientTest {

@@ -3,10 +3,10 @@
 
 package type.property.nullable;
 
-import java.util.Arrays;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 public class CollectionsModelClientTest {

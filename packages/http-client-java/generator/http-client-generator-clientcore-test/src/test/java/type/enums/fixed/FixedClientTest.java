@@ -3,15 +3,13 @@
 
 package type.enums.fixed;
 
-import java.time.Duration;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
 import io.clientcore.core.http.exception.HttpResponseException;
 import io.clientcore.core.http.models.HttpRetryOptions;
 import io.clientcore.core.util.binarydata.BinaryData;
+import java.time.Duration;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class FixedClientTest {
 

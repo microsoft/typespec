@@ -3,10 +3,10 @@
 
 package type.property.nullable;
 
-import java.time.Duration;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.time.Duration;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

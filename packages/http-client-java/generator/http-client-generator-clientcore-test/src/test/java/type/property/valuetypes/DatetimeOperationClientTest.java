@@ -4,7 +4,6 @@
 package type.property.valuetypes;
 
 import java.time.OffsetDateTime;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
