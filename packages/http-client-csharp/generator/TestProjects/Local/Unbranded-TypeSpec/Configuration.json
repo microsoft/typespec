@@ -1,6 +1,6 @@
 {
   "output-folder": ".",
-  "namespace": "UnbrandedTypeSpec",
-  "library-name": "UnbrandedTypeSpec",
+  "namespace": "MyService",
+  "library-name": "MyService",
   "use-model-reader-writer": true
 }

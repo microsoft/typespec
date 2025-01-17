@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>This is the UnbrandedTypeSpec client library for developing .NET applications with rich experience.</Description>
-    <AssemblyTitle>SDK Code Generation UnbrandedTypeSpec</AssemblyTitle>
+    <Description>This is the MyService client library for developing .NET applications with rich experience.</Description>
+    <AssemblyTitle>SDK Code Generation MyService</AssemblyTitle>
     <Version>1.0.0-beta.1</Version>
-    <PackageTags>UnbrandedTypeSpec</PackageTags>
+    <PackageTags>MyService</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
