@@ -90,8 +90,8 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "type/model/visibility": [
     { "package-name": "typetest-model-visibility" },
-    { "package-name": "headasbooleantrue", "head-as-boolean": "true" },
-    { "package-name": "headasbooleanfalse", "head-as-boolean": "false" },
+    { "package-name": "headasbooleantrue", "head-as-boolean": "true", "enable-typespec-namespace": "false" },
+    { "package-name": "headasbooleanfalse", "head-as-boolean": "false", "enable-typespec-namespace": "false" },
   ],
   "type/property/nullable": {
     "package-name": "typetest-property-nullable",
