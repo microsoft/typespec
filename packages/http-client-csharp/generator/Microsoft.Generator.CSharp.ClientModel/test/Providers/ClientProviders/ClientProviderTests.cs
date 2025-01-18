@@ -68,7 +68,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [Test]
-        public void TestEmptyClient()
+        public void ShouldSkipEmptyClient()
         {
             var client = InputFactory.Client(TestClientName);
             var plugin = MockHelpers.LoadMockPlugin(clients: () => [client]);
@@ -80,7 +80,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [Test]
-        public void TestNonEmptySubClient()
+        public void ShouldGenerateClientWithNonEmptySubClient()
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
@@ -98,7 +98,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         [Test]
-        public void TestEmptySubClient()
+        public void ShouldSkipClientWithEmptySubClient()
         {
             var client = InputFactory.Client(TestClientName);
             var subClient = InputFactory.Client($"Sub{TestClientName}", [], [], client.Name);

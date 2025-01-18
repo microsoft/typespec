@@ -14,6 +14,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 {
     public class ClientProviderCustomizationTests
     {
+        private const string TestClientName = "TestClient";
+
         [Test]
         public async Task CanAddMethod()
         {
@@ -43,6 +45,33 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.AreEqual(customMethods[0].Signature.Parameters.Count, 2);
             Assert.IsNull(customMethods[0].BodyExpression);
             Assert.AreEqual(string.Empty, customMethods[0].BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task ShouldGenerateEmptyClientWithCustomMethods()
+        {
+            var client = InputFactory.Client(TestClientName);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNotNull(clientProvider);
+        }
+
+        [Test]
+        public async Task GenerateSubClientWithCustomMethods()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var client = InputFactory.Client(TestClientName);
+            var subClient = InputFactory.Client($"Sub{TestClientName}", [inputOperation], [], client.Name);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                clients: () => [client, subClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
+            Assert.IsNotNull(clientProvider);
         }
 
         [Test]

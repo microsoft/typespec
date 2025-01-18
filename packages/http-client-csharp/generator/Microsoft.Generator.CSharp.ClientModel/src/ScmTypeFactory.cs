@@ -98,30 +98,26 @@ namespace Microsoft.Generator.CSharp.ClientModel
                 }
             }
 
-            var result = client is not null && IsValidClient(inputClient, client) ? client : null;
+            var result = client is not null && IsValidClient(client) ? client : null;
             ClientCache[inputClient] = result;
             return result;
         }
 
-        private bool IsValidClient(InputClient inputClient, ClientProvider client)
+        private bool IsValidClient(ClientProvider client)
         {
-            // client is not valid if it has no operations, sub-client methods, or custom code methods
-            if (inputClient.Operations.Count > 0)
+            // client is valid if it has methods or custom code has methods
+            if (client.Methods.Count > 0 || client.CustomCodeView?.Methods.Count > 0)
             {
                 return true;
             }
 
+            // client is valid if any of its subclients have methods or custom code has methods
             foreach (var subclient in client.SubClients)
             {
-                if (subclient.Methods.Count > 0)
+                if (subclient.Methods.Count > 0 || subclient.CustomCodeView?.Methods.Count > 0)
                 {
                     return true;
                 }
-            }
-
-            if (client.CustomCodeView?.Methods.Count > 0)
-            {
-                return true;
             }
 
             return false;
