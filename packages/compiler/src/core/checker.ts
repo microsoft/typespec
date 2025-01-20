@@ -2682,63 +2682,73 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     function getNestedModel(modelOrTupleOrUnion: Type | undefined, path: PathSeg[]): Model[] {
       let cur = modelOrTupleOrUnion;
-      const models: Model[] = [];
-      if (cur?.kind === "Model" || cur?.kind === "Tuple" || cur?.kind === "Union") {
-        if (path.length === 0) {
-          // Handle union and model type nesting when path is empty
-          switch (cur?.kind) {
-            case "Model":
-              return [cur];
-            case "Union":
-              for (const variant of cur.variants.values()) {
-                if (variant.type.kind === "Model" || variant.type.kind === "Tuple") {
-                  models.push(...(getNestedModel(variant.type, path) ?? []));
-                }
-              }
-              return models;
-            default:
-              return [];
-          }
-        }
 
-        const seg = path[0];
+      if (cur && cur.kind !== "Model" && cur.kind !== "Tuple" && cur.kind !== "Union") {
+        return [];
+      }
+
+      if (path.length === 0) {
+        // Handle union and model type nesting when path is empty
         switch (cur?.kind) {
-          case "Tuple":
-            if (
-              seg.tupleIndex !== undefined &&
-              seg.tupleIndex >= 0 &&
-              seg.tupleIndex < cur.values.length
-            ) {
-              return getNestedModel(cur.values[seg.tupleIndex], path.slice(1));
-            } else {
-              return [];
-            }
-
           case "Model":
-            if (cur.name === "Array" && seg.tupleIndex !== undefined) {
-              cur = cur.templateMapper?.args[0] as Model;
-            } else if (cur.name !== "Array" && seg.propertyName) {
-              cur = cur.properties.get(seg.propertyName)?.type;
-            } else {
-              return [];
-            }
-            return getNestedModel(cur, path.slice(1));
-
+            return [cur];
           case "Union":
-            // When seg.property name exists, it means that it is in the union model or tuple,
-            // and the corresponding model or tuple needs to be found recursively.
+            const models: Model[] = [];
             for (const variant of cur.variants.values()) {
-              if (variant.type.kind === "Model" || variant.type.kind === "Tuple") {
+              if (
+                variant.type.kind === "Model" ||
+                variant.type.kind === "Tuple" ||
+                variant.type.kind === "Union"
+              ) {
                 models.push(...(getNestedModel(variant.type, path) ?? []));
               }
             }
-            break;
+            return models;
           default:
             return [];
         }
       }
 
-      return models;
+      const seg = path[0];
+      switch (cur?.kind) {
+        case "Tuple":
+          if (
+            seg.tupleIndex !== undefined &&
+            seg.tupleIndex >= 0 &&
+            seg.tupleIndex < cur.values.length
+          ) {
+            return getNestedModel(cur.values[seg.tupleIndex], path.slice(1));
+          } else {
+            return [];
+          }
+
+        case "Model":
+          if (cur.name === "Array" && seg.tupleIndex !== undefined) {
+            cur = cur.templateMapper?.args[0] as Model;
+          } else if (cur.name !== "Array" && seg.propertyName) {
+            cur = cur.properties.get(seg.propertyName)?.type;
+          } else {
+            return [];
+          }
+          return getNestedModel(cur, path.slice(1));
+
+        case "Union":
+          // When seg.property name exists, it means that it is in the union model or tuple,
+          // and the corresponding model or tuple needs to be found recursively.
+          const models: Model[] = [];
+          for (const variant of cur.variants.values()) {
+            if (
+              variant.type.kind === "Model" ||
+              variant.type.kind === "Tuple" ||
+              variant.type.kind === "Union"
+            ) {
+              models.push(...(getNestedModel(variant.type, path) ?? []));
+            }
+          }
+          return models;
+        default:
+          return [];
+      }
     }
 
     function getReferencedTypeFromTemplateDeclaration(node: ModelOrArrayNode): Type | undefined {
