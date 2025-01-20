@@ -227,7 +227,7 @@ export async function validateDotNetSdk(
   }
 }
 
-export function validateDotNetSdkVersion(
+function validateDotNetSdkVersion(
   program: Program,
   version: string,
   minMajorVersion: number,
