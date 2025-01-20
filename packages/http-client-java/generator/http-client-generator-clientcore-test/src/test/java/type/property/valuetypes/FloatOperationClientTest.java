@@ -6,18 +6,18 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class FloatOperationClientTest {
+public class FloatOperationClientTest {
 
-    FloatOperationClient client = new ValueTypesClientBuilder().buildFloatOperationClient();
+    private final FloatOperationClient client = new ValueTypesClientBuilder().buildFloatOperationClient();
 
     @Test
-    void get() {
+    public void get() {
         FloatProperty floatProperty = client.get();
         Assertions.assertEquals(43.125, floatProperty.getProperty());
     }
 
     @Test
-    void put() {
+    public void put() {
         FloatProperty floatProperty = new FloatProperty(43.125);
         client.put(floatProperty);
     }

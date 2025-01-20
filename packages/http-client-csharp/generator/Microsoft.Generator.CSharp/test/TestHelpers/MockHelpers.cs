@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.SourceInput;
 using Microsoft.Generator.CSharp.Tests.Common;
 using Moq;
@@ -20,7 +21,9 @@ namespace Microsoft.Generator.CSharp.Tests
         public const string TestHelpersFolder = "TestHelpers";
 
         public async static Task<Mock<CodeModelPlugin>> LoadMockPluginAsync(
-            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<InputType, CSharpType?>? createCSharpTypeCore = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null,
+            Func<InputEnumType, TypeProvider?, EnumProvider?>? createEnumCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
@@ -32,6 +35,8 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             var mockPlugin = LoadMockPlugin(
                 createCSharpTypeCore,
+                createModelCore,
+                createEnumCore,
                 createOutputLibrary,
                 configuration,
                 inputModelTypes,
@@ -49,7 +54,9 @@ namespace Microsoft.Generator.CSharp.Tests
         }
 
         public static Mock<CodeModelPlugin> LoadMockPlugin(
-            Func<InputType, CSharpType>? createCSharpTypeCore = null,
+            Func<InputType, CSharpType?>? createCSharpTypeCore = null,
+            Func<InputModelType, ModelProvider?>? createModelCore = null,
+            Func<InputEnumType, TypeProvider?, EnumProvider?>? createEnumCore = null,
             Func<OutputLibrary>? createOutputLibrary = null,
             string? configuration = null,
             InputModelType[]? inputModelTypes = null,
@@ -66,7 +73,17 @@ namespace Microsoft.Generator.CSharp.Tests
 
             if (createCSharpTypeCore != null)
             {
-                mockTypeFactory.Protected().Setup<CSharpType>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) => createCSharpTypeCore.Invoke(inputType));
+                mockTypeFactory.Protected().Setup<CSharpType?>("CreateCSharpTypeCore", ItExpr.IsAny<InputType>()).Returns((InputType inputType) => createCSharpTypeCore.Invoke(inputType));
+            }
+
+            if (createModelCore != null)
+            {
+                mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns((InputModelType inputModel) => createModelCore.Invoke(inputModel));
+            }
+
+            if (createEnumCore != null)
+            {
+                mockTypeFactory.Protected().Setup<TypeProvider?>("CreateEnumCore", ItExpr.IsAny<InputEnumType>(), ItExpr.IsAny<TypeProvider?>()).Returns((InputEnumType inputEnum, TypeProvider? type) => createEnumCore.Invoke(inputEnum, type));
             }
 
             if (createOutputLibrary != null)

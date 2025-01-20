@@ -51,10 +51,10 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+        protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override XmlDocProvider BuildXmlDocs()
         {
@@ -70,8 +70,16 @@ namespace Microsoft.Generator.CSharp.Providers
             foreach (var model in _models)
             {
                 var modelProvider = CodeModelPlugin.Instance.TypeFactory.CreateModel(model);
-                if (modelProvider is null || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal))
+
+                if (modelProvider is null)
                     continue;
+
+                var fullConstructor = modelProvider.FullConstructor;
+                if (modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal)
+                    || fullConstructor.Signature.Parameters.Any(p => !p.Type.IsPublic))
+                {
+                    continue;
+                }
 
                 var typeToInstantiate = modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                     ? modelProvider.DerivedModels.FirstOrDefault(m => m.IsUnknownDiscriminatorModel)
@@ -79,7 +87,6 @@ namespace Microsoft.Generator.CSharp.Providers
                 if (typeToInstantiate is null)
                     continue;
 
-                var fullConstructor = modelProvider.FullConstructor;
                 var binaryDataParam = fullConstructor.Signature.Parameters.FirstOrDefault(p => p.Name.Equals(AdditionalBinaryDataParameterName));
 
                 // Use a custom constructor if the generated full constructor was suppressed or customized
