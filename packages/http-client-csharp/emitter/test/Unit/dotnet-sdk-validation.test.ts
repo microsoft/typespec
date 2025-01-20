@@ -31,7 +31,7 @@ describe("Test validateDotNetSdk", () => {
   });
 
   it("should return false when dotnet SDK is not installed.", async () => {
-    /* mock the scenario that dotnet SDK is not installed, so execAsyc will throw exception with error ENOENT */
+    /* mock the scenario that dotnet SDK is not installed, so execAsync will throw exception with error ENOENT */
     vi.mock("../../src/lib/utils.js", () => ({
       execAsync: vi
         .fn()
