@@ -101,7 +101,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     if (lastSegment === clientName) {
       // this segment is bad
       reportDiagnostic(sdkContext.program, {
-        code: "bad-namespace",
+        code: "client-namespace-conflict",
         format: { clientNamespace: client.clientNamespace, clientName },
         target: client.__raw.type ?? NoTarget,
       });
