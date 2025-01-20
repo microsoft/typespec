@@ -147,24 +147,17 @@ namespace Microsoft.Generator.CSharp
                 return modelProvider;
 
             modelProvider = CreateModelCore(model);
+
+            foreach (var visitor in Visitors)
+            {
+                modelProvider = visitor.Visit(model, modelProvider);
+            }
+
             CSharpToModelProvider.Add(model, modelProvider);
             return modelProvider;
         }
 
-        protected virtual ModelProvider? CreateModelCore(InputModelType model)
-        {
-            ModelProvider? type = new ModelProvider(model);
-            if (Visitors.Count == 0)
-            {
-                return type;
-            }
-            foreach (var visitor in Visitors)
-            {
-                type = visitor.Visit(model, type);
-            }
-
-            return type;
-        }
+        protected virtual ModelProvider? CreateModelCore(InputModelType model) => new ModelProvider(model);
 
         /// <summary>
         /// Factory method for creating a <see cref="TypeProvider"/> based on an <see cref="InputEnumType"> <paramref name="enumType"/>.
@@ -179,23 +172,18 @@ namespace Microsoft.Generator.CSharp
                 return enumProvider;
 
             enumProvider = CreateEnumCore(enumType, declaringType);
+
+            foreach (var visitor in Visitors)
+            {
+                enumProvider = visitor.Visit(enumType, enumProvider);
+            }
+
             EnumCache.Add(enumCacheKey, enumProvider);
             return enumProvider;
         }
 
-        private TypeProvider? CreateEnumCore(InputEnumType enumType, TypeProvider? declaringType)
-        {
-            TypeProvider? type = EnumProvider.Create(enumType, declaringType);
-            if (Visitors.Count == 0)
-            {
-                return type;
-            }
-            foreach (var visitor in Visitors)
-            {
-                type = visitor.Visit(enumType, type);
-            }
-            return type;
-        }
+        protected virtual TypeProvider? CreateEnumCore(InputEnumType enumType, TypeProvider? declaringType)
+            => EnumProvider.Create(enumType, declaringType);
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.

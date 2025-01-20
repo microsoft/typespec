@@ -78,7 +78,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildName() => "MultiPartFormDataBinaryContent";
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Class | TypeSignatureModifiers.Internal;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Class | TypeSignatureModifiers.Internal;
 
         protected override CSharpType? GetBaseType() => typeof(BinaryContent);
 

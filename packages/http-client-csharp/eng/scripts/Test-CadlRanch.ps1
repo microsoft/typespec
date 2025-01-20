@@ -14,7 +14,6 @@ $azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azu
 $cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 
 $cadlRanchRootHttp = Join-Path $cadlRanchRoot 'http'
 $directories = Get-ChildItem -Path "$cadlRanchRootHttp" -Directory -Recurse
-$cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
 
@@ -46,7 +45,7 @@ foreach ($directory in $directories) {
           $testFilter += "._$segment"
           $testPath = Join-Path $testPath "_$segment"
         }
-        else{
+        else {
           $testFilter += ".$segment"
           $testPath = Join-Path $testPath $segment
         }

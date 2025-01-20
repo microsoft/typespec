@@ -6,18 +6,18 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class BooleanOperationClientTest {
+public class BooleanOperationClientTest {
 
-    BooleanOperationClient client = new ValueTypesClientBuilder().buildBooleanOperationClient();
+    private final BooleanOperationClient client = new ValueTypesClientBuilder().buildBooleanOperationClient();
 
     @Test
-    void get() {
+    public void get() {
         BooleanProperty response = client.get();
         Assertions.assertTrue(response.isProperty());
     }
 
     @Test
-    void put() {
+    public void put() {
         BooleanProperty booleanProperty = new BooleanProperty(true);
         client.put(booleanProperty);
     }
