@@ -50,10 +50,10 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
-    "bad-namespace": {
+    "client-namespace-conflict": {
       severity: "warning",
       messages: {
-        default: paramMessage`bad namespace ${"clientNamespace"} for client ${"clientName"}, please use @clientName to specify a different name for the client.`,
+        default: paramMessage`namespace ${"clientNamespace"} conflicts with client ${"clientName"}, please use @clientName to specify a different name for the client.`,
       },
     },
   },
