@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Providers
             EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal;
         }

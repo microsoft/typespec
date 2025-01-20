@@ -38,7 +38,7 @@ namespace Microsoft.Generator.CSharp.Tests.PostProcessing
 
         private class SharedSourceTypeProvider : TypeProvider
         {
-            protected override TypeSignatureModifiers GetDeclarationModifiers() =>
+            protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
                 TypeSignatureModifiers.Public | TypeSignatureModifiers.Class;
 
             protected override MethodProvider[] BuildMethods()
@@ -57,7 +57,7 @@ namespace Microsoft.Generator.CSharp.Tests.PostProcessing
 
             protected override string BuildName() => "TypeUsingSharedSourceType";
 
-            protected override string GetNamespace() => "Sample.Models";
+            protected override string BuildNamespace() => "Sample.Models";
         }
     }
 }

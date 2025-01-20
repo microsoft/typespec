@@ -154,8 +154,10 @@ public class ClassType implements IType {
             put(KeyCredentialTrait.class,
                 new ClassDetails(KeyCredentialTrait.class, "io.clientcore.core.models.traits.KeyCredentialTrait"));
             put(TypeReference.class, new ClassDetails(TypeReference.class, "io.clientcore.core.models.TypeReference"));
-            put(ClientLogger.class, new ClassDetails(ClientLogger.class, "io.clientcore.core.util.ClientLogger"));
-            put(LogLevel.class, new ClassDetails(LogLevel.class, "io.clientcore.core.util.ClientLogger.LogLevel"));
+            put(ClientLogger.class,
+                new ClassDetails(ClientLogger.class, "io.clientcore.core.instrumentation.logging.ClientLogger"));
+            put(LogLevel.class,
+                new ClassDetails(LogLevel.class, "io.clientcore.core.instrumentation.logging.ClientLogger.LogLevel"));
             put(com.azure.core.util.ServiceVersion.class, new ClassDetails(com.azure.core.util.ServiceVersion.class,
                 "io.clientcore.core.http.models.ServiceVersion"));
         }
@@ -495,6 +497,12 @@ public class ClassType implements IType {
     public static final ClassType RETRY_POLICY = getClassTypeBuilder(RetryPolicy.class).build();
     public static final ClassType REDIRECT_POLICY = getClassTypeBuilder(RedirectPolicy.class).build();
     public static final ClassType HTTP_LOGGING_POLICY = getClassTypeBuilder(HttpLoggingPolicy.class).build();
+
+    // clientcore
+    public static final ClassType HTTP_INSTRUMENTATION_POLICY
+        = new ClassType.Builder(false).packageName("io.clientcore.core.http.pipeline")
+            .name("HttpInstrumentationPolicy")
+            .build();
 
     public static final ClassType RETRY_OPTIONS = getClassTypeBuilder(RetryOptions.class).build();
 
