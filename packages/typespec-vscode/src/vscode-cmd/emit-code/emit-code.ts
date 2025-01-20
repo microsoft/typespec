@@ -462,15 +462,6 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
   }
 
   const toEmitterQuickPickItem = (e: Emitter): EmitQuickPickItem => {
-    const buttons = e.sourceRepo
-      ? [
-          {
-            iconPath: new vscode.ThemeIcon("link-external"),
-            tooltip: "More details",
-            uri: e.sourceRepo,
-          },
-        ]
-      : undefined;
     return {
       language: e.language,
       package: e.package,
@@ -482,8 +473,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       description: `${e.package}.`,
       // detail: `Generate ${e.kind} code for ${e.language} by TypeSpec library ${e.package}.`,
       picked: false,
-      fromConfig: false,
-      buttons: buttons,
+      fromConfig: true,
       iconPath: {
         light: Uri.file(
           context.asAbsolutePath(`./icons/${getLanguageAlias(e.language).toLowerCase()}.light.svg`),
@@ -496,9 +486,9 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
   };
   /* display existing emitters in config.yaml. */
   if (existingEmitters && existingEmitters.length > 0) {
-    const recentlyUsedSeparator = {
-      label: "recently used",
-      description: "Recently used emitters",
+    const fromConfigSeparator = {
+      label: "from tspconfig.yaml",
+      description: "configured emitters in tspconfig.yaml",
       kind: vscode.QuickPickItemKind.Separator,
       info: undefined,
       package: "",
@@ -521,8 +511,6 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       }
     });
     const separatorItem = {
-      label: "another emitter",
-      description: "another emitter",
       kind: vscode.QuickPickItemKind.Separator,
       info: undefined,
       package: "",
@@ -541,7 +529,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
 
     const allPickItems = [];
     allPickItems.push(
-      recentlyUsedSeparator,
+      fromConfigSeparator,
       ...existingEmitterQuickPickItems,
       separatorItem,
       newEmitterQuickPickItem,
