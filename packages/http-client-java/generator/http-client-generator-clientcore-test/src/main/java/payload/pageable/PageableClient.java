@@ -3,12 +3,13 @@
 package payload.pageable;
 
 import io.clientcore.core.annotation.Metadata;
+import io.clientcore.core.annotation.ReturnType;
 import io.clientcore.core.annotation.ServiceClient;
+import io.clientcore.core.annotation.ServiceMethod;
 import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.http.models.PagedIterable;
 import io.clientcore.core.http.models.RequestOptions;
-import io.clientcore.core.http.models.Response;
 import payload.pageable.implementation.ServerDrivenPaginationsImpl;
-import payload.pageable.serverdrivenpagination.LinkResponse;
 
 /**
  * Initializes a new instance of the synchronous PageableClient type.
@@ -51,21 +52,8 @@ public final class PageableClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public Response<LinkResponse> linkWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.linkWithResponse(requestOptions);
-    }
-
-    /**
-     * The link operation.
-     * 
-     * @throws HttpResponseException thrown if the service returns an error.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    @Metadata(generated = true)
-    public LinkResponse link() {
-        // Generated convenience method for linkWithResponse
-        RequestOptions requestOptions = new RequestOptions();
-        return linkWithResponse(requestOptions).getValue();
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> link(RequestOptions requestOptions) {
+        return this.serviceClient.link(requestOptions);
     }
 }
