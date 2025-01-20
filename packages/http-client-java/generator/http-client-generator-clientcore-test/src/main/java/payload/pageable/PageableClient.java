@@ -56,4 +56,19 @@ public final class PageableClient {
     public PagedIterable<Pet> link(RequestOptions requestOptions) {
         return this.serviceClient.link(requestOptions);
     }
+
+    /**
+     * The link operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(generated = true)
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> link() {
+        // Generated convenience method for link
+        RequestOptions requestOptions = new RequestOptions();
+        return serviceClient.link(requestOptions);
+    }
 }

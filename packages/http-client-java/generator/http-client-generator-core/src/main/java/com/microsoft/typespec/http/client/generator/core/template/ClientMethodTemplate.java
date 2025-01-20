@@ -1591,7 +1591,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
             Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
-            if (maxPageSizeSerializedName.isPresent() && settings.isBranded()) {
+            if (maxPageSizeSerializedName.isPresent()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
                 expression.append("(pageSize) -> {");
@@ -1625,7 +1625,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
             Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
-            if (maxPageSizeSerializedName.isPresent() && settings.isBranded()) {
+            if (maxPageSizeSerializedName.isPresent()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
                 expression.append("(nextLink, pageSize) -> {");
