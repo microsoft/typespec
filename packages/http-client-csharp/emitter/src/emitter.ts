@@ -233,12 +233,14 @@ export function validateDotNetSdkVersion(
   minMajorVersion: number,
 ): boolean {
   if (version) {
-    const versions = version.split(".");
-    if (versions.length < 3) {
+    const dotIndex = version.indexOf('.');
+    const firstPart = dotIndex === -1 ? version : version.substring(0, dotIndex);
+    const major = Number(firstPart);
+    
+    if (isNaN(major)) {
       Logger.getInstance().error("Invalid .NET SDK version.");
       return false;
-    }
-    const major = +versions[0];
+    }   
     if (major < minMajorVersion) {
       reportDiagnostic(program, {
         code: "invalid-dotnet-sdk-dependency",
