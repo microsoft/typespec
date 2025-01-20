@@ -48,7 +48,7 @@ describe("Test validateDotNetSdkVersion", () => {
     );
     strictEqual(
       program.diagnostics[0].message,
-      "The .NET SDK found is version 5.0.408. Please install the .NET SDK 8 or above and ensure there is no global.json in the file system requesting a lower version.  Guidance for installing the .NET SDK can be found at https://dotnet.microsoft.com/",
+      "The .NET SDK found is version 5.0.408. Please install the .NET SDK 8 or above and ensure there is no global.json in the file system requesting a lower version. Guidance for installing the .NET SDK can be found at https://dotnet.microsoft.com/.",
     );
   });
 });
