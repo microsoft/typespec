@@ -12,7 +12,6 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 
-import { spawn, SpawnOptions } from "child_process";
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
@@ -26,6 +25,7 @@ import { createModel } from "./lib/client-model-builder.js";
 import { reportDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
+import { execAsync } from "./lib/utils.js";
 import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
@@ -204,7 +204,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
  * @param program The typespec compiler program
  * @param minVersionRequisite The minimum required major version
  */
-async function validateDotNetSdk(program: Program, minMajorVersion: number): Promise<boolean> {
+export async function validateDotNetSdk(
+  program: Program,
+  minMajorVersion: number,
+): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
     return validateDotNetSdkVersion(program, result.stdout, minMajorVersion);
@@ -258,41 +261,6 @@ export function validateDotNetSdkVersion(
 
 function constructCommandArg(arg: string): string {
   return arg !== "" ? ` ${arg}` : "";
-}
-
-async function execAsync(
-  command: string,
-  args: string[] = [],
-  options: SpawnOptions = {},
-): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
-  const child = spawn(command, args, options);
-
-  return new Promise((resolve, reject) => {
-    child.on("error", (error) => {
-      reject(error);
-    });
-    const stdio: Buffer[] = [];
-    const stdout: Buffer[] = [];
-    const stderr: Buffer[] = [];
-    child.stdout?.on("data", (data) => {
-      stdout.push(data);
-      stdio.push(data);
-    });
-    child.stderr?.on("data", (data) => {
-      stderr.push(data);
-      stdio.push(data);
-    });
-
-    child.on("exit", (exitCode) => {
-      resolve({
-        exitCode: exitCode ?? -1,
-        stdio: Buffer.concat(stdio).toString(),
-        stdout: Buffer.concat(stdout).toString(),
-        stderr: Buffer.concat(stderr).toString(),
-        proc: child,
-      });
-    });
-  });
 }
 
 function transformJSONProperties(this: any, key: string, value: any): any {
