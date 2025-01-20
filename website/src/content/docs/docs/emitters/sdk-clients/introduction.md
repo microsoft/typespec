@@ -1,0 +1,102 @@
+---
+title: introduction of SDK client emitters
+---
+
+## How to Use Client Emitters to Generate SDK from TypeSpec
+
+### Introduction
+
+This guide will walk you through the process of using different client emitters (JavaScript, Python, Java, .NET) to generate SDKs from TypeSpec. Please note that all client emitters are currently in **preview** and are subject to changes in future versions.
+
+By following this guide, you will learn:
+
+1. How to set up and configure client emitters.
+2. Update the client emitter configurations in `package.json` and `tspconfig.yaml`.
+3. How to run the SDK generation for each specific programming language.
+
+## Location of All Client Emitters and Common Configurations
+
+The client emitters and their common configurations are located in the `package.json` file within your project.
+
+| **Emitter Name**             | **Language** | **Version**              | **Common Configuration** |
+| ---------------------------- | ------------ | ------------------------ | ------------------------ |
+| @azure-tools/typespec-ts     | JavaScript   | `0.37.0`                 | `emitter-output-dir`     |
+| @typespec/http-client-python | Python       | `0.6.0`                  | `emitter-output-dir`     |
+| @typespec/http-client-java   | Java         | `0.1.6`                  | `emitter-output-dir`     |
+| @typespec/http-client-csharp | .NET         | `0.1.9-alpha.20250113.2` | `emitter-output-dir`     |
+
+### Common Configuration Options
+
+- `emitter-output-dir`: Defines where the generated SDK files will be stored.
+
+Below is an example of the `package.json` snippet where client emitters are defined:
+
+```json
+  "dependencies": {
+    "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2",
+    "@typespec/http-server-javascript": "^0.58.0-alpha.6",
+    "@typespec/http-client-java": "^0.1.6",
+    "@azure-tools/typespec-ts": "^0.37.0",
+  }
+```
+
+#### Note: Check for the Latest Version
+
+To ensure you are using the latest version of the packages, visit npmjs.com and search for the relevant packages.
+
+## Language-Specific Settings
+
+### JavaScript Client Emitter
+
+The JavaScript SDK generator uses TypeScript language features for its emitter. You can customize the output by setting specific options in the `package.json` file.
+
+#### Configuration Options for JavaScript
+
+| **Configuration Name** | **Description** | **Possible Values** |
+| ---------------------- | --------------- | ------------------- |
+| `isModularLibrary`     |                 | `true`, `false`     |
+| `azureSdkForJs`        |                 | `true`, `false`     |
+| `packageDetails`       |                 | `true`, `false`     |
+
+Example configuration:
+
+#### Configuration Options for Python
+
+#### Configuration Options for Java
+
+#### Configuration Options for .NET
+
+## Running Language-Specific Emitters in CLI
+
+1. Ensure that your package.json file is correctly configured to include the necessary dependencies for running the emitters
+
+1. Update the tspconfig.yaml file for properly configured for the language-specific emitter.
+
+```yaml
+emit:
+  - "@typespec/http-client-csharp"
+  - "@typespec/http-client-java"
+options:
+  "@typespec/http-client-csharp":
+    emitter-output-dir: "{project-root}/../clients/dotnet"
+  "@typespec/http-client-java":
+    emitter-output-dir: "{project-root}/../clients/java"
+```
+
+1. Once the package.json and tspconfig.yaml files are updated, you need to install all required dependencies.
+
+Run the following command:
+
+```bash
+tsp install
+```
+
+1. Run the emitter to compile your TypeScript code into the desired language. Use the following command to trigger the emitter and compile your project:
+
+```bash
+tsp compile .
+```
+
+## Disclaimer
+
+> **All client emitters are in preview**. These emitters are actively being developed and may experience changes or updates that could affect their functionality. Please follow the official documentation for the latest updates.
