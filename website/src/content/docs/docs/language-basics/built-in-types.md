@@ -44,8 +44,9 @@ Built in types are related to each other according to the rules described in [ty
 
 :::note
 
-Those types do not define any specific serialization forma they represent the a concept of time. Each protocol or serialization format should define the default serialization format.
-The default encodings for various protocol are defined here:
+These types do not define any specific serialization format. They represent the concept of time. Each protocol or serialization format should define the default serialization format.
+
+The default encodings for various protocols are defined here:
 
 - [JSON over HTTP](../libraries/http/encoding/#utcdatetime-and-offsetdatetime)
 - [XML](../libraries/xml/guide.md)
