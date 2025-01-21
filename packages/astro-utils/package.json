@@ -21,7 +21,7 @@
     "watch": "tsc -p ./tsconfig.build.json --watch"
   },
   "devDependencies": {
-    "@types/react": "~19.0.7",
+    "@types/react": "~18.3.11",
     "astro": "^5.1.8"
   },
   "peerDependencies": {

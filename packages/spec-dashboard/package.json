@@ -36,7 +36,7 @@
     "react-markdown": "^9.0.3"
   },
   "devDependencies": {
-    "@types/react": "~19.0.7",
+    "@types/react": "~18.3.11",
     "@types/react-dom": "~19.0.3",
     "@vitejs/plugin-react": "~4.3.4",
     "rimraf": "~6.0.1",

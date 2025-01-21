@@ -37,7 +37,7 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "eslint": "^9.15.0"
+    "eslint": "^9.18.0"
   },
   "devDependencies": {
     "@types/node": "~22.10.7",
