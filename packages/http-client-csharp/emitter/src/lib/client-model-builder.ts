@@ -20,7 +20,7 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { fromSdkType } from "./converter.js";
+import { fromSdkType } from "./type-converter.js";
 import { reportDiagnostic } from "./lib.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";

@@ -18,7 +18,7 @@ import { NetEmitterOptions } from "../options.js";
 import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./converter.js";
+import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { Logger } from "./logger.js";
 
 /**
