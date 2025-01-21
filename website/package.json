@@ -7,12 +7,13 @@
     "clean": "rimraf ./dist ./temp ./.astro",
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "tsx ./.scripts/build.ts",
+    "build": "tsx ./.scripts/build.ts && npm run copy-spector",
     "build:web": "pnpm regen-all-packages-docs && astro check --minimumFailingSeverity warning && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "update-playground-versions": "tsx ./.scripts/update-playground-versions.ts",
     "regen-docs": "tsx ./.scripts/regen-compiler-docs.ts",
+    "copy-spector": "tsx ./.scripts/copy-spector.js",
     "regen-all-packages-docs": "pnpm -w --filter \"@typespec/website...\" --filter \"!@typespec/monorepo\" run regen-docs"
   },
   "dependencies": {
@@ -28,6 +29,7 @@
     "@fluentui/react-icons": "^2.0.260",
     "@typespec/compiler": "workspace:~",
     "@typespec/playground": "workspace:~",
+    "@typespec/spec-dashboard": "workspace:~",
     "astro": "^5.1.8",
     "astro-rehype-relative-markdown-links": "^0.15.0",
     "clsx": "^2.1.1",
