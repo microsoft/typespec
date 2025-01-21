@@ -1,4 +1,4 @@
--r ../dev-requirements.txt
+-r ../dev_requirements.txt
 -e ../../
 
 # common test case
