@@ -67,7 +67,6 @@ from {{ code_model.core_library }}.serialization import NULL as CoreNull
 
 _BOM = codecs.BOM_UTF8.decode(encoding="utf-8")
 
-ModelType = TypeVar("ModelType", bound="Model")
 JSON = MutableMapping[str, Any]
 
 
@@ -384,7 +383,7 @@ class Model:
         return client_models
 
     @classmethod
-    def deserialize(cls: Type[ModelType], data: Any, content_type: Optional[str] = None) -> Self:
+    def deserialize(cls, data: Any, content_type: Optional[str] = None) -> Self:
         """Parse a str using the RestAPI syntax and return a model.
 
         :param str data: A str using RestAPI structure. JSON by default.
@@ -398,7 +397,7 @@ class Model:
 
     @classmethod
     def from_dict(
-        cls: Type[ModelType],
+        cls,
         data: Any,
         key_extractors: Optional[Callable[[str, Dict[str, Any], Any], Any]] = None,
         content_type: Optional[str] = None,
@@ -413,13 +412,8 @@ class Model:
         :param function key_extractors: A key extractor function.
         :param str content_type: JSON by default, set application/xml if XML.
         :returns: An instance of this model
-<<<<<<< HEAD
         :raises: DeserializationError if something went wrong
         :rtype: Self
-=======
-        :raises DeserializationError: if something went wrong
-        :rtype: ModelType
->>>>>>> db8af176bc6ca66b335e4f81da2a655b167f08a8
         """
         deserializer = Deserializer(cls._infer_class_models())
         deserializer.key_extractors = (  # type: ignore
