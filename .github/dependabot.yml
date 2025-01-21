@@ -8,3 +8,27 @@ updates:
       prefix: "pip prod"
       prefix-development: "pip dev"
       include: "scope"
+  - package-ecosystem: "pip"
+    directory: "/packages/http-client-python/generator/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "pip prod"
+      prefix-development: "pip dev"
+      include: "scope"
+  - package-ecosystem: "pip"
+    directory: "/packages/http-client-python/generator/test"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "pip prod"
+      prefix-development: "pip dev"
+      include: "scope"
+  - package-ecosystem: "pip"
+    directory: "/packages/http-client-python/generator/test/azure"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "pip prod"
+      prefix-development: "pip dev"
+      include: "scope"
