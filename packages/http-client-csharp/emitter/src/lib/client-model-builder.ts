@@ -140,14 +140,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     if (parentClientNames.length >= 2)
       return `${parentClientNames.slice(parentClientNames.length - 1).join("")}${clientName}`;
 
-    if (
-      clientName === "Models" &&
-      resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
-    ) {
-      Logger.getInstance().warn(`Invalid client name "${clientName}"`);
-      return "ModelsOps";
-    }
-
     return clientName;
   }
 

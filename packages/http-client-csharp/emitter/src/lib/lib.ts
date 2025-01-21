@@ -19,12 +19,6 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`No Route for service for service ${"service"}`,
       },
     },
-    "invalid-name": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Invalid interface or operation group name ${"name"} when configuration "model-namespace" is on`,
-      },
-    },
     "general-warning": {
       severity: "warning",
       messages: {

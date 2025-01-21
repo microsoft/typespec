@@ -7,11 +7,11 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SpecialWords.Models
+namespace SpecialWords._Models
 {
-    public partial class ModelsOps
+    public partial class Models
     {
-        protected ModelsOps() => throw null;
+        protected Models() => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

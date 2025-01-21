@@ -1072,7 +1072,7 @@
   },
   {
    "$id": "110",
-   "Name": "ModelsOps",
+   "Name": "Models",
    "ClientNamespace": "SpecialWords.Models",
    "Doc": "Verify model names",
    "Operations": [

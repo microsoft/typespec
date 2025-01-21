@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace SpecialWords.Models
+namespace SpecialWords._Models
 {
     public partial class Async : IJsonModel<Async>
     {
