@@ -6,31 +6,31 @@ package type.property.optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class StringOperationClientTest {
+public class StringOperationClientTest {
 
-    StringOperationClient client = new OptionalClientBuilder().buildStringOperationClient();
+    private final StringOperationClient client = new OptionalClientBuilder().buildStringOperationClient();
 
     @Test
-    void getAll() {
+    public void getAll() {
         StringProperty stringProperty = client.getAll();
         Assertions.assertEquals("hello", stringProperty.getProperty());
     }
 
     @Test
-    void getDefault() {
+    public void getDefault() {
         StringProperty stringProperty = client.getDefault();
         Assertions.assertNull(stringProperty.getProperty());
     }
 
     @Test
-    void putAll() {
+    public void putAll() {
         StringProperty stringProperty = new StringProperty();
         stringProperty.setProperty("hello");
         client.putAll(stringProperty);
     }
 
     @Test
-    void putDefault() {
+    public void putDefault() {
         StringProperty stringProperty = new StringProperty();
         client.putDefault(stringProperty);
     }

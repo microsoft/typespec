@@ -15,11 +15,14 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V1
         [CadlRanchTest]
         public void TestRemovedMembers()
         {
+            var assembly = typeof(RemovedClient).Assembly;
             /* check existence of the removed model ModelV1. */
-            Assert.IsNotNull(Type.GetType("Versioning.Removed.V1.Models.ModelV1"));
+            var modelV1Type = assembly.GetType("Versioning.Removed.V1.Models.ModelV1");
+            Assert.IsNotNull(modelV1Type);
 
             /* check existence of the removed enum EnumV1. */
-            Assert.IsNotNull(Type.GetType("Versioning.Removed.V1.Models.EnumV1"));
+            var enumV1Type = assembly.GetType("Versioning.Removed.V1.Models.EnumV1");
+            Assert.IsNotNull(enumV1Type);
 
             /* check existence of removed method V1 */
             var removedMethods = typeof(RemovedClient).GetMethods().Where(m => m.Name == "V1" || m.Name == "V1Async");
@@ -35,7 +38,8 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V1
             }
 
             /* check existence of removed interface. */
-            Assert.IsNotNull(Type.GetType("Versioning.Removed.V1.InterfaceV1"));
+            var interfaceV1Type = assembly.GetType("Versioning.Removed.V1.InterfaceV1");
+            Assert.IsNotNull(interfaceV1Type);
 
             // Only initial versions is defined
             var enumType = typeof(RemovedClientOptions.ServiceVersion);
