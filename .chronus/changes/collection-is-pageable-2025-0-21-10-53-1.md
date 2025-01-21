@@ -4,4 +4,4 @@ packages:
   - "@typespec/rest"
 ---
 
-Updates CollectionWithNextLink to support pagination
+Updates `CollectionWithNextLink` to support pagination
