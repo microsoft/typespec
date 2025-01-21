@@ -11,7 +11,7 @@ import {
 } from "@fluentui/react-components";
 import { DatabaseRegular } from "@fluentui/react-icons";
 import { getDoc } from "@typespec/compiler";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type MouseEvent } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Fragment } from "react/jsx-runtime";
 import { useProgram } from "../program-context.js";
@@ -37,7 +37,7 @@ export const CurrentPath = () => {
       <Breadcrumb size="small">
         <BreadcrumbItem>
           <BreadcrumbButton
-            onClick={(evt: Event) => {
+            onClick={(evt: MouseEvent) => {
               nav.selectPath("");
               evt.stopPropagation();
             }}
