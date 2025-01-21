@@ -10,11 +10,12 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Utilities;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class ModelProvider : TypeProvider
+    public class ModelProvider : TypeProvider
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private readonly InputModelType _inputModel;
@@ -33,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
             _inputModel = inputModel;
-            Description = inputModel.Description != null ? FormattableStringHelpers.FromString(inputModel.Description) : $"The {Name}.";
+            Description = DocHelpers.GetFormattableDescription(inputModel.Summary, inputModel.Doc) ?? $"The {Name}.";
 
             if (inputModel.BaseModel is not null)
             {
@@ -85,7 +86,7 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
-        protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+        protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
 
         protected override CSharpType? GetBaseType()
         {
@@ -101,7 +102,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildName() => _inputModel.Name.ToCleanName();
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             var isStruct = false;
@@ -447,6 +448,56 @@ namespace Microsoft.Generator.CSharp.Providers
                 this);
         }
 
+        private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization()
+        {
+            var properties = new Stack<List<PropertyProvider>>();
+            var modelProvider = BaseModelProvider;
+            bool isDirectBase = true;
+            while (modelProvider != null)
+            {
+                properties.Push([]);
+                foreach (var property in modelProvider.CanonicalView.Properties)
+                {
+                    if (property.IsDiscriminator)
+                    {
+                        // In the case of nested discriminators, we only need to include the direct base discriminator property,
+                        // as this is the only one that will be initialized in this model's constructor.
+                        if (isDirectBase)
+                        {
+                            properties.Peek().Add(property);
+                        }
+                    }
+                    else
+                    {
+                        properties.Peek().Add(property);
+                    }
+                }
+
+                modelProvider = modelProvider.BaseModelProvider;
+                isDirectBase = false;
+            }
+
+            // parameters need to be ordered from the base-most class to the derived class
+            return properties.SelectMany(l => l);
+        }
+
+        private IEnumerable<FieldProvider> GetAllBaseFieldsForConstructorInitialization()
+        {
+            var fields = new Stack<List<FieldProvider>>();
+            var modelProvider = BaseModelProvider;
+            while (modelProvider != null)
+            {
+                fields.Push([]);
+                foreach (var field in modelProvider.CanonicalView.Fields)
+                {
+                    fields.Peek().Add(field);
+                }
+                modelProvider = modelProvider.BaseModelProvider;
+            }
+
+            return fields.SelectMany(l => l);
+        }
+
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters(
             bool isPrimaryConstructor)
         {
@@ -457,9 +508,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
             if (isPrimaryConstructor)
             {
-                // the primary ctor should only include the properties of the direct base model
-                baseProperties = BaseModelProvider?.CanonicalView.Properties ?? [];
-                baseFields = BaseModelProvider?.CanonicalView.Fields ?? [];
+                baseProperties = GetAllBasePropertiesForConstructorInitialization();
+                baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
             {
@@ -493,7 +543,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isPrimaryConstructor, field: field);
             }
 
-            constructorParameters.AddRange(_inputModel.IsUnknownDiscriminatorModel
+            constructorParameters.InsertRange(0, _inputModel.IsUnknownDiscriminatorModel
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null

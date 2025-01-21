@@ -33,7 +33,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _defaultNumberFormatField = new(FieldModifiers.Public | FieldModifiers.Const, typeof(string), "DefaultNumberFormat", this, initializationValue: Literal("G"));
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }

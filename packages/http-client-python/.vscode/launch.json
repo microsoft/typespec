@@ -21,6 +21,22 @@
       "sourceMaps": true
     },
     {
+      "name": "alpha",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "compile",
+        "${workspaceFolder}/alpha/main.tsp",
+        "--emit=${workspaceFolder}",
+        "--option=@typespec/http-client-python.flavor=azure"
+      ],
+      "program": "${workspaceFolder}/node_modules/@typespec/compiler/entrypoints/cli.js",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "smartStep": true,
+      "sourceMaps": true
+    },
+    {
       "name": "Python: Attach",
       "type": "python",
       "request": "attach",

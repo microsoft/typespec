@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 using _Type.Model.Usage.Models;
 
@@ -18,28 +19,28 @@ namespace _Type.Model.Usage
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Input(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Input(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> InputAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> InputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Input(InputRecord input) => throw null;
+        public virtual ClientResult Input(InputRecord input, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> InputAsync(InputRecord input) => throw null;
+        public virtual Task<ClientResult> InputAsync(InputRecord input, CancellationToken cancellationToken = default) => throw null;
 
         public virtual ClientResult Output(RequestOptions options) => throw null;
 
         public virtual Task<ClientResult> OutputAsync(RequestOptions options) => throw null;
 
-        public virtual ClientResult<OutputRecord> Output() => throw null;
+        public virtual ClientResult<OutputRecord> Output(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<OutputRecord>> OutputAsync() => throw null;
+        public virtual Task<ClientResult<OutputRecord>> OutputAsync(CancellationToken cancellationToken = default) => throw null;
 
-        public virtual ClientResult InputAndOutput(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult InputAndOutput(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> InputAndOutputAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> InputAndOutputAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<InputOutputRecord> InputAndOutput(InputOutputRecord body) => throw null;
+        public virtual ClientResult<InputOutputRecord> InputAndOutput(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult<InputOutputRecord>> InputAndOutputAsync(InputOutputRecord body) => throw null;
+        public virtual Task<ClientResult<InputOutputRecord>> InputAndOutputAsync(InputOutputRecord body, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -17,7 +17,7 @@ using Azure.ClientGenerator.Core;
   }
 )
 @versioned(ServiceApiVersions)
-namespace Cadl.Flatten;
+namespace TspTest.Flatten;
 
 enum ServiceApiVersions {
   v2022_06_01_preview: "2022-06-01-preview",
@@ -97,7 +97,7 @@ model TodoItemPatch {
 }
 
 @client({
-  service: Cadl.Flatten,
+  service: TspTest.Flatten,
   name: "FlattenClient",
 })
 @route("/flatten")

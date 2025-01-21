@@ -20,7 +20,7 @@ import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
  * Render doc to a markdown using docusaurus addons.
  */
 export function renderToAstroStarlightMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
-  const renderer = new DocusaurusRenderer(refDoc);
+  const renderer = new StarlightRenderer(refDoc);
   const files: Record<string, string> = {
     "index.mdx": renderIndexFile(renderer, refDoc),
   };
@@ -52,7 +52,7 @@ export function renderToAstroStarlightMarkdown(refDoc: TypeSpecRefDoc): Record<s
   return files;
 }
 
-function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRefDoc): string {
+function renderIndexFile(renderer: StarlightRenderer, refDoc: TypeSpecLibraryRefDoc): string {
   const content: MarkdownDoc = [
     "---",
     `title: Overview`,
@@ -97,7 +97,7 @@ export type DecoratorRenderOptions = {
 };
 
 export function renderDecoratorFile(
-  renderer: DocusaurusRenderer,
+  renderer: StarlightRenderer,
   refDoc: TypeSpecRefDocBase,
   options?: DecoratorRenderOptions,
 ): string | undefined {
@@ -118,7 +118,7 @@ export function renderDecoratorFile(
 }
 
 function renderInterfacesFile(
-  renderer: DocusaurusRenderer,
+  renderer: StarlightRenderer,
   refDoc: TypeSpecRefDoc,
 ): string | undefined {
   if (!refDoc.namespaces.some((x) => x.operations.length > 0 || x.interfaces.length > 0)) {
@@ -152,7 +152,7 @@ export type DataTypeRenderOptions = {
 };
 
 export function renderDataTypes(
-  renderer: DocusaurusRenderer,
+  renderer: StarlightRenderer,
   refDoc: TypeSpecRefDoc,
   options?: DataTypeRenderOptions,
 ): string | undefined {
@@ -193,7 +193,7 @@ export function renderDataTypes(
 }
 
 function renderEmitter(
-  renderer: DocusaurusRenderer,
+  renderer: StarlightRenderer,
   refDoc: TypeSpecLibraryRefDoc,
 ): string | undefined {
   if (refDoc.emitter?.options === undefined) {
@@ -209,7 +209,7 @@ function renderEmitter(
   return renderMarkdowDoc(content, 2);
 }
 function renderLinter(
-  renderer: DocusaurusRenderer,
+  renderer: StarlightRenderer,
   refDoc: TypeSpecLibraryRefDoc,
 ): string | undefined {
   if (refDoc.linter === undefined) {
@@ -225,7 +225,7 @@ function renderLinter(
   return renderMarkdowDoc(content, 2);
 }
 
-export class DocusaurusRenderer extends MarkdownRenderer {
+export class StarlightRenderer extends MarkdownRenderer {
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return `${inlinecode(item.name)} {#${item.id}}`;
@@ -278,7 +278,7 @@ export class DocusaurusRenderer extends MarkdownRenderer {
   }
 
   deprecationNotice(notice: DeprecationNotice): MarkdownDoc {
-    return [":::warning", `**Deprecated**: ${notice.message}`, ":::"];
+    return [":::caution", `**Deprecated**: ${notice.message}`, ":::"];
   }
 }
 

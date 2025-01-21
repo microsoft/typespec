@@ -1,14 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import {
-  Model,
-  ModelProperty,
-  Namespace,
-  Operation,
-  Scalar,
-  getVisibility,
-  isSecret,
-} from "../../src/index.js";
+import { Model, ModelProperty, Namespace, Operation, Scalar, isSecret } from "../../src/index.js";
 import {
   getDoc,
   getEncode,
@@ -266,6 +258,19 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
+      });
+    });
+
+    it("emit diagnostic if pattern is not a valid RegEx", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          @pattern("[a-z")
+          prop: string;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-pattern-regex",
       });
     });
 
@@ -863,44 +868,6 @@ describe("compiler: built-in decorators", () => {
 
       const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
       deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
-    });
-  });
-
-  describe("@withDefaultKeyVisibility", () => {
-    it("sets the default visibility on a key property when not already present", async () => {
-      const { TestModel } = (await runner.compile(
-        `
-        model OriginalModel {
-          @key
-          name: string;
-        }
-
-        @test
-        model TestModel is DefaultKeyVisibility<OriginalModel, "read"> {
-        } `,
-      )) as { TestModel: Model };
-
-      deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), ["read"]);
-    });
-
-    it("allows visibility applied to a key property to override the default", async () => {
-      const { TestModel } = (await runner.compile(
-        `
-        model OriginalModel {
-          @key
-          @visibility("read", "update")
-          name: string;
-        }
-
-        @test
-        model TestModel is DefaultKeyVisibility<OriginalModel, "create"> {
-        } `,
-      )) as { TestModel: Model };
-
-      deepStrictEqual(getVisibility(runner.program, TestModel.properties.get("name")!), [
-        "read",
-        "update",
-      ]);
     });
   });
 

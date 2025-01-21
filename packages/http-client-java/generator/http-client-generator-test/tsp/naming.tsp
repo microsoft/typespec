@@ -12,7 +12,7 @@ using Azure.ClientGenerator.Core;
 @service({
   title: "Naming",
 })
-namespace Cadl.Naming;
+namespace TspTest.Naming;
 
 @summary("summary of Response")
 @doc("description of Response. Include tab '	' in doc.")
@@ -72,7 +72,6 @@ model BytesData extends Data {
   @doc("Data as {@code byte[]}")
   @clientName("dataAsBytes")
   @encodedName("application/json", "data_bytes")
-  @projectedName("client", "noeffect")
   data: bytes;
 }
 

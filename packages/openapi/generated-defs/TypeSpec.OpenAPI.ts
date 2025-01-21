@@ -96,6 +96,12 @@ export type InfoDecorator = (
  *
  * @param name tag name
  * @param tagMetadata Additional information
+ * @example
+ * ```typespec
+ * @service()
+ * @tagMetadata("Tag Name", #{description: "Tag description", externalDocs: #{url: "https://example.com", description: "More info.", `x-custom`: "string"}, `x-custom`: "string"})
+ * namespace PetStore {}
+ * ```
  */
 export type TagMetadataDecorator = (
   context: DecoratorContext,

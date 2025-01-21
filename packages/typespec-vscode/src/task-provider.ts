@@ -1,9 +1,10 @@
 import { resolve } from "path";
 import vscode, { workspace } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
+import { StartFileName } from "./const.js";
 import logger from "./log/logger.js";
+import { normalizeSlashes } from "./path-utils.js";
 import { resolveTypeSpecCli } from "./tsp-executable-resolver.js";
-import { normalizeSlash } from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
 
 export function createTaskProvider() {
@@ -11,13 +12,13 @@ export function createTaskProvider() {
     provideTasks: async () => {
       logger.info("Providing tsp tasks");
       const targetPathes = await vscode.workspace
-        .findFiles("**/main.tsp", "**/node_modules/**")
+        .findFiles(`**/${StartFileName}`, "**/node_modules/**")
         .then((uris) =>
           uris
             .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
-            .map((uri) => normalizeSlash(uri.fsPath)),
+            .map((uri) => normalizeSlashes(uri.fsPath)),
         );
-      logger.info(`Found ${targetPathes.length} main.tsp files`);
+      logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
       const tasks: vscode.Task[] = [];
       for (const targetPath of targetPathes) {
         tasks.push(...(await createBuiltInTasks(targetPath)));
@@ -56,7 +57,7 @@ function getTaskPath(targetPath: string): { absoluteTargetPath: string; workspac
   });
   targetPath = variableResolver.resolve(targetPath);
   targetPath = resolve(workspaceFolder, targetPath);
-  targetPath = normalizeSlash(variableResolver.resolve(targetPath));
+  targetPath = normalizeSlashes(variableResolver.resolve(targetPath));
   return { absoluteTargetPath: targetPath, workspaceFolder };
 }
 

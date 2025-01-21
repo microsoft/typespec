@@ -39,20 +39,40 @@ export default function (playgroundUrl: string) {
       }
 
       .tryit-link {
+        height: 34px;
         display: flex;
-        cursor: pointer;
         align-items: center;
-        justify-content: space-between;
-        background-color: var(--colorBrandBackground);
-        padding: 0.4rem;
-        text-decoration: none;
-        color: var(--colorNeutralForegroundOnBrand);
+        padding: 0 0.5rem;
       }
 
-      .tryit-link:hover {
+      .tryit-link.with-title {
+        position: absolute;
+        z-index: 100;
+        top: 0px;
+        right: 0px;
+        height: 34px;
+      }
+      .tryit-link:not(.with-title) {
+        position: absolute;
+        z-index: 100;
+        bottom: 0px;
+        right: 0px;
+        height: 34px;
+      }
+        
+
+      .tryit-link {
         text-decoration: none;
-        color: var(--colorNeutralForegroundOnBrand);
-        background-color: var(--colorBrandBackgroundHover);
+        color: var(--colorPaletteGreenBackground3);
+      }
+
+      .play {
+        height: 20px;
+        padding-left: 2px;
+        width: 20px;
+        fill: currentColor;
+        stroke: currentColor;
+        transform: rotate(90deg)
       }
     `,
     hooks: {
@@ -65,16 +85,18 @@ export default function (playgroundUrl: string) {
 
         const compilerOptions = JSON.parse(tryitStr);
         const extraElements = [];
-
+        const hasTitle = metaOptions.getString("title");
         extraElements.push(
           h(
             "a",
             {
-              className: "tryit-link",
-              title: "Try it",
+              className: ["tryit-link", hasTitle && "with-title"].filter((x) => x).join(" "),
+              title: "Try it in the playground",
               href: resolvePlaygroundLink(codeBlock.code, compilerOptions),
+              target: "_blank",
+              rel: "noopener noreferrer",
             },
-            ["Try it"],
+            [playSvg, "Try it"],
           ),
         );
 
@@ -89,3 +111,22 @@ export default function (playgroundUrl: string) {
     },
   });
 }
+
+const playSvg = h(
+  "svg",
+  {
+    xmlns: "http://www.w3.org/2000/svg",
+    className: ["play"],
+    width: 24,
+    height: 24,
+    viewBox: "0 0 24 24",
+    fill: "currentColor",
+    stroke: "currentColor",
+    "stroke-width": "1.34",
+  },
+  [
+    h("path", {
+      d: "M12.0001 3.75317L21.5509 20.2501H2.44922L12.0001 3.75317ZM5.05089 18.7501H18.9492L12.0001 6.74697L5.05089 18.7501Z",
+    }),
+  ],
+);

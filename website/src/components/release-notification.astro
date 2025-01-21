@@ -7,7 +7,7 @@ if (!releaseDate) {
   const today = new Date();
   throw new Error(
     [
-      "Last release notes should have a releaseDate: property in frontmatter. For example:",
+      `Last release notes(${last.id}) should have a releaseDate: property in frontmatter. For example:`,
       `  releaseDate: ${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
       "",
     ].join("\n"),
@@ -48,7 +48,7 @@ import Link from "@typespec/astro-utils/components/link.astro";
     line-height: 24px;
   }
   .new-version-banner:hover {
-    background-color: var(--colorBrandBackgroundHover);
+    outline: 1px solid var(--colorBrandBackgroundHover);
   }
   .hide {
     display: none;
@@ -57,7 +57,7 @@ import Link from "@typespec/astro-utils/components/link.astro";
 
 <Link
   class="new-version-banner"
-  href={"/" + last.slug}
+  href={"/" + last.id}
   data-releasedate={last.data.releaseDate!.toISOString()}
 >
   Version {last.data.version} is now available!

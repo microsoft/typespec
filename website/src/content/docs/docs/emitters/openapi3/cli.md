@@ -2,7 +2,7 @@
 title: OpenAPI3 to TypeSpec
 ---
 
-:::warning
+:::caution
 The OpenAPI3 to TypeSpec conversion purpose is a one time conversion to help you get started with TypeSpec.
 The output can change in future versions of TypeSpec without being considered a breaking change.
 :::

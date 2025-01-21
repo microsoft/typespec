@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-javascript",
-  "version": "0.58.0-alpha.5",
+  "version": "0.58.0-alpha.7",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP server code generator for JavaScript",
   "homepage": "https://github.com/microsoft/typespec",
@@ -32,8 +32,10 @@
     "build:src": "tsc -p ./tsconfig.json",
     "build:helpers": "tsx ./build-helpers.ts",
     "watch": "tsc -p . --watch",
-    "test": "echo No tests specified",
-    "test:ci": "echo No tests specified",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "regen-docs": "echo Doc generation disabled for this package."
@@ -46,10 +48,13 @@
     "prettier": "~3.3.3"
   },
   "devDependencies": {
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
-    "tsx": "^4.19.1",
-    "typescript": "~5.6.3"
+    "@vitest/coverage-v8": "^2.1.5",
+    "@vitest/ui": "^2.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.5"
   }
 }

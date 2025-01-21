@@ -33,7 +33,6 @@ jobs:
 
       - name: Install browsers
         run: pnpm exec playwright install
-        working-directory: packages/playground-website
 
       - name: Build
         run: pnpm --filter "@typespec/website..." run build

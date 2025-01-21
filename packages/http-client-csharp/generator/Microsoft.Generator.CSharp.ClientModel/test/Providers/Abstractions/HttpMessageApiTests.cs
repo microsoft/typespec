@@ -6,7 +6,6 @@ using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Statements;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 {
@@ -40,7 +39,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
             var client = InputFactory.Client("TestClient", [InputFactory.Operation("foo")]);
             MockHelpers.LoadMockPlugin(httpMessageApi: TestHttpMessageApi.Instance);
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(client);
-            return clientProvider;
+            Assert.IsNotNull(clientProvider);
+            return clientProvider!;
         }
 
         private record TestHttpMessageApi : HttpMessageApi
@@ -59,9 +59,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.Abstractions
 
             public override ValueExpression BufferResponse()
                 => Original.Invoke("GetFakeBufferResponse");
-
-            public override MethodBodyStatement[] ExtractResponse()
-                => [Return(Original.Invoke("GetFakeExtractResponse"))];
 
             public override HttpMessageApi FromExpression(ValueExpression original)
                 => new TestHttpMessageApi(original);

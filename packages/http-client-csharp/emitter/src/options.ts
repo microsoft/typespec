@@ -39,6 +39,7 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
+    "emitter-name": { type: "string", nullable: true },
     "examples-directory": { type: "string", nullable: true },
     "examples-dir": { type: "string", nullable: true },
     "api-version": { type: "string", nullable: true },
@@ -59,7 +60,6 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     "model-namespace": { type: "boolean", nullable: true },
     "generate-protocol-methods": { type: "boolean", nullable: true },
     "generate-convenience-methods": { type: "boolean", nullable: true },
-    "filter-out-core-models": { type: "boolean", nullable: true },
     "flatten-union-as-enum": { type: "boolean", nullable: true },
     "package-name": { type: "string", nullable: true },
     "existing-project-folder": { type: "string", nullable: true },
@@ -121,7 +121,6 @@ export const defaultOptions = {
   "new-project": false,
   "clear-output-folder": false,
   "save-inputs": false,
-  "filter-out-core-models": false,
   "generate-protocol-methods": true,
   "generate-convenience-methods": true,
   "package-name": undefined,

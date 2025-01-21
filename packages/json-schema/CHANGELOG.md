@@ -1,5 +1,16 @@
 # Change Log - @typespec/json-schema
 
+## 0.64.0
+
+No changes, version bump only.
+
+## 0.63.0
+
+### Bug Fixes
+
+- [#5189](https://github.com/microsoft/typespec/pull/5189) Fixes crash that occurred when a template instantiation's template argument was a union that references a declaration.
+
+
 ## 0.62.0
 
 ### Bug Fixes

@@ -30,8 +30,31 @@ model Page<T> {
 ```
 
 
+### `@defaultVisibility` {#@defaultVisibility}
+
+Declares the default visibility modifiers for a visibility class.
+
+The default modifiers are used when a property does not have any visibility decorators
+applied to it.
+
+The modifiers passed to this decorator _MUST_ be members of the target Enum.
+```typespec
+@defaultVisibility(...visibilities: valueof EnumMember[])
+```
+
+#### Target
+
+`Enum`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof EnumMember[]` | the list of modifiers to use as the default visibility modifiers. |
+
+
+
 ### `@deprecated` {#@deprecated}
-:::warning
+:::caution
 **Deprecated**: @deprecated decorator is deprecated. Use the `#deprecated` directive instead.
 :::
 
@@ -399,6 +422,35 @@ A debugging decorator used to inspect a type name.
 
 
 
+### `@invisible` {#@invisible}
+
+Indicates that a property is not visible in the given visibility class.
+
+This decorator removes all active visibility modifiers from the property within
+the given visibility class.
+```typespec
+@invisible(visibilityClass: Enum)
+```
+
+#### Target
+
+`ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilityClass | `Enum` | The visibility class to make the property invisible within. |
+
+#### Examples
+
+```typespec
+model Example {
+  @invisible(Lifecycle)
+  hidden_property: string;
+}
+```
+
+
 ### `@key` {#@key}
 
 Mark a model property as the key to identify instances of that type
@@ -425,7 +477,7 @@ model Pet {
 
 
 ### `@knownValues` {#@knownValues}
-:::warning
+:::caution
 **Deprecated**: This decorator has been deprecated. Use a named union of string literals with a string variant to achieve the same result without a decorator.
 :::
 
@@ -878,7 +930,7 @@ model Page<T> {
 
 Sets which visibilities apply to parameters for the given operation.
 ```typespec
-@parameterVisibility(...visibilities: valueof string[])
+@parameterVisibility(...visibilities: valueof string | EnumMember[])
 ```
 
 #### Target
@@ -888,7 +940,7 @@ Sets which visibilities apply to parameters for the given operation.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string[]` | List of visibility strings which apply to this operation. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibility strings which apply to this operation. |
 
 
 
@@ -955,7 +1007,7 @@ model Page<T> {
 
 
 ### `@projectedName` {#@projectedName}
-:::warning
+:::caution
 **Deprecated**: Use `@encodedName` instead for changing the name over the wire.
 :::
 
@@ -982,6 +1034,38 @@ Provide an alternative name for this type.
 model Certificate {
   @projectedName("json", "exp")
   expireAt: int32;
+}
+```
+
+
+### `@removeVisibility` {#@removeVisibility}
+
+Removes visibility modifiers from a property.
+
+If the visibility modifiers for a visibility class have not been initialized,
+this decorator will use the default visibility modifiers for the visibility
+class as the default modifier set.
+```typespec
+@removeVisibility(...visibilities: valueof EnumMember[])
+```
+
+#### Target
+The property to remove visibility from.
+`ModelProperty`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof EnumMember[]` | The visibility modifiers to remove from the target property. |
+
+#### Examples
+
+```typespec
+model Example {
+  // This property will have the Create and Update visibilities, but not the
+  // Read visibility, since it is removed.
+  @removeVisibility(Lifecycle.Read)
+  secret_property: string;
 }
 ```
 
@@ -1015,7 +1099,7 @@ op get(): Pet | NotFound;
 
 Sets which visibilities apply to the return type for the given operation.
 ```typespec
-@returnTypeVisibility(...visibilities: valueof string[])
+@returnTypeVisibility(...visibilities: valueof string | EnumMember[])
 ```
 
 #### Target
@@ -1025,7 +1109,7 @@ Sets which visibilities apply to the return type for the given operation.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string[]` | List of visibility strings which apply to this operation. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibility strings which apply to this operation. |
 
 
 
@@ -1149,7 +1233,7 @@ with standard emitters that interpret them as follows:
 
 See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
 ```typespec
-@visibility(...visibilities: valueof string[])
+@visibility(...visibilities: valueof string | EnumMember[])
 ```
 
 #### Target
@@ -1159,16 +1243,16 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibilities which apply to this property. |
 
 #### Examples
 
 ```typespec
 model Dog {
   // the service will generate an ID, so you don't need to send it.
-  @visibility("read") id: int32;
+  @visibility(Lifecycle.Read) id: int32;
   // the service will store this secret name, but won't ever return it
-  @visibility("create", "update") secretName: string;
+  @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
   // the regular name is always present
   name: string;
 }
@@ -1178,8 +1262,18 @@ model Dog {
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
 
 Set the visibility of key properties in a model if not already set.
+
+This will set the visibility modifiers of all key properties in the model if the visibility is not already _explicitly_ set,
+but will not change the visibility of any properties that have visibility set _explicitly_, even if the visibility
+is the same as the default visibility.
+
+Visibility may be explicitly set using any of the following decorators:
+
+- `@visibility`
+- `@removeVisibility`
+- `@invisible`
 ```typespec
-@withDefaultKeyVisibility(visibility: valueof string)
+@withDefaultKeyVisibility(visibility: valueof string | EnumMember)
 ```
 
 #### Target
@@ -1189,8 +1283,47 @@ Set the visibility of key properties in a model if not already set.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | [valueof `string`](#string) | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
+| visibility | `valueof string \| EnumMember` | The desired default visibility value. If a key property already has visibility set, it will not be changed. |
 
+
+
+### `@withLifecycleUpdate` {#@withLifecycleUpdate}
+
+Transforms the `target` model to include only properties that are visible during the
+"Update" lifecycle phase.
+
+Any nested models of optional properties will be transformed into the "CreateOrUpdate"
+lifecycle phase instead of the "Update" lifecycle phase, so that nested models may be
+fully updated.
+```typespec
+@withLifecycleUpdate
+```
+
+#### Target
+The model to apply the transformation to.
+`Model`
+
+#### Parameters
+None
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
+  name: string;
+}
+
+@withLifecycleUpdate
+model DogUpdate {
+  ...Dog
+}
+```
 
 
 ### `@withOptionalProperties` {#@withOptionalProperties}
@@ -1289,7 +1422,7 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
 ```typespec
-@withVisibility(...visibilities: valueof string[])
+@withVisibility(...visibilities: valueof string | EnumMember[])
 ```
 
 #### Target
@@ -1299,7 +1432,7 @@ not necessary to use this decorator.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibilities which apply to this property. |
 
 #### Examples
 
@@ -1326,6 +1459,42 @@ model DogCreateOrUpdate {
 @withVisibility("read")
 model DogRead {
   ...Dog;
+}
+```
+
+
+### `@withVisibilityFilter` {#@withVisibilityFilter}
+
+Applies the given visibility filter to the properties of the target model.
+
+This transformation is recursive, so it will also apply the filter to any nested
+or referenced models that are the types of any properties in the `target`.
+```typespec
+@withVisibilityFilter(filter: valueof VisibilityFilter)
+```
+
+#### Target
+The model to apply the visibility filter to.
+`Model`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| filter | [valueof `VisibilityFilter`](./built-in-data-types.md#VisibilityFilter) | The visibility filter to apply to the properties of the target model. |
+
+#### Examples
+
+```typespec
+model Dog {
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  name: string;
+}
+
+@withVisibilityFilter(#{ all: #[Lifecycle.Read] })
+model DogRead {
+ ...Dog
 }
 ```
 

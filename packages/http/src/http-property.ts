@@ -100,6 +100,7 @@ function getHttpProperty(
   options: GetHttpPropertyOptions = {},
 ): [HttpProperty, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
+
   function createResult<T extends Omit<HttpProperty, "path" | "property">>(
     opts: T,
   ): [HttpProperty & T, readonly Diagnostic[]] {
@@ -162,14 +163,15 @@ function getHttpProperty(
       );
     }
   }
+  // if implicit just returns as it is. Validation above would have checked nothing was set explicitly apart from the type and that the type match
+  if (implicit) {
+    return createResult({
+      kind: implicit.type,
+      options: implicit as any,
+      property,
+    });
+  }
   if (defined.length === 0) {
-    if (implicit) {
-      return createResult({
-        kind: implicit.type,
-        options: implicit as any,
-        property,
-      });
-    }
     return createResult({ kind: "bodyProperty" });
   } else if (defined.length > 1) {
     diagnostics.push(

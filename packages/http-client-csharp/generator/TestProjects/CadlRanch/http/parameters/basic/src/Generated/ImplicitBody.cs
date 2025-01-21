@@ -4,6 +4,7 @@
 
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Parameters.Basic
@@ -14,12 +15,12 @@ namespace Parameters.Basic
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Simple(BinaryContent content, RequestOptions options) => throw null;
+        public virtual ClientResult Simple(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> SimpleAsync(BinaryContent content, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> SimpleAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult Simple(string name) => throw null;
+        public virtual ClientResult Simple(string name, CancellationToken cancellationToken = default) => throw null;
 
-        public virtual Task<ClientResult> SimpleAsync(string name) => throw null;
+        public virtual Task<ClientResult> SimpleAsync(string name, CancellationToken cancellationToken = default) => throw null;
     }
 }

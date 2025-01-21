@@ -225,3 +225,4 @@ BenchmarkDotnet.Artifacts/
 packages/http-client-python/generator/test/**/generated/
 packages/http-client-python/generator/test/**/cadl-ranch-coverage.json
 !packages/http-client-python/package-lock.json
+packages/http-client-python/micropip.lock

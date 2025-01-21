@@ -164,6 +164,7 @@ export function resolveOperationId(program: Program, operation: Operation) {
  * designate a read-only property.
  */
 export function isReadonlyProperty(program: Program, property: ModelProperty) {
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   const visibility = getVisibility(program, property);
   // note: multiple visibilities that include read are not handled using
   // readonly: true, but using separate schemas.

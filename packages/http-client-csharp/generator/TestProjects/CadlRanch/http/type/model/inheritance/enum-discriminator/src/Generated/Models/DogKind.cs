@@ -24,6 +24,7 @@ namespace _Type.Model.Inheritance.EnumDiscriminator.Models
 
         public bool Equals(DogKind other) => throw null;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

@@ -77,12 +77,12 @@
     "@babel/core": "^7.25.2",
     "@playwright/test": "^1.48.0",
     "@types/debounce": "~1.2.4",
-    "@types/node": "~22.7.5",
+    "@types/node": "~22.7.9",
     "@types/react": "~18.3.11",
     "@types/react-dom": "~18.3.0",
     "@types/swagger-ui": "~3.52.4",
     "@vitejs/plugin-react": "~4.3.2",
-    "@vitest/coverage-v8": "^2.1.2",
+    "@vitest/coverage-v8": "^2.1.5",
     "@vitest/ui": "^2.1.2",
     "c8": "^10.1.2",
     "cross-env": "~7.0.3",
@@ -91,6 +91,6 @@
     "typescript": "~5.6.3",
     "vite": "^5.4.8",
     "vite-plugin-dts": "4.2.3",
-    "vitest": "^2.1.2"
+    "vitest": "^2.1.5"
   }
 }

@@ -69,3 +69,4 @@ export * from "./semantic-walker.js";
 export { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
 export * from "./type-utils.js";
 export * from "./types.js";
+export * from "./visibility/index.js";

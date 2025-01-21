@@ -279,23 +279,42 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 "plant",
                 properties:
                 [
-                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("plantType", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "tree", treeModel } });
 
-            MockHelpers.LoadMockPlugin(inputModels: () => [baseModel, treeModel]);
+            MockHelpers.LoadMockPlugin(inputModels: () => [baseModel, treeModel, oakTreeModel]);
             var baseModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
                 .FirstOrDefault(t => t.Name == "Plant");
             var treeModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
                 .FirstOrDefault(t => t.Name == "Tree");
+            var oakTreeModelProvider = ClientModelPlugin.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+                .FirstOrDefault(t => t.Name == "OakTree");
             Assert.IsNotNull(baseModelProvider);
             Assert.IsNotNull(treeModelProvider);
+            Assert.IsNotNull(oakTreeModelProvider);
+
+            var baseModelConstructor = baseModelProvider!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            Assert.IsNotNull(baseModelConstructor);
+            Assert.IsTrue(baseModelConstructor!.Signature.Parameters.Any(p => p.Name == "name"));
+            Assert.IsTrue(baseModelConstructor.Signature.Parameters.Any(p => p.Name == "plantType"));
+
+            var treeModelConstructor = treeModelProvider!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(treeModelConstructor);
+            Assert.IsTrue(treeModelConstructor!.Signature.Parameters.Any(p => p.Name == "name"));
+            Assert.IsFalse(treeModelConstructor.Signature.Parameters.Any(p => p.Name == "plantType"));
+
+            var oakTreeModelConstructor = oakTreeModelProvider!.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(oakTreeModelConstructor);
+            Assert.IsTrue(oakTreeModelConstructor!.Signature.Parameters.Any(p => p.Name == "name"));
+            Assert.IsFalse(oakTreeModelConstructor.Signature.Parameters.Any(p => p.Name == "plantType"));
 
             // validate the base discriminator deserialization method has the switch statement
             var baseDeserializationMethod = baseModelProvider!.SerializationProviders.FirstOrDefault()!.Methods
                 .FirstOrDefault(m => m.Signature.Name == "DeserializePlant");
             Assert.IsTrue(baseDeserializationMethod?.BodyStatements!.ToDisplayString().Contains(
-                $"if (element.TryGetProperty(\"foo\"u8, out global::System.Text.Json.JsonElement discriminator))"));
+                $"if (element.TryGetProperty(\"plantType\"u8, out global::System.Text.Json.JsonElement discriminator))"));
 
             var treeModelSerializationProvider = treeModelProvider!.SerializationProviders.FirstOrDefault();
             Assert.IsNotNull(treeModelSerializationProvider);

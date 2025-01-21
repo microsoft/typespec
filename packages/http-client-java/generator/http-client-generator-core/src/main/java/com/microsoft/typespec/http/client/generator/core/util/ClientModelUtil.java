@@ -79,10 +79,14 @@ public class ClientModelUtil {
         boolean generateAsyncMethods = JavaSettings.getInstance().isGenerateAsyncMethods();
         boolean generateSyncMethods = JavaSettings.getInstance().isGenerateSyncMethods();
 
-        if (serviceClient.getProxy() != null) {
+        if (serviceClient.getProxy() != null || !CoreUtils.isNullOrEmpty(serviceClient.getClientAccessorMethods())) {
+            // need wrapper for either
+            // 1. ServiceClient has operations
+            // 2. ServiceClient has sub clients
+
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
-                .crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
+                .crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client));
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
@@ -94,22 +98,28 @@ public class ClientModelUtil {
 
             if (generateAsyncMethods) {
                 String asyncClassName = clientNameToAsyncClientName(serviceClient.getClientBaseName());
-                asyncClients.add(builder.className(asyncClassName).build());
+                AsyncSyncClient asyncClient = builder.className(asyncClassName).build();
+                serviceClient.setAsyncClient(asyncClient);
+                asyncClients.add(asyncClient);
             }
 
             if (generateSyncMethods) {
                 String syncClassName = serviceClient.getClientBaseName().endsWith("Client")
                     ? serviceClient.getClientBaseName()
                     : serviceClient.getClientBaseName() + "Client";
-                syncClients.add(builder.className(syncClassName).build());
+                AsyncSyncClient syncClient = builder.className(syncClassName).build();
+                serviceClient.setSyncClient(syncClient);
+                syncClients.add(syncClient);
             }
         }
 
-        final int count = serviceClient.getMethodGroupClients().size() + asyncClients.size();
+        final int count
+            = serviceClient.getMethodGroupClients().size() + Math.max(asyncClients.size(), syncClients.size());
         for (MethodGroupClient methodGroupClient : serviceClient.getMethodGroupClients()) {
             AsyncSyncClient.Builder builder = new AsyncSyncClient.Builder().packageName(packageName)
                 .serviceClient(serviceClient)
-                .methodGroupClient(methodGroupClient);
+                .methodGroupClient(methodGroupClient)
+                .crossLanguageDefinitionId(methodGroupClient.getCrossLanguageDefinitionId());
 
             final List<ConvenienceMethod> convenienceMethods = client.getOperationGroups()
                 .stream()
@@ -607,7 +617,9 @@ public class ClientModelUtil {
      * @return whether the property will have a setter method.
      */
     public static boolean needsPublicSetter(ClientModelPropertyAccess property, JavaSettings settings) {
-        return !isReadOnlyOrInConstructor(property, settings) && !isFlattenedProperty(property);
+        return !isReadOnlyOrInConstructor(property, settings)
+            && !isFlattenedProperty(property)
+            && !property.isConstant();
     }
 
     private static boolean isReadOnlyOrInConstructor(ClientModelPropertyAccess property, JavaSettings settings) {
@@ -645,7 +657,11 @@ public class ClientModelUtil {
         // the constructor.
         boolean polymorphicDiscriminatorIsRequired = property.isPolymorphicDiscriminator() && property.isRequired();
 
-        return requiredAndIncluded && (notReadOnlyOrIncludeReadOnly || polymorphicDiscriminatorIsRequired);
+        boolean notConstant = !property.isConstant();
+
+        return requiredAndIncluded
+            && (notReadOnlyOrIncludeReadOnly || polymorphicDiscriminatorIsRequired)
+            && notConstant;
     }
 
     /**
@@ -853,12 +869,48 @@ public class ClientModelUtil {
     }
 
     public static boolean readOnlyNotInCtor(ClientModel model, ClientModelProperty property, JavaSettings settings) {
-        return  // not required and in constructor
-        !(property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()) && (
+        return
         // must be read-only and not appear in constructor
-        (property.isReadOnly() && !settings.isIncludeReadOnlyInConstructorArgs())
-            // immutable output model only has package-private setters, making its properties read-only
-            || isImmutableOutputModel(getDefiningModel(model, property), settings));
+        ((property.isReadOnly() && !settings.isIncludeReadOnlyInConstructorArgs())
+            // immutable output model only has package-private setters, making its properties effectively read-only
+            || (isImmutableOutputModel(getDefiningModel(model, property), settings))
+                // if property.isReadOnly(), whether it's required or not will not affect it being in constructor or not
+                // , thus only check when !property.isReadOnly() and the model is immutable output(effectively
+                // read-only)
+                && !(property.isRequired() && settings.isRequiredFieldsAsConstructorArgs()));
+    }
+
+    /**
+     * If stream-style serialization is being generated, some additional setters may need to be added to
+     * support read-only properties that aren't included in the constructor.
+     * Jackson handles this by reflectively setting the value in the parent model, but stream-style
+     * serialization doesn't perform reflective cracking like Jackson Databind does, so it needs a way
+     * to access the readonly property (aka one without a public setter method).
+     * The package-private setter is added when the property isn't included in the constructor and is
+     * defined by this model, except for JSON merge patch models as those use the access helper pattern
+     * to enable subtypes to set the property.
+     *
+     * @param model the model to generate package-private setter for
+     * @param property the field property to generate package-private setter for, either defined by the model,
+     * or the shadow one from parent
+     * @param settings JavaSettings instance
+     * @param streamStyle whether stream-style-serialization is enabled
+     * @return whether the model needs package-private setter for this field property
+     */
+    public static boolean needsPackagePrivateSetter(ClientModel model, ClientModelProperty property,
+        JavaSettings settings, boolean streamStyle) {
+        boolean hasDerivedTypes = !CoreUtils.isNullOrEmpty(model.getDerivedModels());
+        boolean notIncludedInConstructor = !includePropertyInConstructor(property, settings);
+        boolean definedByModel = modelDefinesProperty(model, property);
+        boolean modelIsJsonMergePatch = isJsonMergePatchModel(model, settings);
+        boolean hasPackagePrivateSetter = hasDerivedTypes
+            && notIncludedInConstructor
+            && definedByModel
+            && streamStyle
+            && !property.isPolymorphicDiscriminator()
+            && !modelIsJsonMergePatch
+            && !property.isConstant();
+        return hasPackagePrivateSetter;
     }
 
     /**
@@ -875,6 +927,14 @@ public class ClientModelUtil {
 
     public static boolean isMultipartModel(ClientModel model) {
         return model.getSerializationFormats().contains(KnownMediaType.MULTIPART.value());
+    }
+
+    public static ClientModel getErrorModelFromException(ClassType exceptionType) {
+        String errorBodyClassName = exceptionType.getName();
+        if (errorBodyClassName.endsWith("Exception")) {
+            errorBodyClassName = errorBodyClassName.substring(0, errorBodyClassName.length() - "Exception".length());
+        }
+        return ClientModels.getInstance().getModel(errorBodyClassName);
     }
 
     private static boolean hasNoUsage(ClientModel model) {

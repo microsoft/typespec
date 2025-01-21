@@ -155,3 +155,20 @@ Specify OpenAPI additional information.
 | ----------- | --------------------------------------------------------------------- | ---------------------- |
 | name        | `valueof string`                                                      | tag name               |
 | tagMetadata | [valueof `TagMetadata`](./data-types.md#TypeSpec.OpenAPI.TagMetadata) | Additional information |
+
+#### Examples
+
+```typespec
+@service
+@tagMetadata(
+  "Tag Name",
+  #{
+    description: "Tag description",
+    externalDocs: #{ url: "https://example.com", description: "More info.", `x-custom`: "string" },
+    `x-custom`: "string",
+  }
+)
+namespace PetStore {
+
+}
+```

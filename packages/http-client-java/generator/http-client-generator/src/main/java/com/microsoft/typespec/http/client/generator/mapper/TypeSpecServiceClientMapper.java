@@ -7,8 +7,12 @@ import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.mapper.ServiceClientMapper;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientAccessorMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodGroupClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PipelinePolicyDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
@@ -19,10 +23,18 @@ import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
+    private final Map<Client, ServiceClient> parsed = new ConcurrentHashMap<>();
+
     public ServiceClient map(Client client, CodeModel codeModel) {
+        if (parsed.containsKey(client)) {
+            return parsed.get(client);
+        }
+
         ServiceClient.Builder builder = createClientBuilder();
 
         String baseName = SchemaUtil.getJavaName(client);
@@ -33,6 +45,8 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
             && !CoreUtils.isNullOrEmpty(client.getLanguage().getJava().getNamespace())) {
             builder.builderPackageName(client.getLanguage().getJava().getNamespace());
         }
+
+        builder.builderDisabled(!client.isBuildMethodPublic());
 
         Proxy proxy = null;
         OperationGroup clientOperationGroup = client.getOperationGroups()
@@ -56,12 +70,14 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
             .forEach(og -> methodGroupClients.add(Mappers.getMethodGroupMapper().map(og, properties)));
         builder.methodGroupClients(methodGroupClients);
 
-        if (proxy == null && CoreUtils.isNullOrEmpty(methodGroupClients)) {
-            // No operation in this client, and no operation group as well. Abort the processing.
+        if (proxy == null
+            && CoreUtils.isNullOrEmpty(methodGroupClients)
+            && CoreUtils.isNullOrEmpty(client.getSubClients())) {
+            // No operation in this client, no operation group, no sub client as well. Abort the processing.
             return null;
         }
 
-        if (proxy == null) {
+        if (proxy == null && !CoreUtils.isNullOrEmpty(methodGroupClients)) {
             proxy = methodGroupClients.iterator().next().getProxy();
         }
 
@@ -70,9 +86,26 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
 
         processPipelinePolicyDetails(builder, client);
 
-        builder.crossLanguageDefinitionId(client.getCrossLanguageDefinitionId());
+        builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(client));
 
-        return builder.build();
+        List<ClientAccessorMethod> clientAccessorMethods = new ArrayList<>();
+        for (Client subClient : client.getSubClients()) {
+            if (subClient.isParentAccessorPublic()) {
+                ServiceClient subServiceClient = this.map(subClient, codeModel);
+                clientAccessorMethods.add(new ClientAccessorMethod(subServiceClient));
+            }
+        }
+        builder.clientAccessorMethods(clientAccessorMethods);
+
+        ServiceClient serviceClient = builder.build();
+
+        clientAccessorMethods.forEach(m -> {
+            m.setServiceClient(serviceClient);
+            m.getSubClient().setParentClient(serviceClient);
+        });
+
+        parsed.put(client, serviceClient);
+        return serviceClient;
     }
 
     private static void processPipelinePolicyDetails(ServiceClient.Builder builder, Client client) {
@@ -86,5 +119,12 @@ public class TypeSpecServiceClientMapper extends ServiceClientMapper {
             builder
                 .pipelinePolicyDetails(new PipelinePolicyDetails().setRequestIdHeaderName(clientRequestIdHeaderName));
         }
+    }
+
+    @Override
+    protected boolean isRemoveModelFromParameter(Parameter parameter, IType type) {
+        boolean isEnumType = type instanceof EnumType;
+        boolean isClientParameter = Parameter.ImplementationLocation.CLIENT.equals(parameter.getImplementation());
+        return super.isRemoveModelFromParameter(parameter, type) && !(isEnumType && isClientParameter);
     }
 }
