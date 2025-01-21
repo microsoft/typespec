@@ -451,6 +451,11 @@ enum DurationKnownEncoding {
    * Encode to integer or float
    */
   seconds: "seconds",
+
+  /**
+   * Encode for duration-constant
+   */
+  constant: "constant",
 }
 
 /**
