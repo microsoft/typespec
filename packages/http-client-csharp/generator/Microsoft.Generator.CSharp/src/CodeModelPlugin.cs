@@ -75,6 +75,8 @@ namespace Microsoft.Generator.CSharp
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary;
         public virtual TypeProviderWriter GetWriter(TypeProvider provider) => new(provider);
+        public virtual Lazy<PostProcessor> PostProcessor => new(() => new());
+
         public IReadOnlyList<MetadataReference> AdditionalMetadataReferences => _additionalMetadataReferences;
 
         public IReadOnlyList<string> SharedSourceDirectories => _sharedSourceDirectories;

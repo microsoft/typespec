@@ -211,10 +211,7 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         public async Task PostProcessAsync()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
-            var postProcessor = new PostProcessor(
-                [.. CodeModelPlugin.Instance.TypeFactory.UnionTypes, .. CodeModelPlugin.Instance.TypesToKeep],
-                modelFactoryFullName: $"{modelFactory.Namespace}.{modelFactory.Name}");
+            var postProcessor = CodeModelPlugin.Instance.PostProcessor.Value;
             switch (Configuration.UnreferencedTypesHandling)
             {
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:

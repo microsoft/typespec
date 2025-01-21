@@ -10,23 +10,22 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.Generator.CSharp.Providers;
 
 namespace Microsoft.Generator.CSharp
 {
-    internal class PostProcessor
+    public class PostProcessor
     {
         private readonly string? _modelFactoryFullName;
         private readonly string? _aspExtensionClassName;
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
-        public PostProcessor(
-            HashSet<string> typesToKeep,
-            string? modelFactoryFullName = null,
-            string? aspExtensionClassName = null)
+        public PostProcessor(string? aspExtensionClassName = null)
         {
-            _typesToKeep = typesToKeep;
-            _modelFactoryFullName = modelFactoryFullName;
+            _typesToKeep = [..CodeModelPlugin.Instance.TypeFactory.UnionTypes, .. CodeModelPlugin.Instance.TypesToKeep];
+            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            _modelFactoryFullName = $"{modelFactory.Namespace}.{modelFactory.Name}";
             _aspExtensionClassName = aspExtensionClassName;
         }
 
@@ -407,7 +406,7 @@ namespace Microsoft.Generator.CSharp
             return result;
         }
 
-        private async Task<bool> IsRootDocument(Document document)
+        protected virtual async Task<bool> IsRootDocument(Document document)
         {
             var root = await document.GetSyntaxRootAsync();
             // a document is a root document, when
