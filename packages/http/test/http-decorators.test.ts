@@ -1273,7 +1273,7 @@ describe("http: decorators", () => {
       );
     });
 
-    it("ensures all properties visible ane effective optionality skipped when parameterVisibility has no arguments", async () => {
+    it("ensures all properties visible and effective optionality skipped when parameterVisibility has no arguments", async () => {
       const { test } = (await runner.compile(`
       @parameterVisibility
       @test op test(@path id: string, @body example: {}): void;
