@@ -1,5 +1,5 @@
 import { splitLines } from "../../formatter/print/printer.js";
-import { CharCode, isWhiteSpaceSingleLine } from "../charcode.js";
+import { isWhiteSpaceSingleLine } from "../charcode.js";
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
 import type { DiagnosticTarget } from "../types.js";
 
@@ -9,9 +9,14 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
     label: "Format triple-quote-indent",
     fix: (context) => {
       const location = getSourceLocation(diagnosticTarget);
-      const text = location.file.text.slice(location.pos + 3, location.end - 3);
       const splitStr = "\r\n";
+      const regex = /(\r\n|\n|\r)/gm;
       const tripleQuote = '"""';
+      const tripleQuoteLen = tripleQuote.length;
+      const text = location.file.text.slice(
+        location.pos + tripleQuoteLen,
+        location.end - tripleQuoteLen,
+      );
 
       const lines = splitLines(text);
       if (lines.length === 0) {
@@ -69,7 +74,7 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
         const middle = lines
           .map((line) => {
             return minIndentNumb !== lastLineIndentNumb
-              ? `${splitStr}${prefix}${line.trim()}`
+              ? `${splitStr}${prefix}${line.replace(regex, "")}`
               : line;
           })
           .join("");
@@ -78,26 +83,18 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
       }
 
       return;
+
+      function getIndentNumbInLine(lineText: string): number {
+        let curStart = 0;
+        const text = lineText.replace(regex, "");
+        const len = text.length;
+
+        while (curStart < len && isWhiteSpaceSingleLine(text.charCodeAt(curStart))) {
+          curStart++;
+        }
+
+        return curStart;
+      }
     },
   });
-}
-
-function getIndentNumbInLine(lineText: string): number {
-  let curStart = 0;
-  const text = lineText.replace(/(\r\n|\n|\r)/gm, "\r\n");
-  const len = text.length;
-  const flag =
-    len >= 2 &&
-    text.charCodeAt(curStart) === CharCode.CarriageReturn &&
-    text.charCodeAt(curStart + 1) === CharCode.LineFeed;
-
-  if (flag) {
-    curStart += 2;
-  }
-
-  while (curStart < len && isWhiteSpaceSingleLine(text.charCodeAt(curStart))) {
-    curStart++;
-  }
-
-  return flag ? curStart - 2 : curStart;
 }
