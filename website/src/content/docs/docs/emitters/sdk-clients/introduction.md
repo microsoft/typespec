@@ -21,7 +21,7 @@ The client emitters and their common configurations are located in the `package.
 | **Emitter Name**             | **Language** | **Version**              | **Common Configuration** |
 | ---------------------------- | ------------ | ------------------------ | ------------------------ |
 | @azure-tools/typespec-ts     | JavaScript   | `0.37.0`                 | `emitter-output-dir`     |
-| @typespec/http-client-python | Python       | `0.6.0`                  | `emitter-output-dir`     |
+| @typespec/http-client-python | Python       | `0.6.6`                  | `emitter-output-dir`     |
 | @typespec/http-client-java   | Java         | `0.1.6`                  | `emitter-output-dir`     |
 | @typespec/http-client-csharp | .NET         | `0.1.9-alpha.20250113.2` | `emitter-output-dir`     |
 
@@ -36,6 +36,7 @@ Below is an example of the `package.json` snippet where client emitters are defi
     "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2",
     "@typespec/http-server-javascript": "^0.58.0-alpha.6",
     "@typespec/http-client-java": "^0.1.6",
+    "@typespec/http-client-python": "^0.6.6",
     "@azure-tools/typespec-ts": "^0.37.0",
   }
 ```
@@ -76,11 +77,14 @@ Example configuration:
 emit:
   - "@typespec/http-client-csharp"
   - "@typespec/http-client-java"
+  - "@typespec/http-client-python"
 options:
   "@typespec/http-client-csharp":
     emitter-output-dir: "{project-root}/../clients/dotnet"
   "@typespec/http-client-java":
     emitter-output-dir: "{project-root}/../clients/java"
+  "@typespec/http-client-python":
+    emitter-output-dir: "{project-root}/../clients/python"
 ```
 
 1. Once the package.json and tspconfig.yaml files are updated, you need to install all required dependencies.
