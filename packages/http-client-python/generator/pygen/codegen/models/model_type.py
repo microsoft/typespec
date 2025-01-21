@@ -279,19 +279,13 @@ class JSONModelType(ModelType):
 
 class GeneratedModelType(ModelType):
     def type_annotation(self, **kwargs: Any) -> str:
-        is_operation_file = kwargs.pop("is_operation_file", False)
-        skip_quote = kwargs.get("skip_quote", False)
-        module_name = ""
-        if kwargs.get("need_model_alias", True):
-            serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-            model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
-            module_name = f"{model_alias}."
+        skip_quote = kwargs.get("skip_quote", False) or kwargs.pop("is_operation_file", False)
         file_name = f"{self.code_model.models_filename}." if self.internal else ""
-        retval = module_name + file_name + self.name
-        return retval if is_operation_file or skip_quote else f'"{retval}"'
+        retval = f"{self.code_model.namespace}.models." + file_name + self.name
+        return retval if skip_quote else f'"{retval}"'
 
     def docstring_type(self, **kwargs: Any) -> str:
-        type_annotation = self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
+        type_annotation = self.type_annotation(skip_quote=True, **kwargs)
         return f"~{self.code_model.namespace}.models.{type_annotation}"
 
     def docstring_text(self, **kwargs: Any) -> str:
@@ -304,18 +298,11 @@ class GeneratedModelType(ModelType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-        relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
-        alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
         serialize_namespace_type = kwargs.get("serialize_namespace_type")
         called_by_property = kwargs.get("called_by_property", False)
         # add import for models in operations or _types file
         if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
-            file_import.add_submodule_import(
-                relative_path,
-                "models",
-                ImportType.LOCAL,
-                alias=alias,
-            )
+            file_import.add_import(f"{serialize_namespace}.models", ImportType.LOCAL)
             if self.is_form_data:
                 file_import.add_submodule_import(
                     self.code_model.get_relative_import_path(serialize_namespace),
@@ -325,13 +312,7 @@ class GeneratedModelType(ModelType):
         elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
             serialize_namespace_type == NamespaceType.MODEL and called_by_property
         ):
-            file_import.add_submodule_import(
-                relative_path,
-                "models",
-                ImportType.LOCAL,
-                alias=alias,
-                typing_section=TypingSection.TYPING,
-            )
+            file_import.add_import(f"{serialize_namespace}", ImportType.LOCAL, TypingSection.TYPING)
         return file_import
 
 
@@ -358,12 +339,12 @@ class DPGModelType(GeneratedModelType):
         return (
             self.type_annotation(skip_quote=True, **kwargs)
             if self.internal
-            else self.type_annotation(need_model_alias=False, skip_quote=True, **kwargs)
+            else self.type_annotation(skip_quote=True, **kwargs)
         )
 
     @property
     def instance_check_template(self) -> str:
-        return "isinstance({}, " + f"_models.{self.name})"
+        return "isinstance({}, " + f"~{self.code_model.namespace}.models.{self.type_annotation()}"
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)

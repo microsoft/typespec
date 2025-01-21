@@ -171,14 +171,8 @@ class EnumType(BaseType):
         :rtype: str
         """
         if self.code_model.options["models_mode"]:
-
-            module_name = ""
-            if kwargs.get("need_model_alias", True):
-                serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-                model_alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
-                module_name = f"{model_alias}."
             file_name = f"{self.code_model.enums_filename}." if self.internal else ""
-            model_name = module_name + file_name + self.name
+            model_name = f"{self.code_model.namespace}.models." + file_name + self.name
             # we don't need quoted annotation in operation files, and need it in model folder files.
             if not kwargs.get("is_operation_file", False):
                 model_name = f'"{model_name}"'
@@ -234,28 +228,14 @@ class EnumType(BaseType):
             file_import.add_submodule_import("typing", "Union", ImportType.STDLIB, TypingSection.CONDITIONAL)
 
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
-            relative_path = self.code_model.get_relative_import_path(serialize_namespace, self.client_namespace)
-            alias = self.code_model.get_unique_models_alias(serialize_namespace, self.client_namespace)
             serialize_namespace_type = kwargs.get("serialize_namespace_type")
             called_by_property = kwargs.get("called_by_property", False)
             if serialize_namespace_type in [NamespaceType.OPERATION, NamespaceType.CLIENT]:
-                file_import.add_submodule_import(
-                    relative_path,
-                    "models",
-                    ImportType.LOCAL,
-                    alias=alias,
-                    typing_section=TypingSection.REGULAR,
-                )
+                file_import.add_import(f"{serialize_namespace}.models", ImportType.LOCAL)
             elif serialize_namespace_type == NamespaceType.TYPES_FILE or (
                 serialize_namespace_type == NamespaceType.MODEL and called_by_property
             ):
-                file_import.add_submodule_import(
-                    relative_path,
-                    "models",
-                    ImportType.LOCAL,
-                    alias=alias,
-                    typing_section=TypingSection.TYPING,
-                )
+                file_import.add_import(f"{serialize_namespace}", ImportType.LOCAL, TypingSection.TYPING)
 
         file_import.merge(self.value_type.imports(**kwargs))
         return file_import

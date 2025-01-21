@@ -149,16 +149,6 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     def need_unique_model_alias(self) -> bool:
         return self.has_subnamespace and self.options["enable_typespec_namespace"]
 
-    def get_unique_models_alias(self, serialize_namespace: str, imported_namespace: str) -> str:
-        if not self.need_unique_model_alias:
-            return "_models"
-        relative_path = self.get_relative_import_path(
-            serialize_namespace, self.get_imported_namespace_for_model(imported_namespace)
-        )
-        dot_num = max(relative_path.count(".") - 1, 0)
-        parts = [""] + ([p for p in relative_path.split(".") if p] or ["models"])
-        return "_".join(parts) + (str(dot_num) if dot_num > 0 else "")
-
     @property
     def client_namespace_types(self) -> Dict[str, ClientNamespaceType]:
         if not self._client_namespace_types:
