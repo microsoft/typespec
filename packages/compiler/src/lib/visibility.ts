@@ -154,8 +154,8 @@ function getOperationVisibilityConfig(
 }
 
 // Hidden internal symbol to mark that parameter visibility was empty. This is used by HTTP
-// to set the SkipEffectiveOptionality flag. This is a hack.
-const parameterVisibilityIsEmpty = Symbol.for("TypeSpec::Visibility::ParameterVisibilityIsEmpty");
+// to set the LegacyParameterVisibility flag. This is a hack.
+const parameterVisibilityIsEmpty = Symbol.for("TypeSpec.Visibility.ParameterVisibilityIsEmpty");
 
 export const $parameterVisibility: ParameterVisibilityDecorator = (
   context: DecoratorContext,

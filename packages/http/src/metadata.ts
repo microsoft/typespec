@@ -381,7 +381,7 @@ export function HttpVisibilityProvider(
 
 // Hidden internal symbol to mark that parameter visibility was empty. This is used by HTTP
 // to set the SkipEffectiveOptionality flag. This is a hack.
-const parameterVisibilityIsEmpty = Symbol.for("TypeSpec::Visibility::ParameterVisibilityIsEmpty");
+const parameterVisibilityIsEmpty = Symbol.for("TypeSpec.Visibility.ParameterVisibilityIsEmpty");
 
 /**
  * Returns the applicable parameter visibility or visibilities for the request if `@requestVisibility` was used.
