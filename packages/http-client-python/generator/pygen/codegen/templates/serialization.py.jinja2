@@ -47,9 +47,7 @@ from typing import (
     IO,
     Mapping,
     Callable,
-    TypeVar,
     MutableMapping,
-    Type,
     List,
 )
 
@@ -60,13 +58,13 @@ except ImportError:
 import xml.etree.ElementTree as ET
 
 import isodate  # type: ignore
+from typing_extensions import Self
 
 from {{ code_model.core_library }}.exceptions import DeserializationError, SerializationError
 from {{ code_model.core_library }}.serialization import NULL as CoreNull
 
 _BOM = codecs.BOM_UTF8.decode(encoding="utf-8")
 
-ModelType = TypeVar("ModelType", bound="Model")
 JSON = MutableMapping[str, Any]
 
 
@@ -383,25 +381,25 @@ class Model:
         return client_models
 
     @classmethod
-    def deserialize(cls: Type[ModelType], data: Any, content_type: Optional[str] = None) -> ModelType:
+    def deserialize(cls, data: Any, content_type: Optional[str] = None) -> Self:
         """Parse a str using the RestAPI syntax and return a model.
 
         :param str data: A str using RestAPI structure. JSON by default.
         :param str content_type: JSON by default, set application/xml if XML.
         :returns: An instance of this model
         :raises DeserializationError: if something went wrong
-        :rtype: ModelType
+        :rtype: Self
         """
         deserializer = Deserializer(cls._infer_class_models())
         return deserializer(cls.__name__, data, content_type=content_type)  # type: ignore
 
     @classmethod
     def from_dict(
-        cls: Type[ModelType],
+        cls,
         data: Any,
         key_extractors: Optional[Callable[[str, Dict[str, Any], Any], Any]] = None,
         content_type: Optional[str] = None,
-    ) -> ModelType:
+    ) -> Self:
         """Parse a dict using given key extractor return a model.
 
         By default consider key
@@ -412,8 +410,8 @@ class Model:
         :param function key_extractors: A key extractor function.
         :param str content_type: JSON by default, set application/xml if XML.
         :returns: An instance of this model
-        :raises DeserializationError: if something went wrong
-        :rtype: ModelType
+        :raises: DeserializationError if something went wrong
+        :rtype: Self
         """
         deserializer = Deserializer(cls._infer_class_models())
         deserializer.key_extractors = (  # type: ignore
