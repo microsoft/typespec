@@ -37,7 +37,7 @@ export const CurrentPath = () => {
       <Breadcrumb size="small">
         <BreadcrumbItem>
           <BreadcrumbButton
-            onClick={(evt) => {
+            onClick={(evt: Event) => {
               nav.selectPath("");
               evt.stopPropagation();
             }}
@@ -57,7 +57,7 @@ export const CurrentPath = () => {
                   <BreadcrumbItem>
                     <BreadcrumbButton
                       current={last}
-                      onClick={(evt) => {
+                      onClick={(evt: MouseEvent) => {
                         if (!last) {
                           const newPath = segments.slice(0, i + 2).join(".");
                           nav.selectPath(newPath);
@@ -105,11 +105,11 @@ const Search = ({ onBlur }: SearchProps) => {
       autoFocus
       size="small"
       className={style["breadcrumb-search"]}
-      onFocus={(event) => event.target.select()}
+      onFocus={(event: any) => event.target.select()}
       onBlur={onBlur}
       value={search}
       expandIcon={null}
-      onChange={(evt) => setSearch(evt.target.value)}
+      onChange={(evt: any) => setSearch(evt.target.value)}
       onOptionSelect={selectOption}
       open
     >
