@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private readonly FieldProvider _valueField;
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {

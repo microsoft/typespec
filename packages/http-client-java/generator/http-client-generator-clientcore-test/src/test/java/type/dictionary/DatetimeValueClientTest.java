@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-class DatetimeValueClientTest {
+public class DatetimeValueClientTest {
 
-    DatetimeValueClient client = new DictionaryClientBuilder().buildDatetimeValueClient();
+    private final DatetimeValueClient client = new DictionaryClientBuilder().buildDatetimeValueClient();
 
     @Test
-    void get() {
+    public void get() {
         Map<String, OffsetDateTime> response = client.get();
         Assertions.assertTrue(response.containsKey("k1"));
         Assertions.assertEquals("2022-08-26T18:38:00Z", response.get("k1"));
@@ -23,7 +23,7 @@ class DatetimeValueClientTest {
 
     @Test
     @Disabled("Body provided doesn't match expected body,\"expected\":{\"k1\":\"2022-08-26T18:38:00Z\"},\"actual\":{\"k1\":\"2022-08-26T18:38Z\"}")
-    void put() {
+    public void put() {
         Map<String, OffsetDateTime> map = new HashMap<>();
         map.put("k1", OffsetDateTime.parse("2022-08-26T18:38Z"));
         client.put(map);

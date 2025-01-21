@@ -6,18 +6,18 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class StringOperationClientTest {
+public class StringOperationClientTest {
 
-    StringOperationClient client = new ValueTypesClientBuilder().buildStringOperationClient();
+    private final StringOperationClient client = new ValueTypesClientBuilder().buildStringOperationClient();
 
     @Test
-    void get() {
+    public void get() {
         StringProperty stringProperty = client.get();
         Assertions.assertEquals("hello", stringProperty.getProperty());
     }
 
     @Test
-    void put() {
+    public void put() {
         StringProperty stringProperty = new StringProperty("hello");
         client.put(stringProperty);
     }

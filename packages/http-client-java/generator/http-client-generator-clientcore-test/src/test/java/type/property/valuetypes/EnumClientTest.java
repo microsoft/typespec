@@ -6,19 +6,19 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class EnumClientTest {
+public class EnumClientTest {
 
-    EnumClient client = new ValueTypesClientBuilder().buildEnumClient();
+    private final EnumClient client = new ValueTypesClientBuilder().buildEnumClient();
 
     @Test
-    void get() {
+    public void get() {
         EnumProperty enumProperty = client.get();
         FixedInnerEnum innerEnum = enumProperty.getProperty();
         Assertions.assertEquals("ValueOne", innerEnum.toString());
     }
 
     @Test
-    void put() {
+    public void put() {
         FixedInnerEnum innerEnum = FixedInnerEnum.VALUE_ONE;
         EnumProperty enumProperty = new EnumProperty(innerEnum);
         client.put(enumProperty);
