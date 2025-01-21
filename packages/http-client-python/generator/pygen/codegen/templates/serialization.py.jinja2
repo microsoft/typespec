@@ -37,7 +37,6 @@ import logging
 import re
 import sys
 import codecs
-from typing_extensions import Self
 from typing import (
     Dict,
     Any,
@@ -61,6 +60,7 @@ except ImportError:
 import xml.etree.ElementTree as ET
 
 import isodate  # type: ignore
+from typing_extensions import Self
 
 from {{ code_model.core_library }}.exceptions import DeserializationError, SerializationError
 from {{ code_model.core_library }}.serialization import NULL as CoreNull
