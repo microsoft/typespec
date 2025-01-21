@@ -42,6 +42,15 @@ Built in types are related to each other according to the rules described in [ty
 | `offsetDateTime` | A date and time in a particular time zone, e.g. "April 10th at 3:00am in PST"       |
 | `duration`       | A duration/time period. e.g 5s, 10h                                                 |
 
+:::note
+
+Those types do not define any specific serialization forma they represent the a concept of time. Each protocol or serialization format should define the default serialization format.
+The default encodings for various protocol are defined here:
+
+- [JSON over HTTP](../libraries/http/encoding/#utcdatetime-and-offsetdatetime)
+- [XML](../libraries/xml/guide.md)
+  :::
+
 ## Other core types
 
 | Type              | Description                                                                                                                                                |
