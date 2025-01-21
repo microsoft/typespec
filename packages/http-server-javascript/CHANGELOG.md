@@ -1,5 +1,13 @@
 # Changelog - @typespec/http-server-javascript
 
+## 0.58.0-alpha.7
+
+### Features
+
+- [#5514](https://github.com/microsoft/typespec/pull/5514) - Implemented new-style multipart request handling.
+- Fixed JSON serialization/deserialization in some cases where models that required serialization occurred within arrays.
+
+
 ## 0.58.0-alpha.6
 
 ### Bug Fixes

@@ -92,9 +92,9 @@ def add_overloads_for_body_param(yaml_data: Dict[str, Any]) -> None:
     for body_type in body_parameter["type"]["types"]:
         if any(o for o in yaml_data["overloads"] if id(o["bodyParameter"]["type"]) == id(body_type)):
             continue
-        yaml_data["overloads"].append(add_overload(yaml_data, body_type))
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
+        yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = False
     content_type_param["inOverridden"] = True
