@@ -66,7 +66,9 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
         } else {
           // end triple-quote is not on a new line
           // this has already been processed, so the removal will not be processed again.
-          lastLine = `${lastLine}${splitStr}${prefix}${tripleQuote}`;
+          // When the final triple quote is not on a new line, it needs to maintain the same indentation as the content.
+          const lastLineIndent = " ".repeat(indentDiff);
+          lastLine = `${lastLine}${splitStr}${lastLineIndent}${tripleQuote}`;
           lines.pop();
         }
 
