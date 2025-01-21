@@ -13,7 +13,7 @@ public class PageableTests {
 
     @Test
     public void test() {
-        PagedIterable<Pet> pagedIterable = client.link(null);
+        PagedIterable<Pet> pagedIterable = client.link();
 
         Assertions.assertEquals(4, pagedIterable.stream().count());
     }
