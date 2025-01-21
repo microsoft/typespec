@@ -1,5 +1,52 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.6
+
+### Bug Fixes
+
+- Fix sphinx typing for raising documentation
+
+### Other Changes
+
+- Order keyword-only args overload first in generated operations
+
+## 0.6.5
+
+### Bug Fixes
+
+- Only add type annotation during initialization for readonly
+- Fix pylint issues
+
+### Bump dependencies
+
+- Bump `@typespec/*` 0.64.0 and `@azure-tools/*` 0.50.0
+
+## 0.6.4
+
+### Bug Fixes
+
+- Fix pack issue for typespec namespace
+- Fix typing issue for unbranded test case
+
+## 0.6.3
+
+### Bug Fixes
+
+- Only import helpers for serialization if input body is not binary
+- Unify descriptions for credentials in documentation
+
+### Other Changes
+
+- Add type annotations for initialized properties in msrest model inits
+- Add mypy typing to operation group inits
+- Remove Python2 specific datetime logic from internal serialization.
+
+## 0.6.2
+
+### Bug Fixes
+
+- Don't automatically overwrite version in `_version.py` file and `setup.py` file if the existing version is newer
+
 ## 0.6.1
 
 ### Bug Fixes

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/streams",
-  "version": "0.63.0",
+  "version": "0.64.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing stream bindings",
   "homepage": "https://typespec.io",

@@ -1,5 +1,17 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.7
+
+No changes, version bump only.
+
+## 0.1.0-alpha.6
+
+### Bug Fixes
+
+- [#5545](https://github.com/microsoft/typespec/pull/5545) remove unsupported pageable things
+- [#5401](https://github.com/microsoft/typespec/pull/5401) fix missing `@list` decorator for unbranded pageable operation
+
+
 ## 0.1.0-alpha.5
 
 ### Bug Fixes

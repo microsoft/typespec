@@ -1123,17 +1123,19 @@ it("handles multipartBody requests and shared routes", async () => {
       }
 
       @sharedRoute
-      @route("/foo") 
+      @route("/foo/{id}") 
       @post 
       op fooBinary(
+        @path id: string,
         @header("content-type") contentType: "multipart/form-data", 
         @multipartBody body: FooRequest
       ): void;
 
       @sharedRoute
-      @route("/foo") 
+      @route("/foo/{id}") 
       @post 
       op fooJson(
+        @path id: string,
         @header("content-type") contentType: "application/json", 
         @body body: FooJsonRequest
       ): void;
@@ -1154,18 +1156,18 @@ it("handles multipartBody requests and shared routes", async () => {
           "using Microsoft.AspNetCore.WebUtilities;",
           "using Microsoft.AspNetCore.Http.Extensions;",
           `[Consumes("multipart/form-data")]`,
-          "public virtual async Task<IActionResult> FooBinary(HttpRequest request, Stream body)",
-          ".FooBinaryAsync(reader)",
-          "public virtual async Task<IActionResult> FooJson(FooJsonRequest body)",
-          ".FooJsonAsync(body)",
+          "public virtual async Task<IActionResult> FooBinary(string id)",
+          ".FooBinaryAsync(id, reader)",
+          "public virtual async Task<IActionResult> FooJson(string id, FooJsonRequest body)",
+          ".FooJsonAsync(id, body)",
         ],
       ],
       [
         "IContosoOperations.cs",
         [
           "using Microsoft.AspNetCore.WebUtilities;",
-          "Task FooBinaryAsync( MultipartReader reader);",
-          "Task FooJsonAsync( FooJsonRequest body);",
+          "Task FooBinaryAsync( string id, MultipartReader reader);",
+          "Task FooJsonAsync( string id, FooJsonRequest body);",
         ],
       ],
       [
@@ -1188,5 +1190,58 @@ it("handles multipartBody requests and shared routes", async () => {
   assert.deepStrictEqual(
     files.some((k) => k.endsWith("FooRequest.cs")),
     false,
+  );
+});
+
+it("Produces NoContent result", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      @error
+  model NotFoundErrorResponse {
+     @statusCode statusCode: 404;
+     code: "not-found";
+  }
+model ApiError {
+  /** A machine readable error code */
+  code: string;
+
+  /** A human readable message */
+  message: string;
+}
+    /**
+ * Something is wrong with you.
+ */
+model Standard4XXResponse extends ApiError {
+  @minValue(400)
+  @maxValue(499)
+  @statusCode
+  statusCode: int32;
+}
+
+/**
+ * Something is wrong with me.
+ */
+model Standard5XXResponse extends ApiError {
+  @minValue(500)
+  @maxValue(599)
+  @statusCode
+  statusCode: int32;
+}
+
+model FileAttachmentMultipartRequest {
+  contents: HttpPart<File>;
+}
+
+    alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
+
+    @post
+    op createFileAttachment(
+      @header contentType: "multipart/form-data",
+      @path itemId: int32,
+      @multipartBody body: FileAttachmentMultipartRequest,
+    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+    `,
+    [["ContosoOperationsControllerBase.cs", ["return NoContent()"]]],
   );
 });

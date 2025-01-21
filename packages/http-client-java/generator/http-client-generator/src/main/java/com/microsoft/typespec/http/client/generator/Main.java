@@ -43,6 +43,7 @@ import org.yaml.snakeyaml.representer.Representer;
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     private static final String DEFAULT_OUTPUT_DIR = "http-client-generator-test/tsp-output/";
+    // private static final String DEFAULT_OUTPUT_DIR = "http-client-generator-clientcore-test/tsp-output/";
 
     private static Yaml yaml = null;
 

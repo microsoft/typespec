@@ -1,5 +1,9 @@
 # Change Log - @typespec/versioning
 
+## 0.64.0
+
+No changes, version bump only.
+
 ## 0.63.0
 
 ### Bug Fixes

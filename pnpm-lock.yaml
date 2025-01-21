@@ -630,12 +630,21 @@ importers:
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
+      '@vitest/coverage-v8':
+        specifier: ^2.1.5
+        version: 2.1.5(vitest@2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0))
+      '@vitest/ui':
+        specifier: ^2.1.2
+        version: 2.1.5(vitest@2.1.5)
       tsx:
         specifier: ^4.19.2
         version: 4.19.2
       typescript:
         specifier: ~5.6.3
         version: 5.6.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.5(@types/node@22.7.9)(@vitest/ui@2.1.5)(happy-dom@15.11.6)(jsdom@19.0.0)
 
   packages/http-specs:
     dependencies:
@@ -899,6 +908,9 @@ importers:
       '@typespec/http':
         specifier: workspace:~
         version: link:../http
+      '@typespec/json-schema':
+        specifier: workspace:~
+        version: link:../json-schema
       '@typespec/library-linter':
         specifier: workspace:~
         version: link:../library-linter
@@ -1930,6 +1942,9 @@ importers:
       vscode-languageclient:
         specifier: ~9.0.1
         version: 9.0.1
+      yaml:
+        specifier: ~2.5.1
+        version: 2.5.1
 
   packages/versioning:
     devDependencies:
@@ -11206,8 +11221,8 @@ packages:
       terser:
         optional: true
 
-  vitefu@1.0.4:
-    resolution: {integrity: sha512-y6zEE3PQf6uu/Mt6DTJ9ih+kyJLr4XcSgHR2zUkM8SWDhuixEJxfJ6CZGMHh1Ec3vPLoEA0IHU5oWzVqw8ulow==}
+  vitefu@1.0.5:
+    resolution: {integrity: sha512-h4Vflt9gxODPFNGPwp4zAMZRpZR7eslzwH2c5hn5kNZ5rhnKyRJ50U+yGCdc2IRaBs8O4haIgLNGrV5CrpMsCA==}
     peerDependencies:
       vite: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0
     peerDependenciesMeta:
@@ -16416,7 +16431,7 @@ snapshots:
     dependencies:
       '@vitest/spy': 2.1.5
       estree-walker: 3.0.3
-      magic-string: 0.30.17
+      magic-string: 0.30.13
     optionalDependencies:
       vite: 5.4.11(@types/node@22.7.9)
 
@@ -16436,7 +16451,7 @@ snapshots:
   '@vitest/snapshot@2.1.5':
     dependencies:
       '@vitest/pretty-format': 2.1.5
-      magic-string: 0.30.17
+      magic-string: 0.30.13
       pathe: 1.1.2
 
   '@vitest/spy@2.0.5':
@@ -16965,7 +16980,7 @@ snapshots:
       unist-util-visit: 5.0.0
       vfile: 6.0.3
       vite: 5.4.11(@types/node@22.7.9)
-      vitefu: 1.0.4(vite@5.4.11(@types/node@22.7.9))
+      vitefu: 1.0.5(vite@5.4.11(@types/node@22.7.9))
       which-pm: 3.0.0
       xxhash-wasm: 1.1.0
       yargs-parser: 21.1.1
@@ -23225,7 +23240,7 @@ snapshots:
       '@types/node': 22.7.9
       fsevents: 2.3.3
 
-  vitefu@1.0.4(vite@5.4.11(@types/node@22.7.9)):
+  vitefu@1.0.5(vite@5.4.11(@types/node@22.7.9)):
     optionalDependencies:
       vite: 5.4.11(@types/node@22.7.9)
 
