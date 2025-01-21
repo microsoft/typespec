@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-java",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "description": "TypeSpec library for emitting Java client from the TypeSpec REST protocol binding",
   "keywords": [
     "TypeSpec"
@@ -29,7 +29,7 @@
     "build": "npm run build:generator && npm run build:emitter",
     "build:emitter": "tsc -p ./emitter/tsconfig.build.json",
     "build:generator": "mvn clean install --no-transfer-progress -T 1C -f ./generator/pom.xml",
-    "format": "pnpm -w format:dir packages/http-client-java",
+    "format": "pnpm -w format:dir packages/http-client-java && mvn spotless:apply --no-transfer-progress -T 1C --activate-profiles test -f ./generator/pom.xml",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",

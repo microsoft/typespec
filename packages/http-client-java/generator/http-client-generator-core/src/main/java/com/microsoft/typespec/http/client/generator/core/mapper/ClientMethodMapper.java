@@ -784,9 +784,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .groupedParameterRequired(false)
             .methodVisibility(methodVisibility);
 
-        if (settings.isGenerateAsyncMethods()) {
-            methods.add(builder.build());
-        }
+        methods.add(builder.build());
 
         // Generate an overload with all parameters, optionally include context.
         builder.methodVisibility(visibilityFunction.methodVisibility(true, defaultOverloadType, true));
@@ -808,12 +806,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .groupedParameterRequired(false)
             .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false));
 
-        if (settings.isGenerateAsyncMethods()) {
-            methods.add(builder.build());
+        methods.add(builder.build());
 
-            // overload for versioning
-            createOverloadForVersioning(isProtocolMethod, methods, builder, parameters);
-        }
+        // overload for versioning
+        createOverloadForVersioning(isProtocolMethod, methods, builder, parameters);
 
         if (generateClientMethodWithOnlyRequiredParameters) {
             methods.add(builder.onlyRequiredParameters(true)
