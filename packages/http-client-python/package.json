@@ -41,8 +41,7 @@
     "ci": "npm run test:emitter && npm run ci:generator --",
     "ci:generator": "tsx ./eng/scripts/ci/run-ci.ts",
     "test:generator": "tsx ./eng/scripts/ci/run-ci.ts --command=test",
-    "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
-    "change": "chronus"
+    "test:emitter": "vitest run -c ./emitter/vitest.config.ts"
   },
   "files": [
     "dist/**",
@@ -70,7 +69,6 @@
     "pyodide": "0.26.2"
   },
   "devDependencies": {
-    "@chronus/chronus": "^0.12.1",
     "@typespec/compiler": "~0.64.0",
     "@typespec/versioning": "~0.64.0",
     "@typespec/openapi": "~0.64.0",
