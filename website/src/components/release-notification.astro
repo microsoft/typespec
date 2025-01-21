@@ -11,7 +11,7 @@ if (!releaseDate) {
       `  releaseDate: ${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
       "",
       "Loaded release notes:",
-      ...releaseNotes.map((x) => `  - ${x.id}`),
+      ...releaseNotes.map((x) => ` - ${x.id}`),
     ].join("\n"),
   );
 }
