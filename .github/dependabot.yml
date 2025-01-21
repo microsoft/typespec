@@ -10,9 +10,9 @@ updates:
       include: "scope"
   - package-ecosystem: "pip"
     directories:
-      - "/packages/http-client-python/generator/"
-      - "/packages/http-client-python/generator/test"
+      - "/packages/http-client-python/eng/"
       - "/packages/http-client-python/generator/test/azure"
+      - "/packages/http-client-python/generator/test/unbranded"
     schedule:
       interval: "weekly"
     commit-message:
