@@ -10,6 +10,8 @@ if (!releaseDate) {
       `Last release notes(${last.id}) should have a releaseDate: property in frontmatter. For example:`,
       `  releaseDate: ${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
       "",
+      "Loaded release notes:",
+      ...releaseNotes.map((x) => `  - ${x.id}`),
     ].join("\n"),
   );
 }
