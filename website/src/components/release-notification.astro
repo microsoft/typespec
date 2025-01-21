@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 const releaseNotes = await getCollection("docs", (x) => x.id.startsWith("docs/release-notes"));
+releaseNotes.sort((a, b) => a.id.localeCompare(b.id));
 const last = releaseNotes[releaseNotes.length - 1];
 const releaseDate = last.data.releaseDate;
 if (!releaseDate) {
