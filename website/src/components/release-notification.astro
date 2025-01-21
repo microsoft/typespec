@@ -7,7 +7,7 @@ if (!releaseDate) {
   const today = new Date();
   throw new Error(
     [
-      "Last release notes should have a releaseDate: property in frontmatter. For example:",
+      `Last release notes(${last.id}) should have a releaseDate: property in frontmatter. For example:`,
       `  releaseDate: ${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
       "",
     ].join("\n"),
