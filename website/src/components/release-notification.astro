@@ -57,7 +57,7 @@ import Link from "@typespec/astro-utils/components/link.astro";
 
 <Link
   class="new-version-banner"
-  href={"/" + last.slug}
+  href={"/" + last.id}
   data-releasedate={last.data.releaseDate!.toISOString()}
 >
   Version {last.data.version} is now available!
