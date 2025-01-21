@@ -62,7 +62,9 @@ import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
+  getBaseFileName,
   getDirectoryPath,
+  getRelativePathByComparePaths,
   joinPaths,
   normalizePath,
 } from "../core/path-utils.js";
@@ -185,6 +187,7 @@ export function createServer(host: ServerHost): Server {
     getInitProjectContext,
     validateInitProjectTemplate,
     initProject,
+    updateImportsOnFileRename: updateImportsOnFileMovedOrRenamed,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -337,6 +340,45 @@ export function createServer(host: ServerHost): Server {
       log({ level: "error", message: "Unexpected error when initializing project", detail: e });
       return false;
     }
+  }
+
+  async function updateImportsOnFileMovedOrRenamed(param: {
+    oldFilePath: string;
+    newFilePath: string;
+    openedFilePath: string;
+  }): Promise<string[]> {
+    const result: string[] = [];
+
+    const resultCompile = await compileService.compile({
+      uri: fileService.getURL(normalizePath(param.openedFilePath)),
+    });
+    if (resultCompile === undefined) {
+      return [];
+    }
+
+    const { program } = resultCompile;
+    const oldFileName = getBaseFileName(param.oldFilePath);
+    for (const diagnostic of program.diagnostics) {
+      if (diagnostic.code === "import-not-found") {
+        const target = diagnostic.target as Node;
+        if (
+          target.parent &&
+          target.kind === SyntaxKind.ImportStatement &&
+          target.path.value.includes(oldFileName)
+        ) {
+          const filePath = target.parent.file.path;
+          const text = target.parent.file.text;
+          result.push(getBaseFileName(filePath));
+          // The value of 'target.path.value' is the value of imports, so the value of imports needs to be replaced here.
+          const replaceText = getRelativePathByComparePaths(filePath, param.newFilePath);
+          if (replaceText.length > 0) {
+            await compilerHost.writeFile(filePath, text.replace(target.path.value, replaceText));
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {

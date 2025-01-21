@@ -135,6 +135,12 @@ function main() {
   connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
   const initProjectRequestName: CustomRequestName = "typespec/initProject";
   connection.onRequest(initProjectRequestName, profile(s.initProject));
+  const updateImportsOnFileMovedOrRenamedRequestName: CustomRequestName =
+    "typespec/updateImportsOnFileMovedOrRenamed";
+  connection.onRequest(
+    updateImportsOnFileMovedOrRenamedRequestName,
+    profile(s.updateImportsOnFileRename),
+  );
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));

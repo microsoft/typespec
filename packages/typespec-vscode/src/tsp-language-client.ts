@@ -85,6 +85,25 @@ export class TspLanguageClient {
     }
   }
 
+  async updateImportsOnFileMovedOrRenamed(
+    oldFilePath: string,
+    newFilePath: string,
+    openedFilePath: string,
+  ): Promise<string[]> {
+    const updateImportsOnFileMovedOrRenamedRequestName: CustomRequestName =
+      "typespec/updateImportsOnFileMovedOrRenamed";
+    try {
+      return await this.client.sendRequest(updateImportsOnFileMovedOrRenamedRequestName, {
+        oldFilePath,
+        newFilePath,
+        openedFilePath,
+      });
+    } catch (e) {
+      logger.error("Unexpected error when updating imports on file move", [e]);
+      return [];
+    }
+  }
+
   async runCliCommand(args: string[], cwd: string): Promise<ExecOutput | undefined> {
     if (isWhitespaceStringOrUndefined(this.initializeResult?.compilerCliJsPath)) {
       logger.warning(

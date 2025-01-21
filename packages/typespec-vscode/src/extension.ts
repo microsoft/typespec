@@ -12,6 +12,7 @@ import {
   RestartServerCommandArgs,
   SettingName,
 } from "./types.js";
+import { updateImportsOnFileMovedOrRenamed } from "./update-import-on-file-rename.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
 
@@ -94,6 +95,12 @@ export async function activate(context: ExtensionContext) {
         logger.info("TypeSpec server path changed, restarting server...");
         await recreateLSPClient(context);
       }
+    }),
+  );
+
+  context.subscriptions.push(
+    vscode.workspace.onDidRenameFiles(async (e) => {
+      await updateImportsOnFileMovedOrRenamed(e, client);
     }),
   );
 

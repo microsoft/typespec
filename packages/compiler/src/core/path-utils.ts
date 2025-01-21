@@ -281,6 +281,34 @@ export function getPathComponents(path: string, currentDirectory = "") {
   return pathComponents(path, getRootLength(path));
 }
 
+export function getRelativePathByComparePaths(from: string, to: string): string {
+  if (from.length === 0 || to.length === 0 || from === to) {
+    return "";
+  }
+
+  const fromStrArray = getPathComponents(from);
+  const toStrArray = getPathComponents(to);
+  let i = 0;
+  while (i < fromStrArray.length && i < toStrArray.length && fromStrArray[i] === toStrArray[i]) {
+    i++;
+  }
+
+  const fromPaths = fromStrArray.slice(i);
+  const toPaths = toStrArray.slice(i);
+
+  const result: string[] = [];
+  if (fromPaths.length === 1) {
+    result.push(".");
+  } else {
+    for (i = 1; i < fromPaths.length; i++) {
+      result.push("..");
+    }
+  }
+  result.push(...toPaths);
+
+  return result.join(directorySeparator);
+}
+
 //#endregion
 
 //#region Path Formatting

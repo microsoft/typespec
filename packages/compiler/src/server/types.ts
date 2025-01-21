@@ -101,6 +101,9 @@ export interface Server {
   getInitProjectContext(): Promise<InitProjectContext>;
   validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean>;
   initProject(param: { config: InitProjectConfig }): Promise<boolean>;
+
+  // Following custom capacities are added for supporting update imports on file rename from IDE (vscode for now) so that IDE can trigger compiler
+  updateImportsOnFileRename(param: { oldFilePath: string; newFilePath: string }): Promise<string[]>;
 }
 
 export interface ServerSourceFile extends SourceFile {
@@ -151,7 +154,9 @@ export interface SemanticToken {
 export type CustomRequestName =
   | "typespec/getInitProjectContext"
   | "typespec/initProject"
-  | "typespec/validateInitProjectTemplate";
+  | "typespec/validateInitProjectTemplate"
+  | "typespec/updateImportsOnFileMovedOrRenamed";
+
 export interface ServerCustomCapacities {
   getInitProjectContext?: boolean;
   validateInitProjectTemplate?: boolean;

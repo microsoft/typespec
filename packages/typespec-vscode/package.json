@@ -108,6 +108,12 @@
             ],
             "default": "off",
             "description": "Define whether/how the TypeSpec language server should send traces to client. For the traces to show properly in vscode Output, make sure 'Log Level' is also set to 'Trace' so that they won't be filtered at client side, which can be set through 'Developer: Set Log Level...' command."
+          },
+          "typespec.updateImportsOnFileMovedOrRenamed.enabled": {
+            "type": "boolean",
+            "default": "true",
+            "description": "Controls whether imports are updated when files are moved or renamed.",
+            "scope": "window"
           }
         }
       }
