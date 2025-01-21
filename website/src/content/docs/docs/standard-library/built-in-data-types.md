@@ -49,6 +49,7 @@ model Dog {
   name: string;
 }
 
+// This model has only the `name` field.
 model CreateDog is Create<Dog>;
 ```
 
@@ -85,9 +86,16 @@ model Dog {
   @visibility(Lifecycle.Read)
   id: int32;
 
+  @visibility(Lifecycle.Create)
+  immutableSecret: string;
+
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
   name: string;
 }
 
+// This model will have the `immutableSecret`, `secretName`, and `name` fields, but not the `id` field.
 model CreateOrUpdateDog is CreateOrUpdate<Dog>;
 ```
 
@@ -141,9 +149,15 @@ model Dog {
   @visibility(Lifecycle.Read)
   id: int32;
 
+  // Set when the Dog is removed from our data store. This happens when the
+  // Dog is re-homed to a new owner.
+  @visibility(Lifecycle.Delete)
+  nextOwner: string;
+
   name: string;
 }
 
+// This model will have the `nextOwner` and `name` fields, but not the `id` field.
 model DeleteDog is Delete<Dog>;
 ```
 
@@ -264,7 +278,9 @@ A copy of the input model `T` with only the properties that are visible during t
 "Query" resource lifecycle phase.
 
 The "Query" lifecycle phase is used for properties passed as parameters to operations
-that read data, like HTTP GET or HEAD operations.
+that read data, like HTTP GET or HEAD operations. This should not be confused for
+the `@query` decorator, which specifies that the property is transmitted in the
+query string of an HTTP request.
 
 This transformation is recursive, and will include only properties that have the
 `Lifecycle.Query` visibility modifier.
@@ -288,9 +304,21 @@ model Dog {
   @visibility(Lifecycle.Read)
   id: int32;
 
+  // When getting information for a Dog, you can set this field to true to include
+  // some extra information about the Dog's pedigree that is normally not returned.
+  // Alternatively, you could just use a separate option parameter to get this
+  // information.
+  @visibility(Lifecycle.Query)
+  includePedigree?: boolean;
+
   name: string;
+
+  // Only included if `includePedigree` is set to true in the request.
+  @visibility(Lifecycle.Read)
+  pedigree?: string;
 }
 
+// This model will have the `includePedigree` and `name` fields, but not `id` or `pedigree`.
 model QueryDog is Query<Dog>;
 ```
 
@@ -327,9 +355,13 @@ model Dog {
   @visibility(Lifecycle.Read)
   id: int32;
 
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
   name: string;
 }
 
+// This model has the `id` and `name` fields, but not `secretName`.
 model ReadDog is Read<Dog>;
 ```
 
@@ -398,9 +430,13 @@ model Dog {
   @visibility(Lifecycle.Read)
   id: int32;
 
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
   name: string;
 }
 
+// This model will have the `secretName` and `name` fields, but not the `id` field.
 model UpdateDog is Update<Dog>;
 ```
 
@@ -517,8 +553,12 @@ enum Lifecycle
 
 ```typespec
 model Dog {
- @visibility(Lifecycle.Read) id: int32;
- @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
+ @visibility(Lifecycle.Read)
+ id: int32;
+
+ @visibility(Lifecycle.Create, Lifecycle.Update)
+ secretName: string;
+
  name: string;
 }
 ```

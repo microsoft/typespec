@@ -427,7 +427,8 @@ A debugging decorator used to inspect a type name.
 Indicates that a property is not visible in the given visibility class.
 
 This decorator removes all active visibility modifiers from the property within
-the given visibility class.
+the given visibility class, making it invisible to any context that selects for
+visibility modifiers within that class.
 ```typespec
 @invisible(visibilityClass: Enum)
 ```
@@ -931,7 +932,14 @@ model Page<T> {
 Declares the visibility constraint of the parameters of a given operation.
 
 A parameter or property nested within a parameter will be visible if it has _any_ of the visibilities
-in the list, or if the list is empty (in which case the parameter or property is always visible).
+in the list.
+
+WARNING: If no arguments are provided to this decorator, the `@typespec/http` library considers only properties
+that do not have visibility modifiers _explicitly_ configured to be visible. Additionally, the HTTP library will
+disable the feature of `@patch` operations that causes the properties of the request body to become effectively
+optional. Some specifications have used this configuration in the past to describe exact PATCH bodies, but using this
+decorator with no arguments in that manner is not recommended. The legacy behavior of `@parameterVisibility` with no
+arguments is preserved for backwards compatibility pending a future review and possible deprecation.
 ```typespec
 @parameterVisibility(...visibilities: valueof string | EnumMember[])
 ```
@@ -1065,8 +1073,8 @@ The property to remove visibility from.
 
 ```typespec
 model Example {
-  // This property will have the Create and Update visibilities, but not the
-  // Read visibility, since it is removed.
+  // This property will have all Lifecycle visibilities except the Read
+  // visibility, since it is removed.
   @removeVisibility(Lifecycle.Read)
   secret_property: string;
 }
@@ -1223,19 +1231,31 @@ Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorat
 
 ### `@visibility` {#@visibility}
 
-Indicates that a property is only considered to be present or applicable ("visible") with
-the in the given named contexts ("visibilities"). When a property has no visibilities applied
-to it, it is implicitly visible always.
+Sets the visibility modifiers that are active on a property, indicating that it is only considered to be present
+(or "visible") in contexts that select for the given modifiers.
 
-As far as the TypeSpec core library is concerned, visibilities are open-ended and can be arbitrary
-strings, but  the following visibilities are well-known to standard libraries and should be used
-with standard emitters that interpret them as follows:
+A property without any visibility settings applied for any visibility class (e.g. `Lifecycle`) is considered to have
+the default visibility settings for that class.
 
-- "read": output of any operation.
-- "create": input to operations that create an entity..
-- "query": input to operations that read data.
-- "update": input to operations that update data.
-- "delete": input to operations that delete data.
+If visibility for the property has already been set for a visibility class (for example, using `@invisible` or
+`@removeVisibility`), this decorator will **add** the specified visibility modifiers to the property.
+
+See: [Visibility](https://typespec.io/docs/language-basics/visibility)
+
+The `@typespec/http` library uses `Lifecycle` visibility to determine which properties are included in the request or
+response bodies of HTTP operations. By default, it uses the following visibility settings:
+
+- For the return type of operations, properties are included if they have `Lifecycle.Read` visibility.
+- For POST operation parameters, properties are included if they have `Lifecycle.Create` visibility.
+- For PUT operation parameters, properties are included if they have `Lifecycle.Create` or `Lifecycle.Update` visibility.
+- For PATCH operation parameters, properties are included if they have `Lifecycle.Update` visibility.
+- For DELETE operation parameters, properties are included if they have `Lifecycle.Delete` visibility.
+- For GET or HEAD operation parameters, properties are included if they have `Lifecycle.Query` visibility.
+
+By default, properties have all five Lifecycle visibility modifiers enabled, so a property is visible in all contexts
+by default.
+
+The default settings may be overridden using the `@returnTypeVisibility` and `@parameterVisibility` decorators.
 
 See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
 ```typespec
@@ -1255,11 +1275,15 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 
 ```typespec
 model Dog {
-  // the service will generate an ID, so you don't need to send it.
-  @visibility(Lifecycle.Read) id: int32;
-  // the service will store this secret name, but won't ever return it
-  @visibility(Lifecycle.Create, Lifecycle.Update) secretName: string;
-  // the regular name is always present
+  // The service will generate an ID, so you don't need to send it.
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  // The service will store this secret name, but won't ever return it.
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
+  // The regular name has all vi
   name: string;
 }
 ```
@@ -1418,10 +1442,10 @@ None
 
 ### `@withVisibility` {#@withVisibility}
 
-Removes properties that are not considered to be present or applicable
-("visible") in the given named contexts ("visibilities"). Can be used
-together with spread to effectively spread only visible properties into
-a new model.
+Removes properties that do not have at least one of the given visibility modifiers
+active.
+
+If no visibility modifiers are supplied, this decorator has no effect.
 
 See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
 
@@ -1438,14 +1462,18 @@ not necessary to use this decorator.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof string \| EnumMember[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof string \| EnumMember[]` | List of visibilities that apply to this property. |
 
 #### Examples
 
 ```typespec
 model Dog {
-  @visibility("read") id: int32;
-  @visibility("create", "update") secretName: string;
+  @visibility(Lifecycle.Read)
+  id: int32;
+
+  @visibility(Lifecycle.Create, Lifecycle.Update)
+  secretName: string;
+
   name: string;
 }
 
@@ -1455,14 +1483,14 @@ model Dog {
 //
 // In this case, the id property is removed, and the name and secretName
 // properties are kept.
-@withVisibility("create", "update")
+@withVisibility(Lifecycle.Create, Lifecycle.Update)
 model DogCreateOrUpdate {
   ...Dog;
 }
 
 // In this case the id and name properties are kept and the secretName property
 // is removed.
-@withVisibility("read")
+@withVisibility(Lifecycle.Read)
 model DogRead {
   ...Dog;
 }
