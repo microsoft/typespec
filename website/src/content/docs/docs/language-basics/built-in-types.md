@@ -48,7 +48,7 @@ These types do not define any specific serialization format. They represent the 
 
 The default encodings for various protocols are defined here:
 
-- [JSON over HTTP](../libraries/http/encoding/#utcdatetime-and-offsetdatetime)
+- [JSON over HTTP](../libraries/http/encoding.md#utcdatetime-and-offsetdatetime)
 - [XML](../libraries/xml/guide.md)
   :::
 
