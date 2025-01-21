@@ -71,8 +71,8 @@ public final class SpreadClientImpl {
      * @param endpoint Service host.
      */
     public SpreadClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.models = new ModelsImpl(this);
         this.alias = new AliasImpl(this);
     }

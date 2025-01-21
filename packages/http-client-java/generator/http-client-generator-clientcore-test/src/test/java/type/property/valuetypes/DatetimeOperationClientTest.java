@@ -7,18 +7,18 @@ import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class DatetimeOperationClientTest {
+public class DatetimeOperationClientTest {
 
-    DatetimeOperationClient client = new ValueTypesClientBuilder().buildDatetimeOperationClient();
+    private final DatetimeOperationClient client = new ValueTypesClientBuilder().buildDatetimeOperationClient();
 
     @Test
-    void get() {
+    public void get() {
         DatetimeProperty datetimeProperty = client.get();
         Assertions.assertEquals("2022-08-26T18:38Z", datetimeProperty.getProperty().toString());
     }
 
     @Test
-    void put() {
+    public void put() {
         OffsetDateTime offsetDateTime = OffsetDateTime.parse("2022-08-26T18:38Z");
         DatetimeProperty datetimeProperty = new DatetimeProperty(offsetDateTime);
         client.put(datetimeProperty);

@@ -57,8 +57,8 @@ public final class NumericClientImpl {
      * @param endpoint Service host.
      */
     public NumericClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.properties = new PropertiesImpl(this);
     }
 }

@@ -141,8 +141,8 @@ public final class NullableClientImpl {
      * @param endpoint Service host.
      */
     public NullableClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.stringOperations = new StringOperationsImpl(this);
         this.bytes = new BytesImpl(this);
         this.datetimeOperations = new DatetimeOperationsImpl(this);

@@ -99,8 +99,8 @@ public final class MultiPartClientImpl {
      * @param endpoint Service host.
      */
     public MultiPartClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.formDatas = new FormDatasImpl(this);
         this.formDataHttpParts = new FormDataHttpPartsImpl(this);
         this.formDataHttpPartsContentTypes = new FormDataHttpPartsContentTypesImpl(this);

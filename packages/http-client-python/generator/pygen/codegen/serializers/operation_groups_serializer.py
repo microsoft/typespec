@@ -89,4 +89,5 @@ class OperationGroupsSerializer(BaseSerializer):
                 client_namespace=self.client_namespace,
             ),
             get_request_builders=self._get_request_builders,
+            need_declare_serializer=any(operation_group.operations for operation_group in self.operation_groups),
         )

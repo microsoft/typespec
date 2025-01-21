@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.63.0",
+  "version": "0.64.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -108,104 +108,6 @@
             ],
             "default": "off",
             "description": "Define whether/how the TypeSpec language server should send traces to client. For the traces to show properly in vscode Output, make sure 'Log Level' is also set to 'Trace' so that they won't be filtered at client side, which can be set through 'Developer: Set Log Level...' command."
-          },
-          "typespec.generateCode.emitters": {
-            "scope": "window",
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "language": {
-                  "type": "string",
-                  "enum": [
-                    ".NET",
-                    "Java",
-                    "JavaScript",
-                    "Python",
-                    "Go",
-                    "OpenAPI3",
-                    "ProtoBuf",
-                    "JsonSchema"
-                  ],
-                  "description": "Define the language the emitter will emit."
-                },
-                "package": {
-                  "type": "string",
-                  "description": "Define the emitter package.\n\nExample (with version): @typespec/http-client-csharp@1.0.0\n\nExample (without version): @typespec/http-client-csharp"
-                },
-                "sourceRepo": {
-                  "type": "string",
-                  "description": "Define the source repository of the emitter package."
-                },
-                "requisites": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "description": "Define the requisites of the emitter package."
-                },
-                "kind": {
-                  "type": "string",
-                  "enum": [
-                    "client",
-                    "server",
-                    "openapi"
-                  ],
-                  "description": "Define the emitter kind."
-                }
-              }
-            },
-            "default": [
-              {
-                "language": ".NET",
-                "package": "@typespec/http-client-csharp",
-                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-csharp",
-                "requisites": [
-                  ".NET 8.0 SDK"
-                ],
-                "kind": "client"
-              },
-              {
-                "language": "Java",
-                "package": "@typespec/http-client-java",
-                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-java",
-                "requisites": [
-                  "Java 17 or above",
-                  "Maven"
-                ],
-                "kind": "client"
-              },
-              {
-                "language": "JavaScript",
-                "package": "@azure-tools/typespec-ts",
-                "sourceRepo": "https://github.com/Azure/autorest.typescript/tree/main/packages/typespec-ts",
-                "kind": "client"
-              },
-              {
-                "language": "Python",
-                "package": "@typespec/http-client-python",
-                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-client-python",
-                "kind": "client"
-              },
-              {
-                "language": ".NET",
-                "package": "@typespec/http-server-csharp",
-                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-server-csharp",
-                "kind": "server"
-              },
-              {
-                "language": "JavaScript",
-                "package": "@typespec/http-server-javascript",
-                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/http-server-javascript",
-                "kind": "server"
-              },
-              {
-                "language": "OpenAPI3",
-                "package": "@typespec/openapi3",
-                "sourceRepo": "https://github.com/microsoft/typespec/tree/main/packages/openapi3",
-                "kind": "openapi"
-              }
-            ]
           }
         }
       }
