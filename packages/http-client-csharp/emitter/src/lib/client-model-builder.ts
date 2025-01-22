@@ -98,7 +98,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     const segments = client.clientNamespace.split(".");
     const lastSegment = segments[segments.length - 1];
     if (lastSegment === clientName) {
-      // this segment is bad
+      // we report diagnostics when the last segment of the namespace is the same as the client name
+      // because in our design, a sub namespace will become to a generated type as sub client, and its name will collide with its namespace which cannot compile
       reportDiagnostic(sdkContext.program, {
         code: "client-namespace-conflict",
         format: { clientNamespace: client.clientNamespace, clientName },
