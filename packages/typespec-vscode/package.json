@@ -231,20 +231,12 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~28.0.2",
-    "@rollup/plugin-node-resolve": "~15.3.0",
-<<<<<<< HEAD
+    "@rollup/plugin-node-resolve": "~16.0.0",
     "@rollup/plugin-typescript": "~12.1.2",
     "@types/mocha": "^10.0.10",
     "@types/node": "~22.10.7",
     "@types/semver": "^7.5.8",
     "@types/vscode": "~1.94.0",
-=======
-    "@rollup/plugin-typescript": "~12.1.0",
-    "@types/mocha": "^10.0.10",
-    "@types/node": "~22.10.7",
-    "@types/semver": "^7.5.8",
-    "@types/vscode": "~1.96.0",
->>>>>>> 798d624cea6ceb5392d5c133a40efe3358eccf2f
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@vitest/coverage-v8": "^3.0.3",
@@ -254,7 +246,7 @@
     "c8": "^10.1.3",
     "mocha": "^11.0.1",
     "rimraf": "~6.0.1",
-    "rollup": "~4.24.0",
+    "rollup": "~4.31.0",
     "semver": "^7.6.3",
     "typescript": "~5.7.3",
     "vitest": "^3.0.3",
