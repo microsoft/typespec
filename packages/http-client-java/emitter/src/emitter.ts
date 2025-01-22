@@ -11,7 +11,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
-import { logError, spawnAsync, SpawnError } from "./utils.js";
+import { logError, spawnAsync, SpawnError, trace } from "./utils.js";
 import {
   CODE_JAVA_SDK_DEPENDENCY,
   JDK_NOT_FOUND_MESSAGE,
@@ -139,6 +139,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       codeModel = await builder.build();
     } catch (error: any) {
       logError(program, error.message);
+      trace(program, error.stack);
     }
 
     if (codeModel && !program.hasError() && !program.compilerOptions.noEmit) {
@@ -164,17 +165,17 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 
       await program.host.writeFile(codeModelFileName, dump(codeModel));
 
-      program.trace("http-client-java", `Code model file written to ${codeModelFileName}`);
+      trace(program, `Code model file written to ${codeModelFileName}`);
 
       const emitterOptions = JSON.stringify(options);
-      program.trace("http-client-java", `Emitter options ${emitterOptions}`);
+      trace(program, `Emitter options ${emitterOptions}`);
 
       const jarFileName = resolvePath(
         moduleRoot,
         "generator/http-client-generator/target",
         "emitter.jar",
       );
-      program.trace("http-client-java", `Exec JAR ${jarFileName}`);
+      trace(program, `Exec JAR ${jarFileName}`);
 
       const javaArgs: string[] = [];
       javaArgs.push(`-DemitterOptions=${emitterOptions}`);
@@ -194,7 +195,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       javaArgs.push(codeModelFileName);
       try {
         const result = await spawnAsync("java", javaArgs, { stdio: "pipe" });
-        program.trace("http-client-java", `Code generation log: ${result.stdout}`);
+        trace(program, `Code generation log: ${result.stdout}`);
       } catch (error: any) {
         if (error && "code" in error && error["code"] === "ENOENT") {
           logError(program, JDK_NOT_FOUND_MESSAGE, CODE_JAVA_SDK_DEPENDENCY);
@@ -204,7 +205,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
             'The emitter was unable to generate client code from this TypeSpec, please run this command again with "--trace http-client-java" to get diagnostic information, and open an issue on https://github.com/microsoft/typespec',
           );
           if (error instanceof SpawnError) {
-            program.trace("http-client-java", `Code generation error: ${error.stdout}`);
+            trace(program, `Code generation error: ${error.stdout}`);
           }
         }
       }
