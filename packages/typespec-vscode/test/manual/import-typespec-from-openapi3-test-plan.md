@@ -36,11 +36,11 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 ### Step 2: Trigger "Import TypeSpec from OpenAPI 3.0".
 
-_Option 1_. From the right-click context menu of a .tsp file.
+_Option 1_. From the right-click context menu of a file.
 
 ![alt text](./images/TriggerImportTypeSpecfromOpenAPI3.png)
 
-_Option 2_. From the right-click context menu of the tsp project folder.
+_Option 2_. From the right-click context menu of a folder.
 
 ![alt text](./images/TriggerImportTypeSpecfromOpenAPI3_option2.png)
 
@@ -48,17 +48,17 @@ _Option 2_. From the right-click context menu of the tsp project folder.
 
 - If you select `option 1` in step 2, perform the following steps:
 
-    ![alt text](./images/ImportTypeSpecfromOpenAPI3_ConfirmProjectFolder.png)
+  ![alt text](./images/ImportTypeSpecfromOpenAPI3_ConfirmProjectFolder.png)
 
   - Select a non-empty folder:
 
-      **Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
+    **Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
 
-      ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
+    ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
 
   - Select a empty folder:
 
-      If the folder is empty, skip the query and go to the next step.
+    If the folder is empty, skip the query and go to the next step.
 
 - If you select `option 2` in step 2, perform the following steps:
 
@@ -74,7 +74,7 @@ _Option 2_. From the right-click context menu of the tsp project folder.
 
 - If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenApi3. Do you want to install it?`. Click `Install @typespec/openapi3` to install.
 
-    ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyInstallaDependencies.png)
+  ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyInstallaDependencies.png)
 
 - If already installed, it will be skipped.
 
