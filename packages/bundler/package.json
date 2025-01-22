@@ -46,7 +46,7 @@
     "@rollup/plugin-commonjs": "~28.0.2",
     "@rollup/plugin-json": "~6.1.0",
     "@rollup/plugin-multi-entry": "~6.0.1",
-    "@rollup/plugin-node-resolve": "~16.0.0",
+    "@rollup/plugin-node-resolve": "~15.3.0",
     "@rollup/plugin-virtual": "~3.0.2",
     "@typespec/compiler": "workspace:~",
     "picocolors": "~1.1.1",
