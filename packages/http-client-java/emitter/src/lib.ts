@@ -155,7 +155,7 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         multipleContentType: paramMessage`Operation '${"operationName"}' can be invoked with multiple content-type. It is difficult to form a correct method signature for convenience API, and hence the convenience API is not generated.`,
-        jsonMergePatch: paramMessage`Operation '${"operationName"}' is of content-type 'application/merge-patch+json'. Eanble 'stream-style-serialization' in emitter options.`,
+        jsonMergePatch: paramMessage`Operation '${"operationName"}' is of content-type 'application/merge-patch+json'. Enable 'stream-style-serialization' in emitter options.`,
       },
     },
     "header-parameter-format-not-supported": {
