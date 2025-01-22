@@ -10,7 +10,6 @@ import {
   SdkEndpointType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkModelPropertyType,
   SdkModelType,
   SdkServiceOperation,
   SdkType,
@@ -528,19 +527,27 @@ export function emitEndpointType<TServiceOperation extends SdkServiceOperation>(
   return params;
 }
 
-function getXmlMetadata(type: SdkModelType | SdkBodyModelPropertyType): Record<string, any> | undefined {
+function getXmlMetadata(
+  type: SdkModelType | SdkBodyModelPropertyType,
+): Record<string, any> | undefined {
   if (type.serializationOptions.xml) {
     return {
       name: type.serializationOptions.xml.name,
       namespace: type.serializationOptions.xml.ns?.namespace,
       prefix: type.serializationOptions.xml.ns?.prefix,
       attribute: type.serializationOptions.xml.attribute,
-      unwrapped: type.kind === "property" && type.type.kind === "array" && type.serializationOptions.xml.unwrapped,
-      text: type.kind === "property" && type.type.kind !== "array" && type.serializationOptions.xml.unwrapped,
+      unwrapped:
+        type.kind === "property" &&
+        type.type.kind === "array" &&
+        type.serializationOptions.xml.unwrapped,
+      text:
+        type.kind === "property" &&
+        type.type.kind !== "array" &&
+        type.serializationOptions.xml.unwrapped,
       itemsName: type.serializationOptions.xml.itemsName,
       itemsNs: type.serializationOptions.xml.itemsNs?.namespace,
       itemsPrefix: type.serializationOptions.xml.itemsNs?.prefix,
-    }
+    };
   }
   return undefined;
 }
