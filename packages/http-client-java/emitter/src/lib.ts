@@ -145,22 +145,17 @@ export const $lib = createTypeSpecLibrary({
         basicAuthBranded: paramMessage`HTTP auth with '${"scheme"}' scheme is not supported for Azure. Azure service should use Oauth2Auth or ApiKeyAuth.`,
       },
     },
-    "protocol-api-not-generated-on-multipart-form-data": {
+    "protocol-api-not-generated": {
       severity: "warning",
       messages: {
-        default: paramMessage`Operation '${"operationName"}' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not generated.`,
+        multipartFormData: paramMessage`Operation '${"operationName"}' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not generated.`,
       },
     },
-    "convenience-api-not-generated-on-multiple-content-type": {
+    "convenience-api-not-generated": {
       severity: "warning",
       messages: {
-        default: paramMessage`Operation '${"operationName"}' can be invoked with multiple content-type. It is difficult to form a correct method signature for convenience API, and hence the convenience API is not generated.`,
-      },
-    },
-    "convenience-api-not-generated-on-json-merge-patch": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Operation '${"operationName"}' is of content-type 'application/merge-patch+json'. Eanble 'stream-style-serialization' in emitter options.`,
+        multipleContentType: paramMessage`Operation '${"operationName"}' can be invoked with multiple content-type. It is difficult to form a correct method signature for convenience API, and hence the convenience API is not generated.`,
+        jsonMergePatch: paramMessage`Operation '${"operationName"}' is of content-type 'application/merge-patch+json'. Eanble 'stream-style-serialization' in emitter options.`,
       },
     },
     "header-parameter-format-not-supported": {

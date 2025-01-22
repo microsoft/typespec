@@ -857,7 +857,8 @@ export class CodeModelBuilder {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
         generateProtocolApi = false;
         diagnostic = createDiagnostic({
-          code: "protocol-api-not-generated-on-multipart-form-data",
+          code: "protocol-api-not-generated",
+          messageId: "multipartFormData",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
         });
@@ -867,7 +868,8 @@ export class CodeModelBuilder {
         // issue link: https://github.com/Azure/autorest.java/issues/1958#issuecomment-1562558219
         generateConvenienceApi = false;
         diagnostic = createDiagnostic({
-          code: "convenience-api-not-generated-on-multiple-content-type",
+          code: "convenience-api-not-generated",
+          messageId: "multipleContentType",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
         });
@@ -879,7 +881,8 @@ export class CodeModelBuilder {
         // do not generate convenient method for json merge patch operation if stream-style-serialization is not enabled
         generateConvenienceApi = false;
         diagnostic = createDiagnostic({
-          code: "convenience-api-not-generated-on-json-merge-patch",
+          code: "convenience-api-not-generated",
+          messageId: "jsonMergePatch",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
         });
