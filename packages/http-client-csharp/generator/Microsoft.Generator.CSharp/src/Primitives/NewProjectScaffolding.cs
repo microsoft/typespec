@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp.Primitives
 {
-    //TODO Keeping internal for now until we define the extensibility points https://github.com/microsoft/typespec/issues/4065
-    internal class NewProjectScaffolding
+    //TODO Need to define the rest of the extensibility points https://github.com/microsoft/typespec/issues/4065
+    public class NewProjectScaffolding
     {
-        public async Task<bool> Execute()
+        public virtual async Task<bool> Execute()
         {
             //clean up old sln and csproj files
             foreach (var file in Directory.GetFiles(CodeModelPlugin.Instance.Configuration.OutputDirectory, "*.csproj", SearchOption.AllDirectories))
