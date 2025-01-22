@@ -12,10 +12,10 @@ namespace Microsoft.Generator.CSharp.Input
             Multipart = multipart;
         }
 
-        public InputJsonSerializationOptions? Json { get; init; }
+        public InputJsonSerializationOptions? Json { get; internal set; }
 
-        public InputXmlSerializationOptions? Xml { get; init; }
+        public InputXmlSerializationOptions? Xml { get; internal set; }
 
-        public InputMultipartOptions? Multipart { get; init; }
+        public InputMultipartOptions? Multipart { get; internal set; }
     }
 }

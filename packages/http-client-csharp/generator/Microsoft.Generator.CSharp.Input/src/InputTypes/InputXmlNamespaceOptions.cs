@@ -11,8 +11,8 @@ namespace Microsoft.Generator.CSharp.Input
             Prefix = prefix;
         }
 
-        public string Namespace { get; init; }
+        public string Namespace { get; internal set; }
 
-        public string Prefix { get; init; }
+        public string Prefix { get; internal set; }
     }
 }

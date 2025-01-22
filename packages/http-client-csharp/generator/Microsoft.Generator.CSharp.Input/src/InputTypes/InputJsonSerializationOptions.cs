@@ -10,6 +10,6 @@ namespace Microsoft.Generator.CSharp.Input
             Name = name;
         }
 
-        public string Name { get; init; }
+        public string Name { get; internal set; }
     }
 }

@@ -15,16 +15,16 @@ namespace Microsoft.Generator.CSharp.Input
             ItemsNamespace = itemsNamespace;
         }
 
-        public string Name { get; init; }
+        public string Name { get; internal set; }
 
-        public bool? Attribute { get; init; }
+        public bool? Attribute { get; internal set; }
 
-        public InputXmlNamespaceOptions? Namespace { get; init; }
+        public InputXmlNamespaceOptions? Namespace { get; internal set; }
 
-        public bool? Unwrapped { get; init; }
+        public bool? Unwrapped { get; internal set; }
 
-        public string? ItemsName { get; init; }
+        public string? ItemsName { get; internal set; }
 
-        public InputXmlNamespaceOptions? ItemsNamespace { get; init; }
+        public InputXmlNamespaceOptions? ItemsNamespace { get; internal set; }
     }
 }
