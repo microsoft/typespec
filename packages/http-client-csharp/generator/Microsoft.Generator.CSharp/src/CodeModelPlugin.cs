@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -61,7 +60,17 @@ namespace Microsoft.Generator.CSharp
 
         // Extensibility points to be implemented by a plugin
         public virtual TypeFactory TypeFactory { get; }
-        public virtual SourceInputModel SourceInputModel => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
+
+        private SourceInputModel? _sourceInputModel;
+        public virtual SourceInputModel SourceInputModel
+        {
+            get => _sourceInputModel ?? throw new InvalidOperationException($"SourceInputModel has not been initialized yet");
+            internal set
+            {
+                _sourceInputModel = value;
+            }
+        }
+
         public virtual string LicenseString => string.Empty;
         public virtual OutputLibrary OutputLibrary { get; } = new();
         public virtual InputLibrary InputLibrary => _inputLibrary;
@@ -87,14 +96,6 @@ namespace Microsoft.Generator.CSharp
         public void AddSharedSourceDirectory(string sharedSourceDirectory)
         {
             _sharedSourceDirectories.Add(sharedSourceDirectory);
-        }
-
-        private SourceInputModel? _sourceInputModel;
-
-        internal async Task InitializeSourceInputModelAsync()
-        {
-            GeneratedCodeWorkspace existingCode = GeneratedCodeWorkspace.CreateExistingCodeProject([Instance.Configuration.ProjectDirectory], Instance.Configuration.ProjectGeneratedDirectory);
-            _sourceInputModel =  new SourceInputModel(await existingCode.GetCompilationAsync());
         }
 
         internal HashSet<string> TypesToKeep { get; } = new();

@@ -21,7 +21,6 @@ public class Client extends Metadata {
     private Security security;
     private List<ApiVersion> apiVersions = new ArrayList<>();
     private ServiceVersion serviceVersion;
-    private String crossLanguageDefinitionId;
     private Client parent;
     private List<Client> subClients = Collections.emptyList();
     private boolean buildMethodPublic = true;
@@ -142,24 +141,6 @@ public class Client extends Metadata {
         this.serviceVersion = serviceVersion;
     }
 
-    /**
-     * Gets the cross-language definition id of the client.
-     *
-     * @return The cross-language definition id of the client.
-     */
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
-    }
-
-    /**
-     * Sets the cross-language definition id of the client.
-     *
-     * @param crossLanguageDefinitionId The cross-language definition id of the client.
-     */
-    public void setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
-    }
-
     public Client getParent() {
         return parent;
     }
@@ -204,7 +185,6 @@ public class Client extends Metadata {
             .writeJsonField("security", security)
             .writeArrayField("apiVersions", apiVersions, JsonWriter::writeJson)
             .writeJsonField("serviceVersion", serviceVersion)
-            .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId)
             .writeJsonField("parent", parent)
             .writeArrayField("subClients", subClients, JsonWriter::writeJson)
             .writeBooleanField("buildMethodPublic", buildMethodPublic)
@@ -246,9 +226,6 @@ public class Client extends Metadata {
             return true;
         } else if ("serviceVersion".equals(fieldName)) {
             client.serviceVersion = ServiceVersion.fromJson(reader);
-            return true;
-        } else if ("crossLanguageDefinitionId".equals(fieldName)) {
-            client.crossLanguageDefinitionId = reader.getString();
             return true;
         } else if ("parent".equals(fieldName)) {
             client.parent = Client.fromJson(reader);

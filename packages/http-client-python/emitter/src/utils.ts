@@ -88,9 +88,15 @@ function normalize(
       : identifier;
 }
 
+// filter continuous empty strings at the beginning of the array
+function filterEmptyStrings(arr: string[]): string[] {
+  const firstNonEmptyIndex = arr.findIndex((s) => s !== "");
+  return firstNonEmptyIndex >= 0 ? arr.slice(firstNonEmptyIndex) : arr;
+}
+
 export function camelToSnakeCase(name: string): string {
   if (!name) return name;
-  const words = normalize(name, false, 6);
+  const words = filterEmptyStrings(normalize(name, false, 6));
   const result = words.join("_").toLowerCase();
   const result_final = result.replace(/([^\d])_(\d+)/g, "$1$2");
   return result_final;
@@ -198,4 +204,31 @@ export function isAzureCoreErrorResponse(t: SdkType | undefined): boolean {
 
 export function capitalize(name: string): string {
   return name[0].toUpperCase() + name.slice(1);
+}
+
+export function getClientNamespace<TServiceOperation extends SdkServiceOperation>(
+  context: PythonSdkContext<TServiceOperation>,
+  clientNamespace: string,
+) {
+  const rootNamespace = removeUnderscoresFromNamespace(
+    context.sdkPackage.rootNamespace,
+  ).toLowerCase();
+  if (!context.emitContext.options["enable-typespec-namespace"]) {
+    return rootNamespace;
+  }
+  if (
+    [
+      "azure.core",
+      "azure.resourcemanager",
+      "azure.clientgenerator.core",
+      "typespec.rest",
+      "typespec.http",
+      "typespec.versioning",
+    ].some((item) => clientNamespace.toLowerCase().startsWith(item))
+  ) {
+    return rootNamespace;
+  }
+  return clientNamespace === ""
+    ? rootNamespace
+    : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
 }

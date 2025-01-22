@@ -178,9 +178,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         }
 
         // validates the credential fields are built correctly when a client has sub-clients
-        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
-        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
-        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
+        [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(WithSubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
         public void TestBuildAuthFields_WithSubClients_WithAuth(InputClient client)
         {
             var clientProvider = new ClientProvider(client);
@@ -204,6 +204,26 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                     new(FieldModifiers.Private | FieldModifiers.Static | FieldModifiers.ReadOnly, new CSharpType(typeof(string[])), "AuthorizationScopes"),
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
+            }
+        }
+
+        // validates the credential fields are built correctly when a client has sub-clients
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
+        public void TestBuildAuthFields_SubClients_WithAuth(InputClient client)
+        {
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            if (_hasKeyAuth)
+            {
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Equals("_keyCredential")));
+            }
+            if (_hasOAuth2)
+            {
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Equals("_tokenCredential")));
             }
         }
 
@@ -298,9 +318,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when there is only one approach of auth, we have 3 parameters in the ctor.
+            // when there is only one approach of auth, we still have 2 parameters in the ctor because we should not have auth parameter in sub-client
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(3, ctorParams?.Count);
+            Assert.AreEqual(2, ctorParams?.Count);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -320,9 +340,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
             Assert.IsNotNull(internalConstructor);
-            // when we have both auths, we have 4 parameters in the ctor, because now we should have two credential parameters
+            // when we have both auths, we still have 2 parameters in the ctor, because we should not have auth parameters in sub-client
             var ctorParams = internalConstructor?.Signature?.Parameters;
-            Assert.AreEqual(4, ctorParams?.Count);
+            Assert.AreEqual(2, ctorParams?.Count);
 
             var mockingConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
@@ -462,14 +482,15 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             var client = InputFactory.Client(TestClientName, parent: parentClientName);
             var clientProvider = new ClientProvider(client);
+            Assert.IsNotNull(clientProvider);
 
             if (isSubClient)
             {
-                Assert.IsNull(clientProvider?.ClientOptions);
+                Assert.IsNull(clientProvider.ClientOptions.Value);
             }
             else
             {
-                Assert.IsNotNull(clientProvider?.ClientOptions);
+                Assert.IsNotNull(clientProvider.ClientOptions.Value);
             }
         }
 
@@ -515,7 +536,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             //protocol and convenience methods should have a different type for enum query parameters
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
-            var methods = clientProvider.Methods;
+            var methods = clientProvider!.Methods;
             //4 methods, sync / async + protocol / convenience
             Assert.AreEqual(4, methods.Count);
             //two methods need to have the query parameter as an enum
@@ -532,8 +553,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client, isAsync));
 
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            Assert.IsNotNull(clientProvider);
 
-            TypeProviderWriter writer = new(clientProvider);
+            TypeProviderWriter writer = new(clientProvider!);
             var codeFile = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(isAsync.ToString()), codeFile.Content);
         }
@@ -558,7 +580,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         ])
                 ]);
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
-            var convenienceMethod = clientProvider.Methods.FirstOrDefault(
+            Assert.IsNotNull(clientProvider);
+            var convenienceMethod = clientProvider!.Methods.FirstOrDefault(
                 m => m.Signature.Name == "Foo" &&
                      !m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
             Assert.IsNotNull(convenienceMethod);
@@ -707,6 +730,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(method);
             /* verify that the method does not have apiVersion parameter */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
+        [TestCase]
+        public void ClientProviderIsAddedToLibrary()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                clients: () => [new InputClient("test", "test", "test", [], [], null)]);
+
+            Assert.AreEqual(1, plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Count());
+        }
+
+        [TestCase]
+        public void NullClientProviderIsNotAddedToLibrary()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                clients: () => [new InputClient("test", "test", "test", [], [], null)],
+                createClientCore: (client) => null);
+
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());
         }
 
         private static InputClient GetEnumQueryParamClient()
@@ -878,11 +920,18 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             }
         }
 
-        public static IEnumerable<TestCaseData> SubClientAuthFieldsTestCases
+        public static IEnumerable<TestCaseData> WithSubClientAuthFieldsTestCases
         {
             get
             {
                 yield return new TestCaseData(InputFactory.Client(TestClientName));
+            }
+        }
+
+        public static IEnumerable<TestCaseData> SubClientAuthFieldsTestCases
+        {
+            get
+            {
                 yield return new TestCaseData(_animalClient);
                 yield return new TestCaseData(_dogClient);
                 yield return new TestCaseData(_huskyClient);
@@ -1205,7 +1254,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
-                
+
             public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
                 => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
 

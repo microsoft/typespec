@@ -555,12 +555,9 @@ export function getVisibilityForClass(
   property: ModelProperty,
   visibilityClass: Enum,
 ): Set<EnumMember> {
-  return getOrInitializeActiveModifierSetForClass(
-    program,
-    property,
-    visibilityClass,
-    /* defaultSet: */ getDefaultModifierSetForClass(program, visibilityClass),
-  );
+  const store = getVisibilityStore(program, property);
+
+  return store?.get(visibilityClass) ?? getDefaultModifierSetForClass(program, visibilityClass);
 }
 
 /**
@@ -579,14 +576,9 @@ export function hasVisibility(
   property: ModelProperty,
   modifier: EnumMember,
 ): boolean {
-  const activeSet = getOrInitializeActiveModifierSetForClass(
-    program,
-    property,
-    modifier.enum,
-    /* defaultSet: */ getDefaultModifierSetForClass(program, modifier.enum),
-  );
+  const visibilityClass = modifier.enum;
 
-  return activeSet?.has(modifier) ?? false;
+  return getVisibilityForClass(program, property, visibilityClass).has(modifier) ?? false;
 }
 
 /**
@@ -603,18 +595,31 @@ export function hasVisibility(
  * AND
  *
  * - NONE of the visibilities in the `none` set.
+ *
+ * Note: The constraints behave similarly to the `every` and `some` methods of the Array prototype in JavaScript. If the
+ * `any` constraint is set to an empty set, it will _NEVER_ be satisfied (similarly, `Array.prototype.some` will always
+ * return `false` for an empty array). If the `none` constraint is set to an empty set, it will _ALWAYS_ be satisfied.
+ * If the `all` constraint is set to an empty set, it will be satisfied (similarly, `Array.prototype.every` will always
+ * return `true` for an empty array).
+ *
  */
 export interface VisibilityFilter {
   /**
    * If set, the filter considers a property visible if it has ALL of these visibility modifiers.
+   *
+   * If this set is empty, the filter will be satisfied if the other constraints are satisfied.
    */
   all?: Set<EnumMember>;
   /**
    * If set, the filter considers a property visible if it has ANY of these visibility modifiers.
+   *
+   * If this set is empty, the filter will _NEVER_ be satisfied.
    */
   any?: Set<EnumMember>;
   /**
    * If set, the filter considers a property visible if it has NONE of these visibility modifiers.
+   *
+   * If this set is empty, the filter will be satisfied if the other constraints are satisfied.
    */
   none?: Set<EnumMember>;
 }
@@ -690,28 +695,28 @@ export function isVisible(
     return isVisibleLegacy(_filterOrLegacyVisibilities);
   }
 
-  const filter = { ...(_filterOrLegacyVisibilities as VisibilityFilter) };
-  filter.all ??= new Set();
-  filter.any ??= new Set();
-  filter.none ??= new Set();
+  const filter = _filterOrLegacyVisibilities as VisibilityFilter;
 
   // Validate that property has ALL of the required visibilities of filter.all
-  for (const modifier of filter.all) {
-    if (!hasVisibility(program, property, modifier)) return false;
-  }
-
-  // Validate that property has ANY of the required visibilities of filter.any
-  outer: while (filter.any.size > 0) {
-    for (const modifier of filter.any) {
-      if (hasVisibility(program, property, modifier)) break outer;
+  if (filter.all) {
+    for (const modifier of filter.all) {
+      if (!hasVisibility(program, property, modifier)) return false;
     }
-
-    return false;
   }
 
   // Validate that property has NONE of the excluded visibilities of filter.none
-  for (const modifier of filter.none) {
-    if (hasVisibility(program, property, modifier)) return false;
+  if (filter.none) {
+    for (const modifier of filter.none) {
+      if (hasVisibility(program, property, modifier)) return false;
+    }
+  }
+
+  if (filter.any) {
+    for (const modifier of filter.any) {
+      if (hasVisibility(program, property, modifier)) return true;
+    }
+
+    return false;
   }
 
   return true;

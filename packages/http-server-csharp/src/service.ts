@@ -67,6 +67,7 @@ import {
   ControllerContext,
   LibrarySourceFile,
   NameCasingType,
+  ResponseInfo,
 } from "./interfaces.js";
 import { CSharpServiceEmitterOptions, reportDiagnostic } from "./lib.js";
 import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
@@ -661,7 +662,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const multipart: boolean = this.#isMultipartRequest(httpOperation);
       const declParams = !multipart
         ? this.#emitHttpOperationParameters(httpOperation)
-        : this.#emitHttpOperationParameters(httpOperation, "HttpRequest request, Stream body");
+        : this.#emitHttpOperationParameters(httpOperation, true);
 
       if (multipart) {
         const context = this.emitter.getContext();
@@ -673,19 +674,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         ]);
       }
       const responseInfo = this.#getOperationResponse(httpOperation);
-      let status: string = "200";
-      let response: CSharpType = new CSharpType({
-        name: "void",
-        namespace: "System",
-        isBuiltIn: true,
-        isValueType: false,
-      });
-      if (responseInfo !== undefined) {
-        [status, response] = responseInfo;
-      }
+      const status = responseInfo?.statusCode ?? 200;
+      const response: CSharpType =
+        responseInfo?.resultType ??
+        new CSharpType({
+          name: "void",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: false,
+        });
 
       const hasResponseValue = response.name !== "void";
-      const resultString = `${status === "204" ? "NoContent" : "Ok"}`;
+      const resultString = `${status === 204 ? "NoContent" : "Ok"}`;
       if (!this.#isMultipartRequest(httpOperation)) {
         return this.emitter.result.declaration(
           operation.name,
@@ -720,14 +720,14 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         ${this.emitter.emitOperationReturnType(operation)}
         public virtual async Task<IActionResult> ${operationName}(${declParams})
         {
-          var boundary = request.GetMultipartBoundary();
+          var boundary = Request.GetMultipartBoundary();
           if (boundary == null)
           {
              return BadRequest("Request missing multipart boundary");
           }
 
 
-          var reader = new MultipartReader(boundary, body);
+          var reader = new MultipartReader(boundary, Request.Body);
           ${
             hasResponseValue
               ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(httpOperation, "reader")});
@@ -760,19 +760,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
       const declParams = this.#emitHttpOperationParameters(httpOperation);
       const responseInfo = this.#getOperationResponse(httpOperation);
-      let status: string = "200";
-      let response: CSharpType = new CSharpType({
-        name: "void",
-        namespace: "System",
-        isBuiltIn: true,
-        isValueType: false,
-      });
-      if (responseInfo !== undefined) {
-        [status, response] = responseInfo;
-      }
+      const status = responseInfo?.statusCode ?? 200;
+      const response: CSharpType =
+        responseInfo?.resultType ??
+        new CSharpType({
+          name: "void",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: false,
+        });
 
       const hasResponseValue = response.name !== "void";
-      const resultString = `${status === "204" ? "NoContent" : "Ok"}`;
+      const resultString = `${status === 204 ? "NoContent" : "Ok"}`;
       return this.emitter.result.declaration(
         operation.name,
         code`
@@ -805,7 +804,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return this.emitter.result.rawCode(stringTemplate.stringValue || "");
     }
 
-    #getOperationResponse(operation: HttpOperation): [string, CSharpType] | undefined {
+    #getOperationResponse(operation: HttpOperation): ResponseInfo | undefined {
       const validResponses = operation.responses.filter(
         (r) =>
           !isErrorModel(this.emitter.getProgram(), r.type) &&
@@ -813,8 +812,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       );
       if (validResponses.length < 1) return undefined;
       const response = validResponses[0];
-      const statusCode = getCSharpStatusCode(response.statusCodes);
-      if (statusCode === undefined) return undefined;
+      const csharpStatusCode = getCSharpStatusCode(response.statusCodes);
+      if (csharpStatusCode === undefined) return undefined;
       const responseType = new HttpMetadata().resolveLogicalResponseType(
         this.emitter.getProgram(),
         response,
@@ -822,7 +821,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const context = this.emitter.getContext();
       const result = getCSharpType(this.emitter.getProgram(), responseType, context.namespace);
       const resultType = result?.type || UnknownType;
-      return [statusCode, resultType];
+      return {
+        csharpStatusCode,
+        resultType,
+        statusCode: response.statusCodes,
+      };
     }
     #emitOperationResponses(operation: HttpOperation): EmitterOutput<string> {
       const builder: StringBuilder = new StringBuilder();
@@ -912,7 +915,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     #emitHttpOperationParameters(
       operation: HttpOperation,
-      bodyParameter?: string,
+      bodyParameter?: boolean,
     ): EmitterOutput<string> {
       const signature = new StringBuilder();
       const bodyParam = operation.parameters.body;
@@ -930,9 +933,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       for (const parameter of requiredParams) {
         signature.push(
           code`${this.#emitOperationSignatureParameter(operation, parameter)}${
-            ++i < requiredParams.length || bodyParam !== undefined ? ", " : ""
+            ++i < requiredParams.length ? ", " : ""
           }`,
         );
+      }
+      if (
+        requiredParams.length > 0 &&
+        (optionalParams.length > 0 || (bodyParameter === undefined && bodyParam !== undefined))
+      ) {
+        signature.push(code`, `);
       }
       if (bodyParameter === undefined) {
         if (bodyParam !== undefined) {
@@ -942,11 +951,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
                 bodyParam.type,
                 Visibility.Create || Visibility.Update,
               ),
-            )} body${optionalParams.length > 0 ? ", " : ""}`,
+            )} body${requiredParams.length > 0 && optionalParams.length > 0 ? ", " : ""}`,
           );
         }
-      } else {
-        signature.push(code`${bodyParameter}${optionalParams.length > 0 ? ", " : ""}`);
       }
       i = 0;
       for (const parameter of optionalParams) {

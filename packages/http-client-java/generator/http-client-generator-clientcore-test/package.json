@@ -1,0 +1,32 @@
+{
+  "name": "@typespec/http-client-java-clientcore-tests",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./node_modules/@typespec/http-client-java ./package-lock.json ./tsp-output",
+    "format": "npm run -s prettier -- --write",
+    "check-format": "npm run prettier -- --check",
+    "prettier": "prettier --config ./.prettierrc.yaml **/*.tsp",
+    "spector-serve": "tsp-spector serve ./node_modules/@typespec/http-specs/specs --coverageFile ./tsp-spector-coverage-java-standard.json",
+    "spector-start": "tsp-spector server start ./node_modules/@typespec/http-specs/specs --coverageFile ./tsp-spector-coverage-java-standard.json",
+    "spector-stop": "tsp-spector server stop"
+  },
+  "dependencies": {
+    "@typespec/http-specs": "0.1.0-alpha.7",
+    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.1.9.tgz",
+    "@typespec/http-client-java-tests": "file:"
+  },
+  "overrides": {
+    "@typespec/compiler": "~0.64.0",
+    "@typespec/http": "~0.64.0",
+    "@typespec/rest": "~0.64.0",
+    "@typespec/versioning": "~0.64.0",
+    "@typespec/openapi": "~0.64.0",
+    "@typespec/xml": "~0.64.0",
+    "@azure-tools/typespec-azure-core": "~0.50.0",
+    "@azure-tools/typespec-client-generator-core": "~0.50.0",
+    "@azure-tools/typespec-azure-resource-manager": "~0.50.0",
+    "@azure-tools/typespec-autorest": "~0.50.0"
+  },
+  "private": true
+}

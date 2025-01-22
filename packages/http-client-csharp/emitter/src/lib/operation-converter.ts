@@ -91,7 +91,7 @@ export function fromSdkServiceMethod(
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
-    CrossLanguageDefinitionId: method.crossLanguageDefintionId,
+    CrossLanguageDefinitionId: method.crossLanguageDefinitionId,
     Decorators: method.decorators,
     Examples: method.operation.examples
       ? fromSdkHttpExamples(
@@ -187,6 +187,11 @@ function fromSdkHttpOperationParameter(
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
+  // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
+  // any path expansion to ensure the parameter values are delimited correctly during serialization.
+  // https://github.com/microsoft/typespec/issues/5561
+  const explode = isExplodedParameter(p);
+
   return {
     Name: p.name,
     NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
@@ -198,7 +203,7 @@ function fromSdkHttpOperationParameter(
       p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version",
     IsContentType: isContentType,
     IsEndpoint: false,
-    Explode: parameterType.kind === "array" && format === "multi" ? true : false,
+    Explode: explode,
     ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
     IsRequired: !p.optional,
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
@@ -420,4 +425,8 @@ function normalizeHeaderName(name: string): string {
     default:
       return name;
   }
+}
+
+function isExplodedParameter(p: SdkHttpParameter): boolean {
+  return (p.kind === "path" || p.kind === "query") && p.explode === true;
 }

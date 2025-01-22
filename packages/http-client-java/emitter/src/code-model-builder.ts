@@ -111,11 +111,7 @@ import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
 import pkg from "lodash";
-import {
-  Client as CodeModelClient,
-  CrossLanguageDefinition,
-  EncodedSchema,
-} from "./common/client.js";
+import { Client as CodeModelClient, EncodedSchema } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -176,8 +172,6 @@ export class CodeModelBuilder {
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
 
-  private loggingEnabled: boolean = false;
-
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
   );
@@ -190,9 +184,6 @@ export class CodeModelBuilder {
     this.options = context.options;
     this.program = program1;
     this.emitterContext = context;
-    if (this.options["dev-options"]?.loglevel) {
-      this.loggingEnabled = true;
-    }
 
     if (this.options["skip-special-headers"]) {
       this.options["skip-special-headers"].forEach((it) =>
@@ -331,13 +322,24 @@ export class CodeModelBuilder {
         switch (scheme.type) {
           case "oauth2":
             {
-              const oauth2Scheme = new OAuth2SecurityScheme({
-                scopes: [],
-              });
-              scheme.flows.forEach((it) =>
-                oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
-              );
-              securitySchemes.push(oauth2Scheme);
+              if (this.isBranded()) {
+                const oauth2Scheme = new OAuth2SecurityScheme({
+                  scopes: [],
+                });
+                scheme.flows.forEach((it) =>
+                  oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
+                );
+                securitySchemes.push(oauth2Scheme);
+              } else {
+                // there is no TokenCredential in clientcore, hence use Bearer Authentication directly
+                this.logWarning(`OAuth2 auth scheme is generated as KeyCredential.`);
+
+                const keyScheme = new KeySecurityScheme({
+                  name: "authorization",
+                });
+                (keyScheme as any).prefix = "Bearer";
+                securitySchemes.push(keyScheme);
+              }
             }
             break;
 
@@ -549,7 +551,7 @@ export class CodeModelBuilder {
       // at present, use global security definition
       security: this.codeModel.security,
     });
-    codeModelClient.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
+    codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
     // versioning
     const versions = client.apiVersions;
@@ -591,7 +593,7 @@ export class CodeModelBuilder {
               }
             }
           } else if (initializationProperty.type.variantTypes.length > 2) {
-            this.logError("Multiple server url defined for one client is not supported yet.");
+            this.logError("Multiple server URL defined for one client is not supported yet.");
           }
         } else if (initializationProperty.type.kind === "endpoint") {
           sdkPathParameters = initializationProperty.type.templateArguments;
@@ -616,6 +618,7 @@ export class CodeModelBuilder {
     // operations without operation group
     const serviceMethodsWithoutSubClient = this.listServiceMethodsUnderClient(client);
     let codeModelGroup = new OperationGroup("");
+    codeModelGroup.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
     for (const serviceMethod of serviceMethodsWithoutSubClient) {
       if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
         codeModelGroup.addOperation(this.processOperation(serviceMethod, clientContext, ""));
@@ -639,6 +642,8 @@ export class CodeModelBuilder {
         // operation group with no operation is skipped
         if (serviceMethods.length > 0) {
           codeModelGroup = new OperationGroup(subClient.name);
+          codeModelGroup.language.default.crossLanguageDefinitionId =
+            subClient.crossLanguageDefinitionId;
           for (const serviceMethod of serviceMethods) {
             if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
               codeModelGroup.addOperation(
@@ -817,8 +822,8 @@ export class CodeModelBuilder {
       },
     });
 
-    (codeModelOperation as CrossLanguageDefinition).crossLanguageDefinitionId =
-      sdkMethod.crossLanguageDefintionId;
+    codeModelOperation.language.default.crossLanguageDefinitionId =
+      sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
@@ -961,29 +966,49 @@ export class CodeModelBuilder {
     responses: SdkHttpResponse[],
     sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
-    if (!this.isBranded()) {
-      // TODO: currently unbranded does not support paged operation
-      return;
-    }
-
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
       for (const response of responses) {
         const bodyType = response.type;
         if (bodyType && bodyType.kind === "model") {
-          const itemName = sdkMethod.response.resultPath;
-          const nextLinkName = sdkMethod.nextLinkPath;
+          const itemClientName = sdkMethod.response.resultPath;
+          const nextLinkClientName = sdkMethod.nextLinkPath;
 
-          op.extensions = op.extensions ?? {};
-          op.extensions["x-ms-pageable"] = {
-            itemName: itemName,
-            nextLinkName: nextLinkName,
-          };
+          let itemSerializedName: string | undefined = undefined;
+          let nextLinkSerializedName: string | undefined = undefined;
 
           op.responses?.forEach((r) => {
             if (r instanceof SchemaResponse) {
               this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+
+              // find serializedName for items and nextLink
+              if (r.schema instanceof ObjectSchema) {
+                r.schema.properties?.forEach((p) => {
+                  if (
+                    itemClientName &&
+                    !itemSerializedName &&
+                    p.serializedName &&
+                    p.language.default.name === itemClientName
+                  ) {
+                    itemSerializedName = p.serializedName;
+                  }
+                  if (
+                    nextLinkClientName &&
+                    !nextLinkSerializedName &&
+                    p.serializedName &&
+                    p.language.default.name === nextLinkClientName
+                  ) {
+                    nextLinkSerializedName = p.serializedName;
+                  }
+                });
+              }
             }
           });
+
+          op.extensions = op.extensions ?? {};
+          op.extensions["x-ms-pageable"] = {
+            itemName: itemSerializedName,
+            nextLinkName: nextLinkSerializedName,
+          };
           break;
         }
       }
@@ -1049,8 +1074,21 @@ export class CodeModelBuilder {
           lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
           lroMetadata.finalResponse.resultPath
         ) {
-          // final result is the value in lroMetadata.finalStep.target
-          finalResultPropertySerializedName = lroMetadata.finalResponse.resultPath;
+          const finalResultPropertyClientName = lroMetadata.finalResponse.resultPath;
+
+          // find serializedName for lro result
+          if (finalResultPropertyClientName) {
+            lroMetadata.finalResponse.envelopeResult.properties?.forEach((p) => {
+              // TODO: "p.__raw?.name" should be "p.name", after TCGC fix https://github.com/Azure/typespec-azure/issues/2072
+              if (
+                p.kind === "property" &&
+                p.serializedName &&
+                p.__raw?.name === finalResultPropertyClientName
+              ) {
+                finalResultPropertySerializedName = p.serializedName;
+              }
+            });
+          }
         }
       }
 
@@ -2017,7 +2055,7 @@ export class CodeModelBuilder {
         },
       },
     });
-    schema.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
   }
 
@@ -2117,8 +2155,7 @@ export class CodeModelBuilder {
         },
       },
     });
-    (objectSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
-      type.crossLanguageDefinitionId;
+    objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     this.codeModel.schemas.add(objectSchema);
 
     // cache this now before we accidentally recurse on this type.
@@ -2323,7 +2360,7 @@ export class CodeModelBuilder {
 
   private getUnionVariantName(type: Type | undefined, option: any): string {
     if (type === undefined) {
-      this.logError("type is undefined.");
+      this.logWarning("Union variant type is undefined.");
       return "UnionVariant";
     }
     switch (type.kind) {
@@ -2376,7 +2413,7 @@ export class CodeModelBuilder {
       case "UnionVariant":
         return (typeof type.name === "string" ? type.name : undefined) ?? "UnionVariant";
       default:
-        this.logError(`Unrecognized type for union variable: '${type.kind}'.`);
+        this.logWarning(`Unrecognized type for union variable: '${type.kind}'.`);
         return "UnionVariant";
     }
   }
@@ -2541,17 +2578,18 @@ export class CodeModelBuilder {
     const clientNamespace: string | undefined = type?.clientNamespace;
 
     if (type) {
+      const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
       if (this.isBranded()) {
         // special handling for namespace of model that cannot be mapped to azure-core
-        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+        if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
           // TypeSpec.Http.File
           return this.baseJavaNamespace;
-        } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
+        } else if (crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
           // Azure.Core.OperationState
           return this.baseJavaNamespace;
         } else if (
-          type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
-          type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
+          crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
+          crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
         ) {
           // Azure.Core.ResourceOperationStatus<>
           // Azure.Core.Foundations.OperationStatus<>
@@ -2563,10 +2601,10 @@ export class CodeModelBuilder {
         }
       } else {
         // special handling for namespace of model in TypeSpec
-        if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
+        if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
           // TypeSpec.Http.File
           return this.baseJavaNamespace;
-        } else if (type.crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+        } else if (crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
           // models in TypeSpec.Rest.Resource
           return this.baseJavaNamespace;
         }
@@ -2585,9 +2623,7 @@ export class CodeModelBuilder {
   }
 
   private logWarning(msg: string) {
-    if (this.loggingEnabled) {
-      logWarning(this.program, msg);
-    }
+    logWarning(this.program, msg);
   }
 
   private trace(msg: string) {

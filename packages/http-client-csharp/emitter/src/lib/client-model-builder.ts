@@ -11,6 +11,7 @@ import {
   SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
+import { NoTarget } from "@typespec/compiler";
 import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
@@ -20,6 +21,7 @@ import { InputEnumType, InputModelType, InputType } from "../type/input-type.js"
 import { RequestLocation } from "../type/request-location.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkType } from "./converter.js";
+import { reportDiagnostic } from "./lib.js";
 import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
@@ -38,17 +40,19 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
+  const rootClients = sdkPackage.clients.filter((c) => c.initialization.access === "public");
+  if (rootClients.length === 0) {
+    reportDiagnostic(sdkContext.program, { code: "no-root-client", format: {}, target: NoTarget });
+    return {} as CodeModel;
+  }
+
   const rootApiVersions =
     sdkApiVersionEnums.length > 0
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
-      : getRootApiVersions(sdkPackage.clients);
+      : rootClients[0].apiVersions;
 
   const inputClients: InputClient[] = [];
-  fromSdkClients(
-    sdkPackage.clients.filter((c) => c.initialization.access === "public"),
-    inputClients,
-    [],
-  );
+  fromSdkClients(rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
@@ -56,7 +60,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     Enums: Array.from(sdkTypeMap.enums.values()),
     Models: Array.from(sdkTypeMap.models.values()),
     Clients: inputClients,
-    Auth: processServiceAuthentication(sdkPackage),
+    Auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
   return clientModel;
 
@@ -175,14 +179,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     }
     return parameters;
   }
-}
-
-function getRootApiVersions(clients: SdkClientType<SdkHttpOperation>[]): string[] {
-  // find any root client since they should have the same api versions
-  const oneRootClient = clients.find((c) => c.initialization.access === "public");
-  if (!oneRootClient) throw new Error("Root client not found");
-
-  return oneRootClient.apiVersions;
 }
 
 function getMethodUri(p: SdkEndpointParameter | undefined): string {

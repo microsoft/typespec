@@ -43,15 +43,15 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override FormattableString Description
             => _isApiVersionEnum ? $"The version of the service to use." : base.Description;
 
-        protected override string GetNamespace()
-            => _isApiVersionEnum ? CodeModelPlugin.Instance.Configuration.RootNamespace : base.GetNamespace();
+        protected override string BuildNamespace()
+            => _isApiVersionEnum ? CodeModelPlugin.Instance.Configuration.RootNamespace : base.BuildNamespace();
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
             return CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this).ToArray();
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
         // we have to build the values first, because the corresponding fieldDeclaration of the values might need all of the existing values to avoid name conflicts
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()

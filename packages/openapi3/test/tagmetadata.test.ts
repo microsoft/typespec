@@ -1,9 +1,8 @@
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
+import { it } from "vitest";
+import { worksFor } from "./works-for.js";
 
-import { openApiFor } from "./test-host.js";
-
-describe("emit results when set value with @tagMetadata decorator", () => {
+worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
   const testCases: [string, string, string, any][] = [
     [
       "set tag metadata",
