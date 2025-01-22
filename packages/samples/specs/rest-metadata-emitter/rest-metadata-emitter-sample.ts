@@ -240,7 +240,7 @@ export async function $onEmit(context: EmitContext): Promise<void> {
         // it's always in the payload, common case.
       } else {
         // it's in the payload for certain visibilities only.
-        remarks.push(`${inPayloadVisibilities.map(getVisibilitySuffix).join(",")} only`);
+        remarks.push(`${inPayloadVisibilities.map((v) => getVisibilitySuffix(v)).join(",")} only`);
       }
 
       return remarks.length === 0 ? "" : ` (${remarks.join(", ")})`;
