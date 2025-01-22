@@ -1,10 +1,13 @@
 # Change Log - @typespec/http-client-python
 
-## 0.6.6
+## 0.6.7
 
 ### Bug Fixes
 
 - Fix sphinx typing for raising documentation
+- fix typing for class methods in _serialization.py
+
+## 0.6.6
 
 ### Other Changes
 

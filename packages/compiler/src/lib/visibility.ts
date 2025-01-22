@@ -46,6 +46,7 @@ import {
 } from "../core/visibility/core.js";
 import {
   getLifecycleVisibilityEnum,
+  normalizeLegacyLifecycleVisibilityString,
   normalizeVisibilityToLegacyLifecycleString,
 } from "../core/visibility/lifecycle.js";
 import { isMutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
@@ -152,12 +153,20 @@ function getOperationVisibilityConfig(
   return config;
 }
 
+// Hidden internal symbol to mark that parameter visibility was empty. This is used by HTTP
+// to set the LegacyParameterVisibility flag. This is a hack.
+const parameterVisibilityIsEmpty = Symbol.for("TypeSpec.Visibility.ParameterVisibilityIsEmpty");
+
 export const $parameterVisibility: ParameterVisibilityDecorator = (
   context: DecoratorContext,
   operation: Operation,
   ...visibilities: (string | EnumValue)[]
 ) => {
   validateDecoratorUniqueOnNode(context, operation, $parameterVisibility);
+
+  if (visibilities.length === 0) {
+    context.program.stateSet(parameterVisibilityIsEmpty).add(operation);
+  }
 
   const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
 
@@ -180,6 +189,9 @@ export const $parameterVisibility: ParameterVisibilityDecorator = (
 /**
  * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
  *
+ * @deprecated Use `getParameterVisibilityFilter` instead.
+ *
+ * @see {@link getParameterVisibilityFilter}
  * @see {@link $parameterVisibility}
  */
 export function getParameterVisibility(program: Program, entity: Operation): string[] | undefined {
@@ -188,6 +200,74 @@ export function getParameterVisibility(program: Program, entity: Operation): str
       typeof p === "string" ? p : normalizeVisibilityToLegacyLifecycleString(program, p),
     )
     .filter((p) => !!p) as string[];
+}
+
+/**
+ * A context-specific provider for visibility information that applies when parameter or return type visibility
+ * constraints are not explicitly specified. Visibility providers are provided by libraries that define implied
+ * visibility semantics, such as `@typespec/http`.
+ *
+ * If you are not working in a protocol that has specific visibility semantics, you can use the
+ * {@link EmptyVisibilityProvider} from this package as a default provider. It will consider all properties visible by
+ * default unless otherwise explicitly specified.
+ */
+export interface VisibilityProvider {
+  parameters(program: Program, operation: Operation): VisibilityFilter;
+  returnType(program: Program, operation: Operation): VisibilityFilter;
+}
+
+/**
+ * An empty visibility provider. This provider returns an empty filter that considers all properties visible. This filter
+ * is used when no context-specific visibility provider is available.
+ *
+ * When working with an HTTP specification, use the `HttpVisibilityProvider` from the `@typespec/http` library instead.
+ */
+export const EmptyVisibilityProvider: VisibilityProvider = {
+  parameters: () => ({}),
+  returnType: () => ({}),
+};
+
+/**
+ * Get the visibility filter that should apply to the parameters of the given operation, or `undefined` if no parameter
+ * visibility is set.
+ *
+ * If you are not working in a protocol that has specific implicit visibility semantics, you can use the
+ * {@link EmptyVisibilityProvider} as a default provider. If you working in a protocol or context where parameters have
+ * implicit visibility transformations (like HTTP), you should use the visibility provider from that library (for HTTP,
+ * use the `HttpVisibilityProvider` from the `@typespec/http` library).
+ *
+ * @param program - the Program in which the operation is defined
+ * @param operation - the Operation to get the parameter visibility filter for
+ * @param defaultProvider - a provider for visibility filters that apply when no visibility constraints are explicitly
+ *                         set. Defaults to an empty provider that returns an empty filter if not provided.
+ * @returns a visibility filter for the parameters of the operation, or `undefined` if no parameter visibility is set
+ */
+export function getParameterVisibilityFilter(
+  program: Program,
+  operation: Operation,
+  defaultProvider: VisibilityProvider,
+): VisibilityFilter {
+  const operationVisibilityConfig = getOperationVisibilityConfig(program, operation);
+
+  if (!operationVisibilityConfig.parameters) return defaultProvider.parameters(program, operation);
+
+  // If there are no parameters, return an empty filter. This has the effect of allowing `@parameterVisibility()` to
+  // disable the default visibility provider for an operation.
+  if (operationVisibilityConfig.parameters.length === 0) return {};
+
+  return {
+    // WARNING: the HTTP library depends on `any` being the only key in the filter object returned by this method.
+    //          if you change this logic, you will need to update the HTTP library to account for differences in the
+    //          returned object. HTTP does not currently have a way to express `all` or `none` constraints in the same
+    //          way that the core visibility system does.
+    any: new Set(
+      operationVisibilityConfig.parameters
+        .map((v) =>
+          typeof v === "string" ? normalizeLegacyLifecycleVisibilityString(program, v) : v,
+        )
+        .filter((v) => !!v),
+    ),
+  };
 }
 
 export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
@@ -218,6 +298,9 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
 /**
  * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
  *
+ * @deprecated Use `getReturnTypeVisibilityFilter` instead.
+ *
+ * @see {@link getReturnTypeVisibilityFilter}
  * @see {@link $returnTypeVisibility}
  */
 export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
@@ -226,6 +309,44 @@ export function getReturnTypeVisibility(program: Program, entity: Operation): st
       typeof p === "string" ? p : normalizeVisibilityToLegacyLifecycleString(program, p),
     )
     .filter((p) => !!p) as string[];
+}
+
+/**
+ * Get the visibility filter that should apply to the return type of the given operation, or `undefined` if no return
+ * type visibility is set.
+ *
+ * @param program - the Program in which the operation is defined
+ * @param operation - the Operation to get the return type visibility filter for
+ * @param defaultProvider - a provider for visibility filters that apply when no visibility constraints are explicitly
+ *                          set. Defaults to an empty provider that returns an empty filter if not provided.
+ * @returns a visibility filter for the return type of the operation, or `undefined` if no return type visibility is set
+ */
+export function getReturnTypeVisibilityFilter(
+  program: Program,
+  operation: Operation,
+  defaultProvider: VisibilityProvider,
+): VisibilityFilter {
+  const visibilityConfig = getOperationVisibilityConfig(program, operation);
+
+  if (!visibilityConfig.returnType) return defaultProvider.returnType(program, operation);
+
+  // If there are no return type visibilities, return an empty filter. This has the effect of allowing
+  // `@returnTypeVisibility()` to disable the default visibility provider for an operation.
+  if (visibilityConfig.returnType.length === 0) return {};
+
+  return {
+    // WARNING: the HTTP library depends on `any` being the only key in the filter object returned by this method.
+    //          if you change this logic, you will need to update the HTTP library to account for differences in the
+    //          returned object. HTTP does not currently have a way to express `all` or `none` constraints in the same
+    //          way that the core visibility system does.
+    any: new Set(
+      visibilityConfig.returnType
+        .map((v) =>
+          typeof v === "string" ? normalizeLegacyLifecycleVisibilityString(program, v) : v,
+        )
+        .filter((v) => !!v),
+    ),
+  };
 }
 
 // #endregion
