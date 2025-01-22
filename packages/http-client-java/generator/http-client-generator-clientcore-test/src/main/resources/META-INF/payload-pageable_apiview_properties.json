@@ -2,6 +2,7 @@
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
     "payload.pageable.PageableClient": "Payload.Pageable.ServerDrivenPagination",
+    "payload.pageable.PageableClient.link": "Payload.Pageable.ServerDrivenPagination.link",
     "payload.pageable.PageableClientBuilder": "Payload.Pageable",
     "payload.pageable.Pet": "Payload.Pageable.Pet",
     "payload.pageable.serverdrivenpagination.implementation.LinkResponse": "Payload.Pageable.ServerDrivenPagination.link.Response.anonymous"
