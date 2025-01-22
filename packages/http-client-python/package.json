@@ -60,7 +60,7 @@
     "@azure-tools/typespec-azure-resource-manager": ">=0.50.0 <1.0.0",
     "@azure-tools/typespec-autorest": ">=0.50.0 <1.0.0",
     "@azure-tools/typespec-azure-rulesets": ">=0.50.0 <3.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.50.1 <1.0.0"
+    "@azure-tools/typespec-client-generator-core": ">=0.50.2 <1.0.0"
   },
   "dependencies": {
     "js-yaml": "~4.1.0",
@@ -78,7 +78,7 @@
     "@azure-tools/typespec-azure-core": "~0.50.0",
     "@azure-tools/typespec-azure-rulesets": "~0.50.0",
     "@azure-tools/typespec-azure-resource-manager": "~0.50.0",
-    "@azure-tools/typespec-client-generator-core": "~0.50.1",
+    "@azure-tools/typespec-client-generator-core": "~0.50.2",
     "@azure-tools/azure-http-specs": "0.1.0-alpha.5",
     "@typespec/http-specs": "0.1.0-alpha.7",
     "@types/js-yaml": "~4.0.5",
