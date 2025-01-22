@@ -123,7 +123,7 @@ import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
-import { EmitterOptions, reportDiagnostic } from "./lib.js";
+import { EmitterOptions, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
   CONTENT_TYPE_KEY,
@@ -150,6 +150,7 @@ import {
   pushDistinct,
 } from "./type-utils.js";
 import {
+  DiagnosticError,
   getNamespace,
   pascalCase,
   removeClientSuffix,
@@ -849,44 +850,48 @@ export class CodeModelBuilder {
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
 
+    let diagnostic = undefined;
     if (generateConvenienceApi) {
       // check if the convenience API need to be disabled for some special cases
       if (operationIsMultipart(httpOperation)) {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
         generateProtocolApi = false;
-        reportDiagnostic(this.program, {
+        diagnostic = createDiagnostic({
           code: "protocol-api-not-generated-on-multipart-form-data",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
         });
+        this.program.reportDiagnostic(diagnostic);
       } else if (operationIsMultipleContentTypes(httpOperation)) {
         // and multiple content types
         // issue link: https://github.com/Azure/autorest.java/issues/1958#issuecomment-1562558219
         generateConvenienceApi = false;
-        reportDiagnostic(this.program, {
+        diagnostic = createDiagnostic({
           code: "convenience-api-not-generated-on-multiple-content-type",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
         });
+        this.program.reportDiagnostic(diagnostic);
       } else if (
         operationIsJsonMergePatch(httpOperation) &&
         this.options["stream-style-serialization"] === false
       ) {
         // do not generate convenient method for json merge patch operation if stream-style-serialization is not enabled
         generateConvenienceApi = false;
-        reportDiagnostic(this.program, {
+        diagnostic = createDiagnostic({
           code: "convenience-api-not-generated-on-json-merge-patch",
           format: { operationName: operationName },
           target: sdkMethod.__raw ?? NoTarget,
         });
+        this.program.reportDiagnostic(diagnostic);
       }
     }
     if (generateConvenienceApi && convenienceApiName) {
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
     }
-    if (apiComment) {
+    if (diagnostic) {
       codeModelOperation.language.java = new Language();
-      codeModelOperation.language.java.comment = apiComment;
+      codeModelOperation.language.java.comment = diagnostic.message;
     }
 
     // check for generating protocol api or not
@@ -1911,13 +1916,12 @@ export class CodeModelBuilder {
           }
       }
     }
-    reportDiagnostic(this.program, {
+    const diagnostic = createDiagnostic({
       code: "unrecognized-type",
       format: { typeKind: type.kind },
       target: type.__raw ?? NoTarget,
     });
-    const errorMsg = `Unrecognized type, kind '${type.kind}'.`;
-    throw new Error(errorMsg);
+    throw new DiagnosticError(diagnostic);
   }
 
   private processBuiltInType(type: SdkBuiltInType, nameHint: string): Schema {
@@ -2502,14 +2506,13 @@ export class CodeModelBuilder {
         },
       );
     } else {
-      reportDiagnostic(this.program, {
+      const diagnostic = createDiagnostic({
         code: "unrecognized-type",
         messageId: "multipartFormData",
         format: { typeKind: property.type.kind },
         target: property.type.__raw ?? NoTarget,
       });
-      const errorMsg = `Unrecognized type for multipart form data, kind '${property.type.kind}'.`;
-      throw new Error(errorMsg);
+      throw new DiagnosticError(diagnostic);
     }
   }
 

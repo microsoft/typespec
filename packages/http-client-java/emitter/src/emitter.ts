@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
 import { EmitterOptions, reportDiagnostic } from "./lib.js";
-import { spawnAsync, SpawnError, trace } from "./utils.js";
+import { DiagnosticError, spawnAsync, SpawnError, trace } from "./utils.js";
 import { validateDependencies } from "./validate.js";
 
 type CodeModelEmitterOptions = EmitterOptions & {
@@ -34,12 +34,18 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
       const builder = new CodeModelBuilder(program, context);
       codeModel = await builder.build();
     } catch (error: any) {
-      reportDiagnostic(program, {
-        code: "unknown-error",
-        format: { errorMessage: error.message },
-        target: NoTarget,
-      });
-      trace(program, error.stack);
+      if (error instanceof DiagnosticError) {
+        // diagnostic thrown as error
+        program.reportDiagnostic(error.diagnostic);
+      } else {
+        // unknown error
+        reportDiagnostic(program, {
+          code: "unknown-error",
+          format: { errorMessage: error.message },
+          target: NoTarget,
+        });
+        trace(program, error.stack);
+      }
     }
 
     if (codeModel && !program.hasError() && !program.compilerOptions.noEmit) {
@@ -107,6 +113,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
             target: NoTarget,
           });
         } else {
+          // error in Java codegen, report as unknown error
           reportDiagnostic(program, {
             code: "unknown-error",
             format: {

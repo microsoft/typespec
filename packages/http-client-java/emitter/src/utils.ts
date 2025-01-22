@@ -1,4 +1,4 @@
-import { Program, Type } from "@typespec/compiler";
+import { Diagnostic, Program, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 
 export function trace(program: Program, msg: string) {
@@ -58,6 +58,15 @@ export class SpawnError extends Error {
     super(message);
     this.stdout = stdout;
     this.stderr = stderr;
+  }
+}
+
+export class DiagnosticError extends Error {
+  diagnostic: Diagnostic;
+
+  constructor(diagnostic: Diagnostic) {
+    super(diagnostic.message);
+    this.diagnostic = diagnostic;
   }
 }
 
