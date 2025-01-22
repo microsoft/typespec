@@ -15,8 +15,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\array\src\_Type._Array.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\enum\extensible\src\_Type._Enum.Extensible.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\array\src\Type.Array.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\enum\extensible\src\Type.Enum.Extensible.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\enum\fixed\src\Type.Enum.Fixed.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\authentication\api-key\src\Authentication.ApiKey.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\authentication\http\custom\src\Authentication.Http.Custom.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\authentication\oauth2\src\Authentication.OAuth2.csproj" />
@@ -51,22 +52,21 @@
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\special-headers\conditional-request\src\SpecialHeaders.ConditionalRequest.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\special-headers\repeatability\src\SpecialHeaders.Repeatability.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\special-words\src\SpecialWords.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\dictionary\src\_Type.Dictionary.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\enum\fixed\src\_Type._Enum.Fixed.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\empty\src\_Type.Model.Empty.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\enum-discriminator\src\_Type.Model.Inheritance.EnumDiscriminator.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\nested-discriminator\src\_Type.Model.Inheritance.NestedDiscriminator.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\not-discriminated\src\_Type.Model.Inheritance.NotDiscriminated.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\recursive\src\_Type.Model.Inheritance.Recursive.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\single-discriminator\src\_Type.Model.Inheritance.SingleDiscriminator.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\usage\src\_Type.Model.Usage.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\visibility\src\_Type.Model.Visibility.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\additional-properties\src\_Type.Property.AdditionalProperties.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\nullable\src\_Type.Property.Nullable.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\optionality\src\_Type.Property.Optional.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\value-types\src\_Type.Property.ValueTypes.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\scalar\src\_Type.Scalar.csproj" />
-    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\union\src\_Type.Union.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\dictionary\src\Type.Dictionary.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\empty\src\Type.Model.Empty.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\enum-discriminator\src\Type.Model.Inheritance.EnumDiscriminator.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\nested-discriminator\src\Type.Model.Inheritance.NestedDiscriminator.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\not-discriminated\src\Type.Model.Inheritance.NotDiscriminated.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\recursive\src\Type.Model.Inheritance.Recursive.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\inheritance\single-discriminator\src\Type.Model.Inheritance.SingleDiscriminator.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\usage\src\Type.Model.Usage.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\model\visibility\src\Type.Model.Visibility.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\additional-properties\src\Type.Property.AdditionalProperties.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\nullable\src\Type.Property.Nullable.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\optionality\src\Type.Property.Optional.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\property\value-types\src\Type.Property.ValueTypes.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\scalar\src\Type.Scalar.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\union\src\Type.Union.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\added\v1\src\Versioning.Added.V1.csproj" Aliases="VersioningAddedV1" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\added\v2\src\Versioning.Added.V2.csproj" Aliases="VersioningAddedV2"/>
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\versioning\madeOptional\v1\src\Versioning.MadeOptional.V1.csproj" Aliases="MadeOptionalV1" />
