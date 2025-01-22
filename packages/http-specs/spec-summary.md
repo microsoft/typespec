@@ -2082,9 +2082,26 @@ Expected request body:
 </SimpleModel>
 ```
 
-### Response_StatusCodeRange_errorResponse
+### Response_StatusCodeRange_errorResponseStatusCode404
 
-- Endpoint: `get /response/status-code-range/error-response`
+- Endpoint: `get /response/status-code-range/error-response-status-code-404`
+
+Test case for range of status code in error response.
+
+Verify that the result of the API is an error/exception in client, and the error response can be de-serialized to NotFoundError model (instead of Standard4XXError model).
+
+Expected status code 404 and response body:
+
+```json
+{
+  "code": "not-found",
+  "resourceId": "resource1"
+}
+```
+
+### Response_StatusCodeRange_errorResponseStatusCodeInRange
+
+- Endpoint: `get /response/status-code-range/error-response-status-code-in-range`
 
 Test case for range of status code in error response.
 

@@ -24,9 +24,36 @@ namespace Response.StatusCodeRange;
   }
   ```
   """)
-@route("/error-response")
+@route("/error-response-status-code-in-range")
 @get
-op errorResponse(): 204 | ErrorInRange | DefaultError;
+op errorResponseStatusCodeInRange(): 204 | ErrorInRange | DefaultError;
+
+@scenario
+@scenarioDoc("""
+  Test case for range of status code in error response.
+  
+  Verify that the result of the API is an error/exception in client, and the error response can be de-serialized to NotFoundError model (instead of Standard4XXError model).
+  
+  Expected status code 404 and response body:
+  ```json
+  { 
+    "code": "not-found",
+    "resourceId": "resource1"
+  }
+  ```
+  """)
+@route("/error-response-status-code-404")
+@get
+op errorResponseStatusCode404(): 204 | NotFoundError | Standard4XXError;
+
+@error
+model NotFoundError {
+  @statusCode
+  _: 404;
+
+  code: string;
+  resourceId: string;
+}
 
 @error
 model ErrorInRange {
@@ -37,6 +64,16 @@ model ErrorInRange {
 
   code: string;
   message: string;
+}
+
+@error
+model Standard4XXError {
+  @minValue(400)
+  @maxValue(499)
+  @statusCode
+  _: int32;
+
+  code: string;
 }
 
 @error
