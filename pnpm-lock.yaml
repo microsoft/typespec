@@ -1889,17 +1889,17 @@ importers:
         specifier: ~12.1.0
         version: 12.1.2(rollup@4.24.4)(tslib@2.8.1)(typescript@5.7.3)
       '@types/mocha':
-        specifier: ^10.0.9
+        specifier: ^10.0.10
         version: 10.0.10
       '@types/node':
-        specifier: ~22.7.9
-        version: 22.7.9
+        specifier: ~22.10.7
+        version: 22.10.7
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
       '@types/vscode':
-        specifier: ~1.94.0
-        version: 1.94.0
+        specifier: ~1.96.0
+        version: 1.96.0
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
@@ -1908,7 +1908,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.3
-        version: 3.0.3(vitest@3.0.3(@types/node@22.7.9)(@vitest/ui@3.0.3)(happy-dom@16.7.1)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.3(vitest@3.0.3(@types/node@22.10.7)(@vitest/ui@3.0.3)(happy-dom@16.7.1)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.3(vitest@3.0.3)
@@ -1938,7 +1938,7 @@ importers:
         version: 5.7.3
       vitest:
         specifier: ^3.0.3
-        version: 3.0.3(@types/node@22.7.9)(@vitest/ui@3.0.3)(happy-dom@16.7.1)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0)
+        version: 3.0.3(@types/node@22.10.7)(@vitest/ui@3.0.3)(happy-dom@16.7.1)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0)
       vscode-languageclient:
         specifier: ~9.0.1
         version: 9.0.1
@@ -5638,9 +5638,6 @@ packages:
   '@types/node@22.10.7':
     resolution: {integrity: sha512-V09KvXxFiutGp6B7XkpaDXlNadZxrzajcY50EuoLIpQ6WWYCSvf19lVIazzfIzQvhUN2HjX12spLojTnhuKlGg==}
 
-  '@types/node@22.7.9':
-    resolution: {integrity: sha512-jrTfRC7FM6nChvU7X2KqcrgquofrWLFDeYC1hKfwNWomVvrn7JIksqf344WN2X/y8xrgqBd2dJATZV4GbatBfg==}
-
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
@@ -5715,8 +5712,8 @@ packages:
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
 
-  '@types/vscode@1.94.0':
-    resolution: {integrity: sha512-UyQOIUT0pb14XSqJskYnRwD2aG0QrPVefIfrW1djR+/J4KeFQ0i1+hjZoaAmeNf3Z2jleK+R2hv+EboG/m8ruw==}
+  '@types/vscode@1.96.0':
+    resolution: {integrity: sha512-qvZbSZo+K4ZYmmDuaodMbAa67Pl6VDQzLKFka6rq+3WUTY4Kro7Bwoi0CuZLO/wema0ygcmpwow7zZfPJTs5jg==}
 
   '@types/xml2js@0.4.14':
     resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
@@ -11112,9 +11109,6 @@ packages:
 
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
-
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
@@ -16600,10 +16594,6 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@types/node@22.7.9':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/normalize-package-data@2.4.4': {}
 
   '@types/parse-json@4.0.2': {}
@@ -16676,7 +16666,7 @@ snapshots:
 
   '@types/uuid@9.0.8': {}
 
-  '@types/vscode@1.94.0': {}
+  '@types/vscode@1.96.0': {}
 
   '@types/xml2js@0.4.14':
     dependencies:
@@ -16847,24 +16837,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@3.0.3(vitest@3.0.3(@types/node@22.7.9)(@vitest/ui@3.0.3)(happy-dom@16.7.1)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))':
-    dependencies:
-      '@ampproject/remapping': 2.3.0
-      '@bcoe/v8-coverage': 1.0.2
-      debug: 4.4.0(supports-color@8.1.1)
-      istanbul-lib-coverage: 3.2.2
-      istanbul-lib-report: 3.0.1
-      istanbul-lib-source-maps: 5.0.6
-      istanbul-reports: 3.1.7
-      magic-string: 0.30.17
-      magicast: 0.3.5
-      std-env: 3.8.0
-      test-exclude: 7.0.1
-      tinyrainbow: 2.0.0
-      vitest: 3.0.3(@types/node@22.7.9)(@vitest/ui@3.0.3)(happy-dom@16.7.1)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0)
-    transitivePeerDependencies:
-      - supports-color
-
   '@vitest/expect@2.0.5':
     dependencies:
       '@vitest/spy': 2.0.5
@@ -16886,14 +16858,6 @@ snapshots:
       magic-string: 0.30.17
     optionalDependencies:
       vite: 6.0.11(@types/node@22.10.7)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)
-
-  '@vitest/mocker@3.0.3(vite@6.0.11(@types/node@22.7.9)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0))':
-    dependencies:
-      '@vitest/spy': 3.0.3
-      estree-walker: 3.0.3
-      magic-string: 0.30.17
-    optionalDependencies:
-      vite: 6.0.11(@types/node@22.7.9)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)
 
   '@vitest/pretty-format@2.0.5':
     dependencies:
@@ -23524,8 +23488,6 @@ snapshots:
 
   underscore@1.13.7: {}
 
-  undici-types@6.19.8: {}
-
   undici-types@6.20.0: {}
 
   undici@6.21.0: {}
@@ -23757,27 +23719,6 @@ snapshots:
       - tsx
       - yaml
 
-  vite-node@3.0.3(@types/node@22.7.9)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.0(supports-color@8.1.1)
-      es-module-lexer: 1.6.0
-      pathe: 2.0.2
-      vite: 6.0.11(@types/node@22.7.9)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
   vite-plugin-checker@0.8.0(eslint@9.18.0(jiti@1.21.6))(optionator@0.9.4)(typescript@5.7.3)(vite@6.0.11(@types/node@22.10.7)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)):
     dependencies:
       '@babel/code-frame': 7.26.2
@@ -23831,18 +23772,6 @@ snapshots:
       tsx: 4.19.2
       yaml: 2.7.0
 
-  vite@6.0.11(@types/node@22.7.9)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0):
-    dependencies:
-      esbuild: 0.24.2
-      postcss: 8.5.1
-      rollup: 4.24.4
-    optionalDependencies:
-      '@types/node': 22.7.9
-      fsevents: 2.3.3
-      jiti: 1.21.6
-      tsx: 4.19.2
-      yaml: 2.7.0
-
   vitefu@1.0.5(vite@6.0.11(@types/node@22.10.7)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)):
     optionalDependencies:
       vite: 6.0.11(@types/node@22.10.7)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)
@@ -23871,47 +23800,6 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.10.7
-      '@vitest/ui': 3.0.3(vitest@3.0.3)
-      happy-dom: 16.7.1
-      jsdom: 19.0.0
-    transitivePeerDependencies:
-      - jiti
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - yaml
-
-  vitest@3.0.3(@types/node@22.7.9)(@vitest/ui@3.0.3)(happy-dom@16.7.1)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0):
-    dependencies:
-      '@vitest/expect': 3.0.3
-      '@vitest/mocker': 3.0.3(vite@6.0.11(@types/node@22.7.9)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0))
-      '@vitest/pretty-format': 3.0.3
-      '@vitest/runner': 3.0.3
-      '@vitest/snapshot': 3.0.3
-      '@vitest/spy': 3.0.3
-      '@vitest/utils': 3.0.3
-      chai: 5.1.2
-      debug: 4.4.0(supports-color@8.1.1)
-      expect-type: 1.1.0
-      magic-string: 0.30.17
-      pathe: 2.0.2
-      std-env: 3.8.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.2
-      tinypool: 1.0.2
-      tinyrainbow: 2.0.0
-      vite: 6.0.11(@types/node@22.7.9)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)
-      vite-node: 3.0.3(@types/node@22.7.9)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 22.7.9
       '@vitest/ui': 3.0.3(vitest@3.0.3)
       happy-dom: 16.7.1
       jsdom: 19.0.0
