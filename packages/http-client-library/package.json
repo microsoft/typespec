@@ -23,7 +23,7 @@
     }
   },
   "dependencies": {
-    "@alloy-js/core": "0.2.0",
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@0924029",
     "@typespec/compiler": "workspace:*",
     "@typespec/http": "workspace:*"
   },
@@ -31,7 +31,7 @@
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.24.9",
     "@rollup/plugin-babel": "^6.0.4",
-    "@alloy-js/babel-preset": "0.1.1",
+    "@alloy-js/babel-preset": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-preset@0924029",
     "@types/node": "latest",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
