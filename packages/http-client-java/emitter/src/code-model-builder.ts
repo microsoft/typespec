@@ -1081,11 +1081,12 @@ export class CodeModelBuilder {
             lroMetadata.finalResponse.envelopeResult.properties?.forEach((p) => {
               // TODO: "p.__raw?.name" should be "p.name", after TCGC fix https://github.com/Azure/typespec-azure/issues/2072
               if (
+                !finalResultPropertySerializedName &&
                 p.kind === "property" &&
-                p.serializedName &&
+                p.serializationOptions.json?.name &&
                 p.__raw?.name === finalResultPropertyClientName
               ) {
-                finalResultPropertySerializedName = p.serializedName;
+                finalResultPropertySerializedName = p.serializationOptions.json?.name;
               }
             });
           }
@@ -2300,7 +2301,7 @@ export class CodeModelBuilder {
       required: !prop.optional,
       nullable: nullable,
       readOnly: this.isReadOnly(prop),
-      serializedName: prop.kind === "property" ? prop.serializedName : undefined,
+      serializedName: prop.kind === "property" ? prop.serializationOptions.json?.name : undefined,
       extensions: extensions,
     });
   }
