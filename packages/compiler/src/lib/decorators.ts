@@ -98,8 +98,8 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
-import { setKey } from "./key.js";
 import { useStateMap, useStateSet } from "../utils/index.js";
+import { setKey } from "./key.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
@@ -395,7 +395,9 @@ export const $format: FormatDecorator = (
 export { getFormat };
 
 // -- @pattern decorator ---------------------
-const [getPatternData, setPatternData] = useStateMap<Type, PatternData>(createStateSymbol("patternValues"));
+const [getPatternData, setPatternData] = useStateMap<Type, PatternData>(
+  createStateSymbol("patternValues"),
+);
 
 export interface PatternData {
   readonly pattern: string;
@@ -690,7 +692,9 @@ export interface EncodeData {
   type: Scalar;
 }
 
-const [getEncode, setEncodeData] = useStateMap<Scalar | ModelProperty, EncodeData>(createStateSymbol("encode"));
+const [getEncode, setEncodeData] = useStateMap<Scalar | ModelProperty, EncodeData>(
+  createStateSymbol("encode"),
+);
 export const $encode: EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -943,7 +947,9 @@ export function getAllTags(
 
 // -- @friendlyName decorator ---------------------
 
-const [getFriendlyName, setFriendlyName] = useStateMap<Type, string>(createStateSymbol("friendlyNames"));
+const [getFriendlyName, setFriendlyName] = useStateMap<Type, string>(
+  createStateSymbol("friendlyNames"),
+);
 export const $friendlyName: FriendlyNameDecorator = (
   context: DecoratorContext,
   target: Type,
@@ -1100,7 +1106,9 @@ export function getDeprecated(program: Program, type: Type): string | undefined 
   return getDeprecationDetails(program, type)?.message;
 }
 
-const [getOverloads, setOverloads] = useStateMap<Operation, Operation[]>(createStateSymbol("overloadedByKey"));
+const [getOverloads, setOverloads] = useStateMap<Operation, Operation[]>(
+  createStateSymbol("overloadedByKey"),
+);
 const [getOverloadedOperation, setOverloadBase] = useStateMap<Operation, Operation>(
   createStateSymbol("overloadsOperation"),
 );
@@ -1334,7 +1342,9 @@ export function getExamples(
   return getExamplesState(program, target) ?? [];
 }
 
-const [getOpExamplesState, setOpExamples] = useStateMap<Operation, OpExample[]>(createStateSymbol("opExamples"));
+const [getOpExamplesState, setOpExamples] = useStateMap<Operation, OpExample[]>(
+  createStateSymbol("opExamples"),
+);
 export const $opExample: OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,

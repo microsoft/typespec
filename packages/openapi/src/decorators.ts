@@ -243,10 +243,9 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
 }
 
 /** Get TagsMetadata set with `@tagMetadata` decorator */
-const [getTagsMetadata, setTagsMetadata] = useStateMap<
-  Type,
-  { [name: string]: TagMetadata }
->(OpenAPIKeys.tagsMetadata);
+const [getTagsMetadata, setTagsMetadata] = useStateMap<Type, { [name: string]: TagMetadata }>(
+  OpenAPIKeys.tagsMetadata,
+);
 
 /**
  * Decorator to add metadata to a tag associated with a namespace.

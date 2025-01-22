@@ -12,6 +12,7 @@ import {
   typespecTypeToJson,
   type Union,
 } from "@typespec/compiler";
+import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
 import type {
   ContainsDecorator,
@@ -32,7 +33,6 @@ import type {
 } from "../generated-defs/TypeSpec.JsonSchema.js";
 import { JsonSchemaStateKeys } from "./lib.js";
 import { createDataDecorator } from "./utils.js";
-import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 
 /**
  * TypeSpec Types that can create a json schmea declaration
@@ -247,10 +247,9 @@ export interface ExtensionRecord {
   value: Type | unknown;
 }
 
-const [getExtensionsInternal, _, getExtensionsStateMap] = useStateMap<
-  Type,
-  ExtensionRecord[]
->(JsonSchemaStateKeys["JsonSchema.extension"]);
+const [getExtensionsInternal, _, getExtensionsStateMap] = useStateMap<Type, ExtensionRecord[]>(
+  JsonSchemaStateKeys["JsonSchema.extension"],
+);
 /** {@inheritdoc ExtensionDecorator} */
 export const $extension: ExtensionDecorator = (
   context: DecoratorContext,

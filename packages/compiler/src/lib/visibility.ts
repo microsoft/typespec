@@ -50,9 +50,9 @@ import {
   normalizeVisibilityToLegacyLifecycleString,
 } from "../core/visibility/lifecycle.js";
 import { isMutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
+import { useStateMap } from "../utils/index.js";
 import { isKey } from "./key.js";
 import { filterModelPropertiesInPlace } from "./utils.js";
-import { useStateMap } from "../utils/index.js";
 
 // #region Legacy Visibility Utilities
 

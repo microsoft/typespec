@@ -1,11 +1,11 @@
 import { type ModelProperty, type Union, type UnionVariant } from "@typespec/compiler";
+import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import type {
   ContentTypeDecorator,
   DataDecorator,
   EventsDecorator,
 } from "../generated-defs/TypeSpec.Events.js";
 import { EventsStateKeys } from "./lib.js";
-import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 
 const [isEvents, setEvents] = useStateSet<Union>(EventsStateKeys.events);
 
