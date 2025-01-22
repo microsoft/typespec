@@ -14,6 +14,7 @@ import {
 } from "./types.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
+import { getMainTspFile, loadOpenApi3PreviewPanel } from "./openapi3-preview.js";
 
 let client: TspLanguageClient | undefined;
 /**
@@ -89,6 +90,18 @@ export async function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
+    commands.registerCommand(CommandName.ShowOpenApi3, async () => {
+      const docUri = vscode.window.activeTextEditor?.document.uri;
+      if (docUri === undefined) {
+        logger.info("No TypeSpec file selected.");
+        vscode.window.showErrorMessage("Please select a Typespec file.");
+        return;
+      }
+      await showOpenApi3(docUri, context);
+    }),
+  );
+
+  context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration(async (e: vscode.ConfigurationChangeEvent) => {
       if (e.affectsConfiguration(SettingName.TspServerPath)) {
         logger.info("TypeSpec server path changed, restarting server...");
@@ -153,4 +166,17 @@ async function recreateLSPClient(context: ExtensionContext) {
   await oldClient?.stop();
   await client.start();
   return client;
+}
+
+async function showOpenApi3(docUri: vscode.Uri, context: vscode.ExtensionContext) {
+  const selectedFile = docUri.fsPath;
+  const mainTspFile = selectedFile.endsWith("main.tsp") ? selectedFile : await getMainTspFile();
+  if (mainTspFile === undefined) {
+    const errMsg = `No 'main.tsp' file can be determined from '${selectedFile}' in workspace.`;
+    logger.info(errMsg);
+    vscode.window.showErrorMessage(errMsg);
+    return;
+  }
+
+  loadOpenApi3PreviewPanel(mainTspFile, context.extensionUri, client!);
 }

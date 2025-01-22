@@ -150,6 +150,11 @@
         "command": "typespec.installGlobalCompilerCli",
         "title": "Install TypeSpec Compiler/CLI globally",
         "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.showOpenApi3",
+        "title": "TypeSpec: Show OpenAPI3 Documentation",
+        "category": "TypeSpec"
       }
     ],
     "semanticTokenScopes": [
@@ -214,8 +219,8 @@
     "@rollup/plugin-typescript": "~12.1.0",
     "@types/mocha": "^10.0.9",
     "@types/node": "~22.7.9",
-    "@types/vscode": "~1.94.0",
     "@types/semver": "^7.5.8",
+    "@types/vscode": "~1.94.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@vitest/coverage-v8": "^2.1.5",
@@ -226,9 +231,12 @@
     "mocha": "^10.7.3",
     "rimraf": "~6.0.1",
     "rollup": "~4.24.0",
+    "semver": "^7.6.3",
     "typescript": "~5.6.3",
     "vitest": "^2.1.5",
-    "vscode-languageclient": "~9.0.1",
-    "semver": "^7.6.3"
+    "vscode-languageclient": "~9.0.1"
+  },
+  "dependencies": {
+    "swagger-ui-dist": "^5.17.14"
   }
 }

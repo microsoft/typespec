@@ -1,7 +1,8 @@
 import type { ModuleResolutionResult, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { readFile, realpath, stat } from "fs/promises";
-import { dirname } from "path";
+import { mkdir, readFile, realpath, stat } from "fs/promises";
+import { dirname, join } from "path";
+import { tmpdir } from "os";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
@@ -24,6 +25,19 @@ export async function isDirectory(path: string) {
   } catch {
     return false;
   }
+}
+
+export async function createTempDir() {
+  const tempDir = tmpdir();
+  const realTempDir = await realpath(tempDir);
+  const uid = createGuid();
+  const subDir = join(realTempDir, uid);
+  await mkdir(subDir);
+  return subDir;
+}
+
+function createGuid() {
+  return crypto.randomUUID();
 }
 
 export function isWhitespaceStringOrUndefined(str: string | undefined): boolean {

@@ -5,6 +5,7 @@ import type {
   InitProjectTemplate,
   ServerInitializeResult,
 } from "@typespec/compiler";
+import { dirname } from "path";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
@@ -222,5 +223,21 @@ export class TspLanguageClient {
     const id = "typespec";
     const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
     return new TspLanguageClient(lc, exe);
+  }
+
+  async compileOpenApi3(mainTspFile: string, tmpFolder: string): Promise<ExecOutput | undefined> {
+    const result = await this.runCliCommand(
+      [
+        "compile",
+        mainTspFile,
+        "--emit=@typespec/openapi3",
+        "--option",
+        "@typespec/openapi3.file-type=json",
+        "--option",
+        `@typespec/openapi3.emitter-output-dir=${tmpFolder}`,
+      ],
+      dirname(mainTspFile),
+    );
+    return result;
   }
 }
