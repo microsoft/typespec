@@ -11,6 +11,7 @@
 
 ### Other Changes
 
+- Rename `apiview_mapping_python.json` cross-language id file to `apiview-properties.json` for cross-language compatibility
 - Order keyword-only args overload first in generated operations
 
 ## 0.6.5
