@@ -2343,10 +2343,11 @@ export class CodeModelBuilder {
       required: !prop.optional,
       nullable: nullable,
       readOnly: this.isReadOnly(prop),
-      serializedName:
-        prop.kind === "property"
-          ? (prop.serializationOptions.json?.name ?? prop.serializationOptions.multipart?.name)
-          : undefined,
+      // serializedName:
+      //   prop.kind === "property"
+      //     ? (prop.serializationOptions.json?.name ?? prop.serializationOptions.multipart?.name)
+      //     : undefined,
+      serializedName: prop.kind === "property" ? prop.serializedName : undefined,
       extensions: extensions,
     });
   }
