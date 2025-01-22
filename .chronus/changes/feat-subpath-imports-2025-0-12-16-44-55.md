@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Support ESM subpath imports
+Add support for [ESM subpath imports](https://nodejs.org/api/packages.html#subpath-imports)
