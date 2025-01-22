@@ -1,2 +1,2 @@
 -e ./generator
--r ./eng/scripts/ci/dev_requirements.txt
+-r ../eng/scripts/ci/dev_requirements.txt
