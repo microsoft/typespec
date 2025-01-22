@@ -1,4 +1,3 @@
-import { $lib } from "@azure-tools/typespec-azure-core";
 import { EmitContext, getNormalizedAbsolutePath, NoTarget, resolvePath } from "@typespec/compiler";
 import { promises } from "fs";
 import { dump } from "js-yaml";
@@ -6,7 +5,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { CodeModelBuilder } from "./code-model-builder.js";
 import { CodeModel } from "./common/code-model.js";
-import { EmitterOptions, reportDiagnostic } from "./lib.js";
+import { EmitterOptions, LibName, reportDiagnostic } from "./lib.js";
 import { DiagnosticError, spawnAsync, SpawnError, trace } from "./utils.js";
 import { validateDependencies } from "./validate.js";
 
@@ -24,7 +23,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
   if (!program.hasError()) {
     const options = context.options;
     if (!options["flavor"]) {
-      if ($lib.name === "@azure-tools/typespec-java") {
+      if (LibName === "@azure-tools/typespec-java") {
         options["flavor"] = "azure";
       }
     }

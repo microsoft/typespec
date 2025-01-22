@@ -166,8 +166,8 @@ export const $lib = createTypeSpecLibrary({
     },
   },
   emitter: {
-    options: EmitterOptionsSchema,
+    options: EmitterOptionsSchema as JSONSchemaType<EmitterOptions>,
   },
-});
+} as const);
 
-export const { reportDiagnostic, createDiagnostic, getTracer } = $lib;
+export const { name: LibName, reportDiagnostic, createDiagnostic, getTracer } = $lib;

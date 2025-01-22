@@ -17,9 +17,9 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "dist/emitter/emitter.js",
+  "main": "dist/emitter/index.js",
   "exports": {
-    ".": "./dist/emitter/emitter.js"
+    ".": "./dist/emitter/index.js"
   },
   "engines": {
     "node": ">=18.0.0"
