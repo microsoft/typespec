@@ -67,8 +67,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       logDiagnostics(context.program.diagnostics, context.program.host.logSink);
       process.exit(1);
     }
-    const tspNamespace = root.Name; // this is the top-level namespace defined in the typespec file, which is actually always different from the namespace of the SDK
-    // await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
+    
     if (root) {
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
@@ -82,16 +81,13 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       );
 
       //emit configuration.json
-      const namespace = options.namespace ?? tspNamespace;
       const configurations: Configuration = {
         "output-folder": ".",
-        namespace: namespace,
-        "library-name": options["library-name"] ?? namespace,
+        "library-name": options["library-name"],
         "single-top-level-client": options["single-top-level-client"],
         "unreferenced-types-handling": options["unreferenced-types-handling"],
         "keep-non-overloadable-protocol-signature":
           options["keep-non-overloadable-protocol-signature"],
-        "model-namespace": options["model-namespace"],
         "models-to-treat-empty-string-as-null": options["models-to-treat-empty-string-as-null"],
         "intrinsic-types-to-treat-empty-string-as-null": options[
           "models-to-treat-empty-string-as-null"

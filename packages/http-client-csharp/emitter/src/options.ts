@@ -7,7 +7,6 @@ export interface NetEmitterOptions extends SdkEmitterOptions {
   "api-version"?: string;
   outputFile?: string;
   logFile?: string;
-  namespace: string;
   "library-name": string;
   "single-top-level-client"?: boolean;
   skipSDKGeneration?: boolean;
@@ -15,7 +14,6 @@ export interface NetEmitterOptions extends SdkEmitterOptions {
   "new-project"?: boolean;
   "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
-  "model-namespace"?: boolean;
   "existing-project-folder"?: string;
   "keep-non-overloadable-protocol-signature"?: boolean;
   debug?: boolean;
@@ -45,7 +43,6 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     "api-version": { type: "string", nullable: true },
     outputFile: { type: "string", nullable: true },
     logFile: { type: "string", nullable: true },
-    namespace: { type: "string" },
     "library-name": { type: "string" },
     "single-top-level-client": { type: "boolean", nullable: true },
     skipSDKGeneration: { type: "boolean", default: false, nullable: true },
@@ -57,7 +54,6 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     "new-project": { type: "boolean", nullable: true },
     "clear-output-folder": { type: "boolean", nullable: true },
     "save-inputs": { type: "boolean", nullable: true },
-    "model-namespace": { type: "boolean", nullable: true },
     "generate-protocol-methods": { type: "boolean", nullable: true },
     "generate-convenience-methods": { type: "boolean", nullable: true },
     "flatten-union-as-enum": { type: "boolean", nullable: true },
