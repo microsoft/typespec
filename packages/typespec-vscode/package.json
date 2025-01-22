@@ -231,7 +231,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~28.0.0",
-    "@rollup/plugin-node-resolve": "~15.3.0",
+    "@rollup/plugin-node-resolve": "~16.0.0",
     "@rollup/plugin-typescript": "~12.1.0",
     "@types/mocha": "^10.0.9",
     "@types/node": "~22.7.9",
