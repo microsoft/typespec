@@ -5,6 +5,7 @@ import {createRekeyableMap} from "@typespec/compiler/utils"
 import { $ } from "@typespec/compiler/typekit";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
+import { reportDiagnostic } from "../../lib.js";
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
   name?: string;
@@ -21,12 +22,14 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const namePolicy = ts.useTSNamePolicy();
 
-  let name = props.name;
+  let name = props.name ?? props.type.name;
 
-  if (!name) {
-    const typeName = $.model.is(props.type) ? $.type.getPlausibleName(props.type) : props.type.name;
-    name = namePolicy.getName(typeName, "interface");
+  if(!props.name || props.name === "") { 
+    reportDiagnostic($.program, {code: "type-declaration-missing-name", target: props.type});
   }
+
+
+  name = namePolicy.getName(name, "interface");
 
   const refkey = props.refkey ?? getRefkey(props.type);
 

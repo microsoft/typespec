@@ -3,16 +3,16 @@ import { code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { $ } from "@typespec/compiler/typekit";
 import { FunctionDeclaration } from "@typespec/emitter-framework/typescript";
-import * as cl from "@typespec/http-client-library";
+import { Client } from "../../utils/client-discovery.js";
 import { buildClientParameters } from "../../utils/parameters.jsx";
 import { httpRuntimeTemplateLib } from "../external-packages/ts-http-runtime.js";
 import { getClientcontextDeclarationRef } from "./client-context-declaration.jsx";
 
 export interface ClientContextFactoryProps {
-  client: cl.Client;
+  client: Client;
 }
 
-export function getClientContextFactoryRef(client: cl.Client) {
+export function getClientContextFactoryRef(client: Client) {
   return ay.refkey(client, "contextFactory");
 }
 

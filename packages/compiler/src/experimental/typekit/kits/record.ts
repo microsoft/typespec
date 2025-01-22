@@ -8,7 +8,7 @@ export interface RecordKit {
    *
    * @param type The type to check.
    */
-  is(type: Type): type is Model;
+  is(type: Type): boolean;
   /**
    *  Get the element type of a Record
    * @param type a Record Model type

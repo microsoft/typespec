@@ -1,12 +1,11 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { $ } from "@typespec/compiler/typekit";
-import * as cl from "@typespec/http-client-library";
+import { Client } from "../utils/client-discovery.js";
 import { ClientContext } from "./client-context/client-context.jsx";
 import { ClientOperations } from "./client-operation.jsx";
 
 export interface OperationsDirectoryProps {
-  client: cl.Client;
+  client: Client;
   children?: ay.Children;
 }
 
@@ -20,11 +19,11 @@ export function OperationsDirectory(props: OperationsDirectoryProps) {
 }
 
 export interface SubClientsProps {
-  client: cl.Client;
+  client: Client;
 }
 
 export function SubClients(props: SubClientsProps) {
-  const subClients = $.clientLibrary.listClients(props.client);
+  const subClients = props.client.subClients;
 
   return ay.mapJoin(subClients, (subClient) => {
     const namePolicy = ts.useTSNamePolicy();

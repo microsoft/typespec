@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Scalar } from "@typespec/compiler";
 import { TypeExpression } from "./type-expression.jsx";
 import { $ } from "@typespec/compiler/typekit";
+import { reportDiagnostic } from "../../lib.js";
 
 export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   type: Scalar;
@@ -16,7 +17,13 @@ export function TypeAliasDeclaration(props: TypeAliasDeclarationProps) {
     return <ts.TypeDeclaration {...props}>{props.children}</ts.TypeDeclaration>;
   }
 
-  const name = props.name ?? ts.useTSNamePolicy().getName($.type.getPlausibleName(props.type), "type");
+  const originalName = props.name ?? props.type.name;
+
+  if(!originalName || originalName === "") {
+    reportDiagnostic($.program, {code: "type-declaration-missing-name", target: props.type});
+  }
+
+  const name = ts.useTSNamePolicy().getName(originalName, "type");
   return <ts.TypeDeclaration {...props} name={name}  refkey={props.refkey ?? getRefkey(props.type)}>
     <TypeExpression type={props.type} />
     {props.children}

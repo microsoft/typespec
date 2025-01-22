@@ -3,14 +3,13 @@ import * as ts from "@alloy-js/typescript";
 import { ClassDeclaration } from "@alloy-js/typescript";
 import { $ } from "@typespec/compiler/typekit";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
-import * as cl from "@typespec/http-client-library";
-import { prepareOperation } from "../utils/operations.js";
+import { Client as _Client, flattenClients } from "../utils/client-discovery.js";
 import { buildClientParameters } from "../utils/parameters.jsx";
 import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";
 import { getClientContextFactoryRef } from "./client-context/client-context-factory.jsx";
 
 export interface ClientProps {
-  client: cl.Client;
+  client: _Client;
 }
 
 export function Client(props: ClientProps) {
@@ -20,21 +19,21 @@ export function Client(props: ClientProps) {
 
   const namePolicy = ts.useTSNamePolicy();
   const fileName = namePolicy.getName(`${props.client.name}`, "variable");
-  const clients = $.client.flat(props.client);
+  const clients = flattenClients(props.client);
   return <ts.SourceFile path={`${fileName}.ts`} >
     {ay.mapJoin(clients, (client) => <ClientClass client={client} />, { joiner: "\n\n" })}
   </ts.SourceFile>;
 }
 
 export interface ClientClassProps {
-  client: cl.Client;
+  client: _Client;
 }
 
-export function getClientClassRef(client: cl.Client) {
+export function getClientClassRef(client: _Client) {
   return ay.refkey(client.type, "client-class");
 }
 
-function getClientContextFieldRef(client: cl.Client) {
+function getClientContextFieldRef(client: _Client) {
   return ay.refkey(client.type, "client-context");
 }
 export function ClientClass(props: ClientClassProps) {
@@ -43,8 +42,8 @@ export function ClientClass(props: ClientClassProps) {
   const contextMemberRef = getClientContextFieldRef(props.client);
   const contextDeclarationRef = getClientcontextDeclarationRef(props.client);
   const clientClassRef = getClientClassRef(props.client);
-  const subClients = $.clientLibrary.listClients(props.client);
-  const operations = $.client.listServiceOperations(props.client);
+  const subClients = props.client.subClients;
+  const operations = props.client.operations;
   return <ClassDeclaration export name={clientName} refkey={clientClassRef}>
     <ts.ClassField name="context" jsPrivate refkey={contextMemberRef} type={contextDeclarationRef} />;
     {ay.mapJoin(subClients, subClient => (
@@ -52,25 +51,24 @@ export function ClientClass(props: ClientClassProps) {
     ), { joiner: "\n" })}
     <ClientConstructor client={props.client} />
     {ay.mapJoin(operations, op => {
-      const clientOperation = prepareOperation(op);
-      const args = [...clientOperation.parameters.properties.values()].map(p => ay.refkey(p));
-      return <ClassMethod async type={clientOperation} returnType={null}>
-          return <ts.FunctionCallExpression refkey={ay.refkey(clientOperation)} args={[contextMemberRef, ...args]}/>;
+      const args = [...op.parameters.properties.values()].map(p => ay.refkey(p));
+      return <ClassMethod async type={op} returnType={null}>
+          return <ts.FunctionCallExpression refkey={ay.refkey(op)} args={[contextMemberRef, ...args]}/>;
       </ClassMethod>
     })}
   </ClassDeclaration>;
 }
 
 interface SubClientClassFieldProps {
-  client: cl.Client;
+  client: _Client;
 }
 
-function getSubClientClassFieldRef(client: cl.Client) {
+function getSubClientClassFieldRef(client: _Client) {
   return ay.refkey(client.type, "client-field");
 }
 
 function SubClientClassField(props: SubClientClassFieldProps) {
-  const parent = $.client.getParent(props.client);
+  const parent = props.client.parent;
   // If sub client has different parameters than client, don't add it as a subclass field
   // Todo: We need to detect the extra parameters and make this field a factory for the subclient
   if (parent && !$.client.haveSameConstructor(props.client, parent)) {
@@ -85,13 +83,12 @@ function SubClientClassField(props: SubClientClassFieldProps) {
 }
 
 interface ClientConstructorProps {
-  client: cl.Client;
+  client: _Client;
 }
 
 function ClientConstructor(props: ClientConstructorProps) {
-  const subClients = $.clientLibrary
-    .listClients(props.client)
-    .filter((sc) => $.client.haveSameConstructor(sc, props.client));
+  const subClients = props.client.subClients.filter((sc) =>
+    $.client.haveSameConstructor(sc, props.client));
   const clientContextFieldRef = getClientContextFieldRef(props.client);
   const clientContextFactoryRef = getClientContextFactoryRef(props.client);
   const constructorParameters = buildClientParameters(props.client);
@@ -110,7 +107,7 @@ function ClientConstructor(props: ClientConstructorProps) {
 }
 
 function calculateSubClientArgs(
-  subClient: cl.Client,
+  subClient: _Client,
   parentParams: Record<string, ts.ParameterDescriptor>,
 ) {
   const subClientParams = buildClientParameters(subClient);
@@ -120,7 +117,7 @@ function calculateSubClientArgs(
 }
 
 export interface NewClientExpressionProps {
-  client: cl.Client;
+  client: _Client;
   args: ay.Refkey[];
 }
 

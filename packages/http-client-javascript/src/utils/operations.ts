@@ -1,8 +1,9 @@
-import { ModelProperty, Operation } from "@typespec/compiler";
+import { Model, ModelProperty, Operation, Union } from "@typespec/compiler";
 import {
   unsafe_mutateSubgraph as mutateSubgraph,
   unsafe_Mutator as Mutator,
   unsafe_MutatorFlow as MutatorFlow,
+  unsafe_MutatorRecord,
 } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 
@@ -16,6 +17,26 @@ export function prepareOperation(operation: Operation): Operation {
 }
 
 /**
+ * Mutates anonymous types to be named.
+ */
+const anonymousMutatorRecord: unsafe_MutatorRecord<Model | Union> = {
+  filter(t) {
+    return MutatorFlow.MutateAndRecur;
+  },
+  mutate(t, clone) {
+    if (!clone.name) {
+      clone.name = $.type.getPlausibleName(clone);
+    }
+  },
+};
+
+const anonymousMutator: Mutator = {
+  name: "Anonymous types",
+  Model: anonymousMutatorRecord,
+  Union: anonymousMutatorRecord,
+};
+
+/**
  * Mutates the operation so that the parameters model is split into required and optional parameters.
  */
 const httpParamsMutator: Mutator = {
@@ -26,6 +47,8 @@ const httpParamsMutator: Mutator = {
     },
     mutate(o, clone, _program, realm) {
       const httpOperation = $.httpOperation.get(o);
+      const returnType = $.httpOperation.getReturnType(o);
+      clone.returnType = returnType;
       const params = $.httpRequest.getParameters(httpOperation, [
         "query",
         "header",

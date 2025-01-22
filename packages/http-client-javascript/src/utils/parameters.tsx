@@ -4,11 +4,11 @@ import { ModelProperty } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { buildParameterDescriptor } from "@typespec/emitter-framework/typescript";
 import { HttpAuth } from "@typespec/http";
-import * as cl from "@typespec/http-client-library";
-import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
 import { getClientContextOptionsRef } from "../components/client-context/client-context-options.jsx";
+import { httpRuntimeTemplateLib } from "../components/external-packages/ts-http-runtime.js";
+import { Client } from "./client-discovery.js";
 
-export function buildClientParameters(client: cl.Client): Record<string, ts.ParameterDescriptor> {
+export function buildClientParameters(client: Client): Record<string, ts.ParameterDescriptor> {
   const clientConstructor = $.client.getConstructor(client);
   const parameters = $.operation.getClientSignature(client, clientConstructor);
   const params = parameters.reduce(

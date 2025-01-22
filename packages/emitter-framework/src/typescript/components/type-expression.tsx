@@ -16,13 +16,13 @@ export interface TypeExpressionProps {
 
 export function TypeExpression(props: TypeExpressionProps) {
   const type = $.httpPart.unpack(props.type);
-  if (isDeclaration(type) && !(type as Model).indexer) {
+  if (isDeclaration(type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
     return <Reference refkey={refkey(type)} />;
     //throw new Error("Reference not implemented");
   }
-
+  
   // TODO: Make sure this is an exhaustive switch, including EnumMember and such
   switch (type.kind) {
     case "Scalar":

@@ -10,6 +10,7 @@ import {
   RecordSerializerRefkey,
 } from "./static-serializers.jsx";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
+import { reportDiagnostic } from "../../lib.js";
 
 
 export interface TypeTransformProps {
@@ -77,8 +78,17 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
     return null;
   }
 
+  const originalName = props.name ?? props.type.name;
+
+  if(!originalName || originalName === "") {
+    reportDiagnostic($.program, {
+      code: "type-declaration-missing-name",
+      target: props.type,
+    })
+  }
+
   const baseName = namePolicy.getName(
-    props.name ?? $.type.getPlausibleName(props.type),
+    originalName!,
     "function"
   );
   const functionSuffix = props.target === "application" ? "ToApplication" : "ToTransport";
@@ -218,13 +228,13 @@ function TransformReference(props: TransformReferenceProps) {
     return <TransformScalarReference type={props.type} target={props.target} />;
   }
 
-  if ($.array.is(props.type)) {
+  if ($.model.is(props.type) && $.array.is(props.type)) {
     return code`
   (i: any) => ${(<ts.FunctionCallExpression refkey={ArraySerializerRefkey} args={["i", <TransformReference target={props.target} type={$.array.getElementType(props.type)} />]} />)}
     `;
   }
 
-  if ($.record.is(props.type)) {
+  if ($.model.is(props.type) && $.record.is(props.type)) {
     return code`
   (i: any) => ${(<ts.FunctionCallExpression refkey={RecordSerializerRefkey} args={["i", <TransformReference target={props.target} type={$.record.getElementType(props.type)} />]} />)}
     `;
@@ -302,7 +312,7 @@ export function TypeTransformCall(props: TypeTransformCallProps) {
     itemName = code`${itemName} as ${refkey(props.type)}`;
   }
   const transformType = collapsedProperty?.type ?? props.type;
-  if ($.array.is(transformType)) {
+  if ($.model.is(transformType) && $.array.is(transformType)) {
     const unpackedElement = $.httpPart.unpack($.array.getElementType(transformType)) ?? $.array.getElementType(transformType);
     return (
       <ts.FunctionCallExpression
@@ -315,7 +325,7 @@ export function TypeTransformCall(props: TypeTransformCallProps) {
     );
   }
 
-  if ($.record.is(transformType)) {
+  if ($.model.is(transformType) && $.record.is(transformType)) {
     const unpackedElement = $.httpPart.unpack($.array.getElementType(transformType)) ?? $.array.getElementType(transformType);
     return (
       <ts.FunctionCallExpression

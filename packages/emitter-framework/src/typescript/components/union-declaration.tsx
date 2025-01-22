@@ -3,6 +3,7 @@ import * as ts from "@alloy-js/typescript";
 import { Enum, Union } from "@typespec/compiler";
 import { UnionExpression } from "./union-expression.js";
 import { $ } from "@typespec/compiler/typekit";
+import { reportDiagnostic } from "../../lib.js";
 
 export interface TypedUnionDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   type: Union | Enum;
@@ -18,9 +19,14 @@ export function UnionDeclaration(props: UnionDeclarationProps) {
 
   const { type, ...coreProps } = props;
   const refkey = coreProps.refkey ?? getRefkey(type);
-  const name = coreProps.name
-    ? coreProps.name
-    : ts.useTSNamePolicy().getName($.type.getPlausibleName(props.type) ?? "", "type");
+
+  const originalName = coreProps.name ?? type.name;
+
+  if (!originalName || originalName === "") {
+    reportDiagnostic($.program, { code: "type-declaration-missing-name", target: type });
+  }
+  
+  const name =  ts.useTSNamePolicy().getName(originalName!, "type");
 
  
 

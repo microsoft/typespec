@@ -5,13 +5,13 @@ import {
   IntrinsicType,
   Model,
   ModelProperty,
-  Namespace,
   Operation,
   RecordModelType,
   Scalar,
   Type,
   Union,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 
 export function isModel(type: any): type is Model {
   return type.kind === "Model";
@@ -59,7 +59,7 @@ export type TypeSpecDeclaration =
  * @param type
  * @returns
  */
-export function isDeclaration(type: Type): type is TypeSpecDeclaration | Namespace {
+export function isDeclaration(type: Type): boolean {
   switch (type.kind) {
     case "Namespace":
     case "Interface":
@@ -71,9 +71,13 @@ export function isDeclaration(type: Type): type is TypeSpecDeclaration | Namespa
       return false;
 
     case "Model":
-      return type.name ? type.name !== "" && type.name !== "Array" : false;
+      if ($.array.is(type) || $.record.is(type)) {
+        return false;
+      }
+
+      return Boolean(type.name);
     case "Union":
-      return type.name ? type.name !== "" : false;
+      return Boolean(type.name);
     default:
       return false;
   }

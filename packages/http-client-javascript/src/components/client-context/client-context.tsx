@@ -1,12 +1,12 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import * as cl from "@typespec/http-client-library";
+import { Client } from "../../utils/client-discovery.js";
 import { ClientContextDeclaration } from "./client-context-declaration.jsx";
 import { ClientContextFactoryDeclaration } from "./client-context-factory.jsx";
 import { ClientContextOptionsDeclaration } from "./client-context-options.jsx";
 
 export interface ClientContextProps {
-  client: cl.Client;
+  client: Client;
   children?: ay.Children;
 }
 

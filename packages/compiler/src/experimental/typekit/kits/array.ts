@@ -3,7 +3,7 @@ import { Model, Type } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
 export interface ArrayKit {
-  is(type: Type): type is Model;
+  is(type: Type): boolean;
   getElementType(type: Model): Type;
   create(elementType: Type): Model;
 }

@@ -37,7 +37,7 @@ export function BodyPart(props: BodyPartProps) {
 }
 
 function BodyPartArray(props: BodyPartProps) {
-  if (!$.array.is(props.type.type)) {
+  if (!$.model.is(props.type.type) || !$.array.is(props.type.type)) {
     return <BodyPart target={props.target} type={props.type} />;
   }
 

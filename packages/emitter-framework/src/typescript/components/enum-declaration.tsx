@@ -2,6 +2,7 @@ import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import * as ts from "@alloy-js/typescript";
 import { mapJoin, Refkey, refkey } from "@alloy-js/core";
+import { reportDiagnostic } from "../../lib.js";
 
 export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name">{
   name?: string;
@@ -28,7 +29,11 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
       } />
   }, { joiner: ",\n" });
 
-  const name = props.name ?? ts.useTSNamePolicy().getName($.type.getPlausibleName(props.type), "enum");
+  if(!props.type.name || props.type.name === "") { 
+    reportDiagnostic($.program, {code: "type-declaration-missing-name", target: props.type});
+  }
+
+  const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
 
   return <ts.EnumDeclaration
     name={name}
