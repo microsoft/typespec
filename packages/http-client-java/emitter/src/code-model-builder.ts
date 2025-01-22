@@ -78,6 +78,7 @@ import {
   Model,
   ModelProperty,
   Namespace,
+  NoTarget,
   Operation,
   Program,
   Type,
@@ -120,8 +121,8 @@ import { ConstantSchema, ConstantValue } from "./common/schemas/constant.js";
 import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
-import { EmitterOptions } from "./emitter.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
+import { EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
   CONTENT_TYPE_KEY,
@@ -149,7 +150,6 @@ import {
 } from "./type-utils.js";
 import {
   getNamespace,
-  logError,
   logWarning,
   pascalCase,
   removeClientSuffix,
@@ -561,7 +561,11 @@ export class CodeModelBuilder {
       } else {
         this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
         if (!this.apiVersion) {
-          this.logError("Unrecognized api-version: " + this.sdkContext.apiVersion);
+          reportDiagnostic(this.program, {
+            code: "invalid-api-version",
+            format: { apiVersion: this.sdkContext.apiVersion },
+            target: NoTarget,
+          });
         }
       }
 
@@ -593,7 +597,10 @@ export class CodeModelBuilder {
               }
             }
           } else if (initializationProperty.type.variantTypes.length > 2) {
-            this.logError("Multiple server URL defined for one client is not supported yet.");
+            reportDiagnostic(this.program, {
+              code: "multiple-server-not-supported",
+              target: initializationProperty.type.__raw ?? NoTarget,
+            });
           }
         } else if (initializationProperty.type.kind === "endpoint") {
           sdkPathParameters = initializationProperty.type.templateArguments;
@@ -1880,8 +1887,12 @@ export class CodeModelBuilder {
           }
       }
     }
-    const errorMsg = `Unrecognized type: '${type.kind}'.`;
-    this.logError(errorMsg);
+    reportDiagnostic(this.program, {
+      code: "unrecognized-type",
+      format: { typeKind: type.kind },
+      target: type.__raw ?? NoTarget,
+    });
+    const errorMsg = `Unrecognized type, kind '${type.kind}'.`;
     throw new Error(errorMsg);
   }
 
@@ -2308,7 +2319,12 @@ export class CodeModelBuilder {
 
   private processUnionSchema(type: SdkUnionType, name: string): Schema {
     if (!(type.__raw && type.__raw.kind === "Union")) {
-      this.logError(`Invalid type for union: '${type.kind}'.`);
+      reportDiagnostic(this.program, {
+        code: "unrecognized-type",
+        messageId: "unionType",
+        format: { typeKind: type.kind },
+        target: type.__raw ?? NoTarget,
+      });
     }
     const rawUnionType: Union = type.__raw as Union;
     const namespace = getNamespace(rawUnionType);
@@ -2462,8 +2478,13 @@ export class CodeModelBuilder {
         },
       );
     } else {
-      const errorMsg = `Invalid type for multipart form data: '${property.type.kind}'.`;
-      this.logError(errorMsg);
+      reportDiagnostic(this.program, {
+        code: "unrecognized-type",
+        messageId: "multipartFormData",
+        format: { typeKind: property.type.kind },
+        target: property.type.__raw ?? NoTarget,
+      });
+      const errorMsg = `Unrecognized type for multipart form data, kind '${property.type.kind}'.`;
       throw new Error(errorMsg);
     }
   }
@@ -2617,10 +2638,6 @@ export class CodeModelBuilder {
     } else {
       return clientNamespace.toLowerCase();
     }
-  }
-
-  private logError(msg: string) {
-    logError(this.program, msg);
   }
 
   private logWarning(msg: string) {
