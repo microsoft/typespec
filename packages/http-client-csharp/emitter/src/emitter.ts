@@ -83,7 +83,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       //emit configuration.json
       const configurations: Configuration = {
         "output-folder": ".",
-        "library-name": options["library-name"],
+        "library-name": options["library-name"] ?? root.Name,
         "single-top-level-client": options["single-top-level-client"],
         "unreferenced-types-handling": options["unreferenced-types-handling"],
         "keep-non-overloadable-protocol-signature":

@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         private async Task WriteProjectFiles()
         {
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.TypeFactory.RootNamespace}.csproj"),
+                Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.LibraryName}.csproj"),
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSrcCSProj())));
         }
 
@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         private async Task WriteSolutionFiles()
         {
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelPlugin.Instance.Configuration.OutputDirectory, $"{CodeModelPlugin.Instance.TypeFactory.RootNamespace}.sln"),
+                Path.Combine(CodeModelPlugin.Instance.Configuration.OutputDirectory, $"{CodeModelPlugin.Instance.Configuration.LibraryName}.sln"),
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSln())));
         }
 
@@ -54,10 +54,10 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             var builder = new CSProjWriter()
             {
-                Description = $"This is the {CodeModelPlugin.Instance.TypeFactory.RootNamespace} client library for developing .NET applications with rich experience.",
-                AssemblyTitle = $"SDK Code Generation {CodeModelPlugin.Instance.TypeFactory.RootNamespace}",
+                Description = $"This is the {CodeModelPlugin.Instance.Configuration.LibraryName} client library for developing .NET applications with rich experience.",
+                AssemblyTitle = $"SDK Code Generation {CodeModelPlugin.Instance.Configuration.LibraryName}",
                 Version = "1.0.0-beta.1",
-                PackageTags = CodeModelPlugin.Instance.TypeFactory.RootNamespace,
+                PackageTags = CodeModelPlugin.Instance.Configuration.LibraryName,
                 TargetFramework = "netstandard2.0",
                 LangVersion = "latest",
                 GenerateDocumentationFile = true,
@@ -130,7 +130,7 @@ EndProject
 	EndGlobalSection
 EndGlobal
 ";
-            return string.Format(slnContent, CodeModelPlugin.Instance.TypeFactory.RootNamespace);
+            return string.Format(slnContent, CodeModelPlugin.Instance.Configuration.LibraryName);
         }
     }
 }

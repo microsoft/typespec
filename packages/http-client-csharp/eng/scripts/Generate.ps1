@@ -111,6 +111,7 @@ foreach ($directory in $directories) {
     }
     
     if ($folders.Contains("versioning")) {
+        Write-Host "Generating versioning for $subPath" -ForegroundColor Cyan
         Generate-Versioning $directory.FullName $generationDir -generateStub $stubbed
         $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
         $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
