@@ -1892,14 +1892,14 @@ importers:
         specifier: ^10.0.9
         version: 10.0.10
       '@types/node':
-        specifier: ~22.7.9
-        version: 22.7.9
+        specifier: ~22.10.7
+        version: 22.10.7
       '@types/semver':
         specifier: ^7.5.8
         version: 7.5.8
       '@types/vscode':
-        specifier: ~1.94.0
-        version: 1.94.0
+        specifier: ~1.96.0
+        version: 1.96.0
       '@typespec/compiler':
         specifier: workspace:~
         version: link:../compiler
@@ -1908,7 +1908,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^2.1.5
-        version: 2.1.8(vitest@2.1.8(@types/node@22.7.9)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0))
+        version: 2.1.8(vitest@2.1.8(@types/node@22.10.7)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0))
       '@vitest/ui':
         specifier: ^2.1.2
         version: 2.1.8(vitest@2.1.8)
@@ -1938,7 +1938,7 @@ importers:
         version: 5.7.3
       vitest:
         specifier: ^2.1.5
-        version: 2.1.8(@types/node@22.7.9)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0)
+        version: 2.1.8(@types/node@22.10.7)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0)
       vscode-languageclient:
         specifier: ~9.0.1
         version: 9.0.1
@@ -5765,9 +5765,6 @@ packages:
   '@types/node@22.10.7':
     resolution: {integrity: sha512-V09KvXxFiutGp6B7XkpaDXlNadZxrzajcY50EuoLIpQ6WWYCSvf19lVIazzfIzQvhUN2HjX12spLojTnhuKlGg==}
 
-  '@types/node@22.7.9':
-    resolution: {integrity: sha512-jrTfRC7FM6nChvU7X2KqcrgquofrWLFDeYC1hKfwNWomVvrn7JIksqf344WN2X/y8xrgqBd2dJATZV4GbatBfg==}
-
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
@@ -5842,8 +5839,8 @@ packages:
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
 
-  '@types/vscode@1.94.0':
-    resolution: {integrity: sha512-UyQOIUT0pb14XSqJskYnRwD2aG0QrPVefIfrW1djR+/J4KeFQ0i1+hjZoaAmeNf3Z2jleK+R2hv+EboG/m8ruw==}
+  '@types/vscode@1.96.0':
+    resolution: {integrity: sha512-qvZbSZo+K4ZYmmDuaodMbAa67Pl6VDQzLKFka6rq+3WUTY4Kro7Bwoi0CuZLO/wema0ygcmpwow7zZfPJTs5jg==}
 
   '@types/xml2js@0.4.14':
     resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
@@ -11356,9 +11353,6 @@ packages:
 
   underscore@1.13.7:
     resolution: {integrity: sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==}
-
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
@@ -16965,10 +16959,6 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@types/node@22.7.9':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/normalize-package-data@2.4.4': {}
 
   '@types/parse-json@4.0.2': {}
@@ -17041,7 +17031,7 @@ snapshots:
 
   '@types/uuid@9.0.8': {}
 
-  '@types/vscode@1.94.0': {}
+  '@types/vscode@1.96.0': {}
 
   '@types/xml2js@0.4.14':
     dependencies:
@@ -17194,7 +17184,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@2.1.8(vitest@2.1.8(@types/node@22.7.9)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0))':
+  '@vitest/coverage-v8@2.1.8(vitest@2.1.8(@types/node@22.10.7)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -17208,7 +17198,7 @@ snapshots:
       std-env: 3.8.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@22.7.9)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0)
+      vitest: 2.1.8(@types/node@22.10.7)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -17251,13 +17241,13 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 2.0.0
 
-  '@vitest/mocker@2.1.8(vite@5.4.14(@types/node@22.7.9))':
+  '@vitest/mocker@2.1.8(vite@5.4.14(@types/node@22.10.7))':
     dependencies:
       '@vitest/spy': 2.1.8
       estree-walker: 3.0.3
       magic-string: 0.30.17
     optionalDependencies:
-      vite: 5.4.14(@types/node@22.7.9)
+      vite: 5.4.14(@types/node@22.10.7)
 
   '@vitest/mocker@3.0.3(vite@6.0.11(@types/node@22.10.7)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0))':
     dependencies:
@@ -17326,7 +17316,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 1.2.0
-      vitest: 2.1.8(@types/node@22.7.9)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0)
+      vitest: 2.1.8(@types/node@22.10.7)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0)
 
   '@vitest/ui@3.0.3(vitest@3.0.3)':
     dependencies:
@@ -24066,8 +24056,6 @@ snapshots:
 
   underscore@1.13.7: {}
 
-  undici-types@6.19.8: {}
-
   undici-types@6.20.0: {}
 
   undici@6.21.0: {}
@@ -24278,13 +24266,13 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  vite-node@2.1.8(@types/node@22.7.9):
+  vite-node@2.1.8(@types/node@22.10.7):
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@8.1.1)
       es-module-lexer: 1.6.0
       pathe: 1.1.2
-      vite: 5.4.14(@types/node@22.7.9)
+      vite: 5.4.14(@types/node@22.10.7)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -24358,13 +24346,13 @@ snapshots:
       - rollup
       - supports-color
 
-  vite@5.4.14(@types/node@22.7.9):
+  vite@5.4.14(@types/node@22.10.7):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.1
       rollup: 4.31.0
     optionalDependencies:
-      '@types/node': 22.7.9
+      '@types/node': 22.10.7
       fsevents: 2.3.3
 
   vite@6.0.11(@types/node@22.10.7)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0):
@@ -24383,10 +24371,10 @@ snapshots:
     optionalDependencies:
       vite: 6.0.11(@types/node@22.10.7)(jiti@2.4.2)(tsx@4.19.2)(yaml@2.7.0)
 
-  vitest@2.1.8(@types/node@22.7.9)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0):
+  vitest@2.1.8(@types/node@22.10.7)(@vitest/ui@2.1.8)(happy-dom@16.7.2)(jsdom@26.0.0):
     dependencies:
       '@vitest/expect': 2.1.8
-      '@vitest/mocker': 2.1.8(vite@5.4.14(@types/node@22.7.9))
+      '@vitest/mocker': 2.1.8(vite@5.4.14(@types/node@22.10.7))
       '@vitest/pretty-format': 2.1.8
       '@vitest/runner': 2.1.8
       '@vitest/snapshot': 2.1.8
@@ -24402,11 +24390,11 @@ snapshots:
       tinyexec: 0.3.2
       tinypool: 1.0.2
       tinyrainbow: 1.2.0
-      vite: 5.4.14(@types/node@22.7.9)
-      vite-node: 2.1.8(@types/node@22.7.9)
+      vite: 5.4.14(@types/node@22.10.7)
+      vite-node: 2.1.8(@types/node@22.10.7)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 22.7.9
+      '@types/node': 22.10.7
       '@vitest/ui': 2.1.8(vitest@2.1.8)
       happy-dom: 16.7.2
       jsdom: 26.0.0
