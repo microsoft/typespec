@@ -99,7 +99,7 @@ import {
   Value,
 } from "../core/types.js";
 import { setKey } from "./key.js";
-import { useStateMap, useStateSet } from "./utils.js";
+import { useStateMap, useStateSet } from "../utils/index.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
@@ -121,11 +121,11 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
   });
 }
 
-export function createStateSymbol(name: string) {
+function createStateSymbol(name: string) {
   return Symbol.for(`TypeSpec.${name}`);
 }
 
-const [getSummary, setSummary] = useStateMap<Type, string>("summary");
+const [getSummary, setSummary] = useStateMap<Type, string>(createStateSymbol("summary"));
 /**
  * @summary attaches a documentation string. It is typically used to give a short, single-line
  * description, and can be used in combination with or instead of @doc.
@@ -326,7 +326,7 @@ function validateTargetingAString(
 
 // -- @error decorator ----------------------
 
-const [getErrorState, setErrorState] = useStateSet<Model>("error");
+const [getErrorState, setErrorState] = useStateSet<Model>(createStateSymbol("error"));
 /**
  * `@error` decorator marks a model as an error type.
  *  Any derived models (using extends) will also be seen as error types.
@@ -355,7 +355,7 @@ export function isErrorModel(program: Program, target: Type): boolean {
 
 // -- @format decorator ---------------------
 
-const [getFormat, setFormat] = useStateMap<Type, string>("format");
+const [getFormat, setFormat] = useStateMap<Type, string>(createStateSymbol("format"));
 
 /**
  * `@format` - specify the data format hint for a string type
@@ -395,7 +395,7 @@ export const $format: FormatDecorator = (
 export { getFormat };
 
 // -- @pattern decorator ---------------------
-const [getPatternData, setPatternData] = useStateMap<Type, PatternData>("patternValues");
+const [getPatternData, setPatternData] = useStateMap<Type, PatternData>(createStateSymbol("patternValues"));
 
 export interface PatternData {
   readonly pattern: string;
@@ -656,7 +656,7 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
 };
 // -- @secret decorator ---------------------
 
-const [isSecret, markSecret] = useStateSet("secretTypes");
+const [isSecret, markSecret] = useStateSet(createStateSymbol("secretTypes"));
 
 /**
  * Mark a string as a secret value that should be treated carefully to avoid exposure
@@ -690,7 +690,7 @@ export interface EncodeData {
   type: Scalar;
 }
 
-const [getEncode, setEncodeData] = useStateMap<Scalar | ModelProperty, EncodeData>("encode");
+const [getEncode, setEncodeData] = useStateMap<Scalar | ModelProperty, EncodeData>(createStateSymbol("encode"));
 export const $encode: EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -893,7 +893,7 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 
 // -- @tag decorator ---------------------
 
-const [getTagsState, setTags] = useStateMap<Type, string[]>("tagProperties");
+const [getTagsState, setTags] = useStateMap<Type, string[]>(createStateSymbol("tagProperties"));
 
 // Set a tag on an operation, interface, or namespace.  There can be multiple tags on an
 // operation, interface, or namespace.
@@ -943,7 +943,7 @@ export function getAllTags(
 
 // -- @friendlyName decorator ---------------------
 
-const [getFriendlyName, setFriendlyName] = useStateMap<Type, string>("friendlyNames");
+const [getFriendlyName, setFriendlyName] = useStateMap<Type, string>(createStateSymbol("friendlyNames"));
 export const $friendlyName: FriendlyNameDecorator = (
   context: DecoratorContext,
   target: Type,
@@ -981,7 +981,7 @@ export const $friendlyName: FriendlyNameDecorator = (
 
 export { getFriendlyName };
 
-const [getKnownValues, setKnownValues] = useStateMap<Type, Enum>("knownValues");
+const [getKnownValues, setKnownValues] = useStateMap<Type, Enum>(createStateSymbol("knownValues"));
 
 /**
  * `@knownValues` marks a string type with an enum that contains all known values
@@ -1100,9 +1100,9 @@ export function getDeprecated(program: Program, type: Type): string | undefined 
   return getDeprecationDetails(program, type)?.message;
 }
 
-const [getOverloads, setOverloads] = useStateMap<Operation, Operation[]>("overloadedByKey");
+const [getOverloads, setOverloads] = useStateMap<Operation, Operation[]>(createStateSymbol("overloadedByKey"));
 const [getOverloadedOperation, setOverloadBase] = useStateMap<Operation, Operation>(
-  "overloadsOperation",
+  createStateSymbol("overloadsOperation"),
 );
 
 /**
@@ -1293,7 +1293,7 @@ export interface OpExample extends ExampleOptions {
 const [getExamplesState, setExamples] = useStateMap<
   Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
   Example[]
->("examples");
+>(createStateSymbol("examples"));
 export const $example: ExampleDecorator = (
   context: DecoratorContext,
   target: Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
@@ -1334,7 +1334,7 @@ export function getExamples(
   return getExamplesState(program, target) ?? [];
 }
 
-const [getOpExamplesState, setOpExamples] = useStateMap<Operation, OpExample[]>("opExamples");
+const [getOpExamplesState, setOpExamples] = useStateMap<Operation, OpExample[]>(createStateSymbol("opExamples"));
 export const $opExample: OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,

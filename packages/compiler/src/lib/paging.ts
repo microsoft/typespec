@@ -26,9 +26,8 @@ import type {
   Operation,
   Type,
 } from "../core/types.js";
-import { DuplicateTracker } from "../utils/duplicate-tracker.js";
+import { DuplicateTracker, useStateSet } from "../utils/index.js";
 import { isNumericType, isStringType } from "./decorators.js";
-import { useStateSet } from "./utils.js";
 
 export const [
   /**
@@ -342,11 +341,15 @@ function validatePagingOperation(program: Program, op: Operation) {
   program.reportDiagnostics(diagnostics);
 }
 
+function createStateSymbol(name: string) {
+  return Symbol.for(`TypeSpec.${name}`);
+}
+
 function createMarkerDecorator<T extends DecoratorFunction>(
   key: string,
   validate?: (...args: Parameters<T>) => boolean,
 ) {
-  const [isLink, markLink] = useStateSet<Parameters<T>[1]>(key);
+  const [isLink, markLink] = useStateSet<Parameters<T>[1]>(createStateSymbol(key));
   const decorator = (...args: Parameters<T>) => {
     if (validate && !validate(...args)) {
       return;
