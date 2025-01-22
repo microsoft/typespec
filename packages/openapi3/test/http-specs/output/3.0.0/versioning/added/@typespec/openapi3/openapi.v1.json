@@ -1,1 +1,103 @@
-{"openapi":"3.0.0","info":{"title":"(title)","description":"Test for the `@added` decorator.","version":"v1"},"tags":[],"paths":{"/v1":{"post":{"operationId":"v1","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ModelV1"}}}}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ModelV1"}}}}}}},"components":{"schemas":{"EnumV1":{"type":"string","enum":["enumMemberV1"]},"ModelV1":{"type":"object","required":["prop","enumProp"],"properties":{"prop":{"type":"string"},"enumProp":{"$ref":"#/components/schemas/EnumV1"}}},"UnionV1":{"type":"string"},"Versioning.Added.Versions":{"type":"string","enum":["v1","v2"],"description":"The version of the API."},"Versions":{"type":"string","enum":["v1","v2"],"description":"The version of the API."}}},"servers":[{"url":"{endpoint}/versioning/added/api-version:{version}","description":"Testserver endpoint","variables":{"endpoint":{"default":"","description":"Need to be set as 'http://localhost:3000' in client."},"version":{"default":"","description":"Need to be set as 'v1' or 'v2' in client.","enum":["v1","v2"]}}}]}
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "(title)",
+    "description": "Test for the `@added` decorator.",
+    "version": "v1"
+  },
+  "tags": [],
+  "paths": {
+    "/v1": {
+      "post": {
+        "operationId": "v1",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelV1"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EnumV1": {
+        "type": "string",
+        "enum": [
+          "enumMemberV1"
+        ]
+      },
+      "ModelV1": {
+        "type": "object",
+        "required": [
+          "prop",
+          "enumProp"
+        ],
+        "properties": {
+          "prop": {
+            "type": "string"
+          },
+          "enumProp": {
+            "$ref": "#/components/schemas/EnumV1"
+          }
+        }
+      },
+      "UnionV1": {
+        "type": "string"
+      },
+      "Versioning.Added.Versions": {
+        "type": "string",
+        "enum": [
+          "v1",
+          "v2"
+        ],
+        "description": "The version of the API."
+      },
+      "Versions": {
+        "type": "string",
+        "enum": [
+          "v1",
+          "v2"
+        ],
+        "description": "The version of the API."
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "{endpoint}/versioning/added/api-version:{version}",
+      "description": "Testserver endpoint",
+      "variables": {
+        "endpoint": {
+          "default": "",
+          "description": "Need to be set as 'http://localhost:3000' in client."
+        },
+        "version": {
+          "default": "",
+          "description": "Need to be set as 'v1' or 'v2' in client.",
+          "enum": [
+            "v1",
+            "v2"
+          ]
+        }
+      }
+    }
+  ]
+}

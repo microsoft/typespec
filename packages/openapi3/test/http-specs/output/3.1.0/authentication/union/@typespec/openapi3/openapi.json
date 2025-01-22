@@ -1,1 +1,107 @@
-{"openapi":"3.1.0","info":{"title":"AuthenticationUnion","description":"Illustrates clients generated with ApiKey and OAuth2 authentication.","version":"0.0.0"},"tags":[],"paths":{"/authentication/union/validkey":{"get":{"operationId":"validKey","description":"Check whether client is authenticated","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful."}}}},"/authentication/union/validtoken":{"get":{"operationId":"validToken","description":"Check whether client is authenticated","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful."}}}}},"security":[{"ApiKeyAuth":[]},{"OAuth2Auth":["https://security.microsoft.com/.default"]}],"components":{"schemas":{"MyFlow":{"type":"object","required":["type","authorizationUrl","scopes"],"properties":{"type":{"type":"string","enum":["implicit"]},"authorizationUrl":{"type":"string","enum":["https://login.microsoftonline.com/common/oauth2/authorize"]},"scopes":{"type":"array","prefixItems":[{"type":"string","enum":["https://security.microsoft.com/.default"]}]}}}},"securitySchemes":{"ApiKeyAuth":{"type":"apiKey","in":"header","name":"x-ms-api-key"},"OAuth2Auth":{"type":"oauth2","flows":{"implicit":{"authorizationUrl":"https://login.microsoftonline.com/common/oauth2/authorize","scopes":{"https://security.microsoft.com/.default":""}}}}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AuthenticationUnion",
+    "description": "Illustrates clients generated with ApiKey and OAuth2 authentication.",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/authentication/union/validkey": {
+      "get": {
+        "operationId": "validKey",
+        "description": "Check whether client is authenticated",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful."
+          }
+        }
+      }
+    },
+    "/authentication/union/validtoken": {
+      "get": {
+        "operationId": "validToken",
+        "description": "Check whether client is authenticated",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful."
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "OAuth2Auth": [
+        "https://security.microsoft.com/.default"
+      ]
+    }
+  ],
+  "components": {
+    "schemas": {
+      "MyFlow": {
+        "type": "object",
+        "required": [
+          "type",
+          "authorizationUrl",
+          "scopes"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "implicit"
+            ]
+          },
+          "authorizationUrl": {
+            "type": "string",
+            "enum": [
+              "https://login.microsoftonline.com/common/oauth2/authorize"
+            ]
+          },
+          "scopes": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string",
+                "enum": [
+                  "https://security.microsoft.com/.default"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-ms-api-key"
+      },
+      "OAuth2Auth": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "scopes": {
+              "https://security.microsoft.com/.default": ""
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

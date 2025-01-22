@@ -1,1 +1,673 @@
-{"openapi":"3.0.0","info":{"title":"TypeArray","description":"Illustrates various types of arrays.","version":"0.0.0"},"tags":[],"paths":{"/type/array/boolean":{"get":{"operationId":"BooleanValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"boolean"}}}}}}},"put":{"operationId":"BooleanValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"boolean"}}}}}}},"/type/array/datetime":{"get":{"operationId":"DatetimeValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"string","format":"date-time"}}}}}}},"put":{"operationId":"DatetimeValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"string","format":"date-time"}}}}}}},"/type/array/duration":{"get":{"operationId":"DurationValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"string","format":"duration"}}}}}}},"put":{"operationId":"DurationValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"string","format":"duration"}}}}}}},"/type/array/float32":{"get":{"operationId":"Float32Value_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"number","format":"float"}}}}}}},"put":{"operationId":"Float32Value_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"number","format":"float"}}}}}}},"/type/array/int32":{"get":{"operationId":"Int32Value_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"integer","format":"int32"}}}}}}},"put":{"operationId":"Int32Value_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"integer","format":"int32"}}}}}}},"/type/array/int64":{"get":{"operationId":"Int64Value_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"integer","format":"int64"}}}}}}},"put":{"operationId":"Int64Value_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"integer","format":"int64"}}}}}}},"/type/array/model":{"get":{"operationId":"ModelValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/InnerModel"}}}}}}},"put":{"operationId":"ModelValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/InnerModel"}}}}}}},"/type/array/nullable-boolean":{"get":{"operationId":"NullableBooleanValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"boolean","nullable":true}}}}}}},"put":{"operationId":"NullableBooleanValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"boolean","nullable":true}}}}}}},"/type/array/nullable-float":{"get":{"operationId":"NullableFloatValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"number","format":"float","nullable":true}}}}}}},"put":{"operationId":"NullableFloatValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"number","format":"float","nullable":true}}}}}}},"/type/array/nullable-int32":{"get":{"operationId":"NullableInt32Value_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"integer","format":"int32","nullable":true}}}}}}},"put":{"operationId":"NullableInt32Value_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"integer","format":"int32","nullable":true}}}}}}},"/type/array/nullable-model":{"get":{"operationId":"NullableModelValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","allOf":[{"$ref":"#/components/schemas/InnerModel"}],"nullable":true}}}}}}},"put":{"operationId":"NullableModelValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"object","allOf":[{"$ref":"#/components/schemas/InnerModel"}],"nullable":true}}}}}}},"/type/array/nullable-string":{"get":{"operationId":"NullableStringValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"string","nullable":true}}}}}}},"put":{"operationId":"NullableStringValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"string","nullable":true}}}}}}},"/type/array/string":{"get":{"operationId":"StringValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"string"}}}}}}},"put":{"operationId":"StringValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{"type":"string"}}}}}}},"/type/array/unknown":{"get":{"operationId":"UnknownValue_get","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{}}}}}}},"put":{"operationId":"UnknownValue_put","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"array","items":{}}}}}}}},"components":{"schemas":{"InnerModel":{"type":"object","required":["property"],"properties":{"property":{"type":"string","description":"Required string property"},"children":{"type":"array","items":{"$ref":"#/components/schemas/InnerModel"}}},"description":"Array inner model"}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TypeArray",
+    "description": "Illustrates various types of arrays.",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/type/array/boolean": {
+      "get": {
+        "operationId": "BooleanValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "BooleanValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/datetime": {
+      "get": {
+        "operationId": "DatetimeValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "DatetimeValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/duration": {
+      "get": {
+        "operationId": "DurationValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "duration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "DurationValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "duration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/float32": {
+      "get": {
+        "operationId": "Float32Value_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Float32Value_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "float"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/int32": {
+      "get": {
+        "operationId": "Int32Value_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Int32Value_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/int64": {
+      "get": {
+        "operationId": "Int64Value_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Int64Value_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/model": {
+      "get": {
+        "operationId": "ModelValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InnerModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ModelValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/InnerModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/nullable-boolean": {
+      "get": {
+        "operationId": "NullableBooleanValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "boolean",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "NullableBooleanValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "boolean",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/nullable-float": {
+      "get": {
+        "operationId": "NullableFloatValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "float",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "NullableFloatValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "float",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/nullable-int32": {
+      "get": {
+        "operationId": "NullableInt32Value_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "NullableInt32Value_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/nullable-model": {
+      "get": {
+        "operationId": "NullableModelValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/InnerModel"
+                      }
+                    ],
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "NullableModelValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/InnerModel"
+                    }
+                  ],
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/nullable-string": {
+      "get": {
+        "operationId": "NullableStringValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "NullableStringValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/string": {
+      "get": {
+        "operationId": "StringValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "StringValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/array/unknown": {
+      "get": {
+        "operationId": "UnknownValue_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "UnknownValue_put",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "InnerModel": {
+        "type": "object",
+        "required": [
+          "property"
+        ],
+        "properties": {
+          "property": {
+            "type": "string",
+            "description": "Required string property"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InnerModel"
+            }
+          }
+        },
+        "description": "Array inner model"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

@@ -1,1 +1,205 @@
-{"openapi":"3.0.0","info":{"title":"PayloadJsonMergePatch","description":"Test for merge-patch+json content-type","version":"0.0.0"},"tags":[],"paths":{"/json-merge-patch/create/resource":{"put":{"operationId":"createResource","description":"Test content-type: application/merge-patch+json with required body","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Resource"}}}}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Resource"}}}}}},"/json-merge-patch/update/resource":{"patch":{"operationId":"updateResource","description":"Test content-type: application/merge-patch+json with required body","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Resource"}}}}},"requestBody":{"required":true,"content":{"application/merge-patch+json":{"schema":{"$ref":"#/components/schemas/ResourcePatch"}}}}}},"/json-merge-patch/update/resource/optional":{"patch":{"operationId":"updateOptionalResource","description":"Test content-type: application/merge-patch+json with optional body","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Resource"}}}}},"requestBody":{"required":false,"content":{"application/merge-patch+json":{"schema":{"$ref":"#/components/schemas/ResourcePatch"}}}}}}},"components":{"schemas":{"InnerModel":{"type":"object","properties":{"name":{"type":"string"},"description":{"type":"string"}},"description":"It is the model used by Resource model"},"Resource":{"type":"object","required":["name"],"properties":{"name":{"type":"string"},"description":{"type":"string"},"map":{"type":"object","additionalProperties":{"$ref":"#/components/schemas/InnerModel"}},"array":{"type":"array","items":{"$ref":"#/components/schemas/InnerModel"}},"intValue":{"type":"integer","format":"int32"},"floatValue":{"type":"number","format":"float"},"innerModel":{"$ref":"#/components/schemas/InnerModel"},"intArray":{"type":"array","items":{"type":"integer","format":"int32"}}},"description":"Details about a resource."},"ResourcePatch":{"type":"object","properties":{"description":{"type":"string"},"map":{"type":"object","additionalProperties":{"$ref":"#/components/schemas/InnerModel"}},"array":{"type":"array","items":{"$ref":"#/components/schemas/InnerModel"}},"intValue":{"type":"integer","format":"int32"},"floatValue":{"type":"number","format":"float"},"innerModel":{"$ref":"#/components/schemas/InnerModel"},"intArray":{"type":"array","items":{"type":"integer","format":"int32"}}},"description":"Details about a resource for patch operation."}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PayloadJsonMergePatch",
+    "description": "Test for merge-patch+json content-type",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/json-merge-patch/create/resource": {
+      "put": {
+        "operationId": "createResource",
+        "description": "Test content-type: application/merge-patch+json with required body",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resource"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Resource"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/json-merge-patch/update/resource": {
+      "patch": {
+        "operationId": "updateResource",
+        "description": "Test content-type: application/merge-patch+json with required body",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resource"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourcePatch"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/json-merge-patch/update/resource/optional": {
+      "patch": {
+        "operationId": "updateOptionalResource",
+        "description": "Test content-type: application/merge-patch+json with optional body",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resource"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourcePatch"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "InnerModel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "description": "It is the model used by Resource model"
+      },
+      "Resource": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "map": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/InnerModel"
+            }
+          },
+          "array": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InnerModel"
+            }
+          },
+          "intValue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "floatValue": {
+            "type": "number",
+            "format": "float"
+          },
+          "innerModel": {
+            "$ref": "#/components/schemas/InnerModel"
+          },
+          "intArray": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "description": "Details about a resource."
+      },
+      "ResourcePatch": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "map": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/InnerModel"
+            }
+          },
+          "array": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InnerModel"
+            }
+          },
+          "intValue": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "floatValue": {
+            "type": "number",
+            "format": "float"
+          },
+          "innerModel": {
+            "$ref": "#/components/schemas/InnerModel"
+          },
+          "intArray": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "description": "Details about a resource for patch operation."
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

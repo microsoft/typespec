@@ -1,1 +1,293 @@
-{"openapi":"3.0.0","info":{"title":"TypeModelVisibility","description":"Illustrates models with visibility properties.","version":"0.0.0"},"tags":[],"paths":{"/type/model/visibility":{"get":{"operationId":"getModel","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/VisibilityModel"}}}}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/VisibilityModelQuery"}}}}},"head":{"operationId":"headModel","parameters":[],"responses":{"200":{"description":"The request has succeeded."}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/VisibilityModelQuery"}}}}},"put":{"operationId":"putModel","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/VisibilityModelCreateOrUpdate"}}}}},"patch":{"operationId":"patchModel","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/VisibilityModelUpdate"}}}}},"post":{"operationId":"postModel","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/VisibilityModelCreate"}}}}},"delete":{"operationId":"deleteModel","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/VisibilityModelDelete"}}}}}},"/type/model/visibility/readonlyroundtrip":{"put":{"operationId":"putReadOnlyModel","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ReadOnlyModel"}}}}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ReadOnlyModel"}}}}}}},"components":{"schemas":{"ReadOnlyModel":{"type":"object","properties":{"optionalNullableIntList":{"type":"array","items":{"type":"integer","format":"int32"},"nullable":true,"description":"Optional readonly nullable int list.","readOnly":true},"optionalStringRecord":{"type":"object","additionalProperties":{"type":"string"},"description":"Optional readonly string dictionary.","readOnly":true}},"description":"RoundTrip model with readonly optional properties."},"VisibilityModel":{"type":"object","required":["readProp"],"properties":{"readProp":{"type":"string","description":"Required string, illustrating a readonly property.","readOnly":true}},"description":"Output model with visibility properties."},"VisibilityModelCreate":{"type":"object","required":["createProp"],"properties":{"createProp":{"type":"array","items":{"type":"string"},"description":"Required string[], illustrating a create property."}},"description":"Output model with visibility properties."},"VisibilityModelCreateOrUpdate":{"type":"object","required":["createProp","updateProp"],"properties":{"createProp":{"type":"array","items":{"type":"string"},"description":"Required string[], illustrating a create property."},"updateProp":{"type":"array","items":{"type":"integer","format":"int32"},"description":"Required int32[], illustrating a update property."}},"description":"Output model with visibility properties."},"VisibilityModelDelete":{"type":"object","required":["deleteProp"],"properties":{"deleteProp":{"type":"boolean","description":"Required bool, illustrating a delete property."}},"description":"Output model with visibility properties."},"VisibilityModelQuery":{"type":"object","required":["queryProp"],"properties":{"queryProp":{"type":"integer","format":"int32","description":"Required int32, illustrating a query property."}},"description":"Output model with visibility properties."},"VisibilityModelUpdate":{"type":"object","properties":{"updateProp":{"type":"array","items":{"type":"integer","format":"int32"},"description":"Required int32[], illustrating a update property."}},"description":"Output model with visibility properties."}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TypeModelVisibility",
+    "description": "Illustrates models with visibility properties.",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/type/model/visibility": {
+      "get": {
+        "operationId": "getModel",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisibilityModel"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibilityModelQuery"
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "headModel",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibilityModelQuery"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putModel",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibilityModelCreateOrUpdate"
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patchModel",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibilityModelUpdate"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "postModel",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibilityModelCreate"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteModel",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisibilityModelDelete"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/model/visibility/readonlyroundtrip": {
+      "put": {
+        "operationId": "putReadOnlyModel",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadOnlyModel"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadOnlyModel"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ReadOnlyModel": {
+        "type": "object",
+        "properties": {
+          "optionalNullableIntList": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true,
+            "description": "Optional readonly nullable int list.",
+            "readOnly": true
+          },
+          "optionalStringRecord": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Optional readonly string dictionary.",
+            "readOnly": true
+          }
+        },
+        "description": "RoundTrip model with readonly optional properties."
+      },
+      "VisibilityModel": {
+        "type": "object",
+        "required": [
+          "readProp"
+        ],
+        "properties": {
+          "readProp": {
+            "type": "string",
+            "description": "Required string, illustrating a readonly property.",
+            "readOnly": true
+          }
+        },
+        "description": "Output model with visibility properties."
+      },
+      "VisibilityModelCreate": {
+        "type": "object",
+        "required": [
+          "createProp"
+        ],
+        "properties": {
+          "createProp": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Required string[], illustrating a create property."
+          }
+        },
+        "description": "Output model with visibility properties."
+      },
+      "VisibilityModelCreateOrUpdate": {
+        "type": "object",
+        "required": [
+          "createProp",
+          "updateProp"
+        ],
+        "properties": {
+          "createProp": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Required string[], illustrating a create property."
+          },
+          "updateProp": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Required int32[], illustrating a update property."
+          }
+        },
+        "description": "Output model with visibility properties."
+      },
+      "VisibilityModelDelete": {
+        "type": "object",
+        "required": [
+          "deleteProp"
+        ],
+        "properties": {
+          "deleteProp": {
+            "type": "boolean",
+            "description": "Required bool, illustrating a delete property."
+          }
+        },
+        "description": "Output model with visibility properties."
+      },
+      "VisibilityModelQuery": {
+        "type": "object",
+        "required": [
+          "queryProp"
+        ],
+        "properties": {
+          "queryProp": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Required int32, illustrating a query property."
+          }
+        },
+        "description": "Output model with visibility properties."
+      },
+      "VisibilityModelUpdate": {
+        "type": "object",
+        "properties": {
+          "updateProp": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Required int32[], illustrating a update property."
+          }
+        },
+        "description": "Output model with visibility properties."
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

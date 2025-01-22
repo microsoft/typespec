@@ -1,1 +1,348 @@
-{"openapi":"3.1.0","info":{"title":"TypeScalar","version":"0.0.0"},"tags":[],"paths":{"/type/scalar/boolean":{"get":{"operationId":"Boolean_get","description":"get boolean value","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"boolean"}}}}}},"put":{"operationId":"Boolean_put","description":"put boolean value","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"boolean"}}},"description":"_"}}},"/type/scalar/decimal/prepare_verify":{"get":{"operationId":"DecimalVerify_prepareVerify","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"number","format":"decimal"}}}}}}}},"/type/scalar/decimal/request_parameter":{"get":{"operationId":"DecimalType_requestParameter","parameters":[{"name":"value","in":"query","required":true,"schema":{"type":"number","format":"decimal"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/type/scalar/decimal/response_body":{"get":{"operationId":"DecimalType_responseBody","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"number","format":"decimal"}}}}}}},"/type/scalar/decimal/resquest_body":{"put":{"operationId":"DecimalType_requestBody","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"number","format":"decimal"}}}}}},"/type/scalar/decimal/verify":{"post":{"operationId":"DecimalVerify_verify","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"number","format":"decimal"}}}}}},"/type/scalar/decimal128/prepare_verify":{"get":{"operationId":"Decimal128Verify_prepareVerify","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"array","items":{"type":"number","format":"decimal"}}}}}}}},"/type/scalar/decimal128/request_parameter":{"get":{"operationId":"Decimal128Type_requestParameter","parameters":[{"name":"value","in":"query","required":true,"schema":{"type":"number","format":"decimal128"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/type/scalar/decimal128/response_body":{"get":{"operationId":"Decimal128Type_responseBody","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"number","format":"decimal128"}}}}}}},"/type/scalar/decimal128/resquest_body":{"put":{"operationId":"Decimal128Type_requestBody","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"number","format":"decimal128"}}}}}},"/type/scalar/decimal128/verify":{"post":{"operationId":"Decimal128Verify_verify","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"number","format":"decimal"}}}}}},"/type/scalar/string":{"get":{"operationId":"String_get","description":"get string value","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"string"}}}}}},"put":{"operationId":"String_put","description":"put string value","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"string"}}},"description":"_"}}},"/type/scalar/unknown":{"get":{"operationId":"Unknown_get","description":"get unknown value","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{}}}}}},"put":{"operationId":"Unknown_put","description":"put unknown value","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{}}},"description":"_"}}}},"components":{},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TypeScalar",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/type/scalar/boolean": {
+      "get": {
+        "operationId": "Boolean_get",
+        "description": "get boolean value",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Boolean_put",
+        "description": "put boolean value",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          },
+          "description": "_"
+        }
+      }
+    },
+    "/type/scalar/decimal/prepare_verify": {
+      "get": {
+        "operationId": "DecimalVerify_prepareVerify",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "decimal"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal/request_parameter": {
+      "get": {
+        "operationId": "DecimalType_requestParameter",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "decimal"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal/response_body": {
+      "get": {
+        "operationId": "DecimalType_responseBody",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "decimal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal/resquest_body": {
+      "put": {
+        "operationId": "DecimalType_requestBody",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number",
+                "format": "decimal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal/verify": {
+      "post": {
+        "operationId": "DecimalVerify_verify",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number",
+                "format": "decimal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal128/prepare_verify": {
+      "get": {
+        "operationId": "Decimal128Verify_prepareVerify",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "decimal"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal128/request_parameter": {
+      "get": {
+        "operationId": "Decimal128Type_requestParameter",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "decimal128"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal128/response_body": {
+      "get": {
+        "operationId": "Decimal128Type_responseBody",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "decimal128"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal128/resquest_body": {
+      "put": {
+        "operationId": "Decimal128Type_requestBody",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number",
+                "format": "decimal128"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/scalar/decimal128/verify": {
+      "post": {
+        "operationId": "Decimal128Verify_verify",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "number",
+                "format": "decimal"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/scalar/string": {
+      "get": {
+        "operationId": "String_get",
+        "description": "get string value",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "String_put",
+        "description": "put string value",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "_"
+        }
+      }
+    },
+    "/type/scalar/unknown": {
+      "get": {
+        "operationId": "Unknown_get",
+        "description": "get unknown value",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Unknown_put",
+        "description": "put unknown value",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          },
+          "description": "_"
+        }
+      }
+    }
+  },
+  "components": {},
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

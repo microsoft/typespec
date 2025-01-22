@@ -1,1 +1,299 @@
-{"openapi":"3.1.0","info":{"title":"TypeModelInheritanceEnumDiscriminator","description":"Illustrates inheritance with enum discriminator.","version":"0.0.0"},"tags":[],"paths":{"/type/model/inheritance/enum-discriminator/extensible-enum":{"get":{"operationId":"getExtensibleModel","description":"Receive model with extensible enum discriminator type.","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Dog"}}}}}},"put":{"operationId":"putExtensibleModel","description":"Send model with extensible enum discriminator type.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful."}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Dog"}}},"description":"Dog to create"}}},"/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator":{"get":{"operationId":"getExtensibleModelMissingDiscriminator","description":"Get a model omitting the discriminator.","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Dog"}}}}}}},"/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator":{"get":{"operationId":"getExtensibleModelWrongDiscriminator","description":"Get a model containing discriminator value never defined.","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Dog"}}}}}}},"/type/model/inheritance/enum-discriminator/fixed-enum":{"get":{"operationId":"getFixedModel","description":"Receive model with fixed enum discriminator type.","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Snake"}}}}}},"put":{"operationId":"putFixedModel","description":"Send model with fixed enum discriminator type.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful."}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Snake"}}},"description":"Snake to create"}}},"/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator":{"get":{"operationId":"getFixedModelMissingDiscriminator","description":"Get a model omitting the discriminator.","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Snake"}}}}}}},"/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator":{"get":{"operationId":"getFixedModelWrongDiscriminator","description":"Get a model containing discriminator value never defined.","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/Snake"}}}}}}}},"components":{"schemas":{"Cobra":{"type":"object","required":["kind"],"properties":{"kind":{"type":"string","enum":["cobra"],"description":"discriminator property"}},"allOf":[{"$ref":"#/components/schemas/Snake"}],"description":"Cobra model"},"Dog":{"type":"object","required":["kind","weight"],"properties":{"kind":{"allOf":[{"$ref":"#/components/schemas/DogKind"}],"description":"discriminator property"},"weight":{"type":"integer","format":"int32","description":"Weight of the dog"}},"discriminator":{"propertyName":"kind","mapping":{"golden":"#/components/schemas/Golden"}},"description":"Test extensible enum type for discriminator"},"DogKind":{"anyOf":[{"type":"string"},{"type":"string","enum":["golden"]}],"description":"extensible enum type for discriminator"},"Golden":{"type":"object","required":["kind"],"properties":{"kind":{"type":"string","enum":["golden"],"description":"discriminator property"}},"allOf":[{"$ref":"#/components/schemas/Dog"}],"description":"Golden dog model"},"Snake":{"type":"object","required":["kind","length"],"properties":{"kind":{"allOf":[{"$ref":"#/components/schemas/SnakeKind"}],"description":"discriminator property"},"length":{"type":"integer","format":"int32","description":"Length of the snake"}},"discriminator":{"propertyName":"kind","mapping":{"cobra":"#/components/schemas/Cobra"}},"description":"Test fixed enum type for discriminator"},"SnakeKind":{"type":"string","enum":["cobra"],"description":"fixed enum type for discriminator"}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TypeModelInheritanceEnumDiscriminator",
+    "description": "Illustrates inheritance with enum discriminator.",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/type/model/inheritance/enum-discriminator/extensible-enum": {
+      "get": {
+        "operationId": "getExtensibleModel",
+        "description": "Receive model with extensible enum discriminator type.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dog"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putExtensibleModel",
+        "description": "Send model with extensible enum discriminator type.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Dog"
+              }
+            }
+          },
+          "description": "Dog to create"
+        }
+      }
+    },
+    "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator": {
+      "get": {
+        "operationId": "getExtensibleModelMissingDiscriminator",
+        "description": "Get a model omitting the discriminator.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dog"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator": {
+      "get": {
+        "operationId": "getExtensibleModelWrongDiscriminator",
+        "description": "Get a model containing discriminator value never defined.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dog"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/model/inheritance/enum-discriminator/fixed-enum": {
+      "get": {
+        "operationId": "getFixedModel",
+        "description": "Receive model with fixed enum discriminator type.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snake"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "putFixedModel",
+        "description": "Send model with fixed enum discriminator type.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Snake"
+              }
+            }
+          },
+          "description": "Snake to create"
+        }
+      }
+    },
+    "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator": {
+      "get": {
+        "operationId": "getFixedModelMissingDiscriminator",
+        "description": "Get a model omitting the discriminator.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snake"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator": {
+      "get": {
+        "operationId": "getFixedModelWrongDiscriminator",
+        "description": "Get a model containing discriminator value never defined.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Snake"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Cobra": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "cobra"
+            ],
+            "description": "discriminator property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Snake"
+          }
+        ],
+        "description": "Cobra model"
+      },
+      "Dog": {
+        "type": "object",
+        "required": [
+          "kind",
+          "weight"
+        ],
+        "properties": {
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DogKind"
+              }
+            ],
+            "description": "discriminator property"
+          },
+          "weight": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Weight of the dog"
+          }
+        },
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "golden": "#/components/schemas/Golden"
+          }
+        },
+        "description": "Test extensible enum type for discriminator"
+      },
+      "DogKind": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "golden"
+            ]
+          }
+        ],
+        "description": "extensible enum type for discriminator"
+      },
+      "Golden": {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "golden"
+            ],
+            "description": "discriminator property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Dog"
+          }
+        ],
+        "description": "Golden dog model"
+      },
+      "Snake": {
+        "type": "object",
+        "required": [
+          "kind",
+          "length"
+        ],
+        "properties": {
+          "kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SnakeKind"
+              }
+            ],
+            "description": "discriminator property"
+          },
+          "length": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Length of the snake"
+          }
+        },
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "cobra": "#/components/schemas/Cobra"
+          }
+        },
+        "description": "Test fixed enum type for discriminator"
+      },
+      "SnakeKind": {
+        "type": "string",
+        "enum": [
+          "cobra"
+        ],
+        "description": "fixed enum type for discriminator"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

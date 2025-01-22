@@ -1,1 +1,62 @@
-{"openapi":"3.1.0","info":{"title":"SpecialHeadersRepeatability","description":"Illustrates OASIS repeatability headers","version":"0.0.0"},"tags":[],"paths":{"/special-headers/repeatability/immediateSuccess":{"post":{"operationId":"immediateSuccess","description":"Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.","parameters":[{"name":"Repeatability-Request-ID","in":"header","required":true,"schema":{"type":"string"}},{"name":"Repeatability-First-Sent","in":"header","required":true,"schema":{"type":"string","format":"date-time"}}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. ","headers":{"Repeatability-Result":{"required":false,"description":"Indicates whether the repeatable request was accepted or rejected.","schema":{"type":"string","enum":["accepted","rejected"]}}}}}}}},"components":{},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SpecialHeadersRepeatability",
+    "description": "Illustrates OASIS repeatability headers",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/special-headers/repeatability/immediateSuccess": {
+      "post": {
+        "operationId": "immediateSuccess",
+        "description": "Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.",
+        "parameters": [
+          {
+            "name": "Repeatability-Request-ID",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Repeatability-First-Sent",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. ",
+            "headers": {
+              "Repeatability-Result": {
+                "required": false,
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "accepted",
+                    "rejected"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

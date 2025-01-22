@@ -1,1 +1,2101 @@
-{"openapi":"3.1.0","info":{"title":"TypePropertyAdditionalProperties","description":"Tests for additional properties of models","version":"0.0.0"},"tags":[],"paths":{"/type/property/additionalProperties/extendsDifferentSpreadFloat":{"get":{"operationId":"ExtendsDifferentSpreadFloat_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadFloatDerived"}}}}}},"put":{"operationId":"ExtendsDifferentSpreadFloat_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadFloatDerived"}}},"description":"body"}}},"/type/property/additionalProperties/extendsDifferentSpreadModel":{"get":{"operationId":"ExtendsDifferentSpreadModel_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadModelDerived"}}}}}},"put":{"operationId":"ExtendsDifferentSpreadModel_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadModelDerived"}}},"description":"body"}}},"/type/property/additionalProperties/extendsDifferentSpreadModelArray":{"get":{"operationId":"ExtendsDifferentSpreadModelArray_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadModelArrayDerived"}}}}}},"put":{"operationId":"ExtendsDifferentSpreadModelArray_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadModelArrayDerived"}}},"description":"body"}}},"/type/property/additionalProperties/extendsDifferentSpreadString":{"get":{"operationId":"ExtendsDifferentSpreadString_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadStringDerived"}}}}}},"put":{"operationId":"ExtendsDifferentSpreadString_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadStringDerived"}}},"description":"body"}}},"/type/property/additionalProperties/extendsRecordFloat":{"get":{"operationId":"ExtendsFloat_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsFloatAdditionalProperties"}}}}}},"put":{"operationId":"ExtendsFloat_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsFloatAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/extendsRecordModel":{"get":{"operationId":"ExtendsModel_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsModelAdditionalProperties"}}}}}},"put":{"operationId":"ExtendsModel_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsModelAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/extendsRecordModelArray":{"get":{"operationId":"ExtendsModelArray_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsModelArrayAdditionalProperties"}}}}}},"put":{"operationId":"ExtendsModelArray_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsModelArrayAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/extendsRecordString":{"get":{"operationId":"ExtendsString_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsStringAdditionalProperties"}}}}}},"put":{"operationId":"ExtendsString_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsStringAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/extendsRecordUnknown":{"get":{"operationId":"ExtendsUnknown_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsUnknownAdditionalProperties"}}}}}},"put":{"operationId":"ExtendsUnknown_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsUnknownAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/extendsRecordUnknownDerived":{"get":{"operationId":"ExtendsUnknownDerived_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsUnknownAdditionalPropertiesDerived"}}}}}},"put":{"operationId":"ExtendsUnknownDerived_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsUnknownAdditionalPropertiesDerived"}}},"description":"body"}}},"/type/property/additionalProperties/extendsUnknownDiscriminated":{"get":{"operationId":"ExtendsUnknownDiscriminated_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsUnknownAdditionalPropertiesDiscriminated"}}}}}},"put":{"operationId":"ExtendsUnknownDiscriminated_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ExtendsUnknownAdditionalPropertiesDiscriminated"}}},"description":"body"}}},"/type/property/additionalProperties/isRecordFloat":{"get":{"operationId":"IsFloat_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsFloatAdditionalProperties"}}}}}},"put":{"operationId":"IsFloat_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsFloatAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/isRecordModel":{"get":{"operationId":"IsModel_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsModelAdditionalProperties"}}}}}},"put":{"operationId":"IsModel_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsModelAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/isRecordModelArray":{"get":{"operationId":"IsModelArray_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsModelArrayAdditionalProperties"}}}}}},"put":{"operationId":"IsModelArray_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsModelArrayAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/isRecordUnknown":{"get":{"operationId":"IsUnknown_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsUnknownAdditionalProperties"}}}}}},"put":{"operationId":"IsUnknown_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsUnknownAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/isRecordUnknownDerived":{"get":{"operationId":"IsUnknownDerived_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsUnknownAdditionalPropertiesDerived"}}}}}},"put":{"operationId":"IsUnknownDerived_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsUnknownAdditionalPropertiesDerived"}}},"description":"body"}}},"/type/property/additionalProperties/isRecordstring":{"get":{"operationId":"IsString_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsStringAdditionalProperties"}}}}}},"put":{"operationId":"IsString_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsStringAdditionalProperties"}}},"description":"body"}}},"/type/property/additionalProperties/isUnknownDiscriminated":{"get":{"operationId":"IsUnknownDiscriminated_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsUnknownAdditionalPropertiesDiscriminated"}}}}}},"put":{"operationId":"IsUnknownDiscriminated_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IsUnknownAdditionalPropertiesDiscriminated"}}},"description":"body"}}},"/type/property/additionalProperties/multipleSpreadRecord":{"get":{"operationId":"MultipleSpread_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/MultipleSpreadRecord"}}}}}},"put":{"operationId":"MultipleSpread_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/MultipleSpreadRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadDifferentRecordFloat":{"get":{"operationId":"SpreadDifferentFloat_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadFloatRecord"}}}}}},"put":{"operationId":"SpreadDifferentFloat_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadFloatRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadDifferentRecordModel":{"get":{"operationId":"SpreadDifferentModel_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadModelRecord"}}}}}},"put":{"operationId":"SpreadDifferentModel_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadModelRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadDifferentRecordModelArray":{"get":{"operationId":"SpreadDifferentModelArray_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadModelArrayRecord"}}}}}},"put":{"operationId":"SpreadDifferentModelArray_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadModelArrayRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadDifferentRecordString":{"get":{"operationId":"SpreadDifferentString_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadStringRecord"}}}}}},"put":{"operationId":"SpreadDifferentString_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DifferentSpreadStringRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordDiscriminatedUnion":{"get":{"operationId":"SpreadRecordDiscriminatedUnion_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForDiscriminatedUnion"}}}}}},"put":{"operationId":"SpreadRecordDiscriminatedUnion_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForDiscriminatedUnion"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordFloat":{"get":{"operationId":"SpreadFloat_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadFloatRecord"}}}}}},"put":{"operationId":"SpreadFloat_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadFloatRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordModel":{"get":{"operationId":"SpreadModel_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadModelRecord"}}}}}},"put":{"operationId":"SpreadModel_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadModelRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordModelArray":{"get":{"operationId":"SpreadModelArray_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadModelArrayRecord"}}}}}},"put":{"operationId":"SpreadModelArray_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadModelArrayRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion":{"get":{"operationId":"SpreadRecordNonDiscriminatedUnion_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForNonDiscriminatedUnion"}}}}}},"put":{"operationId":"SpreadRecordNonDiscriminatedUnion_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForNonDiscriminatedUnion"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2":{"get":{"operationId":"SpreadRecordNonDiscriminatedUnion2_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForNonDiscriminatedUnion2"}}}}}},"put":{"operationId":"SpreadRecordNonDiscriminatedUnion2_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForNonDiscriminatedUnion2"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion3":{"get":{"operationId":"SpreadRecordNonDiscriminatedUnion3_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForNonDiscriminatedUnion3"}}}}}},"put":{"operationId":"SpreadRecordNonDiscriminatedUnion3_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForNonDiscriminatedUnion3"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordString":{"get":{"operationId":"SpreadString_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadStringRecord"}}}}}},"put":{"operationId":"SpreadString_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadStringRecord"}}},"description":"body"}}},"/type/property/additionalProperties/spreadRecordUnion":{"get":{"operationId":"SpreadRecordUnion_get","description":"Get call","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForUnion"}}}}}},"put":{"operationId":"SpreadRecordUnion_put","description":"Put operation","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadRecordForUnion"}}},"description":"body"}}}},"components":{"schemas":{"DifferentSpreadFloatDerived":{"type":"object","required":["derivedProp"],"properties":{"derivedProp":{"type":"number","format":"float","description":"The index property"}},"allOf":[{"$ref":"#/components/schemas/DifferentSpreadFloatRecord"}],"description":"The model extends from a model that spread Record<float32> with the different known property type"},"DifferentSpreadFloatRecord":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The id property"}},"additionalProperties":{"type":"number","format":"float"},"description":"The model spread Record<float32> with the different known property type"},"DifferentSpreadModelArrayDerived":{"type":"object","required":["derivedProp"],"properties":{"derivedProp":{"type":"array","items":{"$ref":"#/components/schemas/ModelForRecord"},"description":"The index property"}},"allOf":[{"$ref":"#/components/schemas/DifferentSpreadModelArrayRecord"}],"description":"The model extends from a model that spread Record<ModelForRecord[]> with the different known property type"},"DifferentSpreadModelArrayRecord":{"type":"object","required":["knownProp"],"properties":{"knownProp":{"type":"string"}},"additionalProperties":{"type":"array","items":{"$ref":"#/components/schemas/ModelForRecord"}},"description":"The model spread Record<ModelForRecord[]> with the different known property type"},"DifferentSpreadModelDerived":{"type":"object","required":["derivedProp"],"properties":{"derivedProp":{"allOf":[{"$ref":"#/components/schemas/ModelForRecord"}],"description":"The index property"}},"allOf":[{"$ref":"#/components/schemas/DifferentSpreadModelRecord"}],"description":"The model extends from a model that spread Record<ModelForRecord> with the different known property type"},"DifferentSpreadModelRecord":{"type":"object","required":["knownProp"],"properties":{"knownProp":{"type":"string"}},"additionalProperties":{"$ref":"#/components/schemas/ModelForRecord"},"description":"The model spread Record<ModelForRecord> with the different known property type"},"DifferentSpreadStringDerived":{"type":"object","required":["derivedProp"],"properties":{"derivedProp":{"type":"string","description":"The index property"}},"allOf":[{"$ref":"#/components/schemas/DifferentSpreadStringRecord"}],"description":"The model extends from a model that spread Record<string> with the different known property type"},"DifferentSpreadStringRecord":{"type":"object","required":["id"],"properties":{"id":{"type":"number","format":"float","description":"The name property"}},"additionalProperties":{"type":"string"},"description":"The model spread Record<string> with the different known property type"},"ExtendsFloatAdditionalProperties":{"type":"object","required":["id"],"properties":{"id":{"type":"number","format":"float","description":"The id property"}},"allOf":[{"type":"object","additionalProperties":{"type":"number","format":"float"}}],"description":"The model extends from Record<float32> type."},"ExtendsModelAdditionalProperties":{"type":"object","required":["knownProp"],"properties":{"knownProp":{"$ref":"#/components/schemas/ModelForRecord"}},"allOf":[{"type":"object","additionalProperties":{"$ref":"#/components/schemas/ModelForRecord"}}],"description":"The model extends from Record<ModelForRecord> type."},"ExtendsModelArrayAdditionalProperties":{"type":"object","required":["knownProp"],"properties":{"knownProp":{"type":"array","items":{"$ref":"#/components/schemas/ModelForRecord"}}},"allOf":[{"type":"object","additionalProperties":{"type":"array","items":{"$ref":"#/components/schemas/ModelForRecord"}}}],"description":"The model extends from Record<ModelForRecord[]> type."},"ExtendsStringAdditionalProperties":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"allOf":[{"type":"object","additionalProperties":{"type":"string"}}],"description":"The model extends from Record<string> type."},"ExtendsUnknownAdditionalProperties":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"allOf":[{"type":"object","additionalProperties":{}}],"description":"The model extends from Record<unknown> type."},"ExtendsUnknownAdditionalPropertiesDerived":{"type":"object","required":["index"],"properties":{"index":{"type":"integer","format":"int32","description":"The index property"},"age":{"type":"number","format":"float","description":"The age property"}},"allOf":[{"$ref":"#/components/schemas/ExtendsUnknownAdditionalProperties"}],"description":"The model extends from a type that extends from Record<unknown>."},"ExtendsUnknownAdditionalPropertiesDiscriminated":{"type":"object","required":["name","kind"],"properties":{"name":{"type":"string","description":"The name property"},"kind":{"type":"string","description":"The discriminator"}},"discriminator":{"propertyName":"kind","mapping":{"derived":"#/components/schemas/ExtendsUnknownAdditionalPropertiesDiscriminatedDerived"}},"allOf":[{"type":"object","additionalProperties":{}}],"description":"The model extends from Record<unknown> with a discriminator."},"ExtendsUnknownAdditionalPropertiesDiscriminatedDerived":{"type":"object","required":["kind","index"],"properties":{"kind":{"type":"string","enum":["derived"]},"index":{"type":"integer","format":"int32","description":"The index property"},"age":{"type":"number","format":"float","description":"The age property"}},"allOf":[{"$ref":"#/components/schemas/ExtendsUnknownAdditionalPropertiesDiscriminated"}],"description":"The derived discriminated type"},"IsFloatAdditionalProperties":{"type":"object","required":["id"],"properties":{"id":{"type":"number","format":"float","description":"The id property"}},"additionalProperties":{"type":"number","format":"float"},"description":"The model is from Record<float32> type."},"IsModelAdditionalProperties":{"type":"object","required":["knownProp"],"properties":{"knownProp":{"$ref":"#/components/schemas/ModelForRecord"}},"additionalProperties":{"$ref":"#/components/schemas/ModelForRecord"},"description":"The model is from Record<ModelForRecord> type."},"IsModelArrayAdditionalProperties":{"type":"object","required":["knownProp"],"properties":{"knownProp":{"type":"array","items":{"$ref":"#/components/schemas/ModelForRecord"}}},"additionalProperties":{"type":"array","items":{"$ref":"#/components/schemas/ModelForRecord"}},"description":"The model is from Record<ModelForRecord[]> type."},"IsStringAdditionalProperties":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"additionalProperties":{"type":"string"},"description":"The model is from Record<string> type."},"IsUnknownAdditionalProperties":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"additionalProperties":{},"description":"The model is from Record<unknown> type."},"IsUnknownAdditionalPropertiesDerived":{"type":"object","required":["index"],"properties":{"index":{"type":"integer","format":"int32","description":"The index property"},"age":{"type":"number","format":"float","description":"The age property"}},"allOf":[{"$ref":"#/components/schemas/IsUnknownAdditionalProperties"}],"description":"The model extends from a type that is Record<unknown> type"},"IsUnknownAdditionalPropertiesDiscriminated":{"type":"object","required":["name","kind"],"properties":{"name":{"type":"string","description":"The name property"},"kind":{"type":"string","description":"The discriminator"}},"additionalProperties":{},"discriminator":{"propertyName":"kind","mapping":{"derived":"#/components/schemas/IsUnknownAdditionalPropertiesDiscriminatedDerived"}},"description":"The model is Record<unknown> with a discriminator."},"IsUnknownAdditionalPropertiesDiscriminatedDerived":{"type":"object","required":["kind","index"],"properties":{"kind":{"type":"string","enum":["derived"]},"index":{"type":"integer","format":"int32","description":"The index property"},"age":{"type":"number","format":"float","description":"The age property"}},"allOf":[{"$ref":"#/components/schemas/IsUnknownAdditionalPropertiesDiscriminated"}],"description":"The derived discriminated type"},"ModelForRecord":{"type":"object","required":["state"],"properties":{"state":{"type":"string","description":"The state property"}},"description":"model for record"},"MultipleSpreadRecord":{"type":"object","required":["flag"],"properties":{"flag":{"type":"boolean","description":"The name property"}},"additionalProperties":{"anyOf":[{"type":"string"},{"type":"number","format":"float"}]},"description":"The model spread Record<string> and Record<float32>"},"SpreadFloatRecord":{"type":"object","required":["id"],"properties":{"id":{"type":"number","format":"float","description":"The id property"}},"additionalProperties":{"type":"number","format":"float"},"description":"The model spread Record<float32> with the same known property type"},"SpreadModelArrayRecord":{"type":"object","required":["knownProp"],"properties":{"knownProp":{"type":"array","items":{"$ref":"#/components/schemas/ModelForRecord"}}},"additionalProperties":{"type":"array","items":{"$ref":"#/components/schemas/ModelForRecord"}}},"SpreadModelRecord":{"type":"object","required":["knownProp"],"properties":{"knownProp":{"$ref":"#/components/schemas/ModelForRecord"}},"additionalProperties":{"$ref":"#/components/schemas/ModelForRecord"},"description":"The model spread Record<ModelForRecord> with the same known property type"},"SpreadRecordForDiscriminatedUnion":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"additionalProperties":{"$ref":"#/components/schemas/WidgetData"},"description":"The model spread Record<WidgetData>"},"SpreadRecordForNonDiscriminatedUnion":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"additionalProperties":{"anyOf":[{"$ref":"#/components/schemas/WidgetData0"},{"$ref":"#/components/schemas/WidgetData1"}]},"description":"The model spread Record<WidgetData0 | WidgetData1>"},"SpreadRecordForNonDiscriminatedUnion2":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"additionalProperties":{"anyOf":[{"$ref":"#/components/schemas/WidgetData2"},{"$ref":"#/components/schemas/WidgetData1"}]},"description":"The model spread Record<WidgetData2 | WidgetData1>"},"SpreadRecordForNonDiscriminatedUnion3":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"additionalProperties":{"anyOf":[{"type":"array","items":{"$ref":"#/components/schemas/WidgetData2"}},{"$ref":"#/components/schemas/WidgetData1"}]},"description":"The model spread Record<WidgetData2[] | WidgetData1>"},"SpreadRecordForUnion":{"type":"object","required":["flag"],"properties":{"flag":{"type":"boolean","description":"The name property"}},"additionalProperties":{"anyOf":[{"type":"string"},{"type":"number","format":"float"}]},"description":"The model spread Record<string | float32>"},"SpreadStringRecord":{"type":"object","required":["name"],"properties":{"name":{"type":"string","description":"The name property"}},"additionalProperties":{"type":"string"},"description":"The model spread Record<string> with the same known property type"},"WidgetData":{"anyOf":[{"$ref":"#/components/schemas/WidgetData0"},{"$ref":"#/components/schemas/WidgetData1"}],"discriminator":{"propertyName":"kind","mapping":{"kind0":"#/components/schemas/WidgetData0","kind1":"#/components/schemas/WidgetData1"}}},"WidgetData0":{"type":"object","required":["kind","fooProp"],"properties":{"kind":{"type":"string","enum":["kind0"]},"fooProp":{"type":"string"}}},"WidgetData1":{"type":"object","required":["kind","start"],"properties":{"kind":{"type":"string","enum":["kind1"]},"start":{"type":"string","format":"date-time"},"end":{"type":"string","format":"date-time"}}},"WidgetData2":{"type":"object","required":["kind","start"],"properties":{"kind":{"type":"string","enum":["kind1"]},"start":{"type":"string"}}}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TypePropertyAdditionalProperties",
+    "description": "Tests for additional properties of models",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/type/property/additionalProperties/extendsDifferentSpreadFloat": {
+      "get": {
+        "operationId": "ExtendsDifferentSpreadFloat_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifferentSpreadFloatDerived"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsDifferentSpreadFloat_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentSpreadFloatDerived"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsDifferentSpreadModel": {
+      "get": {
+        "operationId": "ExtendsDifferentSpreadModel_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifferentSpreadModelDerived"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsDifferentSpreadModel_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentSpreadModelDerived"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsDifferentSpreadModelArray": {
+      "get": {
+        "operationId": "ExtendsDifferentSpreadModelArray_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifferentSpreadModelArrayDerived"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsDifferentSpreadModelArray_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentSpreadModelArrayDerived"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsDifferentSpreadString": {
+      "get": {
+        "operationId": "ExtendsDifferentSpreadString_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifferentSpreadStringDerived"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsDifferentSpreadString_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentSpreadStringDerived"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsRecordFloat": {
+      "get": {
+        "operationId": "ExtendsFloat_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendsFloatAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsFloat_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendsFloatAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsRecordModel": {
+      "get": {
+        "operationId": "ExtendsModel_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendsModelAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsModel_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendsModelAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsRecordModelArray": {
+      "get": {
+        "operationId": "ExtendsModelArray_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendsModelArrayAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsModelArray_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendsModelArrayAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsRecordString": {
+      "get": {
+        "operationId": "ExtendsString_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendsStringAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsString_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendsStringAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsRecordUnknown": {
+      "get": {
+        "operationId": "ExtendsUnknown_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendsUnknownAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsUnknown_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendsUnknownAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsRecordUnknownDerived": {
+      "get": {
+        "operationId": "ExtendsUnknownDerived_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendsUnknownAdditionalPropertiesDerived"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsUnknownDerived_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendsUnknownAdditionalPropertiesDerived"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/extendsUnknownDiscriminated": {
+      "get": {
+        "operationId": "ExtendsUnknownDiscriminated_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtendsUnknownAdditionalPropertiesDiscriminated"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "ExtendsUnknownDiscriminated_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendsUnknownAdditionalPropertiesDiscriminated"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/isRecordFloat": {
+      "get": {
+        "operationId": "IsFloat_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsFloatAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IsFloat_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsFloatAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/isRecordModel": {
+      "get": {
+        "operationId": "IsModel_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsModelAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IsModel_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsModelAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/isRecordModelArray": {
+      "get": {
+        "operationId": "IsModelArray_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsModelArrayAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IsModelArray_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsModelArrayAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/isRecordUnknown": {
+      "get": {
+        "operationId": "IsUnknown_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsUnknownAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IsUnknown_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsUnknownAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/isRecordUnknownDerived": {
+      "get": {
+        "operationId": "IsUnknownDerived_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsUnknownAdditionalPropertiesDerived"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IsUnknownDerived_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsUnknownAdditionalPropertiesDerived"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/isRecordstring": {
+      "get": {
+        "operationId": "IsString_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsStringAdditionalProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IsString_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsStringAdditionalProperties"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/isUnknownDiscriminated": {
+      "get": {
+        "operationId": "IsUnknownDiscriminated_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsUnknownAdditionalPropertiesDiscriminated"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IsUnknownDiscriminated_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsUnknownAdditionalPropertiesDiscriminated"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/multipleSpreadRecord": {
+      "get": {
+        "operationId": "MultipleSpread_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultipleSpreadRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "MultipleSpread_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MultipleSpreadRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadDifferentRecordFloat": {
+      "get": {
+        "operationId": "SpreadDifferentFloat_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifferentSpreadFloatRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadDifferentFloat_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentSpreadFloatRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadDifferentRecordModel": {
+      "get": {
+        "operationId": "SpreadDifferentModel_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifferentSpreadModelRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadDifferentModel_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentSpreadModelRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadDifferentRecordModelArray": {
+      "get": {
+        "operationId": "SpreadDifferentModelArray_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifferentSpreadModelArrayRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadDifferentModelArray_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentSpreadModelArrayRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadDifferentRecordString": {
+      "get": {
+        "operationId": "SpreadDifferentString_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DifferentSpreadStringRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadDifferentString_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifferentSpreadStringRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordDiscriminatedUnion": {
+      "get": {
+        "operationId": "SpreadRecordDiscriminatedUnion_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadRecordForDiscriminatedUnion"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadRecordDiscriminatedUnion_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadRecordForDiscriminatedUnion"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordFloat": {
+      "get": {
+        "operationId": "SpreadFloat_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadFloatRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadFloat_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadFloatRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordModel": {
+      "get": {
+        "operationId": "SpreadModel_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadModelRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadModel_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadModelRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordModelArray": {
+      "get": {
+        "operationId": "SpreadModelArray_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadModelArrayRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadModelArray_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadModelArrayRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion": {
+      "get": {
+        "operationId": "SpreadRecordNonDiscriminatedUnion_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadRecordForNonDiscriminatedUnion"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadRecordNonDiscriminatedUnion_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadRecordForNonDiscriminatedUnion"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion2": {
+      "get": {
+        "operationId": "SpreadRecordNonDiscriminatedUnion2_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadRecordForNonDiscriminatedUnion2"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadRecordNonDiscriminatedUnion2_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadRecordForNonDiscriminatedUnion2"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordNonDiscriminatedUnion3": {
+      "get": {
+        "operationId": "SpreadRecordNonDiscriminatedUnion3_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadRecordForNonDiscriminatedUnion3"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadRecordNonDiscriminatedUnion3_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadRecordForNonDiscriminatedUnion3"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordString": {
+      "get": {
+        "operationId": "SpreadString_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadStringRecord"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadString_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadStringRecord"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    },
+    "/type/property/additionalProperties/spreadRecordUnion": {
+      "get": {
+        "operationId": "SpreadRecordUnion_get",
+        "description": "Get call",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadRecordForUnion"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "SpreadRecordUnion_put",
+        "description": "Put operation",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadRecordForUnion"
+              }
+            }
+          },
+          "description": "body"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DifferentSpreadFloatDerived": {
+        "type": "object",
+        "required": [
+          "derivedProp"
+        ],
+        "properties": {
+          "derivedProp": {
+            "type": "number",
+            "format": "float",
+            "description": "The index property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DifferentSpreadFloatRecord"
+          }
+        ],
+        "description": "The model extends from a model that spread Record<float32> with the different known property type"
+      },
+      "DifferentSpreadFloatRecord": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The id property"
+          }
+        },
+        "additionalProperties": {
+          "type": "number",
+          "format": "float"
+        },
+        "description": "The model spread Record<float32> with the different known property type"
+      },
+      "DifferentSpreadModelArrayDerived": {
+        "type": "object",
+        "required": [
+          "derivedProp"
+        ],
+        "properties": {
+          "derivedProp": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelForRecord"
+            },
+            "description": "The index property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DifferentSpreadModelArrayRecord"
+          }
+        ],
+        "description": "The model extends from a model that spread Record<ModelForRecord[]> with the different known property type"
+      },
+      "DifferentSpreadModelArrayRecord": {
+        "type": "object",
+        "required": [
+          "knownProp"
+        ],
+        "properties": {
+          "knownProp": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ModelForRecord"
+          }
+        },
+        "description": "The model spread Record<ModelForRecord[]> with the different known property type"
+      },
+      "DifferentSpreadModelDerived": {
+        "type": "object",
+        "required": [
+          "derivedProp"
+        ],
+        "properties": {
+          "derivedProp": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ModelForRecord"
+              }
+            ],
+            "description": "The index property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DifferentSpreadModelRecord"
+          }
+        ],
+        "description": "The model extends from a model that spread Record<ModelForRecord> with the different known property type"
+      },
+      "DifferentSpreadModelRecord": {
+        "type": "object",
+        "required": [
+          "knownProp"
+        ],
+        "properties": {
+          "knownProp": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/ModelForRecord"
+        },
+        "description": "The model spread Record<ModelForRecord> with the different known property type"
+      },
+      "DifferentSpreadStringDerived": {
+        "type": "object",
+        "required": [
+          "derivedProp"
+        ],
+        "properties": {
+          "derivedProp": {
+            "type": "string",
+            "description": "The index property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DifferentSpreadStringRecord"
+          }
+        ],
+        "description": "The model extends from a model that spread Record<string> with the different known property type"
+      },
+      "DifferentSpreadStringRecord": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "number",
+            "format": "float",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "type": "string"
+        },
+        "description": "The model spread Record<string> with the different known property type"
+      },
+      "ExtendsFloatAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "number",
+            "format": "float",
+            "description": "The id property"
+          }
+        },
+        "allOf": [
+          {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "format": "float"
+            }
+          }
+        ],
+        "description": "The model extends from Record<float32> type."
+      },
+      "ExtendsModelAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "knownProp"
+        ],
+        "properties": {
+          "knownProp": {
+            "$ref": "#/components/schemas/ModelForRecord"
+          }
+        },
+        "allOf": [
+          {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ModelForRecord"
+            }
+          }
+        ],
+        "description": "The model extends from Record<ModelForRecord> type."
+      },
+      "ExtendsModelArrayAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "knownProp"
+        ],
+        "properties": {
+          "knownProp": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelForRecord"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ModelForRecord"
+              }
+            }
+          }
+        ],
+        "description": "The model extends from Record<ModelForRecord[]> type."
+      },
+      "ExtendsStringAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "allOf": [
+          {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "The model extends from Record<string> type."
+      },
+      "ExtendsUnknownAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "allOf": [
+          {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        ],
+        "description": "The model extends from Record<unknown> type."
+      },
+      "ExtendsUnknownAdditionalPropertiesDerived": {
+        "type": "object",
+        "required": [
+          "index"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The index property"
+          },
+          "age": {
+            "type": "number",
+            "format": "float",
+            "description": "The age property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ExtendsUnknownAdditionalProperties"
+          }
+        ],
+        "description": "The model extends from a type that extends from Record<unknown>."
+      },
+      "ExtendsUnknownAdditionalPropertiesDiscriminated": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          },
+          "kind": {
+            "type": "string",
+            "description": "The discriminator"
+          }
+        },
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "derived": "#/components/schemas/ExtendsUnknownAdditionalPropertiesDiscriminatedDerived"
+          }
+        },
+        "allOf": [
+          {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        ],
+        "description": "The model extends from Record<unknown> with a discriminator."
+      },
+      "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived": {
+        "type": "object",
+        "required": [
+          "kind",
+          "index"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "derived"
+            ]
+          },
+          "index": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The index property"
+          },
+          "age": {
+            "type": "number",
+            "format": "float",
+            "description": "The age property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ExtendsUnknownAdditionalPropertiesDiscriminated"
+          }
+        ],
+        "description": "The derived discriminated type"
+      },
+      "IsFloatAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "number",
+            "format": "float",
+            "description": "The id property"
+          }
+        },
+        "additionalProperties": {
+          "type": "number",
+          "format": "float"
+        },
+        "description": "The model is from Record<float32> type."
+      },
+      "IsModelAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "knownProp"
+        ],
+        "properties": {
+          "knownProp": {
+            "$ref": "#/components/schemas/ModelForRecord"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/ModelForRecord"
+        },
+        "description": "The model is from Record<ModelForRecord> type."
+      },
+      "IsModelArrayAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "knownProp"
+        ],
+        "properties": {
+          "knownProp": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelForRecord"
+            }
+          }
+        },
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ModelForRecord"
+          }
+        },
+        "description": "The model is from Record<ModelForRecord[]> type."
+      },
+      "IsStringAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "type": "string"
+        },
+        "description": "The model is from Record<string> type."
+      },
+      "IsUnknownAdditionalProperties": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {},
+        "description": "The model is from Record<unknown> type."
+      },
+      "IsUnknownAdditionalPropertiesDerived": {
+        "type": "object",
+        "required": [
+          "index"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The index property"
+          },
+          "age": {
+            "type": "number",
+            "format": "float",
+            "description": "The age property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IsUnknownAdditionalProperties"
+          }
+        ],
+        "description": "The model extends from a type that is Record<unknown> type"
+      },
+      "IsUnknownAdditionalPropertiesDiscriminated": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          },
+          "kind": {
+            "type": "string",
+            "description": "The discriminator"
+          }
+        },
+        "additionalProperties": {},
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "derived": "#/components/schemas/IsUnknownAdditionalPropertiesDiscriminatedDerived"
+          }
+        },
+        "description": "The model is Record<unknown> with a discriminator."
+      },
+      "IsUnknownAdditionalPropertiesDiscriminatedDerived": {
+        "type": "object",
+        "required": [
+          "kind",
+          "index"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "derived"
+            ]
+          },
+          "index": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The index property"
+          },
+          "age": {
+            "type": "number",
+            "format": "float",
+            "description": "The age property"
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/IsUnknownAdditionalPropertiesDiscriminated"
+          }
+        ],
+        "description": "The derived discriminated type"
+      },
+      "ModelForRecord": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "The state property"
+          }
+        },
+        "description": "model for record"
+      },
+      "MultipleSpreadRecord": {
+        "type": "object",
+        "required": [
+          "flag"
+        ],
+        "properties": {
+          "flag": {
+            "type": "boolean",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number",
+              "format": "float"
+            }
+          ]
+        },
+        "description": "The model spread Record<string> and Record<float32>"
+      },
+      "SpreadFloatRecord": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "number",
+            "format": "float",
+            "description": "The id property"
+          }
+        },
+        "additionalProperties": {
+          "type": "number",
+          "format": "float"
+        },
+        "description": "The model spread Record<float32> with the same known property type"
+      },
+      "SpreadModelArrayRecord": {
+        "type": "object",
+        "required": [
+          "knownProp"
+        ],
+        "properties": {
+          "knownProp": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModelForRecord"
+            }
+          }
+        },
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ModelForRecord"
+          }
+        }
+      },
+      "SpreadModelRecord": {
+        "type": "object",
+        "required": [
+          "knownProp"
+        ],
+        "properties": {
+          "knownProp": {
+            "$ref": "#/components/schemas/ModelForRecord"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/ModelForRecord"
+        },
+        "description": "The model spread Record<ModelForRecord> with the same known property type"
+      },
+      "SpreadRecordForDiscriminatedUnion": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/components/schemas/WidgetData"
+        },
+        "description": "The model spread Record<WidgetData>"
+      },
+      "SpreadRecordForNonDiscriminatedUnion": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/WidgetData0"
+            },
+            {
+              "$ref": "#/components/schemas/WidgetData1"
+            }
+          ]
+        },
+        "description": "The model spread Record<WidgetData0 | WidgetData1>"
+      },
+      "SpreadRecordForNonDiscriminatedUnion2": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/WidgetData2"
+            },
+            {
+              "$ref": "#/components/schemas/WidgetData1"
+            }
+          ]
+        },
+        "description": "The model spread Record<WidgetData2 | WidgetData1>"
+      },
+      "SpreadRecordForNonDiscriminatedUnion3": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/WidgetData2"
+              }
+            },
+            {
+              "$ref": "#/components/schemas/WidgetData1"
+            }
+          ]
+        },
+        "description": "The model spread Record<WidgetData2[] | WidgetData1>"
+      },
+      "SpreadRecordForUnion": {
+        "type": "object",
+        "required": [
+          "flag"
+        ],
+        "properties": {
+          "flag": {
+            "type": "boolean",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number",
+              "format": "float"
+            }
+          ]
+        },
+        "description": "The model spread Record<string | float32>"
+      },
+      "SpreadStringRecord": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name property"
+          }
+        },
+        "additionalProperties": {
+          "type": "string"
+        },
+        "description": "The model spread Record<string> with the same known property type"
+      },
+      "WidgetData": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/WidgetData0"
+          },
+          {
+            "$ref": "#/components/schemas/WidgetData1"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "kind0": "#/components/schemas/WidgetData0",
+            "kind1": "#/components/schemas/WidgetData1"
+          }
+        }
+      },
+      "WidgetData0": {
+        "type": "object",
+        "required": [
+          "kind",
+          "fooProp"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "kind0"
+            ]
+          },
+          "fooProp": {
+            "type": "string"
+          }
+        }
+      },
+      "WidgetData1": {
+        "type": "object",
+        "required": [
+          "kind",
+          "start"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "kind1"
+            ]
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WidgetData2": {
+        "type": "object",
+        "required": [
+          "kind",
+          "start"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "kind1"
+            ]
+          },
+          "start": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

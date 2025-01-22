@@ -1,1 +1,1474 @@
-{"openapi":"3.0.0","info":{"title":"TypePropertyOptional","description":"Illustrates models with optional properties.","version":"0.0.0"},"tags":[],"paths":{"/type/property/optional/boolean/literal/all":{"get":{"operationId":"BooleanLiteral_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/BooleanLiteralProperty"}}}}}},"put":{"operationId":"BooleanLiteral_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/BooleanLiteralProperty"}}}}}},"/type/property/optional/boolean/literal/default":{"get":{"operationId":"BooleanLiteral_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/BooleanLiteralProperty"}}}}}},"put":{"operationId":"BooleanLiteral_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/BooleanLiteralProperty"}}}}}},"/type/property/optional/bytes/all":{"get":{"operationId":"Bytes_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/BytesProperty"}}}}}},"put":{"operationId":"Bytes_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/BytesProperty"}}}}}},"/type/property/optional/bytes/default":{"get":{"operationId":"Bytes_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/BytesProperty"}}}}}},"put":{"operationId":"Bytes_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/BytesProperty"}}}}}},"/type/property/optional/collections/bytes/all":{"get":{"operationId":"CollectionsByte_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CollectionsByteProperty"}}}}}},"put":{"operationId":"CollectionsByte_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CollectionsByteProperty"}}}}}},"/type/property/optional/collections/bytes/default":{"get":{"operationId":"CollectionsByte_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CollectionsByteProperty"}}}}}},"put":{"operationId":"CollectionsByte_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CollectionsByteProperty"}}}}}},"/type/property/optional/collections/model/all":{"get":{"operationId":"CollectionsModel_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CollectionsModelProperty"}}}}}},"put":{"operationId":"CollectionsModel_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CollectionsModelProperty"}}}}}},"/type/property/optional/collections/model/default":{"get":{"operationId":"CollectionsModel_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CollectionsModelProperty"}}}}}},"put":{"operationId":"CollectionsModel_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CollectionsModelProperty"}}}}}},"/type/property/optional/datetime/all":{"get":{"operationId":"Datetime_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DatetimeProperty"}}}}}},"put":{"operationId":"Datetime_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DatetimeProperty"}}}}}},"/type/property/optional/datetime/default":{"get":{"operationId":"Datetime_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DatetimeProperty"}}}}}},"put":{"operationId":"Datetime_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DatetimeProperty"}}}}}},"/type/property/optional/duration/all":{"get":{"operationId":"Duration_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DurationProperty"}}}}}},"put":{"operationId":"Duration_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DurationProperty"}}}}}},"/type/property/optional/duration/default":{"get":{"operationId":"Duration_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DurationProperty"}}}}}},"put":{"operationId":"Duration_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/DurationProperty"}}}}}},"/type/property/optional/float/literal/all":{"get":{"operationId":"FloatLiteral_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/FloatLiteralProperty"}}}}}},"put":{"operationId":"FloatLiteral_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FloatLiteralProperty"}}}}}},"/type/property/optional/float/literal/default":{"get":{"operationId":"FloatLiteral_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/FloatLiteralProperty"}}}}}},"put":{"operationId":"FloatLiteral_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/FloatLiteralProperty"}}}}}},"/type/property/optional/int/literal/all":{"get":{"operationId":"IntLiteral_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IntLiteralProperty"}}}}}},"put":{"operationId":"IntLiteral_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IntLiteralProperty"}}}}}},"/type/property/optional/int/literal/default":{"get":{"operationId":"IntLiteral_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/IntLiteralProperty"}}}}}},"put":{"operationId":"IntLiteral_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/IntLiteralProperty"}}}}}},"/type/property/optional/plainDate/all":{"get":{"operationId":"PlainDate_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlainDateProperty"}}}}}},"put":{"operationId":"PlainDate_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlainDateProperty"}}}}}},"/type/property/optional/plainDate/default":{"get":{"operationId":"PlainDate_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlainDateProperty"}}}}}},"put":{"operationId":"PlainDate_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlainDateProperty"}}}}}},"/type/property/optional/plainTime/all":{"get":{"operationId":"PlainTime_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlainTimeProperty"}}}}}},"put":{"operationId":"PlainTime_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlainTimeProperty"}}}}}},"/type/property/optional/plainTime/default":{"get":{"operationId":"PlainTime_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlainTimeProperty"}}}}}},"put":{"operationId":"PlainTime_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/PlainTimeProperty"}}}}}},"/type/property/optional/requiredAndOptional/all":{"get":{"operationId":"RequiredAndOptional_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RequiredAndOptionalProperty"}}}}}},"put":{"operationId":"RequiredAndOptional_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RequiredAndOptionalProperty"}}}}}},"/type/property/optional/requiredAndOptional/requiredOnly":{"get":{"operationId":"RequiredAndOptional_getRequiredOnly","description":"Get models that will return only the required properties","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RequiredAndOptionalProperty"}}}}}},"put":{"operationId":"RequiredAndOptional_putRequiredOnly","description":"Put a body with only required properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RequiredAndOptionalProperty"}}}}}},"/type/property/optional/string/all":{"get":{"operationId":"String_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/StringProperty"}}}}}},"put":{"operationId":"String_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/StringProperty"}}}}}},"/type/property/optional/string/default":{"get":{"operationId":"String_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/StringProperty"}}}}}},"put":{"operationId":"String_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/StringProperty"}}}}}},"/type/property/optional/string/literal/all":{"get":{"operationId":"StringLiteral_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/StringLiteralProperty"}}}}}},"put":{"operationId":"StringLiteral_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/StringLiteralProperty"}}}}}},"/type/property/optional/string/literal/default":{"get":{"operationId":"StringLiteral_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/StringLiteralProperty"}}}}}},"put":{"operationId":"StringLiteral_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/StringLiteralProperty"}}}}}},"/type/property/optional/union/float/literal/all":{"get":{"operationId":"UnionFloatLiteral_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionFloatLiteralProperty"}}}}}},"put":{"operationId":"UnionFloatLiteral_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionFloatLiteralProperty"}}}}}},"/type/property/optional/union/float/literal/default":{"get":{"operationId":"UnionFloatLiteral_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionFloatLiteralProperty"}}}}}},"put":{"operationId":"UnionFloatLiteral_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionFloatLiteralProperty"}}}}}},"/type/property/optional/union/int/literal/all":{"get":{"operationId":"UnionIntLiteral_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionIntLiteralProperty"}}}}}},"put":{"operationId":"UnionIntLiteral_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionIntLiteralProperty"}}}}}},"/type/property/optional/union/int/literal/default":{"get":{"operationId":"UnionIntLiteral_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionIntLiteralProperty"}}}}}},"put":{"operationId":"UnionIntLiteral_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionIntLiteralProperty"}}}}}},"/type/property/optional/union/string/literal/all":{"get":{"operationId":"UnionStringLiteral_getAll","description":"Get models that will return all properties in the model","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionStringLiteralProperty"}}}}}},"put":{"operationId":"UnionStringLiteral_putAll","description":"Put a body with all properties present.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionStringLiteralProperty"}}}}}},"/type/property/optional/union/string/literal/default":{"get":{"operationId":"UnionStringLiteral_getDefault","description":"Get models that will return the default object","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionStringLiteralProperty"}}}}}},"put":{"operationId":"UnionStringLiteral_putDefault","description":"Put a body with default properties.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UnionStringLiteralProperty"}}}}}}},"components":{"schemas":{"BooleanLiteralProperty":{"type":"object","properties":{"property":{"type":"boolean","enum":[true],"description":"Property"}},"description":"Model with boolean literal property"},"BytesProperty":{"type":"object","properties":{"property":{"type":"string","format":"byte","description":"Property"}},"description":"Template type for testing models with optional property. Pass in the type of the property you are looking for"},"CollectionsByteProperty":{"type":"object","properties":{"property":{"type":"array","items":{"type":"string","format":"byte"},"description":"Property"}},"description":"Model with collection bytes properties"},"CollectionsModelProperty":{"type":"object","properties":{"property":{"type":"array","items":{"$ref":"#/components/schemas/StringProperty"},"description":"Property"}},"description":"Model with collection models properties"},"DatetimeProperty":{"type":"object","properties":{"property":{"type":"string","format":"date-time","description":"Property"}},"description":"Model with a datetime property"},"DurationProperty":{"type":"object","properties":{"property":{"type":"string","format":"duration","description":"Property"}},"description":"Model with a duration property"},"FloatLiteralProperty":{"type":"object","properties":{"property":{"type":"number","enum":[1.25],"description":"Property"}},"description":"Model with float literal property"},"IntLiteralProperty":{"type":"object","properties":{"property":{"type":"number","enum":[1],"description":"Property"}},"description":"Model with int literal property"},"PlainDateProperty":{"type":"object","properties":{"property":{"type":"string","format":"date","description":"Property"}},"description":"Model with a plainDate property"},"PlainTimeProperty":{"type":"object","properties":{"property":{"type":"string","format":"time","description":"Property"}},"description":"Model with a plainTime property"},"RequiredAndOptionalProperty":{"type":"object","required":["requiredProperty"],"properties":{"optionalProperty":{"type":"string","description":"optional string property"},"requiredProperty":{"type":"integer","format":"int32","description":"required int property"}},"description":"Model with required and optional properties"},"StringLiteralProperty":{"type":"object","properties":{"property":{"type":"string","enum":["hello"],"description":"Property"}},"description":"Model with string literal property"},"StringProperty":{"type":"object","properties":{"property":{"type":"string","description":"Property"}},"description":"Template type for testing models with optional property. Pass in the type of the property you are looking for"},"UnionFloatLiteralProperty":{"type":"object","properties":{"property":{"type":"number","enum":[1.25,2.375],"description":"Property"}},"description":"Model with union of float literal property"},"UnionIntLiteralProperty":{"type":"object","properties":{"property":{"type":"number","enum":[1,2],"description":"Property"}},"description":"Model with union of int literal property"},"UnionStringLiteralProperty":{"type":"object","properties":{"property":{"type":"string","enum":["hello","world"],"description":"Property"}},"description":"Model with union of string literal property"}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TypePropertyOptional",
+    "description": "Illustrates models with optional properties.",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/type/property/optional/boolean/literal/all": {
+      "get": {
+        "operationId": "BooleanLiteral_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "BooleanLiteral_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BooleanLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/boolean/literal/default": {
+      "get": {
+        "operationId": "BooleanLiteral_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BooleanLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "BooleanLiteral_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BooleanLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/bytes/all": {
+      "get": {
+        "operationId": "Bytes_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BytesProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Bytes_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BytesProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/bytes/default": {
+      "get": {
+        "operationId": "Bytes_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BytesProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Bytes_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BytesProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/collections/bytes/all": {
+      "get": {
+        "operationId": "CollectionsByte_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionsByteProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "CollectionsByte_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionsByteProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/collections/bytes/default": {
+      "get": {
+        "operationId": "CollectionsByte_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionsByteProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "CollectionsByte_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionsByteProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/collections/model/all": {
+      "get": {
+        "operationId": "CollectionsModel_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionsModelProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "CollectionsModel_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionsModelProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/collections/model/default": {
+      "get": {
+        "operationId": "CollectionsModel_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionsModelProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "CollectionsModel_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CollectionsModelProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/datetime/all": {
+      "get": {
+        "operationId": "Datetime_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatetimeProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Datetime_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatetimeProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/datetime/default": {
+      "get": {
+        "operationId": "Datetime_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatetimeProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Datetime_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatetimeProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/duration/all": {
+      "get": {
+        "operationId": "Duration_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DurationProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Duration_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DurationProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/duration/default": {
+      "get": {
+        "operationId": "Duration_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DurationProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "Duration_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DurationProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/float/literal/all": {
+      "get": {
+        "operationId": "FloatLiteral_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FloatLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "FloatLiteral_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FloatLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/float/literal/default": {
+      "get": {
+        "operationId": "FloatLiteral_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FloatLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "FloatLiteral_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FloatLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/int/literal/all": {
+      "get": {
+        "operationId": "IntLiteral_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IntLiteral_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/int/literal/default": {
+      "get": {
+        "operationId": "IntLiteral_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "IntLiteral_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/plainDate/all": {
+      "get": {
+        "operationId": "PlainDate_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlainDateProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "PlainDate_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlainDateProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/plainDate/default": {
+      "get": {
+        "operationId": "PlainDate_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlainDateProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "PlainDate_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlainDateProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/plainTime/all": {
+      "get": {
+        "operationId": "PlainTime_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlainTimeProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "PlainTime_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlainTimeProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/plainTime/default": {
+      "get": {
+        "operationId": "PlainTime_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlainTimeProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "PlainTime_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlainTimeProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/requiredAndOptional/all": {
+      "get": {
+        "operationId": "RequiredAndOptional_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequiredAndOptionalProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "RequiredAndOptional_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequiredAndOptionalProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/requiredAndOptional/requiredOnly": {
+      "get": {
+        "operationId": "RequiredAndOptional_getRequiredOnly",
+        "description": "Get models that will return only the required properties",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequiredAndOptionalProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "RequiredAndOptional_putRequiredOnly",
+        "description": "Put a body with only required properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequiredAndOptionalProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/string/all": {
+      "get": {
+        "operationId": "String_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "String_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StringProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/string/default": {
+      "get": {
+        "operationId": "String_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "String_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StringProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/string/literal/all": {
+      "get": {
+        "operationId": "StringLiteral_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "StringLiteral_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StringLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/string/literal/default": {
+      "get": {
+        "operationId": "StringLiteral_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StringLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "StringLiteral_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StringLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/union/float/literal/all": {
+      "get": {
+        "operationId": "UnionFloatLiteral_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnionFloatLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "UnionFloatLiteral_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnionFloatLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/union/float/literal/default": {
+      "get": {
+        "operationId": "UnionFloatLiteral_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnionFloatLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "UnionFloatLiteral_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnionFloatLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/union/int/literal/all": {
+      "get": {
+        "operationId": "UnionIntLiteral_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnionIntLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "UnionIntLiteral_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnionIntLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/union/int/literal/default": {
+      "get": {
+        "operationId": "UnionIntLiteral_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnionIntLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "UnionIntLiteral_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnionIntLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/union/string/literal/all": {
+      "get": {
+        "operationId": "UnionStringLiteral_getAll",
+        "description": "Get models that will return all properties in the model",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnionStringLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "UnionStringLiteral_putAll",
+        "description": "Put a body with all properties present.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnionStringLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/type/property/optional/union/string/literal/default": {
+      "get": {
+        "operationId": "UnionStringLiteral_getDefault",
+        "description": "Get models that will return the default object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnionStringLiteralProperty"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "UnionStringLiteral_putDefault",
+        "description": "Put a body with default properties.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnionStringLiteralProperty"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BooleanLiteralProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Property"
+          }
+        },
+        "description": "Model with boolean literal property"
+      },
+      "BytesProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "format": "byte",
+            "description": "Property"
+          }
+        },
+        "description": "Template type for testing models with optional property. Pass in the type of the property you are looking for"
+      },
+      "CollectionsByteProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "byte"
+            },
+            "description": "Property"
+          }
+        },
+        "description": "Model with collection bytes properties"
+      },
+      "CollectionsModelProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StringProperty"
+            },
+            "description": "Property"
+          }
+        },
+        "description": "Model with collection models properties"
+      },
+      "DatetimeProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Property"
+          }
+        },
+        "description": "Model with a datetime property"
+      },
+      "DurationProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "format": "duration",
+            "description": "Property"
+          }
+        },
+        "description": "Model with a duration property"
+      },
+      "FloatLiteralProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "number",
+            "enum": [
+              1.25
+            ],
+            "description": "Property"
+          }
+        },
+        "description": "Model with float literal property"
+      },
+      "IntLiteralProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "number",
+            "enum": [
+              1
+            ],
+            "description": "Property"
+          }
+        },
+        "description": "Model with int literal property"
+      },
+      "PlainDateProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "format": "date",
+            "description": "Property"
+          }
+        },
+        "description": "Model with a plainDate property"
+      },
+      "PlainTimeProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "format": "time",
+            "description": "Property"
+          }
+        },
+        "description": "Model with a plainTime property"
+      },
+      "RequiredAndOptionalProperty": {
+        "type": "object",
+        "required": [
+          "requiredProperty"
+        ],
+        "properties": {
+          "optionalProperty": {
+            "type": "string",
+            "description": "optional string property"
+          },
+          "requiredProperty": {
+            "type": "integer",
+            "format": "int32",
+            "description": "required int property"
+          }
+        },
+        "description": "Model with required and optional properties"
+      },
+      "StringLiteralProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "enum": [
+              "hello"
+            ],
+            "description": "Property"
+          }
+        },
+        "description": "Model with string literal property"
+      },
+      "StringProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "description": "Property"
+          }
+        },
+        "description": "Template type for testing models with optional property. Pass in the type of the property you are looking for"
+      },
+      "UnionFloatLiteralProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "number",
+            "enum": [
+              1.25,
+              2.375
+            ],
+            "description": "Property"
+          }
+        },
+        "description": "Model with union of float literal property"
+      },
+      "UnionIntLiteralProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "number",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "Property"
+          }
+        },
+        "description": "Model with union of int literal property"
+      },
+      "UnionStringLiteralProperty": {
+        "type": "object",
+        "properties": {
+          "property": {
+            "type": "string",
+            "enum": [
+              "hello",
+              "world"
+            ],
+            "description": "Property"
+          }
+        },
+        "description": "Model with union of string literal property"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

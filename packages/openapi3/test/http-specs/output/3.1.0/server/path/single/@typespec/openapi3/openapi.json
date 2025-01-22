@@ -1,1 +1,35 @@
-{"openapi":"3.1.0","info":{"title":"(title)","description":"Illustrates server with a single path parameter @server","version":"0.0.0"},"tags":[],"paths":{"/server/path/single/myOp":{"head":{"operationId":"myOp","parameters":[],"responses":{"200":{"description":"The request has succeeded."}}}}},"components":{},"servers":[{"url":"{endpoint}","description":"Testserver endpoint","variables":{"endpoint":{"default":"","description":"Need to be set as 'http://localhost:3000' in client."}}}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "(title)",
+    "description": "Illustrates server with a single path parameter @server",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/server/path/single/myOp": {
+      "head": {
+        "operationId": "myOp",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded."
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "servers": [
+    {
+      "url": "{endpoint}",
+      "description": "Testserver endpoint",
+      "variables": {
+        "endpoint": {
+          "default": "",
+          "description": "Need to be set as 'http://localhost:3000' in client."
+        }
+      }
+    }
+  ]
+}

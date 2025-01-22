@@ -1,1 +1,78 @@
-{"openapi":"3.1.0","info":{"title":"AuthenticationHttpCustom","description":"Illustrates clients generated with generic HTTP auth.","version":"0.0.0"},"tags":[],"paths":{"/authentication/http/custom/invalid":{"get":{"operationId":"invalid","description":"Check whether client is authenticated.","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful."},"403":{"description":"Access is forbidden.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/InvalidAuth"}}}}}}},"/authentication/http/custom/valid":{"get":{"operationId":"valid","description":"Check whether client is authenticated","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful."}}}}},"security":[{"http":[]}],"components":{"schemas":{"InvalidAuth":{"type":"object","required":["error"],"properties":{"error":{"type":"string"}}}},"securitySchemes":{"http":{"type":"http","scheme":"SharedAccessKey"}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AuthenticationHttpCustom",
+    "description": "Illustrates clients generated with generic HTTP auth.",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/authentication/http/custom/invalid": {
+      "get": {
+        "operationId": "invalid",
+        "description": "Check whether client is authenticated.",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful."
+          },
+          "403": {
+            "description": "Access is forbidden.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvalidAuth"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/authentication/http/custom/valid": {
+      "get": {
+        "operationId": "valid",
+        "description": "Check whether client is authenticated",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful."
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "http": []
+    }
+  ],
+  "components": {
+    "schemas": {
+      "InvalidAuth": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "http": {
+        "type": "http",
+        "scheme": "SharedAccessKey"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

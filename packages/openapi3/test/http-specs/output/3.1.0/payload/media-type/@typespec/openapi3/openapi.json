@@ -1,1 +1,97 @@
-{"openapi":"3.1.0","info":{"title":"PayloadMediaType","description":"Test the payload with different media types and different types of the payload itself.","version":"0.0.0"},"tags":[],"paths":{"/payload/media-type/string-body/getAsJson":{"get":{"operationId":"StringBody_getAsJson","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"application/json":{"schema":{"type":"string"}}}}}}},"/payload/media-type/string-body/getAsText":{"get":{"operationId":"StringBody_getAsText","parameters":[],"responses":{"200":{"description":"The request has succeeded.","content":{"text/plain":{"schema":{"type":"string"}}}}}}},"/payload/media-type/string-body/sendAsJson":{"post":{"operationId":"StringBody_sendAsJson","parameters":[],"responses":{"200":{"description":"The request has succeeded."}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"string"}}}}}},"/payload/media-type/string-body/sendAsText":{"post":{"operationId":"StringBody_sendAsText","parameters":[],"responses":{"200":{"description":"The request has succeeded."}},"requestBody":{"required":true,"content":{"text/plain":{"schema":{"type":"string"}}}}}}},"components":{},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PayloadMediaType",
+    "description": "Test the payload with different media types and different types of the payload itself.",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/payload/media-type/string-body/getAsJson": {
+      "get": {
+        "operationId": "StringBody_getAsJson",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payload/media-type/string-body/getAsText": {
+      "get": {
+        "operationId": "StringBody_getAsText",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payload/media-type/string-body/sendAsJson": {
+      "post": {
+        "operationId": "StringBody_sendAsJson",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payload/media-type/string-body/sendAsText": {
+      "post": {
+        "operationId": "StringBody_sendAsText",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}

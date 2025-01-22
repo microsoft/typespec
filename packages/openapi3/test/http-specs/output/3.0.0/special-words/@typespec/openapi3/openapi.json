@@ -1,1 +1,2198 @@
-{"openapi":"3.0.0","info":{"title":"SpecialWords","description":"Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.\n\nCurrent list of special words\n```txt\nand\nas\nassert\nasync\nawait\nbreak\nclass\nconstructor\ncontinue\ndef\ndel\nelif\nelse\nexcept\nexec\nfinally\nfor\nfrom\nglobal\nif\nimport\nin\nis\nlambda\nnot\nor\npass\nraise\nreturn\ntry\nwhile\nwith\nyield\n```","version":"0.0.0"},"tags":[],"paths":{"/special-words/model-properties/same-as-model":{"post":{"operationId":"ModelProperties_sameAsModel","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ModelProperties.SameAsModel"}}}}}},"/special-words/models/and":{"post":{"operationId":"Models_withAnd","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.and"}}}}}},"/special-words/models/as":{"post":{"operationId":"Models_withAs","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.as"}}}}}},"/special-words/models/assert":{"post":{"operationId":"Models_withAssert","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.assert"}}}}}},"/special-words/models/async":{"post":{"operationId":"Models_withAsync","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.async"}}}}}},"/special-words/models/await":{"post":{"operationId":"Models_withAwait","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.await"}}}}}},"/special-words/models/break":{"post":{"operationId":"Models_withBreak","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.break"}}}}}},"/special-words/models/class":{"post":{"operationId":"Models_withClass","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.class"}}}}}},"/special-words/models/constructor":{"post":{"operationId":"Models_withConstructor","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.constructor"}}}}}},"/special-words/models/continue":{"post":{"operationId":"Models_withContinue","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.continue"}}}}}},"/special-words/models/def":{"post":{"operationId":"Models_withDef","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.def"}}}}}},"/special-words/models/del":{"post":{"operationId":"Models_withDel","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.del"}}}}}},"/special-words/models/elif":{"post":{"operationId":"Models_withElif","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.elif"}}}}}},"/special-words/models/else":{"post":{"operationId":"Models_withElse","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.else"}}}}}},"/special-words/models/except":{"post":{"operationId":"Models_withExcept","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.except"}}}}}},"/special-words/models/exec":{"post":{"operationId":"Models_withExec","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.exec"}}}}}},"/special-words/models/finally":{"post":{"operationId":"Models_withFinally","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.finally"}}}}}},"/special-words/models/for":{"post":{"operationId":"Models_withFor","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.for"}}}}}},"/special-words/models/from":{"post":{"operationId":"Models_withFrom","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.from"}}}}}},"/special-words/models/global":{"post":{"operationId":"Models_withGlobal","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.global"}}}}}},"/special-words/models/if":{"post":{"operationId":"Models_withIf","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.if"}}}}}},"/special-words/models/import":{"post":{"operationId":"Models_withImport","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.import"}}}}}},"/special-words/models/in":{"post":{"operationId":"Models_withIn","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.in"}}}}}},"/special-words/models/is":{"post":{"operationId":"Models_withIs","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.is"}}}}}},"/special-words/models/lambda":{"post":{"operationId":"Models_withLambda","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.lambda"}}}}}},"/special-words/models/not":{"post":{"operationId":"Models_withNot","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.not"}}}}}},"/special-words/models/or":{"post":{"operationId":"Models_withOr","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.or"}}}}}},"/special-words/models/pass":{"post":{"operationId":"Models_withPass","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.pass"}}}}}},"/special-words/models/raise":{"post":{"operationId":"Models_withRaise","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.raise"}}}}}},"/special-words/models/return":{"post":{"operationId":"Models_withReturn","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.return"}}}}}},"/special-words/models/try":{"post":{"operationId":"Models_withTry","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.try"}}}}}},"/special-words/models/while":{"post":{"operationId":"Models_withWhile","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.while"}}}}}},"/special-words/models/with":{"post":{"operationId":"Models_withWith","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.with"}}}}}},"/special-words/models/yield":{"post":{"operationId":"Models_withYield","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}},"requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Models.yield"}}}}}},"/special-words/operations/and":{"get":{"operationId":"Operations_and","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/as":{"get":{"operationId":"Operations_as","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/assert":{"get":{"operationId":"Operations_assert","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/async":{"get":{"operationId":"Operations_async","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/await":{"get":{"operationId":"Operations_await","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/break":{"get":{"operationId":"Operations_break","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/class":{"get":{"operationId":"Operations_class","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/constructor":{"get":{"operationId":"Operations_constructor","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/continue":{"get":{"operationId":"Operations_continue","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/def":{"get":{"operationId":"Operations_def","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/del":{"get":{"operationId":"Operations_del","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/elif":{"get":{"operationId":"Operations_elif","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/else":{"get":{"operationId":"Operations_else","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/except":{"get":{"operationId":"Operations_except","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/exec":{"get":{"operationId":"Operations_exec","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/finally":{"get":{"operationId":"Operations_finally","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/for":{"get":{"operationId":"Operations_for","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/from":{"get":{"operationId":"Operations_from","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/global":{"get":{"operationId":"Operations_global","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/if":{"get":{"operationId":"Operations_if","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/import":{"get":{"operationId":"Operations_import","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/in":{"get":{"operationId":"Operations_in","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/is":{"get":{"operationId":"Operations_is","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/lambda":{"get":{"operationId":"Operations_lambda","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/not":{"get":{"operationId":"Operations_not","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/or":{"get":{"operationId":"Operations_or","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/pass":{"get":{"operationId":"Operations_pass","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/raise":{"get":{"operationId":"Operations_raise","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/return":{"get":{"operationId":"Operations_return","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/try":{"get":{"operationId":"Operations_try","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/while":{"get":{"operationId":"Operations_while","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/with":{"get":{"operationId":"Operations_with","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/operations/yield":{"get":{"operationId":"Operations_yield","parameters":[],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/and":{"get":{"operationId":"Parameters_withAnd","parameters":[{"name":"and","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/as":{"get":{"operationId":"Parameters_withAs","parameters":[{"name":"as","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/assert":{"get":{"operationId":"Parameters_withAssert","parameters":[{"name":"assert","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/async":{"get":{"operationId":"Parameters_withAsync","parameters":[{"name":"async","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/await":{"get":{"operationId":"Parameters_withAwait","parameters":[{"name":"await","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/break":{"get":{"operationId":"Parameters_withBreak","parameters":[{"name":"break","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/cancellationToken":{"get":{"operationId":"Parameters_withCancellationToken","parameters":[{"name":"cancellationToken","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/class":{"get":{"operationId":"Parameters_withClass","parameters":[{"name":"class","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/constructor":{"get":{"operationId":"Parameters_withConstructor","parameters":[{"name":"constructor","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/continue":{"get":{"operationId":"Parameters_withContinue","parameters":[{"name":"continue","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/def":{"get":{"operationId":"Parameters_withDef","parameters":[{"name":"def","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/del":{"get":{"operationId":"Parameters_withDel","parameters":[{"name":"del","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/elif":{"get":{"operationId":"Parameters_withElif","parameters":[{"name":"elif","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/else":{"get":{"operationId":"Parameters_withElse","parameters":[{"name":"else","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/except":{"get":{"operationId":"Parameters_withExcept","parameters":[{"name":"except","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/exec":{"get":{"operationId":"Parameters_withExec","parameters":[{"name":"exec","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/finally":{"get":{"operationId":"Parameters_withFinally","parameters":[{"name":"finally","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/for":{"get":{"operationId":"Parameters_withFor","parameters":[{"name":"for","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/from":{"get":{"operationId":"Parameters_withFrom","parameters":[{"name":"from","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/global":{"get":{"operationId":"Parameters_withGlobal","parameters":[{"name":"global","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/if":{"get":{"operationId":"Parameters_withIf","parameters":[{"name":"if","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/import":{"get":{"operationId":"Parameters_withImport","parameters":[{"name":"import","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/in":{"get":{"operationId":"Parameters_withIn","parameters":[{"name":"in","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/is":{"get":{"operationId":"Parameters_withIs","parameters":[{"name":"is","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/lambda":{"get":{"operationId":"Parameters_withLambda","parameters":[{"name":"lambda","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/not":{"get":{"operationId":"Parameters_withNot","parameters":[{"name":"not","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/or":{"get":{"operationId":"Parameters_withOr","parameters":[{"name":"or","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/pass":{"get":{"operationId":"Parameters_withPass","parameters":[{"name":"pass","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/raise":{"get":{"operationId":"Parameters_withRaise","parameters":[{"name":"raise","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/return":{"get":{"operationId":"Parameters_withReturn","parameters":[{"name":"return","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/try":{"get":{"operationId":"Parameters_withTry","parameters":[{"name":"try","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/while":{"get":{"operationId":"Parameters_withWhile","parameters":[{"name":"while","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/with":{"get":{"operationId":"Parameters_withWith","parameters":[{"name":"with","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}},"/special-words/parameters/yield":{"get":{"operationId":"Parameters_withYield","parameters":[{"name":"yield","in":"query","required":true,"schema":{"type":"string"},"explode":false}],"responses":{"204":{"description":"There is no content to send for this request, but the headers may be useful. "}}}}},"components":{"schemas":{"ModelProperties.SameAsModel":{"type":"object","required":["SameAsModel"],"properties":{"SameAsModel":{"type":"string"}}},"Models.Base":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.and":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.as":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.assert":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.async":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.await":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.break":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.class":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.constructor":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.continue":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.def":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.del":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.elif":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.else":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.except":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.exec":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.finally":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.for":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.from":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.global":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.if":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.import":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.in":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.is":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.lambda":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.not":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.or":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.pass":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.raise":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.return":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.try":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.while":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.with":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}},"Models.yield":{"type":"object","required":["name"],"properties":{"name":{"type":"string"}}}}},"servers":[{"url":"http://localhost:3000","description":"TestServer endpoint","variables":{}}]}
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SpecialWords",
+    "description": "Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.\n\nCurrent list of special words\n```txt\nand\nas\nassert\nasync\nawait\nbreak\nclass\nconstructor\ncontinue\ndef\ndel\nelif\nelse\nexcept\nexec\nfinally\nfor\nfrom\nglobal\nif\nimport\nin\nis\nlambda\nnot\nor\npass\nraise\nreturn\ntry\nwhile\nwith\nyield\n```",
+    "version": "0.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/special-words/model-properties/same-as-model": {
+      "post": {
+        "operationId": "ModelProperties_sameAsModel",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelProperties.SameAsModel"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/and": {
+      "post": {
+        "operationId": "Models_withAnd",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.and"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/as": {
+      "post": {
+        "operationId": "Models_withAs",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.as"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/assert": {
+      "post": {
+        "operationId": "Models_withAssert",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.assert"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/async": {
+      "post": {
+        "operationId": "Models_withAsync",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.async"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/await": {
+      "post": {
+        "operationId": "Models_withAwait",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.await"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/break": {
+      "post": {
+        "operationId": "Models_withBreak",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.break"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/class": {
+      "post": {
+        "operationId": "Models_withClass",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.class"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/constructor": {
+      "post": {
+        "operationId": "Models_withConstructor",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.constructor"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/continue": {
+      "post": {
+        "operationId": "Models_withContinue",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.continue"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/def": {
+      "post": {
+        "operationId": "Models_withDef",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.def"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/del": {
+      "post": {
+        "operationId": "Models_withDel",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.del"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/elif": {
+      "post": {
+        "operationId": "Models_withElif",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.elif"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/else": {
+      "post": {
+        "operationId": "Models_withElse",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.else"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/except": {
+      "post": {
+        "operationId": "Models_withExcept",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.except"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/exec": {
+      "post": {
+        "operationId": "Models_withExec",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.exec"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/finally": {
+      "post": {
+        "operationId": "Models_withFinally",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.finally"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/for": {
+      "post": {
+        "operationId": "Models_withFor",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.for"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/from": {
+      "post": {
+        "operationId": "Models_withFrom",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.from"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/global": {
+      "post": {
+        "operationId": "Models_withGlobal",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.global"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/if": {
+      "post": {
+        "operationId": "Models_withIf",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.if"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/import": {
+      "post": {
+        "operationId": "Models_withImport",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.import"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/in": {
+      "post": {
+        "operationId": "Models_withIn",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.in"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/is": {
+      "post": {
+        "operationId": "Models_withIs",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.is"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/lambda": {
+      "post": {
+        "operationId": "Models_withLambda",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.lambda"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/not": {
+      "post": {
+        "operationId": "Models_withNot",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.not"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/or": {
+      "post": {
+        "operationId": "Models_withOr",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.or"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/pass": {
+      "post": {
+        "operationId": "Models_withPass",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.pass"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/raise": {
+      "post": {
+        "operationId": "Models_withRaise",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.raise"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/return": {
+      "post": {
+        "operationId": "Models_withReturn",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.return"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/try": {
+      "post": {
+        "operationId": "Models_withTry",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.try"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/while": {
+      "post": {
+        "operationId": "Models_withWhile",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.while"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/with": {
+      "post": {
+        "operationId": "Models_withWith",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.with"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/models/yield": {
+      "post": {
+        "operationId": "Models_withYield",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Models.yield"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/special-words/operations/and": {
+      "get": {
+        "operationId": "Operations_and",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/as": {
+      "get": {
+        "operationId": "Operations_as",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/assert": {
+      "get": {
+        "operationId": "Operations_assert",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/async": {
+      "get": {
+        "operationId": "Operations_async",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/await": {
+      "get": {
+        "operationId": "Operations_await",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/break": {
+      "get": {
+        "operationId": "Operations_break",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/class": {
+      "get": {
+        "operationId": "Operations_class",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/constructor": {
+      "get": {
+        "operationId": "Operations_constructor",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/continue": {
+      "get": {
+        "operationId": "Operations_continue",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/def": {
+      "get": {
+        "operationId": "Operations_def",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/del": {
+      "get": {
+        "operationId": "Operations_del",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/elif": {
+      "get": {
+        "operationId": "Operations_elif",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/else": {
+      "get": {
+        "operationId": "Operations_else",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/except": {
+      "get": {
+        "operationId": "Operations_except",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/exec": {
+      "get": {
+        "operationId": "Operations_exec",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/finally": {
+      "get": {
+        "operationId": "Operations_finally",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/for": {
+      "get": {
+        "operationId": "Operations_for",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/from": {
+      "get": {
+        "operationId": "Operations_from",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/global": {
+      "get": {
+        "operationId": "Operations_global",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/if": {
+      "get": {
+        "operationId": "Operations_if",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/import": {
+      "get": {
+        "operationId": "Operations_import",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/in": {
+      "get": {
+        "operationId": "Operations_in",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/is": {
+      "get": {
+        "operationId": "Operations_is",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/lambda": {
+      "get": {
+        "operationId": "Operations_lambda",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/not": {
+      "get": {
+        "operationId": "Operations_not",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/or": {
+      "get": {
+        "operationId": "Operations_or",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/pass": {
+      "get": {
+        "operationId": "Operations_pass",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/raise": {
+      "get": {
+        "operationId": "Operations_raise",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/return": {
+      "get": {
+        "operationId": "Operations_return",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/try": {
+      "get": {
+        "operationId": "Operations_try",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/while": {
+      "get": {
+        "operationId": "Operations_while",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/with": {
+      "get": {
+        "operationId": "Operations_with",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/operations/yield": {
+      "get": {
+        "operationId": "Operations_yield",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/and": {
+      "get": {
+        "operationId": "Parameters_withAnd",
+        "parameters": [
+          {
+            "name": "and",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/as": {
+      "get": {
+        "operationId": "Parameters_withAs",
+        "parameters": [
+          {
+            "name": "as",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/assert": {
+      "get": {
+        "operationId": "Parameters_withAssert",
+        "parameters": [
+          {
+            "name": "assert",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/async": {
+      "get": {
+        "operationId": "Parameters_withAsync",
+        "parameters": [
+          {
+            "name": "async",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/await": {
+      "get": {
+        "operationId": "Parameters_withAwait",
+        "parameters": [
+          {
+            "name": "await",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/break": {
+      "get": {
+        "operationId": "Parameters_withBreak",
+        "parameters": [
+          {
+            "name": "break",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/cancellationToken": {
+      "get": {
+        "operationId": "Parameters_withCancellationToken",
+        "parameters": [
+          {
+            "name": "cancellationToken",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/class": {
+      "get": {
+        "operationId": "Parameters_withClass",
+        "parameters": [
+          {
+            "name": "class",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/constructor": {
+      "get": {
+        "operationId": "Parameters_withConstructor",
+        "parameters": [
+          {
+            "name": "constructor",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/continue": {
+      "get": {
+        "operationId": "Parameters_withContinue",
+        "parameters": [
+          {
+            "name": "continue",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/def": {
+      "get": {
+        "operationId": "Parameters_withDef",
+        "parameters": [
+          {
+            "name": "def",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/del": {
+      "get": {
+        "operationId": "Parameters_withDel",
+        "parameters": [
+          {
+            "name": "del",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/elif": {
+      "get": {
+        "operationId": "Parameters_withElif",
+        "parameters": [
+          {
+            "name": "elif",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/else": {
+      "get": {
+        "operationId": "Parameters_withElse",
+        "parameters": [
+          {
+            "name": "else",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/except": {
+      "get": {
+        "operationId": "Parameters_withExcept",
+        "parameters": [
+          {
+            "name": "except",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/exec": {
+      "get": {
+        "operationId": "Parameters_withExec",
+        "parameters": [
+          {
+            "name": "exec",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/finally": {
+      "get": {
+        "operationId": "Parameters_withFinally",
+        "parameters": [
+          {
+            "name": "finally",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/for": {
+      "get": {
+        "operationId": "Parameters_withFor",
+        "parameters": [
+          {
+            "name": "for",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/from": {
+      "get": {
+        "operationId": "Parameters_withFrom",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/global": {
+      "get": {
+        "operationId": "Parameters_withGlobal",
+        "parameters": [
+          {
+            "name": "global",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/if": {
+      "get": {
+        "operationId": "Parameters_withIf",
+        "parameters": [
+          {
+            "name": "if",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/import": {
+      "get": {
+        "operationId": "Parameters_withImport",
+        "parameters": [
+          {
+            "name": "import",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/in": {
+      "get": {
+        "operationId": "Parameters_withIn",
+        "parameters": [
+          {
+            "name": "in",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/is": {
+      "get": {
+        "operationId": "Parameters_withIs",
+        "parameters": [
+          {
+            "name": "is",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/lambda": {
+      "get": {
+        "operationId": "Parameters_withLambda",
+        "parameters": [
+          {
+            "name": "lambda",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/not": {
+      "get": {
+        "operationId": "Parameters_withNot",
+        "parameters": [
+          {
+            "name": "not",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/or": {
+      "get": {
+        "operationId": "Parameters_withOr",
+        "parameters": [
+          {
+            "name": "or",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/pass": {
+      "get": {
+        "operationId": "Parameters_withPass",
+        "parameters": [
+          {
+            "name": "pass",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/raise": {
+      "get": {
+        "operationId": "Parameters_withRaise",
+        "parameters": [
+          {
+            "name": "raise",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/return": {
+      "get": {
+        "operationId": "Parameters_withReturn",
+        "parameters": [
+          {
+            "name": "return",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/try": {
+      "get": {
+        "operationId": "Parameters_withTry",
+        "parameters": [
+          {
+            "name": "try",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/while": {
+      "get": {
+        "operationId": "Parameters_withWhile",
+        "parameters": [
+          {
+            "name": "while",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/with": {
+      "get": {
+        "operationId": "Parameters_withWith",
+        "parameters": [
+          {
+            "name": "with",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    },
+    "/special-words/parameters/yield": {
+      "get": {
+        "operationId": "Parameters_withYield",
+        "parameters": [
+          {
+            "name": "yield",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "explode": false
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "There is no content to send for this request, but the headers may be useful. "
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ModelProperties.SameAsModel": {
+        "type": "object",
+        "required": [
+          "SameAsModel"
+        ],
+        "properties": {
+          "SameAsModel": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.Base": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.and": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.as": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.assert": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.async": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.await": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.break": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.class": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.constructor": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.continue": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.def": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.del": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.elif": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.else": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.except": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.exec": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.finally": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.for": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.from": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.global": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.if": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.import": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.in": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.is": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.lambda": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.not": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.or": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.pass": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.raise": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.return": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.try": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.while": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.with": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "Models.yield": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "TestServer endpoint",
+      "variables": {}
+    }
+  ]
+}
