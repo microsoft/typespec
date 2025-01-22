@@ -67,7 +67,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       logDiagnostics(context.program.diagnostics, context.program.host.logSink);
       process.exit(1);
     }
-    
+
     if (root) {
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
