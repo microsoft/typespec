@@ -64,7 +64,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/Azure/cadl-ranch/issues/772")]
         public Task Explicit() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetPathParametersClient().ExplicitAsync("a");
