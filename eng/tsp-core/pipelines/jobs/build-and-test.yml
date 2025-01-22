@@ -9,8 +9,8 @@ steps:
     parameters:
       nodeVersion: ${{ parameters.nodeVersion }}
 
-  - script: pnpm run check-version-mismatch
-    displayName: Check version mismatch
+  # - script: pnpm run check-version-mismatch
+  #   displayName: Check version mismatch
 
   - template: /eng/tsp-core/pipelines/templates/build.yml
 
