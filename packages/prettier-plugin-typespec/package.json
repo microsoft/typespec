@@ -21,7 +21,7 @@
     "@rollup/plugin-replace": "~6.0.2",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "rollup": "~4.31.0",
+    "rollup": "~4.24.0",
     "vitest": "^3.0.3"
   },
   "files": [
