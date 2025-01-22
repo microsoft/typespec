@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Code Fix recursively handles complex model expression transformations
+Convert model/tuple expression to value code fix is applied to the entire value.
