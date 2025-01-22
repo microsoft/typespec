@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm build:all && pnpm check:eng && pnpm gen-compiler-extern-signature",
-    "build:all": "pnpm -r --workspace-concurrency=Infinity build",
+    "build:all": "pnpm -r --workspace-concurrency=Infinity --filter \"typespec-vscode...\" build",
     "check:eng": "tsc -p ./tsconfig.eng.json --noEmit",
     "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" run build",
     "check-version-mismatch": "syncpack list-mismatches",
