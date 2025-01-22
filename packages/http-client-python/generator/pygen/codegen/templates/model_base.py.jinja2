@@ -372,15 +372,19 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):  # pylint: disable=uns
         return not self.__eq__(other)
 
     def keys(self) -> typing.KeysView[str]:
+        """D.keys() -> a set-like object providing a view on D's keys"""
         return self._data.keys()
 
     def values(self) -> typing.ValuesView[typing.Any]:
+        """D.values() -> an object providing a view on D's values"""
         return self._data.values()
 
     def items(self) -> typing.ItemsView[str, typing.Any]:
+        """D.items() -> a set-like object providing a view on D's items"""
         return self._data.items()
 
     def get(self, key: str, default: typing.Any = None) -> typing.Any:
+        """D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None."""
         try:
             return self[key]
         except KeyError:
@@ -396,17 +400,29 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):  # pylint: disable=uns
     def pop(self, key: str, default: typing.Any) -> typing.Any: ...
 
     def pop(self, key: str, default: typing.Any = _UNSET) -> typing.Any:
+        """D.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+        If key is not found, d is returned if given, otherwise KeyError is raised.
+        """
         if default is _UNSET:
             return self._data.pop(key)
         return self._data.pop(key, default)
 
     def popitem(self) -> typing.Tuple[str, typing.Any]:
+        """D.popitem() -> (k, v), remove and return some (key, value) pair
+        as a 2-tuple; but raise KeyError if D is empty.
+        """
         return self._data.popitem()
 
     def clear(self) -> None:
+        """D.clear() -> None.  Remove all items from D."""
         self._data.clear()
 
     def update(self, *args: typing.Any, **kwargs: typing.Any) -> None:
+        """D.update([E, ]**F) -> None.  Update D from mapping/iterable E and F.
+        If E present and has a .keys() method, does:     for k in E: D[k] = E[k]
+        If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v
+        In either case, this is followed by: for k, v in F.items(): D[k] = v
+        """
         self._data.update(*args, **kwargs)
 
     @typing.overload
@@ -416,6 +432,7 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):  # pylint: disable=uns
     def setdefault(self, key: str, default: typing.Any) -> typing.Any: ...
 
     def setdefault(self, key: str, default: typing.Any = _UNSET) -> typing.Any:
+        """D.setdefault(k[,d]) -> D.get(k,d), also set D[k]=d if k not in D"""
         if default is _UNSET:
             return self._data.setdefault(key)
         return self._data.setdefault(key, default)
