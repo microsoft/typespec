@@ -1,5 +1,5 @@
 import { readdir, readFile } from "fs/promises";
-import { join } from "path";
+import { dirname, join } from "path";
 import * as vscode from "vscode";
 import logger from "./log/logger.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
@@ -51,25 +51,22 @@ export function loadOpenApi3PreviewPanel(
     );
 
     const loadHandler = async (uri?: vscode.Uri) => {
-       console.log("Load handler called: " + uri);
+      console.log("Load handler called: " + uri);
       await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
           title: "Loading OpenAPI3 files...",
         },
         async () => {
-          let tmpFolder = openApi3TmpFolders.get(mainTspFile);
-          if (tmpFolder === undefined) {
-            tmpFolder = await createTempDir();
-            openApi3TmpFolders.set(mainTspFile, tmpFolder);
-          }
-          const result = await client.compileOpenApi3(mainTspFile);
+          const srcFolder = dirname(mainTspFile);
+          const outputFolder = join(srcFolder, "tsp-output","@typespec", "openapi3");
+          const result = await client.compileOpenApi3(mainTspFile, srcFolder);
           if (result === undefined || result.exitCode !== 0) {
             const errMsg = result?.stderr ?? "Failed to generate openAPI3 files.";
             logger.error(errMsg);
             vscode.window.showErrorMessage(errMsg);
           } else {
-            const outputs = await readdir(tmpFolder);
+            const outputs = await readdir(outputFolder);
             if (outputs.length === 0) {
               const errMsg = result?.stderr ?? "No openAPI3 file generated.";
               logger.error(errMsg);
@@ -77,7 +74,7 @@ export function loadOpenApi3PreviewPanel(
             } else {
               const first = outputs[0];
               try {
-                const fileContent = await readFile(join(tmpFolder, first), "utf-8");
+                const fileContent = await readFile(join(outputFolder, first), "utf-8");
                 const content = JSON.parse(fileContent);
                 void panel.webview.postMessage({ command: "load", param: content });
               } catch (e) {
