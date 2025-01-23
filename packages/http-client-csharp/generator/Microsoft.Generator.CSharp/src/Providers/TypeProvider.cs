@@ -601,6 +601,7 @@ namespace Microsoft.Generator.CSharp.Providers
             => syntaxReference?.SyntaxTree.GetLocation(syntaxReference.Span).GetLineSpan() ?? default;
 
         private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
-            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
+            => CustomCodeView?.Attributes.Where(a => a.Data?.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName).
+                Select(a => a.Data!).ToList() ?? [];
     }
 }

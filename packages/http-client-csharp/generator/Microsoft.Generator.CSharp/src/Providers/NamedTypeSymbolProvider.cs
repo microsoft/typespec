@@ -30,7 +30,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
 
-        public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
+        protected override IReadOnlyList<AttributeStatement> BuildAttributes()
+            => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
