@@ -89,8 +89,8 @@
     "@typespec/tspd": "workspace:~",
     "@typespec/versioning": "workspace:~",
     "@typespec/xml": "workspace:~",
-    "@typespec/http-specs": "workspace:~",    
-    "@hyperjump/json-schema": "^1.10.1"
+    "@typespec/http-specs": "workspace:~",
+    "@hyperjump/json-schema": "^1.10.1",
     "@vitest/coverage-v8": "^3.0.3",
     "@vitest/ui": "^3.0.3",
     "c8": "^10.1.3",

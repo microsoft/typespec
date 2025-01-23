@@ -52,22 +52,6 @@ export function defineSpecTests(config: SpecSnapshotTestOptions) {
     if (context.tasks.some((x) => x.mode === "skip")) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }
-    // const missingSnapshots = new Set<string>(existingSnapshots);
-    // for (const writtenSnapshot of writtenSnapshots) {
-    //   missingSnapshots.delete(writtenSnapshot);
-    // }
-    // if (missingSnapshots.size > 0) {
-    //   if (shouldUpdateSnapshots) {
-    //     for (const file of [...missingSnapshots].map((x) => joinPaths(config.outputDir, x))) {
-    //       await rm(file);
-    //     }
-    //   } else {
-    //     const snapshotList = [...missingSnapshots].map((x) => `  ${x}`).join("\n");
-    //     fail(
-    //       `The following snapshot are still present in the output dir but were not generated:\n${snapshotList}\n Run with RECORD=true to regenerate them.`,
-    //     );
-    //   }
-    // }
   });
   worksFor(["3.0.0", "3.1.0"], ({ openApiForFile }) => {
     specs.forEach((spec) => defineSpecTest(context, config, spec, openApiForFile));
