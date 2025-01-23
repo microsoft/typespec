@@ -65,7 +65,7 @@
     "prettier": "~3.3.3",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-organize-imports": "~4.1.0",
-    "@alloy-js/prettier-plugin-alloy": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/prettier-plugin-alloy@0924029",
+    "@alloy-js/prettier-plugin-alloy": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/prettier-plugin-alloy@903a8321e8e85c7c9b47d4d9b4f0aadc40422615",
     "rimraf": "~6.0.1",
     "syncpack": "^13.0.0",
     "tsx": "^4.19.2",
