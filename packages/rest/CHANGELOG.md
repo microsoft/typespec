@@ -1,5 +1,12 @@
 # Change Log - @typespec/rest
 
+## 0.64.1
+
+### Bug Fixes
+
+- [#5726](https://github.com/microsoft/typespec/pull/5726) Updates `CollectionWithNextLink` to support pagination
+
+
 ## 0.64.0
 
 ### Bug Fixes
