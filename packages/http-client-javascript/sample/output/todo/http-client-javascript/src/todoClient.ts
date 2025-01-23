@@ -81,7 +81,7 @@ export class TodoItemsClient {
   async update(id: number, patch: TodoItemPatch) {
     return update(this.#context, id, patch);
   }
-  async delete(id: number) {
+  async delete_(id: number) {
     return delete_(this.#context, id);
   }
 }

@@ -1,20 +1,13 @@
 import { parse } from "uri-template";
-import {
-  FileAttachmentMultipartRequest,
-  TodoAttachment,
-  TodoAttachmentPage,
-} from "../../../models/models.js";
+import { FileAttachmentMultipartRequest, Page, TodoAttachment } from "../../../models/models.js";
 import {
   fileAttachmentMultipartRequestToTransport,
-  todoAttachmentPageToApplication,
+  pageToApplication,
   todoAttachmentToTransport,
 } from "../../../models/serializers.js";
 import { AttachmentsClientContext } from "./clientContext.js";
 
-export async function list(
-  client: AttachmentsClientContext,
-  itemId: number,
-): Promise<TodoAttachmentPage> {
+export async function list(client: AttachmentsClientContext, itemId: number): Promise<Page> {
   const path = parse("/items/{itemId}/attachments").expand({
     itemId: itemId,
   });
@@ -25,7 +18,7 @@ export async function list(
 
   const response = await client.path(path).get(httpRequestOptions);
   if (+response.status === 200) {
-    return todoAttachmentPageToApplication(response.body);
+    return pageToApplication(response.body);
   }
 
   throw new Error("Unhandled response");
@@ -64,7 +57,7 @@ export async function createFileAttachment(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": "multipart/form-data",
+      "content-type": "application/json",
     },
     body: fileAttachmentMultipartRequestToTransport(body),
   };

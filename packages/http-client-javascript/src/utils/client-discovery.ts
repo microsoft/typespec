@@ -103,12 +103,24 @@ function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum>) {
           return;
         }
 
+        if (!model.name) {
+          return;
+        }
+
         dataTypes.add(model);
       },
       union(union) {
+        if (!union.name) {
+          return;
+        }
+
         dataTypes.add(union);
       },
       enum(enum_) {
+        if (!enum_.name) {
+          return;
+        }
+
         dataTypes.add(enum_);
       },
     },

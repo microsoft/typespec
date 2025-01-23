@@ -31,10 +31,20 @@ export async function list(
   });
 
   const httpRequestOptions = {
-    headers: {},
+    headers: {
+      "content-type": "application/json",
+    },
+    body: {
+      options: options?.options
+        ? {
+            limit: options?.options.limit,
+            offset: options?.options.offset,
+          }
+        : options?.options,
+    },
   };
 
-  const response = await client.path(path).get(httpRequestOptions);
+  const response = await client.path(path).post(httpRequestOptions);
   if (+response.status === 200) {
     return todoPageToApplication(response.body);
   }
@@ -67,9 +77,13 @@ export async function createJson(
     },
     body: {
       item: todoItemToTransport(item),
-      attachments: options?.attachments
-        ? arraySerializer(options?.attachments, todoAttachmentToTransport)
-        : options?.attachments,
+      options: options?.options
+        ? {
+            attachments: options?.options.attachments
+              ? arraySerializer(options?.options.attachments, todoAttachmentToTransport)
+              : options?.options.attachments,
+          }
+        : options?.options,
     },
   };
 
@@ -112,7 +126,7 @@ export async function createForm(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": "multipart/form-data",
+      "content-type": "application/json",
     },
     body: toDoItemMultipartRequestToTransport(body),
   };
@@ -202,7 +216,7 @@ export async function update(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": "application/merge-patch+json",
+      "content-type": "application/json",
     },
     body: todoItemPatchToTransport(patch),
   };

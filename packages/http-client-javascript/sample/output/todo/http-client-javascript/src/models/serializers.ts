@@ -1,12 +1,9 @@
+import { createFilePartDescriptor } from "../helpers/multipart-helpers.js";
 import {
-  ConstructorParameters,
-  ConstructorParameters_2,
-  ConstructorParameters_3,
-  ConstructorParameters_4,
   File,
   FileAttachmentMultipartRequest,
+  Page,
   TodoAttachment,
-  TodoAttachmentPage,
   TodoItem,
   ToDoItemMultipartRequest,
   TodoItemPatch,
@@ -61,48 +58,68 @@ export function dateUnixTimestampSerializer(date: Date): number {
 export function dateUnixTimestampDeserializer(date: number): Date {
   return new Date(date * 1000);
 }
-export function constructorParametersToTransport(item: ConstructorParameters): any {
+export function userToTransport(item: User): any {
   return {
-    endpoint: item.endpoint,
-    credential: item.credential,
+    id: item.id,
+    username: item.username,
+    email: item.email,
+    password: item.password,
+    validated: item.validated,
   };
 }
-export function constructorParametersToApplication(item: any): ConstructorParameters {
+export function userToApplication(item: any): User {
   return {
-    endpoint: item.endpoint,
-    credential: item.credential,
+    id: item.id,
+    username: item.username,
+    email: item.email,
+    password: item.password,
+    validated: item.validated,
   };
 }
-export function constructorParametersToTransport_2(item: ConstructorParameters_2): any {
+export function pageToTransport(item: Page): any {
   return {
-    endpoint: item.endpoint,
+    items: arraySerializer(item.items, todoAttachmentToTransport),
   };
 }
-export function constructorParametersToApplication_2(item: any): ConstructorParameters_2 {
+export function pageToApplication(item: any): Page {
   return {
-    endpoint: item.endpoint,
+    items: arraySerializer(item.items, todoAttachmentToApplication),
   };
 }
-export function constructorParametersToTransport_3(item: ConstructorParameters_3): any {
+export function todoAttachmentToTransport(item: TodoAttachment): any {
   return {
-    endpoint: item.endpoint,
+    filename: item.filename,
+    mediaType: item.mediaType,
+    contents: item.contents,
   };
 }
-export function constructorParametersToApplication_3(item: any): ConstructorParameters_3 {
+export function todoAttachmentToApplication(item: any): TodoAttachment {
   return {
-    endpoint: item.endpoint,
+    filename: item.filename,
+    mediaType: item.mediaType,
+    contents: item.contents,
   };
 }
-export function constructorParametersToTransport_4(item: ConstructorParameters_4): any {
+export function fileAttachmentMultipartRequestToTransport(
+  item: FileAttachmentMultipartRequest,
+): any {
+  return [createFilePartDescriptor("contents", item.contents)];
+}
+export function fileAttachmentMultipartRequestToApplication(item: any): any {
+  return [createFilePartDescriptor("contents", item.contents)];
+}
+export function fileToTransport(item: File): any {
   return {
-    endpoint: item.endpoint,
-    credential: item.credential,
+    contentType: item.contentType,
+    filename: item.filename,
+    contents: item.contents,
   };
 }
-export function constructorParametersToApplication_4(item: any): ConstructorParameters_4 {
+export function fileToApplication(item: any): File {
   return {
-    endpoint: item.endpoint,
-    credential: item.credential,
+    contentType: item.contentType,
+    filename: item.filename,
+    contents: item.contents,
   };
 }
 export function todoPageToTransport(item: TodoPage): any {
@@ -169,32 +186,13 @@ export function todoLabelRecordToApplication(item: any): TodoLabelRecord {
     color: item.color,
   };
 }
-export function todoAttachmentToTransport(item: TodoAttachment): any {
-  return {
-    filename: item.filename,
-    mediaType: item.mediaType,
-    contents: item.contents,
-  };
-}
-export function todoAttachmentToApplication(item: any): TodoAttachment {
-  return {
-    filename: item.filename,
-    mediaType: item.mediaType,
-    contents: item.contents,
-  };
-}
 export function toDoItemMultipartRequestToTransport(item: ToDoItemMultipartRequest): any {
   return [
     {
       name: "item",
       body: todoItemToTransport(item.item),
     },
-    ...(item.attachments ?? []).map((x: any) => ({
-      name: "attachments",
-      body: x.contents,
-      filename: x.filename,
-      contentType: x.contentType,
-    })),
+    ...(item.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
   ];
 }
 export function toDoItemMultipartRequestToApplication(item: any): any {
@@ -203,27 +201,8 @@ export function toDoItemMultipartRequestToApplication(item: any): any {
       name: "item",
       body: todoItemToApplication(item.item),
     },
-    ...(item.attachments ?? []).map((x: any) => ({
-      name: "attachments",
-      body: x.contents,
-      filename: x.filename,
-      contentType: x.contentType,
-    })),
+    ...(item.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
   ];
-}
-export function fileToTransport(item: File): any {
-  return {
-    contentType: item.contentType,
-    filename: item.filename,
-    contents: item.contents,
-  };
-}
-export function fileToApplication(item: any): File {
-  return {
-    contentType: item.contentType,
-    filename: item.filename,
-    contents: item.contents,
-  };
 }
 export function todoItemPatchToTransport(item: TodoItemPatch): any {
   return {
@@ -239,55 +218,5 @@ export function todoItemPatchToApplication(item: any): TodoItemPatch {
     assignedTo: item.assignedTo,
     description: item.description,
     status: item.status,
-  };
-}
-export function todoAttachmentPageToTransport(item: TodoAttachmentPage): any {
-  return {
-    items: arraySerializer(item.items, todoAttachmentToTransport),
-  };
-}
-export function todoAttachmentPageToApplication(item: any): TodoAttachmentPage {
-  return {
-    items: arraySerializer(item.items, todoAttachmentToApplication),
-  };
-}
-export function fileAttachmentMultipartRequestToTransport(
-  item: FileAttachmentMultipartRequest,
-): any {
-  return [
-    {
-      name: "contents",
-      body: item.contents.contents,
-      filename: item.contents.filename,
-      contentType: item.contents.contentType,
-    },
-  ];
-}
-export function fileAttachmentMultipartRequestToApplication(item: any): any {
-  return [
-    {
-      name: "contents",
-      body: item.contents.contents,
-      filename: item.contents.filename,
-      contentType: item.contents.contentType,
-    },
-  ];
-}
-export function userToTransport(item: User): any {
-  return {
-    id: item.id,
-    username: item.username,
-    email: item.email,
-    password: item.password,
-    validated: item.validated,
-  };
-}
-export function userToApplication(item: any): User {
-  return {
-    id: item.id,
-    username: item.username,
-    email: item.email,
-    password: item.password,
-    validated: item.validated,
   };
 }

@@ -1,20 +1,28 @@
-export interface ConstructorParameters {
-  endpoint: string;
-  credential: "http" | "apiKey";
+import { File as File_2 } from "../helpers/multipart-helpers.js";
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  password: string;
+  validated: boolean;
 }
 
-export interface ConstructorParameters_2 {
-  endpoint: string;
+export interface Page {
+  items: Array<TodoAttachment>;
 }
 
-export interface ConstructorParameters_3 {
-  endpoint: string;
+export interface TodoAttachment {
+  filename: string;
+  mediaType: string;
+  contents: Uint8Array;
 }
 
-export interface ConstructorParameters_4 {
-  endpoint: string;
-  credential: "noAuth";
+export interface FileAttachmentMultipartRequest {
+  contents: File;
 }
+
+export type File = File_2;
 
 export interface TodoPage {
   items: Array<TodoItem>;
@@ -47,21 +55,9 @@ export interface TodoLabelRecord {
   color?: string;
 }
 
-export interface TodoAttachment {
-  filename: string;
-  mediaType: string;
-  contents: Uint8Array;
-}
-
 export interface ToDoItemMultipartRequest {
   item: TodoItem;
   attachments?: Array<File>;
-}
-
-export interface File {
-  contentType?: string;
-  filename?: string;
-  contents: Uint8Array;
 }
 
 export interface TodoItemPatch {
@@ -69,20 +65,4 @@ export interface TodoItemPatch {
   assignedTo?: number | null;
   description?: string | null;
   status?: "NotStarted" | "InProgress" | "Completed";
-}
-
-export interface TodoAttachmentPage {
-  items: Array<TodoAttachment>;
-}
-
-export interface FileAttachmentMultipartRequest {
-  contents: File;
-}
-
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  password: string;
-  validated: boolean;
 }
