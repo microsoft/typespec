@@ -12,7 +12,7 @@ namespace Microsoft.Generator.CSharp.Primitives
     //TODO Need to define the rest of the extensibility points https://github.com/microsoft/typespec/issues/4065
     public class NewProjectScaffolding
     {
-        public virtual async Task<bool> Execute()
+        public async Task<bool> Execute()
         {
             //clean up old sln and csproj files
             foreach (var file in Directory.GetFiles(CodeModelPlugin.Instance.Configuration.OutputDirectory, "*.csproj", SearchOption.AllDirectories))
@@ -50,7 +50,7 @@ namespace Microsoft.Generator.CSharp.Primitives
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSln())));
         }
 
-        private string GetSrcCSProj()
+        protected virtual string GetSrcCSProj()
         {
             var builder = new CSProjWriter()
             {
@@ -76,7 +76,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             new("System.Text.Json", "8.0.5")
         };
 
-        private string GetSln()
+        protected virtual string GetSln()
         {
             string slnContent = @"Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16

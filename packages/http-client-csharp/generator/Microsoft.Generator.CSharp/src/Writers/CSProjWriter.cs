@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace Microsoft.Generator.CSharp;
 
-internal class CSProjWriter
+public class CSProjWriter
 {
     public CSProjWriter()
     {
