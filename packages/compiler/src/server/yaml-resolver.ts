@@ -17,7 +17,7 @@ import { firstNonWhitespaceCharacterIndex, isWhitespaceStringOrUndefined } from 
 import { ServerLog } from "./types.js";
 
 type YamlNodePathSegment = Document<Node, true> | Node | Pair;
-export interface YamlScalarTarget {
+export interface YamlPositionDetail {
   /**
    * The path of the yaml node at the position, it consists of object's property, array's index, empty string for potential object property (empty line)
    */
@@ -60,11 +60,11 @@ interface YamlVisitScalarNode {
   path: readonly YamlNodePathSegment[];
 }
 
-export function resolveYamlScalarTarget(
+export function resolveYamlPositionDetail(
   document: TextDocument,
   position: Position,
   log: (log: ServerLog) => void,
-): YamlScalarTarget | undefined {
+): YamlPositionDetail | undefined {
   const pos = document.offsetAt(position);
   const content = document.getText();
   const lines = content.split("\n");
@@ -229,7 +229,7 @@ function createYamlPathFromVisitScalarNode(
   offset: number,
   log: (log: ServerLog) => void,
   yamlDoc: Document<Node, true>,
-): YamlScalarTarget | undefined {
+): YamlPositionDetail | undefined {
   const { key, n, path: nodePath } = info;
   if (nodePath.length === 0) {
     log({

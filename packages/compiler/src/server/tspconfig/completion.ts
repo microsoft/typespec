@@ -24,7 +24,7 @@ import {
 import { distinctArray } from "../../utils/misc.js";
 import { FileService } from "../file-service.js";
 import { LibraryProvider } from "../lib-provider.js";
-import { resolveYamlScalarTarget, YamlScalarTarget } from "../yaml-resolver.js";
+import { resolveYamlPositionDetail, YamlPositionDetail } from "../yaml-resolver.js";
 
 type ObjectJSONSchemaType = JSONSchemaType<object>;
 
@@ -40,7 +40,7 @@ export async function provideTspconfigCompletionItems(
   },
 ): Promise<CompletionItem[]> {
   const { fileService, compilerHost, emitterProvider, linterProvider, log } = context;
-  const target = resolveYamlScalarTarget(tspConfigDoc, tspConfigPosition, log);
+  const target = resolveYamlPositionDetail(tspConfigDoc, tspConfigPosition, log);
   if (target === undefined) {
     return [];
   }
@@ -67,7 +67,7 @@ export async function provideTspconfigCompletionItems(
 
   async function resolveTspConfigCompleteItems(
     tspConfigFile: string,
-    target: YamlScalarTarget,
+    target: YamlPositionDetail,
     tspConfigPosition: Position,
     log: (log: ServerLog) => void,
   ): Promise<CompletionItem[]> {
@@ -284,7 +284,7 @@ export async function provideTspconfigCompletionItems(
 
   function resolveCompleteItems(
     schema: ObjectJSONSchemaType,
-    target: YamlScalarTarget,
+    target: YamlPositionDetail,
   ): CompletionItem[] {
     const { path: nodePath, type: targetType } = target;
     // if the target is a key which means it's pointing to an object property, we should remove the last element of the path to get it's parent object for its schema
@@ -350,14 +350,14 @@ export async function provideTspconfigCompletionItems(
  * @param labelName The value of the label attribute of the CompletionItem object
  * @param description The value of the documentation attribute of the CompletionItem object
  * @param tspConfigPosition Input current line location object, see {@link Position}
- * @param target The target object of the current configuration file, see {@link YamlScalarTarget}
+ * @param target The target object of the current configuration file, see {@link YamlPositionDetail}
  * @returns CompletionItem object
  */
 function createCompletionItemWithQuote(
   labelName: string,
   description: string,
   tspConfigPosition: Position,
-  target: YamlScalarTarget,
+  target: YamlPositionDetail,
 ): CompletionItem {
   if (
     target.sourceRange &&
