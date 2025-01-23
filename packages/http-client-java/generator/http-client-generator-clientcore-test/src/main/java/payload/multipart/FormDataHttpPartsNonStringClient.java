@@ -40,8 +40,8 @@ public final class FormDataHttpPartsNonStringClient {
      */
     @Metadata(generated = true)
     Response<Void> floatMethodWithResponse(BinaryData body, RequestOptions requestOptions) {
-        // Protocol API requires serialization of parts with content-disposition and data, as operation 'float' is
-        // 'multipart/form-data'
+        // Operation 'float' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
+        // generated.
         return this.serviceClient.floatMethodWithResponse(body, requestOptions);
     }
 
