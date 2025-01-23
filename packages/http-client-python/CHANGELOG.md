@@ -1,13 +1,17 @@
 # Change Log - @typespec/http-client-python
 
-## 0.6.6
+## 0.6.7
 
 ### Bug Fixes
 
 - Fix sphinx typing for raising documentation
+- fix typing for class methods in _serialization.py
+
+## 0.6.6
 
 ### Other Changes
 
+- Rename `apiview_mapping_python.json` cross-language id file to `apiview-properties.json` for cross-language compatibility
 - Order keyword-only args overload first in generated operations
 
 ## 0.6.5
