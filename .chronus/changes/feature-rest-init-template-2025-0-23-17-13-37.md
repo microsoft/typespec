@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Updated Rest init template to include addionnal emitters(client, server) and a basic sample.
+Updated Rest init template to include additional emitters(client, server) and a basic sample.
