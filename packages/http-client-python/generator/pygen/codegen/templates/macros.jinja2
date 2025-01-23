@@ -4,6 +4,5 @@
 {% for line in list_result %}
     {% set suffix = suffix_string if list_result | length == loop.index %}
 {{ line }}{{ suffix }}
-    {% endif %}
 {% endfor %}
 {% endmacro %}
