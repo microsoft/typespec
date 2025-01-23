@@ -16,7 +16,7 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<NamedTypeSymbolProvider?> _customCodeView;
+        private Lazy<TypeProvider?> _customCodeView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
@@ -34,10 +34,10 @@ namespace Microsoft.Generator.CSharp.Providers
         {
         }
 
-        private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
+        private protected virtual TypeProvider? GetCustomCodeView()
             => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
 
-        public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
+        public TypeProvider? CustomCodeView => _customCodeView.Value;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
