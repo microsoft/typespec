@@ -55,7 +55,7 @@ versionPolicies:
       - "@typespec/sse"
       - "@typespec/streams"
       - "@typespec/xml"
-  - name: standalone-clients
+  - name: standalone
     type: independent
     packages:
       - "@typespec/http-client-python"

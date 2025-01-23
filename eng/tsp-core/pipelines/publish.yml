@@ -43,7 +43,7 @@ extends:
 
               - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
 
-              - script: pnpm chronus pack --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-stable
+              - script: pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-stable
                 displayName: Pack packages
 
               - task: CopyFiles@2
@@ -75,7 +75,7 @@ extends:
                 displayName: Regen manifest for compiler
                 workingDirectory: ./packages/compiler
 
-              - script: pnpm chronus pack --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-next
+              - script: pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-next
                 displayName: Pack next packages
 
               # Publish Next playground
