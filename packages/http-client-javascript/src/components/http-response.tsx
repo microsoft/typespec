@@ -1,10 +1,11 @@
 import { Children, code, mapJoin, Refkey } from "@alloy-js/core";
-import { isVoidType, Operation } from "@typespec/compiler";
+import { isVoidType } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { ClientOperation } from "@typespec/http-client-library";
 import { TypeTransformCall } from "./transforms/type-transform-call.jsx";
 
 export interface HttpResponseProps {
-  operation: Operation;
+  operation: ClientOperation;
   responseRefkey: Refkey;
   children?: Children;
 }
@@ -18,13 +19,13 @@ export function HttpResponse(props: HttpResponseProps) {
 }
 
 export interface HttpResponsesProps {
-  operation: Operation;
+  operation: ClientOperation;
   children?: Children;
 }
 
 export function HttpResponses(props: HttpResponsesProps) {
   // Handle response by status code and content type
-  const responses = $.httpOperation.getResponses(props.operation);
+  const responses = $.httpOperation.flattenResponses(props.operation.httpOperation);
   return mapJoin(
     responses.filter((r) => !$.httpResponse.isErrorResponse(r)),
     ({ statusCode, contentType, responseContent, type }) => {

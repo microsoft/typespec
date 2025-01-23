@@ -3,37 +3,34 @@ import * as ts from "@alloy-js/typescript";
 import { ClassDeclaration } from "@alloy-js/typescript";
 import { $ } from "@typespec/compiler/typekit";
 import { ClassMethod } from "@typespec/emitter-framework/typescript";
-import { Client as _Client, flattenClients } from "../utils/client-discovery.js";
+import * as cl from "@typespec/http-client-library";
+import { useClientLibrary } from "@typespec/http-client-library";
+import { flattenClients } from "../utils/client-discovery.js";
 import { buildClientParameters } from "../utils/parameters.jsx";
 import { getClientcontextDeclarationRef } from "./client-context/client-context-declaration.jsx";
 import { getClientContextFactoryRef } from "./client-context/client-context-factory.jsx";
 
-export interface ClientProps {
-  client: _Client;
-}
+export interface ClientProps {}
 
 export function Client(props: ClientProps) {
-  if (!props.client) {
-    return null;
-  }
-
+  const { rootClient: client } = useClientLibrary();
   const namePolicy = ts.useTSNamePolicy();
-  const fileName = namePolicy.getName(`${props.client.name}`, "variable");
-  const clients = flattenClients(props.client);
+  const fileName = namePolicy.getName(`${client.name}`, "variable");
+  const clients = flattenClients(client);
   return <ts.SourceFile path={`${fileName}.ts`} >
     {ay.mapJoin(clients, (client) => <ClientClass client={client} />, { joiner: "\n\n" })}
   </ts.SourceFile>;
 }
 
 export interface ClientClassProps {
-  client: _Client;
+  client: cl.Client;
 }
 
-export function getClientClassRef(client: _Client) {
+export function getClientClassRef(client: cl.Client) {
   return ay.refkey(client.type, "client-class");
 }
 
-function getClientContextFieldRef(client: _Client) {
+function getClientContextFieldRef(client: cl.Client) {
   return ay.refkey(client.type, "client-context");
 }
 export function ClientClass(props: ClientClassProps) {
@@ -50,7 +47,7 @@ export function ClientClass(props: ClientClassProps) {
       <SubClientClassField client={subClient} />
     ), { joiner: "\n" })}
     <ClientConstructor client={props.client} />
-    {ay.mapJoin(operations, op => {
+    {ay.mapJoin(operations, ({operation: op}) => {
       const args = [...op.parameters.properties.values()].map(p => ay.refkey(p));
       return <ClassMethod async type={op} returnType={null}>
           return <ts.FunctionCallExpression refkey={ay.refkey(op)} args={[contextMemberRef, ...args]}/>;
@@ -60,10 +57,10 @@ export function ClientClass(props: ClientClassProps) {
 }
 
 interface SubClientClassFieldProps {
-  client: _Client;
+  client: cl.Client;
 }
 
-function getSubClientClassFieldRef(client: _Client) {
+function getSubClientClassFieldRef(client: cl.Client) {
   return ay.refkey(client.type, "client-field");
 }
 
@@ -83,7 +80,7 @@ function SubClientClassField(props: SubClientClassFieldProps) {
 }
 
 interface ClientConstructorProps {
-  client: _Client;
+  client: cl.Client;
 }
 
 function ClientConstructor(props: ClientConstructorProps) {
@@ -107,7 +104,7 @@ function ClientConstructor(props: ClientConstructorProps) {
 }
 
 function calculateSubClientArgs(
-  subClient: _Client,
+  subClient: cl.Client,
   parentParams: Record<string, ts.ParameterDescriptor>,
 ) {
   const subClientParams = buildClientParameters(subClient);
@@ -117,7 +114,7 @@ function calculateSubClientArgs(
 }
 
 export interface NewClientExpressionProps {
-  client: _Client;
+  client: cl.Client;
   args: ay.Refkey[];
 }
 

@@ -1,13 +1,13 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Client } from "../../utils/client-discovery.js";
+import * as cl from "@typespec/http-client-library";
 import { httpRuntimeTemplateLib } from "../external-packages/ts-http-runtime.js";
 
 export interface ClientContextDeclarationProps {
-  client: Client;
+  client: cl.Client;
 }
 
-export function getClientcontextDeclarationRef(client: Client) {
+export function getClientcontextDeclarationRef(client: cl.Client) {
   return ay.refkey(client, "declaration");
 }
 

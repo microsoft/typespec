@@ -5,31 +5,29 @@ import {
   isTemplateDeclarationOrInstance,
   Namespace,
   Operation,
-  Type,
 } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
 import "@typespec/http/typekit";
-import { Client } from "../../interfaces.js";
+import { InternalClient } from "../../interfaces.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
-import { discoverDataTypes } from "../../utils/type-discovery.js";
 import { NameKit } from "./utils.js";
 
-interface ClientKit extends NameKit<Client> {
+interface ClientKit extends NameKit<InternalClient> {
   /**
    * Get the parent of a client
    * @param type The client to get the parent of
    */
-  getParent(type: Client | Namespace | Interface): Client | undefined;
+  getParent(type: InternalClient | Namespace | Interface): InternalClient | undefined;
   /**
    * Flatten a client into a list of clients. This will include the client and all its sub clients recursively.
    * @param client The client to flatten
    */
-  flat(client: Client): Client[];
+  flat(client: InternalClient): InternalClient[];
   /**
    * Get a client from a single namespace / interface
    */
-  getClient(namespace: Namespace | Interface): Client;
+  getClient(namespace: Namespace | Interface): InternalClient;
   /**
    * Get the constructor for a client. Will return the base intersection of all possible constructors.
    *
@@ -37,32 +35,27 @@ interface ClientKit extends NameKit<Client> {
    *
    * @param client The client we're getting constructors for
    */
-  getConstructor(client: Client): Operation;
+  getConstructor(client: InternalClient): Operation;
 
   /**
    * Whether the client is publicly initializable
    */
-  isPubliclyInitializable(client: Client): boolean;
+  isPubliclyInitializable(client: InternalClient): boolean;
 
   /**
    * Return the methods on the client
    *
    * @param client the client to get the methods for
    */
-  listServiceOperations(client: Client): Operation[];
+  listServiceOperations(client: InternalClient): Operation[];
 
   /**
    * Get the url template of a client, given its constructor as well */
-  getUrlTemplate(client: Client, constructor: Operation): string;
-  /**
-   * Lists all data types used by the client
-   * @param namespace namespace to get the data types of
-   */
-  listDataTypes(client: Client): Type[];
+  getUrlTemplate(client: InternalClient, constructor: Operation): string;
   /**
    * Determines is both clients have the same constructor
    */
-  haveSameConstructor(a: Client, b: Client): Boolean;
+  haveSameConstructor(a: InternalClient, b: InternalClient): Boolean;
 }
 
 interface TypeKit {
@@ -78,8 +71,8 @@ function getClientName(name: string): string {
   return name.endsWith("Client") ? name : `${name}Client`;
 }
 
-export const clientCache = new Map<Namespace | Interface, Client>();
-export const clientOperationCache = new Map<Client, Operation[]>();
+export const clientCache = new Map<Namespace | Interface, InternalClient>();
+export const clientOperationCache = new Map<InternalClient, Operation[]>();
 
 defineKit<TypeKit>({
   client: {
@@ -93,7 +86,7 @@ defineKit<TypeKit>({
     },
     flat(client) {
       const clientStack = [client];
-      const clients: Client[] = [];
+      const clients: InternalClient[] = [];
       while (clientStack.length > 0) {
         const currentClient = clientStack.pop();
         if (currentClient) {
@@ -113,7 +106,7 @@ defineKit<TypeKit>({
         name: getClientName(namespace.name),
         service: namespace,
         type: namespace,
-      } as Client;
+      } as InternalClient;
 
       clientCache.set(namespace, client);
       return client;
@@ -192,9 +185,6 @@ defineKit<TypeKit>({
         }
       }
       return "{endpoint}";
-    },
-    listDataTypes(client) {
-      return discoverDataTypes(client);
     },
     haveSameConstructor(a, b) {
       const aConstructor = this.client.getConstructor(a);

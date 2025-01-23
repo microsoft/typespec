@@ -1,7 +1,7 @@
 import { BaseType, ModelProperty, Value } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import { HttpAuth } from "@typespec/http";
-import { Client } from "../../interfaces.js";
+import { InternalClient as Client } from "../../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../../types/credential-symbol.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
 
@@ -58,7 +58,10 @@ defineKit<TypeKit>({
       return credentialSymbol in modelProperty && modelProperty[credentialSymbol] === true;
     },
     isOnClient(client, modelProperty) {
-      const clientParams = this.operation.getClientSignature(client, this.client.getConstructor(client));
+      const clientParams = this.operation.getClientSignature(
+        client,
+        this.client.getConstructor(client),
+      );
       // TODO: better comparison than name
       return Boolean(clientParams.find((p) => p.name === modelProperty.name));
     },

@@ -13,7 +13,7 @@ import {
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/typekit";
 import { isHttpFile } from "@typespec/http";
-import { Client } from "../../interfaces.js";
+import { InternalClient } from "../../interfaces.js";
 
 interface ClientLibraryKit {
   /**
@@ -29,7 +29,7 @@ interface ClientLibraryKit {
    *
    * @param namespace namespace to get the clients of
    */
-  listClients(type: Namespace | Client): Client[];
+  listClients(type: Namespace | InternalClient): InternalClient[];
 
   /**
    * List all of the models in a given namespace.
@@ -44,7 +44,7 @@ interface ClientLibraryKit {
    * @param namespace namespace to get the enums of
    */
   listEnums(namespace: Namespace): Enum[];
-  listDataTypes(namespace: Client): Array<Model | Enum | Union>;
+  listDataTypes(namespace: InternalClient): Array<Model | Enum | Union>;
 }
 
 interface TK {
@@ -125,7 +125,7 @@ defineKit<TK>({
     listEnums(namespace) {
       return [...namespace.enums.values()];
     },
-    listDataTypes(client: Client) {
+    listDataTypes(client: InternalClient) {
       return collectTypes(client, { includeTemplateDeclaration: false }).dataTypes;
     },
   },
@@ -136,7 +136,7 @@ export interface TypeCollectorOptions {
   includeTypeSpecTypes?: boolean;
 }
 
-export function collectTypes(client: Client, options: TypeCollectorOptions = {}) {
+export function collectTypes(client: InternalClient, options: TypeCollectorOptions = {}) {
   const dataTypes = new Set<Model | Enum | Union>();
   const operations: Operation[] = [];
   $.client.flat(client).forEach((c) => {

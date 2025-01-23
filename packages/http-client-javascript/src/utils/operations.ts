@@ -30,7 +30,7 @@ const anonymousMutatorRecord: unsafe_MutatorRecord<Model | Union> = {
   },
 };
 
-const anonymousMutator: Mutator = {
+export const anonymousMutator: Mutator = {
   name: "Anonymous types",
   Model: anonymousMutatorRecord,
   Union: anonymousMutatorRecord,
@@ -39,7 +39,7 @@ const anonymousMutator: Mutator = {
 /**
  * Mutates the operation so that the parameters model is split into required and optional parameters.
  */
-const httpParamsMutator: Mutator = {
+export const httpParamsMutator: Mutator = {
   name: "Http parameters",
   Operation: {
     filter() {

@@ -1,12 +1,13 @@
 import { Children, code, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Operation, StringLiteral } from "@typespec/compiler";
+import { StringLiteral } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { ClientOperation } from "@typespec/http-client-library";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
 import { TypeTransformCall } from "./transforms/type-transform-call.jsx";
 
 export interface HttpRequestOptionsProps {
-  operation: Operation;
+  operation: ClientOperation;
   refkey?: Refkey;
   children?: Children;
 }
@@ -21,7 +22,7 @@ export function HttpRequestOptions(props: HttpRequestOptionsProps) {
 }
 
 export interface HttpRequestOptionsHeadersProps {
-  operation: Operation;
+  operation: ClientOperation;
   children?: Children;
 }
 
@@ -29,7 +30,7 @@ HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
   props: HttpRequestOptionsHeadersProps,
 ) {
   // Extract the header request parameters from the operation
-  const httpOperation = $.httpOperation.get(props.operation);
+  const httpOperation = props.operation.httpOperation;
   const headers = $.httpRequest.getParameters(httpOperation, "header");
 
   // Prepare the default content type, to use in case no explicit content type is provided
@@ -63,13 +64,13 @@ HttpRequestOptions.Headers = function HttpRequestOptionsHeaders(
 };
 
 export interface HttpRequestOptionsBodyProps {
-  operation: Operation;
+  operation: ClientOperation;
   itemName?: string;
   children?: Children;
 }
 
 HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOptionsBodyProps) {
-  const httpOperation = $.httpOperation.get(props.operation);
+  const httpOperation = props.operation.httpOperation;
   const body = httpOperation.parameters.body;
 
   if (!body) {

@@ -1,7 +1,7 @@
 import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { getAuthentication, getServers } from "@typespec/http";
-import { Client } from "../interfaces.js";
+import { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
@@ -10,7 +10,7 @@ import { getStringValue, getUniqueTypes } from "./helpers.js";
  * @param client
  * @returns
  */
-export function getEndpointParametersPerConstructor(client: Client): ModelProperty[][] {
+export function getEndpointParametersPerConstructor(client: InternalClient): ModelProperty[][] {
   const servers = getServers($.program, client.service);
   if (servers === undefined) {
     const name = "endpoint";
@@ -56,7 +56,7 @@ export function getEndpointParametersPerConstructor(client: Client): ModelProper
   return retval;
 }
 
-export function getCredentalParameter(client: Client): ModelProperty | undefined {
+export function getCredentalParameter(client: InternalClient): ModelProperty | undefined {
   const schemes = getAuthentication($.program, client.service)?.options.flatMap((o) => o.schemes);
   if (!schemes) return;
   const credTypes: StringLiteral[] = schemes.map((scheme) => {
@@ -81,7 +81,7 @@ export function getCredentalParameter(client: Client): ModelProperty | undefined
   return credentialParameter;
 }
 
-export function getConstructors(client: Client): Operation[] {
+export function getConstructors(client: InternalClient): Operation[] {
   const constructors: Operation[] = [];
   let params: ModelProperty[] = [];
   const credParam = getCredentalParameter(client);
@@ -115,7 +115,10 @@ export function getConstructors(client: Client): Operation[] {
   return constructors;
 }
 
-export function createBaseConstructor(client: Client, constructors: Operation[]): Operation {
+export function createBaseConstructor(
+  client: InternalClient,
+  constructors: Operation[],
+): Operation {
   const allParams: Map<string, ModelProperty[]> = new Map();
   const combinedParams: ModelProperty[] = [];
 

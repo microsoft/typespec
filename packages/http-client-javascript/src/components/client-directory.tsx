@@ -1,25 +1,26 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Client } from "../utils/client-discovery.js";
+import * as cl from "@typespec/http-client-library";
+import { useClientLibrary } from "@typespec/http-client-library";
 import { ClientContext } from "./client-context/client-context.jsx";
 import { ClientOperations } from "./client-operation.jsx";
 
 export interface OperationsDirectoryProps {
-  client: Client;
   children?: ay.Children;
 }
 
 export function OperationsDirectory(props: OperationsDirectoryProps) {
+  const { rootClient: client } = useClientLibrary();
   // If it is the root client, we don't need to create a directory
   return <>
-       <ClientOperations client={props.client} />
-       <ClientContext client={props.client} />
-       <SubClients client={props.client} />
+       <ClientOperations client={client} />
+       <ClientContext client={client} />
+       <SubClients client={client} />
     </>;
 }
 
 export interface SubClientsProps {
-  client: Client;
+  client: cl.Client;
 }
 
 export function SubClients(props: SubClientsProps) {

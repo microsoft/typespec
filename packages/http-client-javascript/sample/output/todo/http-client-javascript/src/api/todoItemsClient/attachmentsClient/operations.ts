@@ -54,7 +54,7 @@ export async function createFileAttachment(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": "application/json",
+      "content-type": "multipart/form-data",
     },
     body: [createFilePartDescriptor("contents", body.contents)],
   };

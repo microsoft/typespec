@@ -1,5 +1,5 @@
 import { Type, UsageFlags } from "@typespec/compiler";
-import { Client } from "../../interfaces.js";
+import { InternalClient } from "../../interfaces.js";
 
 export interface AccessKit<T extends Type> {
   /**
@@ -15,7 +15,7 @@ export interface UsageKit<T extends Type> {
   getUsage(type: T): UsageFlags;
 }
 
-export interface NameKit<T extends Type | Client> {
+export interface NameKit<T extends Type | InternalClient> {
   /**
    * Gets the name of a type, with @clientName decorator applied
    */

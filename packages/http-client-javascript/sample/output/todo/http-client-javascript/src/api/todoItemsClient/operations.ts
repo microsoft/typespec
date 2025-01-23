@@ -31,17 +31,7 @@ export async function list(
   });
 
   const httpRequestOptions = {
-    headers: {
-      "content-type": "application/json",
-    },
-    body: {
-      options: options?.options
-        ? {
-            limit: options?.options.limit,
-            offset: options?.options.offset,
-          }
-        : options?.options,
-    },
+    headers: {},
   };
 
   const response = await client.path(path).get(httpRequestOptions);
@@ -77,13 +67,9 @@ export async function createJson(
     },
     body: {
       item: todoItemToTransport(item),
-      options: options?.options
-        ? {
-            attachments: options?.options.attachments
-              ? arraySerializer(options?.options.attachments, todoAttachmentToTransport)
-              : options?.options.attachments,
-          }
-        : options?.options,
+      attachments: options?.attachments
+        ? arraySerializer(options?.attachments, todoAttachmentToTransport)
+        : options?.attachments,
     },
   };
 
@@ -126,7 +112,7 @@ export async function createForm(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": "application/json",
+      "content-type": "multipart/form-data",
     },
     body: [
       {
@@ -224,7 +210,7 @@ export async function update(
 
   const httpRequestOptions = {
     headers: {
-      "content-type": "application/json",
+      "content-type": "application/merge-patch+json",
     },
     body: todoItemPatchToTransport(patch),
   };

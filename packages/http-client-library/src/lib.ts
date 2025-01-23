@@ -10,6 +10,14 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Banned alternate name "${"name"}".`,
       },
     },
+    "use-client-context-without-provider": {
+      severity: "error",
+      messages: {
+        default: "useClientLibrary used without ClientLibraryProvider.",
+      },
+      description:
+        "useClientLibrary used without ClientLibraryProvider. Make sure to wrap your component tree with ClientLibraryProvider or a ClientLibrary component.",
+    },
   },
   // Defined state keys for storing metadata in decorator.
   state: {

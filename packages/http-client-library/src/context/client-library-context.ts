@@ -1,13 +1,18 @@
-import { ComponentContext, createContext, useContext } from "@alloy-js/core";
-import { Namespace } from "@typespec/compiler";
+import { ComponentContext, createNamedContext, useContext } from "@alloy-js/core";
+import { NoTarget } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
+import { ClientLibrary } from "../client-library.js";
+import { reportDiagnostic } from "../lib.js";
 
-export interface ClientLibrary {
-  scope: string;
-  rootNs: Namespace;
-}
+export const ClientLibraryContext: ComponentContext<ClientLibrary> =
+  createNamedContext<ClientLibrary>("ClientLibrary");
 
-export const ClientLibraryContext: ComponentContext<ClientLibrary> = createContext<ClientLibrary>();
+export function useClientLibrary() {
+  const context = useContext(ClientLibraryContext);
 
-export function useClientLibraryContext() {
-  return useContext(ClientLibraryContext)!;
+  if (!context) {
+    reportDiagnostic($.program, { code: "use-client-context-without-provider", target: NoTarget });
+  }
+
+  return context!;
 }

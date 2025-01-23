@@ -1,6 +1,6 @@
 import { ModelProperty, Operation, Type } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
-import { Client } from "../../interfaces.js";
+import { InternalClient as Client } from "../../interfaces.js";
 import { getConstructors } from "../../utils/client-helpers.js";
 import { clientOperationCache } from "./client.js";
 import { AccessKit, getAccess, getName, NameKit } from "./utils.js";
@@ -79,7 +79,9 @@ defineKit<SdkKit>({
         return undefined;
       }
       if (this.union.is(returnType)) {
-        const validTypes = [...returnType.variants.values()].filter((v) => !this.type.isError(v.type));
+        const validTypes = [...returnType.variants.values()].filter(
+          (v) => !this.type.isError(v.type),
+        );
         if (validTypes.length === 0) {
           return undefined;
         }
@@ -99,7 +101,9 @@ defineKit<SdkKit>({
         return undefined;
       }
       if (this.union.is(returnType)) {
-        const errorTypes = [...returnType.variants.values()].filter((v) => this.type.isError(v.type));
+        const errorTypes = [...returnType.variants.values()].filter((v) =>
+          this.type.isError(v.type),
+        );
         if (errorTypes.length === 0) {
           return undefined;
         }

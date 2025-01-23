@@ -1,22 +1,17 @@
 import { Children } from "@alloy-js/core";
-import { listServices, Namespace } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { unsafe_Mutator } from "@typespec/compiler/experimental";
+import { createClientLibrary } from "../client-library.js";
 import { ClientLibraryContext } from "../context/client-library-context.js";
+
 export interface ClientLibraryProps {
-  scope: string;
+  operationMutators?: unsafe_Mutator[];
   children?: Children;
 }
 
 export function ClientLibrary(props: ClientLibraryProps) {
-  const service = listServices($.program);
-  let rootNs: Namespace;
-  if (service.length === 0) {
-    rootNs = $.program.getGlobalNamespaceType();
-  } else {
-    rootNs = service[0].type;
-  }
+  const clientLibrary = createClientLibrary({ operationMutators: props.operationMutators });
   return (
-    <ClientLibraryContext.Provider value={{ scope: props.scope, rootNs }}>
+    <ClientLibraryContext.Provider value={clientLibrary}>
       {props.children}
     </ClientLibraryContext.Provider>
   );

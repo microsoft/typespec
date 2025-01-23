@@ -1,14 +1,14 @@
 import { Children, code, refkey, Refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Reference } from "@alloy-js/typescript";
-import { Operation } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { ClientOperation } from "@typespec/http-client-library";
 import { uriTemplateLib } from "./external-packages/uri-template.js";
 import { HttpRequestOptions } from "./http-request-options.js";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.js";
 
 export interface HttpRequestProps {
-  operation: Operation;
+  operation: ClientOperation;
   responseRefkey?: Refkey;
 }
 
@@ -16,7 +16,7 @@ export function HttpRequest(props: HttpRequestProps) {
   const operationUrlRefkey = refkey();
   const requestOptionsRefkey = refkey();
   const httpResponseRefkey = props.responseRefkey ?? refkey();
-  const verb = $.httpOperation.get(props.operation).verb;
+  const verb = props.operation.httpOperation.verb;
   return <>
     <HttpRequest.Url operation={props.operation}  refkey={operationUrlRefkey}/>
     
@@ -30,13 +30,13 @@ export function HttpRequest(props: HttpRequestProps) {
 }
 
 export interface HttpUrlProps {
-  operation: Operation;
+  operation: ClientOperation;
   refkey?: Refkey;
   children?: Children;
 }
 
 HttpRequest.Url = function HttpUrlDeclaration(props: HttpUrlProps) {
-  const httpOperation = $.httpOperation.get(props.operation);
+  const httpOperation = props.operation.httpOperation;
   const urlTemplate = httpOperation.uriTemplate;
   const urlParameters = $.httpRequest.getParameters(httpOperation, ["path", "query"]);
 
