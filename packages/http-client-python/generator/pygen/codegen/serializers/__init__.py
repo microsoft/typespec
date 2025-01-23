@@ -483,7 +483,7 @@ class JinjaSerializer(ReaderAndWriter):
         return self.exec_path_compensation / Path(*namespace.split("."))
 
     def exec_path(self, namespace: str) -> Path:
-        if self.code_model.options["no_namespace_folders"]:
+        if self.code_model.options["no_namespace_folders"] and not self.code_model.options["multiapi"]:
             return Path(".")
         return self.exec_path_compensation / Path(*namespace.split("."))
 
