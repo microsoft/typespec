@@ -12,8 +12,8 @@ import {
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { fail, strictEqual } from "assert";
 import { readdirSync } from "fs";
-import { mkdir, readFile, readdir, writeFile } from "fs/promises";
-import { RunnerTestFile, RunnerTestSuite, afterAll, beforeAll, it } from "vitest";
+import { mkdir, readFile,  writeFile } from "fs/promises";
+import { RunnerTestFile, RunnerTestSuite, afterAll, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../../../src/lib.js";
 import { worksFor } from "./../../works-for.js";
 
@@ -111,29 +111,6 @@ function createSpecTestHost(): SpecSnapshotTestHost {
   };
 }
 
-async function readFilesInDirRecursively(dir: string): Promise<string[]> {
-  let entries;
-  try {
-    entries = await readdir(dir, { withFileTypes: true });
-  } catch (e) {
-    if (isEnoentError(e)) {
-      return [];
-    } else {
-      throw new Error(`Failed to read dir "${dir}"\n Error: ${e}`);
-    }
-  }
-  const files: string[] = [];
-  for (const entry of entries) {
-    if (entry.isDirectory()) {
-      for (const file of await readFilesInDirRecursively(resolvePath(dir, entry.name))) {
-        files.push(resolvePath(entry.name, file));
-      }
-    } else {
-      files.push(entry.name);
-    }
-  }
-  return files;
-}
 
 interface Spec {
   name: string;
