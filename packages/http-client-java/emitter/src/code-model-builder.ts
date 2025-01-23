@@ -68,7 +68,6 @@ import {
   SdkUnionType,
   createSdkContext,
   getAllModels,
-  getWireName,
   isApiVersion,
   isSdkBuiltInKind,
   isSdkIntKind,
@@ -101,13 +100,7 @@ import {
   HttpStatusCodesEntry,
   Visibility,
   getAuthentication,
-  getHeaderFieldName,
-  getPathParamName,
-  getQueryParamName,
   isCookieParam,
-  isHeader,
-  isPathParam,
-  isQueryParam,
 } from "@typespec/http";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
@@ -2338,16 +2331,21 @@ export class CodeModelBuilder {
       schema = this.processSchema(nonNullType, "");
     }
 
+    const getPropertySerializedName = (property: SdkBodyModelPropertyType) => {
+      // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
+      return (
+        prop.serializationOptions.json?.name ??
+        prop.serializationOptions.multipart?.name ??
+        property.serializedName
+      );
+    };
+
     return new Property(prop.name, prop.doc ?? "", schema, {
       summary: prop.summary,
       required: !prop.optional,
       nullable: nullable,
       readOnly: this.isReadOnly(prop),
-      // serializedName:
-      //   prop.kind === "property"
-      //     ? (prop.serializationOptions.json?.name ?? prop.serializationOptions.multipart?.name)
-      //     : undefined,
-      serializedName: prop.kind === "property" ? prop.serializedName : undefined,
+      serializedName: prop.kind === "property" ? getPropertySerializedName(prop) : undefined,
       extensions: extensions,
     });
   }
@@ -2529,19 +2527,6 @@ export class CodeModelBuilder {
 
   private getSummary(target: Type | undefined): string | undefined {
     return target ? getSummary(this.program, target) : undefined;
-  }
-
-  private getSerializedName(target: ModelProperty): string {
-    if (isHeader(this.program, target)) {
-      return getHeaderFieldName(this.program, target);
-    } else if (isQueryParam(this.program, target)) {
-      return getQueryParamName(this.program, target);
-    } else if (isPathParam(this.program, target)) {
-      return getPathParamName(this.program, target);
-    } else {
-      // TODO: currently this is only for JSON
-      return getWireName(this.sdkContext, target);
-    }
   }
 
   private isReadOnly(target: SdkModelPropertyType): boolean {
