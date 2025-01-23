@@ -91,6 +91,10 @@ export const AreaLabels = defineLabels({
     color: "967200",
     description: "Issue for Java service emitter",
   },
+  spector: {
+    color: "65bfff",
+    description: "Issues related to spector and the spec sets",
+  },
   eng: {
     color: "65bfff",
     description: "",

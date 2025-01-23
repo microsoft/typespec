@@ -46,7 +46,7 @@ foreach ($directory in $directories) {
           $testFilter += "._$segment"
           $testPath = Join-Path $testPath "_$segment"
         }
-        else{
+        else {
           $testFilter += ".$segment"
           $testPath = Join-Path $testPath $segment
         }

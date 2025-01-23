@@ -62,7 +62,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/5134")]
         public Task QueryExpansionExplodePrimitive() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetQueryParametersClient()
@@ -73,7 +72,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/5134")]
         public Task QueryExpansionExplodeArray() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetQueryParametersClient()
@@ -84,7 +82,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Routes
         });
 
         [CadlRanchTest]
-        [Ignore("https://github.com/microsoft/typespec/issues/5134")]
         public Task QueryExpansionExplodeRecord() => Test(async (host) =>
         {
             var response = await new RoutesClient(host, null).GetQueryParametersClient()

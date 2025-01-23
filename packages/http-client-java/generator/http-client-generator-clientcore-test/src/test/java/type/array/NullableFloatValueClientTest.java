@@ -9,18 +9,18 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class NullableFloatValueClientTest {
+public class NullableFloatValueClientTest {
 
-    NullableFloatValueClient client = new ArrayClientBuilder().buildNullableFloatValueClient();
+    private final NullableFloatValueClient client = new ArrayClientBuilder().buildNullableFloatValueClient();
 
     @Test
-    void get() {
+    public void get() {
         List<Double> response = client.get();
         assertEquals(Arrays.asList(1.25, null, 3), response);
     }
 
     @Test
-    void put() {
+    public void put() {
         List<Double> body = Arrays.asList(1.25, null, 3.0);
         client.put(body);
     }

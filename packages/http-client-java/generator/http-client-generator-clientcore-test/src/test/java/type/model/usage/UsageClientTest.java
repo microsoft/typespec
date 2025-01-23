@@ -6,24 +6,24 @@ package type.model.usage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class UsageClientTest {
+public class UsageClientTest {
 
-    UsageClient client = new UsageClientBuilder().buildClient();
+    private final UsageClient client = new UsageClientBuilder().buildClient();
 
     @Test
-    void input() {
+    public void input() {
         InputRecord inputRecord = new InputRecord("example-value");
         client.input(inputRecord);
     }
 
     @Test
-    void output() {
+    public void output() {
         OutputRecord outputRecord = client.output();
         Assertions.assertEquals("example-value", outputRecord.getRequiredProp());
     }
 
     @Test
-    void inputAndOutput() {
+    public void inputAndOutput() {
         InputOutputRecord inputOutputRecord = new InputOutputRecord("example-value");
         InputOutputRecord response = client.inputAndOutput(inputOutputRecord);
         Assertions.assertEquals("example-value", response.getRequiredProp());
