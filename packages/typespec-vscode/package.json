@@ -216,7 +216,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run compile && echo 'done compile' && npm run copy-tmlanguage && echo 'done copy tmLanguage' && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
+    "build": "npm run compile && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
     "compile": "rollup --config rollup.config.ts --configPlugin typescript --failAfterWarnings 2>&1",
     "watch": "rollup --config rollup.config.ts --configPlugin typescript --watch",
     "dogfood": "node scripts/dogfood.js",
