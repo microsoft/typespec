@@ -253,6 +253,7 @@ words:
   - xplat
   - xxsubtype
   - yamls
+  - français
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
