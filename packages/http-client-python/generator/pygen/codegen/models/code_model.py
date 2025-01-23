@@ -313,7 +313,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         :param int schema_id: The yaml id of the schema
         :return: If created, we return the created schema, otherwise, we throw.
         :rtype: ~autorest.models.BaseType
-        :raises: KeyError if schema is not found
+        :raises KeyError: if schema is not found
         """
         try:
             return next(type for id, type in self.types_map.items() if id == schema_id)
@@ -402,3 +402,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @property
     def is_legacy(self) -> bool:
         return _is_legacy(self.options)
+
+    @staticmethod
+    def has_non_json_models(models: List[ModelType]) -> bool:
+        return any(m for m in models if m.base != "json")

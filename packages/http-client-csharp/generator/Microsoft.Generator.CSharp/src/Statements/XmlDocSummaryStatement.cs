@@ -9,7 +9,7 @@ namespace Microsoft.Generator.CSharp.Statements
     public sealed class XmlDocSummaryStatement : XmlDocStatement
     {
         public XmlDocSummaryStatement(IReadOnlyList<FormattableString> lines, params XmlDocStatement[] innerStatements)
-            : base("<summary>", "</summary>", lines, innerStatements: innerStatements)
+            : base($"<summary>", $"</summary>", lines, innerStatements: innerStatements)
         {
         }
     }

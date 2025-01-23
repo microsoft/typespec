@@ -3,12 +3,13 @@
 package payload.pageable;
 
 import io.clientcore.core.annotation.Metadata;
+import io.clientcore.core.annotation.ReturnType;
 import io.clientcore.core.annotation.ServiceClient;
+import io.clientcore.core.annotation.ServiceMethod;
 import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.http.models.PagedIterable;
 import io.clientcore.core.http.models.RequestOptions;
-import io.clientcore.core.http.models.Response;
 import payload.pageable.implementation.ServerDrivenPaginationsImpl;
-import payload.pageable.serverdrivenpagination.LinkResponse;
 
 /**
  * Initializes a new instance of the synchronous PageableClient type.
@@ -41,12 +42,7 @@ public final class PageableClient {
      *             name: String (Required)
      *         }
      *     ]
-     *     links (Required): {
-     *         next: String (Optional)
-     *         prev: String (Optional)
-     *         first: String (Optional)
-     *         last: String (Optional)
-     *     }
+     *     next: String (Optional)
      * }
      * }
      * </pre>
@@ -56,8 +52,9 @@ public final class PageableClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public Response<LinkResponse> linkWithResponse(RequestOptions requestOptions) {
-        return this.serviceClient.linkWithResponse(requestOptions);
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> link(RequestOptions requestOptions) {
+        return this.serviceClient.link(requestOptions);
     }
 
     /**
@@ -68,9 +65,10 @@ public final class PageableClient {
      * @return the response.
      */
     @Metadata(generated = true)
-    public LinkResponse link() {
-        // Generated convenience method for linkWithResponse
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> link() {
+        // Generated convenience method for link
         RequestOptions requestOptions = new RequestOptions();
-        return linkWithResponse(requestOptions).getValue();
+        return serviceClient.link(requestOptions);
     }
 }

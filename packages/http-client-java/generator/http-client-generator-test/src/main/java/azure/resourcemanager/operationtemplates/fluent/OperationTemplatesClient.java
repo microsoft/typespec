@@ -47,6 +47,20 @@ public interface OperationTemplatesClient {
     Duration getDefaultPollInterval();
 
     /**
+     * Gets the OperationsClient object to access its operations.
+     * 
+     * @return the OperationsClient object.
+     */
+    OperationsClient getOperations();
+
+    /**
+     * Gets the CheckNameAvailabilitiesClient object to access its operations.
+     * 
+     * @return the CheckNameAvailabilitiesClient object.
+     */
+    CheckNameAvailabilitiesClient getCheckNameAvailabilities();
+
+    /**
      * Gets the LroesClient object to access its operations.
      * 
      * @return the LroesClient object.

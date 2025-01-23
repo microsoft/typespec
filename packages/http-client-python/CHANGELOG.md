@@ -1,5 +1,37 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.7
+
+### Bug Fixes
+
+- Fix sphinx typing for raising documentation
+- fix typing for class methods in _serialization.py
+
+## 0.6.6
+
+### Other Changes
+
+- Rename `apiview_mapping_python.json` cross-language id file to `apiview-properties.json` for cross-language compatibility
+- Order keyword-only args overload first in generated operations
+
+## 0.6.5
+
+### Bug Fixes
+
+- Only add type annotation during initialization for readonly
+- Fix pylint issues
+
+### Bump dependencies
+
+- Bump `@typespec/*` 0.64.0 and `@azure-tools/*` 0.50.0
+
+## 0.6.4
+
+### Bug Fixes
+
+- Fix pack issue for typespec namespace
+- Fix typing issue for unbranded test case
+
 ## 0.6.3
 
 ### Bug Fixes
