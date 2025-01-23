@@ -24,7 +24,7 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   let name = props.name ?? props.type.name;
 
-  if(!props.name || props.name === "") { 
+  if(!name || name === "") { 
     reportDiagnostic($.program, {code: "type-declaration-missing-name", target: props.type});
   }
 
