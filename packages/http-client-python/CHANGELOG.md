@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 - Fix for scenario that output folder is different with namespace
+- Improve XML serialization information in generated models
 
 ## 0.6.7
 
