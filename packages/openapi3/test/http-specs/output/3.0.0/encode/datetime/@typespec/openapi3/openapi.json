@@ -455,9 +455,7 @@
       },
       "DefaultDatetimeProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",
@@ -470,9 +468,7 @@
       },
       "Rfc3339DatetimeProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",
@@ -485,9 +481,7 @@
       },
       "Rfc7231DatetimeProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",
@@ -497,9 +491,7 @@
       },
       "UnixTimestampArrayDatetimeProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "array",
@@ -514,9 +506,7 @@
       },
       "UnixTimestampDatetimeProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "integer",

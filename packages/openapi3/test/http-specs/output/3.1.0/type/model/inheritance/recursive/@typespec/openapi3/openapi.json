@@ -61,9 +61,7 @@
       },
       "Extension": {
         "type": "object",
-        "required": [
-          "level"
-        ],
+        "required": ["level"],
         "properties": {
           "level": {
             "type": "integer",

@@ -1172,15 +1172,11 @@
     "schemas": {
       "BooleanLiteralProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "boolean",
-            "enum": [
-              true
-            ],
+            "enum": [true],
             "description": "Property"
           }
         },
@@ -1188,9 +1184,7 @@
       },
       "BooleanProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "boolean",
@@ -1201,9 +1195,7 @@
       },
       "BytesProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
@@ -1215,9 +1207,7 @@
       },
       "CollectionsIntProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "array",
@@ -1232,9 +1222,7 @@
       },
       "CollectionsModelProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "array",
@@ -1248,9 +1236,7 @@
       },
       "CollectionsStringProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "array",
@@ -1264,9 +1250,7 @@
       },
       "DatetimeProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
@@ -1278,9 +1262,7 @@
       },
       "Decimal128Property": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "number",
@@ -1292,9 +1274,7 @@
       },
       "DecimalProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "number",
@@ -1306,9 +1286,7 @@
       },
       "DictionaryStringProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "object",
@@ -1322,9 +1300,7 @@
       },
       "DurationProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
@@ -1336,9 +1312,7 @@
       },
       "EnumProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "allOf": [
@@ -1358,17 +1332,13 @@
           },
           {
             "type": "string",
-            "enum": [
-              "value2"
-            ]
+            "enum": ["value2"]
           }
         ]
       },
       "ExtensibleEnumProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "allOf": [
@@ -1383,23 +1353,16 @@
       },
       "FixedInnerEnum": {
         "type": "string",
-        "enum": [
-          "ValueOne",
-          "ValueTwo"
-        ],
+        "enum": ["ValueOne", "ValueTwo"],
         "description": "Enum that will be used as a property for model EnumProperty. Non-extensible."
       },
       "FloatLiteralProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "number",
-            "enum": [
-              43.125
-            ],
+            "enum": [43.125],
             "description": "Property"
           }
         },
@@ -1407,9 +1370,7 @@
       },
       "FloatProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "number",
@@ -1426,19 +1387,14 @@
           },
           {
             "type": "string",
-            "enum": [
-              "ValueOne",
-              "ValueTwo"
-            ]
+            "enum": ["ValueOne", "ValueTwo"]
           }
         ],
         "description": "Enum that will be used as a property for model EnumProperty. Extensible."
       },
       "InnerModel": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
@@ -1449,15 +1405,11 @@
       },
       "IntLiteralProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "number",
-            "enum": [
-              42
-            ],
+            "enum": [42],
             "description": "Property"
           }
         },
@@ -1465,9 +1417,7 @@
       },
       "IntProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "integer",
@@ -1479,9 +1429,7 @@
       },
       "ModelProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "allOf": [
@@ -1500,15 +1448,11 @@
       },
       "StringLiteralProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
-            "enum": [
-              "hello"
-            ],
+            "enum": ["hello"],
             "description": "Property"
           }
         },
@@ -1516,9 +1460,7 @@
       },
       "StringProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
@@ -1529,15 +1471,11 @@
       },
       "UnionEnumValueProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
-            "enum": [
-              "value2"
-            ],
+            "enum": ["value2"],
             "description": "Property"
           }
         },
@@ -1545,16 +1483,11 @@
       },
       "UnionFloatLiteralProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "number",
-            "enum": [
-              43.125,
-              46.875
-            ],
+            "enum": [43.125, 46.875],
             "description": "Property"
           }
         },
@@ -1562,16 +1495,11 @@
       },
       "UnionIntLiteralProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "number",
-            "enum": [
-              42,
-              43
-            ],
+            "enum": [42, 43],
             "description": "Property"
           }
         },
@@ -1579,16 +1507,11 @@
       },
       "UnionStringLiteralProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
-            "enum": [
-              "hello",
-              "world"
-            ],
+            "enum": ["hello", "world"],
             "description": "Property"
           }
         },
@@ -1596,9 +1519,7 @@
       },
       "UnknownArrayProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "description": "Property"
@@ -1608,9 +1529,7 @@
       },
       "UnknownDictProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "description": "Property"
@@ -1620,9 +1539,7 @@
       },
       "UnknownIntProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "description": "Property"
@@ -1632,9 +1549,7 @@
       },
       "UnknownStringProperty": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "description": "Property"

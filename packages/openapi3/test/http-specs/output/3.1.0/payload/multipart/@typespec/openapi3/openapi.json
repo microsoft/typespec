@@ -29,9 +29,7 @@
                     "contentEncoding": "base64"
                   }
                 },
-                "required": [
-                  "profileImage"
-                ]
+                "required": ["profileImage"]
               }
             }
           }
@@ -309,9 +307,7 @@
                     "format": "double"
                   }
                 },
-                "required": [
-                  "temperature"
-                ]
+                "required": ["temperature"]
               }
             }
           }
@@ -323,9 +319,7 @@
     "schemas": {
       "Address": {
         "type": "object",
-        "required": [
-          "city"
-        ],
+        "required": ["city"],
         "properties": {
           "city": {
             "type": "string"
@@ -334,10 +328,7 @@
       },
       "BinaryArrayPartsRequestMultiPart": {
         "type": "object",
-        "required": [
-          "id",
-          "pictures"
-        ],
+        "required": ["id", "pictures"],
         "properties": {
           "id": {
             "type": "string"
@@ -369,22 +360,11 @@
             "items": {}
           }
         },
-        "required": [
-          "id",
-          "address",
-          "profileImage",
-          "previousAddresses",
-          "pictures"
-        ]
+        "required": ["id", "address", "profileImage", "previousAddresses", "pictures"]
       },
       "ComplexPartsRequestMultiPart": {
         "type": "object",
-        "required": [
-          "id",
-          "address",
-          "profileImage",
-          "pictures"
-        ],
+        "required": ["id", "address", "profileImage", "pictures"],
         "properties": {
           "id": {
             "type": "string"
@@ -404,34 +384,25 @@
         "properties": {
           "profileImage": {}
         },
-        "required": [
-          "profileImage"
-        ]
+        "required": ["profileImage"]
       },
       "FileWithHttpPartRequiredContentTypeRequest": {
         "type": "object",
         "properties": {
           "profileImage": {}
         },
-        "required": [
-          "profileImage"
-        ]
+        "required": ["profileImage"]
       },
       "FileWithHttpPartSpecificContentTypeRequest": {
         "type": "object",
         "properties": {
           "profileImage": {}
         },
-        "required": [
-          "profileImage"
-        ]
+        "required": ["profileImage"]
       },
       "JsonPartRequestMultiPart": {
         "type": "object",
-        "required": [
-          "address",
-          "profileImage"
-        ],
+        "required": ["address", "profileImage"],
         "properties": {
           "address": {
             "$ref": "#/components/schemas/Address"
@@ -441,9 +412,7 @@
       },
       "MultiBinaryPartsRequestMultiPart": {
         "type": "object",
-        "required": [
-          "profileImage"
-        ],
+        "required": ["profileImage"],
         "properties": {
           "profileImage": {},
           "picture": {}
@@ -451,10 +420,7 @@
       },
       "MultiPartRequestMultiPart": {
         "type": "object",
-        "required": [
-          "id",
-          "profileImage"
-        ],
+        "required": ["id", "profileImage"],
         "properties": {
           "id": {
             "type": "string"

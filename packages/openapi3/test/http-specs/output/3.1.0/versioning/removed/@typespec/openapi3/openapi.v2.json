@@ -69,24 +69,15 @@
     "schemas": {
       "EnumV2": {
         "type": "string",
-        "enum": [
-          "enumMemberV2"
-        ]
+        "enum": ["enumMemberV2"]
       },
       "EnumV3": {
         "type": "string",
-        "enum": [
-          "enumMemberV1",
-          "enumMemberV2Preview"
-        ]
+        "enum": ["enumMemberV1", "enumMemberV2Preview"]
       },
       "ModelV2": {
         "type": "object",
-        "required": [
-          "prop",
-          "enumProp",
-          "unionProp"
-        ],
+        "required": ["prop", "enumProp", "unionProp"],
         "properties": {
           "prop": {
             "type": "string"
@@ -101,10 +92,7 @@
       },
       "ModelV3": {
         "type": "object",
-        "required": [
-          "id",
-          "enumProp"
-        ],
+        "required": ["id", "enumProp"],
         "properties": {
           "id": {
             "type": "string"
@@ -127,11 +115,7 @@
       },
       "Versions": {
         "type": "string",
-        "enum": [
-          "v1",
-          "v2preview",
-          "v2"
-        ],
+        "enum": ["v1", "v2preview", "v2"],
         "description": "The version of the API."
       }
     }
@@ -148,11 +132,7 @@
         "version": {
           "default": "",
           "description": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
-          "enum": [
-            "v1",
-            "v2preview",
-            "v2"
-          ]
+          "enum": ["v1", "v2preview", "v2"]
         }
       }
     }

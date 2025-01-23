@@ -23,9 +23,7 @@
                       "$ref": "#/components/schemas/EnumsOnlyCases"
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -51,9 +49,7 @@
                     "$ref": "#/components/schemas/EnumsOnlyCases"
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -74,16 +70,10 @@
                   "properties": {
                     "prop": {
                       "type": "number",
-                      "enum": [
-                        1.1,
-                        2.2,
-                        3.3
-                      ]
+                      "enum": [1.1, 2.2, 3.3]
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -107,16 +97,10 @@
                 "properties": {
                   "prop": {
                     "type": "number",
-                    "enum": [
-                      1.1,
-                      2.2,
-                      3.3
-                    ]
+                    "enum": [1.1, 2.2, 3.3]
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -137,16 +121,10 @@
                   "properties": {
                     "prop": {
                       "type": "number",
-                      "enum": [
-                        1,
-                        2,
-                        3
-                      ]
+                      "enum": [1, 2, 3]
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -170,16 +148,10 @@
                 "properties": {
                   "prop": {
                     "type": "number",
-                    "enum": [
-                      1,
-                      2,
-                      3
-                    ]
+                    "enum": [1, 2, 3]
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -202,9 +174,7 @@
                       "$ref": "#/components/schemas/MixedLiteralsCases"
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -230,9 +200,7 @@
                     "$ref": "#/components/schemas/MixedLiteralsCases"
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -255,9 +223,7 @@
                       "$ref": "#/components/schemas/MixedTypesCases"
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -283,9 +249,7 @@
                     "$ref": "#/components/schemas/MixedTypesCases"
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -315,9 +279,7 @@
                       ]
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -350,9 +312,7 @@
                     ]
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -375,9 +335,7 @@
                       "$ref": "#/components/schemas/StringAndArrayCases"
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -403,9 +361,7 @@
                     "$ref": "#/components/schemas/StringAndArrayCases"
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -431,17 +387,12 @@
                         },
                         {
                           "type": "string",
-                          "enum": [
-                            "b",
-                            "c"
-                          ]
+                          "enum": ["b", "c"]
                         }
                       ]
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -470,17 +421,12 @@
                       },
                       {
                         "type": "string",
-                        "enum": [
-                          "b",
-                          "c"
-                        ]
+                        "enum": ["b", "c"]
                       }
                     ]
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -503,9 +449,7 @@
                       "$ref": "#/components/schemas/StringExtensibleNamedUnion"
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -531,9 +475,7 @@
                     "$ref": "#/components/schemas/StringExtensibleNamedUnion"
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -554,16 +496,10 @@
                   "properties": {
                     "prop": {
                       "type": "string",
-                      "enum": [
-                        "a",
-                        "b",
-                        "c"
-                      ]
+                      "enum": ["a", "b", "c"]
                     }
                   },
-                  "required": [
-                    "prop"
-                  ]
+                  "required": ["prop"]
                 }
               }
             }
@@ -587,16 +523,10 @@
                 "properties": {
                   "prop": {
                     "type": "string",
-                    "enum": [
-                      "a",
-                      "b",
-                      "c"
-                    ]
+                    "enum": ["a", "b", "c"]
                   }
                 },
-                "required": [
-                  "prop"
-                ]
+                "required": ["prop"]
               }
             }
           }
@@ -608,9 +538,7 @@
     "schemas": {
       "Cat": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -619,9 +547,7 @@
       },
       "Dog": {
         "type": "object",
-        "required": [
-          "bark"
-        ],
+        "required": ["bark"],
         "properties": {
           "bark": {
             "type": "string"
@@ -630,10 +556,7 @@
       },
       "EnumsOnlyCases": {
         "type": "object",
-        "required": [
-          "lr",
-          "ud"
-        ],
+        "required": ["lr", "ud"],
         "properties": {
           "lr": {
             "anyOf": [
@@ -661,40 +584,25 @@
       },
       "LR": {
         "type": "string",
-        "enum": [
-          "left",
-          "right"
-        ]
+        "enum": ["left", "right"]
       },
       "MixedLiteralsCases": {
         "type": "object",
-        "required": [
-          "stringLiteral",
-          "intLiteral",
-          "floatLiteral",
-          "booleanLiteral"
-        ],
+        "required": ["stringLiteral", "intLiteral", "floatLiteral", "booleanLiteral"],
         "properties": {
           "stringLiteral": {
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "a"
-                ]
+                "enum": ["a"]
               },
               {
                 "type": "number",
-                "enum": [
-                  2,
-                  3.3
-                ]
+                "enum": [2, 3.3]
               },
               {
                 "type": "boolean",
-                "enum": [
-                  true
-                ]
+                "enum": [true]
               }
             ],
             "description": "This should be receive/send the \"a\" variant"
@@ -703,22 +611,15 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "a"
-                ]
+                "enum": ["a"]
               },
               {
                 "type": "number",
-                "enum": [
-                  2,
-                  3.3
-                ]
+                "enum": [2, 3.3]
               },
               {
                 "type": "boolean",
-                "enum": [
-                  true
-                ]
+                "enum": [true]
               }
             ],
             "description": "This should be receive/send the 2 variant"
@@ -727,22 +628,15 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "a"
-                ]
+                "enum": ["a"]
               },
               {
                 "type": "number",
-                "enum": [
-                  2,
-                  3.3
-                ]
+                "enum": [2, 3.3]
               },
               {
                 "type": "boolean",
-                "enum": [
-                  true
-                ]
+                "enum": [true]
               }
             ],
             "description": "This should be receive/send the 3.3 variant"
@@ -751,22 +645,15 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "a"
-                ]
+                "enum": ["a"]
               },
               {
                 "type": "number",
-                "enum": [
-                  2,
-                  3.3
-                ]
+                "enum": [2, 3.3]
               },
               {
                 "type": "boolean",
-                "enum": [
-                  true
-                ]
+                "enum": [true]
               }
             ],
             "description": "This should be receive/send the true variant"
@@ -775,13 +662,7 @@
       },
       "MixedTypesCases": {
         "type": "object",
-        "required": [
-          "model",
-          "literal",
-          "int",
-          "boolean",
-          "array"
-        ],
+        "required": ["model", "literal", "int", "boolean", "array"],
         "properties": {
           "model": {
             "anyOf": [
@@ -790,9 +671,7 @@
               },
               {
                 "type": "string",
-                "enum": [
-                  "a"
-                ]
+                "enum": ["a"]
               },
               {
                 "type": "integer",
@@ -811,9 +690,7 @@
               },
               {
                 "type": "string",
-                "enum": [
-                  "a"
-                ]
+                "enum": ["a"]
               },
               {
                 "type": "integer",
@@ -832,9 +709,7 @@
               },
               {
                 "type": "string",
-                "enum": [
-                  "a"
-                ]
+                "enum": ["a"]
               },
               {
                 "type": "integer",
@@ -853,9 +728,7 @@
               },
               {
                 "type": "string",
-                "enum": [
-                  "a"
-                ]
+                "enum": ["a"]
               },
               {
                 "type": "integer",
@@ -876,9 +749,7 @@
                 },
                 {
                   "type": "string",
-                  "enum": [
-                    "a"
-                  ]
+                  "enum": ["a"]
                 },
                 {
                   "type": "integer",
@@ -895,10 +766,7 @@
       },
       "StringAndArrayCases": {
         "type": "object",
-        "required": [
-          "string",
-          "array"
-        ],
+        "required": ["string", "array"],
         "properties": {
           "string": {
             "anyOf": [
@@ -937,19 +805,13 @@
           },
           {
             "type": "string",
-            "enum": [
-              "b",
-              "c"
-            ]
+            "enum": ["b", "c"]
           }
         ]
       },
       "UD": {
         "type": "string",
-        "enum": [
-          "up",
-          "down"
-        ]
+        "enum": ["up", "down"]
       }
     }
   },

@@ -1292,9 +1292,7 @@
     "schemas": {
       "DifferentSpreadFloatDerived": {
         "type": "object",
-        "required": [
-          "derivedProp"
-        ],
+        "required": ["derivedProp"],
         "properties": {
           "derivedProp": {
             "type": "number",
@@ -1311,9 +1309,7 @@
       },
       "DifferentSpreadFloatRecord": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1328,9 +1324,7 @@
       },
       "DifferentSpreadModelArrayDerived": {
         "type": "object",
-        "required": [
-          "derivedProp"
-        ],
+        "required": ["derivedProp"],
         "properties": {
           "derivedProp": {
             "type": "array",
@@ -1349,9 +1343,7 @@
       },
       "DifferentSpreadModelArrayRecord": {
         "type": "object",
-        "required": [
-          "knownProp"
-        ],
+        "required": ["knownProp"],
         "properties": {
           "knownProp": {
             "type": "string"
@@ -1367,9 +1359,7 @@
       },
       "DifferentSpreadModelDerived": {
         "type": "object",
-        "required": [
-          "derivedProp"
-        ],
+        "required": ["derivedProp"],
         "properties": {
           "derivedProp": {
             "allOf": [
@@ -1389,9 +1379,7 @@
       },
       "DifferentSpreadModelRecord": {
         "type": "object",
-        "required": [
-          "knownProp"
-        ],
+        "required": ["knownProp"],
         "properties": {
           "knownProp": {
             "type": "string"
@@ -1404,9 +1392,7 @@
       },
       "DifferentSpreadStringDerived": {
         "type": "object",
-        "required": [
-          "derivedProp"
-        ],
+        "required": ["derivedProp"],
         "properties": {
           "derivedProp": {
             "type": "string",
@@ -1422,9 +1408,7 @@
       },
       "DifferentSpreadStringRecord": {
         "type": "object",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "number",
@@ -1439,9 +1423,7 @@
       },
       "ExtendsFloatAdditionalProperties": {
         "type": "object",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "number",
@@ -1462,9 +1444,7 @@
       },
       "ExtendsModelAdditionalProperties": {
         "type": "object",
-        "required": [
-          "knownProp"
-        ],
+        "required": ["knownProp"],
         "properties": {
           "knownProp": {
             "$ref": "#/components/schemas/ModelForRecord"
@@ -1482,9 +1462,7 @@
       },
       "ExtendsModelArrayAdditionalProperties": {
         "type": "object",
-        "required": [
-          "knownProp"
-        ],
+        "required": ["knownProp"],
         "properties": {
           "knownProp": {
             "type": "array",
@@ -1508,9 +1486,7 @@
       },
       "ExtendsStringAdditionalProperties": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1529,9 +1505,7 @@
       },
       "ExtendsUnknownAdditionalProperties": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1548,9 +1522,7 @@
       },
       "ExtendsUnknownAdditionalPropertiesDerived": {
         "type": "object",
-        "required": [
-          "index"
-        ],
+        "required": ["index"],
         "properties": {
           "index": {
             "type": "integer",
@@ -1572,10 +1544,7 @@
       },
       "ExtendsUnknownAdditionalPropertiesDiscriminated": {
         "type": "object",
-        "required": [
-          "name",
-          "kind"
-        ],
+        "required": ["name", "kind"],
         "properties": {
           "name": {
             "type": "string",
@@ -1602,16 +1571,11 @@
       },
       "ExtendsUnknownAdditionalPropertiesDiscriminatedDerived": {
         "type": "object",
-        "required": [
-          "kind",
-          "index"
-        ],
+        "required": ["kind", "index"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "derived"
-            ]
+            "enum": ["derived"]
           },
           "index": {
             "type": "integer",
@@ -1633,9 +1597,7 @@
       },
       "IsFloatAdditionalProperties": {
         "type": "object",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "number",
@@ -1651,9 +1613,7 @@
       },
       "IsModelAdditionalProperties": {
         "type": "object",
-        "required": [
-          "knownProp"
-        ],
+        "required": ["knownProp"],
         "properties": {
           "knownProp": {
             "$ref": "#/components/schemas/ModelForRecord"
@@ -1666,9 +1626,7 @@
       },
       "IsModelArrayAdditionalProperties": {
         "type": "object",
-        "required": [
-          "knownProp"
-        ],
+        "required": ["knownProp"],
         "properties": {
           "knownProp": {
             "type": "array",
@@ -1687,9 +1645,7 @@
       },
       "IsStringAdditionalProperties": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1703,9 +1659,7 @@
       },
       "IsUnknownAdditionalProperties": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1717,9 +1671,7 @@
       },
       "IsUnknownAdditionalPropertiesDerived": {
         "type": "object",
-        "required": [
-          "index"
-        ],
+        "required": ["index"],
         "properties": {
           "index": {
             "type": "integer",
@@ -1741,10 +1693,7 @@
       },
       "IsUnknownAdditionalPropertiesDiscriminated": {
         "type": "object",
-        "required": [
-          "name",
-          "kind"
-        ],
+        "required": ["name", "kind"],
         "properties": {
           "name": {
             "type": "string",
@@ -1766,16 +1715,11 @@
       },
       "IsUnknownAdditionalPropertiesDiscriminatedDerived": {
         "type": "object",
-        "required": [
-          "kind",
-          "index"
-        ],
+        "required": ["kind", "index"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "derived"
-            ]
+            "enum": ["derived"]
           },
           "index": {
             "type": "integer",
@@ -1797,9 +1741,7 @@
       },
       "ModelForRecord": {
         "type": "object",
-        "required": [
-          "state"
-        ],
+        "required": ["state"],
         "properties": {
           "state": {
             "type": "string",
@@ -1810,9 +1752,7 @@
       },
       "MultipleSpreadRecord": {
         "type": "object",
-        "required": [
-          "flag"
-        ],
+        "required": ["flag"],
         "properties": {
           "flag": {
             "type": "boolean",
@@ -1834,9 +1774,7 @@
       },
       "SpreadFloatRecord": {
         "type": "object",
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "properties": {
           "id": {
             "type": "number",
@@ -1852,9 +1790,7 @@
       },
       "SpreadModelArrayRecord": {
         "type": "object",
-        "required": [
-          "knownProp"
-        ],
+        "required": ["knownProp"],
         "properties": {
           "knownProp": {
             "type": "array",
@@ -1872,9 +1808,7 @@
       },
       "SpreadModelRecord": {
         "type": "object",
-        "required": [
-          "knownProp"
-        ],
+        "required": ["knownProp"],
         "properties": {
           "knownProp": {
             "$ref": "#/components/schemas/ModelForRecord"
@@ -1887,9 +1821,7 @@
       },
       "SpreadRecordForDiscriminatedUnion": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1903,9 +1835,7 @@
       },
       "SpreadRecordForNonDiscriminatedUnion": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1926,9 +1856,7 @@
       },
       "SpreadRecordForNonDiscriminatedUnion2": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1949,9 +1877,7 @@
       },
       "SpreadRecordForNonDiscriminatedUnion3": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -1975,9 +1901,7 @@
       },
       "SpreadRecordForUnion": {
         "type": "object",
-        "required": [
-          "flag"
-        ],
+        "required": ["flag"],
         "properties": {
           "flag": {
             "type": "boolean",
@@ -1999,9 +1923,7 @@
       },
       "SpreadStringRecord": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
@@ -2032,16 +1954,11 @@
       },
       "WidgetData0": {
         "type": "object",
-        "required": [
-          "kind",
-          "fooProp"
-        ],
+        "required": ["kind", "fooProp"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "kind0"
-            ]
+            "enum": ["kind0"]
           },
           "fooProp": {
             "type": "string"
@@ -2050,16 +1967,11 @@
       },
       "WidgetData1": {
         "type": "object",
-        "required": [
-          "kind",
-          "start"
-        ],
+        "required": ["kind", "start"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "kind1"
-            ]
+            "enum": ["kind1"]
           },
           "start": {
             "type": "string",
@@ -2073,16 +1985,11 @@
       },
       "WidgetData2": {
         "type": "object",
-        "required": [
-          "kind",
-          "start"
-        ],
+        "required": ["kind", "start"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "kind1"
-            ]
+            "enum": ["kind1"]
           },
           "start": {
             "type": "string"

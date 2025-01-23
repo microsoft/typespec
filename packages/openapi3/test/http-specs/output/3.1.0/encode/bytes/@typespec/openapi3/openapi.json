@@ -501,9 +501,7 @@
     "schemas": {
       "Base64BytesProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",
@@ -513,9 +511,7 @@
       },
       "Base64urlArrayBytesProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "array",
@@ -527,9 +523,7 @@
       },
       "Base64urlBytesProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",
@@ -539,9 +533,7 @@
       },
       "DefaultBytesProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",

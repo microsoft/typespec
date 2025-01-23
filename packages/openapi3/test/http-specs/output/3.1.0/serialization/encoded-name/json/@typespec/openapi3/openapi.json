@@ -49,9 +49,7 @@
     "schemas": {
       "Property.JsonEncodedNameModel": {
         "type": "object",
-        "required": [
-          "wireName"
-        ],
+        "required": ["wireName"],
         "properties": {
           "wireName": {
             "type": "boolean",

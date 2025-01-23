@@ -40,16 +40,11 @@
     "schemas": {
       "EnumV1": {
         "type": "string",
-        "enum": [
-          "enumMemberV1"
-        ]
+        "enum": ["enumMemberV1"]
       },
       "ModelV1": {
         "type": "object",
-        "required": [
-          "prop",
-          "enumProp"
-        ],
+        "required": ["prop", "enumProp"],
         "properties": {
           "prop": {
             "type": "string"
@@ -64,18 +59,12 @@
       },
       "Versioning.Added.Versions": {
         "type": "string",
-        "enum": [
-          "v1",
-          "v2"
-        ],
+        "enum": ["v1", "v2"],
         "description": "The version of the API."
       },
       "Versions": {
         "type": "string",
-        "enum": [
-          "v1",
-          "v2"
-        ],
+        "enum": ["v1", "v2"],
         "description": "The version of the API."
       }
     }
@@ -92,10 +81,7 @@
         "version": {
           "default": "",
           "description": "Need to be set as 'v1' or 'v2' in client.",
-          "enum": [
-            "v1",
-            "v2"
-          ]
+          "enum": ["v1", "v2"]
         }
       }
     }

@@ -10,7 +10,7 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
-import { fail, strictEqual } from "assert";
+import { deepStrictEqual, fail } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { RunnerTestFile, RunnerTestSuite, afterAll, it } from "vitest";
@@ -89,7 +89,8 @@ function defineSpecTest(
           throw e;
         }
         context.registerSnapshot(resolvePath(spec.name, snapshotPath));
-        strictEqual(prettierOutput(JSON.stringify(content, null, 2)), existingContent.toString());
+        deepStrictEqual(JSON.parse(existingContent.toString()), content);
+        //strictEqual(prettierOutput(JSON.stringify(content, null, 2)), existingContent.toString());
       }
     }
   });

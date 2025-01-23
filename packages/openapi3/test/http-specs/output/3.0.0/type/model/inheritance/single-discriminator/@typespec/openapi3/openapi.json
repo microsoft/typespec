@@ -140,10 +140,7 @@
     "schemas": {
       "Bird": {
         "type": "object",
-        "required": [
-          "kind",
-          "wingspan"
-        ],
+        "required": ["kind", "wingspan"],
         "properties": {
           "kind": {
             "type": "string"
@@ -166,10 +163,7 @@
       },
       "Dinosaur": {
         "type": "object",
-        "required": [
-          "size",
-          "kind"
-        ],
+        "required": ["size", "kind"],
         "properties": {
           "size": {
             "type": "integer",
@@ -190,15 +184,11 @@
       },
       "Eagle": {
         "type": "object",
-        "required": [
-          "kind"
-        ],
+        "required": ["kind"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "eagle"
-            ]
+            "enum": ["eagle"]
           },
           "friends": {
             "type": "array",
@@ -225,15 +215,11 @@
       },
       "Goose": {
         "type": "object",
-        "required": [
-          "kind"
-        ],
+        "required": ["kind"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "goose"
-            ]
+            "enum": ["goose"]
           }
         },
         "allOf": [
@@ -245,15 +231,11 @@
       },
       "SeaGull": {
         "type": "object",
-        "required": [
-          "kind"
-        ],
+        "required": ["kind"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "seagull"
-            ]
+            "enum": ["seagull"]
           }
         },
         "allOf": [
@@ -265,15 +247,11 @@
       },
       "Sparrow": {
         "type": "object",
-        "required": [
-          "kind"
-        ],
+        "required": ["kind"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "sparrow"
-            ]
+            "enum": ["sparrow"]
           }
         },
         "allOf": [
@@ -285,15 +263,11 @@
       },
       "TRex": {
         "type": "object",
-        "required": [
-          "kind"
-        ],
+        "required": ["kind"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "t-rex"
-            ]
+            "enum": ["t-rex"]
           }
         },
         "allOf": [

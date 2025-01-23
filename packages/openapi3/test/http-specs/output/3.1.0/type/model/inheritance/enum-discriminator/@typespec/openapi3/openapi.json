@@ -168,15 +168,11 @@
     "schemas": {
       "Cobra": {
         "type": "object",
-        "required": [
-          "kind"
-        ],
+        "required": ["kind"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "cobra"
-            ],
+            "enum": ["cobra"],
             "description": "discriminator property"
           }
         },
@@ -189,10 +185,7 @@
       },
       "Dog": {
         "type": "object",
-        "required": [
-          "kind",
-          "weight"
-        ],
+        "required": ["kind", "weight"],
         "properties": {
           "kind": {
             "allOf": [
@@ -223,24 +216,18 @@
           },
           {
             "type": "string",
-            "enum": [
-              "golden"
-            ]
+            "enum": ["golden"]
           }
         ],
         "description": "extensible enum type for discriminator"
       },
       "Golden": {
         "type": "object",
-        "required": [
-          "kind"
-        ],
+        "required": ["kind"],
         "properties": {
           "kind": {
             "type": "string",
-            "enum": [
-              "golden"
-            ],
+            "enum": ["golden"],
             "description": "discriminator property"
           }
         },
@@ -253,10 +240,7 @@
       },
       "Snake": {
         "type": "object",
-        "required": [
-          "kind",
-          "length"
-        ],
+        "required": ["kind", "length"],
         "properties": {
           "kind": {
             "allOf": [
@@ -282,9 +266,7 @@
       },
       "SnakeKind": {
         "type": "string",
-        "enum": [
-          "cobra"
-        ],
+        "enum": ["cobra"],
         "description": "fixed enum type for discriminator"
       }
     }

@@ -17,10 +17,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": [
-                "image/png",
-                "application/json"
-              ]
+              "enum": ["image/png", "application/json"]
             }
           }
         ],
@@ -53,10 +50,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "enum": [
-                "image/png",
-                "image/jpeg"
-              ]
+              "enum": ["image/png", "image/jpeg"]
             }
           }
         ],
@@ -84,9 +78,7 @@
     "schemas": {
       "DifferentBody.PngImageAsJson": {
         "type": "object",
-        "required": [
-          "content"
-        ],
+        "required": ["content"],
         "properties": {
           "content": {
             "type": "string",

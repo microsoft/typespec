@@ -50,9 +50,7 @@
     "schemas": {
       "TestModel": {
         "type": "object",
-        "required": [
-          "prop"
-        ],
+        "required": ["prop"],
         "properties": {
           "prop": {
             "type": "string"
@@ -64,10 +62,7 @@
       },
       "Versions": {
         "type": "string",
-        "enum": [
-          "v1",
-          "v2"
-        ],
+        "enum": ["v1", "v2"],
         "description": "The version of the API."
       }
     }
@@ -84,10 +79,7 @@
         "version": {
           "default": "",
           "description": "Need to be set as 'v1' or 'v2' in client.",
-          "enum": [
-            "v1",
-            "v2"
-          ]
+          "enum": ["v1", "v2"]
         }
       }
     }

@@ -1263,9 +1263,7 @@
         "properties": {
           "property": {
             "type": "boolean",
-            "enum": [
-              true
-            ],
+            "enum": [true],
             "description": "Property"
           }
         },
@@ -1336,9 +1334,7 @@
         "properties": {
           "property": {
             "type": "number",
-            "enum": [
-              1.25
-            ],
+            "enum": [1.25],
             "description": "Property"
           }
         },
@@ -1349,9 +1345,7 @@
         "properties": {
           "property": {
             "type": "number",
-            "enum": [
-              1
-            ],
+            "enum": [1],
             "description": "Property"
           }
         },
@@ -1381,9 +1375,7 @@
       },
       "RequiredAndOptionalProperty": {
         "type": "object",
-        "required": [
-          "requiredProperty"
-        ],
+        "required": ["requiredProperty"],
         "properties": {
           "optionalProperty": {
             "type": "string",
@@ -1402,9 +1394,7 @@
         "properties": {
           "property": {
             "type": "string",
-            "enum": [
-              "hello"
-            ],
+            "enum": ["hello"],
             "description": "Property"
           }
         },
@@ -1425,10 +1415,7 @@
         "properties": {
           "property": {
             "type": "number",
-            "enum": [
-              1.25,
-              2.375
-            ],
+            "enum": [1.25, 2.375],
             "description": "Property"
           }
         },
@@ -1439,10 +1426,7 @@
         "properties": {
           "property": {
             "type": "number",
-            "enum": [
-              1,
-              2
-            ],
+            "enum": [1, 2],
             "description": "Property"
           }
         },
@@ -1453,10 +1437,7 @@
         "properties": {
           "property": {
             "type": "string",
-            "enum": [
-              "hello",
-              "world"
-            ],
+            "enum": ["hello", "world"],
             "description": "Property"
           }
         },

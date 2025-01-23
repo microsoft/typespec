@@ -447,9 +447,7 @@
       },
       "Property.DefaultDurationProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",
@@ -463,9 +461,7 @@
       },
       "Property.Float64SecondsDurationProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "number",
@@ -475,9 +471,7 @@
       },
       "Property.FloatSecondsDurationArrayProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "array",
@@ -489,9 +483,7 @@
       },
       "Property.FloatSecondsDurationProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "number",
@@ -501,9 +493,7 @@
       },
       "Property.ISO8601DurationProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",
@@ -513,9 +503,7 @@
       },
       "Property.Int32SecondsDurationProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "integer",

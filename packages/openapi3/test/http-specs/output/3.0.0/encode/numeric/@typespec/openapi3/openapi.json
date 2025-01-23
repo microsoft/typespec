@@ -96,9 +96,7 @@
     "schemas": {
       "Property.SafeintAsStringProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",
@@ -117,9 +115,7 @@
       },
       "Property.Uint8AsStringProperty": {
         "type": "object",
-        "required": [
-          "value"
-        ],
+        "required": ["value"],
         "properties": {
           "value": {
             "type": "string",

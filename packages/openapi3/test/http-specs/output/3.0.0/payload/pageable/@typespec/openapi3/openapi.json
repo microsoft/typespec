@@ -30,9 +30,7 @@
                       "format": "uri"
                     }
                   },
-                  "required": [
-                    "pets"
-                  ]
+                  "required": ["pets"]
                 }
               }
             }
@@ -45,10 +43,7 @@
     "schemas": {
       "Pet": {
         "type": "object",
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "properties": {
           "id": {
             "type": "string"

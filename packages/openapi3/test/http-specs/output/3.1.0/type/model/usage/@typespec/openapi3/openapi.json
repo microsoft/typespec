@@ -79,9 +79,7 @@
     "schemas": {
       "InputOutputRecord": {
         "type": "object",
-        "required": [
-          "requiredProp"
-        ],
+        "required": ["requiredProp"],
         "properties": {
           "requiredProp": {
             "type": "string"
@@ -91,9 +89,7 @@
       },
       "InputRecord": {
         "type": "object",
-        "required": [
-          "requiredProp"
-        ],
+        "required": ["requiredProp"],
         "properties": {
           "requiredProp": {
             "type": "string"
@@ -103,9 +99,7 @@
       },
       "OutputRecord": {
         "type": "object",
-        "required": [
-          "requiredProp"
-        ],
+        "required": ["requiredProp"],
         "properties": {
           "requiredProp": {
             "type": "string"

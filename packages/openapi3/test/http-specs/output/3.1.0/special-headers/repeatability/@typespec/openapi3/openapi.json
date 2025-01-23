@@ -39,10 +39,7 @@
                 "description": "Indicates whether the repeatable request was accepted or rejected.",
                 "schema": {
                   "type": "string",
-                  "enum": [
-                    "accepted",
-                    "rejected"
-                  ]
+                  "enum": ["accepted", "rejected"]
                 }
               }
             }

@@ -37,32 +37,22 @@
       "ApiKeyAuth": []
     },
     {
-      "OAuth2Auth": [
-        "https://security.microsoft.com/.default"
-      ]
+      "OAuth2Auth": ["https://security.microsoft.com/.default"]
     }
   ],
   "components": {
     "schemas": {
       "MyFlow": {
         "type": "object",
-        "required": [
-          "type",
-          "authorizationUrl",
-          "scopes"
-        ],
+        "required": ["type", "authorizationUrl", "scopes"],
         "properties": {
           "type": {
             "type": "string",
-            "enum": [
-              "implicit"
-            ]
+            "enum": ["implicit"]
           },
           "authorizationUrl": {
             "type": "string",
-            "enum": [
-              "https://login.microsoftonline.com/common/oauth2/authorize"
-            ]
+            "enum": ["https://login.microsoftonline.com/common/oauth2/authorize"]
           },
           "scopes": {
             "type": "array",

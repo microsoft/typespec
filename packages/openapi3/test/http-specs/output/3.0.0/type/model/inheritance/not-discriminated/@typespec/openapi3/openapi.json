@@ -75,9 +75,7 @@
     "schemas": {
       "Cat": {
         "type": "object",
-        "required": [
-          "age"
-        ],
+        "required": ["age"],
         "properties": {
           "age": {
             "type": "integer",
@@ -93,9 +91,7 @@
       },
       "Pet": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -105,9 +101,7 @@
       },
       "Siamese": {
         "type": "object",
-        "required": [
-          "smart"
-        ],
+        "required": ["smart"],
         "properties": {
           "smart": {
             "type": "boolean"

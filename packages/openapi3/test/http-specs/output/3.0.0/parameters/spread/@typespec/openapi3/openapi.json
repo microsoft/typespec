@@ -51,10 +51,7 @@
                     "description": "age of the Thing"
                   }
                 },
-                "required": [
-                  "name",
-                  "age"
-                ]
+                "required": ["name", "age"]
               }
             }
           }
@@ -157,10 +154,7 @@
                     "description": "optional string"
                   }
                 },
-                "required": [
-                  "requiredString",
-                  "requiredIntList"
-                ]
+                "required": ["requiredString", "requiredIntList"]
               }
             }
           }
@@ -187,9 +181,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "name"
-                ]
+                "required": ["name"]
               }
             }
           }
@@ -233,9 +225,7 @@
                     "type": "string"
                   }
                 },
-                "required": [
-                  "name"
-                ]
+                "required": ["name"]
               }
             }
           }
@@ -413,9 +403,7 @@
     "schemas": {
       "Alias.InnerModel": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -424,9 +412,7 @@
       },
       "Model.BodyParameter": {
         "type": "object",
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "properties": {
           "name": {
             "type": "string"
@@ -436,9 +422,7 @@
       },
       "Model.CompositeRequestMix": {
         "type": "object",
-        "required": [
-          "prop"
-        ],
+        "required": ["prop"],
         "properties": {
           "prop": {
             "type": "string"
@@ -448,9 +432,7 @@
       },
       "Model.CompositeRequestOnlyWithBody": {
         "type": "object",
-        "required": [
-          "body"
-        ],
+        "required": ["body"],
         "properties": {
           "body": {
             "$ref": "#/components/schemas/Model.BodyParameter"

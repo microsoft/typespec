@@ -42,16 +42,12 @@
     "schemas": {
       "Server.Path.Multiple.Versions": {
         "type": "string",
-        "enum": [
-          "v1.0"
-        ],
+        "enum": ["v1.0"],
         "description": "Service versions"
       },
       "Versions": {
         "type": "string",
-        "enum": [
-          "v1.0"
-        ],
+        "enum": ["v1.0"],
         "description": "Service versions"
       }
     }
@@ -68,9 +64,7 @@
         "apiVersion": {
           "default": "",
           "description": "Pass in v1.0 for API version.",
-          "enum": [
-            "v1.0"
-          ]
+          "enum": ["v1.0"]
         }
       }
     }

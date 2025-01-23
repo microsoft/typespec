@@ -644,9 +644,7 @@
     "schemas": {
       "InnerModel": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",

@@ -85,10 +85,7 @@
     "schemas": {
       "Versions": {
         "type": "string",
-        "enum": [
-          "2021-01-01-preview",
-          "2022-12-01-preview"
-        ],
+        "enum": ["2021-01-01-preview", "2022-12-01-preview"],
         "description": "The version of the API."
       }
     }

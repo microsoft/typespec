@@ -558,10 +558,7 @@
     "schemas": {
       "BytesProperty": {
         "type": "object",
-        "required": [
-          "requiredProperty",
-          "nullableProperty"
-        ],
+        "required": ["requiredProperty", "nullableProperty"],
         "properties": {
           "requiredProperty": {
             "type": "string",
@@ -594,10 +591,7 @@
       },
       "CollectionsByteProperty": {
         "type": "object",
-        "required": [
-          "requiredProperty",
-          "nullableProperty"
-        ],
+        "required": ["requiredProperty", "nullableProperty"],
         "properties": {
           "requiredProperty": {
             "type": "string",
@@ -636,10 +630,7 @@
       },
       "CollectionsModelProperty": {
         "type": "object",
-        "required": [
-          "requiredProperty",
-          "nullableProperty"
-        ],
+        "required": ["requiredProperty", "nullableProperty"],
         "properties": {
           "requiredProperty": {
             "type": "string",
@@ -676,10 +667,7 @@
       },
       "CollectionsStringProperty": {
         "type": "object",
-        "required": [
-          "requiredProperty",
-          "nullableProperty"
-        ],
+        "required": ["requiredProperty", "nullableProperty"],
         "properties": {
           "requiredProperty": {
             "type": "string",
@@ -716,10 +704,7 @@
       },
       "DatetimeProperty": {
         "type": "object",
-        "required": [
-          "requiredProperty",
-          "nullableProperty"
-        ],
+        "required": ["requiredProperty", "nullableProperty"],
         "properties": {
           "requiredProperty": {
             "type": "string",
@@ -752,10 +737,7 @@
       },
       "DurationProperty": {
         "type": "object",
-        "required": [
-          "requiredProperty",
-          "nullableProperty"
-        ],
+        "required": ["requiredProperty", "nullableProperty"],
         "properties": {
           "requiredProperty": {
             "type": "string",
@@ -788,9 +770,7 @@
       },
       "InnerModel": {
         "type": "object",
-        "required": [
-          "property"
-        ],
+        "required": ["property"],
         "properties": {
           "property": {
             "type": "string",
@@ -801,10 +781,7 @@
       },
       "StringProperty": {
         "type": "object",
-        "required": [
-          "requiredProperty",
-          "nullableProperty"
-        ],
+        "required": ["requiredProperty", "nullableProperty"],
         "properties": {
           "requiredProperty": {
             "type": "string",

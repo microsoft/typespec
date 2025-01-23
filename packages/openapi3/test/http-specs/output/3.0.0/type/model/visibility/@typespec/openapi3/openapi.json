@@ -187,9 +187,7 @@
       },
       "VisibilityModel": {
         "type": "object",
-        "required": [
-          "readProp"
-        ],
+        "required": ["readProp"],
         "properties": {
           "readProp": {
             "type": "string",
@@ -201,9 +199,7 @@
       },
       "VisibilityModelCreate": {
         "type": "object",
-        "required": [
-          "createProp"
-        ],
+        "required": ["createProp"],
         "properties": {
           "createProp": {
             "type": "array",
@@ -217,10 +213,7 @@
       },
       "VisibilityModelCreateOrUpdate": {
         "type": "object",
-        "required": [
-          "createProp",
-          "updateProp"
-        ],
+        "required": ["createProp", "updateProp"],
         "properties": {
           "createProp": {
             "type": "array",
@@ -242,9 +235,7 @@
       },
       "VisibilityModelDelete": {
         "type": "object",
-        "required": [
-          "deleteProp"
-        ],
+        "required": ["deleteProp"],
         "properties": {
           "deleteProp": {
             "type": "boolean",
@@ -255,9 +246,7 @@
       },
       "VisibilityModelQuery": {
         "type": "object",
-        "required": [
-          "queryProp"
-        ],
+        "required": ["queryProp"],
         "properties": {
           "queryProp": {
             "type": "integer",
