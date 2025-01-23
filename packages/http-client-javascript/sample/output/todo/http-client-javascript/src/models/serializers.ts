@@ -103,10 +103,10 @@ export function todoAttachmentToApplication(item: any): TodoAttachment {
 export function fileAttachmentMultipartRequestToTransport(
   item: FileAttachmentMultipartRequest,
 ): any {
-  return [createFilePartDescriptor("contents", item.contents)];
+  return [createFilePartDescriptor("contents", contents)];
 }
 export function fileAttachmentMultipartRequestToApplication(item: any): any {
-  return [createFilePartDescriptor("contents", item.contents)];
+  return [createFilePartDescriptor("contents", contents)];
 }
 export function fileToTransport(item: File): any {
   return {
@@ -190,18 +190,18 @@ export function toDoItemMultipartRequestToTransport(item: ToDoItemMultipartReque
   return [
     {
       name: "item",
-      body: todoItemToTransport(item.item),
+      body: todoItemToTransport(item),
     },
-    ...(item.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
+    ...(attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x.attachments)),
   ];
 }
 export function toDoItemMultipartRequestToApplication(item: any): any {
   return [
     {
       name: "item",
-      body: todoItemToApplication(item.item),
+      body: todoItemToApplication(item),
     },
-    ...(item.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
+    ...(attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x.attachments)),
   ];
 }
 export function todoItemPatchToTransport(item: TodoItemPatch): any {

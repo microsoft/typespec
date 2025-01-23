@@ -19,11 +19,13 @@ export function BodyPart(props: BodyPartProps) {
   const propertyName = props.target === "application" ? applicationName : transportName;
   const partType = $.httpPart.unpack(props.type.type);
 
-  const itemPath = props.itemPath ? props.itemPath : ["item", propertyName];
+  const { type: _type, itemPath: _itemPath = [], ...partProps } = props;
+  const itemPath = [..._itemPath];
+  itemPath.push(propertyName);
   const itemRef = itemPath.join(".");
 
   if ($.array.is(props.type.type)) {
-    return BodyPartArray(props);
+    return <BodyPartArray itemPath={itemPath} type={props.type} {...partProps}  />;
   }
 
   if (isFile(partType)) {
@@ -41,16 +43,16 @@ function BodyPartArray(props: BodyPartProps) {
     return <BodyPart target={props.target} type={props.type} />;
   }
 
-  const namePolicy = ts.useTSNamePolicy();
-  const applicationName = namePolicy.getName(props.type.name, "object-member-data");
   const element = $.array.getElementType(props.type.type);
+  const itemPath = props.itemPath ?? [];
+  const itemRef = itemPath.join(".");
   const part = $.modelProperty.create({
     name: props.type.name,
     type: element,
     optional: props.type.optional,
     defaultValue: props.type.defaultValue,
   });
-  return ay.code`...(item.${applicationName} ?? []).map((x: any) => (${<BodyPart target={props.target} type={part} itemPath={["x"]} />}))`;
+  return ay.code`...(${itemRef} ?? []).map((x: any) => (${<BodyPart target={props.target} type={part} itemPath={["x"]} />}))`;
 }
 
 function isFile(type: Type) {

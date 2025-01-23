@@ -1,10 +1,7 @@
 import { parse } from "uri-template";
+import { createFilePartDescriptor } from "../../../helpers/multipart-helpers.js";
 import { FileAttachmentMultipartRequest, Page, TodoAttachment } from "../../../models/models.js";
-import {
-  fileAttachmentMultipartRequestToTransport,
-  pageToApplication,
-  todoAttachmentToTransport,
-} from "../../../models/serializers.js";
+import { pageToApplication, todoAttachmentToTransport } from "../../../models/serializers.js";
 import { AttachmentsClientContext } from "./clientContext.js";
 
 export async function list(client: AttachmentsClientContext, itemId: number): Promise<Page> {
@@ -59,7 +56,7 @@ export async function createFileAttachment(
     headers: {
       "content-type": "application/json",
     },
-    body: fileAttachmentMultipartRequestToTransport(body),
+    body: [createFilePartDescriptor("contents", body.contents)],
   };
 
   const response = await client.path(path).post(httpRequestOptions);

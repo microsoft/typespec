@@ -1,4 +1,5 @@
 import { parse } from "uri-template";
+import { createFilePartDescriptor } from "../../helpers/multipart-helpers.js";
 import {
   TodoAttachment,
   TodoItem,
@@ -11,7 +12,6 @@ import {
   arraySerializer,
   dateDeserializer,
   todoAttachmentToTransport,
-  toDoItemMultipartRequestToTransport,
   todoItemPatchToTransport,
   todoItemToTransport,
   todoPageToApplication,
@@ -44,7 +44,7 @@ export async function list(
     },
   };
 
-  const response = await client.path(path).post(httpRequestOptions);
+  const response = await client.path(path).get(httpRequestOptions);
   if (+response.status === 200) {
     return todoPageToApplication(response.body);
   }
@@ -128,7 +128,15 @@ export async function createForm(
     headers: {
       "content-type": "application/json",
     },
-    body: toDoItemMultipartRequestToTransport(body),
+    body: [
+      {
+        name: "item",
+        body: todoItemToTransport(body.item),
+      },
+      ...(body.attachments ?? []).map((x: any) =>
+        createFilePartDescriptor("attachments", x.attachments),
+      ),
+    ],
   };
 
   const response = await client.path(path).post(httpRequestOptions);

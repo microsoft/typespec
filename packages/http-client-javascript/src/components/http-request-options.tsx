@@ -70,26 +70,25 @@ export interface HttpRequestOptionsBodyProps {
 
 HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOptionsBodyProps) {
   const httpOperation = $.httpOperation.get(props.operation);
-  const body = $.httpRequest.getParameters(httpOperation, "body");
-  // If @body or @bodyRoot was used then collapse a model with a single property to that property type.
-  const collapse = $.httpRequest.body.isExplicit(httpOperation);
+  const body = httpOperation.parameters.body;
 
   if (!body) {
     return <></>;
   }
 
   let optional = null;
-  if (collapse) {
-    const collapsedBody = [...body.properties.values()][0];
-    if (collapsedBody.optional) {
-      optional = `options?.${collapsedBody.name} && `;
-    }
-  }
+  // if (collapse) {
+  //   const collapsedBody = [...body.properties.values()][0];
+  //   if (collapsedBody.optional) {
+  //     optional = `options?.${collapsedBody.name} && `;
+  //   }
+  // }
 
   // The transformer to apply to the body.
+  const propertyPath = body.property ? [body.property.name] : undefined;
   const bodyTransform =
     <>
-      {optional}<TypeTransformCall type={body} target="transport" collapse={collapse} optionsBagName="options"/>
+      {optional}<TypeTransformCall type={body.type} itemPath={propertyPath} target="transport" optionsBagName="options"/>
   </>;
 
   return <>

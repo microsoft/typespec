@@ -15,6 +15,13 @@ export const $lib = createTypeSpecLibrary({
         default: "Tried to get a client from an operation that is not in a client",
       },
     },
+    "non-model-parts": {
+      severity: "error",
+      messages: {
+        default: "Non-model parts are not supported",
+      },
+      description: "Non-model parts are not supported",
+    },
   },
 });
 
