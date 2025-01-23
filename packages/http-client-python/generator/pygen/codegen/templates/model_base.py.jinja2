@@ -956,6 +956,20 @@ def _failsafe_deserialize(
       return None
 
 
+def _failsafe_deserialize_xml(
+  deserializer: typing.Any,
+  value: typing.Any,
+) -> typing.Any:
+  try:
+      return _deserialize_xml(deserializer, value)
+  except DeserializationError:
+      _LOGGER.warning(
+          "Ran into a deserialization error. Ignoring since this is failsafe deserialization",
+          exc_info=True
+      )
+      return None
+
+
 class _RestField:
     def __init__(
         self,
