@@ -12,3 +12,5 @@ updates:
       prefix: "pip prod"
       prefix-development: "pip dev"
       include: "scope"
+    labels:
+      - "emitter:client:python"
