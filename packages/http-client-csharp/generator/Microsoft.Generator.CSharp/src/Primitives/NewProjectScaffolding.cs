@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             await File.WriteAllBytesAsync(
                 Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.csproj"),
-                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSrcCSProj())));
+                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSourceProjectFileContent())));
         }
 
         private string NormalizeLineEndings(string content)
@@ -47,12 +47,12 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             await File.WriteAllBytesAsync(
                 Path.Combine(CodeModelPlugin.Instance.Configuration.OutputDirectory, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.sln"),
-                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSln())));
+                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSolutionFileContent())));
         }
 
-        protected virtual string GetSrcCSProj()
+        protected virtual string GetSourceProjectFileContent()
         {
-            var builder = new CSProjWriter()
+            var builder = new CSharpProjectWriter()
             {
                 Description = $"This is the {CodeModelPlugin.Instance.Configuration.RootNamespace} client library for developing .NET applications with rich experience.",
                 AssemblyTitle = $"SDK Code Generation {CodeModelPlugin.Instance.Configuration.RootNamespace}",
@@ -70,13 +70,13 @@ namespace Microsoft.Generator.CSharp.Primitives
             return builder.Write();
         }
 
-        private static readonly IReadOnlyList<CSProjWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSProjWriter.CSProjDependencyPackage[]
+        private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
             new("System.ClientModel", "1.1.0-beta.4"),
             new("System.Text.Json", "8.0.5")
         };
 
-        protected virtual string GetSln()
+        protected virtual string GetSolutionFileContent()
         {
             string slnContent = @"Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
