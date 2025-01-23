@@ -2334,8 +2334,8 @@ export class CodeModelBuilder {
     const getPropertySerializedName = (property: SdkBodyModelPropertyType) => {
       // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
       return (
-        prop.serializationOptions.json?.name ??
-        prop.serializationOptions.multipart?.name ??
+        property.serializationOptions.json?.name ??
+        property.serializationOptions.multipart?.name ??
         property.serializedName
       );
     };
