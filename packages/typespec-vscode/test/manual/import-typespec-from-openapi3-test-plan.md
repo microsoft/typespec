@@ -34,43 +34,39 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
-### Step 2: Trigger "Import TypeSpec from OpenAPI 3.0".
+### Step 2: Trigger "Import TypeSpec from OpenAPI 3.0", and confirm the project folder where you will place the TypeSpec file converted from the specified OpenAPI3 specification.
 
 _Option 1_. From the right-click context menu of a file.
 
 ![alt text](./images/TriggerImportTypeSpecfromOpenAPI3.png)
 
-_Option 2_. From the right-click context menu of a folder.
+**Validate:** Will it appear: `Select target folder to import OpenAPI`.
 
-![alt text](./images/TriggerImportTypeSpecfromOpenAPI3_option2.png)
+![alt text](./images/ImportTypeSpecfromOpenAPI3_ConfirmProjectFolder.png)
 
-### Step 3: Confirm the project folder where you will place the TypeSpec file converted from the specified OpenAPI3 specification.
-
-- If you select `option 1` in step 2, perform the following steps:
-
-  ![alt text](./images/ImportTypeSpecfromOpenAPI3_ConfirmProjectFolder.png)
-
-  - Select a non-empty folder:
-
-    **Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
-
-    ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
-
-  - Select a empty folder:
-
-    If the folder is empty, skip the query and go to the next step.
-
-- If you select `option 2` in step 2, perform the following steps:
+- Select a non-empty folder:
 
   **Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
 
   ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
 
-### Step 4: Specify the OpenAPI3 specification to convert.
+- Select a empty folder:
+
+  If the folder is empty, skip the query and go to the next step.
+
+_Option 2_. From the right-click context menu of a folder.
+
+![alt text](./images/TriggerImportTypeSpecfromOpenAPI3_option2.png)
+
+**Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
+
+![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
+
+### Step 3: Specify the OpenAPI3 specification to convert.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_SpecifyOpenAPI3Specification.png)
 
-### Step 5: Verify that `@typespec/openapi3` are installed.
+### Step 4: Verify that `@typespec/openapi3` are installed.
 
 - If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenApi3. Do you want to install it?`. Click `Install @typespec/openapi3` to install.
 
@@ -78,7 +74,7 @@ _Option 2_. From the right-click context menu of a folder.
 
 - If already installed, it will be skipped.
 
-### Step 6: Importing from OpenAPI will run on the backend.
+### Step 5: Importing from OpenAPI will run on the backend.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_ImportingOpenapi3.png)
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_ImportingOpenapi3Succeeded.png)
