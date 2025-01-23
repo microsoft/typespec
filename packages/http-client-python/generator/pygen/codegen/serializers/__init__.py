@@ -130,10 +130,10 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.code_model.options["package_mode"]:
                     self._serialize_and_write_package_files(client_namespace)
 
-                # write apiview_mapping_python.json
+                # write apiview-properties.json
                 if self.code_model.options.get("emit_cross_language_definition_file"):
                     self.write_file(
-                        exec_path / Path("apiview_mapping_python.json"),
+                        exec_path / Path("apiview-properties.json"),
                         general_serializer.serialize_cross_language_definition_file(),
                     )
 
