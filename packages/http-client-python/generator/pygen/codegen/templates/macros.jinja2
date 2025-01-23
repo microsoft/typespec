@@ -3,9 +3,6 @@
 {% set list_result = original_result.split('\n') %}
 {% for line in list_result %}
     {% set suffix = suffix_string if list_result | length == loop.index %}
-    {% if line | length > 120 %}
-{{ line + "  # pylint: disable=line-too-long" }}{{ suffix }}
-    {% else %}
 {{ line }}{{ suffix }}
     {% endif %}
 {% endfor %}
