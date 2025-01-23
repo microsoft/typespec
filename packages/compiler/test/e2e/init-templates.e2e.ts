@@ -115,4 +115,29 @@ describe("Init templates e2e tests", () => {
     it("emitter-ts", () => scaffoldTemplateSnapshot("emitter-ts"));
     it("library-ts", () => scaffoldTemplateSnapshot("library-ts"));
   });
+
+  describe("validate templates", () => {
+    it("validate rest template", async () => {
+      const fixture = await scaffoldTemplateForTest("rest");
+      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npx", ["tsp", "compile", "."]);
+    });
+    it("validate emitter-ts template", async () => {
+      const fixture = await scaffoldTemplateForTest("emitter-ts");
+      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npm", ["run", "build"]);
+      await fixture.checkCommand("npm", ["run", "test"]);
+      await fixture.checkCommand("npm", ["run", "lint"]);
+      await fixture.checkCommand("npm", ["run", "format"]);
+    });
+
+    it("validate library-ts template", async () => {
+      const fixture = await scaffoldTemplateForTest("library-ts");
+      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npm", ["run", "build"]);
+      await fixture.checkCommand("npm", ["run", "test"]);
+      await fixture.checkCommand("npm", ["run", "lint"]);
+      await fixture.checkCommand("npm", ["run", "format"]);
+    });
+  });
 });
