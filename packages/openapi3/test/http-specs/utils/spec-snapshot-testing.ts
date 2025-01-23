@@ -220,8 +220,7 @@ async function validateOpenAPI3(jsonContent: any) {
     BASIC,
   );
   if (!result.valid) {
-    result.errors?.forEach((r) => {
-      fail(`Failed to validate OpenAPI3 schema with @hyperjump/json-schema.`);
-    });
+    const errors = result.errors?.map((r) => JSON.stringify(r)).join("\n");
+    fail(`Failed to validate OpenAPI3 schema with @hyperjump/json-schema.\n${errors}`);
   }
 }
