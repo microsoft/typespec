@@ -5,5 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Improvements for the intellisense of tspconfig.yaml
-- Support the auto completion for extends, imports, rule, rule sets and variables in tspconfig.yaml
+Support the auto completion for extends, imports, rule, rule sets and variables in tspconfig.yaml
