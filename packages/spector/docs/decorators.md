@@ -10,7 +10,7 @@ Decorator setting up the boilerplate for specs service namespace. Will automatic
 
 Usage:
 
-```cadl
+```tsp
 @scenarioSpec("/my-spec")
 namespace MySpec;
 ```
