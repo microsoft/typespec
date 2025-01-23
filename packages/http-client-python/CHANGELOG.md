@@ -1,5 +1,11 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.8
+
+### Bug Fixes
+
+- Fix for scenario that output folder is different with namespace
+
 ## 0.6.7
 
 ### Bug Fixes
