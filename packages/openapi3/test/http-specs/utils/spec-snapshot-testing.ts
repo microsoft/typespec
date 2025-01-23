@@ -36,7 +36,6 @@ export interface TestContext {
 }
 export function defineSpecTests(config: SpecSnapshotTestOptions) {
   const specs = resolveSpecs(config);
-  let existingSnapshots: string[];
   const writtenSnapshots: string[] = [];
   const context = {
     runCount: 0,
@@ -44,9 +43,6 @@ export function defineSpecTests(config: SpecSnapshotTestOptions) {
       writtenSnapshots.push(filename);
     },
   };
-  beforeAll(async () => {
-    existingSnapshots = await readFilesInDirRecursively(config.outputDir);
-  });
 
   afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
     if (context.tasks.some((x) => x.mode === "skip")) {
