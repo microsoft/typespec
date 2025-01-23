@@ -12,7 +12,7 @@ import {
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { fail, strictEqual } from "assert";
 import { readdirSync } from "fs";
-import { mkdir, readFile,  writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { RunnerTestFile, RunnerTestSuite, afterAll, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../../../src/lib.js";
 import { worksFor } from "./../../works-for.js";
@@ -70,7 +70,7 @@ function defineSpecTest(
         const outputPath = resolvePath(config.outputDir, snapshotPath);
         try {
           await mkdir(getDirectoryPath(outputPath), { recursive: true });
-          await writeFile(outputPath, JSON.stringify(content, null, 2));
+          await writeFile(outputPath, prettierOutput(JSON.stringify(content, null, 2)));
           context.registerSnapshot(resolvePath(spec.name, snapshotPath));
         } catch (e) {
           throw new Error(`Failure to write snapshot: "${outputPath}"\n Error: ${e}`);
@@ -89,7 +89,7 @@ function defineSpecTest(
           throw e;
         }
         context.registerSnapshot(resolvePath(spec.name, snapshotPath));
-        strictEqual(JSON.stringify(content, null, 2), existingContent.toString());
+        strictEqual(prettierOutput(JSON.stringify(content, null, 2)), existingContent.toString());
       }
     }
   });
@@ -110,7 +110,6 @@ function createSpecTestHost(): SpecSnapshotTestHost {
     },
   };
 }
-
 
 interface Spec {
   name: string;
@@ -180,4 +179,8 @@ async function validateOpenAPI3(jsonContent: any) {
     const errors = result.errors?.map((r) => JSON.stringify(r)).join("\n");
     fail(`Failed to validate OpenAPI3 schema with @hyperjump/json-schema.\n${errors}`);
   }
+}
+
+function prettierOutput(output: string) {
+  return output + "\n";
 }
