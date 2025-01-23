@@ -1,0 +1,54 @@
+{
+  "operationId": "GetServiceStatistics",
+  "title": "SearchServiceGetServiceStatistics",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "api-version": "2024-07-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "counters": {
+          "documentCount": {
+            "usage": 7093,
+            "quota": 10000
+          },
+          "indexesCount": {
+            "usage": 3,
+            "quota": 3
+          },
+          "indexersCount": {
+            "usage": 3,
+            "quota": 3
+          },
+          "dataSourcesCount": {
+            "usage": 1,
+            "quota": 3
+          },
+          "storageSize": {
+            "usage": 914529,
+            "quota": 52428800
+          },
+          "synonymMaps": {
+            "usage": 2,
+            "quota": 3
+          },
+          "skillsetCount": {
+            "usage": 1,
+            "quota": 3
+          },
+          "vectorIndexSize": {
+            "usage": 123456,
+            "quota": 26214400
+          }
+        },
+        "limits": {
+          "maxFieldsPerIndex": 1000,
+          "maxFieldNestingDepthPerIndex": 10,
+          "maxComplexCollectionFieldsPerIndex": 100,
+          "maxComplexObjectsInCollectionsPerDocument": 3000
+        }
+      }
+    }
+  }
+}

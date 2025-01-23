@@ -1,0 +1,60 @@
+{
+  "operationId": "IndexersOperations_Create",
+  "title": "SearchServiceCreateIndexer",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "api-version": "2024-07-01",
+    "indexer": {
+      "name": "myindexer",
+      "description": "an indexer",
+      "dataSourceName": "mydatasource",
+      "targetIndexName": "orders",
+      "schedule": {
+        "interval": "PT1H",
+        "startTime": "2015-01-01T00:00:00Z"
+      },
+      "parameters": {
+        "maxFailedItems": 10,
+        "maxFailedItemsPerBatch": 5
+      },
+      "encryptionKey": {
+        "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+        "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+        "keyVaultUri": "https://myKeyVault.vault.azure.net",
+        "accessCredentials": {
+          "applicationId": "00000000-0000-0000-0000-000000000000",
+          "applicationSecret": "<applicationSecret>"
+        }
+      }
+    }
+  },
+  "responses": {
+    "201": {
+      "body": {
+        "name": "myindexer",
+        "description": "an indexer",
+        "dataSourceName": "mydatasource",
+        "targetIndexName": "orders",
+        "schedule": {
+          "interval": "PT1H",
+          "startTime": "2015-01-01T00:00:00Z"
+        },
+        "parameters": {
+          "maxFailedItems": 10,
+          "maxFailedItemsPerBatch": 5
+        },
+        "fieldMappings": [],
+        "disabled": false,
+        "encryptionKey": {
+          "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+          "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+          "keyVaultUri": "https://myKeyVault.vault.azure.net",
+          "accessCredentials": {
+            "applicationId": "00000000-0000-0000-0000-000000000000",
+            "applicationSecret": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "operationId": "SynonymMapsOperations_List",
+  "title": "SearchServiceListSynonymMaps",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "api-version": "2024-07-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "name": "mysynonymmap",
+            "format": "solr",
+            "synonyms": "United States, United States of America, USA\nWashington, Wash. => WA",
+            "encryptionKey": {
+              "keyVaultKeyName": "myKeyName",
+              "keyVaultKeyVersion": "myKeyVersion",
+              "keyVaultUri": "https://myKeyVault.vault.azure.net",
+              "accessCredentials": null
+            }
+          },
+          {
+            "name": "myothersynonymmap",
+            "format": "solr",
+            "synonyms": "couch, sofa, chesterfield\npop, soda\ntoque, hat",
+            "encryptionKey": null
+          }
+        ]
+      }
+    }
+  }
+}

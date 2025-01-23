@@ -1,0 +1,13 @@
+{
+  "operationId": "DataSourcesOperations_Delete",
+  "title": "SearchServiceDeleteDataSource",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "dataSourceName": "mydatasource",
+    "api-version": "2024-07-01"
+  },
+  "responses": {
+    "204": {},
+    "404": {}
+  }
+}

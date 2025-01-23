@@ -1,0 +1,96 @@
+{
+  "operationId": "DocumentsOperations_Index",
+  "title": "SearchIndexIndexDocuments",
+  "parameters": {
+    "endpoint": "https://exampleservice.search.windows.net",
+    "indexName": "indexdocumentsexample",
+    "api-version": "2024-07-01",
+    "x-ms-client-request-id": "00000000-0000-0000-0000-000000000000",
+    "batch": {
+      "value": [
+        {
+          "@search.action": "upload",
+          "docId": "1",
+          "title": "Fancy Stay",
+          "description": "Best hotel in town"
+        },
+        {
+          "@search.action": "merge",
+          "docId": "2",
+          "title": "Roach Motel"
+        },
+        {
+          "@search.action": "mergeOrUpload",
+          "docId": "3",
+          "title": "Econo Motel"
+        },
+        {
+          "@search.action": "delete",
+          "docId": "4"
+        }
+      ]
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "key": "1",
+            "status": true,
+            "errorMessage": null,
+            "statusCode": 200
+          },
+          {
+            "key": "2",
+            "status": true,
+            "errorMessage": null,
+            "statusCode": 200
+          },
+          {
+            "key": "3",
+            "status": true,
+            "errorMessage": null,
+            "statusCode": 200
+          },
+          {
+            "key": "4",
+            "status": true,
+            "errorMessage": null,
+            "statusCode": 200
+          }
+        ]
+      }
+    },
+    "207": {
+      "body": {
+        "value": [
+          {
+            "key": "1",
+            "status": true,
+            "errorMessage": null,
+            "statusCode": 201
+          },
+          {
+            "key": "2",
+            "status": false,
+            "errorMessage": "Document not found.",
+            "statusCode": 404
+          },
+          {
+            "key": "3",
+            "status": true,
+            "errorMessage": null,
+            "statusCode": 201
+          },
+          {
+            "key": "4",
+            "status": true,
+            "errorMessage": null,
+            "statusCode": 200
+          }
+        ]
+      }
+    }
+  }
+}

@@ -23,7 +23,7 @@
         {% for p in model.properties %}
             {% for line in serializer.variable_documentation_string(p) %}
                 {% for doc_string in line.replace('\n', '\n ').split('\n') %}
-    {{ macros.wrap_model_string(doc_string, '\n     ') -}}
+    {{ macros.wrap_model_string(doc_string.replace('"', '\\"'), '\n     ') -}}
                 {% endfor %}
             {% endfor %}
         {% endfor %}

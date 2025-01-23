@@ -1,0 +1,13 @@
+{
+  "operationId": "IndexersOperations_Run",
+  "title": "SearchServiceRunIndexer",
+  "parameters": {
+    "endpoint": "https://previewexampleservice.search.windows.net",
+    "indexerName": "myindexer",
+    "api-version": "2024-11-01-preview",
+    "x-ms-client-request-id": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "202": {}
+  }
+}

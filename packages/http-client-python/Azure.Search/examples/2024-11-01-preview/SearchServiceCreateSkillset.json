@@ -1,0 +1,288 @@
+{
+  "operationId": "SkillsetsOperations_Create",
+  "title": "SearchServiceCreateSkillset",
+  "parameters": {
+    "endpoint": "https://previewexampleservice.search.windows.net",
+    "api-version": "2024-11-01-preview",
+    "x-ms-client-request-id": "00000000-0000-0000-0000-000000000000",
+    "skillset": {
+      "name": "tempskillset",
+      "description": "Skillset for extracting entities and more",
+      "skills": [
+        {
+          "@odata.type": "#Microsoft.Skills.Text.LanguageDetectionSkill",
+          "name": "skill2",
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/content"
+            },
+            {
+              "name": "countryHint",
+              "source": "/document/countryHint"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "languageCode",
+              "targetName": "languageCode"
+            }
+          ]
+        },
+        {
+          "textSplitMode": "pages",
+          "maximumPageLength": 4000,
+          "unit": "azureOpenAITokens",
+          "azureOpenAITokenizerParameters": {
+            "encoderModelName": "cl100k_base",
+            "allowedSpecialTokens": [
+              "[START]",
+              "[END]"
+            ]
+          },
+          "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+          "name": "skill3",
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/content"
+            },
+            {
+              "name": "languageCode",
+              "source": "/document/languageCode"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "textItems",
+              "targetName": "pages"
+            }
+          ]
+        },
+        {
+          "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+          "name": "skill4",
+          "context": "/document/pages/*",
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/content"
+            },
+            {
+              "name": "languageCode",
+              "source": "/document/languageCode"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "keyPhrases",
+              "targetName": "keyPhrases"
+            }
+          ]
+        },
+        {
+          "uri": "https://contoso.example.org/",
+          "httpMethod": "POST",
+          "timeout": "PT5S",
+          "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+          "name": "skill5",
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/content"
+            },
+            {
+              "name": "languageCode",
+              "source": "/document/languageCode"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "customresult",
+              "targetName": "result"
+            }
+          ]
+        },
+        {
+          "outputMode": "oneToMany",
+          "markdownHeaderDepth": "h3",
+          "@odata.type": "#Microsoft.Skills.Util.DocumentIntelligenceLayoutSkill",
+          "name": "docIntelligenceLayoutSkill",
+          "context": "/document",
+          "inputs": [
+            {
+              "name": "file_data",
+              "source": "/document/content"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "markdown_document",
+              "targetName": "markdown_document"
+            }
+          ]
+        }
+      ],
+      "cognitiveServices": {
+        "key": "myKey",
+        "subdomainUrl": "https://mySubdomainName.cognitiveservices.azure.com",
+        "@odata.type": "#Microsoft.Azure.Search.AIServicesByKey"
+      },
+      "encryptionKey": {
+        "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+        "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+        "keyVaultUri": "https://myKeyVault.vault.azure.net",
+        "accessCredentials": {
+          "applicationId": "00000000-0000-0000-0000-000000000000",
+          "applicationSecret": "<applicationSecret>"
+        }
+      }
+    }
+  },
+  "responses": {
+    "201": {
+      "body": {
+        "name": "tempskillset",
+        "description": "Skillset for extracting entities and more",
+        "skills": [
+          {
+            "@odata.type": "#Microsoft.Skills.Text.LanguageDetectionSkill",
+            "name": "skill2",
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/content",
+                "inputs": []
+              },
+              {
+                "name": "countryHint",
+                "source": "/document/countryHint",
+                "inputs": []
+              }
+            ],
+            "outputs": [
+              {
+                "name": "languageCode",
+                "targetName": "languageCode"
+              }
+            ]
+          },
+          {
+            "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+            "name": "skill3",
+            "textSplitMode": "pages",
+            "maximumPageLength": 4000,
+            "unit": "azureOpenAITokens",
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/content",
+                "inputs": []
+              },
+              {
+                "name": "languageCode",
+                "source": "/document/languageCode",
+                "inputs": []
+              }
+            ],
+            "outputs": [
+              {
+                "name": "textItems",
+                "targetName": "pages"
+              }
+            ],
+            "azureOpenAITokenizerParameters": {
+              "encoderModelName": "cl100k_base",
+              "allowedSpecialTokens": [
+                "[START]",
+                "[END]"
+              ]
+            }
+          },
+          {
+            "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+            "name": "skill4",
+            "context": "/document/pages/*",
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/content",
+                "inputs": []
+              },
+              {
+                "name": "languageCode",
+                "source": "/document/languageCode",
+                "inputs": []
+              }
+            ],
+            "outputs": [
+              {
+                "name": "keyPhrases",
+                "targetName": "keyPhrases"
+              }
+            ]
+          },
+          {
+            "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+            "name": "skill5",
+            "uri": "https://contoso.example.org/",
+            "httpMethod": "POST",
+            "timeout": "PT5S",
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/content",
+                "inputs": []
+              },
+              {
+                "name": "languageCode",
+                "source": "/document/languageCode",
+                "inputs": []
+              }
+            ],
+            "outputs": [
+              {
+                "name": "customresult",
+                "targetName": "result"
+              }
+            ]
+          },
+          {
+            "@odata.type": "#Microsoft.Skills.Util.DocumentIntelligenceLayoutSkill",
+            "name": "docIntelligenceLayoutSkill",
+            "context": "/document",
+            "outputMode": "oneToMany",
+            "markdownHeaderDepth": "h3",
+            "inputs": [
+              {
+                "name": "file_data",
+                "source": "/document/content",
+                "inputs": []
+              }
+            ],
+            "outputs": [
+              {
+                "name": "markdown_document",
+                "targetName": "markdown_document"
+              }
+            ]
+          }
+        ],
+        "cognitiveServices": {
+          "@odata.type": "#Microsoft.Azure.Search.AIServicesByKey",
+          "key": "myKey",
+          "subdomainUrl": "https://mySubdomainName.cognitiveservices.azure.com"
+        },
+        "encryptionKey": {
+          "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+          "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+          "keyVaultUri": "https://myKeyVault.vault.azure.net",
+          "accessCredentials": {
+            "applicationId": "00000000-0000-0000-0000-000000000000",
+            "applicationSecret": "<applicationSecret>"
+          }
+        }
+      }
+    }
+  }
+}

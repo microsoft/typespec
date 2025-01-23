@@ -1,0 +1,112 @@
+{
+  "operationId": "DataSourcesOperations_CreateOrUpdate",
+  "title": "SearchServiceCreateOrUpdateDataSource",
+  "parameters": {
+    "endpoint": "https://previewexampleservice.search.windows.net",
+    "dataSourceName": "tempdatasource",
+    "api-version": "2024-11-01-preview",
+    "ignoreResetRequirements": null,
+    "x-ms-client-request-id": "00000000-0000-0000-0000-000000000000",
+    "If-Match": null,
+    "If-None-Match": null,
+    "Prefer": "return=representation",
+    "dataSource": {
+      "name": "tempdatasource",
+      "description": "My Azure Blob data source.",
+      "type": "azureblob",
+      "credentials": {
+        "connectionString": "DefaultEndpointsProtocol=https;AccountName=myAccountName;AccountKey=myAccountKey;EndpointSuffix=core.windows.net "
+      },
+      "container": {
+        "name": "doc-extraction-skillset",
+        "query": "E2E_Dsat"
+      },
+      "dataChangeDetectionPolicy": {
+        "highWaterMarkColumnName": "metadata_storage_last_modified",
+        "@odata.type": "#Microsoft.Azure.Search.HighWaterMarkChangeDetectionPolicy"
+      },
+      "dataDeletionDetectionPolicy": {
+        "softDeleteColumnName": "isDeleted",
+        "softDeleteMarkerValue": "true",
+        "@odata.type": "#Microsoft.Azure.Search.SoftDeleteColumnDeletionDetectionPolicy"
+      },
+      "encryptionKey": {
+        "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+        "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+        "keyVaultUri": "https://myKeyVault.vault.azure.net",
+        "accessCredentials": {
+          "applicationId": "00000000-0000-0000-0000-000000000000",
+          "applicationSecret": "<applicationSecret>"
+        }
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "@odata.etag": "0x1234568AE7E58A1",
+        "name": "tempdatasource",
+        "description": "My Azure Blob data source.",
+        "type": "azureblob",
+        "credentials": {
+          "connectionString": "DefaultEndpointsProtocol=https;AccountName=myAccountName;AccountKey=myAccountKey;EndpointSuffix=core.windows.net "
+        },
+        "container": {
+          "name": "doc-extraction-skillset",
+          "query": "E2E_Dsat"
+        },
+        "dataChangeDetectionPolicy": {
+          "@odata.type": "#Microsoft.Azure.Search.HighWaterMarkChangeDetectionPolicy",
+          "highWaterMarkColumnName": "metadata_storage_last_modified"
+        },
+        "dataDeletionDetectionPolicy": {
+          "@odata.type": "#Microsoft.Azure.Search.SoftDeleteColumnDeletionDetectionPolicy",
+          "softDeleteColumnName": "isDeleted",
+          "softDeleteMarkerValue": "true"
+        },
+        "encryptionKey": {
+          "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+          "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+          "keyVaultUri": "https://myKeyVault.vault.azure.net",
+          "accessCredentials": {
+            "applicationId": "00000000-0000-0000-0000-000000000000",
+            "applicationSecret": "<applicationSecret>"
+          }
+        }
+      }
+    },
+    "201": {
+      "body": {
+        "@odata.etag": "0x1234568AE7E58A1",
+        "name": "tempdatasource",
+        "description": "My Azure Blob data source.",
+        "type": "azureblob",
+        "credentials": {
+          "connectionString": "DefaultEndpointsProtocol=https;AccountName=myAccountName;AccountKey=myAccountKey;EndpointSuffix=core.windows.net "
+        },
+        "container": {
+          "name": "doc-extraction-skillset",
+          "query": "E2E_Dsat"
+        },
+        "dataChangeDetectionPolicy": {
+          "@odata.type": "#Microsoft.Azure.Search.HighWaterMarkChangeDetectionPolicy",
+          "highWaterMarkColumnName": "metadata_storage_last_modified"
+        },
+        "dataDeletionDetectionPolicy": {
+          "@odata.type": "#Microsoft.Azure.Search.SoftDeleteColumnDeletionDetectionPolicy",
+          "softDeleteColumnName": "isDeleted",
+          "softDeleteMarkerValue": "true"
+        },
+        "encryptionKey": {
+          "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+          "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+          "keyVaultUri": "https://myKeyVault.vault.azure.net",
+          "accessCredentials": {
+            "applicationId": "00000000-0000-0000-0000-000000000000",
+            "applicationSecret": "<applicationSecret>"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "operationId": "SkillsetsOperations_Create",
+  "title": "SearchServiceCreateSkillset",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "skillsetName": "demoskillset",
+    "api-version": "2024-07-01",
+    "Prefer": "return=representation",
+    "skillset": {
+      "name": "demoskillset",
+      "description": "Extract entities, detect language and extract key-phrases",
+      "skills": [
+        {
+          "@odata.type": "#Microsoft.Skills.Text.EntityRecognitionSkill",
+          "categories": [
+            "organization"
+          ],
+          "defaultLanguageCode": "en",
+          "minimumPrecision": 0.7,
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/content"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "organizations",
+              "targetName": "organizations"
+            }
+          ]
+        },
+        {
+          "@odata.type": "#Microsoft.Skills.Text.LanguageDetectionSkill",
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/content"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "languageCode",
+              "targetName": "languageCode"
+            }
+          ]
+        },
+        {
+          "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+          "textSplitMode": "pages",
+          "maximumPageLength": 4000,
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/content"
+            },
+            {
+              "name": "languageCode",
+              "source": "/document/languageCode"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "textItems",
+              "targetName": "pages"
+            }
+          ]
+        },
+        {
+          "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+          "context": "/document/pages/*",
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/pages/*"
+            },
+            {
+              "name": "languageCode",
+              "source": "/document/languageCode"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "keyPhrases",
+              "targetName": "keyPhrases"
+            }
+          ]
+        },
+        {
+          "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+          "name": "MyCustomWebApiSkill",
+          "uri": "https://contoso.example.org",
+          "httpMethod": "POST",
+          "timeout": "PT30S",
+          "batchSize": 1,
+          "inputs": [
+            {
+              "name": "text",
+              "source": "/document/pages/*"
+            },
+            {
+              "name": "languageCode",
+              "source": "/document/languageCode"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "customresult",
+              "targetName": "result"
+            }
+          ],
+          "httpHeaders": {}
+        }
+      ],
+      "knowledgeStore": {
+        "storageConnectionString": "DefaultEndpointsProtocol=https;AccountName=myStorage;AccountKey=myStorageKey;EndpointSuffix=core.windows.net",
+        "projections": [
+          {
+            "tables": [
+              {
+                "tableName": "Reviews",
+                "generatedKeyName": "ReviewId",
+                "source": "/document/Review",
+                "sourceContext": null,
+                "inputs": []
+              },
+              {
+                "tableName": "Sentences",
+                "generatedKeyName": "SentenceId",
+                "source": "/document/Review/Sentences/*",
+                "sourceContext": null,
+                "inputs": []
+              },
+              {
+                "tableName": "KeyPhrases",
+                "generatedKeyName": "KeyPhraseId",
+                "source": "/document/Review/Sentences/*/KeyPhrases",
+                "sourceContext": null,
+                "inputs": []
+              },
+              {
+                "tableName": "Entities",
+                "generatedKeyName": "EntityId",
+                "source": "/document/Review/Sentences/*/Entities/*",
+                "sourceContext": null,
+                "inputs": []
+              }
+            ]
+          },
+          {
+            "objects": [
+              {
+                "storageContainer": "Reviews",
+                "source": "/document/Review",
+                "generatedKeyName": "/document/Review/Id"
+              }
+            ]
+          }
+        ]
+      },
+      "encryptionKey": {
+        "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+        "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+        "keyVaultUri": "https://myKeyVault.vault.azure.net",
+        "accessCredentials": {
+          "applicationId": "00000000-0000-0000-0000-000000000000",
+          "applicationSecret": "<applicationSecret>"
+        }
+      }
+    }
+  },
+  "responses": {
+    "201": {
+      "body": {
+        "name": "demoskillset",
+        "description": "Extract entities, detect language and extract key-phrases",
+        "skills": [
+          {
+            "@odata.type": "#Microsoft.Skills.Text.EntityRecognitionSkill",
+            "name": "#1",
+            "description": null,
+            "context": null,
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/content"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "organizations",
+                "targetName": "organizations"
+              }
+            ],
+            "categories": [
+              "organization"
+            ],
+            "defaultLanguageCode": "en",
+            "minimumPrecision": 0.7
+          },
+          {
+            "@odata.type": "#Microsoft.Skills.Text.LanguageDetectionSkill",
+            "name": "#2",
+            "description": null,
+            "context": null,
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/content"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "languageCode",
+                "targetName": "languageCode"
+              }
+            ]
+          },
+          {
+            "@odata.type": "#Microsoft.Skills.Text.SplitSkill",
+            "name": "#3",
+            "description": null,
+            "context": null,
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/content"
+              },
+              {
+                "name": "languageCode",
+                "source": "/document/languageCode"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "textItems",
+                "targetName": "pages"
+              }
+            ],
+            "defaultLanguageCode": null,
+            "textSplitMode": "pages",
+            "maximumPageLength": 4000
+          },
+          {
+            "@odata.type": "#Microsoft.Skills.Text.KeyPhraseExtractionSkill",
+            "name": "#4",
+            "description": null,
+            "context": "/document/pages/*",
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/pages/*"
+              },
+              {
+                "name": "languageCode",
+                "source": "/document/languageCode"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "keyPhrases",
+                "targetName": "keyPhrases"
+              }
+            ],
+            "defaultLanguageCode": null,
+            "maxKeyPhraseCount": null
+          },
+          {
+            "@odata.type": "#Microsoft.Skills.Custom.WebApiSkill",
+            "name": "MyCustomWebApiSkill",
+            "description": null,
+            "context": "/document",
+            "uri": "https://contoso.example.org",
+            "httpMethod": "POST",
+            "timeout": "PT30S",
+            "batchSize": 1,
+            "degreeOfParallelism": null,
+            "inputs": [
+              {
+                "name": "text",
+                "source": "/document/pages/*"
+              },
+              {
+                "name": "languageCode",
+                "source": "/document/languageCode"
+              }
+            ],
+            "outputs": [
+              {
+                "name": "customresult",
+                "targetName": "result"
+              }
+            ],
+            "httpHeaders": {}
+          }
+        ],
+        "encryptionKey": {
+          "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+          "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+          "keyVaultUri": "https://myKeyVault.vault.azure.net",
+          "accessCredentials": {
+            "applicationId": "00000000-0000-0000-0000-000000000000",
+            "applicationSecret": null
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "operationId": "AliasesOperations_Get",
+  "title": "SearchServiceGetAlias",
+  "parameters": {
+    "endpoint": "https://previewexampleservice.search.windows.net",
+    "aliasName": "myalias",
+    "api-version": "2024-11-01-preview",
+    "x-ms-client-request-id": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "myalias",
+        "indexes": [
+          "preview-test"
+        ]
+      }
+    }
+  }
+}

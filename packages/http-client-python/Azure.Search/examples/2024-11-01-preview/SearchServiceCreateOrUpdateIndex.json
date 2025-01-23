@@ -1,0 +1,904 @@
+{
+  "operationId": "IndexesOperations_CreateOrUpdate",
+  "title": "SearchServiceCreateOrUpdateIndex",
+  "parameters": {
+    "endpoint": "https://previewexampleservice.search.windows.net",
+    "indexName": "temp-preview-test",
+    "allowIndexDowntime": null,
+    "api-version": "2024-11-01-preview",
+    "x-ms-client-request-id": "00000000-0000-0000-0000-000000000000",
+    "If-Match": null,
+    "If-None-Match": null,
+    "Prefer": "return=representation",
+    "index": {
+      "name": "temp-preview-test",
+      "fields": [
+        {
+          "name": "id",
+          "type": "Edm.String",
+          "key": true,
+          "sortable": true
+        },
+        {
+          "name": "vector1",
+          "type": "Collection(Edm.Single)",
+          "retrievable": true,
+          "searchable": true,
+          "dimensions": 20,
+          "vectorSearchProfile": "config1"
+        },
+        {
+          "name": "vector1b",
+          "type": "Collection(Edm.Single)",
+          "retrievable": true,
+          "searchable": true,
+          "dimensions": 10,
+          "vectorSearchProfile": "config2"
+        },
+        {
+          "name": "vector2",
+          "type": "Collection(Edm.Single)",
+          "retrievable": true,
+          "searchable": true,
+          "dimensions": 5,
+          "vectorSearchProfile": "config3"
+        },
+        {
+          "name": "vector3",
+          "type": "Collection(Edm.Single)",
+          "retrievable": true,
+          "searchable": true,
+          "dimensions": 5,
+          "vectorSearchProfile": "config3"
+        },
+        {
+          "name": "vector22",
+          "type": "Collection(Edm.Single)",
+          "retrievable": true,
+          "searchable": true,
+          "dimensions": 10,
+          "vectorSearchProfile": "config2"
+        },
+        {
+          "name": "name",
+          "type": "Edm.String",
+          "retrievable": true,
+          "searchable": true,
+          "filterable": true,
+          "sortable": true,
+          "facetable": true,
+          "analyzer": "en.lucene"
+        },
+        {
+          "name": "description",
+          "type": "Edm.String",
+          "retrievable": true,
+          "searchable": true,
+          "filterable": true,
+          "sortable": true,
+          "facetable": true,
+          "analyzer": "standard.lucene"
+        },
+        {
+          "name": "category",
+          "type": "Edm.String",
+          "retrievable": true,
+          "searchable": true,
+          "filterable": true,
+          "sortable": true,
+          "facetable": true,
+          "analyzer": "en.lucene"
+        },
+        {
+          "name": "ownerId",
+          "type": "Edm.String",
+          "retrievable": true,
+          "searchable": true,
+          "filterable": true,
+          "sortable": true,
+          "facetable": true,
+          "analyzer": "en.lucene"
+        }
+      ],
+      "scoringProfiles": [
+        {
+          "name": "stringFieldBoost",
+          "text": {
+            "weights": {
+              "name": 3,
+              "description": 1,
+              "category": 2,
+              "ownerId": 1
+            }
+          },
+          "functions": [
+            {
+              "tag": {
+                "tagsParameter": "categoryTag"
+              },
+              "type": "tag",
+              "fieldName": "category",
+              "boost": 2
+            }
+          ]
+        }
+      ],
+      "suggesters": [
+        {
+          "name": "sg",
+          "searchMode": "analyzingInfixMatching",
+          "sourceFields": [
+            "category",
+            "ownerId"
+          ]
+        }
+      ],
+      "analyzers": [
+        {
+          "tokenizer": "standard_v2",
+          "tokenFilters": [
+            "common_grams"
+          ],
+          "charFilters": [
+            "html_strip"
+          ],
+          "@odata.type": "#Microsoft.Azure.Search.CustomAnalyzer",
+          "name": "tagsAnalyzer"
+        }
+      ],
+      "tokenizers": [],
+      "tokenFilters": [],
+      "charFilters": [],
+      "normalizers": [],
+      "semantic": {},
+      "vectorSearch": {
+        "profiles": [
+          {
+            "name": "config1",
+            "algorithm": "cosine",
+            "vectorizer": "openai",
+            "compression": "mySQ8"
+          },
+          {
+            "name": "config2",
+            "algorithm": "euclidean",
+            "vectorizer": "custom-web-api",
+            "compression": "mySQ8"
+          },
+          {
+            "name": "config3",
+            "algorithm": "dotProduct",
+            "vectorizer": "custom-web-api",
+            "compression": "myBQC"
+          }
+        ],
+        "algorithms": [
+          {
+            "hnswParameters": {
+              "metric": "cosine"
+            },
+            "name": "cosine",
+            "kind": "hnsw"
+          },
+          {
+            "hnswParameters": {
+              "metric": "euclidean"
+            },
+            "name": "euclidean",
+            "kind": "hnsw"
+          },
+          {
+            "hnswParameters": {
+              "metric": "dotProduct"
+            },
+            "name": "dotProduct",
+            "kind": "hnsw"
+          }
+        ],
+        "vectorizers": [
+          {
+            "azureOpenAIParameters": {
+              "resourceUri": "https://test-sample.openai.azure.com/",
+              "deploymentId": "model",
+              "apiKey": "api-key",
+              "modelName": "text-embedding-3-large"
+            },
+            "name": "openai",
+            "kind": "azureOpenAI"
+          },
+          {
+            "customWebApiParameters": {
+              "uri": "https://my-custom-endpoint.org/",
+              "httpHeaders": {
+                "header1": "value1",
+                "header2": "value2"
+              },
+              "httpMethod": "POST",
+              "timeout": "PT1M",
+              "authResourceId": "api://f89d1c93-58a7-4b07-9a5b-5f89048b927b",
+              "authIdentity": {
+                "@odata.type": "#Microsoft.Azure.Search.DataNoneIdentity"
+              }
+            },
+            "name": "custom-web-api",
+            "kind": "customWebApi"
+          },
+          {
+            "amlParameters": {
+              "uri": "https://my-custom-endpoint.org/",
+              "resourceId": "aml resource id",
+              "timeout": "PT1M",
+              "region": "aml region",
+              "modelName": "OpenAI-CLIP-Image-Text-Embeddings-vit-base-patch32"
+            },
+            "name": "aml",
+            "kind": "aml"
+          }
+        ],
+        "compressions": [
+          {
+            "scalarQuantizationParameters": {
+              "quantizedDataType": "int8"
+            },
+            "name": "mySQ8",
+            "kind": "scalarQuantization",
+            "rescoringOptions": {
+              "enableRescoring": true,
+              "defaultOversampling": 10,
+              "rescoreStorageMethod": "preserveOriginals"
+            },
+            "truncationDimension": 2
+          },
+          {
+            "name": "myBQC",
+            "kind": "binaryQuantization",
+            "rescoringOptions": {
+              "enableRescoring": true,
+              "defaultOversampling": 10,
+              "rescoreStorageMethod": "preserveOriginals"
+            },
+            "truncationDimension": 2
+          }
+        ]
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "temp-preview-test",
+        "fields": [
+          {
+            "name": "id",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": true,
+            "synonymMaps": []
+          },
+          {
+            "name": "vector1",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 20,
+            "vectorSearchProfile": "config1",
+            "synonymMaps": []
+          },
+          {
+            "name": "vector1b",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 10,
+            "vectorSearchProfile": "config2",
+            "synonymMaps": []
+          },
+          {
+            "name": "vector2",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 5,
+            "vectorSearchProfile": "config3",
+            "synonymMaps": []
+          },
+          {
+            "name": "vector3",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 5,
+            "vectorSearchProfile": "config3",
+            "synonymMaps": []
+          },
+          {
+            "name": "vector22",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 10,
+            "vectorSearchProfile": "config2",
+            "synonymMaps": []
+          },
+          {
+            "name": "name",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": false,
+            "analyzer": "en.lucene",
+            "synonymMaps": []
+          },
+          {
+            "name": "description",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": false,
+            "analyzer": "standard.lucene",
+            "synonymMaps": []
+          },
+          {
+            "name": "category",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": false,
+            "analyzer": "en.lucene",
+            "synonymMaps": []
+          },
+          {
+            "name": "ownerId",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": false,
+            "analyzer": "en.lucene",
+            "synonymMaps": []
+          }
+        ],
+        "scoringProfiles": [
+          {
+            "name": "stringFieldBoost",
+            "functionAggregation": "sum",
+            "text": {
+              "weights": {
+                "name": 3.0,
+                "description": 1.0,
+                "category": 2.0,
+                "ownerId": 1.0
+              }
+            },
+            "functions": [
+              {
+                "fieldName": "category",
+                "interpolation": "linear",
+                "type": "tag",
+                "boost": 2.0,
+                "tag": {
+                  "tagsParameter": "categoryTag"
+                }
+              }
+            ]
+          }
+        ],
+        "suggesters": [
+          {
+            "name": "sg",
+            "searchMode": "analyzingInfixMatching",
+            "sourceFields": [
+              "category",
+              "ownerId"
+            ]
+          }
+        ],
+        "analyzers": [
+          {
+            "@odata.type": "#Microsoft.Azure.Search.CustomAnalyzer",
+            "name": "tagsAnalyzer",
+            "tokenizer": "standard_v2",
+            "tokenFilters": [
+              "common_grams"
+            ],
+            "charFilters": [
+              "html_strip"
+            ]
+          }
+        ],
+        "normalizers": [],
+        "tokenizers": [],
+        "tokenFilters": [],
+        "charFilters": [],
+        "similarity": {
+          "@odata.type": "#Microsoft.Azure.Search.BM25Similarity"
+        },
+        "semantic": {
+          "configurations": []
+        },
+        "vectorSearch": {
+          "algorithms": [
+            {
+              "name": "cosine",
+              "kind": "hnsw",
+              "hnswParameters": {
+                "metric": "cosine",
+                "m": 4,
+                "efConstruction": 400,
+                "efSearch": 500
+              }
+            },
+            {
+              "name": "euclidean",
+              "kind": "hnsw",
+              "hnswParameters": {
+                "metric": "euclidean",
+                "m": 4,
+                "efConstruction": 400,
+                "efSearch": 500
+              }
+            },
+            {
+              "name": "dotProduct",
+              "kind": "hnsw",
+              "hnswParameters": {
+                "metric": "dotProduct",
+                "m": 4,
+                "efConstruction": 400,
+                "efSearch": 500
+              }
+            }
+          ],
+          "profiles": [
+            {
+              "name": "config1",
+              "algorithm": "cosine",
+              "vectorizer": "openai",
+              "compression": "mySQ8"
+            },
+            {
+              "name": "config2",
+              "algorithm": "euclidean",
+              "vectorizer": "custom-web-api",
+              "compression": "mySQ8"
+            },
+            {
+              "name": "config3",
+              "algorithm": "dotProduct",
+              "vectorizer": "custom-web-api",
+              "compression": "myBQC"
+            }
+          ],
+          "vectorizers": [
+            {
+              "name": "openai",
+              "kind": "azureOpenAI",
+              "azureOpenAIParameters": {
+                "resourceUri": "https://test-sample.openai.azure.com",
+                "deploymentId": "model",
+                "apiKey": "api-key",
+                "modelName": "text-embedding-3-large"
+              }
+            },
+            {
+              "name": "custom-web-api",
+              "kind": "customWebApi",
+              "customWebApiParameters": {
+                "httpMethod": "POST",
+                "uri": "https://my-custom-endpoint.org/",
+                "timeout": "PT1M",
+                "authResourceId": "api://f89d1c93-58a7-4b07-9a5b-5f89048b927b",
+                "httpHeaders": {
+                  "header1": "value1",
+                  "header2": "value2"
+                },
+                "authIdentity": {
+                  "@odata.type": "#Microsoft.Azure.Search.DataNoneIdentity"
+                }
+              }
+            },
+            {
+              "name": "aml",
+              "kind": "aml",
+              "amlParameters": {
+                "resourceId": "aml resource id",
+                "region": "aml region",
+                "uri": "https://my-custom-endpoint.org/",
+                "timeout": "PT1M",
+                "modelName": "OpenAI-CLIP-Image-Text-Embeddings-vit-base-patch32"
+              }
+            }
+          ],
+          "compressions": [
+            {
+              "name": "mySQ8",
+              "kind": "scalarQuantization",
+              "truncationDimension": 2,
+              "scalarQuantizationParameters": {
+                "quantizedDataType": "int8"
+              },
+              "rescoringOptions": {
+                "enableRescoring": true,
+                "defaultOversampling": 10.0,
+                "rescoreStorageMethod": "preserveOriginals"
+              }
+            },
+            {
+              "name": "myBQC",
+              "kind": "binaryQuantization",
+              "truncationDimension": 2,
+              "rescoringOptions": {
+                "enableRescoring": true,
+                "defaultOversampling": 10.0,
+                "rescoreStorageMethod": "preserveOriginals"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "201": {
+      "body": {
+        "name": "temp-preview-test",
+        "fields": [
+          {
+            "name": "id",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": true,
+            "synonymMaps": []
+          },
+          {
+            "name": "vector1",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 20,
+            "vectorSearchProfile": "config1",
+            "synonymMaps": []
+          },
+          {
+            "name": "vector1b",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 10,
+            "vectorSearchProfile": "config2",
+            "synonymMaps": []
+          },
+          {
+            "name": "vector2",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 5,
+            "vectorSearchProfile": "config3",
+            "synonymMaps": []
+          },
+          {
+            "name": "vector3",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 5,
+            "vectorSearchProfile": "config3",
+            "synonymMaps": []
+          },
+          {
+            "name": "vector22",
+            "type": "Collection(Edm.Single)",
+            "searchable": true,
+            "filterable": false,
+            "retrievable": true,
+            "stored": true,
+            "sortable": false,
+            "facetable": false,
+            "key": false,
+            "dimensions": 10,
+            "vectorSearchProfile": "config2",
+            "synonymMaps": []
+          },
+          {
+            "name": "name",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": false,
+            "analyzer": "en.lucene",
+            "synonymMaps": []
+          },
+          {
+            "name": "description",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": false,
+            "analyzer": "standard.lucene",
+            "synonymMaps": []
+          },
+          {
+            "name": "category",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": false,
+            "analyzer": "en.lucene",
+            "synonymMaps": []
+          },
+          {
+            "name": "ownerId",
+            "type": "Edm.String",
+            "searchable": true,
+            "filterable": true,
+            "retrievable": true,
+            "stored": true,
+            "sortable": true,
+            "facetable": true,
+            "key": false,
+            "analyzer": "en.lucene",
+            "synonymMaps": []
+          }
+        ],
+        "scoringProfiles": [
+          {
+            "name": "stringFieldBoost",
+            "functionAggregation": "sum",
+            "text": {
+              "weights": {
+                "name": 3.0,
+                "description": 1.0,
+                "category": 2.0,
+                "ownerId": 1.0
+              }
+            },
+            "functions": [
+              {
+                "fieldName": "category",
+                "interpolation": "linear",
+                "type": "tag",
+                "boost": 2.0,
+                "tag": {
+                  "tagsParameter": "categoryTag"
+                }
+              }
+            ]
+          }
+        ],
+        "suggesters": [
+          {
+            "name": "sg",
+            "searchMode": "analyzingInfixMatching",
+            "sourceFields": [
+              "category",
+              "ownerId"
+            ]
+          }
+        ],
+        "analyzers": [
+          {
+            "@odata.type": "#Microsoft.Azure.Search.CustomAnalyzer",
+            "name": "tagsAnalyzer",
+            "tokenizer": "standard_v2",
+            "tokenFilters": [
+              "common_grams"
+            ],
+            "charFilters": [
+              "html_strip"
+            ]
+          }
+        ],
+        "normalizers": [],
+        "tokenizers": [],
+        "tokenFilters": [],
+        "charFilters": [],
+        "similarity": {
+          "@odata.type": "#Microsoft.Azure.Search.BM25Similarity"
+        },
+        "semantic": {
+          "configurations": []
+        },
+        "vectorSearch": {
+          "algorithms": [
+            {
+              "name": "cosine",
+              "kind": "hnsw",
+              "hnswParameters": {
+                "metric": "cosine",
+                "m": 4,
+                "efConstruction": 400,
+                "efSearch": 500
+              }
+            },
+            {
+              "name": "euclidean",
+              "kind": "hnsw",
+              "hnswParameters": {
+                "metric": "euclidean",
+                "m": 4,
+                "efConstruction": 400,
+                "efSearch": 500
+              }
+            },
+            {
+              "name": "dotProduct",
+              "kind": "hnsw",
+              "hnswParameters": {
+                "metric": "dotProduct",
+                "m": 4,
+                "efConstruction": 400,
+                "efSearch": 500
+              }
+            }
+          ],
+          "profiles": [
+            {
+              "name": "config1",
+              "algorithm": "cosine",
+              "vectorizer": "openai",
+              "compression": "mySQ8"
+            },
+            {
+              "name": "config2",
+              "algorithm": "euclidean",
+              "vectorizer": "custom-web-api",
+              "compression": "mySQ8"
+            },
+            {
+              "name": "config3",
+              "algorithm": "dotProduct",
+              "vectorizer": "custom-web-api",
+              "compression": "myBQC"
+            }
+          ],
+          "vectorizers": [
+            {
+              "name": "openai",
+              "kind": "azureOpenAI",
+              "azureOpenAIParameters": {
+                "resourceUri": "https://test-sample.openai.azure.com",
+                "deploymentId": "model",
+                "apiKey": "api-key",
+                "modelName": "text-embedding-3-large"
+              }
+            },
+            {
+              "name": "custom-web-api",
+              "kind": "customWebApi",
+              "customWebApiParameters": {
+                "httpMethod": "POST",
+                "uri": "https://my-custom-endpoint.org/",
+                "timeout": "PT1M",
+                "authResourceId": "api://f89d1c93-58a7-4b07-9a5b-5f89048b927b",
+                "httpHeaders": {
+                  "header1": "value1",
+                  "header2": "value2"
+                },
+                "authIdentity": {
+                  "@odata.type": "#Microsoft.Azure.Search.DataNoneIdentity"
+                }
+              }
+            },
+            {
+              "name": "aml",
+              "kind": "aml",
+              "amlParameters": {
+                "resourceId": "aml resource id",
+                "region": "aml region",
+                "uri": "https://my-custom-endpoint.org/",
+                "timeout": "PT1M",
+                "modelName": "OpenAI-CLIP-Image-Text-Embeddings-vit-base-patch32"
+              }
+            }
+          ],
+          "compressions": [
+            {
+              "name": "mySQ8",
+              "kind": "scalarQuantization",
+              "truncationDimension": 2,
+              "scalarQuantizationParameters": {
+                "quantizedDataType": "int8"
+              },
+              "rescoringOptions": {
+                "enableRescoring": true,
+                "defaultOversampling": 10.0,
+                "rescoreStorageMethod": "preserveOriginals"
+              }
+            },
+            {
+              "name": "myBQC",
+              "kind": "binaryQuantization",
+              "truncationDimension": 2,
+              "rescoringOptions": {
+                "enableRescoring": true,
+                "defaultOversampling": 10.0,
+                "rescoreStorageMethod": "preserveOriginals"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

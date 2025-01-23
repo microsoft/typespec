@@ -1,0 +1,54 @@
+{
+  "operationId": "DocumentsOperations_SearchGet",
+  "title": "SearchIndexSearchDocumentsSemanticGet",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "indexName": "myindex",
+    "api-version": "2024-11-01-preview",
+    "$count": true,
+    "highlightPostTag": "</em>",
+    "highlightPreTag": "<em>",
+    "queryType": "semantic",
+    "search": "how do clouds form",
+    "semanticConfiguration": "my-semantic-config",
+    "answers": "extractive|count-3",
+    "captions": "extractive|highlight-true",
+    "semanticErrorHandling": "partial",
+    "semanticMaxWaitInMilliseconds": 780
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "@odata.count": 25,
+        "@search.answers": [
+          {
+            "key": "4123",
+            "text": "Sunlight heats the land all day, warming that moist air and causing it to rise high into the   atmosphere until it cools and condenses into water droplets. Clouds generally form where air is ascending (over land in this case),   but not where it is descending (over the river).",
+            "highlights": "Sunlight heats the land all day, warming that moist air and causing it to rise high into the   atmosphere until it cools and condenses into water droplets. Clouds generally form<em> where air is ascending</em> (over land in this case),   but not where it is<em> descending</em> (over the river).",
+            "score": 0.94639826
+          }
+        ],
+        "value": [
+          {
+            "@search.score": 0.5479723,
+            "@search.rerankerScore": 1.0321671911515296,
+            "@search.captions": [
+              {
+                "text": "Like all clouds, it forms when the air reaches its dew point—the temperature at which an air mass is cool enough for its water vapor to condense into liquid droplets. This false-color image shows valley fog, which is common in the Pacific Northwest of North America.",
+                "highlights": "Like all<em> clouds</em>, it<em> forms</em> when the air reaches its dew point—the temperature at    which an air mass is cool enough for its water vapor to condense into liquid droplets. This false-color image shows valley<em> fog</em>, which is common in the Pacific Northwest of North America."
+              }
+            ],
+            "id": "4123",
+            "title": "Earth Atmosphere",
+            "content": "Fog is essentially a cloud lying on the ground. Like all clouds, it forms when the air reaches its dew point—the temperature at  \n\nwhich an air mass is cool enough for its water vapor to condense into liquid droplets.\n\nThis false-color image shows valley fog, which is common in the Pacific Northwest of North America. On clear winter nights, the \n\nground and overlying air cool off rapidly, especially at high elevations. Cold air is denser than warm air, and it sinks down into the \n\nvalleys. The moist air in the valleys gets chilled to its dew point, and fog forms. If undisturbed by winds, such fog may persist for \n\ndays. The Terra satellite captured this image of foggy valleys northeast of Vancouver in February 2010.\n\n\n",
+            "locations": [
+              "Pacific Northwest",
+              "North America",
+              "Vancouver"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

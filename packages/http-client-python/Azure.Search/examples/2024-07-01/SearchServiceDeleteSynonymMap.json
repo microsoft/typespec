@@ -1,0 +1,13 @@
+{
+  "operationId": "SynonymMapsOperations_Delete",
+  "title": "SearchServiceDeleteSynonymMap",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "synonymMapName": "mysynonymmap",
+    "api-version": "2024-07-01"
+  },
+  "responses": {
+    "204": {},
+    "404": {}
+  }
+}

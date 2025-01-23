@@ -1,0 +1,38 @@
+{
+  "operationId": "DocumentsOperations_AutocompletePost",
+  "title": "SearchIndexAutocompleteDocumentsPost",
+  "parameters": {
+    "endpoint": "https://previewexampleservice.search.windows.net",
+    "indexName": "preview-test",
+    "api-version": "2024-11-01-preview",
+    "x-ms-client-request-id": "00000000-0000-0000-0000-000000000000",
+    "autocompleteRequest": {
+      "search": "p",
+      "autocompleteMode": "oneTerm",
+      "filter": "ownerId ne '1'",
+      "highlightPostTag": "</em>",
+      "highlightPreTag": "<em>",
+      "minimumCoverage": 80,
+      "searchFields": "category, ownerId",
+      "suggesterName": "sg",
+      "top": 10
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "@search.coverage": 100.0,
+        "value": [
+          {
+            "text": "purple",
+            "queryPlusText": "<em>purple</em>"
+          },
+          {
+            "text": "pink",
+            "queryPlusText": "<em>pink</em>"
+          }
+        ]
+      }
+    }
+  }
+}

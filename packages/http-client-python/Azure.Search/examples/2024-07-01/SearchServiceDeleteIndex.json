@@ -1,0 +1,13 @@
+{
+  "operationId": "IndexesOperations_Delete",
+  "title": "SearchServiceDeleteIndex",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "indexName": "myindex",
+    "api-version": "2024-07-01"
+  },
+  "responses": {
+    "204": {},
+    "404": {}
+  }
+}

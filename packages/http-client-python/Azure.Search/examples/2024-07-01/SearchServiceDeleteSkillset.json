@@ -1,0 +1,13 @@
+{
+  "operationId": "SkillsetsOperations_Delete",
+  "title": "SearchServiceDeleteSkillset",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "skillsetName": "demoskillset",
+    "api-version": "2024-07-01"
+  },
+  "responses": {
+    "204": {},
+    "404": {}
+  }
+}

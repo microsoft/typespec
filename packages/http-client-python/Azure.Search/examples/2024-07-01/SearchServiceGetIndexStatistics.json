@@ -1,0 +1,18 @@
+{
+  "operationId": "IndexesOperations_GetStatistics",
+  "title": "SearchServiceGetIndexStatistics",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "indexName": "hotels",
+    "api-version": "2024-07-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "documentCount": 239572,
+        "storageSize": 72375920,
+        "vectorIndexSize": 123456
+      }
+    }
+  }
+}

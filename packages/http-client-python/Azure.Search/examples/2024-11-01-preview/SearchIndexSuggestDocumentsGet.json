@@ -1,0 +1,49 @@
+{
+  "operationId": "DocumentsOperations_SuggestGet",
+  "title": "SearchIndexSuggestDocumentsGet",
+  "parameters": {
+    "endpoint": "https://myservice.search.windows.net",
+    "indexName": "myindex",
+    "api-version": "2024-11-01-preview",
+    "$filter": "rating gt 10",
+    "fuzzy": false,
+    "highlightPostTag": "</em>",
+    "highlightPreTag": "<em>",
+    "minimumCoverage": 80,
+    "$orderby": [
+      "search.score() desc",
+      "rating desc"
+    ],
+    "search": "hote",
+    "searchFields": [
+      "title"
+    ],
+    "suggesterName": "sg",
+    "$select": [
+      "docId",
+      "title",
+      "description"
+    ],
+    "$top": 10
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "@search.text": "Nice <em>Hotel</em>",
+            "description": "Cheapest hotel in town",
+            "docId": "1",
+            "title": "Nice Hotel"
+          },
+          {
+            "@search.text": "Fancy <em>Hotel</em>",
+            "description": "Best hotel in town",
+            "docId": "2",
+            "title": "Fancy Hotel"
+          }
+        ]
+      }
+    }
+  }
+}

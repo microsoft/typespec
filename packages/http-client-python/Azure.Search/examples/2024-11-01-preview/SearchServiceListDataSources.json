@@ -1,0 +1,49 @@
+{
+  "operationId": "DataSourcesOperations_List",
+  "title": "SearchServiceListDataSources",
+  "parameters": {
+    "endpoint": "https://previewexampleservice.search.windows.net",
+    "$select": null,
+    "api-version": "2024-11-01-preview",
+    "x-ms-client-request-id": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "@odata.etag": "0x1234568AE7E58A1",
+            "name": "mydocdbdatasource",
+            "description": "My Azure Blob data source.",
+            "type": "azureblob",
+            "credentials": {
+              "connectionString": "DefaultEndpointsProtocol=https;AccountName=myAccountName;AccountKey=myAccountKey;EndpointSuffix=core.windows.net "
+            },
+            "container": {
+              "name": "doc-extraction-skillset",
+              "query": "E2E_Dsat"
+            },
+            "dataChangeDetectionPolicy": {
+              "@odata.type": "#Microsoft.Azure.Search.HighWaterMarkChangeDetectionPolicy",
+              "highWaterMarkColumnName": "metadata_storage_last_modified"
+            },
+            "dataDeletionDetectionPolicy": {
+              "@odata.type": "#Microsoft.Azure.Search.SoftDeleteColumnDeletionDetectionPolicy",
+              "softDeleteColumnName": "isDeleted",
+              "softDeleteMarkerValue": "true"
+            },
+            "encryptionKey": {
+              "keyVaultKeyName": "myUserManagedEncryptionKey-createdinAzureKeyVault",
+              "keyVaultKeyVersion": "myKeyVersion-32charAlphaNumericString",
+              "keyVaultUri": "https://myKeyVault.vault.azure.net",
+              "accessCredentials": {
+                "applicationId": "00000000-0000-0000-0000-000000000000",
+                "applicationSecret": "<applicationSecret>"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
