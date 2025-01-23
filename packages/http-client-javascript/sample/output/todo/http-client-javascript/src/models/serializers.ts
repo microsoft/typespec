@@ -1,4 +1,3 @@
-import { createFilePartDescriptor } from "../helpers/multipart-helpers.js";
 import {
   ConstructorParameters,
   ConstructorParameters_2,
@@ -190,7 +189,12 @@ export function toDoItemMultipartRequestToTransport(item: ToDoItemMultipartReque
       name: "item",
       body: todoItemToTransport(item.item),
     },
-    ...(item.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
+    ...(item.attachments ?? []).map((x: any) => ({
+      name: "attachments",
+      body: x.contents,
+      filename: x.filename,
+      contentType: x.contentType,
+    })),
   ];
 }
 export function toDoItemMultipartRequestToApplication(item: any): any {
@@ -199,7 +203,12 @@ export function toDoItemMultipartRequestToApplication(item: any): any {
       name: "item",
       body: todoItemToApplication(item.item),
     },
-    ...(item.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
+    ...(item.attachments ?? []).map((x: any) => ({
+      name: "attachments",
+      body: x.contents,
+      filename: x.filename,
+      contentType: x.contentType,
+    })),
   ];
 }
 export function fileToTransport(item: File): any {
@@ -245,10 +254,24 @@ export function todoAttachmentPageToApplication(item: any): TodoAttachmentPage {
 export function fileAttachmentMultipartRequestToTransport(
   item: FileAttachmentMultipartRequest,
 ): any {
-  return [createFilePartDescriptor("contents", item.contents)];
+  return [
+    {
+      name: "contents",
+      body: item.contents.contents,
+      filename: item.contents.filename,
+      contentType: item.contents.contentType,
+    },
+  ];
 }
 export function fileAttachmentMultipartRequestToApplication(item: any): any {
-  return [createFilePartDescriptor("contents", item.contents)];
+  return [
+    {
+      name: "contents",
+      body: item.contents.contents,
+      filename: item.contents.filename,
+      contentType: item.contents.contentType,
+    },
+  ];
 }
 export function userToTransport(item: User): any {
   return {
