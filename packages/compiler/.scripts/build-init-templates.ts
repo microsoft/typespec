@@ -19,10 +19,52 @@ const builtInTemplates: Record<string, InitTemplate> = {
     title: "Generic REST API",
     description: "Create a project representing a generic REST API",
     compilerVersion: minCompilerVersion,
-    libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi3"],
-    config: {
-      emit: ["@typespec/openapi3"],
+    libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi", "@typespec/openapi3"],
+    emitters: {
+      "@typespec/openapi3": {
+        selected: true,
+        options: {
+          "emitter-output-dir": "{output-dir}/schema",
+        },
+      },
+      "@typespec/http-client-csharp": {
+        description: "CSharp Client emitter",
+        options: {
+          "emitter-output-dir": "{output-dir}/clients/csharp",
+        },
+      },
+      "@typespec/http-client-java": {
+        description: "Java Client emitter",
+        options: {
+          "emitter-output-dir": "{output-dir}/clients/java",
+        },
+      },
+      "@typespec/http-client-js": {
+        description: "JavaScript Client emitter",
+        options: {
+          "emitter-output-dir": "{output-dir}/clients/js",
+        },
+      },
+      "@typespec/http-client-python": {
+        description: "Python Client emitter",
+        options: {
+          "emitter-output-dir": "{output-dir}/clients/python",
+        },
+      },
+      "@typespec/http-server-csharp": {
+        description: "CSharp server stubs",
+        options: {
+          "emitter-output-dir": "{output-dir}/server",
+        },
+      },
+      "@typespec/http-server-js": {
+        description: "Javascript server stubs",
+        options: {
+          "emitter-output-dir": "{output-dir}/server",
+        },
+      },
     },
+    files: [...(await localDir("rest"))],
   },
   "library-ts": {
     title: "TypeSpec Library (With TypeScript)",
