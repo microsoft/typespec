@@ -282,9 +282,11 @@ export class LibrarySourceFile {
     filename: string;
     getContents: () => string;
     emitter: AssetEmitter<string, Record<string, never>>;
+    path?: string;
   }) {
+    this.path = params.path !== undefined ? params.path : "lib/";
     this.filename = params.filename;
-    this.source = params.emitter.createSourceFile(`lib/${this.filename}`);
+    this.source = params.emitter.createSourceFile(`${this.path}/${this.filename}`);
     this.emitted = {
       path: this.source.path,
       contents: params.getContents(),
@@ -294,4 +296,5 @@ export class LibrarySourceFile {
   filename: string;
   source: SourceFile<string>;
   emitted: EmittedSourceFile;
+  path: string;
 }
