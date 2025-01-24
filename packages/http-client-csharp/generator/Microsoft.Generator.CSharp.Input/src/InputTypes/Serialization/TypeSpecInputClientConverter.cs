@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputClient.Name), ref name)
-                    || reader.TryReadString(nameof(InputClient.Namespace), ref @namespace)
+                    || reader.TryReadString("ClientNamespace", ref @namespace)
                     || reader.TryReadString("Summary", ref summary)
                     || reader.TryReadString("Doc", ref doc)
                     || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
