@@ -246,6 +246,11 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual("[global::Microsoft.Generator.CSharp.Customization.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool), typeof(int))]\n", attributes[2].ToDisplayString());
             Assert.AreEqual("[global::Microsoft.Generator.CSharp.Customization.CodeGenSerializationAttribute(\"MockInputClient\", SerializationValueHook = \"foo\", DeserializationValueHook = \"bar\")]\n", attributes[3].ToDisplayString());
 
+            // validate that the properties are cached
+            Assert.AreSame(attributes[0].Type, attributes[0].Type);
+            Assert.AreSame(attributes[0].Arguments, attributes[0].Arguments);
+            Assert.AreSame(attributes[0].PositionalArguments, attributes[0].PositionalArguments);
+
         }
 
         private class ClientOutputLibrary : OutputLibrary
