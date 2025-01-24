@@ -456,7 +456,7 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                         ImportType.LOCAL,
                     )
                     file_import.add_import("json", ImportType.STDLIB)
-            if any(xml_serializable(str(r.default_content_type)) for r in self.responses):
+            if any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions):
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
             elif self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)

@@ -22,7 +22,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
-    "pack:all": "chronus pack --pack-destination ./temp/artifacts",
+    "pack:all": "chronus pack --exclude standalone --pack-destination ./temp/artifacts",
     "preinstall": "npx only-allow pnpm",
     "prepare-publish": "pnpm chronus version",
     "purge": "rimraf --glob \"packages/*/node_modules/\"",

@@ -178,3 +178,11 @@ configuration:
             then:
               - addLabel:
                   label: ui:type-graph-viewer
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/spector/**/*
+                    - packages/http-specs
+            then:
+              - addLabel:
+                  label: spector

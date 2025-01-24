@@ -38,7 +38,7 @@ namespace TestProjects.CadlRanch.Tests.Http.SpecialHeaders.ConditionalRequest
         public Task Special_Headers_Conditional_Request_PostIfUnmodifiedSince() => Test(async (host) =>
         {
             DateTimeOffset ifUnmodifiedSince = DateTimeOffset.Parse("Fri, 26 Aug 2022 14:38:00 GMT");
-            var response = await new ConditionalRequestClient(host, null).HeadIfModifiedSinceAsync(ifUnmodifiedSince);
+            var response = await new ConditionalRequestClient(host, null).PostIfUnmodifiedSinceAsync(ifUnmodifiedSince);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
     }
