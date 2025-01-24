@@ -5,6 +5,12 @@ export interface CSharpServiceEmitterOptions {
   "skip-format"?: boolean;
   /** Choose which service artifacts to emit.  Default is 'all'.*/
   "output-type"?: "models" | "all";
+  /** Emit mock implementations of business logic and setup code. Allows the service to respond to requests with mock responses.*/
+  "emit-mocks"?: "none" | "all";
+  /** Configure a Swagger UI endpoint in the development configuration. */
+  "use-swaggerui"?: boolean;
+  /** Use openapi at the given path for generating SwaggerUI endpoints. By default, this will be 'openapi/openapi.yaml' if the 'use-swaggerui' option is enabled. */
+  "openapi-path"?: string;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
@@ -24,6 +30,27 @@ const EmitterOptionsSchema: JSONSchemaType<CSharpServiceEmitterOptions> = {
       default: "all",
       description:
         "Chooses which service artifacts to emit. choices include 'models' or 'all' artifacts.",
+    },
+    "emit-mocks": {
+      type: "string",
+      enum: ["all", "none"],
+      nullable: true,
+      default: "none",
+      description:
+        "Emits mock implementations of business logic, enabling the service to respond to requests before a real implementation is provided",
+    },
+    "use-swaggerui": {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description: "Configure a Swagger UI endpoint in the development configuration",
+    },
+    "openapi-path": {
+      type: "string",
+      nullable: true,
+      default: null,
+      description:
+        "Use openapi at the given path for generating SwaggerUI endpoints. By default, this will be 'openapi/openapi.yaml' if the 'use-swaggerui' option is enabled. ",
     },
   },
   required: [],

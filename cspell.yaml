@@ -70,7 +70,9 @@ words:
   - espt
   - ESRP
   - etree
+  - fastify
   - fluentui
+  - français
   - genproto
   - getpgid
   - giacamo
@@ -80,8 +82,11 @@ words:
   - Hdvcmxk
   - headasbooleanfalse
   - headasbooleantrue
+  - hscs
+  - HSTS
   - imple
   - Infima
+  - initcs
   - inlines
   - inmemory
   - instanceid
@@ -203,6 +208,7 @@ words:
   - ssvs
   - statment
   - strs
+  - swaggerui
   - syncpack
   - TCGC
   - timegm
@@ -253,7 +259,6 @@ words:
   - xplat
   - xxsubtype
   - yamls
-  - français
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
