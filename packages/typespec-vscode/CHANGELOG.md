@@ -1,5 +1,11 @@
 # Change Log - typespec-vscode
 
+## 0.64.1
+
+### Patch Changes
+
+- [#5620](https://github.com/microsoft/typespec/pull/5620)Enhance the UI experience for code generation
+
 ## 0.64.0
 
 ### Bug Fixes
