@@ -24,7 +24,7 @@ export interface HttpResponsesProps {
 
 export function HttpResponses(props: HttpResponsesProps) {
   // Handle response by status code and content type
-  const responses = $.httpOperation.flattenResponses(props.operation.httpOperation);
+  const responses = $.httpOperation.getResponses(props.operation.httpOperation.operation);
   return mapJoin(
     responses.filter((r) => !$.httpResponse.isErrorResponse(r)),
     ({ statusCode, contentType, responseContent, type }) => {

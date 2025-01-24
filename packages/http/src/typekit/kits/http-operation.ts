@@ -38,7 +38,7 @@ export interface HttpOperationKit {
    * Get the responses for the given operation. This function will return an array of responses grouped by status code and content type.
    * @param op operation to extract the HttpResponse from
    */
-  flattenResponses(op: HttpOperation): FlatHttpResponse[];
+  getResponses(op: Operation): FlatHttpResponse[];
   /**
    * Get the Http Return type for the given operation. This function will resolve the returnType based on the Http Operation.
    * @param op operation to get the return type for
@@ -61,7 +61,7 @@ defineKit<TypekitExtension>({
     },
     getReturnType(operation, options) {
       const httpOperation = this.httpOperation.get(operation);
-      let responses = this.httpOperation.flattenResponses(httpOperation);
+      let responses = this.httpOperation.getResponses(httpOperation.operation);
 
       if (!options?.includeErrors) {
         responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r));
@@ -89,8 +89,9 @@ defineKit<TypekitExtension>({
 
       return httpReturnType;
     },
-    flattenResponses(httpOperation) {
+    getResponses(operation) {
       const responsesMap: FlatHttpResponse[] = [];
+      const httpOperation = this.httpOperation.get(operation);
       for (const response of httpOperation.responses) {
         for (const responseContent of response.responses) {
           const contentTypeProperty = responseContent.properties.find(
