@@ -15,7 +15,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },
- "exports": {
+  "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
