@@ -31,7 +31,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Monday.",
+     "doc": "Monday.",
      "decorators": []
     },
     {
@@ -49,7 +49,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Tuesday.",
+     "doc": "Tuesday.",
      "decorators": []
     },
     {
@@ -67,7 +67,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Wednesday.",
+     "doc": "Wednesday.",
      "decorators": []
     },
     {
@@ -85,7 +85,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Thursday.",
+     "doc": "Thursday.",
      "decorators": []
     },
     {
@@ -103,7 +103,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Friday.",
+     "doc": "Friday.",
      "decorators": []
     },
     {
@@ -121,7 +121,7 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Saturday.",
+     "doc": "Saturday.",
      "decorators": []
     },
     {
@@ -139,11 +139,11 @@
      "enumType": {
       "$ref": "2"
      },
-     "description": "Sunday.",
+     "doc": "Sunday.",
      "decorators": []
     }
    ],
-   "description": "Days of the week",
+   "doc": "Days of the week",
    "isFixed": false,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -164,7 +164,7 @@
      "$id": "20",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "21",
       "kind": "url",
@@ -330,7 +330,7 @@
        "$id": "36",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "37",
         "kind": "constant",
@@ -406,7 +406,7 @@
        "$id": "42",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "43",
         "kind": "constant",
@@ -482,7 +482,7 @@
      "$id": "48",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "49",
       "kind": "url",

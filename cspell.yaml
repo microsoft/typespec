@@ -47,6 +47,7 @@ words:
   - debugpy
   - Declipse
   - Dedupes
+  - deps
   - destructures
   - devdiv
   - Diagnoser
@@ -95,6 +96,7 @@ words:
   - itor
   - ivar
   - Jacoco
+  - javac
   - jdwp
   - jobject
   - Johan
@@ -131,6 +133,7 @@ words:
   - nanos
   - nexted
   - nihao
+  - NODEFS
   - noformat
   - noopener
   - noreferrer
@@ -163,12 +166,15 @@ words:
   - pwsh
   - pyexpat
   - pygen
+  - pyimport
   - pylint
   - pylintrc
+  - pyodide
   - pyproject
   - pyright
   - pyrightconfig
   - pytest
+  - pyyaml
   - rcfile
   - reactivex
   - recase
@@ -247,6 +253,7 @@ words:
   - xplat
   - xxsubtype
   - yamls
+  - français
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
@@ -260,6 +267,7 @@ ignorePaths:
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
   - packages/http-client-java/generator/http-client-generator-test/**
+  - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - pnpm-lock.yaml
   - "**/*.mp4"
   - .git/**

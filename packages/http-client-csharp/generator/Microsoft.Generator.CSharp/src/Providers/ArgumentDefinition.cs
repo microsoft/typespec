@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Providers
             _nullableT = _t.WithNullable(true);
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }

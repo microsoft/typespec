@@ -59,6 +59,10 @@ export const AreaLabels = defineLabels({
     color: "e1b300",
     description: "Issue for the Python client emitter: @typespec/http-client-python",
   },
+  "emitter:graphql": {
+    color: "957300",
+    description: "Issues for @typespec/graphql emitter",
+  },
   "emitter:json-schema": {
     color: "957300",
     description: "",
@@ -86,6 +90,10 @@ export const AreaLabels = defineLabels({
   "emitter:service:java": {
     color: "967200",
     description: "Issue for Java service emitter",
+  },
+  spector: {
+    color: "65bfff",
+    description: "Issues related to spector and the spec sets",
   },
   eng: {
     color: "65bfff",
@@ -190,6 +198,10 @@ export default defineConfig({
     misc: {
       description: "Misc labels",
       labels: {
+        "1_0_E2E": {
+          color: "5319E7",
+          description: "",
+        },
         "Client Emitter Migration": {
           color: "FD92F0",
           description: "",

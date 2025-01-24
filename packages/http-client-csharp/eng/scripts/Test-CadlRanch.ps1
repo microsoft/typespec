@@ -9,9 +9,11 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 Refresh-Build
 
-$specsDirectory = "$packageRoot/node_modules/@azure-tools/cadl-ranch-specs"
-$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
-$directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
+$specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs' 'specs'
+$azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
+$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 
+$cadlRanchRootHttp = Join-Path $cadlRanchRoot 'http'
+$directories = Get-ChildItem -Path "$cadlRanchRootHttp" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
 $coverageDir = Join-Path $packageRoot 'generator' 'artifacts' 'coverage'
@@ -26,19 +28,15 @@ foreach ($directory in $directories) {
     }
 
     $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
-    $subPath = $outputDir.Substring($cadlRanchRoot.Length + 1)
+    $subPath = $outputDir.Substring($cadlRanchRootHttp.Length + 1)
     $folders = $subPath.Split([System.IO.Path]::DirectorySeparatorChar)
 
     if (-not (Compare-Paths $subPath $filter)) {
         continue
     }
-
-    if ($subPath.Contains($(Join-Path 'srv-driven' 'v1'))) {
-        continue
-    }
     
-    $testPath = "$cadlRanchRoot.Tests"
-    $testFilter = "TestProjects.CadlRanch.Tests"
+    $testPath = Join-Path "$cadlRanchRoot.Tests" "Http"
+    $testFilter = "TestProjects.CadlRanch.Tests.Http"
     foreach ($folder in $folders) {
         $segment = "$(Get-Namespace $folder)"
         
@@ -48,7 +46,7 @@ foreach ($directory in $directories) {
           $testFilter += "._$segment"
           $testPath = Join-Path $testPath "_$segment"
         }
-        else{
+        else {
           $testFilter += ".$segment"
           $testPath = Join-Path $testPath $segment
         }
@@ -60,19 +58,33 @@ foreach ($directory in $directories) {
     if (-not (Test-Path $specFile)) {
         $specFile = Join-Path $specsDirectory $subPath "main.tsp"
     }
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $azureSpecsDirectory $subPath "client.tsp"
+    }
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $azureSpecsDirectory $subPath "main.tsp"
+    }
+    
+    if ($subPath.Contains("versioning")) {
+        if ($subPath.Contains("v1")) {
+            # this will generate v1 and v2 so we only need to call it once for one of the versions
+            Generate-Versioning ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
+    }
+    elseif ($subPath.Contains("srv-driven")) {
+        if ($subPath.Contains("v1")) {
+            Generate-Srv-Driven ($(Join-Path $azureSpecsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
+    }
+    else {
+        $command = Get-TspCommand $specFile $outputDir
+        Invoke $command
+    }
 
-    $command = Get-TspCommand $specFile $outputDir
-    Invoke $command
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
-
-    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
-    if ($subPath.Contains("srv-driven")) {
-        Generate-Srv-Driven $(Join-Path $specsDirectory $subPath) $outputDir -createOutputDirIfNotExist $false
-    }
-
 
     Write-Host "Testing $subPath" -ForegroundColor Cyan
     $command  = "dotnet test $cadlRanchCsproj --filter `"FullyQualifiedName~$testFilter`""

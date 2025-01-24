@@ -50,10 +50,22 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
-import { resolveModule, ResolveModuleHost } from "../core/index.js";
+import {
+  NoTarget,
+  ProcessedLog,
+  resolveModule,
+  ResolveModuleHost,
+  typespecVersion,
+} from "../core/index.js";
+import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
-import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
+import {
+  ensureTrailingDirectorySeparator,
+  getDirectoryPath,
+  joinPaths,
+  normalizePath,
+} from "../core/path-utils.js";
 import type { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
@@ -74,6 +86,10 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
+import { getTypeSpecCoreTemplates } from "../init/core-templates.js";
+import { validateTemplateDefinitions } from "../init/init-template-validate.js";
+import { InitTemplate } from "../init/init-template.js";
+import { scaffoldNewProject } from "../init/scaffold.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
@@ -93,9 +109,13 @@ import {
 } from "./type-details.js";
 import {
   CompileResult,
+  InitProjectConfig,
+  InitProjectContext,
   SemanticTokenKind,
   Server,
+  ServerCustomCapacities,
   ServerHost,
+  ServerInitializeResult,
   ServerLog,
   ServerSourceFile,
   ServerWorkspaceFolder,
@@ -168,6 +188,10 @@ export function createServer(host: ServerHost): Server {
     getCodeActions,
     executeCommand,
     log,
+
+    getInitProjectContext,
+    validateInitProjectTemplate,
+    initProject,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -252,12 +276,74 @@ export function createServer(host: ServerHost): Server {
     }
 
     log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
-    return { capabilities };
+    const customCapacities: ServerCustomCapacities = {
+      getInitProjectContext: true,
+      initProject: true,
+      validateInitProjectTemplate: true,
+    };
+    // the file path is expected to be .../@typespec/compiler/dist/src/server/serverlib.js
+    const curFile = normalizePath(compilerHost.fileURLToPath(import.meta.url));
+    const SERVERLIB_PATH_ENDWITH = "/dist/src/server/serverlib.js";
+    let compilerRootFolder = undefined;
+    if (!curFile.endsWith(SERVERLIB_PATH_ENDWITH)) {
+      log({ level: "warning", message: `Unexpected path for serverlib found: ${curFile}` });
+    } else {
+      compilerRootFolder = curFile.slice(0, curFile.length - SERVERLIB_PATH_ENDWITH.length);
+    }
+    const result: ServerInitializeResult = {
+      serverInfo: {
+        name: "TypeSpec Language Server",
+        version: typespecVersion,
+      },
+      capabilities,
+      customCapacities,
+      compilerRootFolder,
+      compilerCliJsPath: compilerRootFolder
+        ? joinPaths(compilerRootFolder, "cmd", "tsp.js")
+        : undefined,
+    };
+    return result;
   }
 
   function initialized(params: InitializedParams): void {
     isInitialized = true;
     log({ level: "info", message: "Initialization complete." });
+  }
+
+  async function getInitProjectContext(): Promise<InitProjectContext> {
+    return {
+      coreInitTemplates: await getTypeSpecCoreTemplates(host.compilerHost),
+    };
+  }
+
+  async function validateInitProjectTemplate(param: { template: InitTemplate }): Promise<boolean> {
+    const { template } = param;
+    // even when the strict validation fails, we still try to proceed with relaxed validation
+    // so just do relaxed validation directly here
+    const validationResult = validateTemplateDefinitions(template, NoTarget, false);
+    if (!validationResult.valid) {
+      for (const diag of validationResult.diagnostics) {
+        log({
+          level: diag.severity,
+          message: diag.message,
+          detail: {
+            code: diag.code,
+            url: diag.url,
+          },
+        });
+      }
+    }
+    return validationResult.valid;
+  }
+
+  async function initProject(param: { config: InitProjectConfig }): Promise<boolean> {
+    try {
+      await scaffoldNewProject(compilerHost, param.config);
+      return true;
+    } catch (e) {
+      log({ level: "error", message: "Unexpected error when initializing project", detail: e });
+      return false;
+    }
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
@@ -972,6 +1058,16 @@ export function createServer(host: ServerHost): Server {
       readFile,
       stat,
       getSourceFileKind,
+      logSink: {
+        log: (log: ProcessedLog) => {
+          const msg = formatLog(log, { excludeLogLevel: true });
+          const sLog: ServerLog = {
+            level: log.level,
+            message: msg,
+          };
+          host.log(sLog);
+        },
+      },
     };
 
     async function readFile(path: string): Promise<ServerSourceFile> {

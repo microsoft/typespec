@@ -5,6 +5,8 @@ using Microsoft.Generator.CSharp.Expressions;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 using System.ClientModel.Primitives;
 using Microsoft.Generator.CSharp.Primitives;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -20,7 +22,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public override CSharpType ResponseClassifierType => typeof(PipelineMessageClassifier);
 
         public override ValueExpression Create(int code)
-            => Static<PipelineMessageClassifier>().Invoke(nameof(PipelineMessageClassifier.Create), [New.Array(typeof(ushort), true, true, [Literal(code)])]);
+            => Create([code]);
+
+        public override ValueExpression Create(IEnumerable<int> codes)
+            => Static<PipelineMessageClassifier>().Invoke(nameof(PipelineMessageClassifier.Create), [New.Array(typeof(ushort), true, true, [.. codes.Select(Literal)])]);
 
         public override StatusCodeClassifierApi FromExpression(ValueExpression original)
             => new PipelineMessageClassifierProvider(original);

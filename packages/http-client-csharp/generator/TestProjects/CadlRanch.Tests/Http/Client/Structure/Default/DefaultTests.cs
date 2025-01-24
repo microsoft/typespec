@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Client.Structure.Service.Default;
 using Client.Structure.Service.Default.Models;
-using Client.Structure.Service.Renamed.Operation;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.Default
@@ -35,7 +34,6 @@ namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.Default
         [CadlRanchTest]
         public Task Client_Structure_default_One() => Test(async (host) =>
         {
-            //await new RenamedOperationClient(host, ClientType.RenamedOperation, null).RenamedOneAsync();
             var response = await new ServiceClient(host, ClientType.Default).OneAsync();
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });

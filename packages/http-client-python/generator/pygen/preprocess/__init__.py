@@ -92,9 +92,9 @@ def add_overloads_for_body_param(yaml_data: Dict[str, Any]) -> None:
     for body_type in body_parameter["type"]["types"]:
         if any(o for o in yaml_data["overloads"] if id(o["bodyParameter"]["type"]) == id(body_type)):
             continue
-        yaml_data["overloads"].append(add_overload(yaml_data, body_type))
         if body_type.get("type") == "model" and body_type.get("base") == "json":
             yaml_data["overloads"].append(add_overload(yaml_data, body_type, for_flatten_params=True))
+        yaml_data["overloads"].append(add_overload(yaml_data, body_type))
     content_type_param = next(p for p in yaml_data["parameters"] if p["wireName"].lower() == "content-type")
     content_type_param["inOverload"] = False
     content_type_param["inOverridden"] = True
@@ -501,10 +501,6 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for client in yaml_data["clients"]:
             self.update_client(client)
             self.update_operation_groups(yaml_data, client)
-        for clients in yaml_data["subnamespaceToClients"].values():
-            for client in clients:
-                self.update_client(client)
-                self.update_operation_groups(yaml_data, client)
         if yaml_data.get("namespace"):
             yaml_data["namespace"] = pad_builtin_namespaces(yaml_data["namespace"])
 

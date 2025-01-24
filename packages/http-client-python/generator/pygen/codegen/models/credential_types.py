@@ -131,8 +131,7 @@ class CredentialType(Generic[CredentialPolicyType], BaseType):
     def docstring_text(self, **kwargs: Any) -> str:
         return "credential"
 
-    @property
-    def serialization_type(self) -> str:
+    def serialization_type(self, **kwargs: Any) -> str:
         return self.docstring_type()
 
     @classmethod
@@ -156,7 +155,7 @@ class TokenCredentialType(CredentialType[Union[BearerTokenCredentialPolicyType, 
 
     @property
     def type_description(self) -> str:
-        return "TokenCredential"
+        return "token credential"
 
     @property
     def credentials_subfolder(self) -> str:
@@ -198,6 +197,10 @@ class KeyCredentialType(CredentialType[KeyCredentialPolicyType]):
 
     def type_annotation(self, **kwargs: Any) -> str:
         return self.policy.credential_name
+
+    @property
+    def type_description(self) -> str:
+        return "key credential"
 
     @property
     def instance_check_template(self) -> str:

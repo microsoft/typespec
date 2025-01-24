@@ -7,8 +7,9 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 
 Refresh-Build
 
-$specsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'cadl-ranch-specs'
-$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
+$specsDirectory = Join-Path $packageRoot 'node_modules' '@typespec' 'http-specs' 'specs'
+$azureSpecsDirectory = Join-Path $packageRoot 'node_modules' '@azure-tools' 'azure-http-specs' 'specs'
+$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch' 'http'
 $directories = Get-ChildItem -Path "$cadlRanchRoot" -Directory -Recurse
 $cadlRanchCsproj = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch.Tests' 'TestProjects.CadlRanch.Tests.csproj'
 
@@ -27,15 +28,33 @@ foreach ($directory in $directories) {
     $outputDir = $directory.FullName.Substring(0, $directory.FullName.IndexOf("src") - 1)
     $subPath = $outputDir.Substring($cadlRanchRoot.Length + 1)
 
-    if ($subPath.Contains($(Join-Path 'srv-driven' 'v1'))) {
-        continue
-    }
-
     Write-Host "Regenerating $subPath" -ForegroundColor Cyan
 
     $specFile = Join-Path $specsDirectory $subPath "client.tsp"
     if (-not (Test-Path $specFile)) {
         $specFile = Join-Path $specsDirectory $subPath "main.tsp"
+    }
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $azureSpecsDirectory $subPath "client.tsp"
+    }
+    if (-not (Test-Path $specFile)) {
+        $specFile = Join-Path $azureSpecsDirectory $subPath "main.tsp"
+    }
+    
+    if ($subPath.Contains("versioning")) {
+        if ($subPath.Contains("v1")) {
+            # this will generate v1 and v2 so we only need to call it once for one of the versions
+            Generate-Versioning ($(Join-Path $specsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
+        continue
+    }
+
+    if ($subPath.Contains("srv-driven")) {
+        if ($subPath.Contains("v1")) {
+            # this will generate v1 and v2 so we only need to call it once for one of the versions
+            Generate-Srv-Driven ($(Join-Path $azureSpecsDirectory $subPath) | Split-Path) $($outputDir | Split-Path) -createOutputDirIfNotExist $false
+        }
+        continue
     }
 
     $command = Get-TspCommand $specFile $outputDir
@@ -45,9 +64,15 @@ foreach ($directory in $directories) {
         exit $LASTEXITCODE
     }
 
-    # srv-driven contains two separate specs, for two separate clients. We need to generate both.
-    if ($subPath.Contains('srv-driven')) {
-        Generate-Srv-Driven $(Join-Path $specsDirectory $subPath) $outputDir -createOutputDirIfNotExist $false
+    # build the generated project
+    Write-Host "Building $subPath" -ForegroundColor Cyan
+    Get-ChildItem -Path $outputDir -Recurse -Filter '*.csproj' | ForEach-Object {
+        $command = "dotnet build $_"
+        Invoke $command
+        # exit if the build failed
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
     }
 }
 

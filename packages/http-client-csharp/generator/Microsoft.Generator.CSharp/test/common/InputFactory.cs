@@ -13,17 +13,17 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         {
             public static InputEnumTypeValue Int32(string name, int value)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Int32, "", $"{name} description");
             }
 
             public static InputEnumTypeValue Float32(string name, float value)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description");
             }
 
             public static InputEnumTypeValue String(string name, string value)
             {
-                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, $"{name} description");
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description");
             }
         }
 
@@ -87,6 +87,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             return new InputParameter(
                 name,
                 nameInRequest ?? name,
+                "",
                 $"{name} description",
                 type,
                 location,
@@ -131,10 +132,11 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 name,
                 access,
                 null,
+                "",
                 $"{name} description",
                 usage,
                 underlyingType,
-                values is null ? [new InputEnumTypeValue("Value", 1, InputPrimitiveType.Int32, "Value description")] : [.. values],
+                values is null ? [new InputEnumTypeValue("Value", 1, InputPrimitiveType.Int32, "", "Value description")] : [.. values],
                 isExtensible);
         }
 
@@ -145,12 +147,14 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             bool isReadOnly = false,
             bool isDiscriminator = false,
             string? wireName = null,
-            string? description = null)
+            string? summary = null,
+            string? doc = null)
         {
             return new InputModelProperty(
                 name,
                 wireName ?? name.ToVariableName(),
-                description ?? $"Description for {name}",
+                summary,
+                doc ?? $"Description for {name}",
                 type,
                 isRequired,
                 isReadOnly,
@@ -175,6 +179,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 name,
                 access,
                 null,
+                "",
                 $"{name} description",
                 usage,
                 [.. propertiesList],
@@ -209,17 +214,19 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             IEnumerable<OperationResponse>? responses = null,
             IEnumerable<string>? requestMediaTypes = null,
             string uri = "",
-            string path = "")
+            string path = "",
+            string httpMethod = "GET")
         {
             return new InputOperation(
                 name,
                 null,
+                "",
                 $"{name} description",
                 null,
                 access,
                 parameters is null ? [] : [.. parameters],
                 responses is null ? [OperationResponse()] : [.. responses],
-                "GET",
+                httpMethod,
                 BodyMediaType.Json,
                 uri,
                 path,
@@ -248,6 +255,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         {
             return new InputClient(
                 name,
+                "",
                 $"{name} description",
                 operations is null ? [] : [.. operations],
                 parameters is null ? [] : [.. parameters],

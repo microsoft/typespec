@@ -407,26 +407,6 @@ public final class ResponseClientImpl {
         Response<BinaryData> listStringsNextSync(@PathParam(value = "nextLink", encoded = true) String nextLink,
             @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
             Context context);
-
-        @Get("{nextLink}")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
-        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
-        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
-        @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Mono<Response<BinaryData>> listIntegersNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
-
-        @Get("{nextLink}")
-        @ExpectedResponses({ 200 })
-        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
-        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
-        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
-        @UnexpectedResponseExceptionType(HttpResponseException.class)
-        Response<BinaryData> listIntegersNextSync(@PathParam(value = "nextLink", encoded = true) String nextLink,
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
     }
 
     /**
@@ -1045,7 +1025,7 @@ public final class ResponseClientImpl {
                         ? requestOptions.getContext()
                         : Context.NONE)
                     .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lroResult"),
+                "lro_result"),
             TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
     }
 
@@ -1083,7 +1063,7 @@ public final class ResponseClientImpl {
                         ? requestOptions.getContext()
                         : Context.NONE)
                     .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lroResult"),
+                "lro_result"),
             TypeReference.createInstance(BinaryData.class), TypeReference.createInstance(BinaryData.class));
     }
 
@@ -1122,7 +1102,7 @@ public final class ResponseClientImpl {
                         ? requestOptions.getContext()
                         : Context.NONE)
                     .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lroResult"),
+                "lro_result"),
             TypeReference.createInstance(OperationDetails2.class), TypeReference.createInstance(Resource.class));
     }
 
@@ -1161,7 +1141,7 @@ public final class ResponseClientImpl {
                         ? requestOptions.getContext()
                         : Context.NONE)
                     .setServiceVersion(this.getServiceVersion().getVersion()),
-                "lroResult"),
+                "lro_result"),
             TypeReference.createInstance(OperationDetails2.class), TypeReference.createInstance(Resource.class));
     }
 
@@ -1187,7 +1167,7 @@ public final class ResponseClientImpl {
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.listStrings(this.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null));
+                getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null));
     }
 
     /**
@@ -1238,7 +1218,7 @@ public final class ResponseClientImpl {
         final String accept = "application/json";
         Response<BinaryData> res = service.listStringsSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null);
+            getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null);
     }
 
     /**
@@ -1290,7 +1270,7 @@ public final class ResponseClientImpl {
         return FluxUtil
             .withContext(context -> service.listIntegers(this.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null));
+                getValues(res.getValue(), "value"), null, null));
     }
 
     /**
@@ -1312,11 +1292,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> listIntegersAsync(RequestOptions requestOptions) {
-        RequestOptions requestOptionsForNextPage = new RequestOptions();
-        requestOptionsForNextPage.setContext(
-            requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);
-        return new PagedFlux<>(() -> listIntegersSinglePageAsync(requestOptions),
-            nextLink -> listIntegersNextSinglePageAsync(nextLink, requestOptionsForNextPage));
+        return new PagedFlux<>(() -> listIntegersSinglePageAsync(requestOptions));
     }
 
     /**
@@ -1341,7 +1317,7 @@ public final class ResponseClientImpl {
         final String accept = "application/json";
         Response<BinaryData> res = service.listIntegersSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null);
+            getValues(res.getValue(), "value"), null, null);
     }
 
     /**
@@ -1363,11 +1339,7 @@ public final class ResponseClientImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> listIntegers(RequestOptions requestOptions) {
-        RequestOptions requestOptionsForNextPage = new RequestOptions();
-        requestOptionsForNextPage.setContext(
-            requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : Context.NONE);
-        return new PagedIterable<>(() -> listIntegersSinglePage(requestOptions),
-            nextLink -> listIntegersNextSinglePage(nextLink, requestOptionsForNextPage));
+        return new PagedIterable<>(() -> listIntegersSinglePage(requestOptions));
     }
 
     /**
@@ -1510,7 +1482,7 @@ public final class ResponseClientImpl {
             .withContext(
                 context -> service.listStringsNext(nextLink, this.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null));
+                getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null));
     }
 
     /**
@@ -1537,63 +1509,7 @@ public final class ResponseClientImpl {
         Response<BinaryData> res
             = service.listStringsNextSync(nextLink, this.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null);
-    }
-
-    /**
-     * Get the next page of items.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * int
-     * }
-     * </pre>
-     * 
-     * @param nextLink The URL to get the next list of items.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link PagedResponse} on successful completion of {@link Mono}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<BinaryData>> listIntegersNextSinglePageAsync(String nextLink,
-        RequestOptions requestOptions) {
-        final String accept = "application/json";
-        return FluxUtil
-            .withContext(
-                context -> service.listIntegersNext(nextLink, this.getEndpoint(), accept, requestOptions, context))
-            .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null));
-    }
-
-    /**
-     * Get the next page of items.
-     * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
-     * int
-     * }
-     * </pre>
-     * 
-     * @param nextLink The URL to get the next list of items.
-     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return the response body along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<BinaryData> listIntegersNextSinglePage(String nextLink, RequestOptions requestOptions) {
-        final String accept = "application/json";
-        Response<BinaryData> res
-            = service.listIntegersNextSync(nextLink, this.getEndpoint(), accept, requestOptions, Context.NONE);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "value"), getNextLink(res.getValue(), "nextLink"), null);
+            getValues(res.getValue(), "items_value"), getNextLink(res.getValue(), "next_link"), null);
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String path) {

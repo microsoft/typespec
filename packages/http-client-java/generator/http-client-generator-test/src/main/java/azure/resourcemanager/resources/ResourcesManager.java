@@ -5,10 +5,14 @@
 package azure.resourcemanager.resources;
 
 import azure.resourcemanager.resources.fluent.ResourcesClient;
+import azure.resourcemanager.resources.implementation.ExtensionsResourcesImpl;
+import azure.resourcemanager.resources.implementation.LocationResourcesImpl;
 import azure.resourcemanager.resources.implementation.NestedsImpl;
 import azure.resourcemanager.resources.implementation.ResourcesClientBuilder;
 import azure.resourcemanager.resources.implementation.SingletonsImpl;
 import azure.resourcemanager.resources.implementation.TopLevelsImpl;
+import azure.resourcemanager.resources.models.ExtensionsResources;
+import azure.resourcemanager.resources.models.LocationResources;
 import azure.resourcemanager.resources.models.Nesteds;
 import azure.resourcemanager.resources.models.Singletons;
 import azure.resourcemanager.resources.models.TopLevels;
@@ -48,6 +52,10 @@ public final class ResourcesManager {
     private Nesteds nesteds;
 
     private Singletons singletons;
+
+    private ExtensionsResources extensionsResources;
+
+    private LocationResources locationResources;
 
     private final ResourcesClient clientObject;
 
@@ -293,6 +301,30 @@ public final class ResourcesManager {
             this.singletons = new SingletonsImpl(clientObject.getSingletons(), this);
         }
         return singletons;
+    }
+
+    /**
+     * Gets the resource collection API of ExtensionsResources. It manages ExtensionsResource.
+     * 
+     * @return Resource collection API of ExtensionsResources.
+     */
+    public ExtensionsResources extensionsResources() {
+        if (this.extensionsResources == null) {
+            this.extensionsResources = new ExtensionsResourcesImpl(clientObject.getExtensionsResources(), this);
+        }
+        return extensionsResources;
+    }
+
+    /**
+     * Gets the resource collection API of LocationResources. It manages LocationResource.
+     * 
+     * @return Resource collection API of LocationResources.
+     */
+    public LocationResources locationResources() {
+        if (this.locationResources == null) {
+            this.locationResources = new LocationResourcesImpl(clientObject.getLocationResources(), this);
+        }
+        return locationResources;
     }
 
     /**
