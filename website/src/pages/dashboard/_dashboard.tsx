@@ -1,5 +1,10 @@
+import { FluentLayout } from "@site/src/components/fluent/fluent-layout";
 import { DashboardFromAzureStorage } from "@typespec/spec-dashboard";
 
 export const DashboardPage: React.FunctionComponent = () => {
-  return <DashboardFromAzureStorage />;
+  return (
+    <FluentLayout>
+      <DashboardFromAzureStorage />;
+    </FluentLayout>
+  );
 };

@@ -1,4 +1,3 @@
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { useState } from "react";
 import { CoverageSummary, getCoverageSummaries } from "../apis.js";
 import { useEffectAsync } from "../utils.js";
@@ -17,14 +16,12 @@ export const DashboardFromAzureStorage = () => {
     }
   }, []);
   return (
-    <FluentProvider theme={webLightTheme}>
-      <div>
-        {coverageSummaries ? (
-          <Dashboard coverageSummaries={coverageSummaries}></Dashboard>
-        ) : (
-          "Loading"
-        )}
-      </div>
-    </FluentProvider>
+    <div>
+      {coverageSummaries ? (
+        <Dashboard coverageSummaries={coverageSummaries}></Dashboard>
+      ) : (
+        "Loading"
+      )}
+    </div>
   );
 };
