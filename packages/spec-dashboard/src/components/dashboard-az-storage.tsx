@@ -1,10 +1,10 @@
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
-import { FunctionComponent, useState } from "react";
-import { CoverageSummary, getCoverageSummaries } from "./apis.js";
-import { Dashboard } from "./components/dashboard.js";
-import { useEffectAsync } from "./utils.js";
+import { useState } from "react";
+import { CoverageSummary, getCoverageSummaries } from "../apis.js";
+import { useEffectAsync } from "../utils.js";
+import { Dashboard } from "./dashboard.js";
 
-export const App: FunctionComponent = () => {
+export const DashboardFromAzureStorage = () => {
   const [coverageSummaries, setCoverageSummaries] = useState<CoverageSummary[] | undefined>(
     undefined,
   );

@@ -6,12 +6,21 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "start": "vite",
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "clean": "rimraf dist/ temp/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf ./dist ./temp",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
+  },
+ "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -42,6 +51,8 @@
     "rimraf": "~6.0.1",
     "rollup-plugin-visualizer": "~5.14.0",
     "typescript": "~5.7.3",
-    "vite": "^6.0.11"
+    "vite": "^6.0.11",
+    "vite-plugin-checker": "^0.8.0",
+    "vite-plugin-dts": "4.5.0"
   }
 }
