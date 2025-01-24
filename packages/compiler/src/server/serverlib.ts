@@ -187,7 +187,7 @@ export function createServer(host: ServerHost): Server {
       documentHighlightProvider: true,
       completionProvider: {
         resolveProvider: false,
-        triggerCharacters: [".", "@", "/", "\\"],
+        triggerCharacters: [".", "@", "/"],
       },
       semanticTokensProvider: {
         full: true,
