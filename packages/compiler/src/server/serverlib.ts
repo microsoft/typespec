@@ -96,9 +96,9 @@ import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
 import { convertDiagnosticToLsp } from "./diagnostics.js";
-import { EmitterProvider } from "./emitter-provider.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
+import { LibraryProvider } from "./lib-provider.js";
 import { NpmPackageProvider } from "./npm-package-provider.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import { provideTspconfigCompletionItems } from "./tspconfig/completion.js";
@@ -134,7 +134,14 @@ export function createServer(host: ServerHost): Server {
   });
   const compilerHost = createCompilerHost();
   const npmPackageProvider = new NpmPackageProvider(compilerHost);
-  const emitterProvider = new EmitterProvider(npmPackageProvider);
+  const emitterProvider = new LibraryProvider(
+    npmPackageProvider,
+    (exports) => exports.$onEmit !== undefined,
+  );
+  const linterProvider = new LibraryProvider(
+    npmPackageProvider,
+    (exports) => exports.$linter !== undefined,
+  );
 
   const compileService = createCompileService({
     fileService,
@@ -789,7 +796,9 @@ export function createServer(host: ServerHost): Server {
       if (doc) {
         const items = await provideTspconfigCompletionItems(doc, params.position, {
           fileService,
+          compilerHost,
           emitterProvider,
+          linterProvider,
           log,
         });
         return CompletionList.create(items);

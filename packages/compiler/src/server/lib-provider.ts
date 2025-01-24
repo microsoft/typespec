@@ -1,16 +1,19 @@
 import { joinPaths } from "../core/path-utils.js";
 import { NpmPackage, NpmPackageProvider } from "./npm-package-provider.js";
 
-export class EmitterProvider {
-  private isEmitterPackageCache = new Map<string, boolean>();
-  constructor(private npmPackageProvider: NpmPackageProvider) {}
+export class LibraryProvider {
+  private libPackageFilterResultCache = new Map<string, boolean>();
+  constructor(
+    private npmPackageProvider: NpmPackageProvider,
+    private filter: (libExports: Record<string, any>) => boolean,
+  ) {}
 
   /**
    *
-   * @param startFolder folder starts to search for package.json with emitters defined as dependencies
+   * @param startFolder folder starts to search for package.json with library defined as dependencies
    * @returns
    */
-  async listEmitters(startFolder: string): Promise<Record<string, NpmPackage>> {
+  async listLibraries(startFolder: string): Promise<Record<string, NpmPackage>> {
     const packageJsonFolder = await this.npmPackageProvider.getPackageJsonFolder(startFolder);
     if (!packageJsonFolder) return {};
 
@@ -18,37 +21,37 @@ export class EmitterProvider {
     const data = await pkg?.getPackageJsonData();
     if (!data) return {};
 
-    const emitters: Record<string, NpmPackage> = {};
+    const libs: Record<string, NpmPackage> = {};
     const allDep = {
       ...(data.dependencies ?? {}),
       ...(data.devDependencies ?? {}),
     };
     for (const dep of Object.keys(allDep)) {
-      const depPkg = await this.getEmitterFromDep(packageJsonFolder, dep);
+      const depPkg = await this.getLibraryFromDep(packageJsonFolder, dep);
       if (depPkg) {
-        emitters[dep] = depPkg;
+        libs[dep] = depPkg;
       }
     }
-    return emitters;
+    return libs;
   }
 
   /**
    *
-   * @param startFolder folder starts to search for package.json with emitters defined as dependencies
-   * @param emitterName
+   * @param startFolder folder starts to search for package.json with library defined as dependencies
+   * @param libName
    * @returns
    */
-  async getEmitter(startFolder: string, emitterName: string): Promise<NpmPackage | undefined> {
+  async getLibrary(startFolder: string, libName: string): Promise<NpmPackage | undefined> {
     const packageJsonFolder = await this.npmPackageProvider.getPackageJsonFolder(startFolder);
     if (!packageJsonFolder) {
       return undefined;
     }
-    return this.getEmitterFromDep(packageJsonFolder, emitterName);
+    return this.getLibraryFromDep(packageJsonFolder, libName);
   }
 
-  private async isEmitter(depName: string, pkg: NpmPackage) {
-    if (this.isEmitterPackageCache.has(depName)) {
-      return this.isEmitterPackageCache.get(depName);
+  private async getLibFilterResult(depName: string, pkg: NpmPackage) {
+    if (this.libPackageFilterResultCache.has(depName)) {
+      return this.libPackageFilterResultCache.get(depName);
     }
 
     const data = await pkg.getPackageJsonData();
@@ -61,19 +64,20 @@ export class EmitterProvider {
       const exports = await pkg.getModuleExports();
       // don't add to cache when failing to load exports which is unexpected
       if (!exports) return false;
-      const isEmitter = exports.$onEmit !== undefined;
-      this.isEmitterPackageCache.set(depName, isEmitter);
-      return isEmitter;
+
+      const filterResult = this.filter(exports);
+      this.libPackageFilterResultCache.set(depName, filterResult);
+      return filterResult;
     } else {
-      this.isEmitterPackageCache.set(depName, false);
+      this.libPackageFilterResultCache.set(depName, false);
       return false;
     }
   }
 
-  private async getEmitterFromDep(packageJsonFolder: string, depName: string) {
+  private async getLibraryFromDep(packageJsonFolder: string, depName: string) {
     const depFolder = joinPaths(packageJsonFolder, "node_modules", depName);
     const depPkg = await this.npmPackageProvider.get(depFolder);
-    if (depPkg && (await this.isEmitter(depName, depPkg))) {
+    if (depPkg && (await this.getLibFilterResult(depName, depPkg))) {
       return depPkg;
     }
     return undefined;
