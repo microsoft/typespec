@@ -7,12 +7,13 @@ using TypeSpec.Http;
 namespace DemoService;
 
 model Widget {
-  @visibility("read", "update")
-  @path
   id: string;
-
   weight: int32;
   color: "red" | "blue";
+}
+
+model WidgetList {
+  items: Widget[];
 }
 
 @error
@@ -21,20 +22,25 @@ model Error {
   message: string;
 }
 
+model AnalyzeResult {
+  id: string;
+  analysis: string;
+}
+
 @route("/widgets")
 @tag("Widgets")
 interface Widgets {
   /** List widgets */
-  @get list(): Widget[] | Error;
+  @get list(): WidgetList | Error;
   /** Read widgets */
   @get read(@path id: string): Widget | Error;
   /** Create a widget */
-  @post create(...Widget): Widget | Error;
+  @post create(@body body: Widget): Widget | Error;
   /** Update a widget */
-  @patch update(...Widget): Widget | Error;
+  @patch update(@path id: string, @body body: Widget): Widget | Error;
   /** Delete a widget */
   @delete delete(@path id: string): void | Error;
 
   /** Analyze a widget */
-  @route("{id}/analyze") @post analyze(@path id: string): string | Error;
+  @route("{id}/analyze") @post analyze(@path id: string): AnalyzeResult | Error;
 }

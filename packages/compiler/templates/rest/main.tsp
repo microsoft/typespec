@@ -22,6 +22,11 @@ model Error {
   message: string;
 }
 
+model AnalyzeResult {
+  id: string;
+  analysis: string;
+}
+
 @route("/widgets")
 @tag("Widgets")
 interface Widgets {
@@ -37,5 +42,5 @@ interface Widgets {
   @delete delete(@path id: string): void | Error;
 
   /** Analyze a widget */
-  @route("{id}/analyze") @post analyze(@path id: string): Widget | Error;
+  @route("{id}/analyze") @post analyze(@path id: string): AnalyzeResult | Error;
 }
