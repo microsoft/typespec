@@ -16,7 +16,7 @@ export function runWatch(pattern: string, build: any, options?: any) {
 
     // then build again on any change
     watcher.on("add", (file) => runBuild(`${file} created`));
-    watcher.on("removed", (file) => runBuild(`${file} removed`));
+    watcher.on("unlink", (file) => runBuild(`${file} removed`));
     watcher.on("change", (file, stats) => runBuild(`${file} changed`, stats?.mtime));
   }
 
