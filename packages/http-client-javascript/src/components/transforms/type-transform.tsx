@@ -38,6 +38,6 @@ export function MultipartTransformDeclaration(props: MultipartTransformDeclarati
       parameters={{ item: itemType }}
       returnType="any"
     >
-      return <MultipartTransformExpression type={props.type} target={props.target} />;
+      return <MultipartTransformExpression type={props.type} target={props.target}  itemPath={["item"]} />;
     </ts.FunctionDeclaration>;
 }

@@ -1,6 +1,6 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { ModelProperty, Type } from "@typespec/compiler";
+import { Model, ModelProperty, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { isHttpFile } from "@typespec/http";
 import { getCreateFilePartDescriptorReference } from "../static-helpers/multipart-helpers.jsx";
@@ -28,8 +28,14 @@ export function BodyPart(props: BodyPartProps) {
     return <BodyPartArray itemPath={itemPath} type={props.type} {...partProps}  />;
   }
 
-  if (isFile(partType)) {
-    return <ts.FunctionCallExpression refkey={getCreateFilePartDescriptorReference()} args={[ts.ValueExpression({jsValue: transportName}), itemRef]} />;
+  if ($.model.is(partType) && isFile(partType)) {
+    const defaultContentType = getDefaultValue(partType);
+    const args = [
+      ts.ValueExpression({ jsValue: transportName }),
+      itemRef,
+      ...(defaultContentType ? [ts.ValueExpression({ jsValue: defaultContentType })] : []),
+    ];
+    return <ts.FunctionCallExpression refkey={getCreateFilePartDescriptorReference()} args={args} />;
   }
 
   return <ts.ObjectExpression>
@@ -53,6 +59,16 @@ function BodyPartArray(props: BodyPartProps) {
     defaultValue: props.type.defaultValue,
   });
   return ay.code`...(${itemRef} ?? []).map((x: any) => (${<BodyPart target={props.target} type={part} itemPath={["x"]} />}))`;
+}
+
+function getDefaultValue(type: Model) {
+  const contentType = type.properties.get("contentType");
+
+  if (contentType && contentType.type.kind === "String" && contentType.type.value) {
+    return contentType.type.value;
+  }
+
+  return undefined;
 }
 
 function isFile(type: Type) {

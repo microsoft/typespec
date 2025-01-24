@@ -18,6 +18,12 @@ export const $lib = createTypeSpecLibrary({
       description:
         "useClientLibrary used without ClientLibraryProvider. Make sure to wrap your component tree with ClientLibraryProvider or a ClientLibrary component.",
     },
+    "undefined-namespace-for-client": {
+      severity: "error",
+      messages: {
+        default: "Undefined namespace for client.",
+      },
+    },
   },
   // Defined state keys for storing metadata in decorator.
   state: {

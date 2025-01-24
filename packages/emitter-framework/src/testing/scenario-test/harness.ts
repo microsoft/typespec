@@ -17,7 +17,21 @@ async function assertGetEmittedFile(
   file: string,
   code: string,
 ) {
-  const [emittedFiles] = await emitWithDiagnostics(testLibrary, emitterOutputDir, code);
+  const [emittedFiles, diagnostics] = await emitWithDiagnostics(
+    testLibrary,
+    emitterOutputDir,
+    code,
+  );
+
+  const errors = diagnostics.filter((d) => d.severity === "error");
+  const warnings = diagnostics.filter((d) => d.severity === "warning");
+  if (warnings.length > 0) {
+    console.warn(`Warning compiling code:\n ${warnings.map((x) => x.message).join("\n")}`);
+  }
+  if (errors.length > 0) {
+    throw new Error(`Error compiling code:\n ${errors.map((x) => x.message).join("\n")}`);
+  }
+
   const sourceFile = emittedFiles.find((x) => x.path === file);
 
   if (!sourceFile) {

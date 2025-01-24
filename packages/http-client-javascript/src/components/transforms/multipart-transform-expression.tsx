@@ -5,7 +5,11 @@ import * as ef from "@typespec/emitter-framework/typescript";
 import { reportDiagnostic } from "../../lib.js";
 import { BodyPart } from "./body-part.jsx";
 
-export function MultipartTransformExpression(props: ef.TypeTransformProps) {
+export interface MultipartTransformExpressionProps extends ef.TypeTransformProps {
+  itemPath?: string[];
+}
+
+export function MultipartTransformExpression(props: MultipartTransformExpressionProps) {
   if (!$.model.is(props.type)) {
     reportDiagnostic($.program, {
       code: "non-model-parts",

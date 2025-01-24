@@ -4,12 +4,14 @@ import {
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
   Namespace,
+  NoTarget,
   Operation,
 } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
 import { getServers } from "@typespec/http";
 import "@typespec/http/typekit";
 import { InternalClient } from "../../interfaces.js";
+import { reportDiagnostic } from "../../lib.js";
 import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
 import { NameKit } from "./utils.js";
 
@@ -97,6 +99,12 @@ defineKit<TypeKit>({
       return clients;
     },
     getClient(namespace) {
+      if (!namespace) {
+        reportDiagnostic(this.program, {
+          code: "undefined-namespace-for-client",
+          target: NoTarget,
+        });
+      }
       if (clientCache.has(namespace)) {
         return clientCache.get(namespace)!;
       }
