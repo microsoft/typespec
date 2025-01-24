@@ -226,6 +226,28 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(3, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
         }
 
+        [Test]
+        public async Task CustomCodeAttributesAreLoadedIntoAttributeStatements()
+        {
+            var client = new ClientTypeProvider();
+
+            var outputLibrary = new ClientOutputLibrary(client);
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                createOutputLibrary: () => outputLibrary,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+
+            var attributes = plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").CustomCodeView!.Attributes;
+            Assert.AreEqual(4, attributes.Count);
+            Assert.AreEqual("[global::Microsoft.Generator.CSharp.Customization.CodeGenSuppressAttribute(\"MockInputClient\")]\n", attributes[0].ToDisplayString());
+            Assert.AreEqual("[global::Microsoft.Generator.CSharp.Customization.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool))]\n", attributes[1].ToDisplayString());
+            Assert.AreEqual("[global::Microsoft.Generator.CSharp.Customization.CodeGenSuppressAttribute(\"MockInputClient\", typeof(bool), typeof(int))]\n", attributes[2].ToDisplayString());
+            Assert.AreEqual("[global::Microsoft.Generator.CSharp.Customization.CodeGenSerializationAttribute(\"MockInputClient\", SerializationValueHook = \"foo\", DeserializationValueHook = \"bar\")]\n", attributes[3].ToDisplayString());
+
+        }
+
         private class ClientOutputLibrary : OutputLibrary
         {
             private readonly ClientTypeProvider _client;
