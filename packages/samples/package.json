@@ -49,6 +49,7 @@
     "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/http-server-javascript": "workspace:~",
+    "@typespec/http-server-csharp": "workspace:~",
     "@typespec/json-schema": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
