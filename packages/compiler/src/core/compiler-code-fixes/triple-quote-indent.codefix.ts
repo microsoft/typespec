@@ -18,7 +18,7 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
         location.end - tripleQuoteLen,
       );
 
-      const lines = splitLines(text);
+      const lines = splitLines(text).map((line) => line.replace(newlineRegex, ""));
       if (lines.length === 0) {
         return;
       }
@@ -49,10 +49,7 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
         prefix = " ".repeat(indentDiff);
       }
 
-      const middle = lines
-        .map((line) => `${splitStr}${prefix}${line.replace(newlineRegex, "")}`)
-        .join("");
-
+      const middle = lines.map((line) => `${splitStr}${prefix}${line}`).join("");
       return context.replaceText(
         location,
         `${tripleQuote}${middle}${splitStr}${" ".repeat(lastLineIndentNumb)}${tripleQuote}`,
