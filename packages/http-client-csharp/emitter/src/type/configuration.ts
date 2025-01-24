@@ -3,6 +3,7 @@
 
 export interface Configuration {
   "output-folder": string;
+  namespace: string;
   "library-name": string;
   flavor?: string;
   "single-top-level-client"?: boolean;

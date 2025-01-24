@@ -1,5 +1,6 @@
 {
   "output-folder": ".",
+  "namespace": "Versioning.MadeOptional",
   "library-name": "Versioning.MadeOptional.V1",
   "use-model-reader-writer": true
 }

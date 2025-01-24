@@ -89,6 +89,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       //emit configuration.json
       const configurations: Configuration = {
         "output-folder": ".",
+        namespace: options.namespace ?? root.Name, // this is temporarily here fore backward compatibility in autorest.csharp
         "library-name": options["library-name"] ?? root.Name,
         "single-top-level-client": options["single-top-level-client"],
         "unreferenced-types-handling": options["unreferenced-types-handling"],

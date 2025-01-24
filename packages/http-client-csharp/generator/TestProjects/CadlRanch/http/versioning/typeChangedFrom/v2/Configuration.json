@@ -1,5 +1,6 @@
 {
   "output-folder": ".",
+  "namespace": "Versioning.TypeChangedFrom",
   "library-name": "Versioning.TypeChangedFrom.V2",
   "use-model-reader-writer": true
 }

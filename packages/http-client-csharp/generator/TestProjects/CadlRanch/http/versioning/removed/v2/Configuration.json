@@ -1,5 +1,6 @@
 {
   "output-folder": ".",
+  "namespace": "Versioning.Removed",
   "library-name": "Versioning.Removed.V2",
   "use-model-reader-writer": true
 }
