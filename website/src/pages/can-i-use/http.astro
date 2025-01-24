@@ -1,6 +1,6 @@
 ---
-import { FluentLayout } from "../components/fluent/fluent-layout";
-import BaseLayout from "../layouts/base-layout.astro";
+import { FluentLayout } from "../../components/fluent/fluent-layout";
+import BaseLayout from "../../layouts/base-layout.astro";
 import {
   DashboardFromAzureStorage,
   type CoverageFromAzureStorageOptions,
@@ -21,8 +21,7 @@ const options: CoverageFromAzureStorageOptions = {
 ---
 
 <BaseLayout>
-  <!-- <DashboardPage client:only="react" /> -->
   <FluentLayout client:only="react">
-    <DashboardFromAzureStorage options={options} client:only="react" />;
+    <DashboardFromAzureStorage options={options} client:only="react" />
   </FluentLayout>
 </BaseLayout>
