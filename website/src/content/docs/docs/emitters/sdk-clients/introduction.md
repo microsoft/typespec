@@ -20,7 +20,7 @@ The client emitters and their common configurations are located in the `package.
 
 | **Emitter Name**             | **Language** | **Version**              | **Common Configuration** |
 | ---------------------------- | ------------ | ------------------------ | ------------------------ |
-| @azure-tools/typespec-ts     | JavaScript   | `0.37.0`                 | `emitter-output-dir`     |
+| @azure-tools/typespec-ts     | JavaScript   | `0.38.1`                 | `emitter-output-dir`     |
 | @typespec/http-client-python | Python       | `0.6.6`                  | `emitter-output-dir`     |
 | @typespec/http-client-java   | Java         | `0.1.9`                  | `emitter-output-dir`     |
 | @typespec/http-client-csharp | .NET         | `0.1.9-alpha.20250113.2` | `emitter-output-dir`     |
@@ -49,17 +49,25 @@ To ensure you are using the latest version of the packages, visit npmjs.com and 
 
 ### JavaScript Client Emitter
 
-The JavaScript SDK generator uses TypeScript language features for its emitter. You can customize the output by setting specific options in the `package.json` file.
+Generally no additional setting is required for JavaScript. However it's recommended to specify `packageDetails` which would provide package metadata in `package.json` and `README.md` files.
 
-#### Configuration Options for JavaScript
+#### packageDetails
 
-| **Configuration Name** | **Description** | **Possible Values** |
-| ---------------------- | --------------- | ------------------- |
-| `isModularLibrary`     |                 | `true`, `false`     |
-| `azureSdkForJs`        |                 | `true`, `false`     |
-| `packageDetails`       |                 | `true`, `false`     |
+Provide the metadata for `package.json`, `README.md` information.
+
+| Property    | Description                                                            |
+| ----------- | ---------------------------------------------------------------------- |
+| name        | Package name used in `package.json`                                    |
+| description | Package description used in `package.json` file                        |
+| version     | Detailed version for your package, the default value is `1.0.0-beta.1` |
 
 Example configuration:
+
+```yaml
+packageDetails:
+  name: "${your_package_name}"
+  version: 1.0.0
+```
 
 #### Configuration Options for Python
 
@@ -87,6 +95,11 @@ options:
     emitter-output-dir: "{project-root}/../clients/java"
   "@typespec/http-client-python":
     emitter-output-dir: "{project-root}/../clients/python"
+  "@azure-tools/typespec-ts":
+    emitter-output-dir: "{project-root}/../clients/javascript"
+    packageDetails:
+      name: "${your_package_name}"
+      version: 1.0.0
 ```
 
 1. Once the package.json and tspconfig.yaml files are updated, you need to install all required dependencies.
