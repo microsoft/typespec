@@ -13,17 +13,24 @@ namespace Microsoft.Generator.CSharp.Statements
 {
     public sealed class AttributeStatement : MethodBodyStatement
     {
-        public CSharpType Type { get; }
-        public IReadOnlyList<ValueExpression> Arguments { get; }
-        public IReadOnlyList<KeyValuePair<string, ValueExpression>> PositionalArguments { get; }
+        public CSharpType Type => _type ??= Data!.AttributeClass!.GetCSharpType();
+        private CSharpType? _type;
+
+        public IReadOnlyList<ValueExpression> Arguments
+            => _arguments ??= Data!.ConstructorArguments.SelectMany(ConvertArgumentToValueExpression).ToList();
+        private IReadOnlyList<ValueExpression>? _arguments;
+
+        public IReadOnlyList<KeyValuePair<string, ValueExpression>> PositionalArguments
+            => _positionalArguments ??= Data!.NamedArguments.Select(a => new KeyValuePair<string, ValueExpression>(a.Key, ConvertArgumentToValueExpression(a.Value)[0])).ToList();
+        private IReadOnlyList<KeyValuePair<string, ValueExpression>>? _positionalArguments;
 
         internal AttributeData? Data { get; }
 
         public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments, IReadOnlyList<KeyValuePair<string, ValueExpression>> positionalArguments)
         {
-            Type = type;
-            Arguments = arguments;
-            PositionalArguments = positionalArguments;
+            _type = type;
+            _arguments = arguments;
+            _positionalArguments = positionalArguments;
         }
 
         public AttributeStatement(CSharpType type, IReadOnlyList<ValueExpression> arguments) : this(type, arguments, []) { }
@@ -35,12 +42,9 @@ namespace Microsoft.Generator.CSharp.Statements
         internal AttributeStatement(AttributeData data)
         {
             Data = data;
-            Type = data.AttributeClass!.GetCSharpType();
-            Arguments = data.ConstructorArguments.SelectMany(ConvertArgumentToValueExpression).ToList();
-            PositionalArguments = data.NamedArguments.Select(a => new KeyValuePair<string, ValueExpression>(a.Key, ConvertArgumentToValueExpression(a.Value)[0])).ToList();
         }
 
-        private static ValueExpression[] ConvertArgumentToValueExpression(TypedConstant argument)
+        private static IReadOnlyList<ValueExpression> ConvertArgumentToValueExpression(TypedConstant argument)
         {
             return argument.Kind switch
             {
