@@ -2,4 +2,3 @@
 steps:
   - script: npx playwright install --with-deps
     displayName: Install playwright browsers
-    workingDirectory: packages/playground-website
