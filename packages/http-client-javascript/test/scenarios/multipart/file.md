@@ -1,4 +1,4 @@
-# Basic file part
+# only:Basic file part
 
 ```tsp
 namespace Test;
@@ -46,11 +46,11 @@ export async function doThing(client: TestClientContext, bodyParam: RequestBody)
 
 ```ts src/models/serializers.ts function requestBodyToTransport
 export function requestBodyToTransport(item: RequestBody): any {
-  return [createFilePartDescriptor("basicFile", item.basicFile)];
+  return [createFilePartDescriptor("basicFile", item)];
 }
 ```
 
-# Default content type
+# only:Default content type
 
 ```tsp
 namespace Test;
@@ -84,7 +84,7 @@ export interface RequestBody {
 
 ```ts src/models/serializers.ts function requestBodyToTransport
 export function requestBodyToTransport(item: RequestBody): any {
-  return [createFilePartDescriptor("image", item.image, "image/png")];
+  return [createFilePartDescriptor("image", item, "image/png")];
 }
 ```
 
