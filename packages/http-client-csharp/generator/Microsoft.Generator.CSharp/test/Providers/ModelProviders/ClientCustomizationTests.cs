@@ -226,7 +226,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelProviders
             Assert.AreEqual(3, plugin.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputClient").Constructors.Count);
         }
 
-                [Test]
+        [Test]
         public async Task CustomCodeAttributesAreLoadedIntoAttributeStatements()
         {
             var client = new ClientTypeProvider();
