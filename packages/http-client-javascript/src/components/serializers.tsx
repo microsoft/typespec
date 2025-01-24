@@ -1,4 +1,5 @@
 import * as ts from "@alloy-js/typescript";
+import * as ef from "@typespec/emitter-framework/typescript";
 import {
   ArraySerializer,
   DateDeserializer,
@@ -10,8 +11,8 @@ import {
   RecordSerializer,
 } from "@typespec/emitter-framework/typescript";
 import { useClientLibrary } from "@typespec/http-client-library";
-import { TypeTransformDeclaration } from "./transforms/type-transform.jsx";
-
+import { flattenClients } from "../utils/client-discovery.js";
+import { TransformDeclaration } from "./transforms/operation-transform.jsx";
 export interface ModelSerializersProps {
   path?: string;
 }
@@ -19,6 +20,7 @@ export interface ModelSerializersProps {
 export function ModelSerializers(props: ModelSerializersProps) {
   const clientLibrary = useClientLibrary();
   const dataTypes = clientLibrary.dataTypes;
+  const operations = flattenClients(clientLibrary.rootClient).flatMap((c) => c.operations);
   return <ts.SourceFile path={props.path ?? "serializers.ts"}>
       <RecordSerializer />
       <ArraySerializer />
@@ -28,12 +30,13 @@ export function ModelSerializers(props: ModelSerializersProps) {
       <DateRfc7231Serializer />
       <DateUnixTimestampSerializer />
       <DateUnixTimestampDeserializer />
+      {operations.map(o => <TransformDeclaration operation={o} />)}
       {dataTypes
         .filter((m) => m.kind === "Model")
         .map((type) => (
           <>
-            <TypeTransformDeclaration type={type} target="transport" />
-            <TypeTransformDeclaration type={type} target="application" />
+            <ef.TypeTransformDeclaration type={type} target="transport" />
+            <ef.TypeTransformDeclaration type={type} target="application" />
           </>          
         ))}
     </ts.SourceFile>;

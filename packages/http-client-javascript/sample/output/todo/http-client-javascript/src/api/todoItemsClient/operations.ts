@@ -8,12 +8,9 @@ import {
   TodoPage,
 } from "../../models/models.js";
 import {
-  arraySerializer,
+  createFormPayloadToTransport,
   dateDeserializer,
-  todoAttachmentToTransport,
-  toDoItemMultipartRequestToTransport,
   todoItemPatchToTransport,
-  todoItemToTransport,
   todoPageToApplication,
 } from "../../models/serializers.js";
 import { TodoItemsClientContext } from "./clientContext.js";
@@ -65,12 +62,6 @@ export async function createJson(
     headers: {
       "content-type": "application/json",
     },
-    body: {
-      item: todoItemToTransport(item),
-      attachments: options?.attachments
-        ? arraySerializer(options?.attachments, todoAttachmentToTransport)
-        : options?.attachments,
-    },
   };
 
   const response = await client.path(path).post(httpRequestOptions);
@@ -114,7 +105,7 @@ export async function createForm(
     headers: {
       "content-type": "multipart/form-data",
     },
-    body: toDoItemMultipartRequestToTransport(body),
+    body: createFormPayloadToTransport(body),
   };
 
   const response = await client.path(path).post(httpRequestOptions);

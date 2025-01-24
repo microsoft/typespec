@@ -4,7 +4,7 @@ import { StringLiteral } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { ClientOperation } from "@typespec/http-client-library";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
-import { TypeTransformCall } from "./transforms/type-transform-call.jsx";
+import { getTransformDeclarationRef } from "./transforms/operation-transform.jsx";
 
 export interface HttpRequestOptionsProps {
   operation: ClientOperation;
@@ -71,25 +71,15 @@ export interface HttpRequestOptionsBodyProps {
 
 HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOptionsBodyProps) {
   const httpOperation = props.operation.httpOperation;
-  const body = httpOperation.parameters.body;
+  const body = httpOperation.parameters.body?.property;
 
   if (!body) {
     return <></>;
   }
 
-  let optional = null;
-  // if (collapse) {
-  //   const collapsedBody = [...body.properties.values()][0];
-  //   if (collapsedBody.optional) {
-  //     optional = `options?.${collapsedBody.name} && `;
-  //   }
-  // }
-
-  // The transformer to apply to the body.
-  const propertyPath = body.property ? [body.property.name] : undefined;
   const bodyTransform =
     <>
-      {optional}<TypeTransformCall type={body.type} itemPath={propertyPath} target="transport" optionsBagName="options"/>
+      <ts.FunctionCallExpression refkey={getTransformDeclarationRef(props.operation)} args={[body.name]}/>
   </>;
 
   return <>

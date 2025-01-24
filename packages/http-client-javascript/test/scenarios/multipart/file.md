@@ -30,7 +30,7 @@ export async function doThing(client: TestClientContext, bodyParam: RequestBody)
     headers: {
       "content-type": "multipart/form-data",
     },
-    body: requestBodyToTransport(bodyParam),
+    body: doThingPayloadToTransport(bodyParam),
   };
 
   const response = await client.path(path).post(httpRequestOptions);
@@ -44,9 +44,9 @@ export async function doThing(client: TestClientContext, bodyParam: RequestBody)
 
 ## Serializer
 
-```ts src/models/serializers.ts function requestBodyToTransport
-export function requestBodyToTransport(item: RequestBody): any {
-  return [createFilePartDescriptor("basicFile", item)];
+```ts src/models/serializers.ts function doThingPayloadToTransport
+export function doThingPayloadToTransport(payload: RequestBody) {
+  return [createFilePartDescriptor("basicFile", payload)];
 }
 ```
 
@@ -82,9 +82,9 @@ export interface RequestBody {
 
 ## Serializers
 
-```ts src/models/serializers.ts function requestBodyToTransport
-export function requestBodyToTransport(item: RequestBody): any {
-  return [createFilePartDescriptor("image", item, "image/png")];
+```ts src/models/serializers.ts function doThingPayloadToTransport
+export function doThingPayloadToTransport(payload: RequestBody) {
+  return [createFilePartDescriptor("image", payload, "image/png")];
 }
 ```
 
@@ -112,9 +112,9 @@ export interface RequestBody {
 
 ## Serializer
 
-```ts src/models/serializers.ts function requestBodyToTransport
-export function requestBodyToTransport(item: RequestBody): any {
-  return [...item.files.map((x: unknown) => createFilePartDescriptor("files", x))];
+```ts src/models/serializers.ts function doThingPayloadToTransport
+export function doThingPayloadToTransport(payload: RequestBody) {
+  return [...payload.files.map((x: any) => createFilePartDescriptor("files", x))];
 }
 ```
 
@@ -128,7 +128,7 @@ export async function doThing(client: TestClientContext, bodyParam: RequestBody)
     headers: {
       "content-type": "multipart/form-data",
     },
-    body: requestBodyToTransport(bodyParam),
+    body: doThingPayloadToTransport(bodyParam),
   };
 
   const response = await client.path(path).post(httpRequestOptions);

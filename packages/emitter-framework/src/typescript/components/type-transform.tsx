@@ -17,6 +17,7 @@ export interface TypeTransformProps {
   name?: string;
   type: Type;
   target: "application" | "transport";
+  refkey?: Refkey
 }
 
 
@@ -113,12 +114,13 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
 
   const returnType = props.target === "application" ? refkey(props.type) : "any";
 
+  const ref = props.refkey ?? getTypeTransformerRefkey(props.type, props.target);
 
   return (
     <ts.FunctionDeclaration
       export
       name={functionName}
-      refkey={getTypeTransformerRefkey(props.type, props.target)}
+      refkey={ref}
       parameters={{ item: itemType }}
       returnType={returnType}
     >

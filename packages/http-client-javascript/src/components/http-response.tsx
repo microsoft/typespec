@@ -1,9 +1,8 @@
 import { Children, code, mapJoin, Refkey } from "@alloy-js/core";
 import { isVoidType } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import * as ef from "@typespec/emitter-framework/typescript";
 import { ClientOperation } from "@typespec/http-client-library";
-import { TypeTransformCall } from "./transforms/type-transform-call.jsx";
-
 export interface HttpResponseProps {
   operation: ClientOperation;
   responseRefkey: Refkey;
@@ -41,10 +40,10 @@ export function HttpResponses(props: HttpResponsesProps) {
         contentTypeCheck = "";
       }
 
-      if ((body && body.bodyKind === "single") || (type && !isVoidType(type))) {
+      if (body && (body.bodyKind === "single" || (type && !isVoidType(type)))) {
         expression =
           <>
-      return <TypeTransformCall type={body?.type ?? type} target="application" itemPath={["response", "body"]} />;
+      return <ef.TypeTransformCall type={body.type} target="application" itemPath={["response", "body"]} />;
       </>;
       }
 

@@ -58,6 +58,25 @@ export function dateUnixTimestampSerializer(date: Date): number {
 export function dateUnixTimestampDeserializer(date: number): Date {
   return new Date(date * 1000);
 }
+export function createFormPayloadToTransport(payload: ToDoItemMultipartRequest) {
+  return [
+    {
+      name: "item",
+      body: {
+        title: payload.item.title,
+        assignedTo: payload.item.assignedTo,
+        description: payload.item.description,
+        status: payload.item.status,
+        labels: payload.item.labels,
+        _dummy: payload.item._dummy,
+      },
+    },
+    createFilePartDescriptor("attachments", payload),
+  ];
+}
+export function createFileAttachmentPayloadToTransport(payload: FileAttachmentMultipartRequest) {
+  return [createFilePartDescriptor("contents", payload)];
+}
 export function userToTransport(item: User): any {
   return {
     id: item.id,
@@ -103,10 +122,16 @@ export function todoAttachmentToApplication(item: any): TodoAttachment {
 export function fileAttachmentMultipartRequestToTransport(
   item: FileAttachmentMultipartRequest,
 ): any {
-  return [createFilePartDescriptor("contents", item)];
+  return {
+    contents: fileToTransport(item.contents),
+  };
 }
-export function fileAttachmentMultipartRequestToApplication(item: any): any {
-  return [createFilePartDescriptor("contents", item)];
+export function fileAttachmentMultipartRequestToApplication(
+  item: any,
+): FileAttachmentMultipartRequest {
+  return {
+    contents: fileToApplication(item.contents),
+  };
 }
 export function fileToTransport(item: File): any {
   return {
@@ -187,22 +212,20 @@ export function todoLabelRecordToApplication(item: any): TodoLabelRecord {
   };
 }
 export function toDoItemMultipartRequestToTransport(item: ToDoItemMultipartRequest): any {
-  return [
-    {
-      name: "item",
-      body: todoItemToTransport(item.item),
-    },
-    ...(item.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
-  ];
+  return {
+    item: todoItemToTransport(item.item),
+    attachments: item.attachments
+      ? arraySerializer(item.attachments, fileToTransport)
+      : item.attachments,
+  };
 }
-export function toDoItemMultipartRequestToApplication(item: any): any {
-  return [
-    {
-      name: "item",
-      body: todoItemToApplication(item.item),
-    },
-    ...(item.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
-  ];
+export function toDoItemMultipartRequestToApplication(item: any): ToDoItemMultipartRequest {
+  return {
+    item: todoItemToApplication(item.item),
+    attachments: item.attachments
+      ? arraySerializer(item.attachments, fileToApplication)
+      : item.attachments,
+  };
 }
 export function todoItemPatchToTransport(item: TodoItemPatch): any {
   return {

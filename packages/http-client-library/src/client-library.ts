@@ -60,6 +60,8 @@ function visitClient(
 
   // Collect data types
   currentClient.operations.forEach((o) => {
+    const returnType = $.httpOperation.getReturnType(o.httpOperation.operation);
+    collectDataTypes(returnType, dataTypes);
     collectDataTypes(o.operation, dataTypes);
   });
 

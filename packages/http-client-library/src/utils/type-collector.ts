@@ -5,6 +5,9 @@ export function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum
   navigateType(
     type,
     {
+      modelProperty(modelProperty) {
+        collectDataTypes(modelProperty.type, dataTypes);
+      },
       model(model) {
         if ($.array.is(model) || $.record.is(model)) {
           return;

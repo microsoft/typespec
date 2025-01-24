@@ -1,7 +1,7 @@
 import { parse } from "uri-template";
 import { FileAttachmentMultipartRequest, Page, TodoAttachment } from "../../../models/models.js";
 import {
-  fileAttachmentMultipartRequestToTransport,
+  createFileAttachmentPayloadToTransport,
   pageToApplication,
   todoAttachmentToTransport,
 } from "../../../models/serializers.js";
@@ -59,7 +59,7 @@ export async function createFileAttachment(
     headers: {
       "content-type": "multipart/form-data",
     },
-    body: fileAttachmentMultipartRequestToTransport(body),
+    body: createFileAttachmentPayloadToTransport(body),
   };
 
   const response = await client.path(path).post(httpRequestOptions);
