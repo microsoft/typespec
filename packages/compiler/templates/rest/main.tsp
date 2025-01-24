@@ -7,12 +7,12 @@ using TypeSpec.Http;
 namespace DemoService;
 
 model Widget {
-  @visibility("read", "update")
   @path
+  @key
   id: string;
 
-  weight: int32;
   color: "red" | "blue";
+  weight?: int32;
 }
 
 @error
@@ -34,7 +34,4 @@ interface Widgets {
   @patch update(...Widget): Widget | Error;
   /** Delete a widget */
   @delete delete(@path id: string): void | Error;
-
-  /** Analyze a widget */
-  @route("{id}/analyze") @post analyze(@path id: string): string | Error;
 }
