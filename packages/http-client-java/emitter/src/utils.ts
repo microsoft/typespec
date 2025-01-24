@@ -1,23 +1,5 @@
-import { NoTarget, Program, Type } from "@typespec/compiler";
+import { Diagnostic, Program, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-
-export function logError(program: Program, msg: string, code: string = "http-client-java") {
-  program.reportDiagnostic({
-    code: code,
-    severity: "error",
-    message: msg,
-    target: NoTarget,
-  });
-}
-
-export function logWarning(program: Program, msg: string, code: string = "http-client-java") {
-  program.reportDiagnostic({
-    code: code,
-    severity: "warning",
-    message: msg,
-    target: NoTarget,
-  });
-}
 
 export function trace(program: Program, msg: string) {
   program.trace("http-client-java", msg);
@@ -76,6 +58,15 @@ export class SpawnError extends Error {
     super(message);
     this.stdout = stdout;
     this.stderr = stderr;
+  }
+}
+
+export class DiagnosticError extends Error {
+  diagnostic: Diagnostic;
+
+  constructor(diagnostic: Diagnostic) {
+    super(diagnostic.message);
+    this.diagnostic = diagnostic;
   }
 }
 

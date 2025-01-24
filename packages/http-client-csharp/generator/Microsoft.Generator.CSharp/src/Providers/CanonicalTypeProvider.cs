@@ -295,10 +295,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private Dictionary<string, string?> BuildSerializationNameMap()
         {
-            var serializationAttributes = _generatedTypeProvider.CustomCodeView?.GetAttributes().
-                Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
             var serializedNameMapping = new Dictionary<string, string?>();
-            foreach (var serializationAttribute in serializationAttributes)
+            foreach (var serializationAttribute in _generatedTypeProvider.CustomCodeView?.Attributes ?? [])
             {
                 if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
                         serializationAttribute,
