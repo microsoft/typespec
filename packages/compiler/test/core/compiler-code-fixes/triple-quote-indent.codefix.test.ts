@@ -29,7 +29,7 @@ describe("CodeFix: triple-quote-indent", () => {
         return createTripleQuoteIndentCodeFix(node);
       },
     ).toChangeTo(`
-      const a = """\r\n  one\r\n  two    \r\n """;
+      const a = """\r\n  one\r\n   two    \r\n  """;
     `);
   });
 
@@ -71,7 +71,7 @@ describe("CodeFix: triple-quote-indent", () => {
         return createTripleQuoteIndentCodeFix(node);
       },
     ).toChangeTo(`
-      const a = """\r\n  one\r\n  two   \r\n""";
+      const a = """\r\n  one\r\n  two   \r\n  """;
     `);
   });
 });

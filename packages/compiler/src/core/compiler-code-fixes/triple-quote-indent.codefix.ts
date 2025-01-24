@@ -10,7 +10,7 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
     fix: (context) => {
       const location = getSourceLocation(diagnosticTarget);
       const splitStr = "\r\n";
-      const regex = /(\r\n|\n|\r)/gm;
+      const newlineRegex = /(\r\n|\n|\r)/gm;
       const tripleQuote = '"""';
       const tripleQuoteLen = tripleQuote.length;
       const text = location.file.text.slice(
@@ -32,63 +32,35 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
         );
       }
 
-      let firstTripleQuoteOnNewLine = false;
-      let lastTripleQuoteOnNewLine = false;
-      let firstLine = lines[0];
-      if (firstLine.trim() === "") {
+      if (lines[0].trim() === "") {
         lines.shift();
-        firstTripleQuoteOnNewLine = true;
       }
 
-      let lastLine = lines[lines.length - 1];
+      const lastLine = lines[lines.length - 1];
       if (lastLine.trim() === "") {
         lines.pop();
-        lastTripleQuoteOnNewLine = true;
       }
 
+      let prefix = "";
       const minIndentNumb = Math.min(...lines.map((line) => getIndentNumbInLine(line)));
       const lastLineIndentNumb = getIndentNumbInLine(lastLine);
-      if (minIndentNumb <= lastLineIndentNumb) {
+      if (minIndentNumb < lastLineIndentNumb) {
         const indentDiff = lastLineIndentNumb - minIndentNumb;
-        const prefix = " ".repeat(indentDiff);
-
-        if (firstTripleQuoteOnNewLine) {
-          firstLine = tripleQuote;
-        } else {
-          // start triple-quote is not on a new line,
-          // this has already been processed, so the removal will not be processed again.
-          firstLine = `${tripleQuote}${splitStr}${prefix}${firstLine}`;
-          lines.shift();
-        }
-
-        if (lastTripleQuoteOnNewLine) {
-          lastLine = `${lastLine}${tripleQuote}`;
-        } else {
-          // end triple-quote is not on a new line
-          // this has already been processed, so the removal will not be processed again.
-          // When the final triple quote is not on a new line, it needs to maintain the same indentation as the content.
-          const lastLineIndent = " ".repeat(indentDiff);
-          lastLine = `${lastLine}${splitStr}${lastLineIndent}${tripleQuote}`;
-          lines.pop();
-        }
-
-        // Only indentation is left in the middle
-        const middle = lines
-          .map((line) => {
-            return minIndentNumb !== lastLineIndentNumb
-              ? `${splitStr}${prefix}${line.replace(regex, "")}`
-              : line;
-          })
-          .join("");
-
-        return context.replaceText(location, `${firstLine}${middle}${lastLine}`);
+        prefix = " ".repeat(indentDiff);
       }
 
-      return;
+      const middle = lines
+        .map((line) => `${splitStr}${prefix}${line.replace(newlineRegex, "")}`)
+        .join("");
+
+      return context.replaceText(
+        location,
+        `${tripleQuote}${middle}${splitStr}${" ".repeat(lastLineIndentNumb)}${tripleQuote}`,
+      );
 
       function getIndentNumbInLine(lineText: string): number {
         let curStart = 0;
-        const text = lineText.replace(regex, "");
+        const text = lineText.replace(newlineRegex, "");
         const len = text.length;
 
         while (curStart < len && isWhiteSpaceSingleLine(text.charCodeAt(curStart))) {
