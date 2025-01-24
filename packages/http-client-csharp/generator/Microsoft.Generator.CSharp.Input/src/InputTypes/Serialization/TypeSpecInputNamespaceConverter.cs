@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             var badNamespaceSegments = new List<string>();
-            resolver.AddReference(TypeSpecSerialization.BadNamespaceSegmentsKey, badNamespaceSegments);
+            resolver.AddReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey, badNamespaceSegments);
 
             string? name = null;
             IReadOnlyList<string>? apiVersions = null;

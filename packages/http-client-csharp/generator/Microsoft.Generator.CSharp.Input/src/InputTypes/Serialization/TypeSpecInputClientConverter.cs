@@ -71,11 +71,11 @@ namespace Microsoft.Generator.CSharp.Input
 
             if (GetLastSegment(client.ClientNamespace) == client.Name)
             {
-                // bad namespace segment found
+                // invalid namespace segment found
                 // check if the list is already there
                 // get the list out
-                var badNamespaceSegments = (List<string>)resolver.ResolveReference(TypeSpecSerialization.BadNamespaceSegmentsKey);
-                badNamespaceSegments.Add(client.Name);
+                var invalidNamespaceSegments = (List<string>)resolver.ResolveReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey);
+                invalidNamespaceSegments.Add(client.Name);
             }
 
             return client;

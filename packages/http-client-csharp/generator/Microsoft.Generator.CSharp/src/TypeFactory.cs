@@ -358,7 +358,7 @@ namespace Microsoft.Generator.CSharp
 
         private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
         {
-            var badNamespaceSegments = CodeModelPlugin.Instance.InputLibrary.InputNamespace.BadNamespaceSegments;
+            var badNamespaceSegments = CodeModelPlugin.Instance.InputLibrary.InputNamespace.InvalidNamespaceSegments;
             for (int i = 0; i < badNamespaceSegments.Count; i++)
             {
                 if (readOnlySpan.Equals(badNamespaceSegments[i], StringComparison.Ordinal))

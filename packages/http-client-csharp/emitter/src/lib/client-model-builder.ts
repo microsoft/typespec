@@ -99,7 +99,8 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     const lastSegment = segments[segments.length - 1];
     if (lastSegment === clientName) {
       // we report diagnostics when the last segment of the namespace is the same as the client name
-      // because in our design, a sub namespace will become to a generated type as sub client, and its name will collide with its namespace which cannot compile
+      // because in our design, a sub namespace will be generated as a sub client with exact the same name as the namespace
+      // in csharp, this will cause a conflict between the namespace and the class name
       reportDiagnostic(sdkContext.program, {
         code: "client-namespace-conflict",
         format: { clientNamespace: client.clientNamespace, clientName },
