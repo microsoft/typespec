@@ -13,20 +13,20 @@ export interface BodyPartProps {
 }
 
 export function BodyPart(props: BodyPartProps) {
-  const namePolicy = ts.useTSNamePolicy();
-  const applicationName = namePolicy.getName(props.type.name, "object-member-data");
   const transportName = props.type.name;
-  const propertyName = props.target === "application" ? applicationName : transportName;
   const partType = $.httpPart.unpack(props.type.type);
 
   const { type: _type, itemPath: _itemPath = [], ...partProps } = props;
   const itemPath = [..._itemPath];
-  itemPath.push(propertyName);
-  const itemRef = itemPath.join(".");
 
   if ($.array.is(props.type.type)) {
     return <BodyPartArray itemPath={itemPath} type={props.type} {...partProps}  />;
   }
+
+  const namePolicy = ts.useTSNamePolicy();
+  const applicationName = namePolicy.getName(props.type.name, "object-member-data");
+  const propertyName = props.target === "application" ? applicationName : transportName;
+  const itemRef = itemPath.join(".");
 
   if ($.model.is(partType) && isFile(partType)) {
     const defaultContentType = getDefaultValue(partType);
@@ -37,6 +37,8 @@ export function BodyPart(props: BodyPartProps) {
     ];
     return <ts.FunctionCallExpression refkey={getCreateFilePartDescriptorReference()} args={args} />;
   }
+
+  itemPath.push(propertyName);
 
   return <ts.ObjectExpression>
 <ts.ObjectProperty name="name" jsValue={transportName} />,
@@ -49,8 +51,13 @@ function BodyPartArray(props: BodyPartProps) {
     return <BodyPart target={props.target} type={props.type} />;
   }
 
+  const namePolicy = ts.useTSNamePolicy();
+  const transportName = props.type.name;
+  const applicationName = namePolicy.getName(props.type.name, "object-member-data");
+  const propertyName = props.target === "application" ? applicationName : transportName;
+
   const element = $.array.getElementType(props.type.type);
-  const itemPath = props.itemPath ?? [];
+  const itemPath = props.itemPath ? [...props.itemPath, propertyName] : [];
   const itemRef = itemPath.join(".");
   const part = $.modelProperty.create({
     name: props.type.name,
