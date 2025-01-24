@@ -5,8 +5,7 @@ type StateMapGetter<K extends Type, V> = (program: Program, type: K) => V | unde
 type StateMapSetter<K extends Type, V> = (program: Program, type: K, value: V) => void;
 type StateMapMapGetter<K extends Type, V> = (program: Program) => Map<K, V>;
 
-/** @experimental */
-export function unsafe_useStateMap<K extends Type, V>(
+export function useStateMap<K extends Type, V>(
   key: symbol,
 ): [StateMapGetter<K, V>, StateMapSetter<K, V>, StateMapMapGetter<K, V>] {
   const getter = (program: Program, target: K) => program.stateMap(key).get(target);
@@ -19,10 +18,7 @@ export function unsafe_useStateMap<K extends Type, V>(
 type StateSetGetter<K extends Type> = (program: Program, type: K) => boolean;
 type StateSetSetter<K extends Type> = (program: Program, type: K) => void;
 
-/** @experimental */
-export function unsafe_useStateSet<K extends Type>(
-  key: symbol,
-): [StateSetGetter<K>, StateSetSetter<K>] {
+export function useStateSet<K extends Type>(key: symbol): [StateSetGetter<K>, StateSetSetter<K>] {
   const getter = (program: Program, target: K) => program.stateSet(key).has(target);
   const setter = (program: Program, target: K) => program.stateSet(key).add(target);
 

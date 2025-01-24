@@ -29,7 +29,7 @@ import {
 } from "./lifecycle.js";
 
 import type { VisibilityFilter as GeneratedVisibilityFilter } from "../../../generated-defs/TypeSpec.js";
-import { useStateMap, useStateSet } from "../../lib/utils.js";
+import { useStateMap, useStateSet } from "../../utils/index.js";
 
 export { GeneratedVisibilityFilter };
 
@@ -38,13 +38,17 @@ export { GeneratedVisibilityFilter };
  */
 type VisibilityModifiers = Map<Enum, Set<EnumMember>>;
 
+function createStateSymbol(name: string) {
+  return Symbol.for(`TypeSpec.${name}`);
+}
+
 /**
  * The global visibility store.
  *
  * This store is used to track the visibility modifiers
  */
 const [getVisibilityStore, setVisibilityStore] = useStateMap<ModelProperty, VisibilityModifiers>(
-  "visibilityStore",
+  createStateSymbol("visibilityStore"),
 );
 
 /**
@@ -99,13 +103,13 @@ function getOrInitializeActiveModifierSetForClass(
 const VISIBILITY_PROGRAM_SEALS = new WeakSet<Program>();
 
 const [isVisibilitySealedForProperty, sealVisibilityForProperty] = useStateSet<ModelProperty>(
-  "propertyVisibilitySealed",
+  createStateSymbol("propertyVisibilitySealed"),
 );
 
 const [getSealedVisibilityClasses, setSealedVisibilityClasses] = useStateMap<
   ModelProperty,
   Set<Enum>
->("sealedVisibilityClasses");
+>(createStateSymbol("sealedVisibilityClasses"));
 
 /**
  * Seals visibility modifiers for a property in a given visibility class.
@@ -133,7 +137,7 @@ function sealVisibilityModifiersForClass(
  * Stores the default modifier set for a given visibility class.
  */
 const [getDefaultModifiers, setDefaultModifiers] = useStateMap<Enum, Set<EnumMember>>(
-  "defaultVisibilityModifiers",
+  createStateSymbol("defaultVisibilityModifiers"),
 );
 
 /**
@@ -205,7 +209,7 @@ function groupModifiersByVisibilityClass(modifiers: EnumMember[]): Map<Enum, Set
 // #region Legacy Visibility API
 
 const [getLegacyVisibility, setLegacyVisibilityModifiers, getLegacyVisibilityStateMap] =
-  useStateMap<ModelProperty, string[]>("legacyVisibility");
+  useStateMap<ModelProperty, string[]>(createStateSymbol("legacyVisibility"));
 
 export { getLegacyVisibility };
 

@@ -2,13 +2,16 @@ import { reportDiagnostic } from "../core/messages.js";
 import { parseMimeType } from "../core/mime-type.js";
 import type { Program } from "../core/program.js";
 import type { DecoratorContext, Enum, Model, Type, Union } from "../core/types.js";
-import { DuplicateTracker } from "../utils/index.js";
-import { useStateMap } from "./utils.js";
+import { DuplicateTracker, useStateMap } from "../utils/index.js";
+
+function createStateSymbol(name: string) {
+  return Symbol.for(`TypeSpec.${name}`);
+}
 
 const [getEncodedNamesMap, setEncodedNamesMap, getEncodedNamesStateMap] = useStateMap<
   Type,
   Map<string, string>
->("encodedName");
+>(createStateSymbol("encodedName"));
 
 export function $encodedName(
   context: DecoratorContext,
