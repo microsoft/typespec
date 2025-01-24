@@ -17,9 +17,9 @@
   },
   "license": "MIT",
   "type": "module",
-  "main": "dist/emitter/emitter.js",
+  "main": "dist/emitter/index.js",
   "exports": {
-    ".": "./dist/emitter/emitter.js"
+    ".": "./dist/emitter/index.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -44,7 +44,7 @@
   "peerDependencies": {
     "@azure-tools/typespec-autorest": ">=0.50.0 <1.0.0",
     "@azure-tools/typespec-azure-core": ">=0.50.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.50.0 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.50.2 <1.0.0",
     "@typespec/compiler": ">=0.64.0 <1.0.0",
     "@typespec/http": ">=0.64.0 <1.0.0",
     "@typespec/openapi": ">=0.64.0 <1.0.0",
@@ -63,7 +63,7 @@
     "@azure-tools/typespec-azure-core": "0.50.0",
     "@azure-tools/typespec-azure-resource-manager": "0.50.0",
     "@azure-tools/typespec-azure-rulesets": "0.50.0",
-    "@azure-tools/typespec-client-generator-core": "0.50.0",
+    "@azure-tools/typespec-client-generator-core": "0.50.2",
     "@typespec/spector": "0.1.0-alpha.6",
     "@microsoft/api-extractor": "^7.49.1",
     "@microsoft/api-extractor-model": "^7.30.2",
