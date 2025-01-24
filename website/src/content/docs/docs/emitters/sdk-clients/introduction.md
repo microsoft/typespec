@@ -22,7 +22,7 @@ The client emitters and their common configurations are located in the `package.
 | ---------------------------- | ------------ | ------------------------ | ------------------------ |
 | @azure-tools/typespec-ts     | JavaScript   | `0.37.0`                 | `emitter-output-dir`     |
 | @typespec/http-client-python | Python       | `0.6.6`                  | `emitter-output-dir`     |
-| @typespec/http-client-java   | Java         | `0.1.6`                  | `emitter-output-dir`     |
+| @typespec/http-client-java   | Java         | `0.1.9`                  | `emitter-output-dir`     |
 | @typespec/http-client-csharp | .NET         | `0.1.9-alpha.20250113.2` | `emitter-output-dir`     |
 
 ### Common Configuration Options
@@ -35,7 +35,7 @@ Below is an example of the `package.json` snippet where client emitters are defi
   "dependencies": {
     "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2",
     "@typespec/http-server-javascript": "^0.58.0-alpha.6",
-    "@typespec/http-client-java": "^0.1.6",
+    "@typespec/http-client-java": "^0.1.9",
     "@typespec/http-client-python": "^0.6.6",
     "@azure-tools/typespec-ts": "^0.37.0",
   }
@@ -64,6 +64,8 @@ Example configuration:
 #### Configuration Options for Python
 
 #### Configuration Options for Java
+
+No additional setting needed for Java.
 
 #### Configuration Options for .NET
 
