@@ -8,9 +8,9 @@ using System.Xml;
 
 namespace Microsoft.Generator.CSharp;
 
-internal class CSProjWriter
+public class CSharpProjectWriter
 {
-    public CSProjWriter()
+    public CSharpProjectWriter()
     {
         ProjectReferences = new List<CSProjDependencyPackage>();
         PackageReferences = new List<CSProjDependencyPackage>();
@@ -137,7 +137,7 @@ internal class CSProjWriter
         return builder.ToString();
     }
 
-    private static readonly IEnumerable<PropertyInfo> _properties = typeof(CSProjWriter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+    private static readonly IEnumerable<PropertyInfo> _properties = typeof(CSharpProjectWriter).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
     private void WriteProperties(XmlWriter writer)
     {

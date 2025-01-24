@@ -311,6 +311,11 @@ namespace Microsoft.Generator.CSharp
             return [];
         }
 
+        public virtual NewProjectScaffolding CreateNewProjectScaffolding()
+        {
+            return new NewProjectScaffolding();
+        }
+
         private readonly struct EnumCacheKey
         {
             public InputEnumType EnumType { get; }
