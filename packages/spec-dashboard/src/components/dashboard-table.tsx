@@ -7,7 +7,7 @@ import {
   ScenarioManifest,
 } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useCallback, useMemo, useState } from "react";
-import { CoverageSummary, GeneratorNames } from "../apis.js";
+import { CoverageSummary } from "../apis.js";
 import { Colors } from "../constants.js";
 import { GeneratorInformation } from "./generator-information.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
@@ -57,7 +57,7 @@ function buildTreeRows(
 }
 
 export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverageSummary }) => {
-  const languages: GeneratorNames[] = Object.keys(coverageSummary.generatorReports) as any;
+  const languages: string[] = Object.keys(coverageSummary.generatorReports) as any;
   const tree = useMemo(() => createTree(coverageSummary.manifest), [coverageSummary.manifest]);
 
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -91,7 +91,7 @@ export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverag
 
 export interface DashboardRowProps {
   row: TreeTableRow;
-  languages: GeneratorNames[];
+  languages: string[];
   coverageSummary: CoverageSummary;
 }
 
@@ -125,7 +125,7 @@ const DashboardRow: FunctionComponent<DashboardRowProps> = ({
 
 interface ScenarioGroupStatusBoxProps {
   coverageSummary: CoverageSummary;
-  lang: GeneratorNames;
+  lang: string;
   group: string;
 }
 const ScenarioGroupStatusBox: FunctionComponent<ScenarioGroupStatusBoxProps> = ({
