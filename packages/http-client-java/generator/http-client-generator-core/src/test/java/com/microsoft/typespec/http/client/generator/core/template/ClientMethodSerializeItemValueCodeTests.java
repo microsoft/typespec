@@ -17,9 +17,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 public class ClientMethodSerializeItemValueCodeTests {
 
+    @EnabledForJreRange(min = JRE.JAVA_17)
     @Test
     public void testClientMethodSerializeItemValueCode() {
         // code from resources/ClientMethodSerializeItemValue.java
