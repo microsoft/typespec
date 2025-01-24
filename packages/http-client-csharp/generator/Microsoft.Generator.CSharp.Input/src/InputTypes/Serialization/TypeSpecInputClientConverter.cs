@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Input
             resolver.AddReference(id, client);
 
             string? name = null;
-            string? clientNamespace = null;
+            string? @namespace = null;
             string? summary = null;
             string? doc = null;
             IReadOnlyList<InputOperation>? operations = null;
@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString(nameof(InputClient.Name), ref name)
-                    || reader.TryReadString(nameof(InputClient.ClientNamespace), ref clientNamespace)
+                    || reader.TryReadString(nameof(InputClient.Namespace), ref @namespace)
                     || reader.TryReadString("Summary", ref summary)
                     || reader.TryReadString("Doc", ref doc)
                     || reader.TryReadWithConverter(nameof(InputClient.Operations), options, ref operations)
@@ -61,7 +61,7 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             client.Name = name ?? throw new JsonException("InputClient must have name");
-            client.ClientNamespace = clientNamespace ?? string.Empty;
+            client.Namespace = @namespace ?? string.Empty;
             client.Summary = summary;
             client.Doc = doc;
             client.Operations = operations ?? Array.Empty<InputOperation>();
@@ -69,7 +69,7 @@ namespace Microsoft.Generator.CSharp.Input
             client.Parent = parent;
             client.Decorators = decorators ?? [];
 
-            if (GetLastSegment(client.ClientNamespace) == client.Name)
+            if (GetLastSegment(client.Namespace) == client.Name)
             {
                 // invalid namespace segment found
                 // check if the list is already there

@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Input
             // create an empty model to resolve circular references
             var model = new InputModelType(
                 name: name!,
-                clientNamespace: null!,
+                @namespace: null!,
                 crossLanguageDefinitionId: null!,
                 access: null,
                 deprecation: null,
@@ -52,7 +52,7 @@ namespace Microsoft.Generator.CSharp.Input
                 modelAsStruct: false);
             resolver.AddReference(id, model);
 
-            string? clientNamespace = null;
+            string? @namespace = null;
             string? crossLanguageDefinitionId = null;
             string? accessibility = null;
             string? deprecation = null;
@@ -72,7 +72,7 @@ namespace Microsoft.Generator.CSharp.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
-                    || reader.TryReadString("clientNamespace", ref clientNamespace)
+                    || reader.TryReadString("clientNamespace", ref @namespace)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("access", ref accessibility)
                     || reader.TryReadString("deprecation", ref deprecation)
@@ -95,7 +95,7 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             model.Name = name ?? throw new JsonException("InputModelType must have name");
-            model.ClientNamespace = clientNamespace ?? string.Empty;
+            model.Namespace = @namespace ?? string.Empty;
             model.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             model.Access = accessibility;
             model.Deprecation = deprecation;
