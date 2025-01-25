@@ -63,7 +63,7 @@ export async function getCoverageSummaries(
   return [
     {
       manifest: manifestStandard,
-      generatorReports: generatorReports["standard"],
+      generatorReports: Object.values(generatorReports)[0],
     },
   ];
 }
