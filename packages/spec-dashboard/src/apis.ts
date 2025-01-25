@@ -1,4 +1,6 @@
 import {
+  CoverageReport,
+  GeneratorMetadata,
   ResolvedCoverageReport,
   ScenarioManifest,
   SpecCoverageClient,
@@ -13,9 +15,13 @@ export interface CoverageFromAzureStorageOptions {
   readonly modes?: string[];
 }
 
+export interface GeneratorCoverageSuiteReport extends CoverageReport {
+  generatorMetadata: GeneratorMetadata;
+}
+
 export interface CoverageSummary {
   manifest: ScenarioManifest;
-  generatorReports: Record<string, ResolvedCoverageReport | undefined>;
+  generatorReports: Record<string, GeneratorCoverageSuiteReport | undefined>;
 }
 
 let client: SpecCoverageClient | undefined;
@@ -46,26 +52,48 @@ export async function getCoverageSummaries(
     loadReports(coverageClient, options),
   ]);
 
-  const manifestStandard = manifests[0];
+  const reports = Object.values(generatorReports);
 
-  for (const [mode, report] of Object.entries(generatorReports)) {
-    for (const key in report) {
-      if (!(generatorReports[mode] as any)[key]) {
-        continue;
-      }
-      (generatorReports[mode] as any)[key] = {
-        ...(generatorReports[mode] as any)[key][0],
-        generatorMetadata: generatorReports[mode][key]!["generatorMetadata"],
-      };
+  return manifests.map((manifest, i) => {
+    return {
+      manifest,
+      generatorReports: processReports(reports[0], manifest),
+    };
+  });
+}
+
+function processReports(
+  reports: Record<string, ResolvedCoverageReport | undefined>,
+  manifest: ScenarioManifest,
+) {
+  const generatorReports: Record<string, GeneratorCoverageSuiteReport | undefined> = {};
+  for (const [emitterName, report] of Object.entries(reports)) {
+    if (report) {
+      generatorReports[emitterName] = getSuiteReportForManifest(report, manifest);
     }
   }
+  return generatorReports;
+}
 
-  return [
-    {
-      manifest: manifestStandard,
-      generatorReports: Object.values(generatorReports)[0],
-    },
-  ];
+function getSuiteReportForManifest(
+  report: ResolvedCoverageReport,
+  manifest: ScenarioManifest,
+): GeneratorCoverageSuiteReport {
+  let data;
+  for (const [key, value] of Object.entries(report)) {
+    if (key === "generatorMetadata") {
+      continue;
+    }
+    if (value.scenariosMetadata.packageName === manifest.setName) {
+      data = value;
+    }
+  }
+  return data
+    ? {
+        generatorMetadata: report.generatorMetadata,
+        ...data,
+      }
+    : undefined;
 }
 
 async function loadReports(
@@ -92,6 +120,7 @@ async function loadReports(
             },
           ),
         );
+
         return [mode, Object.fromEntries(items) as any];
       },
     ),
