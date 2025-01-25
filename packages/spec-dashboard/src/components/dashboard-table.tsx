@@ -1,13 +1,9 @@
 import { css } from "@emotion/react";
 import { Popover, PopoverSurface, PopoverTrigger } from "@fluentui/react-components";
 import { CodeBlock16Filled, Print16Filled } from "@fluentui/react-icons";
-import {
-  ResolvedCoverageReport,
-  ScenarioData,
-  ScenarioManifest,
-} from "@typespec/spec-coverage-sdk";
+import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useCallback, useMemo, useState } from "react";
-import { CoverageSummary } from "../apis.js";
+import { CoverageSummary, GeneratorCoverageSuiteReport } from "../apis.js";
 import { Colors } from "../constants.js";
 import { GeneratorInformation } from "./generator-information.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
@@ -140,7 +136,7 @@ const ScenarioGroupStatusBox: FunctionComponent<ScenarioGroupStatusBoxProps> = (
 
 function getCompletedRatio(
   scenarios: ScenarioData[],
-  report: ResolvedCoverageReport,
+  report: GeneratorCoverageSuiteReport,
   scope: string = "",
 ) {
   const filtered = scenarios.filter((x) => x.name.startsWith(scope));
@@ -160,7 +156,7 @@ interface DashboardHeaderRowProps {
 }
 
 const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ coverageSummary }) => {
-  const data: [string, number, ResolvedCoverageReport | undefined][] = Object.entries(
+  const data: [string, number, GeneratorCoverageSuiteReport | undefined][] = Object.entries(
     coverageSummary.generatorReports,
   ).map(([language, report]) => {
     if (report === undefined) {
@@ -202,7 +198,7 @@ const ScenarioStatusCellStyles = css({
 
 export interface GeneratorHeaderCellProps {
   status: number;
-  report: ResolvedCoverageReport | undefined;
+  report: GeneratorCoverageSuiteReport | undefined;
   language: string;
 }
 
