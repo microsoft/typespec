@@ -26,6 +26,7 @@ import type {
   Operation,
   Type,
 } from "../core/types.js";
+import { createStateSymbol } from "../lib/utils.js";
 import { DuplicateTracker, useStateSet } from "../utils/index.js";
 import { isNumericType, isStringType } from "./decorators.js";
 
@@ -339,10 +340,6 @@ function getPagingProperty(
 function validatePagingOperation(program: Program, op: Operation) {
   const [_, diagnostics] = getPagingOperation(program, op);
   program.reportDiagnostics(diagnostics);
-}
-
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
 }
 
 function createMarkerDecorator<T extends DecoratorFunction>(
