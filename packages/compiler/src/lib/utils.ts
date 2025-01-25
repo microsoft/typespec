@@ -17,3 +17,11 @@ export function filterModelPropertiesInPlace(
     }
   }
 }
+
+/**
+ * Creates a unique symbol for storing state on objects
+ * @param name The name/description of the state
+ */
+export function createStateSymbol(name: string): symbol {
+  return Symbol.for(`TypeSpec.${name}`);
+}

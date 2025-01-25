@@ -52,13 +52,9 @@ import {
 import { isMutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
 import { useStateMap } from "../utils/index.js";
 import { isKey } from "./key.js";
-import { filterModelPropertiesInPlace } from "./utils.js";
+import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
 
 // #region Legacy Visibility Utilities
-
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
-}
 
 /**
  * Takes a list of visibilities that possibly include both legacy visibility

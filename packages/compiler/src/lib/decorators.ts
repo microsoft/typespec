@@ -100,6 +100,7 @@ import {
 } from "../core/types.js";
 import { useStateMap, useStateSet } from "../utils/index.js";
 import { setKey } from "./key.js";
+import { createStateSymbol } from "./utils.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
@@ -119,10 +120,6 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
   return formatString.replace(/{(\w+)}/g, (_, propName) => {
     return (sourceObject as any)[propName];
   });
-}
-
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
 }
 
 const [getSummary, setSummary] = useStateMap<Type, string>(createStateSymbol("summary"));

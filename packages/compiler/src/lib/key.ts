@@ -1,10 +1,7 @@
 import { Program } from "../core/index.js";
 import { ModelProperty, Type } from "../core/types.js";
 import { useStateMap } from "../utils/index.js";
-
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
-}
+import { createStateSymbol } from "./utils.js";
 
 const [getKey, setKey] = useStateMap<Type, string>(createStateSymbol("key"));
 
