@@ -71,6 +71,8 @@ packageDetails:
 
 ### Python Client Emitter
 
+No additional setting needed for Python.
+
 ### Java Client Emitter
 
 #### Required Dependencies
