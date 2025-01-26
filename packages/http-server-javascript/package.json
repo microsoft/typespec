@@ -48,13 +48,13 @@
     "prettier": "~3.4.2"
   },
   "devDependencies": {
-    "@types/node": "~22.10.7",
+    "@types/node": "~22.10.10",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
-    "@vitest/coverage-v8": "^3.0.3",
+    "@vitest/coverage-v8": "^3.0.4",
     "@vitest/ui": "^3.0.3",
     "tsx": "^4.19.2",
     "typescript": "~5.7.3",
-    "vitest": "^3.0.3"
+    "vitest": "^3.0.4"
   }
 }

@@ -60,6 +60,8 @@ configuration:
                 - hasLabel:
                     label: emitter:service:java
                 - hasLabel:
+                    label: spector
+                - hasLabel:
                     label: eng
                 - hasLabel:
                     label: ui:playground
@@ -117,6 +119,8 @@ configuration:
                   label: emitter:service:js
               - labelAdded:
                   label: emitter:service:java
+              - labelAdded:
+                  label: spector
               - labelAdded:
                   label: eng
               - labelAdded:
@@ -177,6 +181,8 @@ configuration:
               - labelRemoved:
                   label: emitter:service:java
               - labelRemoved:
+                  label: spector
+              - labelRemoved:
                   label: eng
               - labelRemoved:
                   label: ui:playground
@@ -226,6 +232,8 @@ configuration:
                     label: emitter:service:js
                 - hasLabel:
                     label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:

@@ -80,8 +80,7 @@ namespace Microsoft.Generator.CSharp
             // Write project scaffolding files
             if (CodeModelPlugin.Instance.IsNewProject)
             {
-                var scaffolding = new NewProjectScaffolding();
-                await scaffolding.Execute();
+                await CodeModelPlugin.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
         }
 
