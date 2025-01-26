@@ -1,10 +1,17 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.9
+
+### Bug Fixes
+
+- Fix output folder of models when output folder is different with namespace in configuration
+
 ## 0.6.8
 
 ### Bug Fixes
 
 - Fix for scenario that output folder is different with namespace
+- Improve XML serialization information in generated models
 
 ## 0.6.7
 

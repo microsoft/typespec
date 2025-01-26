@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-csharp",
-  "version": "0.58.0-alpha.7",
+  "version": "0.58.0-alpha.8",
   "author": "Microsoft Corporation",
   "description": "TypeSpec service code generator for c-sharp",
   "homepage": "https://typespec.io",
@@ -19,15 +19,18 @@
     "c-sharp"
   ],
   "type": "module",
-  "main": "dist/src/index.js",
+  "bin": {
+    "hscs": "./cmd/hscs.js"
+  },
+  "main": "dist/src/lib/index.js",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "default": "./dist/src/index.js"
+      "types": "./dist/src/lib/index.d.ts",
+      "default": "./dist/src/lib/index.js"
     },
     "./testing": {
-      "types": "./dist/src/testing/index.d.ts",
-      "default": "./dist/src/testing/index.js"
+      "types": "./dist/src/lib/testing/index.d.ts",
+      "default": "./dist/src/lib/testing/index.js"
     }
   },
   "engines": {
@@ -46,7 +49,7 @@
     "regen-docs": "echo No doc generation for alpha version"
   },
   "files": [
-    "lib/*.tsp",
+    "lib/**/*.tsp",
     "dist/**",
     "!dist/test/**"
   ],
@@ -57,21 +60,27 @@
     "@typespec/versioning": "workspace:~"
   },
   "dependencies": {
-    "change-case": "~5.4.4"
+    "change-case": "~5.4.4",
+    "cross-spawn": "^7.0.6",
+    "picocolors": "~1.1.1",
+    "yargs": "~17.7.2"
   },
   "devDependencies": {
-    "@types/node": "~22.10.7",
+    "@types/node": "~22.10.10",
+    "@types/yargs": "~17.0.33",
+    "@types/cross-spawn": "~6.0.6",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^3.0.3",
+    "@typespec/versioning": "workspace:~",
+    "@vitest/coverage-v8": "^3.0.4",
     "@vitest/ui": "^3.0.3",
     "c8": "^10.1.3",
     "rimraf": "~6.0.1",
     "typescript": "~5.7.3",
-    "vitest": "^3.0.3"
+    "vitest": "^3.0.4"
   }
 }
