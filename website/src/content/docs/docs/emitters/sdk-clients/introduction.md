@@ -34,16 +34,15 @@ Below is an example of the `package.json` snippet where client emitters are defi
 ```json
   "dependencies": {
     "@typespec/http-client-csharp": "^0.1.9-alpha.20250113.2",
-    "@typespec/http-server-javascript": "^0.58.0-alpha.6",
     "@typespec/http-client-java": "^0.1.9",
     "@typespec/http-client-python": "^0.6.6",
-    "@azure-tools/typespec-ts": "^0.37.0",
+    "@azure-tools/typespec-ts": "^0.38.1",
   }
 ```
 
 #### Note: Check for the Latest Version
 
-To ensure you are using the latest version of the packages, visit npmjs.com and search for the relevant packages.
+To ensure you are using the latest version of the packages, visit [npmjs](https://www.npmjs.com/) and search for the relevant packages.
 
 ## Language-Specific Settings
 
@@ -124,7 +123,7 @@ Run the following command:
 tsp install
 ```
 
-2. Run the emitter to compile your TypeScript code into the desired language. Use the following command to trigger the emitter and compile your project:
+1. Run the emitter to compile your TypeScript code into the desired language. Use the following command to trigger the emitter and compile your project:
 
 ```bash
 tsp compile .
