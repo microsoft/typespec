@@ -73,6 +73,17 @@ packageDetails:
 
 ### Java Client Emitter
 
+#### Required Dependencies
+
+Java (Java Development Kit) and Maven (Apache Maven) is required to be installed, before running Java client emitter.
+
+The required version and the URL for downloading is specified below:
+
+- [Java](https://docs.microsoft.com/java/openjdk/download) 17 or above. (Verify by running `java --version`)
+- [Maven](https://maven.apache.org/download.cgi). (Verify by running `mvn --version`)
+
+#### Configuration Options for Java
+
 No additional setting needed for Java.
 
 ### .NET Client Emitter
