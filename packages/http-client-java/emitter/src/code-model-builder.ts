@@ -1287,12 +1287,7 @@ export class CodeModelBuilder {
         }
       }
 
-      // TODO: use param.onClient after TCGC fix
-      const parameterOnClient =
-        !isApiVersion(this.sdkContext, param) &&
-        param.correspondingMethodParams &&
-        param.correspondingMethodParams.length > 0 &&
-        param.correspondingMethodParams[0].onClient;
+      const parameterOnClient = param.onClient;
 
       const nullable = param.type.kind === "nullable";
       const parameter = new Parameter(param.name, param.doc ?? "", schema, {
