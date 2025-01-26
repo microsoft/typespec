@@ -69,13 +69,13 @@ packageDetails:
   version: 1.0.0
 ```
 
-#### Configuration Options for Python
+### Python Client Emitter
 
-#### Configuration Options for Java
+### Java Client Emitter
 
 No additional setting needed for Java.
 
-#### Configuration Options for .NET
+### .NET Client Emitter
 
 ## Running Language-Specific Emitters in CLI
 
@@ -88,6 +88,7 @@ emit:
   - "@typespec/http-client-csharp"
   - "@typespec/http-client-java"
   - "@typespec/http-client-python"
+  - "@azure-tools/typespec-ts"
 options:
   "@typespec/http-client-csharp":
     emitter-output-dir: "{project-root}/../clients/dotnet"
@@ -110,7 +111,7 @@ Run the following command:
 tsp install
 ```
 
-1. Run the emitter to compile your TypeScript code into the desired language. Use the following command to trigger the emitter and compile your project:
+2. Run the emitter to compile your TypeScript code into the desired language. Use the following command to trigger the emitter and compile your project:
 
 ```bash
 tsp compile .
