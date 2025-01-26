@@ -137,13 +137,13 @@ import {
   getNonNullSdkType,
   getUnionDescription,
   getUsage,
-  isStable,
   modelIs,
   pushDistinct,
 } from "./type-utils.js";
 import {
   DiagnosticError,
   getNamespace,
+  isStableApiVersion,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
@@ -763,7 +763,10 @@ export class CodeModelBuilder {
     }
     return versions
       .slice(0, versions.indexOf(pinnedApiVersion) + 1)
-      .filter((version) => !excludePreview || !isStable(pinnedApiVersion) || isStable(version));
+      .filter(
+        (version) =>
+          !excludePreview || !isStableApiVersion(pinnedApiVersion) || isStableApiVersion(version),
+      );
   }
 
   private needToSkipProcessingOperation(
