@@ -12,7 +12,7 @@ parameters:
     type: string
 
 jobs:
-  - job: single_exe_${{ replace(arameters.name, '-', '_') }}
+  - job: single_exe_${{ replace(parameters.name, '-', '_') }}
     displayName: Build single exe ${{ parameters.name }}
     pool:
       name: ${{ parameters.pool }}
