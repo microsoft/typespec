@@ -12,8 +12,8 @@ jobs:
   - job: single_exe_4${{ parameters.name }}
     displayName: Build single exe ${{ parameters.name }}
     pool:
-      name: ${{ parameters.poolName }}
-      image: ${{ parameters.poolName }}
+      name: ${{ parameters.pool }}
+      image: ${{ parameters.vmImage }}
       os: ${{ parameters.os }}
 
     steps:
