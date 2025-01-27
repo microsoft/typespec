@@ -8,12 +8,15 @@ import {
   TodoPage,
 } from "../../models/models.js";
 import {
+  arraySerializer,
   createFormPayloadToTransport,
   dateDeserializer,
+  todoAttachmentToTransport,
   todoItemPatchToTransport,
+  todoItemToTransport,
   todoPageToApplication,
 } from "../../models/serializers.js";
-import { TodoItemsClientContext } from "./clientContext.js";
+import { TodoItemsClientContext } from "./todoItemsClientContext.js";
 
 export async function list(
   client: TodoItemsClientContext,
@@ -61,6 +64,12 @@ export async function createJson(
   const httpRequestOptions = {
     headers: {
       "content-type": "application/json",
+    },
+    body: {
+      item: todoItemToTransport(item),
+      attachments: options?.attachments
+        ? arraySerializer(options?.attachments, todoAttachmentToTransport)
+        : options?.attachments,
     },
   };
 

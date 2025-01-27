@@ -3,22 +3,22 @@ import {
   TodoClientContext,
   TodoClientOptions,
   createTodoClientContext,
-} from "./api/clientContext.js";
+} from "./api/todoClientContext.js";
 import {
   AttachmentsClientContext,
   AttachmentsClientOptions,
   createAttachmentsClientContext,
-} from "./api/todoItemsClient/attachmentsClient/clientContext.js";
+} from "./api/todoItemsClient/attachmentsClient/attachmentsClientContext.js";
 import {
   createFileAttachment,
   createJsonAttachment,
   list as list_2,
-} from "./api/todoItemsClient/attachmentsClient/operations.js";
+} from "./api/todoItemsClient/attachmentsClient/attachmentsClientOperations.js";
 import {
   TodoItemsClientContext,
   TodoItemsClientOptions,
   createTodoItemsClientContext,
-} from "./api/todoItemsClient/clientContext.js";
+} from "./api/todoItemsClient/todoItemsClientContext.js";
 import {
   createForm,
   createJson,
@@ -26,13 +26,13 @@ import {
   get,
   list,
   update,
-} from "./api/todoItemsClient/operations.js";
+} from "./api/todoItemsClient/todoItemsClientOperations.js";
 import {
   UsersClientContext,
   UsersClientOptions,
   createUsersClientContext,
-} from "./api/usersClient/clientContext.js";
-import { create } from "./api/usersClient/operations.js";
+} from "./api/usersClient/usersClientContext.js";
+import { create } from "./api/usersClient/usersClientOperations.js";
 import {
   FileAttachmentMultipartRequest,
   ToDoItemMultipartRequest,

@@ -49,7 +49,7 @@ interface TransformToTransportDeclarationProps {
 
 function TransformToTransportDeclaration(props: TransformToTransportDeclarationProps) {
   const requestPayload = props.operation.httpOperation.parameters.body;
-  if (!requestPayload) {
+  if (!requestPayload || !requestPayload.property) {
     return;
   }
 

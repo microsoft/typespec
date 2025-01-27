@@ -5,7 +5,7 @@ import {
   pageToApplication,
   todoAttachmentToTransport,
 } from "../../../models/serializers.js";
-import { AttachmentsClientContext } from "./clientContext.js";
+import { AttachmentsClientContext } from "./attachmentsClientContext.js";
 
 export async function list(client: AttachmentsClientContext, itemId: number): Promise<Page> {
   const path = parse("/items/{itemId}/attachments").expand({

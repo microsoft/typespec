@@ -71,11 +71,20 @@ export function createFormPayloadToTransport(payload: ToDoItemMultipartRequest) 
         _dummy: payload.item._dummy,
       },
     },
-    createFilePartDescriptor("attachments", payload),
+    ...(payload.attachments ?? []).map((x: any) => createFilePartDescriptor("attachments", x)),
   ];
+}
+export function updatePayloadToTransport(payload: TodoItemPatch) {
+  return updatePayloadToTransport(payload);
+}
+export function createJsonAttachmentPayloadToTransport(payload: TodoAttachment) {
+  return createJsonAttachmentPayloadToTransport(payload);
 }
 export function createFileAttachmentPayloadToTransport(payload: FileAttachmentMultipartRequest) {
   return [createFilePartDescriptor("contents", payload)];
+}
+export function createPayloadToTransport(payload: User) {
+  return createPayloadToTransport(payload);
 }
 export function userToTransport(item: User): any {
   return {
@@ -97,7 +106,7 @@ export function userToApplication(item: any): User {
 }
 export function pageToTransport(item: Page): any {
   return {
-    items: arraySerializer(item.items, todoAttachmentToTransport),
+    items: arraySerializer(item.items, createJsonAttachmentPayloadToTransport),
   };
 }
 export function pageToApplication(item: any): Page {

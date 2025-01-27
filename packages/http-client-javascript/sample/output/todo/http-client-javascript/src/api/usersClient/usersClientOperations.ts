@@ -1,7 +1,7 @@
 import { parse } from "uri-template";
 import { User } from "../../models/models.js";
 import { userToTransport } from "../../models/serializers.js";
-import { UsersClientContext } from "./clientContext.js";
+import { UsersClientContext } from "./usersClientContext.js";
 
 export async function create(
   client: UsersClientContext,
