@@ -50,8 +50,9 @@ import {
   normalizeVisibilityToLegacyLifecycleString,
 } from "../core/visibility/lifecycle.js";
 import { isMutableType, mutateSubgraph, Mutator, MutatorFlow } from "../experimental/mutators.js";
+import { useStateMap } from "../utils/index.js";
 import { isKey } from "./key.js";
-import { filterModelPropertiesInPlace, useStateMap } from "./utils.js";
+import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
 
 // #region Legacy Visibility Utilities
 
@@ -136,7 +137,7 @@ interface OperationVisibilityConfig {
 const [getOperationVisibilityConfigRaw, setOperationVisibilityConfigRaw] = useStateMap<
   Operation,
   OperationVisibilityConfig
->("operationVisibilityConfig");
+>(createStateSymbol("operationVisibilityConfig"));
 
 function getOperationVisibilityConfig(
   program: Program,
