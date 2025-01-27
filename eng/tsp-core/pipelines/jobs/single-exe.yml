@@ -8,7 +8,6 @@ parameters:
   - name: os
     type: string
 
-
 jobs:
   - job: single_exe_4${{ parameters.name }}
     displayName: Build single exe ${{ parameters.name }}
@@ -18,17 +17,17 @@ jobs:
       os: ${{ parameters.os }}
 
     steps:
-          - template: /eng/tsp-core/pipelines/templates/install.yml
-            parameters:
-              nodeVersion: 22.x
+      - template: /eng/tsp-core/pipelines/templates/install.yml
+        parameters:
+          nodeVersion: 22.x
 
-          - script: pnpm build
-            workingDirectory: packages/standalone
-            displayName: Build
+      - script: pnpm build
+        workingDirectory: packages/standalone
+        displayName: Build
 
-          templateContext:
-              outputs:
-                - output: pipelineArtifact
-                  path: $(Build.ArtifactStagingDirectory)/packages/standalone/dist
-                  artifact: standalone-${{ parameters.name }}
-                  displayName: Publish standalone dist as pipeline artifacts
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: $(Build.ArtifactStagingDirectory)/packages/standalone/dist
+          artifact: standalone-${{ parameters.name }}
+          displayName: Publish standalone dist as pipeline artifacts
