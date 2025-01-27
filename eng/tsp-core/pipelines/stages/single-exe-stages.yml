@@ -40,7 +40,7 @@ stages:
         parameters:
           name: windows-x64
           pool: $(WINDOWSPOOL)
-          vmImage: $(MACVMIMAGE)
+          vmImage: $(WINDOWSVMIMAGE)
           os: $(WINDOWSOS)
 
       - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
