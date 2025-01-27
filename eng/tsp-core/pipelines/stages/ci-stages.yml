@@ -82,3 +82,4 @@ stages:
         steps:
           - script: docker build -f ./docker/Dockerfile .
             displayName: Docker build
+  - template: /eng/tsp-core/pipelines/stages/single-exe-stages.yml

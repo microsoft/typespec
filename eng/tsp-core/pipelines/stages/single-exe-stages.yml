@@ -1,0 +1,30 @@
+stages:
+  - stage: Build_SingleExe
+    displayName: Core - Build Single Exe
+    dependsOn: InitStage
+    condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
+    variables:
+      - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
+    jobs:
+      - job: linux
+        displayName: Linux
+        pool:
+          name: $(LINUXPOOL)
+          image: $(LINUXVMIMAGE)
+          os: linux
+
+        steps:
+          - template: /eng/tsp-core/pipelines/templates/install.yml
+            parameters:
+              nodeVersion: 22.x
+
+          - script: pnpm build:all
+            workingDirectory: packages/standalone
+            displayName: Build
+
+          templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/packages/standalone/dist
+                  artifact: standalone-dist
+                  displayName: Publish standalone dist as pipeline artifacts

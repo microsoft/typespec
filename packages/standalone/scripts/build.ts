@@ -4,7 +4,6 @@ import { copyFile, mkdir } from "node:fs/promises";
 import ora from "ora";
 import { dirname, join } from "path";
 import { writeSeaConfig } from "./sea-config.js";
-import { getNodeExecutable } from "./utils.js";
 
 // cspell:ignore postject
 
@@ -13,10 +12,12 @@ const tempDir = join(projectRoot, "temp");
 const seaConfigPath = join(tempDir, "sea-config.json");
 const blobPath = join(tempDir, "sea-prep.blob");
 const exePath = join(projectRoot, "dist", "standalone-tsp");
-await main();
 
-async function main() {
+await buildCurrent();
+
+async function buildCurrent() {
   await bundle();
+  console.log("");
   await createSea();
 }
 
@@ -39,15 +40,35 @@ async function createSea() {
 
   await action(`Copying executable`, async () => {
     // get the node executable
-    const nodeExe = await getNodeExecutable({ useSystemNode: true });
+    const nodeExe = process.execPath;
     // copy the executable as the output executable
     await copyFile(nodeExe, exePath);
+  });
+
+  await action(`Remove signature`, async () => {
+    if (process.platform === "darwin") {
+      execa`codesign --remove-signature ${exePath}`;
+    } else if (process.platform === "win32") {
+      execa`signtool remove /s ${exePath}`;
+    }
   });
   await action(`Creating blob ${seaConfigPath}`, async () => {
     await execa`node --experimental-sea-config ${seaConfigPath}`;
   });
   await action(`Injecting blob into ${exePath}`, async () => {
-    await execa`npx postject ${exePath} NODE_SEA_BLOB ${blobPath}  --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2`;
+    if (process.platform === "darwin") {
+      await execa`npx postject ${exePath} NODE_SEA_BLOB ${blobPath}  --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2 --macho-segment-name NODE_SEA`;
+    } else {
+      await execa`npx postject ${exePath} NODE_SEA_BLOB ${blobPath}  --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2`;
+    }
+  });
+
+  await action(`Sign executable ${exePath}`, async () => {
+    if (process.platform === "darwin") {
+      execa`codesign --sign - ${exePath}`;
+    } else if (process.platform === "win32") {
+      execa`signtool sign /fd SHA256 ${exePath}`;
+    }
   });
 }
 
@@ -61,7 +82,6 @@ async function createSeaConfig() {
     });
   });
 }
-
 async function action(message: string, callback: () => Promise<any>) {
   const spinner = ora(message).start();
   try {
