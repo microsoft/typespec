@@ -9,7 +9,7 @@ import { HttpClientJavascriptEmitterTestLibrary } from "../src/testing/index.js"
 const tsExtractorConfig = createTypeScriptExtractorConfig();
 const snipperExtractor = createSnipperExtractor(tsExtractorConfig);
 
-executeScenarios(
+await executeScenarios(
   HttpClientJavascriptEmitterTestLibrary,
   tsExtractorConfig,
   "./test/scenarios",

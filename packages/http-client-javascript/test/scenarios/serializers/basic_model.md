@@ -22,7 +22,7 @@ export interface Foo {
 ```
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     name: item.name,
     age: item.age,
@@ -31,7 +31,7 @@ export function fooToTransport(item: Foo) {
 ```
 
 ```ts src/models/serializers.ts function fooToApplication
-export function fooToApplication(item: any) {
+export function fooToApplication(item: any): Foo {
   return {
     name: item.name,
     age: item.age,
@@ -61,7 +61,7 @@ op foo(): Foo | Bar;
 When a property of model `Foo` has a type of another model `Bar`, `Foo` serializer/deserializer should call the serializer/deserializer generated for `Bar`
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     name: item.name,
     age: item.age,
@@ -71,7 +71,7 @@ export function fooToTransport(item: Foo) {
 ```
 
 ```ts src/models/serializers.ts function barToTransport
-export function barToTransport(item: Bar) {
+export function barToTransport(item: Bar): any {
   return {
     address: item.address,
   };

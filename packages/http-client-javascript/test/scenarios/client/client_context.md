@@ -14,14 +14,12 @@ op foo(): void;
 
 Should generate a factory function named after the namespace `createDemoServiceContext`. Since there is no url defined the factory takes an endpoint parameter
 
-```ts src/api/clientContext.ts function createDemoServiceContext
-export function createDemoServiceContext(
+```ts src/api/clientContext.ts function createDemoServiceClientContext
+export function createDemoServiceClientContext(
   endpoint: string,
-  options?: DemoServiceOptions,
-): DemoServiceContext {
-  return {
-    endpoint,
-  };
+  options?: DemoServiceClientOptions,
+): DemoServiceClientContext {
+  return getClient(endpoint, { allowInsecureConnection: true, ...options });
 }
 ```
 
@@ -43,11 +41,11 @@ Should generate a factory function named after the namespace `createDemoServiceC
 
 Endpoint should be overridable with options, if no options.endpoint provided it fallsback to the default defined in the `@server` decorator
 
-```ts src/api/clientContext.ts function createDemoServiceContext
-export function createDemoServiceContext(options?: DemoServiceOptions): DemoServiceContext {
-  const endpoint = options?.endpoint ?? "https://example.org/api";
-  return {
-    endpoint,
-  };
+```ts src/api/clientContext.ts function createDemoServiceClientContext
+export function createDemoServiceClientContext(
+  endpoint: string,
+  options?: DemoServiceClientOptions,
+): DemoServiceClientContext {
+  return getClient(endpoint, { allowInsecureConnection: true, ...options });
 }
 ```

@@ -36,10 +36,8 @@ export interface FileWithHttpPartSpecificContentTypeRequest {
 }
 ```
 
-```ts src/models/serializers.ts function fileWithHttpPartSpecificContentTypeRequestToTransport
-export function fileWithHttpPartSpecificContentTypeRequestToTransport(
-  item: FileWithHttpPartSpecificContentTypeRequest,
-): any {
-  return [createFilePartDescriptor("profileImage", item.profileImage)];
+```ts src/models/serializers.ts function createPayloadToTransport
+export function createPayloadToTransport(payload: FileWithHttpPartSpecificContentTypeRequest) {
+  return [createFilePartDescriptor("profileImage", payload, "image/jpg")];
 }
 ```

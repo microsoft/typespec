@@ -4,7 +4,7 @@ import { StringLiteral } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { ClientOperation } from "@typespec/http-client-library";
 import { HttpRequestParametersExpression } from "./http-request-parameters-expression.jsx";
-import { getTransformDeclarationRef } from "./transforms/operation-transform.jsx";
+import { OperationTransformExpression } from "./transforms/operation-transform-expression.jsx";
 
 export interface HttpRequestOptionsProps {
   operation: ClientOperation;
@@ -71,15 +71,14 @@ export interface HttpRequestOptionsBodyProps {
 
 HttpRequestOptions.Body = function HttpRequestOptionsBody(props: HttpRequestOptionsBodyProps) {
   const httpOperation = props.operation.httpOperation;
-  const body = httpOperation.parameters.body?.property;
+  const body = httpOperation.parameters.body;
 
   if (!body) {
     return <></>;
   }
-
-  const bodyTransform =
-    <>
-      <ts.FunctionCallExpression refkey={getTransformDeclarationRef(props.operation)} args={[body.name]}/>
+  // The transformer to apply to the body.
+  const bodyTransform = <>
+      <OperationTransformExpression operation={props.operation}/>
   </>;
 
   return <>

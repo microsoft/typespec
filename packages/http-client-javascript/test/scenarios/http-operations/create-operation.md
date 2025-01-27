@@ -29,7 +29,7 @@ It should throw an exception if an unexpected status code is received
 
 ```ts src/api/operations.ts function foo
 export async function foo(
-  client: TestContext,
+  client: TestClientContext,
   id: string,
   totalWeight: number,
   color: "red" | "blue",
@@ -39,23 +39,20 @@ export async function foo(
 ): Promise<void> {
   const path = parse("/").expand({});
 
-  const url = `${client.endpoint.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
-
   const httpRequestOptions = {
-    method: "post",
     headers: {
-      "Content-Type": "application/json",
+      "content-type": "application/json",
     },
-    body: JSON.stringify({
+    body: {
       id: id,
       total_weight: totalWeight,
       color: color,
       is_required: options?.isRequired,
-    }),
+    },
   };
 
-  const response = await httpFetch(url, httpRequestOptions);
-  if (response.status === 204 && !response.body) {
+  const response = await client.path(path).post(httpRequestOptions);
+  if (+response.status === 204 && !response.body) {
     return;
   }
 

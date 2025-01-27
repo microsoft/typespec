@@ -14,7 +14,7 @@ export interface CreateClientLibraryOptions {
 }
 
 export function createClientLibrary(options: CreateClientLibraryOptions = {}): ClientLibrary {
-  const rootNs = $.clientLibrary.listNamespaces()[0]; // TODO: Handle multiple namespaces
+  const rootNs = $.clientLibrary.listNamespaces()[0] ?? $.program.getGlobalNamespaceType(); // TODO: Handle multiple namespaces
   const topLevelClient = $.client.getClient(rootNs); // TODO: Handle multiple clients
   const dataTypes = new Set<Model | Union | Enum>();
   const client = visitClient(topLevelClient, dataTypes, {
@@ -59,11 +59,16 @@ function visitClient(
     .map((o) => prepareOperation(currentClient, o, { mutators: options?.operationMutators }));
 
   // Collect data types
-  currentClient.operations.forEach((o) => {
-    const returnType = $.httpOperation.getReturnType(o.httpOperation.operation);
-    collectDataTypes(returnType, dataTypes);
-    collectDataTypes(o.operation, dataTypes);
-  });
+  for (const clientOperation of currentClient.operations) {
+    collectDataTypes(clientOperation.operation, dataTypes);
+    const responses = $.httpOperation.getResponses(clientOperation.httpOperation.operation);
+    for (const response of responses) {
+      const body = response.responseContent.body;
+      if (body) {
+        collectDataTypes(body.type, dataTypes);
+      }
+    }
+  }
 
   return currentClient;
 }

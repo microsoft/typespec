@@ -579,9 +579,15 @@ importers:
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.25.8)(@types/babel__core@7.20.5)(rollup@4.24.0)
+      '@types/minimist':
+        specifier: ^1.2.5
+        version: 1.2.5
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
       prettier:
         specifier: ^3.0.3
         version: 3.3.3
@@ -895,6 +901,12 @@ importers:
       '@rollup/plugin-babel':
         specifier: ^6.0.4
         version: 6.0.4(@babel/core@7.25.8)(@types/babel__core@7.20.5)(rollup@4.24.0)
+      '@types/yargs':
+        specifier: ^17.0.0
+        version: 17.0.33
+      '@typespec/http-specs':
+        specifier: workspace:~
+        version: link:../http-specs
       '@typespec/ts-http-runtime':
         specifier: 0.1.0
         version: 0.1.0
@@ -6292,6 +6304,9 @@ packages:
 
   '@types/minimatch@5.1.2':
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
+
+  '@types/minimist@1.2.5':
+    resolution: {integrity: sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag==}
 
   '@types/mocha@10.0.9':
     resolution: {integrity: sha512-sicdRoWtYevwxjOHNMPTl3vSfJM6oyW8o1wXeI7uww6b6xHg8eBznQDNSGBCDJmsE8UMxP05JgZRtsKbTqt//Q==}
@@ -18678,6 +18693,8 @@ snapshots:
   '@types/mime@3.0.4': {}
 
   '@types/minimatch@5.1.2': {}
+
+  '@types/minimist@1.2.5': {}
 
   '@types/mocha@10.0.9': {}
 

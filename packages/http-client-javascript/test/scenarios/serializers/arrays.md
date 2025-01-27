@@ -15,12 +15,12 @@ Should generate a model `Foo` and also a `fooToTransport` and `fooToApplication`
 
 ```ts src/models/models.ts interface Foo
 export interface Foo {
-  myValues: number[];
+  myValues: Array<number>;
 }
 ```
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     my_values: arraySerializer(item.myValues),
   };
@@ -28,7 +28,7 @@ export function fooToTransport(item: Foo) {
 ```
 
 ```ts src/models/serializers.ts function fooToApplication
-export function fooToApplication(item: any) {
+export function fooToApplication(item: any): Foo {
   return {
     myValues: arraySerializer(item.my_values),
   };
@@ -56,7 +56,7 @@ Should generate models `Foo` and `Bar` and also a `fooToTransport`, `fooToApplic
 
 ```ts src/models/models.ts interface Foo
 export interface Foo {
-  myValues: Bar[];
+  myValues: Array<Bar>;
 }
 ```
 
@@ -67,7 +67,7 @@ export interface Bar {
 ```
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     my_values: arraySerializer(item.myValues, barToTransport),
   };
@@ -75,7 +75,7 @@ export function fooToTransport(item: Foo) {
 ```
 
 ```ts src/models/serializers.ts function fooToApplication
-export function fooToApplication(item: any) {
+export function fooToApplication(item: any): Foo {
   return {
     myValues: arraySerializer(item.my_values, barToApplication),
   };

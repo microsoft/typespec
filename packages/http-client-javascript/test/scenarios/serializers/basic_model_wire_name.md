@@ -24,7 +24,7 @@ export interface Foo {
 ```
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     element_name: item.elementName,
     age: item.age,
@@ -33,7 +33,7 @@ export function fooToTransport(item: Foo) {
 ```
 
 ```ts src/models/serializers.ts function fooToApplication
-export function fooToApplication(item: any) {
+export function fooToApplication(item: any): Foo {
   return {
     elementName: item.element_name,
     age: item.age,

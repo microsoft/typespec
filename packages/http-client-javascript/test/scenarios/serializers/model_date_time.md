@@ -24,7 +24,7 @@ export interface Foo {
 ```
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     created_on: dateRfc3339Serializer(item.createdOn),
   };
@@ -32,7 +32,7 @@ export function fooToTransport(item: Foo) {
 ```
 
 ```ts src/models/serializers.ts function fooToApplication
-export function fooToApplication(item: any) {
+export function fooToApplication(item: any): Foo {
   return {
     createdOn: dateDeserializer(item.created_on),
   };
@@ -57,7 +57,7 @@ Should generate a type for type with name `Foo` in the `src/models/models.ts` fi
 The generated model should have a property `createdOn` of type `Date`, the generated serializer `fooToTransport` should convert a Date into a string using `toUTCString()`
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     created_on: dateRfc3339Serializer(item.createdOn),
   };

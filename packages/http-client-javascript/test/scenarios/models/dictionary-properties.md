@@ -1,8 +1,10 @@
-# Should generate a model with a porperty wich is a dictionary
+# Should generate a model with a property which is a dictionary
 
 ## TypeSpec
 
 ```tsp
+namespace Test;
+
 model Widget {
   prop: Record<int32>;
 }
@@ -24,6 +26,7 @@ export interface Widget {
 ## TypeSpec
 
 ```tsp
+namespace Test;
 model Widget {
   prop: Record<int32[]>;
 }
@@ -36,6 +39,6 @@ Should generate a model with name `Widget` that contains dictionary properties w
 
 ```ts src/models/models.ts interface Widget
 export interface Widget {
-  prop: Record<string, number[]>;
+  prop: Record<string, Array<number>>;
 }
 ```

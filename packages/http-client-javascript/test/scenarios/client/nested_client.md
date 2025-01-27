@@ -43,49 +43,59 @@ interface Widgets {
 
 It generates a class called TestClient with a single operation
 
-```ts src/client.ts
+```ts src/demoServiceClient.ts
 import {
-  DemoServiceContext,
-  DemoServiceOptions,
-  createDemoServiceContext,
+  DemoServiceClientContext,
+  DemoServiceClientOptions,
+  createDemoServiceClientContext,
 } from "./api/clientContext.js";
-import { list, read, create, update, delete_, analyze } from "./api/widgets/operations.js";
+import {
+  list,
+  read,
+  create,
+  update,
+  delete_,
+  analyze,
+} from "./api/widgetsClient/operations.js";
+import {
+  WidgetsClientContext,
+  WidgetsClientOptions,
+  createWidgetsClientContext,
+} from "./api/widgetsClient/clientContext.js";
 
 export class DemoServiceClient {
-  widgets: WidgetsClient;
-  #context: DemoServiceContext;
-  constructor(endpoint: string, options?: DemoServiceOptions) {
-    this.#context = createDemoServiceContext(endpoint, options);
-    this.widgets = new WidgetsClient(this.#context);
+  #context: DemoServiceClientContext;
+  widgetsClient: WidgetsClient;
+  constructor(endpoint: string, options?: DemoServiceClientOptions) {
+    this.#context = createDemoServiceClientContext(endpoint, options);
+    this.widgetsClient = new WidgetsClient(endpoint, options);
   }
 }
+
 export class WidgetsClient {
-  #context: DemoServiceContext;
-  constructor(context: DemoServiceContext) {
-    this.#context = context;
+  #context: WidgetsClientContext;
+
+  constructor(endpoint: string, options?: WidgetsClientOptions) {
+    this.#context = createWidgetsClientContext(endpoint, options);
   }
-  list() {
+  async list() {
     return list(this.#context);
   }
-
-  read(id: string) {
+  async read(id: string) {
     return read(this.#context, id);
   }
-
-  create(weight: number, color: "red" | "blue") {
+  async create(weight: number, color: "red" | "blue") {
     return create(this.#context, weight, color);
   }
-
-  update(id: string, weight: number, color: "red" | "blue") {
+  async update(id: string, weight: number, color: "red" | "blue") {
     return update(this.#context, id, weight, color);
   }
-
-  delete(id: string) {
+  async delete_(id: string) {
     return delete_(this.#context, id);
   }
-
-  analyze(id: string) {
+  async analyze(id: string) {
     return analyze(this.#context, id);
   }
 }
+
 ```

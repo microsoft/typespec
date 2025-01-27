@@ -1,4 +1,4 @@
-# only:Basic file part
+# Basic file part
 
 ```tsp
 namespace Test;
@@ -18,12 +18,16 @@ This basic case uses TypeSpec's `Http.File`, which specifies an optional `filena
 export interface RequestBody {
   basicFile: File;
 }
+
 ```
 
 ## Operations
 
 ```ts src/api/operations.ts function doThing
-export async function doThing(client: TestClientContext, bodyParam: RequestBody): Promise<void> {
+export async function doThing(
+  client: TestClientContext,
+  bodyParam: RequestBody,
+): Promise<void> {
   const path = parse("/").expand({});
 
   const httpRequestOptions = {
@@ -40,6 +44,7 @@ export async function doThing(client: TestClientContext, bodyParam: RequestBody)
 
   throw new Error("Unhandled response");
 }
+
 ```
 
 ## Serializer
@@ -48,9 +53,10 @@ export async function doThing(client: TestClientContext, bodyParam: RequestBody)
 export function doThingPayloadToTransport(payload: RequestBody) {
   return [createFilePartDescriptor("basicFile", payload)];
 }
+
 ```
 
-# only:Default content type
+# Default content type
 
 ```tsp
 namespace Test;
@@ -72,12 +78,14 @@ op doThing(@header contentType: "multipart/form-data", @multipartBody bodyParam:
 export interface PngFile extends File {
   contentType: "image/png";
 }
+
 ```
 
 ```ts src/models/models.ts interface RequestBody
 export interface RequestBody {
   image: PngFile;
 }
+
 ```
 
 ## Serializers
@@ -86,9 +94,10 @@ export interface RequestBody {
 export function doThingPayloadToTransport(payload: RequestBody) {
   return [createFilePartDescriptor("image", payload, "image/png")];
 }
+
 ```
 
-# only:Multiple files
+# Multiple files
 
 ```tsp
 namespace Test;
@@ -108,20 +117,27 @@ Each provided file in the input corresponds to one part in the multipart request
 export interface RequestBody {
   files: Array<File>;
 }
+
 ```
 
 ## Serializer
 
 ```ts src/models/serializers.ts function doThingPayloadToTransport
 export function doThingPayloadToTransport(payload: RequestBody) {
-  return [...payload.files.map((x: any) => createFilePartDescriptor("files", x))];
+  return [
+    ...payload.files.map((x: any) => createFilePartDescriptor("files", x)),
+  ];
 }
+
 ```
 
 ## Operation
 
 ```ts src/api/operations.ts function doThing
-export async function doThing(client: TestClientContext, bodyParam: RequestBody): Promise<void> {
+export async function doThing(
+  client: TestClientContext,
+  bodyParam: RequestBody,
+): Promise<void> {
   const path = parse("/").expand({});
 
   const httpRequestOptions = {
@@ -138,4 +154,5 @@ export async function doThing(client: TestClientContext, bodyParam: RequestBody)
 
   throw new Error("Unhandled response");
 }
+
 ```

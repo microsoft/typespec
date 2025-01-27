@@ -12,7 +12,7 @@ import {
 } from "@typespec/emitter-framework/typescript";
 import { useClientLibrary } from "@typespec/http-client-library";
 import { flattenClients } from "../utils/client-discovery.js";
-import { TransformDeclaration } from "./transforms/operation-transform.jsx";
+import { TransformDeclaration } from "./transforms/operation-transform-declaration.jsx";
 export interface ModelSerializersProps {
   path?: string;
 }

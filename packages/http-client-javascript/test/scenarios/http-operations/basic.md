@@ -22,19 +22,25 @@ op foo(): Widget;
 
 It generates a class called TestClient with a single operation
 
-```ts src/client.ts
-import { TestContext, TestOptions, createTestContext } from "./api/clientContext.js";
+```ts src/testClient.ts
 import { foo } from "./api/operations.js";
+import {
+  TestClientContext,
+  TestClientOptions,
+  createTestClientContext,
+} from "./api/clientContext.js";
 
 export class TestClient {
-  #context: TestContext;
-  constructor(endpoint: string, options?: TestOptions) {
-    this.#context = createTestContext(endpoint, options);
+  #context: TestClientContext;
+
+  constructor(endpoint: string, options?: TestClientOptions) {
+    this.#context = createTestClientContext(endpoint, options);
   }
-  foo() {
+  async foo() {
     return foo(this.#context);
   }
 }
+
 ```
 
 ### Model
@@ -47,6 +53,7 @@ export interface Widget {
   totalWeight: number;
   color: "red" | "blue";
 }
+
 ```
 
 ### Serializer
@@ -54,33 +61,35 @@ export interface Widget {
 A serializer that transforms the Widget from its application form to the wire form is generated. The application form renames properties to align with TypeScript common conventions, and the serializer reverts these renames before sending out to the wire.
 
 ```ts src/models/serializers.ts function widgetToTransport
-export function widgetToTransport(item: Widget) {
+export function widgetToTransport(item: Widget): any {
   return {
     id: item.id,
     total_weight: item.totalWeight,
     color: item.color,
   };
 }
+
 ```
 
 ### Context
 
 The context stores the information required to reach the service. In this case a createTestContext function should be generated with a required endpoint parameter. This example has no auth or other client parameters so endpoint will be the only.
 
-```ts src/api/clientContext.ts function createTestContext
-export function createTestContext(endpoint: string, options?: TestOptions): TestContext {
-  return {
-    endpoint,
-  };
+```ts src/api/clientContext.ts function createTestClientContext
+export function createTestClientContext(
+  endpoint: string,
+  options?: TestClientOptions,
+): TestClientContext {
+  return getClient(endpoint, { allowInsecureConnection: true, ...options });
 }
+
 ```
 
 It also generates an interface that defines the shape of the context
 
-```ts src/api/clientContext.ts interface TestContext
-export interface TestContext {
-  endpoint: string;
-}
+```ts src/api/clientContext.ts interface TestClientContext
+export interface TestClientContext extends Client {}
+
 ```
 
 ### Operation
@@ -92,28 +101,24 @@ The response body is of type Widget so the right transform should be imported to
 It should throw an exception if an unexpected status code is received
 
 ```ts src/api/operations.ts
-import { TestContext } from "./clientContext.js";
 import { Widget } from "../models/models.js";
 import { parse } from "uri-template";
 import { widgetToApplication } from "../models/serializers.js";
-import { httpFetch } from "../utilities/http-fetch.js";
+import { TestClientContext } from "./clientContext.js";
 
-export async function foo(client: TestContext): Promise<Widget> {
+export async function foo(client: TestClientContext): Promise<Widget> {
   const path = parse("/").expand({});
 
-  const url = `${client.endpoint.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`;
-
   const httpRequestOptions = {
-    method: "get",
     headers: {},
   };
 
-  const response = await httpFetch(url, httpRequestOptions);
-  if (response.status === 200) {
-    const bodyJson = await response.json();
-    return widgetToApplication(bodyJson);
+  const response = await client.path(path).get(httpRequestOptions);
+  if (+response.status === 200) {
+    return widgetToApplication(response.body);
   }
 
   throw new Error("Unhandled response");
 }
+
 ```

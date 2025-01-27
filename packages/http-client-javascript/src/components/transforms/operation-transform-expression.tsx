@@ -1,74 +1,54 @@
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import * as ef from "@typespec/emitter-framework/typescript";
+import { TypeTransformCall } from "@typespec/emitter-framework/typescript";
 import { HttpOperationBody, HttpOperationMultipartBody, HttpOperationPart } from "@typespec/http";
 import { ClientOperation } from "@typespec/http-client-library";
 import { getCreateFilePartDescriptorReference } from "../static-helpers/multipart-helpers.jsx";
-export interface TransformDeclarationProps {
+import {
+  getTransformDeclarationRef,
+  HttpPartExpressionProps,
+} from "./operation-transform-declaration.jsx";
+
+export interface OperationTransformToTransportExpression {
   operation: ClientOperation;
-  refkey?: ay.Refkey;
 }
 
-export function getTransformDeclarationRef(operaion: ClientOperation) {
-  if (operaion.httpOperation.parameters.body?.bodyKind === "single") {
-    return ef.getTypeTransformerRefkey(operaion.httpOperation.parameters.body.type, "transport");
-  }
-  return ay.refkey(operaion, "transform");
-}
+export function OperationTransformExpression(props: OperationTransformToTransportExpression) {
+  const payload = props.operation.httpOperation.parameters.body;
 
-export function TransformDeclaration(props: TransformDeclarationProps) {
-  const refkey = props.refkey ?? getTransformDeclarationRef(props.operation);
-  return <>
-    <TransformToTransportDeclaration operation={props.operation} refkey={refkey} />
-  </>;
-}
-
-interface TransformToTransportDeclarationProps {
-  operation: ClientOperation;
-  refkey: ay.Refkey;
-}
-
-function TransformToTransportDeclaration(props: TransformToTransportDeclarationProps) {
-  const requestPayload = props.operation.httpOperation.parameters.body;
-  if (!requestPayload) {
+  if (!payload) {
     return;
   }
 
-  const namePolicy = ts.useTSNamePolicy();
-  const name = namePolicy.getName(`${props.operation.name}_payload_to_transport`, "function");
-
-  if (requestPayload.bodyKind === "multipart") {
-    return <MultipartTransformDeclaration operation={props.operation} payload={requestPayload} refkey={props.refkey} name={name} />;
+  if (payload.property) {
+    const property = payload.property;
+    if (property.optional) {
+      const propertyPath = `options?.${property.name}`;
+      return <>{propertyPath} ? <ts.FunctionCallExpression refkey={getTransformDeclarationRef(props.operation)} args={[propertyPath]}/> : undefined </>;
+    }
+    return <ts.FunctionCallExpression refkey={getTransformDeclarationRef(props.operation)} args={[payload.property?.name]}/>;
   }
+
+  if (payload.bodyKind === "multipart") {
+    return <MultipartTransformExpression operation={props.operation} payload={payload} />;
+  }
+
+  return <TypeTransformCall target="transport" type={payload.type} optionsBagName="options"/>;
 }
 
-export interface MultipartTransformDeclarationProps {
-  name: string;
+export interface MultipartTransformExpressionProps {
   operation: ClientOperation;
   payload: HttpOperationMultipartBody;
-  refkey: ay.Refkey;
 }
 
-export function MultipartTransformDeclaration(props: MultipartTransformDeclarationProps) {
+export function MultipartTransformExpression(props: MultipartTransformExpressionProps) {
   const parts = props.payload.parts;
   const inputRef = ay.refkey(props.payload, "property");
-  const payloadParameter: ts.ParameterDescriptor = {
-    type: <ef.TypeExpression type={props.payload.type} />,
-    refkey: inputRef,
-  };
-  const partsBody = ay.mapJoin(
-    parts,
-    (part) => <HttpPartExpression part={part} inputRef={inputRef}/>,
-    { joiner: ",\n" },
-  );
-  return <ts.FunctionDeclaration export name={props.name} parameters={{payload: payloadParameter}} refkey={props.refkey}>
-    return [{partsBody}]
-  </ts.FunctionDeclaration>;
-}
 
-export interface HttpPartExpressionProps {
-  part: HttpOperationPart;
-  inputRef: ay.Refkey;
+  return <>[{ay.mapJoin(parts, (part) => <HttpPartExpression part={part} inputRef={inputRef}/>, {
+    joiner: ",\n",
+  })}]</>;
 }
 
 export function HttpPartExpression(props: HttpPartExpressionProps) {

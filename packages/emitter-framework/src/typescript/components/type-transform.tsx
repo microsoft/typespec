@@ -328,7 +328,7 @@ export function TypeTransformCall(props: TypeTransformCallProps) {
   }
 
   if ($.model.is(transformType) && $.record.is(transformType)) {
-    const unpackedElement = $.httpPart.unpack($.array.getElementType(transformType)) ?? $.array.getElementType(transformType);
+    const unpackedElement = $.httpPart.unpack($.record.getElementType(transformType)) ?? $.record.getElementType(transformType);
     return (
       <ts.FunctionCallExpression
         refkey={RecordSerializerRefkey}

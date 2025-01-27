@@ -21,7 +21,7 @@ export interface Foo {
 ```
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     my_values: recordSerializer(item.myValues),
   };
@@ -29,7 +29,7 @@ export function fooToTransport(item: Foo) {
 ```
 
 ```ts src/models/serializers.ts function fooToApplication
-export function fooToApplication(item: any) {
+export function fooToApplication(item: any): Foo {
   return {
     myValues: recordSerializer(item.my_values),
   };
@@ -69,7 +69,7 @@ export interface Bar {
 ```
 
 ```ts src/models/serializers.ts function fooToTransport
-export function fooToTransport(item: Foo) {
+export function fooToTransport(item: Foo): any {
   return {
     my_values: recordSerializer(item.myValues, barToTransport),
   };
@@ -77,7 +77,7 @@ export function fooToTransport(item: Foo) {
 ```
 
 ```ts src/models/serializers.ts function fooToApplication
-export function fooToApplication(item: any) {
+export function fooToApplication(item: any): Foo {
   return {
     myValues: recordSerializer(item.my_values, barToApplication),
   };

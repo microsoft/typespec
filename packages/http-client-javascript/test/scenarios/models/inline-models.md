@@ -5,6 +5,7 @@ When a model property's type is defined as an anonymous model, the TypeScript em
 ## Typespec
 
 ```tsp
+namespace Test;
 model Widget {
   name: string;
   subWidget: {
