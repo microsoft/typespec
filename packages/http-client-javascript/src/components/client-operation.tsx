@@ -12,13 +12,15 @@ export interface ClientOperationsProps {
 }
 
 export function ClientOperations(props: ClientOperationsProps) {
+  const namePolicy = ts.useTSNamePolicy();
   const clientOperations = props.client.operations;
+  const fileName = namePolicy.getName(props.client.name + "Operations", "variable");
 
   if (clientOperations.length === 0) {
     return null;
   }
 
-  return <ts.SourceFile path={`operations.ts`}>
+  return <ts.SourceFile path={`${fileName}.ts`}>
   {ay.mapJoin(clientOperations, (operation) => {
     return <ClientOperation operation={operation} />;
   })}

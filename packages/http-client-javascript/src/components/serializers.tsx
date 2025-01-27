@@ -20,7 +20,8 @@ export interface ModelSerializersProps {
 export function ModelSerializers(props: ModelSerializersProps) {
   const clientLibrary = useClientLibrary();
   const dataTypes = clientLibrary.dataTypes;
-  const operations = flattenClients(clientLibrary.rootClient).flatMap((c) => c.operations);
+  const flatClients = clientLibrary.topLevel.flatMap((c) => flattenClients(c));
+  const operations = flatClients.flatMap((c) => c.operations);
   return <ts.SourceFile path={props.path ?? "serializers.ts"}>
       <RecordSerializer />
       <ArraySerializer />

@@ -27,7 +27,7 @@ The response body is of type Widget so the right transform should be imported to
 
 It should throw an exception if an unexpected status code is received
 
-```ts src/api/operations.ts function foo
+```ts src/api/testClientOperations.ts function foo
 export async function foo(
   client: TestClientContext,
   id: string,

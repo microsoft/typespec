@@ -60,7 +60,7 @@ defineKit<TK>({
   clientLibrary: {
     listNamespaces(namespace) {
       if (namespace) {
-        return [...namespace.namespaces.values()];
+        return [...namespace.namespaces.values()].filter((ns) => ns.name !== "TypeSpec");
       }
       return [...this.program.checker.getGlobalNamespaceType().namespaces.values()].filter(
         (n) => getLocationContext(this.program, n).type === "project",

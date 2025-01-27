@@ -54,7 +54,9 @@ async function assertGetEmittedFile(
   const sourceFile = emittedFiles.find((x) => x.path === file);
 
   if (!sourceFile) {
-    throw new Error(`File ${file} not found in emitted files`);
+    throw new Error(
+      `File ${file} not found in emitted files:\n ${emittedFiles.map((f) => f.path).join("\n")}`,
+    );
   }
   return sourceFile;
 }

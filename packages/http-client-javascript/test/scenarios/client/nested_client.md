@@ -48,7 +48,7 @@ import {
   DemoServiceClientContext,
   DemoServiceClientOptions,
   createDemoServiceClientContext,
-} from "./api/clientContext.js";
+} from "./api/demoServiceClientContext.js";
 import {
   list,
   read,
@@ -56,12 +56,12 @@ import {
   update,
   delete_,
   analyze,
-} from "./api/widgetsClient/operations.js";
+} from "./api/widgetsClient/widgetsClientOperations.js";
 import {
   WidgetsClientContext,
   WidgetsClientOptions,
   createWidgetsClientContext,
-} from "./api/widgetsClient/clientContext.js";
+} from "./api/widgetsClient/widgetsClientContext.js";
 
 export class DemoServiceClient {
   #context: DemoServiceClientContext;
@@ -97,5 +97,4 @@ export class WidgetsClient {
     return analyze(this.#context, id);
   }
 }
-
 ```

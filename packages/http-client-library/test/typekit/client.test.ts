@@ -82,6 +82,17 @@ describe("isSameConstructor", () => {
 });
 
 describe("getClient", () => {
+  it("should get a client from the globalNamespace", async () => {
+    (await runner.compile(`
+       op foo(): void;
+      `)) as { DemoService: Namespace };
+
+    const namespace = $.program.getGlobalNamespaceType();
+    const client = $.client.getClient(namespace);
+
+    expect(client.name).toEqual("Client");
+  });
+
   it("should get the client", async () => {
     const { DemoService } = (await runner.compile(`
       @service({
@@ -385,6 +396,20 @@ describe("isPubliclyInitializable", () => {
 });
 
 describe("listServiceOperations", () => {
+  it("should list only operations defined in the spec", async () => {
+    await runner.compile(`
+      op foo(): void;
+     `);
+
+    const namespace = $.program.getGlobalNamespaceType();
+    const client = $.client.getClient(namespace);
+
+    const operations = $.client.listServiceOperations(client);
+
+    expect(operations).toHaveLength(1);
+    expect(operations[0].name).toEqual("foo");
+  });
+
   it("no operations", async () => {
     const { DemoService } = (await runner.compile(`
       @service({

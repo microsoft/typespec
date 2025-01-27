@@ -13,13 +13,20 @@ import { getClientContextFactoryRef } from "./client-context/client-context-fact
 export interface ClientProps {}
 
 export function Client(props: ClientProps) {
-  const { rootClient: client } = useClientLibrary();
   const namePolicy = ts.useTSNamePolicy();
-  const fileName = namePolicy.getName(`${client.name}`, "variable");
-  const clients = flattenClients(client);
-  return <ts.SourceFile path={`${fileName}.ts`} >
-    {ay.mapJoin(clients, (client) => <ClientClass client={client} />, { joiner: "\n\n" })}
-  </ts.SourceFile>;
+  const { topLevel } = useClientLibrary();
+
+  return ay.mapJoin(
+    topLevel,
+    (client) => {
+      const fileName = namePolicy.getName($.client.getName(client), "variable");
+      const flatClients = flattenClients(client);
+      return <ts.SourceFile path={`${fileName}.ts`}>
+      {ay.mapJoin(flatClients, (client) => <ClientClass client={client} />, { joiner: "\n\n" })}
+    </ts.SourceFile>;
+    },
+    { joiner: "\n\n" },
+  );
 }
 
 export interface ClientClassProps {

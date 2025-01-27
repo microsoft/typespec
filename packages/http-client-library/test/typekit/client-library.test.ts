@@ -50,6 +50,19 @@ describe("listNamespaces", () => {
 });
 
 describe("listClients", () => {
+  it("should only get clients for defined namespaces in the spec", async () => {
+    await runner.compile(`
+           op foo(): void;
+          `);
+
+    const namespace = $.program.getGlobalNamespaceType();
+    const client = $.client.getClient(namespace);
+
+    const clients = $.clientLibrary.listClients(client);
+
+    expect(clients).toHaveLength(0);
+  });
+
   it("should get the client", async () => {
     const { DemoService } = (await runner.compile(`
       @service({

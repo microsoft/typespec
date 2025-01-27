@@ -23,12 +23,12 @@ op foo(): Widget;
 It generates a class called TestClient with a single operation
 
 ```ts src/testClient.ts
-import { foo } from "./api/operations.js";
+import { foo } from "./api/testClientOperations.js";
 import {
   TestClientContext,
   TestClientOptions,
   createTestClientContext,
-} from "./api/clientContext.js";
+} from "./api/testClientContext.js";
 
 export class TestClient {
   #context: TestClientContext;
@@ -40,7 +40,6 @@ export class TestClient {
     return foo(this.#context);
   }
 }
-
 ```
 
 ### Model
@@ -53,7 +52,6 @@ export interface Widget {
   totalWeight: number;
   color: "red" | "blue";
 }
-
 ```
 
 ### Serializer
@@ -68,28 +66,25 @@ export function widgetToTransport(item: Widget): any {
     color: item.color,
   };
 }
-
 ```
 
 ### Context
 
 The context stores the information required to reach the service. In this case a createTestContext function should be generated with a required endpoint parameter. This example has no auth or other client parameters so endpoint will be the only.
 
-```ts src/api/clientContext.ts function createTestClientContext
+```ts src/api/testClientContext.ts function createTestClientContext
 export function createTestClientContext(
   endpoint: string,
   options?: TestClientOptions,
 ): TestClientContext {
   return getClient(endpoint, { allowInsecureConnection: true, ...options });
 }
-
 ```
 
 It also generates an interface that defines the shape of the context
 
-```ts src/api/clientContext.ts interface TestClientContext
+```ts src/api/testClientContext.ts interface TestClientContext
 export interface TestClientContext extends Client {}
-
 ```
 
 ### Operation
@@ -100,11 +95,11 @@ The response body is of type Widget so the right transform should be imported to
 
 It should throw an exception if an unexpected status code is received
 
-```ts src/api/operations.ts
+```ts src/api/testClientOperations.ts
 import { Widget } from "../models/models.js";
 import { parse } from "uri-template";
 import { widgetToApplication } from "../models/serializers.js";
-import { TestClientContext } from "./clientContext.js";
+import { TestClientContext } from "./testClientContext.js";
 
 export async function foo(client: TestClientContext): Promise<Widget> {
   const path = parse("/").expand({});
@@ -120,5 +115,4 @@ export async function foo(client: TestClientContext): Promise<Widget> {
 
   throw new Error("Unhandled response");
 }
-
 ```

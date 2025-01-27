@@ -5,7 +5,7 @@ import { Client, ClientOperation, InternalClient } from "./interfaces.js";
 import { collectDataTypes } from "./utils/type-collector.js";
 
 export interface ClientLibrary {
-  rootClient: Client;
+  topLevel: Client[];
   dataTypes: Array<Model | Union | Enum>;
 }
 
@@ -14,15 +14,33 @@ export interface CreateClientLibraryOptions {
 }
 
 export function createClientLibrary(options: CreateClientLibraryOptions = {}): ClientLibrary {
-  const rootNs = $.clientLibrary.listNamespaces()[0] ?? $.program.getGlobalNamespaceType(); // TODO: Handle multiple namespaces
-  const topLevelClient = $.client.getClient(rootNs); // TODO: Handle multiple clients
+  let topLevel: InternalClient[] = [];
   const dataTypes = new Set<Model | Union | Enum>();
-  const client = visitClient(topLevelClient, dataTypes, {
-    operationMutators: options.operationMutators,
-  });
+
+  // Need to find out if we need to create a client for the global namespace.
+  const globalNs = $.program.getGlobalNamespaceType();
+  const globalClient = $.client.getClient(globalNs);
+  const globalOperations = $.client.listServiceOperations(globalClient);
+  const globalSubClients = $.clientLibrary.listClients(globalClient);
+
+  if (globalOperations.length !== 0 || globalSubClients.length === 0) {
+    // We need to start with the global namespace
+    topLevel = [globalClient];
+  } else if (globalSubClients.length) {
+    for (const client of globalSubClients) {
+      topLevel.push(client);
+    }
+  }
+
+  const topLevelClients: Client[] = [];
+
+  for (const c of topLevel) {
+    const client = visitClient(c, dataTypes, { operationMutators: options.operationMutators });
+    topLevelClients.push(client);
+  }
 
   return {
-    rootClient: client,
+    topLevel: topLevelClients,
     dataTypes: Array.from(dataTypes),
   };
 }

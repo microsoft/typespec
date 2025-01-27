@@ -10,13 +10,15 @@ export interface OperationsDirectoryProps {
 }
 
 export function OperationsDirectory(props: OperationsDirectoryProps) {
-  const { rootClient: client } = useClientLibrary();
+  const { topLevel: clients } = useClientLibrary();
   // If it is the root client, we don't need to create a directory
-  return <>
+  return ay.mapJoin(clients, (
+    client,
+  ) => <>
        <ClientOperations client={client} />
        <ClientContext client={client} />
        <SubClients client={client} />
-    </>;
+    </>);
 }
 
 export interface SubClientsProps {
