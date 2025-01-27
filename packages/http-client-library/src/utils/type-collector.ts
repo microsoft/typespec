@@ -5,9 +5,6 @@ export function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum
   navigateType(
     type,
     {
-      modelProperty(modelProperty) {
-        collectDataTypes(modelProperty.type, dataTypes);
-      },
       model(model) {
         if ($.array.is(model) || $.record.is(model)) {
           return;
@@ -15,6 +12,8 @@ export function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum
 
         if ($.httpPart.is(model)) {
           const partType = $.httpPart.unpack(model);
+          // Need recursive call to collect data types from the part type as the semantic walker
+          // doesn't do it automatically.
           collectDataTypes(partType, dataTypes);
           return;
         }
@@ -31,9 +30,6 @@ export function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum
         }
 
         dataTypes.add(union);
-      },
-      unionVariant(unionVariant) {
-        collectDataTypes(unionVariant.type, dataTypes);
       },
       enum(enum_) {
         if (!enum_.name) {
