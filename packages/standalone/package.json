@@ -32,7 +32,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "tsx ./scripts/build.ts",
-    "build:all": "tsx ./scripts/build.ts --all",
+    "check": "tsx ./scripts/check.ts",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",

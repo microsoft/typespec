@@ -1,21 +1,22 @@
 parameters:
-  - name: jobName
-    type: string
   - name: name
     type: string
   - name: pool
     type: string
   - name: vmImage
     type: string
+  - name: imageKey
+    type: string
+    default: image
   - name: os
     type: string
 
 jobs:
-  - job: single_exe_${{ parameters.jobName }}
+  - job: single_exe_${{ preplace(arameters.name, '-', '_') }}
     displayName: Build single exe ${{ parameters.name }}
     pool:
       name: ${{ parameters.pool }}
-      image: ${{ parameters.vmImage }}
+      ${{parameters.imageKey}}: ${{ parameters.vmImage }}
       os: ${{ parameters.os }}
 
     steps:
@@ -27,9 +28,13 @@ jobs:
         workingDirectory: packages/standalone
         displayName: Build
 
+      - script: pnpm check
+        workingDirectory: packages/standalone
+        displayName: Check executable runs
+
     templateContext:
       outputs:
         - output: pipelineArtifact
-          path: $(Build.ArtifactStagingDirectory)/packages/standalone/dist
+          path: packages/standalone/dist
           artifact: standalone-${{ parameters.name }}
           displayName: Publish standalone dist as pipeline artifacts
