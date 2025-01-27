@@ -1,4 +1,6 @@
 parameters:
+  - name: jobName
+    type: string
   - name: name
     type: string
   - name: pool
@@ -9,7 +11,7 @@ parameters:
     type: string
 
 jobs:
-  - job: single_exe_4${{ parameters.name }}
+  - job: single_exe_${{ parameters.jobName }}
     displayName: Build single exe ${{ parameters.name }}
     pool:
       name: ${{ parameters.pool }}
