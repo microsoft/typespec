@@ -329,6 +329,9 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
   }
 
   outputDir = outputDir.replace("{project-root}", baseDir);
+  outputDir = outputDir
+    .replace("{output-dir}", `${baseDir}/tsp-output`)
+    .replace("{emitter-name}", emitter.package);
   const options: Record<string, string> = {};
   logger.info(
     `Start to generate ${emitter.language} ${emitter.kind} code under directory ${outputDir}`,

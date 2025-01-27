@@ -49,6 +49,7 @@
     "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/http-server-javascript": "workspace:~",
+    "@typespec/http-server-csharp": "workspace:~",
     "@typespec/json-schema": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
@@ -59,14 +60,14 @@
     "@typespec/versioning": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.10.7",
+    "@types/node": "~22.10.10",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^3.0.3",
+    "@vitest/coverage-v8": "^3.0.4",
     "@vitest/ui": "^3.0.3",
     "autorest": "~3.7.1",
     "cross-env": "~7.0.3",
     "rimraf": "~6.0.1",
     "typescript": "~5.7.3",
-    "vitest": "^3.0.3"
+    "vitest": "^3.0.4"
   }
 }
