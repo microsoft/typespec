@@ -46,7 +46,7 @@
     "@alloy-js/babel-preset": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-preset@903a8321e8e85c7c9b47d4d9b4f0aadc40422615",
     "concurrently": "^8.2.2",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.3",
+    "vitest": "^3.0.4",
     "tree-sitter": "^0.21.1",
     "tree-sitter-c-sharp": "^0.23.0",
     "tree-sitter-java": "^0.23.2",

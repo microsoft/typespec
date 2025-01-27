@@ -2,6 +2,7 @@ import { TypeSpecTestLibrary } from "@typespec/compiler/testing";
 import { readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import minimist from "minimist";
 import path from "path";
+import { format } from "prettier";
 import { afterAll, describe, expect, it } from "vitest";
 import { LanguageConfiguration, SnippetExtractor } from "./snippet-extractor.js";
 import { emitWithDiagnostics } from "./test-host.js";
@@ -140,15 +141,13 @@ export async function executeScenarios(
     discoverAllScenarios(scenariosLocation, scenarioList);
   }
 
-  for (const filePath of scenarioList) {
-    describeScenario(
-      filePath,
-      testLibrary,
-      languageConfiguration,
-      emitterOutputDir,
-      snippetExtractor,
-    );
-  }
+  describeScenarios(
+    scenarioList,
+    testLibrary,
+    languageConfiguration,
+    emitterOutputDir,
+    snippetExtractor,
+  );
 }
 
 function discoverAllScenarios(location: string, scenarios: string[]) {
@@ -169,21 +168,46 @@ interface Scenario {
   // The title of the scenario delimited by H1
   title: string;
   // The content of the scenario
-  content: Array<string | ScenarioCodeBlock>;
+  content: ScenarioContents;
 }
 
-interface ScenarioCodeBlock {
+interface ScenarioContents {
+  lines: Array<string | ScenarioCodeBlock>;
+  specBlock: SpecCodeBlock;
+  testBlocks: TestCodeBlock[];
+}
+
+interface SpecCodeBlock {
   kind: "spec" | "test";
-  heading: string;
   content: string[];
 }
+
+interface TestCodeBlock {
+  kind: "test";
+  heading: string;
+  content: string[];
+  matchedTemplate: {
+    template: string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    fn: Function;
+    namedArgs: Record<string, string> | null;
+  };
+}
+
+type ScenarioCodeBlock = SpecCodeBlock | TestCodeBlock;
 
 interface ScenarioFile {
   path: string;
   scenarios: Scenario[];
 }
 
-function parseFile(path: string): ScenarioFile {
+function parseFile(
+  path: string,
+  testLibrary: TypeSpecTestLibrary,
+  languageConfiguration: LanguageConfiguration,
+  emitterOutputDir: string,
+  snippetExtractor: SnippetExtractor,
+): ScenarioFile {
   // Read the whole file
   const rawContent = readFileSync(path, { encoding: "utf-8" });
 
@@ -196,7 +220,13 @@ function parseFile(path: string): ScenarioFile {
   };
 
   for (const section of sections) {
-    const scenarioContent = parseScenario(section.content);
+    const scenarioContent = parseScenario(
+      section.content,
+      testLibrary,
+      languageConfiguration,
+      emitterOutputDir,
+      snippetExtractor,
+    );
     const scenario: Scenario = {
       title: section.title,
       content: scenarioContent,
@@ -208,16 +238,59 @@ function parseFile(path: string): ScenarioFile {
   return scenarioFile;
 }
 
-function parseScenario(content: string): (string | ScenarioCodeBlock)[] {
-  const lines = content.split("\n");
-  const parsedContent: Array<string | ScenarioCodeBlock> = [];
+function isTestCodeBlock(codeBlock: ScenarioCodeBlock): codeBlock is TestCodeBlock {
+  return codeBlock.kind === "test";
+}
+
+function parseScenario(
+  content: string,
+  testLibrary: TypeSpecTestLibrary,
+  languageConfiguration: LanguageConfiguration,
+  emitterOutputDir: string,
+  snippetExtractor: SnippetExtractor,
+): ScenarioContents {
+  const rawLines = content.split("\n");
+  const scenario: ScenarioContents = {
+    lines: [],
+    specBlock: { kind: "spec", content: [] },
+    testBlocks: [],
+  };
+
   let currentCodeBlock: ScenarioCodeBlock | null = null;
 
-  for (const line of lines) {
+  // Precompute output code block types once
+  const outputCodeBlockTypes = getCodeBlockTypes(
+    testLibrary,
+    languageConfiguration,
+    emitterOutputDir,
+    snippetExtractor,
+  );
+
+  for (const line of rawLines) {
     if (line.startsWith("```")) {
       if (currentCodeBlock) {
         // Close the code block
-        parsedContent.push(currentCodeBlock);
+        scenario.lines.push(currentCodeBlock);
+        if (!isTestCodeBlock(currentCodeBlock)) {
+          scenario.specBlock.content = currentCodeBlock.content;
+        } else {
+          for (const [template, fn] of Object.entries(outputCodeBlockTypes)) {
+            const templateRegex = new RegExp(
+              "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$",
+            );
+
+            const match = currentCodeBlock.heading.match(templateRegex);
+            if (match) {
+              currentCodeBlock.matchedTemplate = {
+                template,
+                fn,
+                namedArgs: match.groups ?? null,
+              };
+              break;
+            }
+          }
+          scenario.testBlocks.push(currentCodeBlock);
+        }
         currentCodeBlock = null;
       } else {
         const codeBlockKind = line.includes("tsp") || line.includes("typespec") ? "spec" : "test";
@@ -229,119 +302,77 @@ function parseScenario(content: string): (string | ScenarioCodeBlock)[] {
       currentCodeBlock.content.push(line);
     } else {
       // Add regular line
-      parsedContent.push(line);
+      scenario.lines.push(line);
     }
   }
 
-  return parsedContent;
+  return scenario;
 }
 
-function describeScenario(
-  scenarioFile: string,
+function describeScenarios(
+  scenarioFiles: string[],
   testLibrary: TypeSpecTestLibrary,
   languageConfiguration: LanguageConfiguration,
   emitterOutputDir: string,
   snippetExtractor: SnippetExtractor,
 ) {
-  const parsedScenarioFile = parseFile(scenarioFile);
+  const scenarios = scenarioFiles.map((f) =>
+    parseFile(f, testLibrary, languageConfiguration, emitterOutputDir, snippetExtractor),
+  );
 
-  describe(`Scenario: ${parsedScenarioFile.path}`, () => {
-    for (const scenario of parsedScenarioFile.scenarios) {
-      // If we are updating we add (UPDATING) to the scenario name to make it clear
-      const scenarioName = scenario.title + (SCENARIOS_UPDATE ? " (UPDATING)" : "");
-
-      // Mark the test as .only if the test title starts with "only:". Useful for debugging and updating.
-      describe(`${scenarioName}`, () => {
-        // Find all TypeSpec codeblocks. If there are multiple, concat them and treat them as a single TypeSpec.
-        const typeSpecInput = scenario.content
-          .filter((c) => typeof c !== "string")
-          .filter((c) => c.kind === "spec")
-          .map((c) => c.content.join("\n"))
-          .join("\n");
-
-        // Find all non TypeSpec codeblocks, this are used to test the output of the emitter
-        const testCodeBlocks = scenario.content
-          .filter((c) => typeof c !== "string")
-          .filter((c) => c.kind === "test");
-
-        for (const testCodeBlock of testCodeBlocks) {
-          let tested = false;
-          const outputCodeBlockTypes = getCodeBlockTypes(
-            testLibrary,
-            languageConfiguration,
-            emitterOutputDir,
-            snippetExtractor,
-          );
-
-          // Looping through all the output code block types to find the one that matches the current test code block
-          for (const [template, fn] of Object.entries(outputCodeBlockTypes)) {
-            // This regex creates a named capture group for each template argument
-            const templateRegex = new RegExp(
-              "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$",
-            );
-
-            const match = testCodeBlock.heading.match(templateRegex);
-
-            if (!match) {
-              continue;
-            }
-
-            const namedArgs = match.groups;
-
-            it.concurrent(testCodeBlock.heading, async function () {
-              // Gets the emitted code that matches the test code block heading
-              const result = await fn(typeSpecInput, namedArgs ?? {});
+  for (const scenarioFile of scenarios) {
+    describe(`Scenario File: ${scenarioFile.path}`, () => {
+      for (const scenario of scenarioFile.scenarios) {
+        describe(`Scenario: ${scenario.title}`, () => {
+          for (const testBlock of scenario.content.testBlocks) {
+            it(`Test: ${testBlock.heading}`, async () => {
+              const { fn, namedArgs } = testBlock.matchedTemplate;
+              const result = await fn(
+                scenario.content.specBlock.content.join("\n"),
+                namedArgs ?? {},
+              );
 
               if (SCENARIOS_UPDATE) {
-                testCodeBlock.content = (await languageConfiguration.format(result)).split("\n");
+                testBlock.content = (await languageConfiguration.format(result)).split("\n");
               } else {
-                const expected = await languageConfiguration.format(
-                  testCodeBlock.content.join("\n"),
-                );
+                const expected = await languageConfiguration.format(testBlock.content.join("\n"));
                 const actual = await languageConfiguration.format(result);
                 expect(actual).toBe(expected);
               }
             });
-
-            tested = true;
-          }
-
-          if (!tested) {
-            // Empty test case to mark it as skipped
-            it.skip(testCodeBlock.heading, function () {
-              console.log("Skipping test case: ", testCodeBlock.heading);
-            });
-          }
-        }
-
-        // Update after all the tests in the scenario if write mode was enabled
-        afterAll(function () {
-          if (SCENARIOS_UPDATE) {
-            updateFile(parsedScenarioFile);
           }
         });
+      }
+
+      // Update after all the tests in the scenario if write mode was enabled
+      afterAll(async function () {
+        if (SCENARIOS_UPDATE) {
+          await updateFile(scenarioFile);
+        }
       });
-    }
-  });
+    });
+  }
 }
 
-function updateFile(scenarioFile: ScenarioFile) {
+async function updateFile(scenarioFile: ScenarioFile) {
   const newContent: string[] = [];
 
   for (const scenario of scenarioFile.scenarios) {
     newContent.push(`# ${scenario.title}`);
-    for (const line of scenario.content) {
+    for (const line of scenario.content.lines) {
       if (typeof line === "string") {
         newContent.push(line);
       } else {
-        newContent.push("```" + line.heading);
+        const heading = isTestCodeBlock(line) ? line.heading : "tsp";
+        newContent.push("```" + heading);
         newContent.push(...line.content);
         newContent.push("```");
       }
     }
   }
 
-  writeFileSync(scenarioFile.path, newContent.join("\n"), { encoding: "utf-8" });
+  const formattedContent = await format(newContent.join("\n"), { parser: "markdown" });
+  writeFileSync(scenarioFile.path, formattedContent, { encoding: "utf-8" });
 }
 
 function splitByH1(content: string): { title: string; content: string }[] {

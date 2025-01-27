@@ -57,6 +57,6 @@
     "concurrently": "^8.2.2",
     "ts-morph": "^23.0.0",
     "typescript": "^5.5.3",
-    "vitest": "^2.0.3"
+    "vitest": "^3.0.4"
   }
 }
