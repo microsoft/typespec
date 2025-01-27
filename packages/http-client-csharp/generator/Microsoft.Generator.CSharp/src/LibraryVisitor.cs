@@ -146,8 +146,6 @@ namespace Microsoft.Generator.CSharp
             return type;
         }
 
-        protected virtual void Foo() { }
-
         /// <summary>
         /// Visits a <see cref="TypeProvider"/> after all its members have been visited and returns a possibly modified version of it.
         /// </summary>
