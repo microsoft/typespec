@@ -762,8 +762,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var parameters = SerializationConstructor.Signature.Parameters;
 
             // Parse the custom serialization attributes
-            List<AttributeData> serializationAttributes = _model.CustomCodeView?.GetAttributes()
-                .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
+            List<AttributeStatement> serializationAttributes = _model.CustomCodeView?.Attributes
+                .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName)
                 .ToList() ?? [];
             var baseModelProvider = _model.BaseModelProvider;
 
@@ -773,8 +773,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 if (customCodeView != null)
                 {
                     serializationAttributes
-                        .AddRange(customCodeView.GetAttributes()
-                        .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
+                        .AddRange(customCodeView.Attributes
+                        .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName));
                 }
                 baseModelProvider = baseModelProvider.BaseModelProvider;
             }
@@ -1111,7 +1111,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             PropertyWireInformation wireInfo,
             VariableExpression variableExpression,
             ScopedApi<JsonProperty> jsonProperty,
-            IEnumerable<AttributeData> serializationAttributes)
+            IEnumerable<AttributeStatement> serializationAttributes)
         {
             bool useCustomDeserializationHook = false;
             var serializationFormat = wireInfo.SerializationFormat;
@@ -1410,8 +1410,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat);
 
             // Check for custom serialization hooks
-            foreach (var attribute in _model.CustomCodeView?.GetAttributes()
-                         .Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
+            foreach (var attribute in _model.CustomCodeView?.Attributes
+                         .Where(a => a.Type.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [])
             {
                 if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
                         attribute,
