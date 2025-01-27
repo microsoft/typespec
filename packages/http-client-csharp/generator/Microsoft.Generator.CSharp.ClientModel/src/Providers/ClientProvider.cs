@@ -192,7 +192,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             return null;
         }
 
-        internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
+        public RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
         internal Lazy<ClientOptionsProvider?> ClientOptions { get; }
 
         public PropertyProvider PipelineProperty { get; }
