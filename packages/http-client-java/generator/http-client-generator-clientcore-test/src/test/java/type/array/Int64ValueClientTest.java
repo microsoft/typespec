@@ -8,12 +8,12 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class Int64ValueClientTest {
+public class Int64ValueClientTest {
 
-    Int64ValueClient client = new ArrayClientBuilder().buildInt64ValueClient();
+    private final Int64ValueClient client = new ArrayClientBuilder().buildInt64ValueClient();
 
     @Test
-    void get() {
+    public void get() {
         List<Long> response = client.get();
         Assertions.assertEquals(2, response.size());
         Assertions.assertEquals(9007199254740991L, response.get(0));
@@ -21,7 +21,7 @@ class Int64ValueClientTest {
     }
 
     @Test
-    void put() {
+    public void put() {
         client.put(Arrays.asList(9007199254740991L, -9007199254740991L));
     }
 }

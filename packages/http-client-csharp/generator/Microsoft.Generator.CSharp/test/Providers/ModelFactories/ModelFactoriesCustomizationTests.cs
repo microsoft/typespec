@@ -125,6 +125,56 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             ValidateModelFactoryCommon(modelFactory);
         }
 
+        // This test validates that the model factory method for a model is omitted if the
+        // model type is customized to be internal.
+        [Test]
+        public async Task OmitsModelFactoryMethodIfModelTypeInternal()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", InputPrimitiveType.String),
+                            InputFactory.Property("OptionalBool", InputPrimitiveType.Boolean, isRequired: false)
+                        ])
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // Model factory should be omitted since there are no methods to generate
+            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNull(modelFactory);
+        }
+
+        // This test validates that the model factory method for a model is omitted if the
+        // any of the model's serialization ctor have parameters whose type are customized to be internal.
+        [Test]
+        public async Task OmitsModelFactoryMethodIfParamTypeInternal()
+        {
+            var modelProperty = InputFactory.Property("Prop1", InputFactory.Model("otherModel"));
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        properties:
+                        [
+                            modelProperty,
+                        ])
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // Model factory should be omitted since there are no methods to generate
+            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNull(modelFactory);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public async Task CanCustomizeModelFullConstructor(bool extraParameters)

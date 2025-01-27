@@ -21,6 +21,7 @@ export default defineConfig({
       entry: {
         index: "src/index.ts",
       },
+      cssFileName: "style",
       formats: ["es"],
     },
 
