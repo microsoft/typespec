@@ -23,7 +23,8 @@ jobs:
       ${{ else }}:
         image: ${{ parameters.vmImage }}
       os: ${{ parameters.os }}
-      hostArchitecture: ${{ parameters.hostArchitecture }}
+      ${{ if eq(parameters.hostArchitecture, 'arm64') }}:
+        hostArchitecture: ${{ parameters.hostArchitecture }}
 
     steps:
       - task: NodeTool@0
