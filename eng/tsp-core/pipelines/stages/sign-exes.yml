@@ -33,7 +33,7 @@ stages:
                 -DestinationPath macos/standalone-macos-arm64.zip
             displayName: Package mac binary for signing
 
-          - template: /eng/tsp-core/pipelines/templates/sining/macos.yml
+          - template: /eng/tsp-core/pipelines/templates/signing/macos.yml
             parameters:
               path:
 
