@@ -11,25 +11,22 @@ stages:
           os: windows
 
         steps:
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifact: azd-darwin-amd64
-              path: mac-artifacts
-
           - download: current
             artifact: standalone-macos-x64
+            patterns: tsp
           - download: current
             artifact: standalone-macos-arm64
+            patterns: tsp
 
           - pwsh: |
               New-Item -ItemType Directory -Path macos
 
               Compress-Archive `
-                -Path standalone-macos-x64/standalone-macos-x64 `
+                -Path standalone-macos-x64 `
                 -DestinationPath macos/standalone-macos-x64.zip
 
               Compress-Archive `
-                -Path standalone-macos-x64/standalone-macos-arm64 `
+                -Path standalone-macos-arm64 `
                 -DestinationPath macos/standalone-macos-arm64.zip
             displayName: Package mac binary for signing
 
@@ -54,6 +51,6 @@ stages:
         templateContext:
           outputs:
             - output: pipelineArtifact
-              path: $(Pipeline.Workspace)/signed-macos
+              path: signed-macos
               artifact: signed-macos
               displayName: Publish signed macOS binaries
