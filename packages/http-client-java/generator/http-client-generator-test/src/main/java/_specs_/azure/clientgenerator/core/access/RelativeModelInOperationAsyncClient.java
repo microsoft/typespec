@@ -80,7 +80,7 @@ public final class RelativeModelInOperationAsyncClient {
     }
 
     /**
-     * Expected query parameter: kind= "real"
+     * Expected query parameter: kind="real"
      * Expected response body:
      * ```json
      * {
@@ -147,7 +147,7 @@ public final class RelativeModelInOperationAsyncClient {
     }
 
     /**
-     * Expected query parameter: kind= "real"
+     * Expected query parameter: kind="real"
      * Expected response body:
      * ```json
      * {

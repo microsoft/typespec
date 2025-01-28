@@ -44,6 +44,10 @@ interface ModelDescriptor {
   indexer?: ModelIndexer;
 }
 
+/**
+ * Utilities for working with models.
+ * @experimental
+ */
 export interface ModelKit {
   /**
    * Create a model type.
@@ -99,6 +103,7 @@ export interface ModelKit {
 
 interface TypekitExtension {
   /**
+   * @experimental
    * Utilities for working with model properties.
    *
    * For many reflection operations, the metadata being asked for may be found
@@ -113,7 +118,7 @@ declare module "../define-kit.js" {
   interface Typekit extends TypekitExtension {}
 }
 
-defineKit<TypekitExtension>({
+export const ModelKit = defineKit<TypekitExtension>({
   model: {
     create(desc) {
       const properties = createRekeyableMap(Array.from(Object.entries(desc.properties)));

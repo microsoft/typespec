@@ -145,7 +145,7 @@ namespace Microsoft.Generator.CSharp.Primitives
                 {
                     listItems[i] = new XmlDocStatement("item", [], innerStatements: unionTypeDescriptions[i]);
                 }
-                var listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: listItems);
+                var listXmlDoc = new XmlDocStatement($"<list type=\"bullet\">", $"</list>", [], innerStatements: listItems);
                 unionRemarks = new XmlDocStatement("remarks", [$"Supported types:"], innerStatements: listXmlDoc);
             }
 
@@ -165,7 +165,7 @@ namespace Microsoft.Generator.CSharp.Primitives
                     var listItems = new XmlDocStatement("item", [],
                         new XmlDocStatement("term", [$"BinaryData.FromBytes(new byte[] {{ 1, 2, 3 }})"]),
                         new XmlDocStatement("description", [$"Creates a payload of \"AQID\"."]));
-                    var listXmlDoc = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: listItems);
+                    var listXmlDoc = new XmlDocStatement($"<list type=\"bullet\">", $"</list>", [], innerStatements: listItems);
                     result.Add(new XmlDocStatement("para", [$"Examples:"], innerStatements: listXmlDoc));
                     break;
                 default:
@@ -190,7 +190,7 @@ namespace Microsoft.Generator.CSharp.Primitives
                             new XmlDocStatement("term", [$"BinaryData.FromString(\"{{\\\"key\\\": \\\"value\\\"}}\")"]),
                             new XmlDocStatement("description", [$"Creates a payload of {{ \"key\": \"value\" }}."])),
                     ];
-                    var bdList = new XmlDocStatement("<list type=\"bullet\">", "</list>", [], innerStatements: bdListItems);
+                    var bdList = new XmlDocStatement($"<list type=\"bullet\">", $"</list>", [], innerStatements: bdListItems);
                     result.Add(new XmlDocStatement("para", [$"Examples:"], innerStatements: bdList));
                     break;
             }

@@ -8,7 +8,7 @@
   {
    "$id": "2",
    "Name": "MediaTypeClient",
-   "Description": "Test the payload with different media types and different types of the payload itself.",
+   "Doc": "Test the payload with different media types and different types of the payload itself.",
    "Operations": [],
    "Protocol": {
     "$id": "3"
@@ -18,7 +18,7 @@
      "$id": "4",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "5",
       "kind": "url",
@@ -388,7 +388,7 @@
      "$id": "42",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "43",
       "kind": "url",

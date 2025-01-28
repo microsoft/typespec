@@ -25,7 +25,7 @@ namespace Versioning.MadeOptional.V2
 
         public virtual Task<ClientResult> TestAsync(BinaryContent content, string @param = null, RequestOptions options = null) => throw null;
 
-        public virtual ClientResult<TestModel> Test(TestModel body, string @param = null) => throw null;
+        public virtual ClientResult<TestModel> Test(TestModel body, string @param = null, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<TestModel>> TestAsync(TestModel body, string @param = null, CancellationToken cancellationToken = default) => throw null;
     }

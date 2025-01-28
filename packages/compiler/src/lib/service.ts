@@ -5,7 +5,7 @@ import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import { DecoratorContext, Namespace, Type } from "../core/types.js";
-import { useStateMap } from "./utils.js";
+import { useStateMap } from "../utils/index.js";
 
 export interface ServiceDetails {
   title?: string;

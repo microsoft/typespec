@@ -21,7 +21,7 @@ import { copyMap } from "../utils.js";
 import { getPlausibleName } from "../utils/get-plausible-name.js";
 
 /**  @experimental */
-export interface TypeTypeKit {
+export interface TypeTypekit {
   /**
    * Clones a type and adds it to the typekit's realm.
    * @param type Type to clone
@@ -130,8 +130,9 @@ export interface TypeTypeKit {
 interface TypekitExtension {
   /**
    * Utilities for working with general types.
+   * @experimental
    */
-  type: TypeTypeKit;
+  type: TypeTypekit;
 }
 
 declare module "../define-kit.js" {
