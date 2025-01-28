@@ -325,7 +325,9 @@ function describeScenarios(
   for (const scenarioFile of scenarios) {
     describe(`Scenario File: ${scenarioFile.path}`, () => {
       for (const scenario of scenarioFile.scenarios) {
-        describe(`Scenario: ${scenario.title}`, () => {
+        const isOnly = scenario.title.includes("only:");
+
+        (isOnly ? describe.only : describe)(`Scenario: ${scenario.title}`, () => {
           for (const testBlock of scenario.content.testBlocks) {
             it(`Test: ${testBlock.heading}`, async () => {
               const { fn, namedArgs } = testBlock.matchedTemplate;
