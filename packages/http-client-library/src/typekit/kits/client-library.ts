@@ -2,6 +2,7 @@ import {
   Enum,
   getLocationContext,
   Interface,
+  isStdNamespace,
   listServices,
   Model,
   Namespace,
@@ -60,7 +61,7 @@ defineKit<TK>({
   clientLibrary: {
     listNamespaces(namespace) {
       if (namespace) {
-        return [...namespace.namespaces.values()].filter((ns) => ns.name !== "TypeSpec");
+        return [...namespace.namespaces.values()].filter((ns) => this.type.isUserDefined(ns));
       }
       return [...this.program.checker.getGlobalNamespaceType().namespaces.values()].filter(
         (n) => getLocationContext(this.program, n).type === "project",

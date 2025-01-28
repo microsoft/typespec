@@ -84,7 +84,7 @@ export const httpParamsMutator: Mutator = {
       });
 
       for (const [key, prop] of clone.parameters.properties) {
-        if (prop.optional || isConstantContentType(prop)) {
+        if (prop.optional || isConstantHeader(prop)) {
           clone.parameters.properties.delete(key);
         }
       }
@@ -96,7 +96,7 @@ export const httpParamsMutator: Mutator = {
   },
 };
 
-function isConstantContentType(modelProperty: ModelProperty) {
+function isConstantHeader(modelProperty: ModelProperty) {
   if (!$.modelProperty.isHttpHeader(modelProperty)) {
     return false;
   }

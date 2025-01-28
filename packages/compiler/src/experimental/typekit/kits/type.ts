@@ -1,4 +1,5 @@
 import { getDiscriminatedUnion } from "../../../core/helpers/discriminator-utils.js";
+import { getLocationContext } from "../../../core/index.js";
 import {
   Discriminator,
   getDiscriminator,
@@ -118,6 +119,12 @@ export interface TypeTypeKit {
    * Checks if the given type is a never type.
    */
   isNever(type: Type): boolean;
+  /**
+   * Checks if the given type is a user defined type. Non-user defined types are defined in the compiler or other libraries imported by the spec.
+   * @param type The type to check.
+   * @returns True if the type is a user defined type, false otherwise.
+   */
+  isUserDefined(type: Type): boolean;
 }
 
 interface TypekitExtension {
@@ -288,6 +295,9 @@ defineKit<TypekitExtension>({
     isNever(type) {
       return isNeverType(type);
     },
+    isUserDefined(type) {
+      return getLocationContext(this.program, type).type === "project";
+    }
   },
 });
 

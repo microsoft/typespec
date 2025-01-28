@@ -2,6 +2,7 @@ import { Children, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
+import { ModelSerializers } from "./serializers.jsx";
 
 export interface HttpRequestParametersExpressionProps {
   parameters?: Model;
@@ -34,7 +35,12 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
       const name = options?.name ? options.name : parameter.name;
       const applicationName = namingPolicy.getName(parameter.name, "parameter");
       const parameterPath = parameter.optional ? `options?.${applicationName}` : applicationName;
-      return <ts.ObjectProperty name={JSON.stringify(name)} value={parameterPath} />;
+      let value = parameterPath;
+
+      if(isConstantHeader(parameter)) {
+        value = <ts.ValueExpression jsValue={(parameter.type as any).value}  /> 
+      }
+      return <ts.ObjectProperty name={JSON.stringify(name)} value={value} />;
     },
     { joiner: ",\n" },
   );
@@ -44,4 +50,17 @@ export function HttpRequestParametersExpression(props: HttpRequestParametersExpr
   return <ts.ObjectExpression>
     {parameters}
   </ts.ObjectExpression>;
+}
+
+
+function isConstantHeader(modelProperty: ModelProperty) {
+  if (!$.modelProperty.isHttpHeader(modelProperty)) {
+    return false;
+  }
+
+  if ("value" in modelProperty.type && modelProperty.type.value !== undefined) {
+    return true;
+  }
+
+  return false;
 }
