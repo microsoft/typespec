@@ -8,7 +8,7 @@ variables:
   - name: MACPOOL
     value: Azure Pipelines
   - name: LINUXARMPOOL
-    value: azsdk-pool-mms-ubuntu-2004-arm
+    value: azsdk-pool-arm64
   - name: ARMPOOL
     value: azsdk-pool-arm64
 
