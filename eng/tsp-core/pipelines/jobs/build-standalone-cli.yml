@@ -28,11 +28,11 @@ jobs:
 
     steps:
       - ${{ if eq(parameters.os, 'windows') }}:
-          - script: choco install windows-sdk-10.1 --version=10.1.18362.1
           - pwsh: |
-              Get-ChildItem "C:/Program Files (x86)/Windows Kits/"
               Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/"
-              Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/10.1.18362.1/x64"
+              Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/x64/"
+              Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/"
+              Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64"
             displayName: Check signtool is installed
 
       - task: NodeTool@0
