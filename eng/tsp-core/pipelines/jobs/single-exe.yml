@@ -33,7 +33,7 @@ jobs:
       - script: npm install -g pnpm
         displayName: Install pnpm
 
-      - script: pnpm install --filter
+      - script: pnpm install --filter "@typespec/standalone-cli"
         displayName: Install JavaScript Dependencies
       - script: pnpm build
         workingDirectory: packages/standalone
