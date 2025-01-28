@@ -14,19 +14,23 @@ stages:
           - download: current
             artifact: standalone-macos-x64
             patterns: tsp
+            path: artifacts
+            displayName: Download macos x64 binary
           - download: current
             artifact: standalone-macos-arm64
             patterns: tsp
+            path: artifacts
+            displayName: Download macos arm64 binary
 
           - pwsh: |
               New-Item -ItemType Directory -Path macos
 
               Compress-Archive `
-                -Path standalone-macos-x64 `
+                -Path artifacts/standalone-macos-x64 `
                 -DestinationPath macos/standalone-macos-x64.zip
 
               Compress-Archive `
-                -Path standalone-macos-arm64 `
+                -Path artifacts/standalone-macos-arm64 `
                 -DestinationPath macos/standalone-macos-arm64.zip
             displayName: Package mac binary for signing
 
