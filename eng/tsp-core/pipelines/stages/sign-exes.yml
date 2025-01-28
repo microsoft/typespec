@@ -34,7 +34,7 @@ stages:
 
           - template: /eng/tsp-core/pipelines/templates/signing/macos.yml
             parameters:
-              path:
+              path: macos
 
           - pwsh: |
               Expand-Archive -Path macos/standalone-macos-x64.zip -DestinationPath macos/

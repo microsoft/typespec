@@ -44,9 +44,10 @@ stages:
           vmImage: $(WINDOWSVMIMAGE)
           os: windows
 
-      - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
-        parameters:
-          name: windows-arm64
-          pool: $(ARMPOOL)
-          vmImage: $(WINDOWSARMVMIMAGE)
-          os: windows
+      # TODO: reenable, too slow for testing
+      # - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
+      #   parameters:
+      #     name: windows-arm64
+      #     pool: $(ARMPOOL)
+      #     vmImage: $(WINDOWSARMVMIMAGE)
+      #     os: windows
