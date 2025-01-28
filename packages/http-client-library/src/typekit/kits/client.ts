@@ -1,5 +1,4 @@
 import {
-  getService,
   Interface,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
@@ -137,38 +136,24 @@ defineKit<TypeKit>({
         return clientOperationCache.get(client)!;
       }
 
-      const operations: Operation[] = [];
-
-      function addOperations(_$: any, current: Namespace | Interface) {
-        if (
-          current.kind === "Namespace" &&
-          current !== client.type &&
-          getService(_$.program, current)
-        ) {
-          // if I'm a different service, I'm done
-          return;
-        }
-        if (current.kind === "Interface" && isTemplateDeclaration(current)) {
-          // Skip template interface operations
-          return;
-        }
-
-        for (const op of current.operations.values()) {
-          const clientOperation = _$.type.clone(op);
-          const returnType = _$.httpOperation.getReturnType(op);
-          clientOperation.returnType = returnType;
-          _$.program.checker.finishType(clientOperation);
-
-          // Skip templated operations
-          if (!isTemplateDeclarationOrInstance(clientOperation)) {
-            operations.push(clientOperation);
-          }
-        }
+      if (client.type.kind === "Interface" && isTemplateDeclaration(client.type)) {
+        // Skip template interface operations
+        return [];
       }
 
-      addOperations(this, client.type);
+      const operations: Operation[] = [];
+
+      for (const clientOperation of client.type.operations.values()) {
+        // Skip templated operations
+        if (isTemplateDeclarationOrInstance(clientOperation)) {
+          continue;
+        }
+
+        operations.push(clientOperation);
+      }
 
       clientOperationCache.set(client, operations);
+
       return operations;
     },
     getUrlTemplate(client, constructor) {

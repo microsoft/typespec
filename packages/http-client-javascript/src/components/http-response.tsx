@@ -24,7 +24,7 @@ export interface HttpResponsesProps {
 
 export function HttpResponses(props: HttpResponsesProps) {
   // Handle response by status code and content type
-  const responses = $.httpOperation.getResponses(props.operation.httpOperation.operation);
+  const responses = $.httpOperation.flattenResponses(props.operation.httpOperation);
   return mapJoin(
     responses.filter((r) => !$.httpResponse.isErrorResponse(r)),
     ({ statusCode, contentType, responseContent, type }) => {
@@ -32,13 +32,9 @@ export function HttpResponses(props: HttpResponsesProps) {
 
       let expression = code`return;`;
 
-      let contentTypeCheck = body
+      const contentTypeCheck = body
         ? ` && response.headers.get("content-type") === "${contentType}"`
         : " && !response.body";
-
-      if (contentType === "application/json") {
-        contentTypeCheck = "";
-      }
 
       if (body && (body.bodyKind === "single" || (type && !isVoidType(type)))) {
         expression =

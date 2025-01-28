@@ -1,4 +1,4 @@
-import { Enum, Model, Operation, Union } from "@typespec/compiler";
+import { Enum, Model, Namespace, Operation, Union } from "@typespec/compiler";
 import { unsafe_mutateSubgraph, unsafe_Mutator } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 import { Client, ClientOperation, InternalClient } from "./interfaces.js";
@@ -13,21 +13,58 @@ export interface CreateClientLibraryOptions {
   operationMutators?: unsafe_Mutator[];
 }
 
+function hasTopLevelOperations(namespace: Namespace): boolean {
+  for (const operation of namespace.operations.values()) {
+    if ($.type.isUserDefined(operation)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function hasUserDefinedClients(namespace: Namespace): boolean {
+  for (const client of namespace.namespaces.values()) {
+    if ($.type.isUserDefined(client)) {
+      return true;
+    }
+  }
+
+  for (const iface of namespace.interfaces.values()) {
+    if ($.type.isUserDefined(iface)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function getUserDefinedSubClients(namespace: Namespace): InternalClient[] {
+  const clients: InternalClient[] = [];
+
+  for (const subNs of [...namespace.namespaces.values(), ...namespace.interfaces.values()]) {
+    if ($.type.isUserDefined(subNs)) {
+      clients.push($.client.getClient(subNs));
+    }
+  }
+
+  return clients;
+}
+
 export function createClientLibrary(options: CreateClientLibraryOptions = {}): ClientLibrary {
   let topLevel: InternalClient[] = [];
   const dataTypes = new Set<Model | Union | Enum>();
 
   // Need to find out if we need to create a client for the global namespace.
   const globalNs = $.program.getGlobalNamespaceType();
-  const globalClient = $.client.getClient(globalNs);
-  const globalOperations = $.client.listServiceOperations(globalClient);
-  const globalSubClients = $.clientLibrary.listClients(globalClient);
 
-  if (globalOperations.length !== 0 || globalSubClients.length === 0) {
+  if (hasTopLevelOperations(globalNs) || !hasUserDefinedClients(globalNs)) {
     // We need to start with the global namespace
+    const globalClient = $.client.getClient(globalNs);
     topLevel = [globalClient];
-  } else if (globalSubClients.length) {
-    for (const client of globalSubClients) {
+  } else if (hasUserDefinedClients(globalNs)) {
+    const subClients = getUserDefinedSubClients(globalNs);
+    for (const client of subClients) {
       topLevel.push(client);
     }
   }
@@ -78,14 +115,12 @@ function visitClient(
 
   // Collect data types
   for (const clientOperation of currentClient.operations) {
-    collectDataTypes(clientOperation.operation, dataTypes);
-    const responses = $.httpOperation.getResponses(clientOperation.httpOperation.operation);
-    for (const response of responses) {
-      const body = response.responseContent.body;
-      if (body) {
-        collectDataTypes(body.type, dataTypes);
-      }
-    }
+    // Collect operation parameters
+    collectDataTypes(clientOperation.operation.parameters, dataTypes);
+
+    // Collect http operation return type
+    const responseType = $.httpOperation.getReturnType(clientOperation.httpOperation);
+    collectDataTypes(responseType, dataTypes);
   }
 
   return currentClient;

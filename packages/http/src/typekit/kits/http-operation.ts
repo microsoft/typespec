@@ -38,12 +38,12 @@ export interface HttpOperationKit {
    * Get the responses for the given operation. This function will return an array of responses grouped by status code and content type.
    * @param op operation to extract the HttpResponse from
    */
-  getResponses(op: Operation): FlatHttpResponse[];
+  flattenResponses(op: HttpOperation): FlatHttpResponse[];
   /**
    * Get the Http Return type for the given operation. This function will resolve the returnType based on the Http Operation.
    * @param op operation to get the return type for
    */
-  getReturnType(op: Operation, options?: { includeErrors?: boolean }): Type;
+  getReturnType(op: HttpOperation, options?: { includeErrors?: boolean }): Type;
 }
 
 interface TypekitExtension {
@@ -59,9 +59,8 @@ defineKit<TypekitExtension>({
     get(op) {
       return ignoreDiagnostics(getHttpOperation(this.program, op));
     },
-    getReturnType(operation, options) {
-      const httpOperation = this.httpOperation.get(operation);
-      let responses = this.httpOperation.getResponses(httpOperation.operation);
+    getReturnType(httpOperation, options) {
+      let responses = this.httpOperation.flattenResponses(httpOperation);
 
       if (!options?.includeErrors) {
         responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r));
@@ -89,9 +88,8 @@ defineKit<TypekitExtension>({
 
       return httpReturnType;
     },
-    getResponses(operation) {
+    flattenResponses(httpOperation) {
       const responsesMap: FlatHttpResponse[] = [];
-      const httpOperation = this.httpOperation.get(operation);
       for (const response of httpOperation.responses) {
         for (const responseContent of response.responses) {
           const contentTypeProperty = responseContent.properties.find(

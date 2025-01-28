@@ -47,7 +47,7 @@ export const httpParamsMutator: Mutator = {
     },
     mutate(o, clone, _program, realm) {
       const httpOperation = $.httpOperation.get(o);
-      const returnType = $.httpOperation.getReturnType(o);
+      const returnType = $.httpOperation.getReturnType(httpOperation);
       clone.returnType = returnType;
       const params = $.httpRequest.getParameters(httpOperation, [
         "query",

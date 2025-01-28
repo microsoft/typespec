@@ -33,7 +33,7 @@ export interface ClientOperationProps {
 
 export function ClientOperation(props: ClientOperationProps) {
   const client = props.operation.client;
-  const returnType = $.httpOperation.getReturnType(props.operation.httpOperation.operation);
+  const returnType = $.httpOperation.getReturnType(props.operation.httpOperation);
   const responseRefkey = ay.refkey(props.operation, "http-response");
   const clientContextInterfaceRef = getClientcontextDeclarationRef(client);
   const signatureParams = {
