@@ -46,21 +46,76 @@ op getModel(): Bird;
 ## TypeScript
 
 ```ts src/models/serializers.ts function birdToTransport
+export function birdToTransport(item: Bird): any {
+  if (item.kind === "seagull") {
+    return seaGullToTransport(item as SeaGull);
+  }
 
+  if (item.kind === "sparrow") {
+    return sparrowToTransport(item as Sparrow);
+  }
+
+  if (item.kind === "goose") {
+    return gooseToTransport(item as Goose);
+  }
+
+  if (item.kind === "eagle") {
+    return eagleToTransport(item as Eagle);
+  }
+
+  throw new Error(`Unexpected discriminated variant ${item.kind}`);
+}
 ```
 
 ```ts src/models/serializers.ts function seaGullToTransport
-
+export function seaGullToTransport(item: SeaGull): any {
+  return {
+    ...{
+      kind: item.kind,
+      wingspan: item.wingspan,
+    },
+    kind: item.kind,
+  };
+}
 ```
 
 ```ts src/models/serializers.ts function sparrowToTransport
-
+export function sparrowToTransport(item: Sparrow): any {
+  return {
+    ...{
+      kind: item.kind,
+      wingspan: item.wingspan,
+    },
+    kind: item.kind,
+  };
+}
 ```
 
 ```ts src/models/serializers.ts function gooseToTransport
-
+export function gooseToTransport(item: Goose): any {
+  return {
+    ...{
+      kind: item.kind,
+      wingspan: item.wingspan,
+    },
+    kind: item.kind,
+  };
+}
 ```
 
 ```ts src/models/serializers.ts function eagleToTransport
-
+export function eagleToTransport(item: Eagle): any {
+  return {
+    ...{
+      kind: item.kind,
+      wingspan: item.wingspan,
+    },
+    kind: item.kind,
+    friends: item.friends
+      ? arraySerializer(item.friends, birdToTransport)
+      : item.friends,
+    hate: item.hate ? recordSerializer(item.hate, birdToTransport) : item.hate,
+    partner: item.partner ? birdToTransport(item.partner) : item.partner,
+  };
+}
 ```

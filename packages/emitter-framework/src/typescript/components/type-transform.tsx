@@ -178,7 +178,7 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
   
   let baseModelTransform: Children = null;
   if(props.type.baseModel) {
-    baseModelTransform = code`...${<TypeTransformCall type={props.type.baseModel} itemPath={props.itemPath} target={props.target} optionsBagName={props.optionsBagName} />},\n`
+    baseModelTransform = code`...${<ModelTransformExpression type={props.type.baseModel} itemPath={props.itemPath} target={props.target} optionsBagName={props.optionsBagName} />},\n`
   }
   
   return (

@@ -46,6 +46,6 @@ export function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum
         dataTypes.add(scalar);
       },
     },
-    { includeTemplateDeclaration: false },
+    { includeTemplateDeclaration: false, visitDerivedTypes: true },
   );
 }
