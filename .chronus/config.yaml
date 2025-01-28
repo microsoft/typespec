@@ -45,6 +45,7 @@ versionPolicies:
       - "@typespec/protobuf"
       - "@typespec/prettier-plugin-typespec"
       - "@typespec/eslint-plugin"
+      - "@typespec/html-program-viewer"
       - "@typespec/json-schema"
       - "@typespec/internal-build-utils"
       - "typespec-vs"

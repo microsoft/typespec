@@ -72,7 +72,7 @@ export interface ScalarKit {
    * @param type The type to check.
    */
   isFloat64(type: Type): type is Scalar;
-  
+
   /**
    * Check if `type` is exactly the standard int8 type.
    *
@@ -128,7 +128,7 @@ export interface ScalarKit {
    * @param type The type to check.
    */
   isPlainTime(type: Type): type is Scalar;
-  
+
   /**
    * Check if `type` is exactly the standard safeint type.
    *
@@ -190,7 +190,7 @@ export interface ScalarKit {
    * @param type The type to check.
    */
   isString(type: Type): type is Scalar;
-  
+
   /**
    * Check if `type` extends the standard boolean type.
    *
@@ -295,7 +295,7 @@ export interface ScalarKit {
    * @param type The type to check.
    */
   extendsInteger(type: Type): type is Scalar;
-  
+
   /**
    * Check if `type` extends the standard offsetDateTime type.
    *
@@ -351,7 +351,7 @@ export interface ScalarKit {
    * @param type The type to check.
    */
   extendsUint64(type: Type): type is Scalar;
-  
+
   /**
    * Check if `type` extends the standard url type.
    *

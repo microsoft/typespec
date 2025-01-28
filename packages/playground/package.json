@@ -76,6 +76,7 @@
     "@fluentui/react-icons": "^2.0.271",
     "@typespec/bundler": "workspace:~",
     "@typespec/compiler": "workspace:~",
+    "@typespec/html-program-viewer": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/openapi3": "workspace:~",
