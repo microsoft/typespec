@@ -17,6 +17,9 @@ jobs:
 
       - pwsh: |
           New-Item -ItemType Directory -Path windows
+          New-Item -ItemType Directory -Path windows/standalone-windows-x64
+          New-Item -ItemType Directory -Path windows/standalone-windows-arm64
+
           Copy-Item $(Pipeline.Workspace)/standalone-windows-x64/tsp.exe windows/standalone-windows-x64/
           Copy-Item $(Pipeline.Workspace)/standalone-windows-arm64/tsp.exe windows/standalone-windows-arm64/
         displayName: Package windows binary for signing
