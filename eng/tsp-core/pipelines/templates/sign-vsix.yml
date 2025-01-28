@@ -3,7 +3,7 @@ parameters:
   pattern: "**/*.vsix"
 
 steps:
-  - template: /eng/tsp-core/pipelines/templates/sign.yml
+  - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
     parameters:
       path: ${{ parameters.path }}
       pattern: ${{ parameters.pattern }}
