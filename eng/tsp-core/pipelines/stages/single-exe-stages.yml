@@ -1,7 +1,7 @@
 stages:
   - stage: Build_SingleExes
     displayName: Core - Build Single Exe
-    dependsOn: InitStage
+    # dependsOn: InitStage
     condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
     variables:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
