@@ -1,4 +1,5 @@
 import pc from "picocolors";
+import prompts from "prompts";
 import { InitTemplateError, initTypeSpecProject } from "../../../init/init.js";
 import { installTypeSpecDependencies } from "../../install.js";
 import { Diagnostic } from "../../types.js";
@@ -17,9 +18,20 @@ export async function initAction(
   try {
     await initTypeSpecProject(host, process.cwd(), args);
     if (args.install) {
-      // eslint-disable-next-line no-console
-      console.log(pc.green(`Installing dependencies...`));
-      await installTypeSpecDependencies(host, process.cwd());
+      const { confirm } = await prompts([
+        {
+          type: "confirm",
+          name: "confirm",
+          message: `Install dependencies?`,
+          initial: true,
+        },
+      ]);
+    
+      if (confirm) {
+        // eslint-disable-next-line no-console
+        console.log(pc.green(`Installing dependencies...`));
+        await installTypeSpecDependencies(host, process.cwd());      
+      }  
     }
     return [];
   } catch (e) {
