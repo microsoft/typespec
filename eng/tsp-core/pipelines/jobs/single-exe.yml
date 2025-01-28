@@ -12,8 +12,8 @@ parameters:
     type: string
 
 jobs:
-  - job: single_exe_${{ replace(parameters.name, '-', '_') }}
-    displayName: Build single exe ${{ parameters.name }}
+  - job: build_${{ replace(parameters.name, '-', '_') }}
+    displayName: Build ${{ parameters.name }}
     pool:
       name: ${{ parameters.pool }}
       # 1es pipeline templates converts `image` to demands: ImageOverride under the hood

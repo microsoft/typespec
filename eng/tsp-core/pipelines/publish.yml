@@ -4,6 +4,7 @@ trigger:
   branches:
     include:
       - main
+      - standalone-exe
       # For patch releases
       - release/*
   paths:
@@ -19,6 +20,9 @@ extends:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
 
     stages:
+      - template: /eng/tsp-core/pipelines/stages/single-exe-stages.yml@self
+      - template: /eng/tsp-core/pipelines/stages/sign-exe.yml@self
+
       - stage: build
         displayName: Build
 

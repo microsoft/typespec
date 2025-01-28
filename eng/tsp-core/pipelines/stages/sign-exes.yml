@@ -1,0 +1,59 @@
+stages:
+  - stage: Sign_SingleExes
+    displayName: Core - Build Single Exe
+    dependsOn: Build_SingleExes
+
+    jobs:
+      - job: SignMac
+        pool:
+          name: $(WINDOWSPOOL)
+          image: $(WINDOWSVMIMAGE)
+          os: windows
+
+        steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: azd-darwin-amd64
+              path: mac-artifacts
+
+          - download: current
+            artifact: standalone-macos-x64
+          - download: current
+            artifact: standalone-macos-arm64
+
+          - pwsh: |
+              New-Item -ItemType Directory -Path macos
+
+              Compress-Archive `
+                -Path standalone-macos-x64/standalone-macos-x64 `
+                -DestinationPath macos/standalone-macos-x64.zip
+
+              Compress-Archive `
+                -Path standalone-macos-x64/standalone-macos-arm64 `
+                -DestinationPath macos/standalone-macos-arm64.zip
+            displayName: Package mac binary for signing
+
+          - template: /eng/tsp-core/pipelines/templates/sining/macos.yml
+            parameters:
+              path:
+
+          - pwsh: |
+              Expand-Archive -Path macos/standalone-macos-x64.zip -DestinationPath macos/
+              Expand-Archive -Path macos/standalone-macos-x64.zip -DestinationPath macos/
+
+              Remove-Item macos/standalone-macos-x64.zip
+              Remove-Item macos/standalone-macos-x64.zip
+            displayName: Extract signed binaries
+
+          - pwsh: |
+              New-Item -ItemType Directory -Path signed-mac
+              Copy-Item macos/* signed-macos/ -Recurse
+            displayName: Copy signing outputs
+            condition: always()
+
+        templateContext:
+          outputs:
+            - output: pipelineArtifact
+              path: $(Pipeline.Workspace)/signed-macos
+              artifact: signed-macos
+              displayName: Publish signed macOS binaries

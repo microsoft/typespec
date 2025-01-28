@@ -11,7 +11,9 @@ const projectRoot = dirname(import.meta.dirname);
 const tempDir = join(projectRoot, "temp");
 const seaConfigPath = join(tempDir, "sea-config.json");
 const blobPath = join(tempDir, "sea-prep.blob");
-const exePath = join(projectRoot, "dist", "standalone-tsp");
+
+const exeName = process.platform === "win32" ? "tsp.exe" : "tsp";
+const exePath = join(projectRoot, "dist", exeName);
 
 await buildCurrent();
 
@@ -26,7 +28,7 @@ async function bundle() {
     await esbuild.build({
       entryPoints: ["src/cli.ts"],
       bundle: true,
-      outfile: "dist/bundle.cjs",
+      outfile: "temp/bundle.cjs",
       platform: "node",
       target: "node22",
       format: "cjs",
@@ -78,7 +80,7 @@ async function createSea() {
 async function createSeaConfig() {
   await action(`Creating sea config ${seaConfigPath}`, async () => {
     await writeSeaConfig(seaConfigPath, {
-      main: join(projectRoot, "dist/bundle.cjs"),
+      main: join(projectRoot, "temp/bundle.cjs"),
       output: blobPath,
       disableExperimentalSEAWarning: true,
       useCodeCache: false,

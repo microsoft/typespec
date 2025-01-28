@@ -1,0 +1,37 @@
+parameters:
+  path: ""
+  pattern: "**/*.zip"
+
+steps:
+  - template: /eng/tsp-core/pipelines/templates/sign.yml
+    parameters:
+      path: ${{ parameters.path }}
+      pattern: ${{ parameters.pattern }}
+      inlineOperation: |
+        [
+          {
+            "KeyCode": "CP-401337-Apple",
+            "OperationCode": "MacAppDeveloperSign",
+            "Parameters": {
+              "Hardening": "--options=runtime"
+            },
+            "ToolName": "sign",
+            "ToolVersion": "1.0"
+          }
+        ]
+  - template: /eng/tsp-core/pipelines/templates/sign.yml
+    parameters:
+      path: ${{ parameters.path }}
+      pattern: ${{ parameters.pattern }}
+      inlineOperation: |
+        [
+          {
+            "KeyCode": "CP-401337-Apple",
+            "OperationCode": "MacAppNotarize",
+            "Parameters": {
+              "BundleId": "${{ parameters.BundleId }}"
+            },
+            "ToolName": "sign",
+            "ToolVersion": "1.0"
+          }
+        ]

@@ -1,5 +1,5 @@
 stages:
-  - stage: Build_SingleExe
+  - stage: Build_SingleExes
     displayName: Core - Build Single Exe
     dependsOn: InitStage
     condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
