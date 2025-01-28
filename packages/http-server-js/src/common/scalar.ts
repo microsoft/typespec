@@ -8,6 +8,54 @@ import { parseCase } from "../util/case.js";
 import { UnimplementedError } from "../util/error.js";
 import { getFullyQualifiedTypeName } from "../util/name.js";
 
+export interface ScalarInfo<
+  Encodings extends { [target: string]: { [encoding: string]: ScalarEncoding } } = {},
+> {
+  /**
+   * The TypeScript type that represents the scalar, or an Importable if the scalar requires a representation
+   * that is not built-in.
+   */
+  type: string | Importable;
+
+  /**
+   * A map of supported encodings for the scalar.
+   */
+  encodings?: Encodings;
+
+  /**
+   * A map of default encodings for the scalar.
+   */
+  defaultEncodings?: {
+    [contentType: string]: [target: string, encoding: string];
+  };
+}
+
+export interface Importable {
+  (ctx: JsContext): Promise<string>;
+}
+
+export interface ScalarEncoding {
+  encodeTemplate: string;
+  decodeTemplate: string;
+}
+
+const SCALARS = new Map<string, ScalarInfo>([
+  [
+    "TypeSpec.bytes",
+    {
+      type: "Uint8Array",
+      encodings: {
+        "TypeSpec.string": {
+          base64: {
+            encodeTemplate: "({} instanceof Buffer ? {} : Buffer.from({})).toString('base64')",
+            decodeTemplate: "Buffer.from({}, 'base64')",
+          },
+        },
+      },
+    },
+  ],
+]);
+
 /**
  * Emits a declaration for a scalar type.
  *
