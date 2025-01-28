@@ -27,6 +27,11 @@ jobs:
         hostArchitecture: ${{ parameters.hostArchitecture }}
 
     steps:
+      - ${{ if eq(parameters.os, 'windows') }}:
+          - script: choco install windows-sdk-10.1 --version=10.1.18362.1
+          - script: signtool.exe
+            displayName: Check signtool is installed
+
       - task: NodeTool@0
         displayName: Install Node.js
         retryCountOnTaskFailure: 3
