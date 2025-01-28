@@ -5,7 +5,7 @@ parameters:
     type: string
   - name: vmImage
     type: string
-  - name: imageKey
+  - name: hostArchitecture
     type: string
     default: image
   - name: os
@@ -23,6 +23,7 @@ jobs:
       ${{ else }}:
         image: ${{ parameters.vmImage }}
       os: ${{ parameters.os }}
+      hostArchitecture: ${{ parameters.hostArchitecture }}
 
     steps:
       - task: NodeTool@0

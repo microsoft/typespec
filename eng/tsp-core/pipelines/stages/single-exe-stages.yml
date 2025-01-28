@@ -4,7 +4,7 @@ stages:
     variables:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
     jobs:
-      - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
         parameters:
           name: linux-x64
           pool: $(LINUXPOOL)
@@ -16,38 +16,37 @@ stages:
       ##[error]ToolLauncherNotFoundException: Could not successfully find the /mnt/vss/_work/_gdn/packages/nuget/Microsoft.Security.CredScan.Client.linux-x64.2.3.12.23/lib/net6.0/CredentialScanner tool launcher. Please ensure any dependent frameworks are installed.
       ##[error]Win32Exception: An error occurred trying to start process '/mnt/vss/_work/_gdn/packages/nuget/Microsoft.Security.CredScan.Client.linux-x64.2.3.12.23/lib/net6.0/CredentialScanner' with working directory '/mnt/vss/_work/1'. Exec format error
 
-      # - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
+      # - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
       #   parameters:
       #     name: linux-arm64
       #     pool: $(LINUXARMPOOL)
       #     vmImage: $(LINUXARMVMIMAGE)
       #     os: linux
 
-      - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
         parameters:
           name: macos-x64
           pool: $(MACPOOL)
           vmImage: $(MACVMIMAGE)
           os: macOS
 
-      - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
         parameters:
           name: macos-arm64
           pool: $(MACPOOL)
           vmImage: $(MACVMIMAGEM1)
           os: macOS
 
-      - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
         parameters:
           name: windows-x64
           pool: $(WINDOWSPOOL)
           vmImage: $(WINDOWSVMIMAGE)
           os: windows
 
-      # TODO: reenable, too slow for testing
-      # - template: /eng/tsp-core/pipelines/jobs/single-exe.yml
-      #   parameters:
-      #     name: windows-arm64
-      #     pool: $(ARMPOOL)
-      #     vmImage: $(WINDOWSARMVMIMAGE)
-      #     os: windows
+      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+        parameters:
+          name: windows-arm64
+          pool: $(ARMPOOL)
+          vmImage: $(WINDOWSARMVMIMAGE)
+          os: windows
