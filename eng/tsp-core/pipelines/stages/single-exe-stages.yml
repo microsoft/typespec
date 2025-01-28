@@ -11,17 +11,13 @@ stages:
           vmImage: $(LINUXVMIMAGE)
           os: linux
 
-      # TODO:
-      ##[error]Error running credscan job: 1 of 1
-      ##[error]ToolLauncherNotFoundException: Could not successfully find the /mnt/vss/_work/_gdn/packages/nuget/Microsoft.Security.CredScan.Client.linux-x64.2.3.12.23/lib/net6.0/CredentialScanner tool launcher. Please ensure any dependent frameworks are installed.
-      ##[error]Win32Exception: An error occurred trying to start process '/mnt/vss/_work/_gdn/packages/nuget/Microsoft.Security.CredScan.Client.linux-x64.2.3.12.23/lib/net6.0/CredentialScanner' with working directory '/mnt/vss/_work/1'. Exec format error
-
-      # - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
-      #   parameters:
-      #     name: linux-arm64
-      #     pool: $(LINUXARMPOOL)
-      #     vmImage: $(LINUXARMVMIMAGE)
-      #     os: linux
+      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+        parameters:
+          name: linux-arm64
+          pool: $(LINUXARMPOOL)
+          vmImage: $(LINUXARMVMIMAGE)
+          os: linux
+          hostArchitecture: arm64
 
       - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
         parameters:
