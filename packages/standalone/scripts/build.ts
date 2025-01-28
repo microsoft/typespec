@@ -41,6 +41,9 @@ async function createSea() {
   await action(`Copying executable`, async () => {
     // get the node executable
     const nodeExe = process.execPath;
+    // const nodeExe = "/Users/timotheeguerin/Downloads/node-v22.13.1-linux-x64/bin/node";
+    // const nodeExe = "/Users/timotheeguerin/Downloads/node-v22.13.1-win-arm64/node.exe";
+    // const nodeExe = "/Users/timotheeguerin/Downloads/node-v22.13.1-linux-arm64/bin/node";
     // copy the executable as the output executable
     await copyFile(nodeExe, exePath);
   });
