@@ -1,7 +1,7 @@
 import * as esbuild from "esbuild";
 import { execa } from "execa";
 import { execFileSync } from "node:child_process";
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, readdir } from "node:fs/promises";
 import ora from "ora";
 import { dirname, join } from "path";
 import { writeSeaConfig } from "./sea-config.js";
@@ -55,9 +55,8 @@ async function createSea() {
       execa`codesign --remove-signature ${exePath}`;
     } else if (process.platform === "win32") {
       console.log("process.env.SIGNTOOL_PATH", process.env.SIGNTOOL_PATH);
-      if (process.env.SIGNTOOL_PATH) {
-        execFileSync(process.env.SIGNTOOL_PATH!, [`remove`, `/s`, exePath]);
-      }
+      const signToolPath = await findSigntool();
+      execFileSync(signToolPath, [`remove`, `/s`, exePath]);
     }
   });
   await action(`Creating blob ${seaConfigPath}`, async () => {
@@ -100,4 +99,19 @@ async function action(message: string, callback: () => Promise<any>) {
     spinner.fail();
     throw e;
   }
+}
+
+async function findSigntool() {
+  const base = "C:/Program Files (x86)/Windows Kits/10/bin/";
+
+  const files = await readdir(base);
+  console.log("Installed", files);
+  const latest = files
+    .filter((f) => f.startsWith("1"))
+    .sort()
+    .reverse()[0];
+
+  console.log("Picking latest", latest);
+
+  return join(base, latest, "x64/signtool.exe");
 }
