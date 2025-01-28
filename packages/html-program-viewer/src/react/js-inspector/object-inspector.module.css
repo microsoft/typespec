@@ -1,0 +1,15 @@
+.object-description {
+  font-style: italic;
+}
+
+.preview {
+  font-style: italic;
+}
+
+.object-name {
+  color: var(--colorPaletteMarigoldForeground2);
+}
+
+.dimmed {
+  opacity: 0.6;
+}

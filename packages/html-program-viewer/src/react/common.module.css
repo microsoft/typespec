@@ -1,0 +1,26 @@
+.mono {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.literal {
+  color: var(--colorPaletteLightGreenForeground2);
+}
+
+.type-kind {
+  color: var(--colorPaletteBerryForeground2);
+}
+.type-kind-tag {
+  color: white;
+  background-color: var(--colorPaletteBerryForeground2);
+  border-radius: 2px;
+}
+.type-kind-tag-small {
+  height: 16px;
+  line-height: 16px;
+  font-size: 10px;
+  padding: 0 3px;
+}
+
+.type-kind-tag-auto {
+  padding: 1px 5px;
+}
