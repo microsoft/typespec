@@ -10,18 +10,18 @@ jobs:
         artifact: standalone-windows-x64
         patterns: tsp.exe
         displayName: Download x64 binary
-      - download: current
-        artifact: standalone-windows-arm64
-        patterns: tsp.exe
-        displayName: Download arm64 binary
+      # - download: current
+      #   artifact: standalone-windows-arm64
+      #   patterns: tsp.exe
+      #   displayName: Download arm64 binary
 
+      # New-Item -ItemType Directory -Path windows/standalone-windows-arm64
+      # Copy-Item $(Pipeline.Workspace)/standalone-windows-arm64/tsp.exe windows/standalone-windows-arm64/
       - pwsh: |
           New-Item -ItemType Directory -Path windows
           New-Item -ItemType Directory -Path windows/standalone-windows-x64
-          New-Item -ItemType Directory -Path windows/standalone-windows-arm64
 
           Copy-Item $(Pipeline.Workspace)/standalone-windows-x64/tsp.exe windows/standalone-windows-x64/
-          Copy-Item $(Pipeline.Workspace)/standalone-windows-arm64/tsp.exe windows/standalone-windows-arm64/
         displayName: Package windows binary for signing
 
       - template: /eng/tsp-core/pipelines/templates/signing/windows.yml

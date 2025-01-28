@@ -54,7 +54,6 @@ async function createSea() {
     if (process.platform === "darwin") {
       execa`codesign --remove-signature ${exePath}`;
     } else if (process.platform === "win32") {
-      console.log("process.env.SIGNTOOL_PATH", process.env.SIGNTOOL_PATH);
       const signToolPath = await findSigntool();
       execFileSync(signToolPath, [`remove`, `/s`, exePath]);
     }
@@ -70,13 +69,14 @@ async function createSea() {
     }
   });
 
-  await action(`Sign executable ${exePath}`, async () => {
-    if (process.platform === "darwin") {
-      execa`codesign --sign - ${exePath}`;
-    } else if (process.platform === "win32") {
-      // execa`signtool sign /fd SHA256 ${exePath}`;
-    }
-  });
+  // This should get sent to ESRP for official signing
+  // await action(`Sign executable ${exePath}`, async () => {
+  //   if (process.platform === "darwin") {
+  //     // execa`codesign --sign - ${exePath}`;
+  //   } else if (process.platform === "win32") {
+  //     // execa`signtool sign /fd SHA256 ${exePath}`;
+  //   }
+  // });
 }
 
 async function createSeaConfig() {
@@ -111,7 +111,9 @@ async function findSigntool() {
     .sort()
     .reverse()[0];
 
+  const resolved = join(base, latest, "x64/signtool.exe");
   console.log("Picking latest", latest);
+  console.log("Signtool path: ", resolved);
 
-  return join(base, latest, "x64/signtool.exe");
+  return resolved;
 }

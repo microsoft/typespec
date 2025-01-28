@@ -40,9 +40,9 @@ stages:
           vmImage: $(WINDOWSVMIMAGE)
           os: windows
 
-      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
-        parameters:
-          name: windows-arm64
-          pool: $(ARMPOOL)
-          vmImage: $(WINDOWSARMVMIMAGE)
-          os: windows
+      # - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+      #   parameters:
+      #     name: windows-arm64
+      #     pool: $(ARMPOOL)
+      #     vmImage: $(WINDOWSARMVMIMAGE)
+      #     os: windows
