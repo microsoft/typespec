@@ -29,7 +29,7 @@ jobs:
     steps:
       - ${{ if eq(parameters.os, 'windows') }}:
           - script: choco install windows-sdk-10.1 --version=10.1.18362.1
-          - script: signtool.exe
+          - script: dir C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x64
             displayName: Check signtool is installed
 
       - task: NodeTool@0
