@@ -209,9 +209,10 @@ async function main() {
             type: "string",
             description: "Name of the template to use",
           })
-          .option("skip-install", {
+          .option("install", {
             type: "boolean",
-            description: "Do not run `tsp install` automatically after initialization",
+            default: true,
+            description: "Run `tsp install` automatically after initialization.",
           }),
       withCliHostAndDiagnostics((host, args) => initAction(host, args)),
     )

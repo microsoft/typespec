@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Default behavior of `tsp init` changed to automatically run `tsp install`. This can be suppressed with `--skip-install`.
+Default behavior of `tsp init` changed to automatically run `tsp install`. This can be suppressed with `--no-install`.
