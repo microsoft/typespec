@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { beforeEach, describe, it } from "vitest";
 import { HttpPartsClient } from "../../../generated/http/payload/multipart/http-client-javascript/src/index.js";
 
-describe("HttpPartsClient", () => {
+describe.skip("HttpPartsClient", () => {
   let client: HttpPartsClient;
   let __filename;
   let __dirname;

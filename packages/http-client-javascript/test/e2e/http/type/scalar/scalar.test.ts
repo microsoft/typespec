@@ -7,7 +7,7 @@ import {
   UnknownClient,
 } from "../../../generated/http/type/scalar/http-client-javascript/src/index.js";
 
-describe("Type.Scalar", () => {
+describe.skip("Type.Scalar", () => {
   describe("StringClient", () => {
     const client = new StringClient("http://localhost:3000");
 

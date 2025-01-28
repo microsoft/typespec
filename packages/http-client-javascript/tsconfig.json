@@ -15,6 +15,6 @@
     "emitDeclarationOnly": true,
     "outDir": "dist"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx",],
   "exclude": ["node_modules", "dist", "test/e2e/generated/**/*.ts"]
 }
