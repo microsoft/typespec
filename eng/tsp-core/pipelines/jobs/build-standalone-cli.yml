@@ -32,15 +32,6 @@ jobs:
         retryCountOnTaskFailure: 3
         inputs:
           versionSpec: 22.x
-      - pwsh: |
-          Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/"
-          Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/10.0.26100.0/x64"
-
-          $windowsSdkPath=Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin/1*" | Select-Object FullName | Sort-Object -Descending { [version](Split-Path $_.FullName -leaf)} | Select-Object -first 1
-          $signtoolPath = "$($windowsSdkPath.FullName)\x64\signtool.exe"
-          echo "Sign tool path: $signtoolPath"
-          echo "##vso[task.setvariable variable=SIGNTOOL_PATH]$signtoolPath"
-        displayName: Find signtool path
 
       - script: npm install -g pnpm
         displayName: Install pnpm
