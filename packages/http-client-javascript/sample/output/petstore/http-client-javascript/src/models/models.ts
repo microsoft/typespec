@@ -1,27 +1,14 @@
-export interface ConstructorParameters {
-  endpoint: string;
-}
+export type Int32 = number;
 
-export interface ConstructorParameters_2 {
-  endpoint: string;
-}
+export type Int64 = bigint;
 
-export interface ConstructorParameters_3 {
-  endpoint: string;
-}
+export type Integer = number;
 
-export interface ToyResponsePage {
-  items: Array<Toy>;
-  nextLink?: string;
-}
+export type Numeric = number;
 
-export interface Toy {
-  id: bigint;
-  petId: bigint;
-  name: string;
-}
+export type String = string;
 
-export interface PetResponsePage {
+export interface ResponsePage {
   items: Array<Pet>;
   nextLink?: string;
 }
@@ -30,4 +17,15 @@ export interface Pet {
   name: string;
   tag?: string;
   age: number;
+}
+
+export interface ResponsePage_2 {
+  items: Array<Toy>;
+  nextLink?: string;
+}
+
+export interface Toy {
+  id: bigint;
+  petId: bigint;
+  name: string;
 }

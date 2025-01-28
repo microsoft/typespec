@@ -1,20 +1,20 @@
 import {
-  PetStoreClientContext,
-  PetStoreClientOptions,
-  createPetStoreClientContext,
-} from "./api/clientContext.js";
-import {
   ListPetToysResponseClientContext,
   ListPetToysResponseClientOptions,
   createListPetToysResponseClientContext,
-} from "./api/listPetToysResponseClient/clientContext.js";
-import { list as list_2 } from "./api/listPetToysResponseClient/operations.js";
+} from "./api/listPetToysResponseClient/listPetToysResponseClientContext.js";
+import { list as list_2 } from "./api/listPetToysResponseClient/listPetToysResponseClientOperations.js";
+import {
+  PetStoreClientContext,
+  PetStoreClientOptions,
+  createPetStoreClientContext,
+} from "./api/petStoreClientContext.js";
 import {
   PetsClientContext,
   PetsClientOptions,
   createPetsClientContext,
-} from "./api/petsClient/clientContext.js";
-import { create, delete_, list, read } from "./api/petsClient/operations.js";
+} from "./api/petsClient/petsClientContext.js";
+import { create, delete_, list, read } from "./api/petsClient/petsClientOperations.js";
 import { Pet } from "./models/models.js";
 
 export class PetStoreClient {
@@ -45,7 +45,7 @@ export class PetsClient {
   constructor(endpoint: string, options?: PetsClientOptions) {
     this.#context = createPetsClientContext(endpoint, options);
   }
-  async delete(petId: number) {
+  async delete_(petId: number) {
     return delete_(this.#context, petId);
   }
   async list(options?: { nextLink?: string }) {

@@ -1,12 +1,4 @@
-import {
-  ConstructorParameters,
-  ConstructorParameters_2,
-  ConstructorParameters_3,
-  Pet,
-  PetResponsePage,
-  Toy,
-  ToyResponsePage,
-} from "./models.js";
+import { Pet, ResponsePage, ResponsePage_2, Toy } from "./models.js";
 
 export function recordSerializer(
   record: Record<string, any>,
@@ -54,69 +46,16 @@ export function dateUnixTimestampSerializer(date: Date): number {
 export function dateUnixTimestampDeserializer(date: number): Date {
   return new Date(date * 1000);
 }
-export function constructorParametersToTransport(item: ConstructorParameters): any {
-  return {
-    endpoint: item.endpoint,
-  };
+export function createPayloadToTransport(payload: Pet) {
+  return createPayloadToTransport(payload);
 }
-export function constructorParametersToApplication(item: any): ConstructorParameters {
+export function responsePageToTransport(item: ResponsePage): any {
   return {
-    endpoint: item.endpoint,
-  };
-}
-export function constructorParametersToTransport_2(item: ConstructorParameters_2): any {
-  return {
-    endpoint: item.endpoint,
-  };
-}
-export function constructorParametersToApplication_2(item: any): ConstructorParameters_2 {
-  return {
-    endpoint: item.endpoint,
-  };
-}
-export function constructorParametersToTransport_3(item: ConstructorParameters_3): any {
-  return {
-    endpoint: item.endpoint,
-  };
-}
-export function constructorParametersToApplication_3(item: any): ConstructorParameters_3 {
-  return {
-    endpoint: item.endpoint,
-  };
-}
-export function toyResponsePageToTransport(item: ToyResponsePage): any {
-  return {
-    items: arraySerializer(item.items, toyToTransport),
+    items: arraySerializer(item.items, createPayloadToTransport),
     nextLink: item.nextLink,
   };
 }
-export function toyResponsePageToApplication(item: any): ToyResponsePage {
-  return {
-    items: arraySerializer(item.items, toyToApplication),
-    nextLink: item.nextLink,
-  };
-}
-export function toyToTransport(item: Toy): any {
-  return {
-    id: item.id,
-    petId: item.petId,
-    name: item.name,
-  };
-}
-export function toyToApplication(item: any): Toy {
-  return {
-    id: item.id,
-    petId: item.petId,
-    name: item.name,
-  };
-}
-export function petResponsePageToTransport(item: PetResponsePage): any {
-  return {
-    items: arraySerializer(item.items, petToTransport),
-    nextLink: item.nextLink,
-  };
-}
-export function petResponsePageToApplication(item: any): PetResponsePage {
+export function responsePageToApplication(item: any): ResponsePage {
   return {
     items: arraySerializer(item.items, petToApplication),
     nextLink: item.nextLink,
@@ -134,5 +73,31 @@ export function petToApplication(item: any): Pet {
     name: item.name,
     tag: item.tag,
     age: item.age,
+  };
+}
+export function responsePageToTransport_2(item: ResponsePage_2): any {
+  return {
+    items: arraySerializer(item.items, toyToTransport),
+    nextLink: item.nextLink,
+  };
+}
+export function responsePageToApplication_2(item: any): ResponsePage_2 {
+  return {
+    items: arraySerializer(item.items, toyToApplication),
+    nextLink: item.nextLink,
+  };
+}
+export function toyToTransport(item: Toy): any {
+  return {
+    id: item.id,
+    petId: item.petId,
+    name: item.name,
+  };
+}
+export function toyToApplication(item: any): Toy {
+  return {
+    id: item.id,
+    petId: item.petId,
+    name: item.name,
   };
 }
