@@ -1,7 +1,7 @@
 stages:
   - stage: Sign_SingleExes
-    displayName: Core - Build Single Exe
-    dependsOn: Build_SingleExes
+    displayName: Sign tsp cli binaries
+    dependsOn: build_tsp_cli
 
     jobs:
       - job: SignMac

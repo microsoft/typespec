@@ -8,12 +8,13 @@ import { writeSeaConfig } from "./sea-config.js";
 // cspell:ignore postject
 
 const projectRoot = dirname(import.meta.dirname);
+const distDir = join(projectRoot, "dist");
 const tempDir = join(projectRoot, "temp");
 const seaConfigPath = join(tempDir, "sea-config.json");
 const blobPath = join(tempDir, "sea-prep.blob");
 
 const exeName = process.platform === "win32" ? "tsp.exe" : "tsp";
-const exePath = join(projectRoot, "dist", exeName);
+const exePath = join(distDir, exeName);
 
 await buildCurrent();
 
@@ -37,6 +38,7 @@ async function bundle() {
 }
 
 async function createSea() {
+  await mkdir(distDir, { recursive: true });
   await mkdir(tempDir, { recursive: true });
   await createSeaConfig();
 
