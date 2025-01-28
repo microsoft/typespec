@@ -1,6 +1,6 @@
 import * as esbuild from "esbuild";
 import { execa } from "execa";
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, stat } from "node:fs/promises";
 import ora from "ora";
 import { dirname, join } from "path";
 import { writeSeaConfig } from "./sea-config.js";
@@ -45,6 +45,8 @@ async function createSea() {
   await action(`Copying executable`, async () => {
     // get the node executable
     const nodeExe = process.execPath;
+    console.log((await stat(distDir)).isDirectory());
+    console.log((await stat(nodeExe)).isFile());
     // const nodeExe = "/Users/timotheeguerin/Downloads/node-v22.13.1-linux-x64/bin/node";
     // const nodeExe = "/Users/timotheeguerin/Downloads/node-v22.13.1-win-arm64/node.exe";
     // const nodeExe = "/Users/timotheeguerin/Downloads/node-v22.13.1-linux-arm64/bin/node";
