@@ -1,5 +1,6 @@
 import * as esbuild from "esbuild";
 import { execa } from "execa";
+import { execFileSync } from "node:child_process";
 import { copyFile, mkdir } from "node:fs/promises";
 import ora from "ora";
 import { dirname, join } from "path";
@@ -53,7 +54,10 @@ async function createSea() {
     if (process.platform === "darwin") {
       execa`codesign --remove-signature ${exePath}`;
     } else if (process.platform === "win32") {
-      execa`signtool remove /s ${exePath}`;
+      console.log("process.env.SIGNTOOL_PATH", process.env.SIGNTOOL_PATH);
+      if (process.env.SIGNTOOL_PATH) {
+        execFileSync(process.env.SIGNTOOL_PATH!, [`remove`, `/s`, exePath]);
+      }
     }
   });
   await action(`Creating blob ${seaConfigPath}`, async () => {
