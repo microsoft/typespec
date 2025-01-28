@@ -5,6 +5,7 @@ parameters:
 steps:
   - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
     parameters:
+      displayName: Sign
       path: ${{ parameters.path }}
       pattern: ${{ parameters.pattern }}
       inlineOperation: |
@@ -21,6 +22,7 @@ steps:
         ]
   - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
     parameters:
+      displayName: Notarize
       path: ${{ parameters.path }}
       pattern: ${{ parameters.pattern }}
       inlineOperation: |

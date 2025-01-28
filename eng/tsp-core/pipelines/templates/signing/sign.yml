@@ -1,4 +1,7 @@
 parameters:
+  - name: displayName
+    type: string
+    default: Sign
   - name: path
     type: string
   - name: pattern
@@ -8,7 +11,7 @@ parameters:
 
 steps:
   - task: EsrpCodeSigning@5
-    displayName: Sign VSIX
+    displayName: ${{ parameters.displayName }}
     inputs:
       ConnectedServiceName: "Azure SDK Engineering System"
       AppRegistrationClientId: "5e796b8d-3c4d-4e28-93f6-12a44f4368a0"

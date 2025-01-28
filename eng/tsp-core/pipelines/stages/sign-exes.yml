@@ -37,22 +37,16 @@ stages:
               path: macos
 
           - pwsh: |
-              Expand-Archive -Path macos/standalone-macos-x64.zip -DestinationPath macos/
-              Expand-Archive -Path macos/standalone-macos-x64.zip -DestinationPath macos/
+              Expand-Archive -Path macos/standalone-macos-x64.zip -DestinationPath signed-macos/
+              Expand-Archive -Path macos/standalone-macos-arm64.zip -DestinationPath signed-macos/
 
               Remove-Item macos/standalone-macos-x64.zip
-              Remove-Item macos/standalone-macos-x64.zip
+              Remove-Item macos/standalone-macos-arm64.zip
             displayName: Extract signed binaries
-
-          - pwsh: |
-              New-Item -ItemType Directory -Path signed-mac
-              Copy-Item macos/* signed-macos/ -Recurse
-            displayName: Copy signing outputs
-            condition: always()
 
         templateContext:
           outputs:
             - output: pipelineArtifact
               path: signed-macos
-              artifact: signed-macos
+              artifact: standalone-macos-signed
               displayName: Publish signed macOS binaries
