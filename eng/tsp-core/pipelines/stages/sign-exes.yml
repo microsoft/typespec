@@ -1,5 +1,5 @@
 stages:
-  - stage: Sign_SingleExes
+  - stage: sign_tsp_cli
     displayName: Sign tsp cli binaries
     dependsOn: build_tsp_cli
 

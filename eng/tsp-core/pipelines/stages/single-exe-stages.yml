@@ -1,5 +1,5 @@
 stages:
-  - stage: build_cli
+  - stage: build_tsp_cli
     displayName: Build Tsp CLI
     variables:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
