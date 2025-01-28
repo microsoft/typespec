@@ -30,7 +30,11 @@ jobs:
         retryCountOnTaskFailure: 3
         inputs:
           versionSpec: 22.x
+      - script: npm install -g pnpm
+        displayName: Install pnpm
 
+      - script: pnpm install --filter
+        displayName: Install JavaScript Dependencies
       - script: pnpm build
         workingDirectory: packages/standalone
         displayName: Build

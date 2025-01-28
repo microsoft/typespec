@@ -18,15 +18,6 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/src/index.js",
-  "tspMain": "lib/main.tsp",
-  "exports": {
-    ".": {
-      "typespec": "./lib/main.tsp",
-      "default": "./dist/src/index.js"
-    },
-    "./testing": "./dist/src/testing/index.js"
-  },
   "engines": {
     "node": ">=18.0.0"
   },
