@@ -3,8 +3,10 @@ parameters:
   - name: nodeVersion
     type: string
     default: 20.x
+
   - name: useDotNet
     type: string
+    default: false
 
   - name: pnpmStorePath
     type: string
