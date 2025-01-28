@@ -40,6 +40,9 @@ extends:
 
             steps:
               - template: /eng/tsp-core/pipelines/templates/install.yml
+                parameters:
+                  useDotNet: true
+
               - template: /eng/tsp-core/pipelines/templates/build.yml
 
               - script: pnpm run test:ci

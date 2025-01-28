@@ -25,9 +25,11 @@ jobs:
       os: ${{ parameters.os }}
 
     steps:
-      - template: /eng/tsp-core/pipelines/templates/install.yml
-        parameters:
-          nodeVersion: 22.x
+      - task: NodeTool@0
+        displayName: Install Node.js
+        retryCountOnTaskFailure: 3
+        inputs:
+          versionSpec: 22.x
 
       - script: pnpm build
         workingDirectory: packages/standalone
