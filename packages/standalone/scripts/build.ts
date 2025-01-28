@@ -49,7 +49,7 @@ async function createSea() {
     if (process.platform === "darwin") {
       execa`codesign --remove-signature ${exePath}`;
     } else if (process.platform === "win32") {
-      execa`signtool remove /s ${exePath}`;
+      // execa`signtool remove /s ${exePath}`;
     }
   });
   await action(`Creating blob ${seaConfigPath}`, async () => {
@@ -67,7 +67,7 @@ async function createSea() {
     if (process.platform === "darwin") {
       execa`codesign --sign - ${exePath}`;
     } else if (process.platform === "win32") {
-      execa`signtool sign /fd SHA256 ${exePath}`;
+      // execa`signtool sign /fd SHA256 ${exePath}`;
     }
   });
 }
