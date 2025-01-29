@@ -1,5 +1,4 @@
 import type { Enum, EnumMember, Type } from "../../../core/types.js";
- 
 
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";

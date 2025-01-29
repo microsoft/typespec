@@ -58,7 +58,6 @@ interface SdkKit {
 }
 
 declare module "@typespec/compiler/typekit" {
-   
   interface ModelKit extends SdkModelKit {}
 }
 

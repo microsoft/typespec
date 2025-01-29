@@ -65,7 +65,6 @@ interface TypeKit {
 }
 
 declare module "@typespec/compiler/typekit" {
-   
   interface Typekit extends TypeKit {}
 }
 

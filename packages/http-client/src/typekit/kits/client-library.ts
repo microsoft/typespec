@@ -52,7 +52,6 @@ interface TK {
 }
 
 declare module "@typespec/compiler/typekit" {
-   
   interface Typekit extends TK {}
 }
 
