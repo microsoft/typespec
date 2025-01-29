@@ -66,14 +66,14 @@ jobs:
 
             az storage blob upload-batch \
               --auth-mode login \
-              --destination dist \
               --account-name "typespec" \
+              --destination dist \
               --destination-path "/$PACKAGE_VERSION/" \
               --source "./release/"
 
             az storage blob upload \
               --auth-mode login \
-              --destination dist \
               --account-name "typespec" \
+              --container-name dist \
               --name "latest.txt" \
               --file "./latest.txt"
