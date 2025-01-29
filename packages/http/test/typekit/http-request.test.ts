@@ -16,19 +16,15 @@ describe("HttpRequest Body Parameters", () => {
     const { get } = (await runner.compile(`
     model EmbeddingVector<Element extends numeric = float32> is Array<Element>;
 
-    model AzureEmbeddingModel {
-      embedding: EmbeddingVector<int32>;
-    }
-
     @test op get(): EmbeddingVector<int32>;
     `)) as { get: Operation; Foo: Model };
 
     const httpOperation = $.httpOperation.get(get);
-    const body = $.httpRequest.getBodyParameters(httpOperation)!;
+    const body = $.httpOperation.getReturnType(httpOperation)!;
     expect(body).toBeDefined();
     expect($.model.is(body)).toBe(true);
-    expect($.model.isExpresion(body as Model)).toBe(true);
-    expect((body as Model).properties.size).toBe(3);
+    expect($.array.is(body)).toBe(true);
+    expect($.array.getElementType(body as Model)).toBe($.builtin.int32);
   });
 
   it("should get the body parameters model when spread", async () => {
