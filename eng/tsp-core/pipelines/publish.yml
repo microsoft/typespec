@@ -21,8 +21,7 @@ extends:
 
     stages:
       - template: /eng/tsp-core/pipelines/stages/single-exe-stages.yml@self
-      - template: /eng/tsp-core/pipelines/stages/sign-exes.yml@self
-      - template: /eng/tsp-core/pipelines/stages/sign-exes.yml@self
+      - template: /eng/tsp-core/pipelines/stages/sign-and-publish-tsp-cli.yml@self
 
       - stage: build
         displayName: Build
