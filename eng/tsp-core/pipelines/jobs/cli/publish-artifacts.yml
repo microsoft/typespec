@@ -44,7 +44,7 @@ jobs:
           echo "Package version is '$PACKAGE_VERSION'"
           echo "Package version is '$LATEST'"
 
-          if [ "$var1" == "$var2" ]; then
+          if [ "$PACKAGE_VERSION" == "$LATEST" ]; then
             SKIP_PUBLISH=true
           fi
 
