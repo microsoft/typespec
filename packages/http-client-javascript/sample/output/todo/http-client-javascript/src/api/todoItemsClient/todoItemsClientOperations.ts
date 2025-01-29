@@ -35,7 +35,7 @@ export async function list(
   };
 
   const response = await client.path(path).get(httpRequestOptions);
-  if (+response.status === 200) {
+  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
     return todoPageToApplication(response.body);
   }
 
@@ -74,7 +74,7 @@ export async function createJson(
   };
 
   const response = await client.path(path).post(httpRequestOptions);
-  if (+response.status === 200) {
+  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
     return {
       id: response.body.id,
       title: response.body.title,
@@ -118,7 +118,7 @@ export async function createForm(
   };
 
   const response = await client.path(path).post(httpRequestOptions);
-  if (+response.status === 200) {
+  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
     return {
       id: response.body.id,
       title: response.body.title,
@@ -161,7 +161,7 @@ export async function get(
   };
 
   const response = await client.path(path).get(httpRequestOptions);
-  if (+response.status === 200) {
+  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
     return {
       id: response.body.id,
       title: response.body.title,
@@ -208,7 +208,7 @@ export async function update(
   };
 
   const response = await client.path(path).patch(httpRequestOptions);
-  if (+response.status === 200) {
+  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
     return {
       id: response.body.id,
       title: response.body.title,

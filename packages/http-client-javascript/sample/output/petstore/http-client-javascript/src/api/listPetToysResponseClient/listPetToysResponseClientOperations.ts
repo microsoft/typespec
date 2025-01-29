@@ -18,7 +18,7 @@ export async function list(
   };
 
   const response = await client.path(path).get(httpRequestOptions);
-  if (+response.status === 200) {
+  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
     return responsePageToApplication_2(response.body);
   }
 

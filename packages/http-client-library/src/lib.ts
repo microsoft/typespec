@@ -24,6 +24,14 @@ export const $lib = createTypeSpecLibrary({
         default: "Undefined namespace for client.",
       },
     },
+    "cant-find-client": {
+      severity: "error",
+      messages: {
+        default: "Can't find any clients in the spec",
+      },
+      description:
+        "Can't find any clients in the spec. This can happen when there are no operations defined in the spec.",
+    },
   },
   // Defined state keys for storing metadata in decorator.
   state: {

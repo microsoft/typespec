@@ -2,6 +2,7 @@ import { Enum, Model, Namespace, Operation, Union } from "@typespec/compiler";
 import { unsafe_mutateSubgraph, unsafe_Mutator } from "@typespec/compiler/experimental";
 import { $ } from "@typespec/compiler/typekit";
 import { Client, ClientOperation, InternalClient } from "./interfaces.js";
+import { reportDiagnostic } from "./lib.js";
 import { collectDataTypes } from "./utils/type-collector.js";
 
 export interface ClientLibrary {
@@ -13,25 +14,9 @@ export interface CreateClientLibraryOptions {
   operationMutators?: unsafe_Mutator[];
 }
 
-function hasTopLevelOperations(namespace: Namespace): boolean {
+function hasGlobalOperations(namespace: Namespace): boolean {
   for (const operation of namespace.operations.values()) {
     if ($.type.isUserDefined(operation)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-function hasUserDefinedClients(namespace: Namespace): boolean {
-  for (const client of namespace.namespaces.values()) {
-    if ($.type.isUserDefined(client)) {
-      return true;
-    }
-  }
-
-  for (const iface of namespace.interfaces.values()) {
-    if ($.type.isUserDefined(iface)) {
       return true;
     }
   }
@@ -42,13 +27,45 @@ function hasUserDefinedClients(namespace: Namespace): boolean {
 function getUserDefinedSubClients(namespace: Namespace): InternalClient[] {
   const clients: InternalClient[] = [];
 
-  for (const subNs of [...namespace.namespaces.values(), ...namespace.interfaces.values()]) {
-    if ($.type.isUserDefined(subNs)) {
-      clients.push($.client.getClient(subNs));
+  for (const subNs of namespace.namespaces.values()) {
+    if (!$.type.isUserDefined(subNs)) {
+      continue;
+    }
+    const client = getEffectiveClient(subNs);
+    if (client) {
+      clients.push(client);
     }
   }
 
   return clients;
+}
+
+function getEffectiveClient(namespace: Namespace): InternalClient | undefined {
+  if (namespace.operations.size > 0 || namespace.interfaces.size > 0) {
+    // It has content so it should be a client
+    return $.client.getClient(namespace);
+  }
+
+  const effectiveClients: InternalClient[] = [];
+
+  // It has no content so we need to check its children
+  for (const subNs of namespace.namespaces.values()) {
+    const client = getEffectiveClient(subNs);
+    if (client) {
+      effectiveClients.push(client);
+    }
+  }
+
+  if (effectiveClients.length > 1) {
+    // If there are more than one sub client we can't collapse so we need to create a client for this namespace
+    return $.client.getClient(namespace);
+  }
+
+  if (effectiveClients.length === 1) {
+    return effectiveClients[0];
+  }
+
+  return undefined;
 }
 
 export function createClientLibrary(options: CreateClientLibraryOptions = {}): ClientLibrary {
@@ -58,18 +75,22 @@ export function createClientLibrary(options: CreateClientLibraryOptions = {}): C
   // Need to find out if we need to create a client for the global namespace.
   const globalNs = $.program.getGlobalNamespaceType();
 
-  if (hasTopLevelOperations(globalNs) || !hasUserDefinedClients(globalNs)) {
+  const userDefinedTopLevelClients = getUserDefinedSubClients(globalNs);
+  if (hasGlobalOperations(globalNs)) {
     // We need to start with the global namespace
     const globalClient = $.client.getClient(globalNs);
     topLevel = [globalClient];
-  } else if (hasUserDefinedClients(globalNs)) {
-    const subClients = getUserDefinedSubClients(globalNs);
-    for (const client of subClients) {
+  } else if (userDefinedTopLevelClients.length > 0) {
+    for (const client of userDefinedTopLevelClients) {
       topLevel.push(client);
     }
   }
 
   const topLevelClients: Client[] = [];
+
+  if (topLevel.length === 0) {
+    reportDiagnostic($.program, { code: "cant-find-client", target: globalNs });
+  }
 
   for (const c of topLevel) {
     const client = visitClient(c, dataTypes, { operationMutators: options.operationMutators });
