@@ -4,6 +4,6 @@ using Microsoft.Generator.CSharp.Customization;
 
 namespace Sample.Models
 {
-    [CodeGenModel("MockInputModel")]
+    [CodeGenType("MockInputModel")]
     internal partial class CustomModel { }
 }
