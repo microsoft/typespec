@@ -42,9 +42,9 @@ You can skip this step if you've used one of the templates above.
 Run the following commands:
 
 ```bash
-> mkdir myLibrary
-> cd myLibrary
-> npm init
+myLibrary > mkdir
+myLibrary > cd
+init > npm
 ```
 
 After completing the wizard, you'll have a package.json file that defines your TypeSpec library.

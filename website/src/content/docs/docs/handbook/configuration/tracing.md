@@ -13,7 +13,7 @@ tsp compile . --trace import-resolution
 If you want to log multiple areas, you can use the `--trace` option more than once.
 
 ```bash
-tsp compile . --trace import-resolution  --trace projection
+tsp compile . --trace import-resolution --trace projection
 ```
 
 To log everything, use `--trace *`. This might produce a lot of output, but you can [select specific trace areas to include](#selecting-trace-areas)
