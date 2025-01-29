@@ -1,0 +1,36 @@
+jobs:
+  - job: SignWindows
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
+    steps:
+      - download: current
+        artifact: standalone-macos-signed
+        displayName: Download macos binaries
+
+      - download: current
+        artifact: standalone-windows-signed
+        displayName: Download windows binaries
+
+      - download: current
+        artifact: standalone-linux-arm64
+        displayName: Download linux arm64 binaries
+
+      - download: current
+        artifact: standalone-linux-x64
+        displayName: Download linux x64 binaries
+
+      - script: |
+          tar -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64/ -cvzf release/tsp-darwin-arm64.tar.gz
+          tar -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64/ -cvzf release/tsp-darwin-x64.tar.gz
+
+          tar -C $(Pipeline.Workspace)/standalone-linux-arm64 -cvzf release/tsp-linux-arm64.tar.gz
+          tar -C $(Pipeline.Workspace)/standalone-linux-x64 -cvzf release/tsp-linux-x64.tar.gz
+
+          zip release/azd-windows-arm64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-arm64/tsp
+          zip release/azd-windows-x64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-x64/tsp
+
+          ls ./release
+        displayName: Prepare for packaging

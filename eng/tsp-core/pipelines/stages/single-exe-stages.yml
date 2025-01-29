@@ -4,14 +4,14 @@ stages:
     variables:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
     jobs:
-      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-tsp-cli.yml
         parameters:
           name: linux-x64
           pool: $(LINUXPOOL)
           vmImage: $(LINUXVMIMAGE)
           os: linux
 
-      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-tsp-cli.yml
         parameters:
           name: linux-arm64
           pool: $(LINUXARMPOOL)
@@ -19,28 +19,28 @@ stages:
           os: linux
           hostArchitecture: arm64
 
-      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-tsp-cli.yml
         parameters:
           name: macos-x64
           pool: $(MACPOOL)
           vmImage: $(MACVMIMAGE)
           os: macOS
 
-      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-tsp-cli.yml
         parameters:
           name: macos-arm64
           pool: $(MACPOOL)
           vmImage: $(MACVMIMAGEM1)
           os: macOS
 
-      - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/build-tsp-cli.yml
         parameters:
           name: windows-x64
           pool: $(WINDOWSPOOL)
           vmImage: $(WINDOWSVMIMAGE)
           os: windows
 
-      # - template: /eng/tsp-core/pipelines/jobs/build-standalone-cli.yml
+      # - template: /eng/tsp-core/pipelines/jobs/build-tsp-cli.yml
       #   parameters:
       #     name: windows-arm64
       #     pool: $(ARMPOOL)

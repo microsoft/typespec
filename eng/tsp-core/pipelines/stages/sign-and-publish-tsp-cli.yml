@@ -6,3 +6,9 @@ stages:
     jobs:
       - template: /eng/tsp-core/pipelines/jobs/cli/sign-macos.yml
       - template: /eng/tsp-core/pipelines/jobs/cli/sign-windows.yml
+
+  - stage: publish_tsp_cli
+    displayName: Publish tsp cli
+    dependsOn: sign_tsp_cli
+    jobs:
+      - template: /eng/tsp-core/pipelines/jobs/cli/publish-artifacts.yml
