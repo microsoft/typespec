@@ -1,7 +1,7 @@
 import { joinPaths } from "@typespec/compiler";
 import { writeFile } from "fs/promises";
 import { Application, PageEvent, Reflection, ReflectionKind } from "typedoc";
-import { PluginOptions } from "typedoc-plugin-markdown";
+import { PluginOptions, load } from "typedoc-plugin-markdown";
 import { stringify } from "yaml";
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
   const markdownPluginOptions: Partial<PluginOptions> = {
@@ -19,12 +19,11 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   const app = await Application.bootstrapWithPlugins({
     entryPoints: [joinPaths(libraryPath, "src/index.ts")],
     tsconfig: joinPaths(libraryPath, "tsconfig.json"),
-    plugin: ["typedoc-plugin-markdown"],
     entryPointStrategy: "resolve",
   });
 
   loadRenderer(app);
-  // load(app);
+  load(app);
 
   setOptions(app, {
     name: "JS API",
