@@ -28,7 +28,9 @@ jobs:
         parameters:
           path: windows
 
-      - pwsh: Copy-Item windows/*/tsp.exe signed-windows/ -Recurse
+      - pwsh: |
+          New-Item -ItemType Directory -Path signed-windows/
+          Copy-Item windows/*/tsp.exe signed-windows/ -Recurse
         displayName: Copy to output dir
 
     templateContext:
