@@ -35,6 +35,10 @@ export const AreaLabels = defineLabels({
     color: "c7aee6",
     description: "",
   },
+  "lib:http-specs": {
+    color: "c7aee6",
+    description: "For issues/prs related to the @typespec/http-specs package",
+  },
   "meta:blog": {
     color: "007dc8",
     description: "Blog updates",

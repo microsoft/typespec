@@ -310,6 +310,7 @@ Area of the codebase
 | `lib:openapi`                | #c7aee6 |                                                                   |
 | `lib:rest`                   | #c7aee6 |                                                                   |
 | `lib:versioning`             | #c7aee6 |                                                                   |
+| `lib:http-specs`             | #c7aee6 | For issues/prs related to the @typespec/http-specs package        |
 | `meta:blog`                  | #007dc8 | Blog updates                                                      |
 | `meta:website`               | #007dc8 | TypeSpec.io updates                                               |
 | `tspd`                       | #004185 | Issues for the tspd tool                                          |
