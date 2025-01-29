@@ -947,6 +947,58 @@ describe("http: decorators", () => {
       });
     });
 
+    it("[Pinterest] can specify OAuth2 with object scopes", async () => {
+      const { Foo } = (await runner.compile(`
+        namespace Pinterest {
+          model OAuth2Scope {
+            value: string;
+            description?: string;
+          }
+          
+          model OAuth2Auth<
+            Flows extends AuthorizationCodeFlow[],
+            Scopes extends OAuth2Scope[] = []
+          > {
+            type: AuthType.oauth2;
+            flows: Flows;
+            defaultScopes: Scopes;
+          }
+        
+          model AuthorizationCodeFlow {
+            type: OAuth2FlowType.authorizationCode;
+            authorizationUrl: "https://api.example.com/oauth2/authorize";
+            refreshUrl: "https://api.example.com/oauth2/refresh";
+            scopes: [{value: "read", description: "Read access"}];
+          }
+        }
+        
+        @useAuth(Pinterest.OAuth2Auth<[Pinterest.AuthorizationCodeFlow]>)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      expect(getAuthentication(runner.program, Foo)).toEqual({
+        options: [
+          {
+            schemes: [
+              {
+                id: "OAuth2Auth",
+                type: "oauth2",
+                flows: [
+                  {
+                    type: "authorizationCode",
+                    authorizationUrl: "https://api.example.com/oauth2/authorize",
+                    refreshUrl: "https://api.example.com/oauth2/refresh",
+                    scopes: [{ value: "read", description: "Read access" }],
+                  },
+                ],
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
+          },
+        ],
+      });
+    });
+
     it("can specify OAuth2 with scopes, which are default for every flow", async () => {
       const { Foo } = (await runner.compile(`
         alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
