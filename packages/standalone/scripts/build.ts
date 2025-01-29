@@ -70,13 +70,13 @@ async function createSea() {
   });
 
   // This should get sent to ESRP for official signing
-  // await action(`Sign executable ${exePath}`, async () => {
-  //   if (process.platform === "darwin") {
-  //     // execa`codesign --sign - ${exePath}`;
-  //   } else if (process.platform === "win32") {
-  //     // execa`signtool sign /fd SHA256 ${exePath}`;
-  //   }
-  // });
+  await action(`Sign executable ${exePath}`, async () => {
+    if (process.platform === "darwin") {
+      execa`codesign --sign - ${exePath}`;
+    } else if (process.platform === "win32") {
+      // execa`signtool sign /fd SHA256 ${exePath}`;
+    }
+  });
 }
 
 async function createSeaConfig() {
