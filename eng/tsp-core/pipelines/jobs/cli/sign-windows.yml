@@ -30,8 +30,10 @@ jobs:
 
       - pwsh: |
           New-Item -ItemType Directory -Path signed-windows/
-          Copy-Item windows/standalone-windows-x64/tsp.exe signed-windows/
-          # Copy-Item windows/standalone-windows-arm64/tsp.exe signed-windows/
+          New-Item -ItemType Directory -Path signed-windows/standalone-windows-x64/
+          # New-Item -ItemType Directory -Path signed-windows/standalone-windows-arm64/
+          Copy-Item windows/standalone-windows-x64/tsp.exe signed-windows/standalone-windows-x64/
+          # Copy-Item windows/standalone-windows-arm64/tsp.exe signed-windows/standalone-windows-arm64/
         displayName: Copy to output dir
 
     templateContext:
