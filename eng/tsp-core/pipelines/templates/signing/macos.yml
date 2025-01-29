@@ -1,6 +1,7 @@
 parameters:
   path: ""
   pattern: "**/*.zip"
+  BundleId: "com.microsoft.typespec"
 
 steps:
   - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
