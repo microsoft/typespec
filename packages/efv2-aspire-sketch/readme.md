@@ -1,6 +1,6 @@
-# EFV2 Zod Sketch
+# EFV2 Aspire Sketch
 
-Zod emitter based on EFv2
+Aspire emitter based on EFv2
 
 ---
 
