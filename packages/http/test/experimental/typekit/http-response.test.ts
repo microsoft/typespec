@@ -34,8 +34,8 @@ it("should return true for an error response", async () => {
 
   const responses = $.httpOperation.getResponses(getFoo);
   expect(responses).toHaveLength(2);
-  expect($.httpResponse.isErrorResponse(responses[0].responseContent)).toBe(false);
-  expect($.httpResponse.isErrorResponse(responses[1].responseContent)).toBe(true);
+  expect($.httpResponse.isErrorResponse(responses[0])).toBe(false);
+  expect($.httpResponse.isErrorResponse(responses[1])).toBe(true);
 });
 
 it("should identify a single  and default status code", async () => {

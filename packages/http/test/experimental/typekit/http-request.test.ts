@@ -14,6 +14,21 @@ beforeEach(async () => {
 });
 
 describe("HttpRequest Body Parameters", () => {
+  it("should handle model is array response", async () => {
+    const { get } = (await runner.compile(`
+    model EmbeddingVector<Element extends numeric = float32> is Array<Element>;
+
+    @test op get(): EmbeddingVector<int32>;
+    `)) as { get: Operation; Foo: Model };
+
+    const httpOperation = $.httpOperation.get(get);
+    const body = $.httpOperation.getReturnType(httpOperation.operation)!;
+    expect(body).toBeDefined();
+    expect($.model.is(body)).toBe(true);
+    expect($.array.is(body)).toBe(true);
+    expect($.array.getElementType(body as Model)).toBe($.builtin.int32);
+  });
+
   it("should get the body parameters model when spread", async () => {
     const { createFoo } = (await runner.compile(`
       @test model Foo {
@@ -31,6 +46,7 @@ describe("HttpRequest Body Parameters", () => {
     const body = $.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
     expect($.model.is(body)).toBe(true);
+    expect($.model.isExpresion(body as Model)).toBe(true);
     expect((body as Model).properties.size).toBe(3);
   });
 
@@ -45,6 +61,7 @@ describe("HttpRequest Body Parameters", () => {
     const body = $.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
     expect($.model.is(body)).toBe(true);
+    expect($.model.isExpresion(body)).toBe(true);
     expect(body.properties.size).toBe(1);
     expect(body.properties.get("foo")!.name).toBe("foo");
   });
@@ -123,6 +140,8 @@ describe("HttpRequest Body Parameters", () => {
     const body = $.httpRequest.getBodyParameters(httpOperation)!;
     expect(body).toBeDefined();
     expect($.model.is(body)).toBe(true);
+    // foo is a positional parameter to the operation, but not the body itself so the body model is anonymous with a single property "foo"
+    expect($.model.isExpresion(body as Model)).toBe(true);
     expect((body as Model).properties.size).toBe(1);
     expect(((body as Model).properties.get("foo")?.type as any).name).toBe("Foo");
   });

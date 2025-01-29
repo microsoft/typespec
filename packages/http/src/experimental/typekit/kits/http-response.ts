@@ -1,20 +1,17 @@
 import { isErrorModel } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
-import {
-  HttpOperationResponseContent,
-  HttpStatusCodeRange,
-  HttpStatusCodesEntry,
-} from "../../../types.js";
+import { FlatHttpResponse } from "./http-operation.js";
+import { HttpStatusCodeRange, HttpStatusCodesEntry } from "../../../types.js";
 
 /**
  * Utilities for working with HTTP responses.
  * @experimental
  */
-export interface HttpResponseKit {
+interface HttpResponseKit {
   /**
    * Check if the response is an error response.
    */
-  isErrorResponse(response: HttpOperationResponseContent): boolean;
+  isErrorResponse(response: FlatHttpResponse): boolean;
   /**
    * utilities to perform checks on status codes
    */
@@ -52,7 +49,7 @@ declare module "@typespec/compiler/experimental/typekit" {
 defineKit<TypekitExtension>({
   httpResponse: {
     isErrorResponse(response) {
-      return response.body ? isErrorModel(this.program, response.body.type) : false;
+      return this.model.is(response.type) ? isErrorModel(this.program, response.type) : false;
     },
     statusCode: {
       isSingle(statusCode) {

@@ -1,11 +1,7 @@
 import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
 import { defineKit, Typekit } from "@typespec/compiler/experimental/typekit";
+import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../../types.js";
 import { getHttpOperation } from "../../../operations.js";
-import {
-  HttpOperation,
-  HttpOperationResponseContent,
-  HttpStatusCodesEntry,
-} from "../../../types.js";
 
 /**
  * Utilities for working with HTTP operations.
@@ -33,6 +29,7 @@ export interface HttpOperationKit {
 
 /**
  * Structure of a flat HTTP response, which is grouped by status code and content type.
+ * @experimental
  */
 export interface FlatHttpResponse {
   /**
@@ -47,6 +44,11 @@ export interface FlatHttpResponse {
    * Response content.
    */
   responseContent: HttpOperationResponseContent;
+  /**
+   * Response type.
+   *
+   */
+  type: Type;
 }
 
 interface TypekitExtension {
@@ -66,11 +68,11 @@ defineKit<TypekitExtension>({
     get(op) {
       return ignoreDiagnostics(getHttpOperation(this.program, op));
     },
-    getReturnType(operation, options) {
-      let responses = this.httpOperation.getResponses(operation);
+    getReturnType(httpOperation, options) {
+      let responses = this.httpOperation.getResponses(httpOperation);
 
       if (!options?.includeErrors) {
-        responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r.responseContent));
+        responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r));
       }
 
       const voidType = { kind: "Intrinsic", name: "void" } as VoidType;
@@ -112,7 +114,12 @@ defineKit<TypekitExtension>({
             contentType = "application/json";
           }
 
-          responsesMap.push({ statusCode: response.statusCodes, contentType, responseContent });
+          responsesMap.push({
+            statusCode: response.statusCodes,
+            contentType,
+            responseContent,
+            type: response.type,
+          });
         }
       }
 
