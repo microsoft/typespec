@@ -30,7 +30,7 @@ jobs:
 
       - pwsh: |
           New-Item -ItemType Directory -Path signed-windows/
-          Copy-Item windows/*/tsp.exe signed-windows/ -Recurse
+          Copy-Item windows/*/tsp.exe signed-windows/ -Recurse -Container
         displayName: Copy to output dir
 
     templateContext:
