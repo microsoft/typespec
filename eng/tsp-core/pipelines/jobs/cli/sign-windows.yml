@@ -15,13 +15,13 @@ jobs:
       #   patterns: tsp.exe
       #   displayName: Download arm64 binary
 
-      # New-Item -ItemType Directory -Path windows/standalone-windows-arm64
-      # Copy-Item $(Pipeline.Workspace)/standalone-windows-arm64/tsp.exe windows/standalone-windows-arm64/
       - pwsh: |
           New-Item -ItemType Directory -Path windows
           New-Item -ItemType Directory -Path windows/standalone-windows-x64
+          # New-Item -ItemType Directory -Path windows/standalone-windows-arm64
 
           Copy-Item $(Pipeline.Workspace)/standalone-windows-x64/tsp.exe windows/standalone-windows-x64/
+          # Copy-Item $(Pipeline.Workspace)/standalone-windows-arm64/tsp.exe windows/standalone-windows-arm64/
         displayName: Package windows binary for signing
 
       - template: /eng/tsp-core/pipelines/templates/signing/windows.yml
@@ -30,7 +30,8 @@ jobs:
 
       - pwsh: |
           New-Item -ItemType Directory -Path signed-windows/
-          Copy-Item windows/*/tsp.exe signed-windows/ -Recurse -Container
+          Copy-Item windows/standalone-windows-x64/tsp.exe signed-windows/
+          # Copy-Item windows/standalone-windows-arm64/tsp.exe signed-windows/
         displayName: Copy to output dir
 
     templateContext:
