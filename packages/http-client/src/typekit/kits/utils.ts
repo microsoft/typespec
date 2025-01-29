@@ -22,12 +22,12 @@ export interface NameKit<T extends Type | InternalClient> {
   getName(type: T): string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export function getAccess(type: Type): "public" | "internal" {
   return "public";
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export function getUsage(type: Type): UsageFlags {
   return UsageFlags.Input | UsageFlags.Output;
 }

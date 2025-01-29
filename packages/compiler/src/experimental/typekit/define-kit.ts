@@ -51,8 +51,8 @@ export function defineKit<T extends Record<string, any>>(
       kits = { ...TypekitPrototype[name], ...fnOrNs };
     }
 
-     // Tag top-level namespace objects with the symbol
-     if (typeof kits === "object" && kits !== null) {
+    // Tag top-level namespace objects with the symbol
+    if (typeof kits === "object" && kits !== null) {
       Object.defineProperty(kits, TypekitNamespaceSymbol, {
         value: true,
         enumerable: false, // Keep the symbol non-enumerable

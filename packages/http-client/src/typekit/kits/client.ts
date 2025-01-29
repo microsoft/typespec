@@ -40,9 +40,9 @@ interface ClientKit extends NameKit<InternalClient> {
   getConstructor(client: InternalClient): Operation;
 
   /**
-   * Whether the client is publicly initializable
+   * Whether the client is publicly initializeable
    */
-  isPubliclyInitializable(client: InternalClient): boolean;
+  isPubliclyInitializeable(client: InternalClient): boolean;
 
   /**
    * Return the methods on the client
@@ -57,7 +57,7 @@ interface ClientKit extends NameKit<InternalClient> {
   /**
    * Determines is both clients have the same constructor
    */
-  haveSameConstructor(a: InternalClient, b: InternalClient): Boolean;
+  haveSameConstructor(a: InternalClient, b: InternalClient): boolean;
 }
 
 interface TypeKit {
@@ -65,7 +65,7 @@ interface TypeKit {
 }
 
 declare module "@typespec/compiler/typekit" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+   
   interface Typekit extends TypeKit {}
 }
 
@@ -129,7 +129,7 @@ defineKit<TypeKit>({
     getName(client) {
       return client.name;
     },
-    isPubliclyInitializable(client) {
+    isPubliclyinitializeable(client) {
       return client.type.kind === "Namespace";
     },
     listServiceOperations(client) {
@@ -198,15 +198,15 @@ defineKit<TypeKit>({
       const aConstructor = this.client.getConstructor(a);
       const bConstructor = this.client.getConstructor(b);
 
-      const bparams = [...bConstructor.parameters.properties.values()];
-      const aparams = [...aConstructor.parameters.properties.values()];
+      const bParams = [...bConstructor.parameters.properties.values()];
+      const aParams = [...aConstructor.parameters.properties.values()];
 
-      if (bparams.length !== aparams.length) {
+      if (bParams.length !== aParams.length) {
         return false;
       }
 
-      for (let i = 0; i < aparams.length; i++) {
-        if (bparams[i].type !== aparams[i].type) {
+      for (let i = 0; i < aParams.length; i++) {
+        if (bParams[i].type !== aParams[i].type) {
           return false;
         }
       }

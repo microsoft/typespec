@@ -12,6 +12,6 @@ it("works", () => {
       </SourceFile>
     </Output>
   );
-
+  // eslint-disable-next-line no-console
   console.log(tree);
 });

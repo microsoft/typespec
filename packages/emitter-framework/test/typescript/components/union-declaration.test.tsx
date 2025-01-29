@@ -10,7 +10,7 @@ import { UnionExpression } from "../../../src/typescript/components/union-expres
 describe("Typescript Union Declaration", () => {
   describe("Union not bound to Typespec Types", () => {
     it("creates a union declaration", async () => {
-      let res = render(
+      const res = render(
         <Output>
           <SourceFile path="test.ts">
             <UnionDeclaration name="MyUnion"> 
@@ -44,7 +44,7 @@ describe("Typescript Union Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const union = Array.from((namespace as Namespace).unions.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <UnionDeclaration type={union} />
@@ -73,7 +73,7 @@ describe("Typescript Union Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const union = Array.from((namespace as Namespace).unions.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <UnionDeclaration export type={union} name="MyUnion" />
@@ -102,7 +102,7 @@ describe("Typescript Union Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const union = Array.from((namespace as Namespace).unions.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <UnionDeclaration type={union}>
@@ -133,7 +133,7 @@ describe("Typescript Union Declaration", () => {
           const [namespace] = program.resolveTypeReference("DemoService");
           const union = Array.from((namespace as Namespace).unions.values())[0];
   
-          let res = render(
+          const res = render(
             <Output>
               <SourceFile path="test.ts">
                 let x: <UnionExpression type={union} /> = "one";
@@ -164,7 +164,7 @@ describe("Typescript Union Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const union = Array.from((namespace as Namespace).enums.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <UnionDeclaration type={union} />

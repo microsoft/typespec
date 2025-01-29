@@ -3,7 +3,6 @@ import { getEmitOutput } from "../../utils.js";
 import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
 import { Enum, Model, Union } from "@typespec/compiler";
 import { d } from "@alloy-js/core/testing";
-import { refkey } from "@alloy-js/core";
 import { InterfaceDeclaration, UnionDeclaration } from "../../../src/typescript/index.js";
 
 describe("Typescript Enum Member Expression", () => {

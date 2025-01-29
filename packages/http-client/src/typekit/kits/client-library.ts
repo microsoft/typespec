@@ -2,7 +2,6 @@ import {
   Enum,
   getLocationContext,
   Interface,
-  isStdNamespace,
   listServices,
   Model,
   Namespace,
@@ -53,7 +52,7 @@ interface TK {
 }
 
 declare module "@typespec/compiler/typekit" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+   
   interface Typekit extends TK {}
 }
 

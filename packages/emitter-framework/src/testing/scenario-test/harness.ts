@@ -45,6 +45,7 @@ async function assertGetEmittedFile(
   const errors = diagnostics.filter((d) => d.severity === "error");
   const warnings = diagnostics.filter((d) => d.severity === "warning");
   if (warnings.length > 0) {
+    // eslint-disable-next-line no-console
     console.warn(`Warning compiling code:\n ${warnings.map((x) => x.message).join("\n")}`);
   }
   if (errors.length > 0) {
@@ -136,6 +137,7 @@ export async function executeScenarios(
   snippetExtractor: SnippetExtractor,
 ) {
   const scenarioList = filterPaths ?? [];
+  // eslint-disable-next-line no-console
   scenarioList.length && console.log("Filtering scenarios: ", scenarioList);
 
   if (!scenarioList.length) {

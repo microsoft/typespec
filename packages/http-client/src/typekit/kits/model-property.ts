@@ -21,7 +21,7 @@ export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<M
    */
   isDiscriminator(type: ModelProperty): boolean;
   /**
-   * Returns whehter it's a credential parameter or not.
+   * Returns whether it's a credential parameter or not.
    *
    * @param type: model property we are checking to see if is a credential parameter
    */
@@ -48,7 +48,7 @@ interface TypeKit {
 }
 
 declare module "@typespec/compiler/typekit" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+   
   interface ModelPropertyKit extends SdkModelPropertyKit {}
 }
 

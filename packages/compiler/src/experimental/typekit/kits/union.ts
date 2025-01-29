@@ -66,8 +66,8 @@ export interface UnionKit {
   isExtensible(type: Union): boolean;
 
   /**
-   * Checks if an uinton is an expression (anonymous) or declared.
-   * @param type Uniton to check if it is an expression
+   * Checks if a union is an expression (anonymous) or declared.
+   * @param type Union to check if it is an expression
    */
   isExpression(type: Union): boolean;
 }

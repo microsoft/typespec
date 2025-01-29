@@ -25,25 +25,25 @@ interface EnumDescriptor {
 }
 
 interface EnumKit {
-    /**
-     * Build an enum type. The enum type will be finished (i.e. decorators are
-     * run).
-     */
-    create(desc: EnumDescriptor): Enum;
+  /**
+   * Build an enum type. The enum type will be finished (i.e. decorators are
+   * run).
+   */
+  create(desc: EnumDescriptor): Enum;
 
-    /**
-     * Build an equivalent enum from the given union. Union variants which are
-     * not valid enum members are skipped. You can check if a union is a valid
-     * enum with {@link UnionKit.union}'s `isEnumValue`.
-     */
-    createFromUnion(type: Union): Enum;
+  /**
+   * Build an equivalent enum from the given union. Union variants which are
+   * not valid enum members are skipped. You can check if a union is a valid
+   * enum with {@link UnionKit.union}'s `isEnumValue`.
+   */
+  createFromUnion(type: Union): Enum;
 
-    /**
-     * Check if `type` is an enum type.
-     *
-     * @param type the type to check.
-     */
-    is(type: Type): type is Enum;
+  /**
+   * Check if `type` is an enum type.
+   *
+   * @param type the type to check.
+   */
+  is(type: Type): type is Enum;
 }
 
 interface TypekitExtension {

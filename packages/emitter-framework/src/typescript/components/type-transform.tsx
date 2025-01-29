@@ -161,7 +161,7 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
 
   if($.model.getSpreadType(props.type)) { 
     reportTypescriptDiagnostic($.program, {
-      code: "typescript-spread-model-transofrmation-nyi",
+      code: "typescript-spread-model-transformation-nyi",
       target: props.type,
     })
   }

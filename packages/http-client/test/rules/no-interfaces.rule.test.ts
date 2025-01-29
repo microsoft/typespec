@@ -3,7 +3,7 @@ import {
   createLinterRuleTester,
   createTestRunner,
 } from "@typespec/compiler/testing";
-import { beforeEach, describe, it } from "node:test";
+import { beforeEach, describe, it } from "vitest";
 import { noInterfaceRule } from "../../src/rules/no-interfaces.rule.js";
 
 describe("noInterfaceRule", () => {

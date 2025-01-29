@@ -1,5 +1,5 @@
 import type { Enum, EnumMember, Type } from "../../../core/types.js";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
@@ -28,18 +28,18 @@ interface EnumMemberDescriptor {
 }
 
 interface EnumMemberKit {
-    /**
-     * Create an enum type. The enum type will be finished (i.e. decorators are
-     * run).
-     */
-    create(desc: EnumMemberDescriptor): EnumMember;
+  /**
+   * Create an enum type. The enum type will be finished (i.e. decorators are
+   * run).
+   */
+  create(desc: EnumMemberDescriptor): EnumMember;
 
-    /**
-     * Check if `type` is an enum member type.
-     *
-     * @param type the type to check.
-     */
-    is(type: Type): type is EnumMember;
+  /**
+   * Check if `type` is an enum member type.
+   *
+   * @param type the type to check.
+   */
+  is(type: Type): type is EnumMember;
 }
 
 interface TypekitExtension {

@@ -271,7 +271,7 @@ describe("Typescript Interface", () => {
           const [namespace] = program.resolveTypeReference("DemoService");
           const models = Array.from((namespace as Namespace).models.values());
   
-          let res = render(
+          const res = render(
             <Output>
               <SourceFile path="test.ts">
                 <InterfaceDeclaration type={models[0]} />
@@ -306,7 +306,7 @@ describe("Typescript Interface", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const models = Array.from((namespace as Namespace).models.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration type={models[0]} />
@@ -341,7 +341,7 @@ describe("Typescript Interface", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const models = Array.from((namespace as Namespace).models.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export name="MyOperations" type={models[0]} />
@@ -379,7 +379,7 @@ describe("Typescript Interface", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const models = Array.from((namespace as Namespace).models.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export name="MyOperations" type={models[0]}>
@@ -422,7 +422,7 @@ describe("Typescript Interface", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const models = Array.from((namespace as Namespace).models.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export name="MyModel" type={models[0]} />
@@ -465,7 +465,7 @@ describe("Typescript Interface", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const models = Array.from((namespace as Namespace).models.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               {models.map((model) => (
@@ -509,7 +509,7 @@ describe("Typescript Interface", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const interfaces = Array.from((namespace as Namespace).interfaces.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={interfaces[0]} />
@@ -549,7 +549,7 @@ describe("Typescript Interface", () => {
         const interfaces = Array.from((namespace as Namespace).interfaces.values());
         const models = Array.from((namespace as Namespace).models.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={interfaces[0]} />
@@ -596,7 +596,7 @@ describe("Typescript Interface", () => {
         const interfaces = Array.from((namespace as Namespace).interfaces.values());
         const models = Array.from((namespace as Namespace).models.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={interfaces[0]} />
@@ -649,7 +649,7 @@ describe("Typescript Interface", () => {
         const interfaces = Array.from((namespace as Namespace).interfaces.values());
         const models = Array.from((namespace as Namespace).models.values());
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <InterfaceDeclaration export type={interfaces[1]} />

@@ -18,7 +18,7 @@ describe("Typescript Function Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <FunctionDeclaration type={operation} />
@@ -44,7 +44,7 @@ describe("Typescript Function Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <FunctionDeclaration async type={operation} />
@@ -73,7 +73,7 @@ describe("Typescript Function Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <FunctionDeclaration export type={operation} />
@@ -99,7 +99,7 @@ describe("Typescript Function Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <FunctionDeclaration name="newName" type={operation} />
@@ -125,7 +125,7 @@ describe("Typescript Function Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <FunctionDeclaration
@@ -163,7 +163,7 @@ describe("Typescript Function Declaration", () => {
         const operation = Array.from((namespace as Namespace).operations.values())[0];
         const model = Array.from((namespace as Namespace).models.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <FunctionDeclaration type={operation}>
@@ -194,7 +194,7 @@ describe("Typescript Function Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const operation = Array.from((namespace as Namespace).operations.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <FunctionDeclaration export type={operation}>
