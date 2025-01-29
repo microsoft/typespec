@@ -134,7 +134,7 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartBinaryBody();
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
             ClientResult result = await JsonPartAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
@@ -144,7 +144,7 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartBinaryBody();
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
             ClientResult result = JsonPart(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }
@@ -174,7 +174,7 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartBinaryBody();
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
             ClientResult result = await BinaryArrayPartsAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
@@ -184,7 +184,7 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartBinaryBody();
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
             ClientResult result = BinaryArrayParts(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }
@@ -214,7 +214,7 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartBinaryBody();
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
             ClientResult result = await MultiBinaryPartsAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
@@ -224,7 +224,7 @@ namespace Payload.MultiPart._FormData
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormDataBinaryContent content = body.ToMultipartBinaryBody();
+            using MultiPartFormDataBinaryContent content = body.ToMultipartContent();
             ClientResult result = MultiBinaryParts(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }
@@ -290,23 +290,23 @@ namespace Payload.MultiPart._FormData
         }
 
         // CUSTOM: Convenience method
-        public virtual async Task<ClientResult> AnonymousModelAsync(ProfileImageFileDetails profileImage, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult> AnonymousModelAsync(MultiPartFile profileImage, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
             AnonymousModelRequest anonymousModelRequest = new AnonymousModelRequest(profileImage);
-            using MultiPartFormDataBinaryContent content = anonymousModelRequest.ToMultipartBinaryBody();
+            using MultiPartFormDataBinaryContent content = anonymousModelRequest.ToMultipartContent();
             ClientResult result = await AnonymousModelAsync(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return result;
         }
 
         // CUSTOM: Convenience method
-        public virtual ClientResult AnonymousModel(ProfileImageFileDetails profileImage, CancellationToken cancellationToken = default)
+        public virtual ClientResult AnonymousModel(MultiPartFile profileImage, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
             AnonymousModelRequest anonymousModelRequest = new AnonymousModelRequest(profileImage);
-            using MultiPartFormDataBinaryContent content = anonymousModelRequest.ToMultipartBinaryBody();
+            using MultiPartFormDataBinaryContent content = anonymousModelRequest.ToMultipartContent();
             ClientResult result = AnonymousModel(content, content.ContentType, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return result;
         }

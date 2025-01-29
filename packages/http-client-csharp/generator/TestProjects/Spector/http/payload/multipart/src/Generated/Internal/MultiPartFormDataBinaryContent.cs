@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -38,6 +39,34 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
 
     internal HttpContent HttpContent => _multipartContent;
 
+    // CUSTOM: Add filepart to the multipart content.
+    public void Add(MultiPartFile file, string name)
+    {
+        Argument.AssertNotNull(file, nameof(file));
+
+        if (file.File != null)
+        {
+            Add(file.File, name, file.Filename, file.ContentType);
+            return;
+        }
+        else if (file.Contents != null)
+        {
+            Add(file.Contents, name, file.Filename, file.ContentType);
+            return;
+        }
+
+        throw new InvalidOperationException("File contents are not set.");
+    }
+
+    // CUSTOM: Add IJsonModel part to the multipart content.
+    public void Add<T>(IJsonModel<T> content, string name, string contentType = default)
+    {
+        Argument.AssertNotNull(content, nameof(content));
+        Argument.AssertNotNullOrEmpty(name, nameof(name));
+
+        Add(ModelReaderWriter.Write(content, ModelSerializationExtensions.WireOptions), name, contentType: contentType);
+    }
+
     // CUSTOM: Add optional content type parameter to the Add method.
 
     public void Add(Stream stream, string name, string fileName = default, string contentType = default)
@@ -53,7 +82,8 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         Add(content, name, fileName);
     }
 
-    public void Add(string content, string name, string fileName = default, string contentType = default)
+    // CUSTOM: Add optional content type parameter to the Add method.
+    public void Add(string content, string name, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -64,11 +94,11 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
 
-        Add(stringContent, name, fileName);
+        Add(stringContent, name);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(int content, string name, string fileName = default, string contentType = default)
+    public void Add(int content, string name, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -79,11 +109,11 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         {
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
-        Add(stringContent, name, fileName);
+        Add(stringContent, name);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(long content, string name, string fileName = default, string contentType = default)
+    public void Add(long content, string name, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -94,11 +124,11 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         {
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
-        Add(stringContent, name, fileName);
+        Add(stringContent, name);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(float content, string name, string fileName = default, string contentType = default)
+    public void Add(float content, string name, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -109,11 +139,11 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         {
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
-        Add(stringContent, name, fileName);
+        Add(stringContent, name);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(double content, string name, string fileName = default, string contentType = default)
+    public void Add(double content, string name, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -124,11 +154,11 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         {
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
-        Add(stringContent, name, fileName);
+        Add(stringContent, name);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(decimal content, string name, string fileName = default, string contentType = default)
+    public void Add(decimal content, string name, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -139,11 +169,11 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         {
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
-        Add(stringContent, name, fileName);
+        Add(stringContent, name);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(bool content, string name, string fileName = default, string contentType = default)
+    public void Add(bool content, string name, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -154,11 +184,11 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         {
             stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
-        Add(stringContent, name, fileName);
+        Add(stringContent, name);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(byte[] content, string name, string fileName = default, string contentType = default)
+    public void Add(byte[] content, string name, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -168,7 +198,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
             byteArrayContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
 
-        Add(byteArrayContent, name, fileName);
+        Add(byteArrayContent, name);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
@@ -185,7 +215,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         Add(byteArrayContent, name, fileName);
     }
 
-    private void Add(HttpContent content, string name, string fileName)
+    private void Add(HttpContent content, string name, string fileName = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNull(name, nameof(name));

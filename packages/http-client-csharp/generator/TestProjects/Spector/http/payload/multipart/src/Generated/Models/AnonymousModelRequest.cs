@@ -3,19 +3,17 @@
 #nullable disable
 
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.ClientModel.Primitives;
 
 namespace Payload.MultiPart.Models
 {
     /// <summary> The AnonymousModelRequest. </summary>
     internal partial class AnonymousModelRequest
     {
-
         /// <summary> Initializes a new instance of <see cref="AnonymousModelRequest"/>. </summary>
         /// <param name="profileImage"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="profileImage"/> is null. </exception>
-        public AnonymousModelRequest(ProfileImageFileDetails profileImage)
+        public AnonymousModelRequest(MultiPartFile profileImage)
         {
             Argument.AssertNotNull(profileImage, nameof(profileImage));
 
@@ -23,6 +21,6 @@ namespace Payload.MultiPart.Models
         }
 
         /// <summary> Gets the profile image. </summary>
-        public ProfileImageFileDetails ProfileImage { get; }
+        public MultiPartFile ProfileImage { get; }
     }
 }
