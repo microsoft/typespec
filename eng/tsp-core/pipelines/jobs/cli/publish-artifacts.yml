@@ -1,3 +1,4 @@
+# cspell:ignore cvzf
 jobs:
   - job: PublishCliArtifacts
     displayName: Publish artifacts
@@ -74,5 +75,5 @@ jobs:
               --auth-mode login \
               --destination dist \
               --account-name "typespec" \
-              --destination-path "/latest.txt" \
-              --source "./latest.txt"
+              --name "latest.txt" \
+              --file "./latest.txt"
