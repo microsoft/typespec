@@ -32,8 +32,8 @@ jobs:
           tar -cvzf release/tsp-linux-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-arm64 tsp
           tar -cvzf release/tsp-linux-x64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-x64 tsp
 
-          # zip release/azd-windows-arm64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-arm64/tsp.exe
-          zip release/azd-windows-x64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-x64/tsp.exe
+          # zip release/tsp-windows-arm64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-arm64/tsp.exe
+          zip release/tsp-windows-x64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-x64/tsp.exe
 
           ls ./release
         displayName: Prepare for packaging
@@ -55,9 +55,9 @@ jobs:
               | sed 's/[",]//g')
 
             echo "Package version is $PACKAGE_VERSION"
-            az storage blob upload-batch ^
-              --auth-mode login ^
-              --destination dist ^
-              --account-name "typespec" ^
-              --destination-path /$PACKAGE_VERSION/ ^
+            az storage blob upload-batch \
+              --auth-mode login \
+              --destination dist \
+              --account-name "typespec" \
+              --destination-path /$PACKAGE_VERSION/ \
               --source "./release/"
