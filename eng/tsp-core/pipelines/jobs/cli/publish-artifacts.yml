@@ -25,8 +25,7 @@ jobs:
 
       - script: |
           set -e
-          ls $(Pipeline.Workspace)/standalone-macos-signed
-
+          mkdir release
           tar -cvzf release/tsp-darwin-arm64.tar.gz $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64
           tar -cvzf release/tsp-darwin-x64.tar.gz $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-x64
 
@@ -38,3 +37,16 @@ jobs:
 
           ls ./release
         displayName: Prepare for packaging
+
+      - task: AzureCLI@1
+        displayName: "Upload to storage"
+        inputs:
+          azureSubscription: "Azure SDK Engineering System"
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch ^
+              --auth-mode login ^
+              --destination dist ^
+              --account-name "typespec" ^
+              --destination-path /0.1/ ^
+              --source "./release/"
