@@ -14,6 +14,6 @@ namespace Payload.MultiPart.Models
 
         public double Temperature { get; }
 
-        public FloatRequestTemperatureContentType ContentType { get; } = "text/plain";
+        public string ContentType { get; } = "text/plain";
     }
 }

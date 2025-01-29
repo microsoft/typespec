@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -65,15 +67,41 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             var id = "123";
             await using var imageStream = File.OpenRead(SampleJpgPath);
 
-            var profileImage = new ProfileImageFileDetails(imageStream)
-            {
-                Filename = "profileImage.jpg",
-                ContentType = "application/octet-stream"
-            };
+            // using stream
+            var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
             var request = new MultiPartRequest(id, profileImage);
             var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task BasicConvUsingBinaryData() => Test(async (host) =>
+        {
+            var id = "123";
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            BinaryData image = BinaryData.FromStream(imageStream);
+
+            var profileImage = new MultiPartFile(image, "profileImage.jpg");
+            var request = new MultiPartRequest(id, profileImage);
+            var response = await new MultiPartClient(host, null).GetFormDataClient().BasicAsync(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [Test]
+        public Task BasicMRW() => Test(async (host) =>
+        {
+            var id = "123";
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+
+            // using stream
+            var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
+            var request = new MultiPartRequest(id, profileImage);
+
+            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+
+            Assert.IsNotNull(serialized);
         });
 
         [CadlRanchTest]
@@ -96,17 +124,42 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             Address address = new Address("X");
 
             await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImage = new ProfileImageFileDetails(imageStream)
-            {
-                Filename = "profileImage",
-                ContentType = "application/octet-stream"
-            };
+            var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
 
             var request = new JsonPartRequest(address, profileImage);
 
             var response = await new MultiPartClient(host, null).GetFormDataClient().JsonPartAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task JsonPartConvUsingBinaryData() => Test(async (host) =>
+        {
+            Address address = new Address("X");
+
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            BinaryData image = BinaryData.FromStream(imageStream);
+
+            var profileImage = new MultiPartFile(image, "profileImage.jpg");
+            var request = new JsonPartRequest(address, profileImage);
+            var response = await new MultiPartClient(host, null).GetFormDataClient().JsonPartAsync(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [Test]
+        public Task JsonPartMRW() => Test(async (host) =>
+        {
+            Address address = new Address("X");
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+
+            var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
+            var request = new JsonPartRequest(address, profileImage);
+
+            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+
+            Assert.IsNotNull(serialized);
         });
 
         [CadlRanchTest]
@@ -129,11 +182,21 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             var id = "123";
 
             await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImage = new ProfileImageFileDetails(imageStream)
-            {
-                Filename = "hello.jpg",
-                ContentType = "image/jpg"
-            };
+            var profileImage = new MultiPartFile(imageStream, "hello.jpg", "image/jpg");
+            var request = new MultiPartRequest(id, profileImage);
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task CheckFileNameAndContentTypeConvUsingBinaryData() => Test(async (host) =>
+        {
+            var id = "123";
+
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            var profileImage = new MultiPartFile(imageStream, "hello.jpg", "image/jpg");
             var request = new MultiPartRequest(id, profileImage);
 
             var response = await new MultiPartClient(host, null).GetFormDataClient().CheckFileNameAndContentTypeAsync(request);
@@ -170,18 +233,14 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             Address address = new Address("X");
 
             await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new ProfileImageFileDetails(imageStream1)
-            {
-                Filename = "profileImage",
-                ContentType = "application/octet-stream"
-            };
+            var profileImage = new MultiPartFile(imageStream1, "profileImage.jpg");
 
             await using var imageStream2 = File.OpenRead(SamplePngPath);
             await using var imageStream3 = File.OpenRead(SamplePngPath);
-            var pictures = new List<PicturesFileDetails>()
+            var pictures = new List<MultiPartFile>()
             {
-                new(imageStream2) { Filename = "pictures", ContentType = "application/octet-stream" },
-                new(imageStream3) { Filename = "pictures", ContentType = "application/octet-stream" }
+                new(imageStream2, "sample.png"),
+                new(imageStream3, "sample.png")
             };
 
             var request = new ComplexPartsRequest(id, address, profileImage, pictures);
@@ -189,6 +248,54 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task FileArrayAndBasicConvUsingBinaryData() => Test(async (host) =>
+        {
+            var id = "123";
+            Address address = new Address("X");
+
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            var profileImage = new MultiPartFile(BinaryData.FromStream(imageStream1), "profileImage.jpg");
+
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            await using var imageStream3 = File.OpenRead(SamplePngPath);
+            var pictures = new List<MultiPartFile>()
+            {
+                new(BinaryData.FromStream(imageStream2), "sample.png"),
+                new(BinaryData.FromStream(imageStream3), "sample.png")
+            };
+
+            var request = new ComplexPartsRequest(id, address, profileImage, pictures);
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient().FileArrayAndBasicAsync(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [Test]
+        public Task FileArrayAndBasicMRW() => Test(async (host) =>
+        {
+            var id = "123";
+            Address address = new Address("X");
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+
+            // using stream
+            var profileImage = new MultiPartFile(imageStream, "profileImage.jpg");
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            await using var imageStream3 = File.OpenRead(SamplePngPath);
+            var pictures = new List<MultiPartFile>()
+            {
+                new(imageStream2, "sample.png"),
+                new(imageStream3, "sample.png")
+            };
+
+            var request = new ComplexPartsRequest(id, address, profileImage, pictures);
+
+            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+
+            Assert.IsNotNull(serialized);
         });
 
         [CadlRanchTest]
@@ -219,6 +326,32 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
                 .ImageJpegContentTypeAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task HttpPartsImageJpegContentTypeConvUsingBinaryData() => Test(async (host) =>
+        {
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            var profileImage = new FileSpecificContentType(BinaryData.FromStream(imageStream1), "hello.jpg");
+            var request = new FileWithHttpPartSpecificContentTypeRequest(profileImage);
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+               .GetFormDataHttpPartsClient()
+               .GetFormDataHttpPartsContentTypeClient()
+               .ImageJpegContentTypeAsync(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [Test]
+        public Task HttpPartsImageJpegContentTypeMRW() => Test(async (host) =>
+        {
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            var profileImage = new FileSpecificContentType(imageStream, "hello.jpg");
+            var request = new FileWithHttpPartSpecificContentTypeRequest(profileImage);
+
+            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+
+            Assert.IsNotNull(serialized);
         });
 
         [CadlRanchTest]
@@ -263,10 +396,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
 
             using MultiPartFormDataBinaryContent contentWithContentType = new MultiPartFormDataBinaryContent();
             await using var imageStream2 = File.OpenRead(SampleJpgPath);
-            var profileImage2 = new FileOptionalContentType(imageStream2, "hello.jpg")
-            {
-                ContentType = "application/octet-stream"
-            };
+            var profileImage2 = new FileOptionalContentType(imageStream2, "hello.jpg", "application/octet-stream");
             request = new FileWithHttpPartOptionalContentTypeRequest(profileImage2);
 
             response = await new MultiPartClient(host, null).GetFormDataClient()
@@ -297,6 +427,7 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
             var profileImage = new FileRequiredMetaData(imageStream, "hello.jpg", "application/octet-stream");
+            var file = new MultiPartFile(imageStream, "hello.jpg");
             var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
 
             var response = await new MultiPartClient(host, null).GetFormDataClient()
@@ -305,6 +436,35 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
                 .RequiredContentTypeAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task HttpPartsRequiredContentTypeConvUsingBinaryData() => Test(async (host) =>
+        {
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            var profileImage = new FileRequiredMetaData(BinaryData.FromStream(imageStream), "hello.jpg", "application/octet-stream");
+            var file = new MultiPartFile(imageStream, "hello.jpg");
+            var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient()
+                .GetFormDataHttpPartsClient()
+                .GetFormDataHttpPartsContentTypeClient()
+                .RequiredContentTypeAsync(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [Test]
+        public Task HttpPartsRequiredContentTypeMRW() => Test(async (host) =>
+        {
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            var profileImage = new FileRequiredMetaData(BinaryData.FromStream(imageStream), "hello.jpg", "application/octet-stream");
+            var file = new MultiPartFile(imageStream, "hello.jpg");
+            var request = new FileWithHttpPartRequiredContentTypeRequest(profileImage);
+
+            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+
+            Assert.IsNotNull(serialized);
         });
 
         [CadlRanchTest]
@@ -360,6 +520,31 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
 
+        [Test]
+        public Task HttpPartsJsonArrayAndFileArrayMRW() => Test(async (host) =>
+        {
+            string id = "123";
+            var address1 = new Address("X");
+            var address2 = new Address("Y");
+            var previousAddresses = new List<Address>() { address1, address2 };
+
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            var profileImage = new FileRequiredMetaData(imageStream1, "profile.jpg", "application/octet-stream");
+
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            await using var imageStream3 = File.OpenRead(SamplePngPath);
+            var pictures = new List<FileRequiredMetaData>()
+            {
+                new FileRequiredMetaData(imageStream1, "profile.jpg", "application/octet-stream"),
+                new FileRequiredMetaData(imageStream2, "profile2.jpg", "application/octet-stream")
+            };
+
+            var request = new ComplexHttpPartsModelRequest(id, address1, profileImage, previousAddresses, pictures);
+            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+
+            Assert.IsNotNull(serialized);
+        });
+
         [CadlRanchTest]
         public Task HttpPartsNonStringFloat() => Test(async (host) =>
         {
@@ -406,16 +591,53 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
             var id = "123";
             await using var imageStream1 = File.OpenRead(SamplePngPath);
             await using var imageStream2 = File.OpenRead(SamplePngPath);
-            var pictures = new List<PicturesFileDetails>()
+            var pictures = new List<MultiPartFile>()
             {
-                new(imageStream1) { Filename = "pictures", ContentType = "application/octet-stream" },
-                new(imageStream2) { Filename = "pictures", ContentType = "application/octet-stream" }
+                new(imageStream1, "pictures"),
+                new(imageStream2, "pictures")
             };
             var request = new BinaryArrayPartsRequest(id, pictures);
 
             var response = await new MultiPartClient(host, null).GetFormDataClient().BinaryArrayPartsAsync(request);
 
             Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task BinaryArrayConvUsingBinaryData() => Test(async (host) =>
+        {
+            var id = "123";
+            await using var imageStream1 = File.OpenRead(SamplePngPath);
+            BinaryData imageData1 = BinaryData.FromStream(imageStream1);
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            BinaryData imageData2 = BinaryData.FromStream(imageStream2);
+            var pictures = new List<MultiPartFile>()
+            {
+                new(imageData1, "pictures"),
+                new(imageData2, "pictures")
+            };
+            var request = new BinaryArrayPartsRequest(id, pictures);
+            var response = await new MultiPartClient(host, null).GetFormDataClient().BinaryArrayPartsAsync(request);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task BinaryArrayPartsMRW() => Test(async (host) =>
+        {
+            var id = "123";
+            await using var imageStream1 = File.OpenRead(SamplePngPath);
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            var pictures = new List<MultiPartFile>()
+            {
+                new(imageStream1, "pictures"),
+                new(imageStream2, "pictures")
+            };
+            var request = new BinaryArrayPartsRequest(id, pictures);
+
+            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+
+            Assert.IsNotNull(serialized);
         });
 
         [CadlRanchTest]
@@ -434,11 +656,18 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         public Task AnonymousModelConv() => Test(async (host) =>
         {
             await using var imageStream = File.OpenRead(SampleJpgPath);
-            var profileImageFileDetails = new ProfileImageFileDetails(imageStream)
-            {
-                Filename = "profileImage",
-                ContentType = "application/octet-stream"
-            };
+            var profileImageFileDetails = new MultiPartFile(imageStream, "profileImage");
+
+            var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(profileImageFileDetails);
+
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task AnonymousModelConvUsingBinaryData() => Test(async (host) =>
+        {
+            await using var imageStream = File.OpenRead(SampleJpgPath);
+            var profileImageFileDetails = new MultiPartFile(BinaryData.FromStream(imageStream), "profileImage");
 
             var response = await new MultiPartClient(host, null).GetFormDataClient().AnonymousModelAsync(profileImageFileDetails);
 
@@ -451,6 +680,9 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         [CadlRanchTest]
         public Task MultiBinaryPartsWithPictureConv()
             => MultiBinaryPartsConv(true);
+        [CadlRanchTest]
+        public Task MultiBinaryPartsWithPictureConvUsingBinaryData()
+            => MultiBinaryPartsConvUsingBinaryData(true);
 
         [CadlRanchTest]
         public Task MultiBinaryPartsWithoutPicture()
@@ -459,6 +691,24 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         [CadlRanchTest]
         public Task MultiBinaryPartsWithoutPictureConv()
             => MultiBinaryPartsConv(false);
+
+        [CadlRanchTest]
+        public Task MultiBinaryPartsWithoutPictureConvUsingBinaryData()
+            => MultiBinaryPartsConvUsingBinaryData(false);
+
+        [Test]
+        public Task MultiBinaryPartsMRW() => Test(async (host) =>
+        {
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            var profileImage = new MultiPartFile(imageStream1, "profileImage.jpg");
+
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            var picture = new MultiPartFile(imageStream2, "picture.jpg");
+            var request = new MultiBinaryPartsRequest(profileImage);
+            var serialized = ModelReaderWriter.Write(request, ModelSerializationExtensions.WireOptions);
+
+            Assert.IsNotNull(serialized);
+        });
 
         private Task MultiBinaryParts(bool hasPicture) => Test(async (host) =>
         {
@@ -477,18 +727,26 @@ namespace TestProjects.CadlRanch.Tests.Http.Payload.Multipart
         private Task MultiBinaryPartsConv(bool hasPicture) => Test(async (host) =>
         {
             await using var imageStream1 = File.OpenRead(SampleJpgPath);
-            var profileImage = new ProfileImageFileDetails(imageStream1)
-            {
-                Filename = "profileImage",
-                ContentType = "application/octet-stream"
-            };
+            var profileImage = new MultiPartFile(imageStream1, "profileImage.jpg");
 
             await using var imageStream2 = File.OpenRead(SamplePngPath);
-            var picture = new PictureFileDetails(imageStream2)
+            var picture = new MultiPartFile(imageStream2, "picture.jpg");
+            var request = new MultiBinaryPartsRequest(profileImage);
+            if (hasPicture)
             {
-                Filename = "picture",
-                ContentType = "application/octet-stream"
-            };
+                request.Picture = picture;
+            }
+            var response = await new MultiPartClient(host, null).GetFormDataClient().MultiBinaryPartsAsync(request);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        private Task MultiBinaryPartsConvUsingBinaryData(bool hasPicture) => Test(async (host) =>
+        {
+            await using var imageStream1 = File.OpenRead(SampleJpgPath);
+            var profileImage = new MultiPartFile(imageStream1, "profileImage.jpg");
+
+            await using var imageStream2 = File.OpenRead(SamplePngPath);
+            var picture = new MultiPartFile(imageStream2, "picture.jpg");
             var request = new MultiBinaryPartsRequest(profileImage);
             if (hasPicture)
             {

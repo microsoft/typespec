@@ -3,22 +3,57 @@
 #nullable disable
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 
 namespace Payload.MultiPart.Models
 {
-    internal partial class AnonymousModelRequest
+    internal partial class AnonymousModelRequest : IPersistableModel<AnonymousModelRequest>
     {
-        internal MultiPartFormDataBinaryContent ToMultipartBinaryBody()
+        BinaryData IPersistableModel<AnonymousModelRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<AnonymousModelRequest>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "MPFD":
+                    return SerializeMultipart();
+                default:
+                    throw new FormatException($"The model {nameof(AnonymousModelRequest)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        AnonymousModelRequest IPersistableModel<AnonymousModelRequest>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual AnonymousModelRequest PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<AnonymousModelRequest>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                default:
+                    throw new FormatException($"The model {nameof(AnonymousModelRequest)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        string IPersistableModel<AnonymousModelRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
+        internal MultiPartFormDataBinaryContent ToMultipartContent()
         {
             MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
 
-            content.Add(ProfileImage.Contents, "profileImage", ProfileImage.Filename, ProfileImage.ContentType);
+            content.Add(ProfileImage, "profileImage");
             return content;
+        }
+
+        private BinaryData SerializeMultipart()
+        {
+            using MultiPartFormDataBinaryContent content = ToMultipartContent();
+            using MemoryStream stream = new MemoryStream();
+
+            content.WriteTo(stream);
+            stream.Position = 0; // Reset the stream position to the beginning
+            return BinaryData.FromStream(stream);
         }
     }
 }

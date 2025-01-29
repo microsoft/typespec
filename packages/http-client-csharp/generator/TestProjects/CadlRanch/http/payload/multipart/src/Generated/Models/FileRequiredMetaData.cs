@@ -1,22 +1,23 @@
+using System;
+using System.ClientModel.Primitives;
 using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FileRequiredMetaData
+    public partial class FileRequiredMetaData : MultiPartFile
     {
-        public FileRequiredMetaData(Stream contents, string filename, string contentType)
+        public FileRequiredMetaData(Stream contents, string filename, string contentType) : base(contents, filename, contentType)
         {
             Argument.AssertNotNull(contents, nameof(contents));
             Argument.AssertNotNull(filename, nameof(filename));
             Argument.AssertNotNull(contentType, nameof(contentType));
-
-            Contents = contents;
-            Filename = filename;
-            ContentType = contentType;
         }
 
-        public Stream Contents { get; }
-        public string Filename { get; }
-        public string ContentType { get; }
+        public FileRequiredMetaData(BinaryData contents, string filename, string contentType) : base(contents, filename, contentType)
+        {
+            Argument.AssertNotNull(contents, nameof(contents));
+            Argument.AssertNotNull(filename, nameof(filename));
+            Argument.AssertNotNull(contentType, nameof(contentType));
+        }
     }
 }

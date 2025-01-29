@@ -1,13 +1,12 @@
 #nullable disable
 
-using System;
-using System.Collections.Generic;
+using System.ClientModel.Primitives;
 
 namespace Payload.MultiPart.Models
 {
     public partial class MultiPartRequest
     {
-        public MultiPartRequest(string id, ProfileImageFileDetails profileImage)
+        public MultiPartRequest(string id, MultiPartFile profileImage)
         {
             Argument.AssertNotNull(id, nameof(id));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -17,6 +16,6 @@ namespace Payload.MultiPart.Models
         }
 
         public string Id { get; }
-        public ProfileImageFileDetails ProfileImage { get; }
+        public MultiPartFile ProfileImage { get; }
     }
 }

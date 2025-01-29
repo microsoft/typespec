@@ -1,21 +1,21 @@
 using System;
+using System.ClientModel.Primitives;
 using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FileSpecificContentType
+    public partial class FileSpecificContentType : MultiPartFile
     {
-        public FileSpecificContentType(Stream contents, string filename)
+        public FileSpecificContentType(Stream contents, string filename) : base(contents, filename, "image/jpg")
         {
             Argument.AssertNotNull(contents, nameof(contents));
             Argument.AssertNotNull(filename, nameof(filename));
-
-            Contents = contents;
-            Filename = filename;
         }
 
-        public Stream Contents { get; }
-        public string Filename { get; }
-        public FileSpecificContentTypeContentType ContentType { get; } = "image/jpg";
+        public FileSpecificContentType(BinaryData contents, string filename) : base(contents, filename, "image/jpg")
+        {
+            Argument.AssertNotNull(contents, nameof(contents));
+            Argument.AssertNotNull(filename, nameof(filename));
+        }
     }
 }

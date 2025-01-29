@@ -1,22 +1,23 @@
 #nullable disable
 
+using System;
+using System.ClientModel.Primitives;
 using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class FileOptionalContentType
+    public partial class FileOptionalContentType : MultiPartFile
     {
-        public FileOptionalContentType(Stream contents, string filename)
+        public FileOptionalContentType(Stream contents, string filename, string contentType = default) : base(contents, filename, contentType)
         {
             Argument.AssertNotNull(contents, nameof(contents));
             Argument.AssertNotNull(filename, nameof(filename));
-
-            Contents = contents;
-            Filename = filename;
         }
 
-        public Stream Contents { get; }
-        public string Filename { get; }
-        public string ContentType { get; set; }
+        public FileOptionalContentType(BinaryData contents, string filename, string contentType = default) : base(contents, filename, contentType)
+        {
+            Argument.AssertNotNull(contents, nameof(contents));
+            Argument.AssertNotNull(filename, nameof(filename));
+        }
     }
 }

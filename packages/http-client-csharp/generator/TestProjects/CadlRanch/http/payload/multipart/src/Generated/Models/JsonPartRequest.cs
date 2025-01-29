@@ -2,16 +2,14 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.IO;
+using System.ClientModel.Primitives;
 
 namespace Payload.MultiPart.Models
 {
     /// <summary> The JsonPartRequest. </summary>
     public partial class JsonPartRequest
     {
-        public JsonPartRequest(Address address, ProfileImageFileDetails profileImage)
+        public JsonPartRequest(Address address, MultiPartFile profileImage)
         {
             Argument.AssertNotNull(address, nameof(address));
             Argument.AssertNotNull(profileImage, nameof(profileImage));
@@ -23,6 +21,6 @@ namespace Payload.MultiPart.Models
         /// <summary> Gets the address. </summary>
         public Address Address { get; }
         /// <summary> Gets the profile image. </summary>
-        public ProfileImageFileDetails ProfileImage { get; }
+        public MultiPartFile ProfileImage { get; }
     }
 }
