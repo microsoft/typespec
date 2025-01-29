@@ -60,3 +60,7 @@ packages/http-client-csharp/generator/TestProjects/**/tspCodeModel.json
 # auto generated api view properties files
 packages/http-client-java/generator/http-client-generator-test/src/main/**/*.json
 packages/http-client-java/generator/http-client-generator-clientcore-test/src/main/**/*.json
+
+
+.gitattributes
+CODEOWNERS
