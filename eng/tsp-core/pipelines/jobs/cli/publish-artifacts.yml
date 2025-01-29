@@ -1,5 +1,25 @@
 # cspell:ignore cvzf
 jobs:
+  - job: VerifyOSXArm64
+    displayName: Verify OSX Arm64
+    pool:
+      name: $(MACOSPOOL)
+      image: $(MACVMIMAGEM1)
+      os: macOS
+
+    steps:
+      - download: current
+        artifact: standalone-macos-signed
+        patterns: tsp
+        displayName: Download arm64 binary
+
+      - script: |
+          set -e
+          cd $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64
+          chmod +x tsp
+          ./tsp --help
+        displayName: Verify arm64 binary
+
   - job: PublishCliArtifacts
     displayName: Publish artifacts
     pool:
