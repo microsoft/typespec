@@ -1,35 +1,37 @@
 import { describe, expect, it } from "vitest";
 import {
   BooleanClient,
-  StringClient,
   BytesClient,
-  IntClient,
-  FloatClient,
-  DecimalClient,
-  Decimal128Client,
+  CollectionsStringClient,
   DatetimeClient,
+  Decimal128Client,
+  DecimalClient,
   DurationClient,
   EnumClient,
   ExtensibleEnumClient,
-  ModelClient,
-  CollectionsStringClient,
-  CollectionsIntClient,
-  CollectionsModelClient,
-  DictionaryStringClient,
-  NeverClient,
-  UnknownStringClient,
-  UnknownIntClient,
-  UnknownDictClient,
-  UnknownArrayClient,
-  StringLiteralClient,
-  IntLiteralClient,
-  FloatLiteralClient,
-  BooleanLiteralClient,
-  UnionStringLiteralClient,
-  UnionIntLiteralClient,
-  UnionFloatLiteralClient,
-  UnionEnumValueClient,
+  FixedInnerEnum,
+  FloatClient,
+  IntClient,
+  StringClient,
 } from "../../../../generated/http/type/property/value-types/http-client-javascript/src/index.js";
+
+const base64EncodeToUint8Array = (input: string): Uint8Array => {
+  // Encode the string as Base64
+  const base64String = btoa(input);
+
+  // Decode Base64 into a binary string
+  const binaryString = atob(base64String);
+
+  // Convert the binary string to a Uint8Array
+  const uint8Array = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    uint8Array[i] = binaryString.charCodeAt(i);
+  }
+
+  return uint8Array;
+};
+
+const helloWorldBase64 = base64EncodeToUint8Array("hello, world!");
 
 describe("Type.Property.ValueTypes", () => {
   describe("BooleanClient", () => {
@@ -67,7 +69,7 @@ describe("Type.Property.ValueTypes", () => {
     });
 
     it("should send a model with a bytes property", async () => {
-      await client.put({ property: "aGVsbG8sIHdvcmxkIQ==" });
+      await client.put({ property: helloWorldBase64 });
     });
   });
 
@@ -132,7 +134,7 @@ describe("Type.Property.ValueTypes", () => {
     });
 
     it("should send a model with a datetime property", async () => {
-      await client.put({ property: "2022-08-26T18:38:00Z" });
+      await client.put({ property: new Date("2022-08-26T18:38:00Z") });
     });
   });
 
@@ -158,7 +160,7 @@ describe("Type.Property.ValueTypes", () => {
     });
 
     it("should send a model with an enum property", async () => {
-      await client.put({ property: "ValueOne" });
+      await client.put({ property: FixedInnerEnum.ValueOne });
     });
   });
 

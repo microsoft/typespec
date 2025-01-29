@@ -1,10 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { TypeModelInheritanceNestedDiscriminatorClient } from "../../../../../generated/http/type/model/inheritance/nested-discriminator/http-client-javascript/src/index.js";
+import { describe, expect, it } from "vitest";
+import { NestedDiscriminatorClient } from "../../../../../generated/http/type/model/inheritance/nested-discriminator/http-client-javascript/src/index.js";
 
 describe("Type.Model.Inheritance.NestedDiscriminator", () => {
-  const client = new TypeModelInheritanceNestedDiscriminatorClient(
-    "http://localhost:3000",
-  );
+  const client = new NestedDiscriminatorClient("http://localhost:3000");
 
   it("should get a polymorphic model with 2 discriminators", async () => {
     const response = await client.getModel();

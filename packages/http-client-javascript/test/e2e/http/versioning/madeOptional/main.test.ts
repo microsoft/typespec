@@ -5,7 +5,7 @@ describe("Versioning.MadeOptional", () => {
   const endpoint = "http://localhost:3000";
 
   describe("v1", () => {
-    const client = new MadeOptionalClient(endpoint, { version: "v1" });
+    const client = new MadeOptionalClient(endpoint, { apiVersion: "v1" });
 
     it("should send the request body and handle the response for v1", async () => {
       const requestBody = { prop: "foo" };
@@ -17,7 +17,7 @@ describe("Versioning.MadeOptional", () => {
   });
 
   describe("v2", () => {
-    const client = new MadeOptionalClient(endpoint, { version: "v2" });
+    const client = new MadeOptionalClient(endpoint, { apiVersion: "v2" });
 
     it("should send the request body, additional query param, and handle the response for v2", async () => {
       const requestBody = { prop: "foo" };

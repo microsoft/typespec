@@ -1,15 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
-  StringsOnlyClient,
-  StringExtensibleClient,
-  StringExtensibleNamedClient,
-  IntsOnlyClient,
-  FloatsOnlyClient,
-  ModelsOnlyClient,
   EnumsOnlyClient,
-  StringAndArrayClient,
+  FloatsOnlyClient,
+  IntsOnlyClient,
+  Lr,
   MixedLiteralsClient,
   MixedTypesClient,
+  ModelsOnlyClient,
+  StringAndArrayClient,
+  StringExtensibleClient,
+  StringExtensibleNamedClient,
+  StringsOnlyClient,
+  Ud,
 } from "../../../generated/http/type/union/http-client-javascript/src/index.js";
 
 describe("Type.Union", () => {
@@ -22,7 +24,7 @@ describe("Type.Union", () => {
     });
 
     it("should send a union of strings", async () => {
-      await client.send({ prop: "b" });
+      await client.send("b");
       // Assert successful request
     });
   });
@@ -36,7 +38,7 @@ describe("Type.Union", () => {
     });
 
     it("should send an extensible string union", async () => {
-      await client.send({ prop: "custom" });
+      await client.send("custom");
       // Assert successful request
     });
   });
@@ -50,7 +52,7 @@ describe("Type.Union", () => {
     });
 
     it("should send an extensible named string union", async () => {
-      await client.send({ prop: "custom" });
+      await client.send("custom");
       // Assert successful request
     });
   });
@@ -64,7 +66,7 @@ describe("Type.Union", () => {
     });
 
     it("should send a union of integers", async () => {
-      await client.send({ prop: 2 });
+      await client.send(2);
       // Assert successful request
     });
   });
@@ -78,7 +80,7 @@ describe("Type.Union", () => {
     });
 
     it("should send a union of floats", async () => {
-      await client.send({ prop: 2.2 });
+      await client.send(2.2);
       // Assert successful request
     });
   });
@@ -92,7 +94,7 @@ describe("Type.Union", () => {
     });
 
     it("should send a union of models", async () => {
-      await client.send({ prop: { name: "test" } });
+      await client.send({ name: "test" });
       // Assert successful request
     });
   });
@@ -106,7 +108,7 @@ describe("Type.Union", () => {
     });
 
     it("should send a union of enums", async () => {
-      await client.send({ prop: { lr: "right", ud: "up" } });
+      await client.send({ lr: Lr.Right, ud: Ud.Up });
       // Assert successful request
     });
   });
@@ -123,9 +125,7 @@ describe("Type.Union", () => {
     });
 
     it("should send a union of string and array", async () => {
-      await client.send({
-        prop: { string: "test", array: ["test1", "test2"] },
-      });
+      await client.send({ string: "test", array: ["test1", "test2"] });
       // Assert successful request
     });
   });
@@ -145,12 +145,10 @@ describe("Type.Union", () => {
 
     it("should send a union of mixed literals", async () => {
       await client.send({
-        prop: {
-          stringLiteral: "a",
-          intLiteral: 2,
-          floatLiteral: 3.3,
-          booleanLiteral: true,
-        },
+        stringLiteral: "a",
+        intLiteral: 2,
+        floatLiteral: 3.3,
+        booleanLiteral: true,
       });
       // Assert successful request
     });
@@ -172,13 +170,11 @@ describe("Type.Union", () => {
 
     it("should send a union of mixed types", async () => {
       await client.send({
-        prop: {
-          model: { name: "test" },
-          literal: "a",
-          int: 2,
-          boolean: true,
-          array: [{ name: "test" }, "a", 2, true],
-        },
+        model: { name: "test" },
+        literal: "a",
+        int: 2,
+        boolean: true,
+        array: [{ name: "test" }, "a", 2, true],
       });
       // Assert successful request
     });

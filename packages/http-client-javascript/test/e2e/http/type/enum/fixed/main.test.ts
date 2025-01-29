@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { StringClient } from "../../../../generated/http/type/enum/fixed/http-client-javascript/src/index.js";
+import {
+  DaysOfWeekEnum,
+  StringClient,
+} from "../../../../generated/http/type/enum/fixed/http-client-javascript/src/index.js";
 
 describe("Type.Enum.Fixed", () => {
   describe("StringClient", () => {
@@ -11,12 +14,12 @@ describe("Type.Enum.Fixed", () => {
     });
 
     it("should send a known value to the server", async () => {
-      await client.putKnownValue("Monday");
+      await client.putKnownValue(DaysOfWeekEnum.Monday);
       // Assert successful request
     });
 
     it("should send an unknown value to the server", async () => {
-      await client.putUnknownValue("Weekend");
+      await client.putUnknownValue("Weekend" as any);
       // Assert successful request
     });
   });

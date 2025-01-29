@@ -1,9 +1,9 @@
 import { describe, it } from "vitest";
 import {
+  ModelPropertiesClient,
+  ModelsClient,
   OperationsClient,
   ParametersClient,
-  ModelsClient,
-  ModelPropertiesClient,
 } from "../../generated/http/special-words/http-client-javascript/src/index.js";
 
 describe("SpecialWords", () => {
@@ -15,7 +15,7 @@ describe("SpecialWords", () => {
     });
 
     it("should handle operation 'as'", async () => {
-      await client.as();
+      await client.as_();
     });
 
     it("should handle operation 'assert'", async () => {
@@ -27,15 +27,15 @@ describe("SpecialWords", () => {
     });
 
     it("should handle operation 'await'", async () => {
-      await client.await();
+      await client.await_();
     });
 
     it("should handle operation 'break'", async () => {
-      await client.break();
+      await client.break_();
     });
 
     it("should handle operation 'class'", async () => {
-      await client.class();
+      await client.class_();
     });
 
     it("should handle operation 'constructor'", async () => {
@@ -43,7 +43,7 @@ describe("SpecialWords", () => {
     });
 
     it("should handle operation 'continue'", async () => {
-      await client.continue();
+      await client.continue_();
     });
 
     it("should handle operation 'def'", async () => {
@@ -59,7 +59,7 @@ describe("SpecialWords", () => {
     });
 
     it("should handle operation 'else'", async () => {
-      await client.else();
+      await client.else_();
     });
 
     it("should handle operation 'except'", async () => {
@@ -71,11 +71,11 @@ describe("SpecialWords", () => {
     });
 
     it("should handle operation 'finally'", async () => {
-      await client.finally();
+      await client.finally_();
     });
 
     it("should handle operation 'for'", async () => {
-      await client.for();
+      await client.for_();
     });
 
     it("should handle operation 'from'", async () => {
@@ -87,15 +87,15 @@ describe("SpecialWords", () => {
     });
 
     it("should handle operation 'if'", async () => {
-      await client.if();
+      await client.if_();
     });
 
     it("should handle operation 'import'", async () => {
-      await client.import();
+      await client.import_();
     });
 
     it("should handle operation 'in'", async () => {
-      await client.in();
+      await client.in_();
     });
 
     it("should handle operation 'is'", async () => {
@@ -123,23 +123,23 @@ describe("SpecialWords", () => {
     });
 
     it("should handle operation 'return'", async () => {
-      await client.return();
+      await client.return_();
     });
 
     it("should handle operation 'try'", async () => {
-      await client.try();
+      await client.try_();
     });
 
     it("should handle operation 'while'", async () => {
-      await client.while();
+      await client.while_();
     });
 
     it("should handle operation 'with'", async () => {
-      await client.with();
+      await client.with_();
     });
 
     it("should handle operation 'yield'", async () => {
-      await client.yield();
+      await client.yield_();
     });
   });
 
@@ -423,7 +423,7 @@ describe("SpecialWords", () => {
     const client = new ModelPropertiesClient("http://localhost:3000");
 
     it("should handle property same as the model name", async () => {
-      await client.sameAsModel({ SameAsModel: "ok" });
+      await client.sameAsModel({ sameAsModel: "ok" });
     });
   });
 });

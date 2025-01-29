@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { TypeModelEmptyClient } from "../../../../generated/http/type/model/empty/http-client-javascript/src/index.js";
+import { EmptyClient } from "../../../../generated/http/type/model/empty/http-client-javascript/src/index.js";
 
 describe("Type.Model.Empty", () => {
-  const client = new TypeModelEmptyClient("http://localhost:3000");
+  const client = new EmptyClient("http://localhost:3000");
 
   it("should send a PUT request with an empty body", async () => {
     await client.putEmpty({});

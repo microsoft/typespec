@@ -1,28 +1,22 @@
 import { describe, it } from "vitest";
 import {
-  RoutesClient,
-  InInterfaceClient,
-  PathParametersClient,
-  ReservedExpansionClient,
-  SimpleExpansionClient,
-  StandardClient as SimpleStandardClient,
-  ExplodeClient as SimpleExplodeClient,
-  PathExpansionClient,
-  StandardClient as PathStandardClient,
-  ExplodeClient as PathExplodeClient,
-  LabelExpansionClient,
-  StandardClient as LabelStandardClient,
-  ExplodeClient as LabelExplodeClient,
-  MatrixExpansionClient,
-  StandardClient as MatrixStandardClient,
-  ExplodeClient as MatrixExplodeClient,
-  QueryParametersClient,
-  QueryExpansionClient,
-  StandardClient as QueryStandardClient,
-  ExplodeClient as QueryExplodeClient,
-  QueryContinuationClient,
-  StandardClient as ContinuationStandardClient,
   ExplodeClient as ContinuationExplodeClient,
+  StandardClient as ContinuationStandardClient,
+  InInterfaceClient,
+  ExplodeClient as LabelExplodeClient,
+  StandardClient as LabelStandardClient,
+  ExplodeClient as MatrixExplodeClient,
+  StandardClient as MatrixStandardClient,
+  ExplodeClient as PathExplodeClient,
+  PathParametersClient,
+  StandardClient as PathStandardClient,
+  ExplodeClient as QueryExplodeClient,
+  QueryParametersClient,
+  StandardClient as QueryStandardClient,
+  ReservedExpansionClient,
+  RoutesClient,
+  ExplodeClient as SimpleExplodeClient,
+  StandardClient as SimpleStandardClient,
 } from "../../generated/http/routes/http-client-javascript/src/index.js";
 
 describe("Routes", () => {
@@ -72,8 +66,6 @@ describe("Routes", () => {
     });
 
     describe("SimpleExpansion", () => {
-      const simpleExpansionClient = new SimpleExpansionClient(baseUrl);
-
       describe("Standard", () => {
         const simpleStandardClient = new SimpleStandardClient(baseUrl);
 
@@ -108,8 +100,6 @@ describe("Routes", () => {
     });
 
     describe("PathExpansion", () => {
-      const pathExpansionClient = new PathExpansionClient(baseUrl);
-
       describe("Standard", () => {
         const pathStandardClient = new PathStandardClient(baseUrl);
 
@@ -144,8 +134,6 @@ describe("Routes", () => {
     });
 
     describe("LabelExpansion", () => {
-      const labelExpansionClient = new LabelExpansionClient(baseUrl);
-
       describe("Standard", () => {
         const labelStandardClient = new LabelStandardClient(baseUrl);
 
@@ -180,8 +168,6 @@ describe("Routes", () => {
     });
 
     describe("MatrixExpansion", () => {
-      const matrixExpansionClient = new MatrixExpansionClient(baseUrl);
-
       describe("Standard", () => {
         const matrixStandardClient = new MatrixStandardClient(baseUrl);
 
@@ -230,8 +216,6 @@ describe("Routes", () => {
     });
 
     describe("QueryExpansion", () => {
-      const queryExpansionClient = new QueryExpansionClient(baseUrl);
-
       describe("Standard", () => {
         const queryStandardClient = new QueryStandardClient(baseUrl);
 
@@ -266,12 +250,8 @@ describe("Routes", () => {
     });
 
     describe("QueryContinuation", () => {
-      const queryContinuationClient = new QueryContinuationClient(baseUrl);
-
       describe("Standard", () => {
-        const continuationStandardClient = new ContinuationStandardClient(
-          baseUrl,
-        );
+        const continuationStandardClient = new ContinuationStandardClient(baseUrl);
 
         it("should handle primitive value with explode: false", async () => {
           await continuationStandardClient.primitive("a");
@@ -287,9 +267,7 @@ describe("Routes", () => {
       });
 
       describe("Explode", () => {
-        const continuationExplodeClient = new ContinuationExplodeClient(
-          baseUrl,
-        );
+        const continuationExplodeClient = new ContinuationExplodeClient(baseUrl);
 
         it("should handle primitive value with explode: true", async () => {
           await continuationExplodeClient.primitive("a");

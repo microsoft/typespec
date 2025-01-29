@@ -6,32 +6,6 @@ import {
   IsUnknownClient,
   IsUnknownDerivedClient,
   IsUnknownDiscriminatedClient,
-  ExtendsStringClient,
-  IsStringClient,
-  SpreadStringClient,
-  ExtendsFloatClient,
-  IsFloatClient,
-  SpreadFloatClient,
-  ExtendsModelClient,
-  IsModelClient,
-  SpreadModelClient,
-  ExtendsModelArrayClient,
-  IsModelArrayClient,
-  SpreadModelArrayClient,
-  SpreadDifferentStringClient,
-  SpreadDifferentFloatClient,
-  SpreadDifferentModelClient,
-  SpreadDifferentModelArrayClient,
-  ExtendsDifferentSpreadStringClient,
-  ExtendsDifferentSpreadFloatClient,
-  ExtendsDifferentSpreadModelClient,
-  ExtendsDifferentSpreadModelArrayClient,
-  MultipleSpreadClient,
-  SpreadRecordUnionClient,
-  SpreadRecordDiscriminatedUnionClient,
-  SpreadRecordNonDiscriminatedUnionClient,
-  SpreadRecordNonDiscriminatedUnion2Client,
-  SpreadRecordNonDiscriminatedUnion3Client,
 } from "../../../../generated/http/type/property/additional-properties/http-client-javascript/src/index.js";
 
 describe("Type.Property.AdditionalProperties", () => {
@@ -82,9 +56,7 @@ describe("Type.Property.AdditionalProperties", () => {
   });
 
   describe("ExtendsUnknownDiscriminatedClient", () => {
-    const client = new ExtendsUnknownDiscriminatedClient(
-      "http://localhost:3000",
-    );
+    const client = new ExtendsUnknownDiscriminatedClient("http://localhost:3000");
     it("Expected response body: {'kind': 'derived', 'name': 'Derived', 'index': 314, 'age': 2.71875, 'prop1': 32, 'prop2': true, 'prop3': 'abc'}", async () => {
       const response = await client.get();
       expect(response).toEqual({

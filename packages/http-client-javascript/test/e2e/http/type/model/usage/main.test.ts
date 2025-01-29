@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { TypeModelUsageClient } from "../../../../generated/http/type/model/usage/http-client-javascript/src/index.js";
+import { describe, expect, it } from "vitest";
+import { UsageClient } from "../../../../generated/http/type/model/usage/http-client-javascript/src/index.js";
 
 describe("Type.Model.Usage", () => {
-  const client = new TypeModelUsageClient("http://localhost:3000");
+  const client = new UsageClient("http://localhost:3000");
 
   it("should send a POST request with the specified body for input operation", async () => {
     await client.input({ requiredProp: "example-value" });

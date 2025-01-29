@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { TypeModelInheritanceRecursiveClient } from "../../../../../generated/http/type/model/inheritance/recursive/http-client-javascript/src/index.js";
+import { RecursiveClient } from "../../../../../generated/http/type/model/inheritance/recursive/http-client-javascript/src/index.js";
 
 describe("Type.Model.Inheritance.Recursive", () => {
-  const client = new TypeModelInheritanceRecursiveClient(
-    "http://localhost:3000",
-  );
+  const client = new RecursiveClient("http://localhost:3000");
 
   it("should send a PUT request with a recursive Extension model", async () => {
     await client.put({

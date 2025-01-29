@@ -1,23 +1,38 @@
-import { describe, it } from "vitest";
+import { readFile } from "fs/promises";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+import { beforeEach, describe, it } from "vitest";
 import {
   FormDataClient,
-  ComplexHttpPartsModelRequest,
-  FileWithHttpPartSpecificContentTypeRequest,
-  FileWithHttpPartOptionalContentTypeRequest,
-  FileWithHttpPartRequiredContentTypeRequest,
-  NonStringFloatClient,
+  HttpPartsClient,
 } from "../../../generated/http/payload/multipart/http-client-javascript/src/index.js";
 
 describe("Payload.MultiPart", () => {
+  let __filename;
+  let __dirname;
+  let jpegContents: Uint8Array;
+  let pngContents: Uint8Array;
+
   describe("FormDataClient", () => {
     const client = new FormDataClient("http://localhost:3000");
+
+    beforeEach(async () => {
+      __filename = fileURLToPath(import.meta.url);
+      __dirname = dirname(__filename);
+
+      const jpegImagePath = resolve(__dirname, "../../../assets/image.jpg");
+      const jpegBuffer = await readFile(jpegImagePath);
+      jpegContents = new Uint8Array(jpegBuffer);
+
+      const pngImagePath = resolve(__dirname, "../../../assets/image.png");
+      const pngBuffer = await readFile(pngImagePath);
+      pngContents = new Uint8Array(pngBuffer);
+    });
 
     it("should send mixed parts with multipart/form-data", async () => {
       await client.basic({
         id: "123",
-        profileImage: new Uint8Array([
-          /* file content */
-        ]),
+        profileImage: jpegContents,
       });
     });
 
@@ -26,17 +41,8 @@ describe("Payload.MultiPart", () => {
       await client.fileArrayAndBasic({
         id: "123",
         address,
-        profileImage: new Uint8Array([
-          /* file content */
-        ]),
-        pictures: [
-          new Uint8Array([
-            /* file content */
-          ]),
-          new Uint8Array([
-            /* file content */
-          ]),
-        ],
+        profileImage: jpegContents,
+        pictures: [pngContents, pngContents],
       });
     });
 
@@ -53,102 +59,57 @@ describe("Payload.MultiPart", () => {
     it("should send binary array parts with multipart/form-data", async () => {
       await client.binaryArrayParts({
         id: "123",
-        pictures: [
-          new Uint8Array([
-            /* file content */
-          ]),
-          new Uint8Array([
-            /* file content */
-          ]),
-        ],
+        pictures: [pngContents, pngContents],
       });
     });
 
     it("should send multi-binary parts multiple times", async () => {
-      // First request with only profileImage
       await client.multiBinaryParts({
-        profileImage: new Uint8Array([
-          /* file content */
-        ]),
-      });
-
-      // Second request with profileImage and picture
-      await client.multiBinaryParts({
-        profileImage: new Uint8Array([
-          /* file content */
-        ]),
-        picture: new Uint8Array([
-          /* file content */
-        ]),
+        profileImage: jpegContents,
+        picture: pngContents,
       });
     });
 
     it("should send parts and check filename/content-type", async () => {
       await client.checkFileNameAndContentType({
         id: "123",
-        profileImage: new Uint8Array([
-          /* file content */
-        ]),
+        profileImage: jpegContents,
       });
     });
 
     it("should send anonymous model with multipart/form-data", async () => {
-      await client.anonymousModel(
-        new Uint8Array([
-          /* file content */
-        ]),
-      );
+      await client.anonymousModel(jpegContents);
     });
   });
 
   describe("FormDataClient.HttpParts.ContentType", () => {
-    const client = new FormDataClient.HttpParts.ContentTypeClient(
-      "http://localhost:3000",
-    );
+    const client = new HttpPartsClient("http://localhost:3000");
 
     it("should handle image/jpeg with specific content type", async () => {
-      await client.imageJpegContentType({
+      await client.contentTypeClient.imageJpegContentType({
         profileImage: {
-          content: new Uint8Array([
-            /* file content */
-          ]),
-          filename: "hello.jpg",
+          contents: jpegContents,
           contentType: "image/jpg",
+          filename: "image.jpg",
         },
       });
     });
 
     it("should handle required content type with multipart/form-data", async () => {
-      await client.requiredContentType({
+      await client.contentTypeClient.requiredContentType({
         profileImage: {
-          content: new Uint8Array([
-            /* file content */
-          ]),
-          filename: "file.jpg",
-          contentType: "application/octet-stream",
+          contents: jpegContents,
+          contentType: "image/jpg",
+          filename: "image.jpg",
         },
       });
     });
 
     it("should handle optional content type file parts", async () => {
-      // First time with no content-type
-      await client.optionalContentType({
+      await client.contentTypeClient.optionalContentType({
         profileImage: {
-          content: new Uint8Array([
-            /* file content */
-          ]),
-          filename: "file.jpg",
-        },
-      });
-
-      // Second time with content-type as application/octet-stream
-      await client.optionalContentType({
-        profileImage: {
-          content: new Uint8Array([
-            /* file content */
-          ]),
-          filename: "file.jpg",
-          contentType: "application/octet-stream",
+          contents: jpegContents,
+          filename: "image.jpg",
         },
       });
     });
@@ -156,37 +117,21 @@ describe("Payload.MultiPart", () => {
 
   describe("FormDataClient.HttpParts", () => {
     it("should send json array and file array", async () => {
-      const client = new FormDataClient.HttpPartsClient(
-        "http://localhost:3000",
-      );
+      const client = new HttpPartsClient("http://localhost:3000");
       const address = { city: "X" };
       const previousAddresses = [{ city: "Y" }, { city: "Z" }];
       await client.jsonArrayAndFileArray({
         id: "123",
-        address: { content: address },
+        address,
         profileImage: {
-          content: new Uint8Array([
-            /* file content */
-          ]),
-          filename: "profile.jpg",
+          contents: jpegContents,
           contentType: "application/octet-stream",
+          filename: "profile.jpg",
         },
-        previousAddresses: { content: previousAddresses },
+        previousAddresses,
         pictures: [
-          {
-            content: new Uint8Array([
-              /* file content */
-            ]),
-            filename: "pic1.png",
-            contentType: "application/octet-stream",
-          },
-          {
-            content: new Uint8Array([
-              /* file content */
-            ]),
-            filename: "pic2.png",
-            contentType: "application/octet-stream",
-          },
+          { contents: pngContents, contentType: "application/octet-stream", filename: "pic1.png" },
+          { contents: pngContents, contentType: "application/octet-stream", filename: "pic2.png" },
         ],
       });
     });
@@ -194,9 +139,10 @@ describe("Payload.MultiPart", () => {
 
   describe("FormDataClient.HttpParts.NonString", () => {
     it("should handle non-string float", async () => {
-      const client = new NonStringFloatClient("http://localhost:3000");
-      await client.float({
-        temperature: { content: 0.5 },
+      const client = new HttpPartsClient("http://localhost:3000");
+      await client.nonStringClient.float({
+        // TODO: This needs to be modeled as a single positional parameter.
+        temperature: { body: 1.23, contentType: "text/plain" },
       });
     });
   });

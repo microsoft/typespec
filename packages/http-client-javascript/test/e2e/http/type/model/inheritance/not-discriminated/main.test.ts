@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { TypeModelInheritanceNotDiscriminatedClient } from "../../../../../generated/http/type/model/inheritance/not-discriminated/http-client-javascript/src/index.js";
+import { NotDiscriminatedClient } from "../../../../../generated/http/type/model/inheritance/not-discriminated/http-client-javascript/src/index.js";
 
 describe("Type.Model.Inheritance.NotDiscriminated", () => {
-  const client = new TypeModelInheritanceNotDiscriminatedClient(
-    "http://localhost:3000",
-  );
+  const client = new NotDiscriminatedClient("http://localhost:3000");
 
   it("should generate and send model", async () => {
     await client.postValid({

@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { TypeModelVisibilityClient } from "../../../../generated/http/type/model/visibility/http-client-javascript/src/index.js";
+import { VisibilityClient } from "../../../../generated/http/type/model/visibility/http-client-javascript/src/index.js";
 
 describe("Type.Model.Visibility", () => {
-  const client = new TypeModelVisibilityClient("http://localhost:3000");
+  const client = new VisibilityClient("http://localhost:3000");
 
   it("should generate and receive an output model with readonly properties (getModel)", async () => {
     const input = {
       queryProp: 123,
     };
-    const response = await client.getModel(input);
+    const response = await client.getModel(input as any);
     expect(response.readProp).toBe("abc");
   });
 
@@ -16,7 +16,7 @@ describe("Type.Model.Visibility", () => {
     const input = {
       queryProp: 123,
     };
-    const response = await client.headModel(input);
+    const response = await client.headModel(input as any);
     expect(response).toBeDefined();
   });
 
@@ -25,7 +25,7 @@ describe("Type.Model.Visibility", () => {
       createProp: ["foo", "bar"],
       updateProp: [1, 2],
     };
-    await client.putModel(input);
+    await client.putModel(input as any);
     // Assert successful request
   });
 
@@ -33,7 +33,7 @@ describe("Type.Model.Visibility", () => {
     const input = {
       updateProp: [1, 2],
     };
-    await client.patchModel(input);
+    await client.patchModel(input as any);
     // Assert successful request
   });
 
@@ -41,7 +41,7 @@ describe("Type.Model.Visibility", () => {
     const input = {
       createProp: ["foo", "bar"],
     };
-    await client.postModel(input);
+    await client.postModel(input as any);
     // Assert successful request
   });
 
@@ -49,7 +49,7 @@ describe("Type.Model.Visibility", () => {
     const input = {
       deleteProp: true,
     };
-    await client.deleteModel(input);
+    await client.deleteModel(input as any);
     // Assert successful request
   });
 

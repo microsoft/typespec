@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
-  StringClient,
   BooleanClient,
-  UnknownClient,
-  DecimalTypeClient,
   Decimal128TypeClient,
-  DecimalVerifyClient,
   Decimal128VerifyClient,
+  DecimalTypeClient,
+  DecimalVerifyClient,
+  StringClient,
+  UnknownClient,
 } from "../../../generated/http/type/scalar/http-client-javascript/src/index.js";
 
 describe("Type.Scalar", () => {

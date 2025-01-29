@@ -1,10 +1,8 @@
 import { describe, it } from "vitest";
-import { SpecialHeadersConditionalRequestClient } from "../../../generated/http/special-headers/conditional-request/http-client-javascript/src/index.js";
+import { ConditionalRequestClient } from "../../../generated/http/special-headers/conditional-request/http-client-javascript/src/index.js";
 
 describe("SpecialHeaders.ConditionalRequest", () => {
-  const client = new SpecialHeadersConditionalRequestClient(
-    "http://localhost:3000",
-  );
+  const client = new ConditionalRequestClient("http://localhost:3000");
 
   it("should send a request with If-Match header defined", async () => {
     await client.postIfMatch({ ifMatch: "valid" });

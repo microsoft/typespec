@@ -1,8 +1,8 @@
 import { describe, it } from "vitest";
-import { ServerVersionsNotVersionedClient } from "../../../../generated/http/server/versions/not-versioned/http-client-javascript/src/index.js";
+import { NotVersionedClient } from "../../../../generated/http/server/versions/not-versioned/http-client-javascript/src/index.js";
 
 describe("Server.Versions.NotVersioned", () => {
-  const client = new ServerVersionsNotVersionedClient("http://localhost:3000");
+  const client = new NotVersionedClient("http://localhost:3000");
 
   it("should execute operation 'withoutApiVersion' without an api-version", async () => {
     await client.withoutApiVersion();

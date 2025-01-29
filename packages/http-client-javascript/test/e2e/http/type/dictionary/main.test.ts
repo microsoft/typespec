@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
-  Int32ValueClient,
-  Int64ValueClient,
   BooleanValueClient,
-  StringValueClient,
-  Float32ValueClient,
   DatetimeValueClient,
   DurationValueClient,
-  UnknownValueClient,
+  Float32ValueClient,
+  Int32ValueClient,
+  Int64ValueClient,
   ModelValueClient,
-  RecursiveModelValueClient,
   NullableFloatValueClient,
+  RecursiveModelValueClient,
+  StringValueClient,
+  UnknownValueClient,
 } from "../../../generated/http/type/dictionary/http-client-javascript/src/index.js";
 
 describe("Type.Dictionary", () => {
@@ -94,7 +94,7 @@ describe("Type.Dictionary", () => {
     });
 
     it("should send a dictionary of datetime values to the server", async () => {
-      await client.put({ k1: "2022-08-26T18:38:00Z" });
+      await client.put({ k1: new Date("2022-08-26T18:38:00Z") });
     });
   });
 

@@ -44,17 +44,16 @@ describe("Parameters.Spread", () => {
       await client.spreadAsRequestParameter("1", "bar", "foo");
     });
 
-    // it("should handle spread alias including multiple parameters, optional and required", async () => {
-    //   await client.spreadWithMultipleParameters("1", "bar", {
-    //     requiredString: "foo",
-    //     optionalInt: 1,
-    //     requiredIntList: [1, 2],
-    //     optionalStringList: ["foo", "bar"],
-    //   });
-    // });
+    it("should handle spread alias including multiple parameters, optional and required", async () => {
+      // Required parameters are positional and optional parameters are within the options bag
+      await client.spreadWithMultipleParameters("bar", "1", "foo", [1, 2], {
+        optionalInt: 1,
+        optionalStringList: ["foo", "bar"],
+      });
+    });
 
-    // it("should handle spread alias containing another alias property as body", async () => {
-    //   await client.spreadParameterWithInnerAlias("1", "foo", 1, "bar");
-    // });
+    it("should handle spread alias containing another alias property as body", async () => {
+      await client.spreadParameterWithInnerAlias("bar", "1", "foo", 1);
+    });
   });
 });

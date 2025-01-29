@@ -9,6 +9,24 @@ import {
   StringClient,
 } from "../../../../generated/http/type/property/nullable/http-client-javascript/src/index.js";
 
+const base64EncodeToUint8Array = (input: string): Uint8Array => {
+  // Encode the string as Base64
+  const base64String = btoa(input);
+
+  // Decode Base64 into a binary string
+  const binaryString = atob(base64String);
+
+  // Convert the binary string to a Uint8Array
+  const uint8Array = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    uint8Array[i] = binaryString.charCodeAt(i);
+  }
+
+  return uint8Array;
+};
+
+const helloWorldBase64 = base64EncodeToUint8Array("hello, world!");
+
 describe("Type.Property.Nullable", () => {
   describe("StringClient", () => {
     const client = new StringClient("http://localhost:3000");
@@ -30,14 +48,14 @@ describe("Type.Property.Nullable", () => {
     });
 
     it("should patch a model with all properties present (nullable string)", async () => {
-      await client.patchNonNull("application/merge-patch+json", {
+      await client.patchNonNull({
         requiredProperty: "foo",
         nullableProperty: "hello",
       });
     });
 
     it("should patch a model with default properties (nullable string)", async () => {
-      await client.patchNull("application/merge-patch+json", {
+      await client.patchNull({
         requiredProperty: "foo",
         nullableProperty: null,
       });
@@ -64,14 +82,14 @@ describe("Type.Property.Nullable", () => {
     });
 
     it("should patch a model with all properties present (nullable bytes)", async () => {
-      await client.patchNonNull("application/merge-patch+json", {
+      await client.patchNonNull({
         requiredProperty: "foo",
-        nullableProperty: "aGVsbG8sIHdvcmxkIQ==",
+        nullableProperty: helloWorldBase64,
       });
     });
 
     it("should patch a model with default properties (nullable bytes)", async () => {
-      await client.patchNull("application/merge-patch+json", {
+      await client.patchNull({
         requiredProperty: "foo",
         nullableProperty: null,
       });
@@ -98,14 +116,14 @@ describe("Type.Property.Nullable", () => {
     });
 
     it("should patch a model with all properties present (nullable datetime)", async () => {
-      await client.patchNonNull("application/merge-patch+json", {
+      await client.patchNonNull({
         requiredProperty: "foo",
-        nullableProperty: "2022-08-26T18:38:00Z",
+        nullableProperty: new Date("2022-08-26T18:38:00Z"),
       });
     });
 
     it("should patch a model with default properties (nullable datetime)", async () => {
-      await client.patchNull("application/merge-patch+json", {
+      await client.patchNull({
         requiredProperty: "foo",
         nullableProperty: null,
       });
@@ -132,14 +150,14 @@ describe("Type.Property.Nullable", () => {
     });
 
     it("should patch a model with all properties present (nullable duration)", async () => {
-      await client.patchNonNull("application/merge-patch+json", {
+      await client.patchNonNull({
         requiredProperty: "foo",
         nullableProperty: "P123DT22H14M12.011S",
       });
     });
 
     it("should patch a model with default properties (nullable duration)", async () => {
-      await client.patchNull("application/merge-patch+json", {
+      await client.patchNull({
         requiredProperty: "foo",
         nullableProperty: null,
       });
@@ -166,14 +184,14 @@ describe("Type.Property.Nullable", () => {
     });
 
     it("should patch a model with all properties present (nullable collection bytes)", async () => {
-      await client.patchNonNull("application/merge-patch+json", {
+      await client.patchNonNull({
         requiredProperty: "foo",
-        nullableProperty: ["aGVsbG8sIHdvcmxkIQ==", "aGVsbG8sIHdvcmxkIQ=="],
+        nullableProperty: [helloWorldBase64, helloWorldBase64],
       });
     });
 
     it("should patch a model with default properties (nullable collection bytes)", async () => {
-      await client.patchNull("application/merge-patch+json", {
+      await client.patchNull({
         requiredProperty: "foo",
         nullableProperty: null,
       });
@@ -200,14 +218,14 @@ describe("Type.Property.Nullable", () => {
     });
 
     it("should patch a model with all properties present (nullable collection models)", async () => {
-      await client.patchNonNull("application/merge-patch+json", {
+      await client.patchNonNull({
         requiredProperty: "foo",
         nullableProperty: [{ property: "hello" }, { property: "world" }],
       });
     });
 
     it("should patch a model with default properties (nullable collection models)", async () => {
-      await client.patchNull("application/merge-patch+json", {
+      await client.patchNull({
         requiredProperty: "foo",
         nullableProperty: null,
       });
@@ -234,14 +252,14 @@ describe("Type.Property.Nullable", () => {
     });
 
     it("should patch a model with all properties present (nullable collection strings)", async () => {
-      await client.patchNonNull("application/merge-patch+json", {
+      await client.patchNonNull({
         requiredProperty: "foo",
         nullableProperty: ["hello", "world"],
       });
     });
 
     it("should patch a model with default properties (nullable collection strings)", async () => {
-      await client.patchNull("application/merge-patch+json", {
+      await client.patchNull({
         requiredProperty: "foo",
         nullableProperty: null,
       });

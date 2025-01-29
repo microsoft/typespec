@@ -1,46 +1,54 @@
 import { describe, expect, it } from "vitest";
-import { VersioningRemovedClient } from "../../../generated/http/versioning/removed/http-client-javascript/src/index.js";
+import {
+  EnumV2,
+  EnumV3,
+  ModelV3,
+  RemovedClient,
+} from "../../../generated/http/versioning/removed/http-client-javascript/src/index.js";
 
 describe("Versioning.Removed", () => {
-  const client = new VersioningRemovedClient("http://localhost:3000");
+  const client = new RemovedClient("http://localhost:3000");
 
   describe("v2 operation", () => {
     it("should send and receive ModelV2 with the correct signature", async () => {
       const body = {
         prop: "foo",
-        enumProp: "enumMemberV2",
+        enumProp: EnumV2.EnumMemberV2,
         unionProp: "bar",
       };
-      const response = await client.v2(body);
+      const response = await client.v2("foo", body as any);
       expect(response).toEqual(body); // Mock API expected value
     });
   });
 
   describe("modelV3 operation", () => {
     it("should handle ModelV3 for v1", async () => {
-      client.setVersion("v1");
-      const body = {
+      const client = new RemovedClient("http://localhost:3000", { apiVersion: "v1" });
+      const body: ModelV3 = {
         id: "123",
-        enumProp: "enumMemberV1",
+        enumProp: EnumV3.EnumMemberV1,
       };
       const response = await client.modelV3(body);
       expect(response).toEqual(body); // Mock API expected value
     });
 
     it("should handle ModelV3 for v2preview", async () => {
-      client.setVersion("v2preview");
+      const client = new RemovedClient("http://localhost:3000", { apiVersion: "v2Preview" });
+
       const body = {
         id: "123",
+        enumProp: EnumV3.EnumMemberV1,
       };
       const response = await client.modelV3(body);
       expect(response).toEqual(body); // Mock API expected value
     });
 
     it("should handle ModelV3 for v2", async () => {
-      client.setVersion("v2");
+      const client = new RemovedClient("http://localhost:3000", { apiVersion: "v2" });
+
       const body = {
         id: "123",
-        enumProp: "enumMemberV1",
+        enumProp: EnumV3.EnumMemberV1,
       };
       const response = await client.modelV3(body);
       expect(response).toEqual(body); // Mock API expected value

@@ -1,22 +1,33 @@
 import { describe, expect, it } from "vitest";
 import {
-  StringClient,
   BytesClient,
+  CollectionsByteClient,
+  CollectionsModelClient,
   DatetimeClient,
   DurationClient,
   PlainDateClient,
   PlainTimeClient,
-  CollectionsByteClient,
-  CollectionsModelClient,
-  StringLiteralClient,
-  IntLiteralClient,
-  FloatLiteralClient,
-  BooleanLiteralClient,
-  UnionStringLiteralClient,
-  UnionIntLiteralClient,
-  UnionFloatLiteralClient,
   RequiredAndOptionalClient,
+  StringClient,
 } from "../../../../generated/http/type/property/optionality/http-client-javascript/src/index.js";
+
+const base64EncodeToUint8Array = (input: string): Uint8Array => {
+  // Encode the string as Base64
+  const base64String = btoa(input);
+
+  // Decode Base64 into a binary string
+  const binaryString = atob(base64String);
+
+  // Convert the binary string to a Uint8Array
+  const uint8Array = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    uint8Array[i] = binaryString.charCodeAt(i);
+  }
+
+  return uint8Array;
+};
+
+const helloWorldBase64 = base64EncodeToUint8Array("hello, world!");
 
 describe("Type.Property.Optional", () => {
   describe("StringClient", () => {
@@ -55,7 +66,7 @@ describe("Type.Property.Optional", () => {
     });
 
     it("should put all bytes properties", async () => {
-      await client.putAll({ property: "aGVsbG8sIHdvcmxkIQ==" });
+      await client.putAll({ property: helloWorldBase64 });
     });
 
     it("should put default bytes properties", async () => {
@@ -77,7 +88,7 @@ describe("Type.Property.Optional", () => {
     });
 
     it("should put all datetime properties", async () => {
-      await client.putAll({ property: "2022-08-26T18:38:00Z" });
+      await client.putAll({ property: new Date("2022-08-26T18:38:00Z") });
     });
 
     it("should put default datetime properties", async () => {
@@ -168,7 +179,7 @@ describe("Type.Property.Optional", () => {
 
     it("should put all collection byte properties", async () => {
       await client.putAll({
-        property: ["aGVsbG8sIHdvcmxkIQ==", "aGVsbG8sIHdvcmxkIQ=="],
+        property: [helloWorldBase64, helloWorldBase64],
       });
     });
 

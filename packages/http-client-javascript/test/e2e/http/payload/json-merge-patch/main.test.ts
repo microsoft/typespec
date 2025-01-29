@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { PayloadJsonMergePatchClient } from "../../../generated/http/payload/json-merge-patch/http-client-javascript/src/index.js";
+import { PayloadClient } from "../../../generated/http/payload/json-merge-patch/http-client-javascript/src/index.js";
 
 describe("Payload.JsonMergePatch", () => {
-  const client = new PayloadJsonMergePatchClient("http://localhost:3000");
+  const client = new PayloadClient("http://localhost:3000");
 
   it("should handle createResource operation with application/merge-patch+json content type", async () => {
     const requestBody = {
@@ -53,7 +53,7 @@ describe("Payload.JsonMergePatch", () => {
       intArray: [1, 2, 3],
     };
 
-    const response = await client.createResource(requestBody);
+    const response = await client.jsonMergePatchClient.createResource(requestBody);
     expect(response).toEqual(expectedResponse);
   });
 
@@ -82,10 +82,7 @@ describe("Payload.JsonMergePatch", () => {
       },
     };
 
-    const response = await client.updateResource(
-      "application/merge-patch+json",
-      requestBody,
-    );
+    const response = await client.jsonMergePatchClient.updateResource(requestBody as any);
     expect(response).toEqual(expectedResponse);
   });
 
@@ -114,10 +111,7 @@ describe("Payload.JsonMergePatch", () => {
       },
     };
 
-    const response = await client.updateOptionalResource(
-      "application/merge-patch+json",
-      requestBody,
-    );
+    const response = await client.jsonMergePatchClient.updateOptionalResource(requestBody as any);
     expect(response).toEqual(expectedResponse);
   });
 
@@ -131,9 +125,7 @@ describe("Payload.JsonMergePatch", () => {
       },
     };
 
-    const response = await client.updateOptionalResource(
-      "application/merge-patch+json",
-    );
+    const response = await client.jsonMergePatchClient.updateOptionalResource();
     expect(response).toEqual(expectedResponse);
   });
 });
