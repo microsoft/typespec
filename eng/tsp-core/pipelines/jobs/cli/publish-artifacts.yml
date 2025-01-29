@@ -1,5 +1,6 @@
 jobs:
-  - job: SignWindows
+  - job: PublishCliArtifacts
+    displayName: Publish artifacts
     pool:
       name: $(LINUXPOOL)
       image: $(LINUXVMIMAGE)
@@ -26,11 +27,11 @@ jobs:
           set -e
           ls $(Pipeline.Workspace)/standalone-macos-signed
 
-          tar -C  -cvzf release/tsp-darwin-arm64.tar.gz $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64/
-          tar -C  -cvzf release/tsp-darwin-x64.tar.gz $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-x64/
+          tar -cvzf release/tsp-darwin-arm64.tar.gz $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64
+          tar -cvzf release/tsp-darwin-x64.tar.gz $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-x64
 
-          tar -C $(Pipeline.Workspace)/standalone-linux-arm64 -cvzf release/tsp-linux-arm64.tar.gz
-          tar -C $(Pipeline.Workspace)/standalone-linux-x64 -cvzf release/tsp-linux-x64.tar.gz
+          tar -cvzf release/tsp-linux-arm64.tar.gz $(Pipeline.Workspace)/standalone-linux-arm64 
+          tar -cvzf release/tsp-linux-x64.tar.gz $(Pipeline.Workspace)/standalone-linux-x64
 
           zip release/azd-windows-arm64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-arm64/tsp.exe
           zip release/azd-windows-x64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-x64/tsp.exe
