@@ -1,0 +1,56 @@
+{
+  "name": "@typespec/http-client",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "tspMain": "lib/main.tsp",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    },
+    "./typekit": {
+      "types": "./dist/src/typekit/index.d.ts",
+      "default": "./dist/src/typekit/index.js"
+    },
+    "./components": {
+      "types": "./dist/src/components/index.d.ts",
+      "default": "./dist/src/components/index.js"
+    }
+  },
+  "dependencies": {
+    "@alloy-js/core": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@903a8321e8e85c7c9b47d4d9b4f0aadc40422615",
+    "@typespec/compiler": "workspace:*",
+    "@typespec/http": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.24.9",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@alloy-js/babel-preset": "https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-preset@903a8321e8e85c7c9b47d4d9b4f0aadc40422615",
+    "@types/node": "latest",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@typespec/library-linter": "workspace:*",
+    "eslint": "^8.45.0",
+    "prettier": "^3.0.3",
+    "typescript": "^5.3.3",
+    "vitest": "^3.0.4"
+  },
+  "scripts": {
+    "build-src": "babel src -d dist/src --extensions '.ts,.tsx'",
+    "build": "tsc -p . && npm run build-src",
+    "watch": "tsc --watch",
+    "build:tsp": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
+    "test": "node --test",
+    "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
+    "lint:fix": "eslint . --report-unused-disable-directives --fix",
+    "format": "prettier .  --write",
+    "format:check": "prettier --check ."
+  },
+  "private": true
+}

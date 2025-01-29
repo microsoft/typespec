@@ -499,9 +499,9 @@ importers:
       '@typespec/http':
         specifier: workspace:*
         version: link:../http
-      '@typespec/http-client-library':
+      '@typespec/http-client':
         specifier: workspace:*
-        version: link:../http-client-library
+        version: link:../http-client
       '@typespec/json-schema':
         specifier: workspace:*
         version: link:../json-schema
@@ -858,9 +858,9 @@ importers:
       '@typespec/http':
         specifier: workspace:*
         version: link:../http
-      '@typespec/http-client-library':
+      '@typespec/http-client':
         specifier: workspace:*
-        version: link:../http-client-library
+        version: link:../http-client
       '@typespec/json-schema':
         specifier: workspace:*
         version: link:../json-schema
@@ -947,7 +947,7 @@ importers:
         specifier: ^17.7.2
         version: 17.7.2
 
-  packages/http-client-library:
+  packages/http-client:
     dependencies:
       '@alloy-js/core':
         specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
@@ -996,7 +996,7 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4(@types/debug@4.1.12)(@types/node@22.12.0)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0)
 
-  packages/http-client-library-azure:
+  packages/http-client-azure:
     dependencies:
       '@azure-tools/typespec-client-generator-core':
         specifier: ^0.47.3
@@ -1007,9 +1007,9 @@ importers:
       '@typespec/http':
         specifier: workspace:*
         version: link:../http
-      '@typespec/http-client-library':
+      '@typespec/http-client':
         specifier: workspace:*
-        version: link:../http-client-library
+        version: link:../http-client
     devDependencies:
       '@types/node':
         specifier: latest

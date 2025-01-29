@@ -1,8 +1,0 @@
-# Compiler Error - Problems with Azure Core next-link and armResourceType
-  http/azure/resource-manager/common-properties/main.tsp
-  http/azure/resource-manager/resources/main.tsp
-
-# Emitter Errors
-
-# Shadowing issue
-http/type/model/usage/main.tsp

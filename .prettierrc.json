@@ -20,18 +20,6 @@
       }
     },
     {
-      "files": ["packages/http-client-javascript/**/*.tsx"],
-      "options": {
-        "parser": "alloy-ts"
-      }
-    },
-    {
-      "files": ["packages/http-client-javascript/**/*.js"],
-      "options": {
-        "parser": "alloy-js"
-      }
-    },
-    {
       "files": "*.astro",
       "options": {
         "parser": "astro"
