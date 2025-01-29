@@ -4,6 +4,7 @@ set -euo pipefail
 # cspell:ignore zxvf
 skip_shell=false
 release="latest"
+os=$(uname -s)
 platform=$(uname -ms)
 bin_name="tsp"
 
@@ -215,7 +216,7 @@ setup_shell() {
     } | tee -a "$CONF_FILE"
 
   elif [ "$CURRENT_SHELL" = "bash" ]; then
-    if [ "$OS" = "Darwin" ]; then
+    if [ "$os" = "Darwin" ]; then
       CONF_FILE=$HOME/.profile
     else
       CONF_FILE=$HOME/.bashrc
