@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Version>0.0.1</Version>
+    <Description></Description>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+</Project>
