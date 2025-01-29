@@ -195,20 +195,7 @@ function Install-tsp {
     Write-Output "Install Failed - tsp.exe is not compatible with your CPU. This should have been detected before downloading.`n"
     return 1
   }
-  # '-1073741515' was spotted in the wild, but not clearly documented as a status code:
-  # https://discord.com/channels/876711213126520882/1149339379446325248/1205194965383250081
-  # http://community.sqlbackupandftp.com/t/error-1073741515-solved/1305
-  if (($LASTEXITCODE -eq 3221225781) -or ($LASTEXITCODE -eq -1073741515)) # STATUS_DLL_NOT_FOUND
-  { 
-    # TODO: as of July 2024, tsp has no external dependencies.
-    # I want to keep this error message in for a few months to ensure that
-    # if someone somehow runs into this, it can be reported.
-    Write-Output "Install Failed - You are missing a DLL required to run tsp.exe"
-    Write-Output "This can be solved by installing the Visual C++ Redistributable from Microsoft:`nSee https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist`nDirect Download -> https://aka.ms/vs/17/release/vc_redist.x64.exe`n`n"
-    Write-Output "The error above should be unreachable as tsp does not depend on this library. Please comment in https://github.com/oven-sh/tsp/issues/8598 or open a new issue.`n`n"
-    Write-Output "The command '${tspBin}\tsp.exe --revision' exited with code ${LASTEXITCODE}`n"
-    return 1
-  }
+  
   if ($LASTEXITCODE -ne 0) {
     Write-Output "Install Failed - could not verify tsp.exe"
     Write-Output "The command '${tspBin}\tsp.exe --revision' exited with code ${LASTEXITCODE}`n"
