@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # cspell:ignore zxvf
-
+skip_shell=false
 release="latest"
 platform=$(uname -ms)
 bin_name="tsp"
@@ -54,7 +54,7 @@ success() {
 }
 
 
-install_dir="$HOME/.tsp"
+install_dir="$HOME/.tsp/bin"
 
 
 case $platform in
@@ -62,10 +62,10 @@ case $platform in
     target=darwin-x64
     ;;
 'Darwin arm64')
-    target=darwin-aarch64
+    target=darwin-arm64
     ;;
 'Linux aarch64' | 'Linux arm64')
-    target=linux-aarch64
+    target=linux-arm64
     ;;
 'Linux x86_64' | *)
     target=linux-x64
@@ -150,6 +150,7 @@ download_tsp() {
     fi
 
     extract_location="$download_dir/extracted"
+    mkdir $extract_location
     tar -zxvf "$compressed_file_path" -C "$extract_location"/
     rm "$compressed_file_path"
     chmod +x "$extract_location/$bin_name"
@@ -193,7 +194,7 @@ setup_shell() {
     echo "Installing for Zsh. Appending the following to $CONF_FILE:"
     {
       echo ''
-      echo '# TYPESPEC'
+      echo '# TypeSpec'
       echo 'TYPESPEC_PATH="'"$install_dir"'"'
       echo 'if [ -d "$TYPESPEC_PATH" ]; then'
       echo '  export PATH="'$install_dir':$PATH"'
@@ -244,6 +245,6 @@ setup_shell() {
 parse_args "$@"
 check_dependencies
 download_tsp
-if [ "$SKIP_SHELL" != "true" ]; then
+if [ "$skip_shell" != "true" ]; then
   setup_shell
 fi
