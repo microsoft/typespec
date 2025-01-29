@@ -1,11 +1,10 @@
 import * as esbuild from "esbuild";
 import { execa } from "execa";
 import { execFileSync } from "node:child_process";
-import { copyFile, mkdir, readdir } from "node:fs/promises";
+import { copyFile, mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import ora from "ora";
 import { dirname, join } from "path";
 import { writeSeaConfig } from "./sea-config.js";
-
 // cspell:ignore postject
 
 const projectRoot = dirname(import.meta.dirname);
@@ -36,6 +35,12 @@ async function bundle() {
       format: "cjs",
     });
   });
+
+  // js-yaml dynamically tries to import esprima which then creates a warning for node sea that can't import anything but built in module even though it is optional
+  // https://github.com/nodejs/node/issues/50547
+  const content = await readFile(join(tempDir, "bundle.cjs"), "utf-8");
+  const updated = content.toString().replace(`_require("esprima")`, "undefined");
+  await writeFile(join(tempDir, "bundle.cjs"), updated);
 }
 
 async function createSea() {

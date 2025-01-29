@@ -3,7 +3,7 @@ jobs:
   - job: VerifyOSXArm64
     displayName: Verify OSX Arm64
     pool:
-      name: $(MACOSPOOL)
+      name: $(MACPOOL)
       image: $(MACVMIMAGEM1)
       os: macOS
 
