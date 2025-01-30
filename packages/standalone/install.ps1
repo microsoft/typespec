@@ -89,7 +89,7 @@ function Get-Download-Url {
 }
 
 
-Get-Filename() {
+function Get-Filename {
     param([String] $Target)
 
     return "tsp-$Target.zip"
