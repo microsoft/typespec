@@ -33,4 +33,8 @@
 /packages/typespec-vscode/                   @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
 /packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
 
+######################
+# GraphQL
+######################
+/packages/graphql/                           @steverice @swatkatz @bterlson @markcowl @allenjzhang @timotheeguerin
 

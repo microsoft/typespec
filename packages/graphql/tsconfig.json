@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "useDefineForClassFields": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "verbatimModuleSyntax": true
+  },
+  "include": ["src", "test"]
+}

@@ -8,6 +8,7 @@ pr:
     include:
       - main
       - release/*
+      - feature/*
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
