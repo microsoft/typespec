@@ -1,5 +1,5 @@
 
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 using System;
 
 namespace Sample.Models
