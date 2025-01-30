@@ -11,7 +11,7 @@ stages:
     displayName: Verify tsp cli
     dependsOn: sign_tsp_cli
     jobs:
-      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yaml
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
         parameters:
           name: macos-arm64
           pool:
