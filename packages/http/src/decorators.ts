@@ -57,6 +57,7 @@ import {
   HttpStatusCodeRange,
   HttpStatusCodes,
   HttpVerb,
+  OAuth2Scope,
   PathParameterOptions,
   QueryParameterOptions,
 } from "./types.js";
@@ -664,10 +665,10 @@ function extractOAuth2Auth(modelType: Model, data: any): HttpAuth {
     type: data.type,
     model: modelType,
     flows: flows.map((flow: any) => {
-      const scopes: Array<string> = flow.scopes ? flow.scopes : defaultScopes;
+      const scopes: Array<string | OAuth2Scope> = flow.scopes ? flow.scopes : defaultScopes;
       return {
         ...flow,
-        scopes: scopes.map((x: string) => ({ value: x })),
+        scopes: scopes.map((x: string | OAuth2Scope) => (typeof x === "object" ? x : { value: x })),
       };
     }),
   };
