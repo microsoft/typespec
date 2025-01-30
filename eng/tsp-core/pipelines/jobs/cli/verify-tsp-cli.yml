@@ -16,24 +16,24 @@ jobs:
         name: $(LINUXPOOL)
         image: $(LINUXVMIMAGE)
         os: linux
-      ${{ else if eq(parameters.os, 'linux-arm64') }}:
+      ${{ if eq(parameters.os, 'linux-arm64') }}:
         name: $(LINUXARMPOOL)
         image: $(LINUXARMVMIMAGE)
         os: linux
         hostArchitecture: arm64
-      ${{ else if eq(parameters.os, 'macos-x64') }}:
+      ${{ if eq(parameters.os, 'macos-x64') }}:
         name: $(MACPOOL)
         vmImage: $(MACVMIMAGE)
         os: macOS
-      ${{ else if eq(parameters.os, 'macos-arm64') }}:
+      ${{ if eq(parameters.os, 'macos-arm64') }}:
         name: $(MACPOOL)
         vmImage: $(MACVMIMAGEM1)
         os: macOS
-      ${{ else if eq(parameters.os, 'windows-x64') }}:
+      ${{ if eq(parameters.os, 'windows-x64') }}:
         name: $(WINDOWSPOOL)
         image: $(WINDOWSVMIMAGE)
         os: windows
-      ${{ else if eq(parameters.os, 'windows-arm64') }}:
+      ${{ if eq(parameters.os, 'windows-arm64') }}:
         name: $(ARMPOOL)
         image: $(WINDOWSARMVMIMAGE)
         os: windows
