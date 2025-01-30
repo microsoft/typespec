@@ -33,6 +33,9 @@ jobs:
         inputs:
           versionSpec: 22.x
 
+      - script: npm install -g bun
+        displayName: Install bun
+
       - script: npm install -g pnpm
         displayName: Install pnpm
 
