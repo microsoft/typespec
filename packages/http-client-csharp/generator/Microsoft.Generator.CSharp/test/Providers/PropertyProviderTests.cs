@@ -29,7 +29,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             Assert.AreEqual("SnakeCase", property.Name);
             Assert.AreEqual("snake_case", property.WireInfo?.SerializedName);
-            Assert.AreEqual("Description for snake_case", property.Description.ToString());
+            Assert.IsNotNull(property.Description);
+            Assert.AreEqual("Description for snake_case", property.Description!.ToString());
         }
 
         [Test]
@@ -42,7 +43,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             Assert.AreEqual("PascalCase", property.Name);
             Assert.AreEqual("PascalCase", property.WireInfo?.SerializedName);
-            Assert.AreEqual("Description for PascalCase", property.Description.ToString());
+            Assert.IsNotNull(property.Description);
+            Assert.AreEqual("Description for PascalCase", property.Description!.ToString());
         }
 
         [Test]
@@ -54,7 +56,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             Assert.AreEqual("CamelCase", property.Name);
             Assert.AreEqual("camelCase", property.WireInfo?.SerializedName);
-            Assert.AreEqual("Description for camelCase", property.Description.ToString());
+            Assert.IsNotNull(property.Description);
+            Assert.AreEqual("Description for camelCase", property.Description!.ToString());
         }
 
         [Test]
@@ -67,7 +70,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             Assert.AreEqual("KebabCase", property.Name);
             Assert.AreEqual("kebab-case", property.WireInfo?.SerializedName);
-            Assert.AreEqual("Description for kebab-case", property.Description.ToString());
+            Assert.IsNotNull(property.Description);
+            Assert.AreEqual("Description for kebab-case", property.Description!.ToString());
         }
 
         [TestCaseSource(nameof(CollectionPropertyTestCases))]
