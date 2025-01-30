@@ -1,16 +1,7 @@
 # Job to verify the tsp cli was built/signed correctly
 
 parameters:
-  - name: name
-    type: string
-  - name: pool
-    type: string
-  - name: vmImage
-    type: string
-  - name: hostArchitecture
-    type: string
-    default: ""
-  - name: os
+  - name: platform
     type: string
   - name: artifactName
     type: string
@@ -18,19 +9,34 @@ parameters:
     type: string
 
 jobs:
-  - job: verify_${{ replace(parameters.name, '-', '_') }}
-    displayName: Verify ${{ parameters.name }}
+  - job: verify_${{ replace(parameters.platform, '-', '_') }}
+    displayName: Verify ${{ parameters.platform }}
     pool:
-      name: ${{ parameters.pool }}
-      # 1es pipeline templates converts `image` to demands: ImageOverride under the hood
-      # which is incompatible with image selection in the default non-1es hosted pools
-      ${{ if eq(parameters.os, 'macOS') }}:
-        vmImage: ${{ parameters.vmImage }}
-      ${{ else }}:
-        image: ${{ parameters.vmImage }}
-      os: ${{ parameters.os }}
-      ${{ if eq(parameters.hostArchitecture, 'arm64') }}:
-        hostArchitecture: ${{ parameters.hostArchitecture }}
+      ${{ if eq(parameters.os, 'linux-x64') }}:
+        name: $(LINUXPOOL)
+        image: $(LINUXVMIMAGE)
+        os: linux
+      ${{ else if eq(parameters.os, 'linux-arm64') }}:
+        name: $(LINUXARMPOOL)
+        image: $(LINUXARMVMIMAGE)
+        os: linux
+        hostArchitecture: arm64
+      ${{ else if eq(parameters.os, 'macos-x64') }}:
+        name: $(MACPOOL)
+        vmImage: $(MACVMIMAGE)
+        os: macOS
+      ${{ else if eq(parameters.os, 'macos-arm64') }}:
+        name: $(MACPOOL)
+        vmImage: $(MACVMIMAGEM1)
+        os: macOS
+      ${{ else if eq(parameters.os, 'windows-x64') }}:
+        name: $(WINDOWSPOOL)
+        image: $(WINDOWSVMIMAGE)
+        os: windows
+      ${{ else if eq(parameters.os, 'windows-arm64') }}:
+        name: $(ARMPOOL)
+        image: $(WINDOWSARMVMIMAGE)
+        os: windows
 
     steps:
       - download: current
