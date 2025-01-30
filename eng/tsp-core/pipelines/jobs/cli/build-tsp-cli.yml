@@ -42,6 +42,11 @@ jobs:
       # - script: npm install -g bun
       #   displayName: Install bun
 
+      - script: |
+          echo Agent OS is: $AGENT_OS
+        displayName: Agent OS
+        env:
+          AGENT_OS: $(agent.os)
       - script: npm install -g pnpm
         displayName: Install pnpm
 
