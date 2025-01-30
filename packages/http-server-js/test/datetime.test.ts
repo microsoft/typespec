@@ -180,5 +180,47 @@ describe("datetime", () => {
 
       strictEqual(Duration.toISO8601(duration), "P1.5YT1.005S");
     });
+
+    it("computes total seconds in durations", () => {
+      const duration = Duration.parseISO8601("PT22H96M60S");
+
+      strictEqual(Duration.totalSeconds(duration), 22 * 60 * 60 + 96 * 60 + 60);
+      strictEqual(Duration.totalSecondsBigInt(duration), 22n * 60n * 60n + 96n * 60n + 60n);
+    });
+
+    it("computes total seconds in durations with fractional amounts", () => {
+      const duration = Duration.parseISO8601("PT1.5H22.005S");
+
+      strictEqual(Duration.totalSeconds(duration), 1.5 * 60 * 60 + 22 + 0.005);
+    });
+
+    it("does not allow total seconds for durations with years, months, weeks, or days", () => {
+      const durations = ["P1Y", "P1M", "P1W", "P1D"].map((iso) => Duration.parseISO8601(iso));
+
+      for (const duration of durations) {
+        throws(() => Duration.totalSeconds(duration), {
+          message:
+            "Cannot calculate total seconds for a duration with years, months, weeks, or days.",
+        });
+
+        throws(() => Duration.totalSecondsBigInt(duration), {
+          message:
+            "Cannot calculate total seconds for a duration with years, months, weeks, or days.",
+        });
+      }
+    });
+
+    it("does not allow total seconds as bigint for durations with fractional amounts", () => {
+      const durations = ["PT1.5H", "PT1.5M", "PT1.5S", "PT1H1.5M", "PT1H1.5S", "PT1M1.5S"].map(
+        (iso) => Duration.parseISO8601(iso),
+      );
+
+      for (const duration of durations) {
+        throws(() => Duration.totalSecondsBigInt(duration), {
+          message:
+            "Cannot calculate total seconds as a BigInt for a duration with non-integer components.",
+        });
+      }
+    });
   });
 });
