@@ -77,7 +77,9 @@ async function createSea() {
   // This should get sent to ESRP for official signing
   await action(`Sign executable ${exePath}`, async () => {
     if (process.platform === "darwin") {
-      execa`codesign --sign - ${exePath}`;
+      // execa`codesign --sign - ${exePath}`;
+      const entitlementsPath = join(projectRoot, "scripts", "osx-entitlements.plist");
+      execa`codesign --deep -s - -f --options runtime --entitlements ${entitlementsPath} ${exePath}`;
     } else if (process.platform === "win32") {
       // execa`signtool sign /fd SHA256 ${exePath}`;
     }
