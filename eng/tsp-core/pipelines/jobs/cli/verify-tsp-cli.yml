@@ -9,6 +9,7 @@ parameters:
     type: string
   - name: hostArchitecture
     type: string
+    default: ""
   - name: artifactName
     type: string
   - name: exePath # Path relative to the artifact root

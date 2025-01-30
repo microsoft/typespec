@@ -7,6 +7,7 @@ parameters:
     type: string
   - name: hostArchitecture
     type: string
+    default: ""
   - name: os
     type: string
 
