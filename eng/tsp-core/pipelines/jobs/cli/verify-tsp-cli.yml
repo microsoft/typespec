@@ -1,0 +1,26 @@
+# Job to verify the tsp cli was built/signed correctly
+
+parameters:
+  - name: name
+    type: string
+  - name: pool
+  - name: artifactName
+    type: string
+  - name: exePath # Path relative to the artifact root
+    type: string
+
+jobs:
+  - job: verify_${{ replace(parameters.name, '-', '_') }}
+    displayName: Verify ${{ parameters.name }}
+    pool: ${{ parameters.pool }}
+
+    steps:
+      - download: current
+        artifact: ${{ parameters.artifactName }}
+        displayName: Download binary
+
+      - script: chmod +x $(Pipeline.Workspace)/${{parameters.artifactName}}/${{parameters.exePath}}
+        displayName: Set permissions
+
+      - script: $(Pipeline.Workspace)/${{parameters.artifactName}}/${{parameters.exePath}} --help
+        displayName: Verify binary

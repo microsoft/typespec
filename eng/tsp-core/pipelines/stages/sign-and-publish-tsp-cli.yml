@@ -7,8 +7,22 @@ stages:
       - template: /eng/tsp-core/pipelines/jobs/cli/sign-macos.yml
       - template: /eng/tsp-core/pipelines/jobs/cli/sign-windows.yml
 
+  - stage: verify_tsp_cli
+    displayName: Verify tsp cli
+    dependsOn: sign_tsp_cli
+    jobs:
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yaml
+        parameters:
+          name: macos-arm64
+          pool:
+            name: $(MACPOOL)
+            vmImage: $(MACVMIMAGEM1)
+            os: macOS
+          artifactName: standalone-macos-signed
+          exePath: standalone-macos-arm64/tsp
+
   - stage: publish_tsp_cli
     displayName: Publish tsp cli
-    dependsOn: sign_tsp_cli
+    dependsOn: verify_tsp_cli
     jobs:
       - template: /eng/tsp-core/pipelines/jobs/cli/publish-artifacts.yml
