@@ -161,11 +161,10 @@ function* emitToJson(
           const scalarEncoder = scalar.getEncoding(encoding.encoding ?? "default", encoding.type);
 
           if (scalarEncoder) {
-            // Scalar must be defined here because we resolved an encoding. It can only be undefined when it comes
-            // from an `unknown` rendering, which cannot appear in a resolved encoding.
             expr = transposeExpressionToJson(
               ctx,
-              scalarEncoder.target.scalar!,
+              // Assertion: scalarEncoder.target.scalar is defined because we resolved an encoder.
+              scalarEncoder.target.scalar as Scalar,
               scalarEncoder.encode(expr),
               module,
             );
@@ -263,7 +262,8 @@ function transposeExpressionToJson(
       if (encoder.target.isJsonCompatible || !encoder.target.scalar) {
         return encoded;
       } else {
-        return transposeExpressionToJson(ctx, encoder.target.scalar, encoded, module);
+        // Assertion: encoder.target.scalar is a scalar because "unknown" is JSON compatible.
+        return transposeExpressionToJson(ctx, encoder.target.scalar as Scalar, encoded, module);
       }
     case "Union":
       if (!requiresJsonSerialization(ctx, module, type)) {
@@ -392,7 +392,8 @@ function* emitFromJson(
           if (scalarEncoder) {
             expr = transposeExpressionFromJson(
               ctx,
-              scalarEncoder.target.scalar!,
+              // Assertion: scalarEncoder.target.scalar is defined because we resolved an encoder.
+              scalarEncoder.target.scalar as Scalar,
               scalarEncoder.decode(expr),
               module,
             );
@@ -407,7 +408,7 @@ function* emitFromJson(
               },
             });
 
-            // We treat this as unknown from here on out. The encoding was not decipher
+            // We treat this as unknown from here on out. The encoding was not deciphered.
           }
         } else {
           expr = transposeExpressionFromJson(ctx, property.type, expr, module);
@@ -493,7 +494,8 @@ function transposeExpressionFromJson(
       if (encoder.target.isJsonCompatible || !encoder.target.scalar) {
         return decoded;
       } else {
-        return transposeExpressionFromJson(ctx, encoder.target.scalar, decoded, module);
+        // Assertion: encoder.target.scalar is a scalar because "unknown" is JSON compatible.
+        return transposeExpressionFromJson(ctx, encoder.target.scalar as Scalar, decoded, module);
       }
     case "Union":
       if (!requiresJsonSerialization(ctx, module, type)) {

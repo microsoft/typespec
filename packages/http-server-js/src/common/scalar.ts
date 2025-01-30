@@ -579,7 +579,7 @@ export interface Encoder {
 export interface JsScalar {
   readonly type: string;
 
-  readonly scalar?: Scalar;
+  readonly scalar: Scalar | "unknown";
 
   getEncoding(encoding: string, target: Scalar): Encoder | undefined;
 
@@ -601,8 +601,12 @@ const DEFAULT_STRING_ENCODER_RAW: Omit<Encoder, "target"> = {
   },
 };
 
+/**
+ * A JsScalar value that represents an unknown scalar.
+ */
 export const JSSCALAR_UNKNOWN: JsScalar = {
   type: "unknown",
+  scalar: "unknown",
   getEncoding: () => undefined,
   getDefaultMimeEncoding: () => undefined,
   http: {
