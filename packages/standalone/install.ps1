@@ -100,9 +100,9 @@ function Get-Download-Url {
 
 
 function Get-Filename {
-    param([String] $Target)
+    param([String] $target)
 
-    return "tsp-$Target.zip"
+    return "tsp-$target.zip"
 }
 
 function Install-tsp {
@@ -140,7 +140,7 @@ function Install-tsp {
     return 1
   }
 
-  $Target = "tsp-windows-$Arch"
+  $target = "tsp-windows-$Arch"
   $FileName = "$target.zip"
   $URL = GET-Download-Url -Version $Version -Filename $FileName
   $temp = New-TemporaryDirectory
@@ -194,10 +194,7 @@ function Install-tsp {
     return 1
   }
 
-  Move-Item "${tspBin}\$Target\tsp.exe" "${tspBin}\tsp.exe" -Force
-
-  Remove-Item "${tspBin}\$Target" -Recurse -Force
-  Remove-Item $ZipPath -Force
+  Remove-Item $temp -Recurse -Force
 
   $tspRevision = "$(& "${tspBin}\tsp.exe" --version)"
   if ($LASTEXITCODE -eq 1073741795) { # STATUS_ILLEGAL_INSTRUCTION
