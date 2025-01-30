@@ -59,7 +59,7 @@ The generated model should have a property `createdOn` of type `Date`, the gener
 ```ts src/models/serializers.ts function fooToTransport
 export function fooToTransport(item: Foo): any {
   return {
-    created_on: dateRfc3339Serializer(item.createdOn),
+    created_on: dateRfc7231Serializer(item.createdOn),
   };
 }
 ```
