@@ -76,9 +76,7 @@ function Get-Env {
 function New-TemporaryDirectory {
     $tmp = [System.IO.Path]::GetTempPath() # Not $env:TEMP, see https://stackoverflow.com/a/946017
     $name = (New-Guid).ToString("N")
-    $fullPath = Join-Path $tmp $name
-    New-Item -ItemType Directory -Path $fullPath
-    return $fullPath
+    New-Item -ItemType Directory -Path (Join-Path $tmp $name)
 }
 
 function Find-Latest-Version {
@@ -88,14 +86,14 @@ function Find-Latest-Version {
 function Get-Download-Url {
     param(
       [String] $Version, 
-      [String] $Filename
+      [String] $filename
     )
     
     if($Version -eq "latest") {
         $Version = (Find-Latest-Version)
     }
 
-    return "https://typespec.blob.core.windows.net/dist/$Version/$($Filename)"
+    return "https://typespec.blob.core.windows.net/dist/$Version/$($filename)"
 }
 
 
@@ -141,10 +139,10 @@ function Install-tsp {
   }
 
   $target = "tsp-windows-$Arch"
-  $FileName = "$target.zip"
-  $URL = GET-Download-Url -Version $Version -Filename $FileName
-  $temp = New-TemporaryDirectory
-  $ZipPath = "${$temp}\$FileName"
+  $filename = "$target.zip"
+  $URL = GET-Download-Url -Version $Version -Filename $filename
+  $temp = (New-TemporaryDirectory)
+  $ZipPath = "$temp\$filename"
 
   $DisplayVersion = $(
     if ($Version -eq "latest") { "tsp" }
