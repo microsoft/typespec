@@ -10,7 +10,6 @@ jobs:
     steps:
       - download: current
         artifact: standalone-macos-signed
-        patterns: tsp
         displayName: Download binary
 
       - script: |
@@ -30,7 +29,6 @@ jobs:
     steps:
       - download: current
         artifact: standalone-macos-signed
-        patterns: tsp
         displayName: Download binary
 
       - script: |
