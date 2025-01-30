@@ -86,7 +86,6 @@ $emitterVersion = node -p -e "require('$packageRoot/package.json').version"
 $mgcVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp/src/Microsoft.Generator.CSharp.csproj"
 $mgcClientModelVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.ClientModel/src/Microsoft.Generator.CSharp.ClientModel.csproj"
 $mgcInputVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.Input/src/Microsoft.Generator.CSharp.Input.csproj"
-$mgcCustomizationVersion = Get-CsprojVersion -csprojFilePath "$packageRoot/generator/Microsoft.Generator.CSharp.Customization/src/Microsoft.Generator.CSharp.Customization.csproj"
 
 if ($BuildNumber) {
     # set package versions
@@ -100,10 +99,7 @@ if ($BuildNumber) {
  
     $mgcInputVersion = "$mgcInputVersion$versionTag.$BuildNumber"
     Set-VersionVariable -variableName "mgcInputVersion" -version $mgcInputVersion
-
-    $mgcCustomizationVersion = "$mgcCustomizationVersion$versionTag.$BuildNumber"
-    Set-VersionVariable -variableName "mgcCustomizationVersion" -version $mgcCustomizationVersion
-
+    
     $emitterVersion = "$emitterVersion$versionTag.$BuildNumber"
     Set-VersionVariable -variableName "emitterVersion" -version $emitterVersion
 }
@@ -147,7 +143,6 @@ try {
     Pack-And-Write-Info -package "Microsoft.Generator.CSharp" -version $mgcVersion
     Pack-And-Write-Info -package "Microsoft.Generator.CSharp.ClientModel" -version $mgcClientModelVersion
     Pack-And-Write-Info -package "Microsoft.Generator.CSharp.Input" -version $mgcInputVersion
-    Pack-And-Write-Info -package "Microsoft.Generator.CSharp.Customization" -version $mgcCustomizationVersion
 }
 finally
 {
@@ -170,7 +165,6 @@ $packageMatrix = [ordered]@{
     "mgc" = $mgcVersion
     "mgc-client-model" = $mgcClientModelVersion
     "mgc-input" = $mgcInputVersion
-    "mgc-customization" = $mgcCustomizationVersion
     "emitter" = $emitterVersion
 }
 
