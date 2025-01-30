@@ -77,7 +77,7 @@ jobs:
                 azureSubscription: "Azure SDK Engineering System"
                 scriptLocation: inlineScript
                 inlineScript: |
-                  echo "$PACKAGE_VERSION" > latest.txt
+                  echo -n "$PACKAGE_VERSION" > latest.txt
 
                   az storage blob upload-batch \
                     --auth-mode login \

@@ -73,13 +73,21 @@ function Get-Env {
   $EnvRegisterKey.GetValue($Key, $null, [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
 }
 
+function New-TemporaryDirectory {
+    $tmp = [System.IO.Path]::GetTempPath() # Not $env:TEMP, see https://stackoverflow.com/a/946017
+    $name = (New-Guid).ToString("N")
+    New-Item -ItemType Directory -Path (Join-Path $tmp $name)
+}
+
 function Find-Latest-Version {
-    return (Invoke-webrequest -URI "https://typespec.blob.core.windows.net/dist/latest.txt").Content
+    return (Invoke-webrequest -URI "https://typespec.blob.core.windows.net/dist/latest.txt").Content.Trim()
 }
 
 function Get-Download-Url {
-    param([String] $Version)
-    param([String] $Filename)
+    param(
+      [String] $Version, 
+      [String] $Filename
+    )
     
     if($Version -eq "latest") {
         $Version = (Find-Latest-Version)
@@ -133,7 +141,8 @@ function Install-tsp {
   $Target = "tsp-windows-$Arch"
   $FileName = "$target.zip"
   $URL = GET-Download-Url -Version $Version -Filename $FileName
-  $ZipPath = "${tspBin}\$FileName"
+  $temp = New-TemporaryDirectory
+  $ZipPath = "${$temp}\$FileName"
 
   $DisplayVersion = $(
     if ($Version -eq "latest") { "tsp" }
@@ -174,8 +183,8 @@ function Install-tsp {
     $global:ProgressPreference = 'SilentlyContinue';
     Expand-Archive "$ZipPath" "$tspBin" -Force
     $global:ProgressPreference = $lastProgressPreference
-    if (!(Test-Path "${tspBin}\$Target\tsp.exe")) {
-      throw "The file '${tspBin}\$Target\tsp.exe' does not exist. Download is corrupt or intercepted Antivirus?`n"
+    if (!(Test-Path "${tspBin}\tsp.exe")) {
+      throw "The file '${tspBin}\tsp.exe' does not exist. Download is corrupt or intercepted Antivirus?`n"
     }
   } catch {
     Write-Output "Install Failed - could not unzip $ZipPath"
