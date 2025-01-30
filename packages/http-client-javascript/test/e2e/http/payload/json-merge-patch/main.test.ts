@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { PayloadClient } from "../../../generated/http/payload/json-merge-patch/http-client-javascript/src/index.js";
 
 describe("Payload.JsonMergePatch", () => {
-  const client = new PayloadClient("http://localhost:3000");
+  const client = new PayloadClient("http://localhost:3000", { allowInsecureConnection: true });
 
   it("should handle createResource operation with application/merge-patch+json content type", async () => {
     const requestBody = {

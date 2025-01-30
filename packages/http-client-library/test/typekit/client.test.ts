@@ -44,14 +44,13 @@ describe("isSameConstructor", () => {
     expect($.client.haveSameConstructor(client, subClient)).toBeFalsy();
   });
 
-  it("should return false for the subclient overriding the parents constructor", async () => {
+  it("should return false for the clients with different constructors", async () => {
     const { DemoService, SubClient } = (await runner.compile(`
       @service({
         title: "Widget Service",
       })
-      @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
       @test namespace DemoService {
-        @useAuth(NoAuth)
+        @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
         @test namespace SubClient {
         }
       }
@@ -61,6 +60,24 @@ describe("isSameConstructor", () => {
     const subClient = $.client.getClient(SubClient);
 
     expect($.client.haveSameConstructor(client, subClient)).toBeFalsy();
+  });
+
+  it("should return true when subclient doesn't override the client params", async () => {
+    const { DemoService, SubClient } = (await runner.compile(`
+      @service({
+        title: "Widget Service",
+      })
+      @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
+      @test namespace DemoService {
+        @test namespace SubClient {
+        }
+      }
+      `)) as { DemoService: Namespace; SubClient: Namespace };
+
+    const client = $.client.getClient(DemoService);
+    const subClient = $.client.getClient(SubClient);
+
+    expect($.client.haveSameConstructor(client, subClient)).toBeTruthy();
   });
 
   it("should return false for the clients with different constructor", async () => {

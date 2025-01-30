@@ -8,7 +8,7 @@ import {
 
 describe("SpecialWords", () => {
   describe("OperationsClient", () => {
-    const client = new OperationsClient("http://localhost:3000");
+    const client = new OperationsClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle operation 'and'", async () => {
       await client.and();
@@ -144,7 +144,7 @@ describe("SpecialWords", () => {
   });
 
   describe("ParametersClient", () => {
-    const client = new ParametersClient("http://localhost:3000");
+    const client = new ParametersClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle parameter 'and'", async () => {
       await client.withAnd("value");
@@ -284,7 +284,7 @@ describe("SpecialWords", () => {
   });
 
   describe("ModelsClient", () => {
-    const client = new ModelsClient("http://localhost:3000");
+    const client = new ModelsClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle model 'and'", async () => {
       await client.withAnd({ name: "value" });
@@ -420,7 +420,12 @@ describe("SpecialWords", () => {
   });
 
   describe("ModelPropertiesClient", () => {
-    const client = new ModelPropertiesClient("http://localhost:3000");
+    const client = new ModelPropertiesClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle property same as the model name", async () => {
       await client.sameAsModel({ sameAsModel: "ok" });

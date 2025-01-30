@@ -6,7 +6,7 @@ import {
 
 describe("Type.Enum.Fixed", () => {
   describe("StringClient", () => {
-    const client = new StringClient("http://localhost:3000");
+    const client = new StringClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle a known value returned from the server", async () => {
       const response = await client.getKnownValue();

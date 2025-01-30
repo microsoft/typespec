@@ -11,7 +11,7 @@
     "watch-src": "babel src -d dist/src --extensions '.ts,.tsx' --watch",
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
-    "test": "vitest run",
+    "test": "vitest run --exclude=test/e2e",
     "build-todo": "rm -rf sample/output/todo dist/sample/output/todo && tsp compile sample/main.tsp --emit http-client-javascript --output-dir sample/output/todo && babel sample/output/todo -d dist/sample/output/todo --extensions '.ts,.tsx' && npx prettier sample/output --write",
     "build-petstore": "tsp compile ../samples/specs/petstore/petstore.tsp --emit http-client-javascript --output-dir sample/output/petstore && babel sample/output/petstore -d dist/sample/output/petstore --extensions '.ts,.tsx' && npx prettier sample/output --write",
     "format": "prettier . --write"
@@ -59,6 +59,6 @@
     "ts-morph": "^23.0.0",
     "typescript": "^5.5.3",
     "vitest": "^3.0.4",
-    "@vitest/ui": "^3.0.4" 
+    "@vitest/ui": "^3.0.4"
   }
 }

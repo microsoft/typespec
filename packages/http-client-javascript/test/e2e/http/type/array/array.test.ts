@@ -18,7 +18,7 @@ import {
 
 describe("Type.Array", () => {
   describe("Int32ValueClient", () => {
-    const client = new Int32ValueClient("http://localhost:3000");
+    const client = new Int32ValueClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle an array of int32 values returned from the server", async () => {
       const response = await client.get();
@@ -31,7 +31,7 @@ describe("Type.Array", () => {
   });
 
   describe("Int64ValueClient", () => {
-    const client = new Int64ValueClient("http://localhost:3000");
+    const client = new Int64ValueClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle an array of int64 values returned from the server", async () => {
       const response = await client.get();
@@ -44,7 +44,12 @@ describe("Type.Array", () => {
   });
 
   describe("BooleanValueClient", () => {
-    const client = new BooleanValueClient("http://localhost:3000");
+    const client = new BooleanValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of boolean values returned from the server", async () => {
       const response = await client.get();
@@ -57,7 +62,12 @@ describe("Type.Array", () => {
   });
 
   describe("StringValueClient", () => {
-    const client = new StringValueClient("http://localhost:3000");
+    const client = new StringValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of string values returned from the server", async () => {
       const response = await client.get();
@@ -70,7 +80,12 @@ describe("Type.Array", () => {
   });
 
   describe("Float32ValueClient", () => {
-    const client = new Float32ValueClient("http://localhost:3000");
+    const client = new Float32ValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of float values returned from the server", async () => {
       const response = await client.get();
@@ -83,7 +98,12 @@ describe("Type.Array", () => {
   });
 
   describe("DatetimeValueClient", () => {
-    const client = new DatetimeValueClient("http://localhost:3000");
+    const client = new DatetimeValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of datetime values returned from the server", async () => {
       const response = await client.get();
@@ -96,7 +116,12 @@ describe("Type.Array", () => {
   });
 
   describe("DurationValueClient", () => {
-    const client = new DurationValueClient("http://localhost:3000");
+    const client = new DurationValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of duration values returned from the server", async () => {
       const response = await client.get();
@@ -109,7 +134,12 @@ describe("Type.Array", () => {
   });
 
   describe("UnknownValueClient", () => {
-    const client = new UnknownValueClient("http://localhost:3000");
+    const client = new UnknownValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of unknown values returned from the server", async () => {
       const response = await client.get();
@@ -122,7 +152,7 @@ describe("Type.Array", () => {
   });
 
   describe("ModelValueClient", () => {
-    const client = new ModelValueClient("http://localhost:3000");
+    const client = new ModelValueClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle an array of model values returned from the server", async () => {
       const response = await client.get();
@@ -135,7 +165,12 @@ describe("Type.Array", () => {
   });
 
   describe("NullableFloatValueClient", () => {
-    const client = new NullableFloatValueClient("http://localhost:3000");
+    const client = new NullableFloatValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of nullable float values returned from the server", async () => {
       const response = await client.get();
@@ -148,7 +183,12 @@ describe("Type.Array", () => {
   });
 
   describe("NullableInt32ValueClient", () => {
-    const client = new NullableInt32ValueClient("http://localhost:3000");
+    const client = new NullableInt32ValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of nullable int32 values returned from the server", async () => {
       const response = await client.get();
@@ -161,7 +201,12 @@ describe("Type.Array", () => {
   });
 
   describe("NullableBooleanValueClient", () => {
-    const client = new NullableBooleanValueClient("http://localhost:3000");
+    const client = new NullableBooleanValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of nullable boolean values returned from the server", async () => {
       const response = await client.get();
@@ -174,7 +219,12 @@ describe("Type.Array", () => {
   });
 
   describe("NullableStringValueClient", () => {
-    const client = new NullableStringValueClient("http://localhost:3000");
+    const client = new NullableStringValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of nullable string values returned from the server", async () => {
       const response = await client.get();
@@ -187,7 +237,12 @@ describe("Type.Array", () => {
   });
 
   describe("NullableModelValueClient", () => {
-    const client = new NullableModelValueClient("http://localhost:3000");
+    const client = new NullableModelValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle an array of nullable model values returned from the server", async () => {
       const response = await client.get();

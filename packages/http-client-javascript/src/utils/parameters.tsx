@@ -48,12 +48,16 @@ function buildClientParameterDescriptor(
     if (authSchemes.length === 1 && authSchemes[0].type === "noAuth") {
       return undefined;
     }
+
+    const credentialType = Array.from(
+      new Set(authSchemes.filter((s) => s.type !== "noAuth").map((s) => getCredentialType(s))),
+    );
     return [
       "credential",
       {
         refkey: ay.refkey(modelProperty),
         optional: modelProperty.optional,
-        type: ay.mapJoin(authSchemes, (scheme) => getCredentialType(scheme), { joiner: " | " }),
+        type: ay.mapJoin(credentialType, (t) => t, { joiner: " | " }),
       },
     ];
   }

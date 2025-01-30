@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { NestedDiscriminatorClient } from "../../../../../generated/http/type/model/inheritance/nested-discriminator/http-client-javascript/src/index.js";
 
 describe("Type.Model.Inheritance.NestedDiscriminator", () => {
-  const client = new NestedDiscriminatorClient("http://localhost:3000");
+  const client = new NestedDiscriminatorClient("http://localhost:3000", {
+    allowInsecureConnection: true,
+    retryOptions: {
+      maxRetries: 0,
+    },
+  });
 
   it("should get a polymorphic model with 2 discriminators", async () => {
     const response = await client.getModel();

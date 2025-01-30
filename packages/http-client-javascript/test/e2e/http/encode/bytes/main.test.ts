@@ -43,7 +43,7 @@ const testUint8Array = new Uint8Array([...str].map((char) => char.charCodeAt(0))
 
 describe("Encode.Bytes", () => {
   describe("QueryClient", () => {
-    const client = new QueryClient("http://localhost:3000");
+    const client = new QueryClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should test default encode (base64) for bytes query parameter", async () => {
       //
@@ -68,7 +68,7 @@ describe("Encode.Bytes", () => {
   });
 
   describe("PropertyClient", () => {
-    const client = new PropertyClient("http://localhost:3000");
+    const client = new PropertyClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should test default encode (base64) for bytes properties", async () => {
       const response = await client.default_({ value: encodedTestString });
@@ -94,7 +94,7 @@ describe("Encode.Bytes", () => {
   });
 
   describe("HeaderClient", () => {
-    const client = new HeaderClient("http://localhost:3000");
+    const client = new HeaderClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should test default encode (base64) for bytes header", async () => {
       await client.default_(testUint8Array);
@@ -118,7 +118,12 @@ describe("Encode.Bytes", () => {
   });
 
   describe("RequestBodyClient", () => {
-    const client = new RequestBodyClient("http://localhost:3000");
+    const client = new RequestBodyClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should test default encode (base64) for bytes in JSON body", async () => {
       await client.default_(encodedTestString);
@@ -149,7 +154,12 @@ describe("Encode.Bytes", () => {
   });
 
   describe("ResponseBodyClient", () => {
-    const client = new ResponseBodyClient("http://localhost:3000");
+    const client = new ResponseBodyClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should test default encode (base64) for bytes in JSON body response", async () => {
       const response = await client.default_();

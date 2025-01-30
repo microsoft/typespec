@@ -15,7 +15,7 @@ import {
 
 describe("Type.Dictionary", () => {
   describe("Int32ValueClient", () => {
-    const client = new Int32ValueClient("http://localhost:3000");
+    const client = new Int32ValueClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle a dictionary of int32 values returned from the server", async () => {
       const response = await client.get();
@@ -28,7 +28,7 @@ describe("Type.Dictionary", () => {
   });
 
   describe("Int64ValueClient", () => {
-    const client = new Int64ValueClient("http://localhost:3000");
+    const client = new Int64ValueClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle a dictionary of int64 values returned from the server", async () => {
       // Currently, we adjust our expectations to match the maximum safe integer (`Number.MAX_SAFE_INTEGER`)
@@ -53,7 +53,12 @@ describe("Type.Dictionary", () => {
   });
 
   describe("BooleanValueClient", () => {
-    const client = new BooleanValueClient("http://localhost:3000");
+    const client = new BooleanValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a dictionary of boolean values returned from the server", async () => {
       const response = await client.get();
@@ -66,7 +71,12 @@ describe("Type.Dictionary", () => {
   });
 
   describe("StringValueClient", () => {
-    const client = new StringValueClient("http://localhost:3000");
+    const client = new StringValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a dictionary of string values returned from the server", async () => {
       const response = await client.get();
@@ -79,7 +89,12 @@ describe("Type.Dictionary", () => {
   });
 
   describe("Float32ValueClient", () => {
-    const client = new Float32ValueClient("http://localhost:3000");
+    const client = new Float32ValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a dictionary of float32 values returned from the server", async () => {
       const response = await client.get();
@@ -92,7 +107,12 @@ describe("Type.Dictionary", () => {
   });
 
   describe("DatetimeValueClient", () => {
-    const client = new DatetimeValueClient("http://localhost:3000");
+    const client = new DatetimeValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a dictionary of datetime values returned from the server", async () => {
       const response = await client.get();
@@ -105,7 +125,12 @@ describe("Type.Dictionary", () => {
   });
 
   describe("DurationValueClient", () => {
-    const client = new DurationValueClient("http://localhost:3000");
+    const client = new DurationValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a dictionary of duration values returned from the server", async () => {
       const response = await client.get();
@@ -118,7 +143,12 @@ describe("Type.Dictionary", () => {
   });
 
   describe("UnknownValueClient", () => {
-    const client = new UnknownValueClient("http://localhost:3000");
+    const client = new UnknownValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a dictionary of unknown values returned from the server", async () => {
       const response = await client.get();
@@ -131,7 +161,7 @@ describe("Type.Dictionary", () => {
   });
 
   describe("ModelValueClient", () => {
-    const client = new ModelValueClient("http://localhost:3000");
+    const client = new ModelValueClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle a dictionary of model values returned from the server", async () => {
       const response = await client.get();
@@ -150,7 +180,12 @@ describe("Type.Dictionary", () => {
   });
 
   describe("RecursiveModelValueClient", () => {
-    const client = new RecursiveModelValueClient("http://localhost:3000");
+    const client = new RecursiveModelValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a dictionary of recursive model values returned from the server", async () => {
       const response = await client.get();
@@ -175,7 +210,12 @@ describe("Type.Dictionary", () => {
   });
 
   describe("NullableFloatValueClient", () => {
-    const client = new NullableFloatValueClient("http://localhost:3000");
+    const client = new NullableFloatValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a dictionary of nullable float values returned from the server", async () => {
       const response = await client.get();

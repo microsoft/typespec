@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
-  QueryClient,
-  PropertyClient,
   HeaderClient,
+  PropertyClient,
+  QueryClient,
 } from "../../../generated/http/encode/duration/http-client-javascript/src/index.js";
 
 describe("Encode.Duration", () => {
   describe("QueryClient", () => {
-    const queryClient = new QueryClient("http://localhost:3000");
+    const queryClient = new QueryClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should test default encode for a duration parameter", async () => {
       await queryClient.default("P40D");
@@ -41,7 +41,12 @@ describe("Encode.Duration", () => {
   });
 
   describe("PropertyClient", () => {
-    const propertyClient = new PropertyClient("http://localhost:3000");
+    const propertyClient = new PropertyClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should test default encode for a duration property", async () => {
       const requestBody = { value: "P40D" };
@@ -81,7 +86,12 @@ describe("Encode.Duration", () => {
   });
 
   describe("HeaderClient", () => {
-    const headerClient = new HeaderClient("http://localhost:3000");
+    const headerClient = new HeaderClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should test default encode for a duration header", async () => {
       await headerClient.default("P40D");

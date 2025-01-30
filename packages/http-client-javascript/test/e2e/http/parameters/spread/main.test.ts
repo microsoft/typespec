@@ -6,7 +6,7 @@ import {
 
 describe("Parameters.Spread", () => {
   describe("ModelClient", () => {
-    const client = new ModelClient("http://localhost:3000");
+    const client = new ModelClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle spread named model in request body", async () => {
       await client.spreadAsRequestBody("foo");
@@ -30,7 +30,7 @@ describe("Parameters.Spread", () => {
   });
 
   describe("AliasClient", () => {
-    const client = new AliasClient("http://localhost:3000");
+    const client = new AliasClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle spread alias in request body", async () => {
       await client.spreadAsRequestBody("foo");

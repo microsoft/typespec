@@ -14,7 +14,7 @@ describe("Payload.MultiPart", () => {
   let pngContents: Uint8Array;
 
   describe("FormDataClient", () => {
-    const client = new FormDataClient("http://localhost:3000");
+    const client = new FormDataClient("http://localhost:3000", { allowInsecureConnection: true });
 
     beforeEach(async () => {
       __filename = fileURLToPath(import.meta.url);
@@ -83,7 +83,7 @@ describe("Payload.MultiPart", () => {
   });
 
   describe("FormDataClient.HttpParts.ContentType", () => {
-    const client = new HttpPartsClient("http://localhost:3000");
+    const client = new HttpPartsClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle image/jpeg with specific content type", async () => {
       await client.contentTypeClient.imageJpegContentType({
@@ -117,7 +117,12 @@ describe("Payload.MultiPart", () => {
 
   describe("FormDataClient.HttpParts", () => {
     it("should send json array and file array", async () => {
-      const client = new HttpPartsClient("http://localhost:3000");
+      const client = new HttpPartsClient("http://localhost:3000", {
+        allowInsecureConnection: true,
+        retryOptions: {
+          maxRetries: 1,
+        },
+      });
       const address = { city: "X" };
       const previousAddresses = [{ city: "Y" }, { city: "Z" }];
       await client.jsonArrayAndFileArray({
@@ -139,7 +144,12 @@ describe("Payload.MultiPart", () => {
 
   describe("FormDataClient.HttpParts.NonString", () => {
     it("should handle non-string float", async () => {
-      const client = new HttpPartsClient("http://localhost:3000");
+      const client = new HttpPartsClient("http://localhost:3000", {
+        allowInsecureConnection: true,
+        retryOptions: {
+          maxRetries: 1,
+        },
+      });
       await client.nonStringClient.float({
         // TODO: This needs to be modeled as a single positional parameter.
         temperature: { body: 1.23, contentType: "text/plain" },

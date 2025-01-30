@@ -3,7 +3,7 @@ import { PropertyClient } from "../../../generated/http/encode/numeric/http-clie
 
 describe("Encode.Numeric", () => {
   describe("PropertyClient", () => {
-    const client = new PropertyClient("http://localhost:3000");
+    const client = new PropertyClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should send and receive safeint as string", async () => {
       const payload = { value: "10000000000" };

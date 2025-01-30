@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 import { ApiKeyClient } from "../../../generated/http/authentication/api-key/http-client-javascript/src/index.js";
 
 describe("Authentication.ApiKey", () => {
-  const client = new ApiKeyClient("http://localhost:3000", {
-    key: "valid-key", // Set the default API key here
-  });
+  const client = new ApiKeyClient(
+    "http://localhost:3000",
+    {
+      key: "valid-key", // Set the default API key here
+    },
+    { allowInsecureConnection: true },
+  );
 
   it("should authenticate with a valid API key", async () => {
     const response = await client.valid();
@@ -12,9 +16,13 @@ describe("Authentication.ApiKey", () => {
   });
 
   it("should return error for an invalid API key", async () => {
-    const invalidClient = new ApiKeyClient("http://localhost:3000", {
-      key: "invalid-key",
-    });
+    const invalidClient = new ApiKeyClient(
+      "http://localhost:3000",
+      {
+        key: "invalid-key",
+      },
+      { allowInsecureConnection: true },
+    );
 
     try {
       await invalidClient.invalid();

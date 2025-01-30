@@ -3,7 +3,7 @@ import { PageableClient } from "../../../generated/http/payload/pageable/http-cl
 
 describe("Payload.Pageable", () => {
   describe("list", () => {
-    const client = new PageableClient("http://localhost:3000");
+    const client = new PageableClient("http://localhost:3000", { allowInsecureConnection: true });
 
     // it("should list users with pagination", async () => {
     //   const users = client.list({

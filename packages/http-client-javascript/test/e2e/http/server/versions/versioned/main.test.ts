@@ -2,7 +2,7 @@ import { describe, it } from "vitest";
 import { VersionedClient } from "../../../../generated/http/server/versions/versioned/http-client-javascript/src/index.js";
 
 describe("Server.Versions.Versioned", () => {
-  const client = new VersionedClient("http://localhost:3000");
+  const client = new VersionedClient("http://localhost:3000", { allowInsecureConnection: true });
 
   it("should perform operation without api-version in the URL", async () => {
     await client.withoutApiVersion();

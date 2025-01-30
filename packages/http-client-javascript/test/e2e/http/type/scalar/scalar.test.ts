@@ -9,7 +9,7 @@ import {
 
 describe.skip("Type.Scalar", () => {
   describe("StringClient", () => {
-    const client = new StringClient("http://localhost:3000");
+    const client = new StringClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle a string value returned from the server", async () => {
       const response = await client.get();
@@ -23,7 +23,7 @@ describe.skip("Type.Scalar", () => {
   });
 
   describe("BooleanClient", () => {
-    const client = new BooleanClient("http://localhost:3000");
+    const client = new BooleanClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle a boolean value returned from the server", async () => {
       const response = await client.get();
@@ -37,7 +37,7 @@ describe.skip("Type.Scalar", () => {
   });
 
   describe("UnknownClient", () => {
-    const client = new UnknownClient("http://localhost:3000");
+    const client = new UnknownClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle an unknown value returned from the server", async () => {
       const response = await client.get();
@@ -51,7 +51,12 @@ describe.skip("Type.Scalar", () => {
   });
 
   describe("DecimalTypeClient", () => {
-    const client = new DecimalTypeClient("http://localhost:3000");
+    const client = new DecimalTypeClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a decimal value returned from the server", async () => {
       const response = await client.responseBody();
@@ -70,7 +75,12 @@ describe.skip("Type.Scalar", () => {
   });
 
   describe("DecimalVerifyClient", () => {
-    const client = new DecimalVerifyClient("http://localhost:3000");
+    const client = new DecimalVerifyClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should prepare verify values for decimal", async () => {
       const response = await client.prepareVerify();

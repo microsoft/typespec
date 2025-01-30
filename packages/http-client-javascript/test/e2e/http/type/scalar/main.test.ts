@@ -11,7 +11,7 @@ import {
 
 describe("Type.Scalar", () => {
   describe("StringClient", () => {
-    const client = new StringClient("http://localhost:3000");
+    const client = new StringClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle a string value returned from the server", async () => {
       const response = await client.get();
@@ -24,7 +24,7 @@ describe("Type.Scalar", () => {
   });
 
   describe("BooleanClient", () => {
-    const client = new BooleanClient("http://localhost:3000");
+    const client = new BooleanClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle a boolean value returned from the server", async () => {
       const response = await client.get();
@@ -37,7 +37,7 @@ describe("Type.Scalar", () => {
   });
 
   describe("UnknownClient", () => {
-    const client = new UnknownClient("http://localhost:3000");
+    const client = new UnknownClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should handle an unknown value returned from the server", async () => {
       const response = await client.get();
@@ -50,7 +50,12 @@ describe("Type.Scalar", () => {
   });
 
   describe("DecimalTypeClient", () => {
-    const client = new DecimalTypeClient("http://localhost:3000");
+    const client = new DecimalTypeClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a decimal value in the response body", async () => {
       const response = await client.responseBody();
@@ -67,7 +72,12 @@ describe("Type.Scalar", () => {
   });
 
   describe("Decimal128TypeClient", () => {
-    const client = new Decimal128TypeClient("http://localhost:3000");
+    const client = new Decimal128TypeClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a decimal128 value in the response body", async () => {
       const response = await client.responseBody();
@@ -84,7 +94,12 @@ describe("Type.Scalar", () => {
   });
 
   describe("DecimalVerifyClient", () => {
-    const client = new DecimalVerifyClient("http://localhost:3000");
+    const client = new DecimalVerifyClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should prepare verify values for decimal", async () => {
       const response = await client.prepareVerify();
@@ -97,7 +112,12 @@ describe("Type.Scalar", () => {
   });
 
   describe("Decimal128VerifyClient", () => {
-    const client = new Decimal128VerifyClient("http://localhost:3000");
+    const client = new Decimal128VerifyClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should prepare verify values for decimal128", async () => {
       const response = await client.prepareVerify();

@@ -5,7 +5,12 @@ import {
 } from "../../../../../generated/http/type/model/inheritance/single-discriminator/http-client-javascript/src/index.js";
 
 describe("Type.Model.Inheritance.SingleDiscriminator", () => {
-  const client = new SingleDiscriminatorClient("http://localhost:3000");
+  const client = new SingleDiscriminatorClient("http://localhost:3000", {
+    allowInsecureConnection: true,
+    retryOptions: {
+      maxRetries: 0,
+    },
+  });
 
   it("should receive polymorphic model in single level inheritance with 1 discriminator", async () => {
     const response = await client.getModel();

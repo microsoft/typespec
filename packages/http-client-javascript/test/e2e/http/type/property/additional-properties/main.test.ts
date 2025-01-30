@@ -10,7 +10,12 @@ import {
 
 describe("Type.Property.AdditionalProperties", () => {
   describe("ExtendsUnknownClient", () => {
-    const client = new ExtendsUnknownClient("http://localhost:3000");
+    const client = new ExtendsUnknownClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
     it("Expected response body: {'name': 'ExtendsUnknownAdditionalProperties', 'prop1': 32, 'prop2': true, 'prop3': 'abc'}", async () => {
       const response = await client.get();
       expect(response).toEqual({
@@ -31,7 +36,12 @@ describe("Type.Property.AdditionalProperties", () => {
   });
 
   describe("ExtendsUnknownDerivedClient", () => {
-    const client = new ExtendsUnknownDerivedClient("http://localhost:3000");
+    const client = new ExtendsUnknownDerivedClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
     it("Expected response body: {'name': 'ExtendsUnknownAdditionalProperties', 'index': 314, 'age': 2.71875, 'prop1': 32, 'prop2': true, 'prop3': 'abc'}", async () => {
       const response = await client.get();
       expect(response).toEqual({
@@ -56,7 +66,12 @@ describe("Type.Property.AdditionalProperties", () => {
   });
 
   describe("ExtendsUnknownDiscriminatedClient", () => {
-    const client = new ExtendsUnknownDiscriminatedClient("http://localhost:3000");
+    const client = new ExtendsUnknownDiscriminatedClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
     it("Expected response body: {'kind': 'derived', 'name': 'Derived', 'index': 314, 'age': 2.71875, 'prop1': 32, 'prop2': true, 'prop3': 'abc'}", async () => {
       const response = await client.get();
       expect(response).toEqual({
@@ -83,7 +98,7 @@ describe("Type.Property.AdditionalProperties", () => {
   });
 
   describe("IsUnknownClient", () => {
-    const client = new IsUnknownClient("http://localhost:3000");
+    const client = new IsUnknownClient("http://localhost:3000", { allowInsecureConnection: true });
     it("Expected response body: {'name': 'IsUnknownAdditionalProperties', 'prop1': 32, 'prop2': true, 'prop3': 'abc'}", async () => {
       const response = await client.get();
       expect(response).toEqual({
@@ -104,7 +119,12 @@ describe("Type.Property.AdditionalProperties", () => {
   });
 
   describe("IsUnknownDerivedClient", () => {
-    const client = new IsUnknownDerivedClient("http://localhost:3000");
+    const client = new IsUnknownDerivedClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
     it("Expected response body: {'name': 'IsUnknownAdditionalProperties', 'index': 314, 'age': 2.71875, 'prop1': 32, 'prop2': true, 'prop3': 'abc'}", async () => {
       const response = await client.get();
       expect(response).toEqual({
@@ -129,7 +149,12 @@ describe("Type.Property.AdditionalProperties", () => {
   });
 
   describe("IsUnknownDiscriminatedClient", () => {
-    const client = new IsUnknownDiscriminatedClient("http://localhost:3000");
+    const client = new IsUnknownDiscriminatedClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
     it("Expected response body: {'kind': 'derived', 'name': 'Derived', 'index': 314, 'age': 2.71875, 'prop1': 32, 'prop2': true, 'prop3': 'abc'}", async () => {
       const response = await client.get();
       expect(response).toEqual({

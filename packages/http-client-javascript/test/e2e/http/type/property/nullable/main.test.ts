@@ -29,7 +29,7 @@ const helloWorldBase64 = base64EncodeToUint8Array("hello, world!");
 
 describe("Type.Property.Nullable", () => {
   describe("StringClient", () => {
-    const client = new StringClient("http://localhost:3000");
+    const client = new StringClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get a model with all properties present (nullable string)", async () => {
       const response = await client.getNonNull();
@@ -63,7 +63,7 @@ describe("Type.Property.Nullable", () => {
   });
 
   describe("BytesClient", () => {
-    const client = new BytesClient("http://localhost:3000");
+    const client = new BytesClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get a model with all properties present (nullable bytes)", async () => {
       const response = await client.getNonNull();
@@ -97,7 +97,7 @@ describe("Type.Property.Nullable", () => {
   });
 
   describe("DatetimeClient", () => {
-    const client = new DatetimeClient("http://localhost:3000");
+    const client = new DatetimeClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get a model with all properties present (nullable datetime)", async () => {
       const response = await client.getNonNull();
@@ -131,7 +131,7 @@ describe("Type.Property.Nullable", () => {
   });
 
   describe("DurationClient", () => {
-    const client = new DurationClient("http://localhost:3000");
+    const client = new DurationClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get a model with all properties present (nullable duration)", async () => {
       const response = await client.getNonNull();
@@ -165,7 +165,12 @@ describe("Type.Property.Nullable", () => {
   });
 
   describe("CollectionsByteClient", () => {
-    const client = new CollectionsByteClient("http://localhost:3000");
+    const client = new CollectionsByteClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should get a model with all properties present (nullable collection bytes)", async () => {
       const response = await client.getNonNull();
@@ -199,7 +204,12 @@ describe("Type.Property.Nullable", () => {
   });
 
   describe("CollectionsModelClient", () => {
-    const client = new CollectionsModelClient("http://localhost:3000");
+    const client = new CollectionsModelClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should get a model with all properties present (nullable collection models)", async () => {
       const response = await client.getNonNull();
@@ -233,7 +243,12 @@ describe("Type.Property.Nullable", () => {
   });
 
   describe("CollectionsStringClient", () => {
-    const client = new CollectionsStringClient("http://localhost:3000");
+    const client = new CollectionsStringClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should get a model with all properties present (nullable collection strings)", async () => {
       const response = await client.getNonNull();

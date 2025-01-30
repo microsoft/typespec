@@ -10,6 +10,10 @@ import {
 
 describe("Versioning.Added", () => {
   const client = new AddedClient("http://localhost:3000", {
+    allowInsecureConnection: true,
+    retryOptions: {
+      maxRetries: 0,
+    },
     apiVersion: "v2",
   });
 
@@ -35,6 +39,10 @@ describe("Versioning.Added", () => {
 
   describe("InterfaceV2Client", () => {
     const interfaceV2Client = new InterfaceV2Client("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
       apiVersion: "v2",
     });
 

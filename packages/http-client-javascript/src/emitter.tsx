@@ -9,13 +9,15 @@ import { uriTemplateLib } from "./components/external-packages/uri-template.js";
 import { Models } from "./components/models.js";
 import { ModelSerializers } from "./components/serializers.js";
 import { MultipartHelpers } from "./components/static-helpers/multipart-helpers.jsx";
+import { JsClientEmitterOptions } from "./lib.js";
 import { httpParamsMutator } from "./utils/operations.js";
 
-export async function $onEmit(context: EmitContext) {
+export async function $onEmit(context: EmitContext<JsClientEmitterOptions>) {
   const tsNamePolicy = ts.createTSNamePolicy();
+  const packageName = context.options["package-name"] ?? "test-package";
   return <ay.Output namePolicy={tsNamePolicy} externals={[uriTemplateLib, httpRuntimeTemplateLib]}>
         <ClientLibrary operationMutators={[httpParamsMutator]}>
-        <ts.PackageDirectory name="test-package" version="1.0.0" path="." scripts={{ "build": "tsc" }}>
+        <ts.PackageDirectory name={packageName} version="1.0.0" path="." scripts={{ "build": "tsc" }}>
           <ay.SourceDirectory path="src">
             <ts.BarrelFile export="." />
             <Client/>
@@ -33,6 +35,5 @@ export async function $onEmit(context: EmitContext) {
           </ay.SourceDirectory>
         </ts.PackageDirectory>
         </ClientLibrary>
-
     </ay.Output>;
 }

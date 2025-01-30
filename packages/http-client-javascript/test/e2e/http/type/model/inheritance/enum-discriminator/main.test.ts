@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { EnumDiscriminatorClient } from "../../../../../generated/http/type/model/inheritance/enum-discriminator/http-client-javascript/src/index.js";
 
 describe("Type.Model.Inheritance.EnumDiscriminator", () => {
-  const client = new EnumDiscriminatorClient("http://localhost:3000");
+  const client = new EnumDiscriminatorClient("http://localhost:3000", {
+    allowInsecureConnection: true,
+    retryOptions: {
+      maxRetries: 0,
+    },
+  });
 
   it("should receive model with extensible enum discriminator type", async () => {
     const response = await client.getExtensibleModel();

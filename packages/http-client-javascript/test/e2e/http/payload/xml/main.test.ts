@@ -16,7 +16,12 @@ import {
 
 describe.skip("Payload.Xml", () => {
   describe("SimpleModelValueClient", () => {
-    const client = new SimpleModelValueClient("http://localhost:3000");
+    const client = new SimpleModelValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a SimpleModel value returned from the server", async () => {
       const response = await client.get();
@@ -29,7 +34,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithSimpleArraysValueClient", () => {
-    const client = new ModelWithSimpleArraysValueClient("http://localhost:3000");
+    const client = new ModelWithSimpleArraysValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithSimpleArrays value returned from the server", async () => {
       const response = await client.get();
@@ -48,7 +58,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithArrayOfModelValueClient", () => {
-    const client = new ModelWithArrayOfModelValueClient("http://localhost:3000");
+    const client = new ModelWithArrayOfModelValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithArrayOfModel value returned from the server", async () => {
       const response = await client.get();
@@ -71,7 +86,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithOptionalFieldValueClient", () => {
-    const client = new ModelWithOptionalFieldValueClient("http://localhost:3000");
+    const client = new ModelWithOptionalFieldValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithOptionalField value returned from the server", async () => {
       const response = await client.get();
@@ -84,7 +104,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithAttributesValueClient", () => {
-    const client = new ModelWithAttributesValueClient("http://localhost:3000");
+    const client = new ModelWithAttributesValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithAttributes value returned from the server", async () => {
       const response = await client.get();
@@ -101,7 +126,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithUnwrappedArrayValueClient", () => {
-    const client = new ModelWithUnwrappedArrayValueClient("http://localhost:3000");
+    const client = new ModelWithUnwrappedArrayValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithUnwrappedArray value returned from the server", async () => {
       const response = await client.get();
@@ -120,7 +150,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithRenamedArraysValueClient", () => {
-    const client = new ModelWithRenamedArraysValueClient("http://localhost:3000");
+    const client = new ModelWithRenamedArraysValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithRenamedArrays value returned from the server", async () => {
       const response = await client.get();
@@ -139,7 +174,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithRenamedFieldsValueClient", () => {
-    const client = new ModelWithRenamedFieldsValueClient("http://localhost:3000");
+    const client = new ModelWithRenamedFieldsValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithRenamedFields value returned from the server", async () => {
       const response = await client.get();
@@ -158,7 +198,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithEmptyArrayValueClient", () => {
-    const client = new ModelWithEmptyArrayValueClient("http://localhost:3000");
+    const client = new ModelWithEmptyArrayValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithEmptyArray value returned from the server", async () => {
       const response = await client.get();
@@ -171,7 +216,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithTextValueClient", () => {
-    const client = new ModelWithTextValueClient("http://localhost:3000");
+    const client = new ModelWithTextValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithText value returned from the server", async () => {
       const response = await client.get();
@@ -190,7 +240,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithDictionaryValueClient", () => {
-    const client = new ModelWithDictionaryValueClient("http://localhost:3000");
+    const client = new ModelWithDictionaryValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithDictionary value returned from the server", async () => {
       const response = await client.get();
@@ -207,7 +262,12 @@ describe.skip("Payload.Xml", () => {
   });
 
   describe("ModelWithEncodedNamesValueClient", () => {
-    const client = new ModelWithEncodedNamesValueClient("http://localhost:3000");
+    const client = new ModelWithEncodedNamesValueClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle a ModelWithEncodedNames value returned from the server", async () => {
       const response = await client.get();

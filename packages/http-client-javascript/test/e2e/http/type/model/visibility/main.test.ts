@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { VisibilityClient } from "../../../../generated/http/type/model/visibility/http-client-javascript/src/index.js";
 
 describe("Type.Model.Visibility", () => {
-  const client = new VisibilityClient("http://localhost:3000");
+  const client = new VisibilityClient("http://localhost:3000", { allowInsecureConnection: true });
 
   it("should generate and receive an output model with readonly properties (getModel)", async () => {
     const input = {

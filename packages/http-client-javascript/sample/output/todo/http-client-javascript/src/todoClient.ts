@@ -45,11 +45,7 @@ import {
 export class TodoClient {
   #context: TodoClientContext;
 
-  constructor(
-    endpoint: string,
-    credential: KeyCredential | KeyCredential,
-    options?: TodoClientOptions,
-  ) {
+  constructor(endpoint: string, credential: KeyCredential, options?: TodoClientOptions) {
     this.#context = createTodoClientContext(endpoint, credential, options);
   }
 }
@@ -57,9 +53,9 @@ export class TodoClient {
 export class TodoItemsClient {
   #context: TodoItemsClientContext;
   attachmentsClient: AttachmentsClient;
-  constructor(endpoint: string, options?: TodoItemsClientOptions) {
-    this.#context = createTodoItemsClientContext(endpoint, options);
-    this.attachmentsClient = new AttachmentsClient(endpoint, options);
+  constructor(endpoint: string, credential: KeyCredential, options?: TodoItemsClientOptions) {
+    this.#context = createTodoItemsClientContext(endpoint, credential, options);
+    this.attachmentsClient = new AttachmentsClient(endpoint, credential, options);
   }
   async list(options?: { limit?: number; offset?: number }) {
     return list(this.#context, options);
@@ -89,8 +85,8 @@ export class TodoItemsClient {
 export class AttachmentsClient {
   #context: AttachmentsClientContext;
 
-  constructor(endpoint: string, options?: AttachmentsClientOptions) {
-    this.#context = createAttachmentsClientContext(endpoint, options);
+  constructor(endpoint: string, credential: KeyCredential, options?: AttachmentsClientOptions) {
+    this.#context = createAttachmentsClientContext(endpoint, credential, options);
   }
   async list(itemId: number) {
     return list_2(this.#context, itemId);

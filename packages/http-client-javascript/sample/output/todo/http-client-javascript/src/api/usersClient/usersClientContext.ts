@@ -8,5 +8,7 @@ export function createUsersClientContext(
   endpoint: string,
   options?: UsersClientOptions,
 ): UsersClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true, ...options });
+  return getClient(endpoint, {
+    ...options,
+  });
 }

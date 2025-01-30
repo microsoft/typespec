@@ -8,6 +8,10 @@ import {
 describe("Versioning.RenamedFrom", () => {
   describe("RenamedFromClient", () => {
     const client = new RenamedFromClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
       apiVersion: "v2",
     });
 
@@ -29,6 +33,10 @@ describe("Versioning.RenamedFrom", () => {
 
   describe("NewInterfaceClient", () => {
     const client = new NewInterfaceClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
       apiVersion: "v2",
     });
 

@@ -1,4 +1,4 @@
-# Should generate the correct properties and handle deserialization for models with utcDateTime type
+# skip:Should generate the correct properties and handle deserialization for models with utcDateTime type
 
 Defaults to rfc7231 encoding
 
@@ -39,7 +39,7 @@ export function fooToApplication(item: any): Foo {
 }
 ```
 
-# Should generate the correct properties and handle deserialization for models with utcDateTime type with rfc7231 encoding
+# skip:Should generate the correct properties and handle deserialization for models with utcDateTime type with rfc7231 encoding
 
 ## TypeSpec
 

@@ -1,6 +1,7 @@
+import { Refkey, refkey } from "@alloy-js/core";
 import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { getAuthentication, getServers } from "@typespec/http";
+import { getHttpService, getServers, resolveAuthentication } from "@typespec/http";
 import { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
@@ -56,14 +57,24 @@ export function getEndpointParametersPerConstructor(client: InternalClient): Mod
   return retval;
 }
 
+const credentialCache = new Map<Refkey, ModelProperty>();
 export function getCredentalParameter(client: InternalClient): ModelProperty | undefined {
-  const schemes = getAuthentication($.program, client.service)?.options.flatMap((o) => o.schemes);
-  if (!schemes) return;
+  const [httpService] = getHttpService($.program, client.service);
+
+  const schemes = resolveAuthentication(httpService).schemes;
+  if (!schemes.length) return;
   const credTypes: StringLiteral[] = schemes.map((scheme) => {
     const schemeLiteral = $.literal.createString(scheme.type);
     schemeLiteral[authSchemeSymbol] = scheme;
     return schemeLiteral;
   });
+
+  const cacheKey = getCredRefkey(credTypes);
+
+  if (credentialCache.has(cacheKey)) {
+    return credentialCache.get(cacheKey)!;
+  }
+
   let credType: Type;
   if (credTypes.length === 1) {
     credType = credTypes[0];
@@ -78,7 +89,13 @@ export function getCredentalParameter(client: InternalClient): ModelProperty | u
 
   credentialParameter[credentialSymbol] = true;
 
+  credentialCache.set(cacheKey, credentialParameter);
+
   return credentialParameter;
+}
+
+function getCredRefkey(credentials: StringLiteral[]): Refkey {
+  return refkey(credentials.map((c) => c.value).join());
 }
 
 export function getConstructors(client: InternalClient): Operation[] {

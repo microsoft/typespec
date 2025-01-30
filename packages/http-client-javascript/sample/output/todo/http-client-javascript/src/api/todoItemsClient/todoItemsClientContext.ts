@@ -1,4 +1,4 @@
-import { Client, ClientOptions, getClient } from "@typespec/ts-http-runtime";
+import { Client, ClientOptions, KeyCredential, getClient } from "@typespec/ts-http-runtime";
 
 export interface TodoItemsClientContext extends Client {}
 export interface TodoItemsClientOptions extends ClientOptions {
@@ -6,7 +6,13 @@ export interface TodoItemsClientOptions extends ClientOptions {
 }
 export function createTodoItemsClientContext(
   endpoint: string,
+  credential: KeyCredential,
   options?: TodoItemsClientOptions,
 ): TodoItemsClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true, ...options });
+  return getClient(endpoint, credential, {
+    ...options,
+    credentials: {
+      apiKeyHeaderName: "Authorization",
+    },
+  });
 }

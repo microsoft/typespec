@@ -3,7 +3,7 @@ import { StringBodyClient } from "../../../generated/http/payload/media-type/htt
 
 describe("Payload.MediaType", () => {
   describe("StringBodyClient", () => {
-    const client = new StringBodyClient("http://localhost:3000");
+    const client = new StringBodyClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should send a string body as text/plain", async () => {
       await client.sendAsText("cat");

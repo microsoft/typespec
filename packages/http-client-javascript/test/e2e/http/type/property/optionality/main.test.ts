@@ -31,7 +31,7 @@ const helloWorldBase64 = base64EncodeToUint8Array("hello, world!");
 
 describe("Type.Property.Optional", () => {
   describe("StringClient", () => {
-    const client = new StringClient("http://localhost:3000");
+    const client = new StringClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get all string properties", async () => {
       const response = await client.getAll();
@@ -53,7 +53,7 @@ describe("Type.Property.Optional", () => {
   });
 
   describe("BytesClient", () => {
-    const client = new BytesClient("http://localhost:3000");
+    const client = new BytesClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get all bytes properties", async () => {
       const response = await client.getAll();
@@ -75,7 +75,7 @@ describe("Type.Property.Optional", () => {
   });
 
   describe("DatetimeClient", () => {
-    const client = new DatetimeClient("http://localhost:3000");
+    const client = new DatetimeClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get all datetime properties", async () => {
       const response = await client.getAll();
@@ -97,7 +97,7 @@ describe("Type.Property.Optional", () => {
   });
 
   describe("DurationClient", () => {
-    const client = new DurationClient("http://localhost:3000");
+    const client = new DurationClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get all duration properties", async () => {
       const response = await client.getAll();
@@ -119,7 +119,7 @@ describe("Type.Property.Optional", () => {
   });
 
   describe("PlainDateClient", () => {
-    const client = new PlainDateClient("http://localhost:3000");
+    const client = new PlainDateClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get all plain date properties", async () => {
       const response = await client.getAll();
@@ -141,7 +141,7 @@ describe("Type.Property.Optional", () => {
   });
 
   describe("PlainTimeClient", () => {
-    const client = new PlainTimeClient("http://localhost:3000");
+    const client = new PlainTimeClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should get all plain time properties", async () => {
       const response = await client.getAll();
@@ -163,7 +163,12 @@ describe("Type.Property.Optional", () => {
   });
 
   describe("CollectionsByteClient", () => {
-    const client = new CollectionsByteClient("http://localhost:3000");
+    const client = new CollectionsByteClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should get all collection byte properties", async () => {
       const response = await client.getAll();
@@ -189,7 +194,12 @@ describe("Type.Property.Optional", () => {
   });
 
   describe("CollectionsModelClient", () => {
-    const client = new CollectionsModelClient("http://localhost:3000");
+    const client = new CollectionsModelClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should get all collection model properties", async () => {
       const response = await client.getAll();
@@ -215,7 +225,12 @@ describe("Type.Property.Optional", () => {
   });
 
   describe("RequiredAndOptionalClient", () => {
-    const client = new RequiredAndOptionalClient("http://localhost:3000");
+    const client = new RequiredAndOptionalClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should get all required and optional properties", async () => {
       const response = await client.getAll();

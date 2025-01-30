@@ -1,4 +1,4 @@
-import { Client, ClientOptions, getClient } from "@typespec/ts-http-runtime";
+import { Client, ClientOptions, KeyCredential, getClient } from "@typespec/ts-http-runtime";
 
 export interface AttachmentsClientContext extends Client {}
 export interface AttachmentsClientOptions extends ClientOptions {
@@ -6,7 +6,13 @@ export interface AttachmentsClientOptions extends ClientOptions {
 }
 export function createAttachmentsClientContext(
   endpoint: string,
+  credential: KeyCredential,
   options?: AttachmentsClientOptions,
 ): AttachmentsClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true, ...options });
+  return getClient(endpoint, credential, {
+    ...options,
+    credentials: {
+      apiKeyHeaderName: "Authorization",
+    },
+  });
 }

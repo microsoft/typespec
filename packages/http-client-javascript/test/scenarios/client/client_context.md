@@ -19,6 +19,8 @@ export function createDemoServiceClientContext(
   endpoint: string,
   options?: DemoServiceClientOptions,
 ): DemoServiceClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true, ...options });
+  return getClient(endpoint, {
+    ...options,
+  });
 }
 ```

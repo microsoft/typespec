@@ -7,7 +7,12 @@ import {
   Operation,
 } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/typekit";
-import { getServers } from "@typespec/http";
+import {
+  getHttpService,
+  getServers,
+  HttpServiceAuthentication,
+  resolveAuthentication,
+} from "@typespec/http";
 import "@typespec/http/typekit";
 import { InternalClient } from "../../interfaces.js";
 import { reportDiagnostic } from "../../lib.js";
@@ -57,6 +62,11 @@ interface ClientKit extends NameKit<InternalClient> {
    * Determines is both clients have the same constructor
    */
   haveSameConstructor(a: InternalClient, b: InternalClient): Boolean;
+  /**
+   * Resolves the authentication schemes for a client
+   * @param client
+   */
+  getAuth(client: InternalClient): HttpServiceAuthentication;
 }
 
 interface TypeKit {
@@ -197,6 +207,10 @@ defineKit<TypeKit>({
       }
 
       return true;
+    },
+    getAuth(client) {
+      const [httpService] = getHttpService(this.program, client.service);
+      return resolveAuthentication(httpService);
     },
   },
 });

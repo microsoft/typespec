@@ -77,7 +77,9 @@ export function createTestClientContext(
   endpoint: string,
   options?: TestClientOptions,
 ): TestClientContext {
-  return getClient(endpoint, { allowInsecureConnection: true, ...options });
+  return getClient(endpoint, {
+    ...options,
+  });
 }
 ```
 

@@ -5,7 +5,7 @@ import {
 } from "../../../generated/http/parameters/body-optionality/http-client-javascript/src/index.js";
 
 describe("Parameters.BodyOptionality", () => {
-  const client = new ParametersClient("http://localhost:3000");
+  const client = new ParametersClient("http://localhost:3000", { allowInsecureConnection: true });
 
   it("should handle required explicit body parameter", async () => {
     await client.bodyOptionalityClient.requiredExplicit({ name: "foo" });
@@ -13,7 +13,12 @@ describe("Parameters.BodyOptionality", () => {
   });
 
   describe("OptionalExplicitClient", () => {
-    const optionalExplicitClient = new OptionalExplicitClient("http://localhost:3000");
+    const optionalExplicitClient = new OptionalExplicitClient("http://localhost:3000", {
+      allowInsecureConnection: true,
+      retryOptions: {
+        maxRetries: 1,
+      },
+    });
 
     it("should handle explicit optional body parameter (set case)", async () => {
       await optionalExplicitClient.set({ body: { name: "foo" } });

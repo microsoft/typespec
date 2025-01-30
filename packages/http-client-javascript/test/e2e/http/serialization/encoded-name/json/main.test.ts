@@ -3,7 +3,7 @@ import { PropertyClient } from "../../../../generated/http/serialization/encoded
 
 describe("Serialization.EncodedName.Json", () => {
   describe("PropertyClient", () => {
-    const client = new PropertyClient("http://localhost:3000");
+    const client = new PropertyClient("http://localhost:3000", { allowInsecureConnection: true });
 
     it("should send a JsonEncodedNameModel with 'defaultName' mapped to 'wireName'", async () => {
       await client.send({
