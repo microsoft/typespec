@@ -972,10 +972,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     ): EmitterOutput<string> {
       const signature = new StringBuilder();
       const bodyParam = operation.parameters.body;
+      const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
+
       let i = 0;
       //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
       const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
-        isValidParameter(this.emitter.getProgram(), p.param),
+        isValidParameter(this.emitter.getProgram(), p.param, isExplicitBodyParam && !bodyParameter),
       );
       const requiredParams: HttpOperationParameter[] = validParams.filter(
         (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
@@ -992,12 +994,13 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
       if (
         requiredParams.length > 0 &&
-        (optionalParams.length > 0 || (bodyParameter === undefined && bodyParam !== undefined))
+        (optionalParams.length > 0 ||
+          (bodyParameter === undefined && bodyParam !== undefined && isExplicitBodyParam))
       ) {
         signature.push(code`, `);
       }
       if (bodyParameter === undefined) {
-        if (bodyParam !== undefined) {
+        if (bodyParam !== undefined && isExplicitBodyParam) {
           signature.push(
             code`${this.emitter.emitTypeReference(
               this.#metaInfo.getEffectivePayloadType(
@@ -1006,6 +1009,29 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
               ),
             )} body${requiredParams.length > 0 && optionalParams.length > 0 ? ", " : ""}`,
           );
+        } else if (bodyParam !== undefined) {
+          switch (bodyParam.type.kind) {
+            case "Model":
+              let bCount = 0;
+              for (const [propName, propDef] of bodyParam.type.properties) {
+                const csType = getCSharpType(this.emitter.getProgram(), propDef.type)!;
+                signature.push(
+                  code`${csType?.type.getTypeReference()} ${ensureCSharpIdentifier(this.emitter.getProgram(), propDef, propName, NameCasingType.Parameter)}${++bCount < bodyParam.type.properties.size || optionalParams.length > 0 ? ", " : ""}`,
+                );
+              }
+              break;
+            case "ModelProperty":
+              const csType = getCSharpType(this.emitter.getProgram(), bodyParam.type.type)!;
+              signature.push(
+                code`${csType?.type.getTypeReference()} ${ensureCSharpIdentifier(this.emitter.getProgram(), bodyParam.type.type, bodyParam.type.name, NameCasingType.Parameter)}${optionalParams.length > 0 ? ", " : ""}`,
+              );
+              break;
+            default:
+              const defType = getCSharpType(this.emitter.getProgram(), bodyParam.type)!;
+              signature.push(
+                code`${defType?.type.getTypeReference()} body${optionalParams.length > 0 ? ", " : ""}`,
+              );
+          }
         }
       }
       i = 0;
@@ -1140,14 +1166,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     #emitOperationCallParameters(
       operation: HttpOperation,
-      bodyParameter: string = "body",
+      explicitBodyParam?: string,
     ): EmitterOutput<string> {
       const signature = new StringBuilder();
+      const isExplicitBodyParam: boolean = operation.parameters.body?.property !== undefined;
+      const bodyParameter: string = explicitBodyParam || "body";
       let i = 0;
       const bodyParameters = this.#getBodyParameters(operation);
       //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
       const valid = operation.parameters.parameters.filter((p) =>
-        isValidParameter(this.emitter.getProgram(), p.param),
+        isValidParameter(
+          this.emitter.getProgram(),
+          p.param,
+          isExplicitBodyParam && operation.parameters.body?.bodyKind === "single",
+        ),
       );
       const required: HttpOperationParameter[] = valid.filter(
         (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
@@ -1175,8 +1207,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         }
       }
       if (bodyParameters !== undefined) {
-        if (bodyParameters.length === 1) {
-          signature.push(code`${bodyParameter}`);
+        if (isExplicitBodyParam) {
+          signature.push(code`${bodyParameter}${i < valid.length ? ", " : ""}`);
         } else {
           let j = 0;
           for (const parameter of bodyParameters) {
@@ -1185,11 +1217,17 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
               this.emitter.getProgram(),
               parameter,
               parameter.name,
-              NameCasingType.Property,
+              NameCasingType.Parameter,
             );
-            signature.push(
-              code`${bodyParameter}?.${propertyName}${j < bodyParameters.length || i < valid.length ? ", " : ""}`,
-            );
+            if (isExplicitBodyParam) {
+              signature.push(
+                code`${bodyParameter}?.${propertyName}${j < bodyParameters.length || i < valid.length ? ", " : ""}`,
+              );
+            } else {
+              signature.push(
+                code`${propertyName}${j < bodyParameters.length || i < valid.length ? ", " : ""}`,
+              );
+            }
           }
         }
       }
@@ -1585,10 +1623,15 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     );
   }
 
-  function isValidParameter(program: Program, parameter: ModelProperty): boolean {
+  function isValidParameter(
+    program: Program,
+    parameter: ModelProperty,
+    hasExplicitBodyParam: boolean = false,
+  ): boolean {
     return (
       !isContentTypeHeader(program, parameter) &&
-      (parameter.type.kind !== "Intrinsic" || parameter.type.name !== "never")
+      (parameter.type.kind !== "Intrinsic" || parameter.type.name !== "never") &&
+      parameter.model?.name === ""
     );
   }
 

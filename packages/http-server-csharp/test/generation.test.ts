@@ -812,7 +812,8 @@ it("Handles empty body 2xx as void", async () => {
         "MyServiceOperationsController.cs",
         [
           "public partial class MyServiceOperationsController: ControllerBase",
-          "public virtual async Task<IActionResult> Foo(Toy body)",
+          "public virtual async Task<IActionResult> Foo(long id, long petId, string name)",
+          ".FooAsync(id, petId, name)",
         ],
       ],
       ["Toy.cs", ["public partial class Toy"]],
@@ -1086,18 +1087,10 @@ it("handles implicit request body models correctly", async () => {
       `,
     [
       [
-        "Model0.cs",
-        [
-          "public partial class Model0",
-          "public int? IntProp { get; set; }",
-          "public string[] ArrayProp { get; set; }",
-        ],
-      ],
-      [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Foo(Model0 body)`,
-          ".FooAsync(body?.IntProp, body?.ArrayProp)",
+          `public virtual async Task<IActionResult> Foo(int intProp, string[] arrayProp)`,
+          ".FooAsync(intProp, arrayProp)",
         ],
       ],
       ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
@@ -1299,6 +1292,88 @@ model FileAttachmentMultipartRequest {
       ["IInitializer.cs", ["public interface IInitializer"]],
       ["Initializer.cs", ["public class Initializer : IInitializer"]],
       ["ContosoOperations.cs", ["public class ContosoOperations : IContosoOperations"]],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Handles spread parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+    model Widget {
+      @path id: string;
+      @query kind?: string;
+      color: string;
+    }
+
+    @route("/widgets")
+
+    @post op create(...Widget) : Widget;
+
+    `,
+    [
+      [
+        "IContosoOperations.cs",
+        ["Task<Widget> CreateAsync( string id, string color, string? kind);"],
+      ],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( string id, string color, string? kind)",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Create(string id, string color, [FromQuery(Name="kind")] string kind)`,
+          ".CreateAsync(id, color, kind)",
+        ],
+      ],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
+  );
+});
+
+it("Handles bodyRoot parameters", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+    model Widget {
+      @visibility("update", "read")
+      @path id: string;
+      @query kind?: string;
+      color: string;
+    }
+
+    @route("/widgets")
+
+    @post op create(@bodyRoot body: Widget) : Widget;
+
+    `,
+    [
+      //["Widget.cs", ["[FromQuery]"]],
+      ["IContosoOperations.cs", ["Task<Widget> CreateAsync( Widget body);"]],
+      [
+        "ContosoOperations.cs",
+        [
+          "public class ContosoOperations : IContosoOperations",
+          "public Task<Widget> CreateAsync( Widget body)",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [`public virtual async Task<IActionResult> Create(Widget body)`, ".CreateAsync(body)"],
+      ],
       [
         "MockRegistration.cs",
         ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
