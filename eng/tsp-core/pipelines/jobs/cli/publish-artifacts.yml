@@ -1,82 +1,8 @@
 # cspell:ignore cvzf
 jobs:
-  - job: VerifyOSX_arm64
-    displayName: Verify OSX Arm64
-    pool:
-      name: $(MACPOOL)
-      vmImage: $(MACVMIMAGEM1)
-      os: macOS
-
+  - job: CheckIFPublish
+    displayName: Check if we should publish
     steps:
-      - download: current
-        artifact: standalone-macos-signed
-        displayName: Download binary
-
-      - script: |
-          set -e
-          cd $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64
-          chmod +x tsp
-          ./tsp --help
-        displayName: Verify binary
-
-  - job: VerifyOSX_x64
-    displayName: Verify OSX x64
-    pool:
-      name: $(MACPOOL)
-      vmImage: $(MACVMIMAGE)
-      os: macOS
-
-    steps:
-      - download: current
-        artifact: standalone-macos-signed
-        displayName: Download binary
-
-      - script: |
-          set -e
-          cd $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-x64
-          chmod +x tsp
-          ./tsp --help
-        displayName: Verify binary
-
-  - job: PublishCliArtifacts
-    displayName: Publish artifacts
-    pool:
-      name: $(LINUXPOOL)
-      image: $(LINUXVMIMAGE)
-      os: linux
-
-    steps:
-      - download: current
-        artifact: standalone-macos-signed
-        displayName: Download macos binaries
-
-      - download: current
-        artifact: standalone-windows-signed
-        displayName: Download windows binaries
-
-      - download: current
-        artifact: standalone-linux-arm64
-        displayName: Download linux arm64 binaries
-
-      - download: current
-        artifact: standalone-linux-x64
-        displayName: Download linux x64 binaries
-
-      - script: |
-          set -e
-          mkdir release
-          tar -cvzf release/tsp-darwin-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64 tsp
-          tar -cvzf release/tsp-darwin-x64.tar.gz -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-x64 tsp
-
-          tar -cvzf release/tsp-linux-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-arm64 tsp
-          tar -cvzf release/tsp-linux-x64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-x64 tsp
-
-          # zip release/tsp-windows-arm64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-arm64/tsp.exe
-          zip release/tsp-windows-x64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-x64/tsp.exe
-
-          ls ./release
-        displayName: Prepare for packaging
-
       - script: |
           PACKAGE_VERSION=$(jq -r .version package.json)
           LATEST=$(curl https://typespec.blob.core.windows.net/dist/latest.txt)
@@ -88,30 +14,77 @@ jobs:
           fi
 
           echo "SKIP PUBLISH is '$SKIP_PUBLISH'"
-          echo "##vso[task.setvariable variable=SKIP_PUBLISH]$SKIP_PUBLISH"
-          echo "##vso[task.setvariable variable=PACKAGE_VERSION]$PACKAGE_VERSION"
+          echo "##vso[task.setvariable variable=SKIP_PUBLISH;isOutput=true]$SKIP_PUBLISH"
+          echo "##vso[task.setvariable variable=PACKAGE_VERSION;isOutput=true]$PACKAGE_VERSION"
         displayName: Get package version
         workingDirectory: $(Build.SourcesDirectory)/packages/standalone
 
-      - task: AzureCLI@1
-        displayName: "Upload to storage"
-        condition: ne(variables['SKIP_PUBLISH'], 'true')
-        inputs:
-          azureSubscription: "Azure SDK Engineering System"
-          scriptLocation: inlineScript
-          inlineScript: |
-            echo "$PACKAGE_VERSION" > latest.txt
+  - deployment: PublishCliArtifacts
+    environment: typespec-cli
+    displayName: Publish artifacts
+    dependsOn: CheckIFPublish
+    variables:
+      SKIP_PUBLISH: $[ dependencies.A.outputs['SKIP_PUBLISH'] ]
+      PACKAGE_VERSION: $[ dependencies.A.outputs['PACKAGE_VERSION'] ]
+    condition: ne(variables['SKIP_PUBLISH'], 'true')
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: current
+              artifact: standalone-macos-signed
+              displayName: Download macos binaries
 
-            az storage blob upload-batch \
-              --auth-mode login \
-              --account-name "typespec" \
-              --destination dist \
-              --destination-path "/$PACKAGE_VERSION/" \
-              --source "./release/"
+            - download: current
+              artifact: standalone-windows-signed
+              displayName: Download windows binaries
 
-            az storage blob upload \
-              --auth-mode login \
-              --account-name "typespec" \
-              --container-name dist \
-              --name "latest.txt" \
-              --file "./latest.txt"
+            - download: current
+              artifact: standalone-linux-arm64
+              displayName: Download linux arm64 binaries
+
+            - download: current
+              artifact: standalone-linux-x64
+              displayName: Download linux x64 binaries
+
+            - script: |
+                set -e
+                mkdir release
+                tar -cvzf release/tsp-darwin-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-arm64 tsp
+                tar -cvzf release/tsp-darwin-x64.tar.gz -C $(Pipeline.Workspace)/standalone-macos-signed/standalone-macos-x64 tsp
+
+                tar -cvzf release/tsp-linux-arm64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-arm64 tsp
+                tar -cvzf release/tsp-linux-x64.tar.gz -C $(Pipeline.Workspace)/standalone-linux-x64 tsp
+
+                # zip release/tsp-windows-arm64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-arm64/tsp.exe
+                zip release/tsp-windows-x64.zip -j $(Pipeline.Workspace)/standalone-windows-signed/standalone-windows-x64/tsp.exe
+
+                ls ./release
+              displayName: Prepare for packaging
+
+            - task: AzureCLI@1
+              displayName: "Upload to storage"
+              condition: ne(variables['SKIP_PUBLISH'], 'true')
+              inputs:
+                azureSubscription: "Azure SDK Engineering System"
+                scriptLocation: inlineScript
+                inlineScript: |
+                  echo "$PACKAGE_VERSION" > latest.txt
+
+                  az storage blob upload-batch \
+                    --auth-mode login \
+                    --account-name "typespec" \
+                    --destination dist \
+                    --destination-path "/$PACKAGE_VERSION/" \
+                    --source "./release/"
+
+                  az storage blob upload \
+                    --auth-mode login \
+                    --account-name "typespec" \
+                    --container-name dist \
+                    --name "latest.txt" \
+                    --file "./latest.txt"
