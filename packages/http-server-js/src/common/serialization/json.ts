@@ -27,7 +27,7 @@ import { indent } from "../../util/iter.js";
 import { keywordSafe } from "../../util/keywords.js";
 import { getFullyQualifiedTypeName } from "../../util/name.js";
 import { emitTypeReference, escapeUnsafeChars } from "../reference.js";
-import { Encoder, JSSCALAR_UNKNOWN, JsScalar, getJsScalar } from "../scalar.js";
+import { Encoder, JS_SCALAR_UNKNOWN, JsScalar, getJsScalar } from "../scalar.js";
 import { SerializableType, SerializationContext, requireSerialization } from "./index.js";
 
 /**
@@ -340,7 +340,7 @@ function getScalarEncoder(ctx: SerializationContext, type: Scalar, scalar: JsSca
       });
 
       encoder = {
-        target: JSSCALAR_UNKNOWN,
+        target: JS_SCALAR_UNKNOWN,
         encode: (expr) => expr,
         decode: (expr) => expr,
       };
@@ -350,7 +350,7 @@ function getScalarEncoder(ctx: SerializationContext, type: Scalar, scalar: JsSca
   } else {
     // No encoding specified, use the default content type encoding for json
     encoder = scalar.getDefaultMimeEncoding("application/json") ?? {
-      target: JSSCALAR_UNKNOWN,
+      target: JS_SCALAR_UNKNOWN,
       encode: (expr) => expr,
       decode: (expr) => expr,
     };

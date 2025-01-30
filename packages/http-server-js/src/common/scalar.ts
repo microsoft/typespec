@@ -604,7 +604,7 @@ const DEFAULT_STRING_ENCODER_RAW: Omit<Encoder, "target"> = {
 /**
  * A JsScalar value that represents an unknown scalar.
  */
-export const JSSCALAR_UNKNOWN: JsScalar = {
+export const JS_SCALAR_UNKNOWN: JsScalar = {
   type: "unknown",
   scalar: "unknown",
   getEncoding: () => undefined,
@@ -612,25 +612,25 @@ export const JSSCALAR_UNKNOWN: JsScalar = {
   http: {
     get header() {
       return {
-        target: JSSCALAR_UNKNOWN,
+        target: JS_SCALAR_UNKNOWN,
         ...DEFAULT_STRING_ENCODER_RAW,
       };
     },
     get query() {
       return {
-        target: JSSCALAR_UNKNOWN,
+        target: JS_SCALAR_UNKNOWN,
         ...DEFAULT_STRING_ENCODER_RAW,
       };
     },
     get cookie() {
       return {
-        target: JSSCALAR_UNKNOWN,
+        target: JS_SCALAR_UNKNOWN,
         ...DEFAULT_STRING_ENCODER_RAW,
       };
     },
     get path() {
       return {
-        target: JSSCALAR_UNKNOWN,
+        target: JS_SCALAR_UNKNOWN,
         ...DEFAULT_STRING_ENCODER_RAW,
       };
     },
@@ -672,5 +672,5 @@ export function getJsScalar(
 
   reportUnrecognizedScalar(ctx, scalar, diagnosticTarget);
 
-  return JSSCALAR_UNKNOWN;
+  return JS_SCALAR_UNKNOWN;
 }
