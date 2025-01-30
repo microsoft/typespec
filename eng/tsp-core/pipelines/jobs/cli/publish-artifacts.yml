@@ -2,6 +2,10 @@
 jobs:
   - job: CheckIFPublish
     displayName: Check if we should publish
+    pool:
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
     steps:
       - script: |
           PACKAGE_VERSION=$(jq -r .version package.json)
