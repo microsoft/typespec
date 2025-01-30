@@ -212,6 +212,24 @@ export const Duration = Object.freeze({
       BigInt(duration.weeks) * 7n * 24n * 60n * 60n
     );
   },
+
+  /**
+   * Creates a duration from a total number of seconds.
+   *
+   * The result is not normalized, so it will only contain a seconds field.
+   */
+  fromTotalSeconds(seconds: number): Duration {
+    return {
+      sign: seconds < 0 ? "-" : "+",
+      years: 0,
+      months: 0,
+      weeks: 0,
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: Math.abs(seconds),
+    };
+  },
 });
 
 // #endregion

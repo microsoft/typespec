@@ -181,86 +181,164 @@ describe("scalar", () => {
     );
   });
 
-  it("produces correct parse template for ISO8601 duration", async () => {
-    const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
+  describe("duration", () => {
+    it("produces correct parse template for ISO8601 duration", async () => {
+      const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
 
-    const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule(runner.program);
 
-    const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
+      const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
-    strictEqual(jsScalar.type, "Duration");
-    strictEqual(
-      jsScalar.getEncoding("ISO8601", string)?.decode("asdf"),
-      "Duration.parseISO8601((asdf))",
-    );
-    strictEqual(mod.imports[0].from, dateTimeModule);
-    deepStrictEqual(mod.imports[0].binder, ["Duration"]);
-  });
+      strictEqual(jsScalar.type, "Duration");
+      strictEqual(
+        jsScalar.getEncoding("ISO8601", string)?.decode("asdf"),
+        "Duration.parseISO8601((asdf))",
+      );
+      strictEqual(mod.imports[0].from, dateTimeModule);
+      deepStrictEqual(mod.imports[0].binder, ["Duration"]);
+    });
 
-  it("produces correct write template for ISO8601 duration", async () => {
-    const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
+    it("produces correct write template for ISO8601 duration", async () => {
+      const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
 
-    const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule(runner.program);
 
-    const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
+      const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
-    strictEqual(jsScalar.type, "Duration");
-    strictEqual(
-      jsScalar.getEncoding("ISO8601", string)?.encode("asdf"),
-      "Duration.toISO8601((asdf))",
-    );
-    strictEqual(mod.imports[0].from, dateTimeModule);
-    deepStrictEqual(mod.imports[0].binder, ["Duration"]);
-  });
+      strictEqual(jsScalar.type, "Duration");
+      strictEqual(
+        jsScalar.getEncoding("ISO8601", string)?.encode("asdf"),
+        "Duration.toISO8601((asdf))",
+      );
+      strictEqual(mod.imports[0].from, dateTimeModule);
+      deepStrictEqual(mod.imports[0].binder, ["Duration"]);
+    });
 
-  it("can parse and write ISO8601 duration", async () => {
-    const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
+    it("can parse and write ISO8601 duration", async () => {
+      const [Duration, string] = await getScalar("TypeSpec.duration", "TypeSpec.string");
 
-    const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule(runner.program);
 
-    const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
+      const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
-    strictEqual(jsScalar.type, "Duration");
+      strictEqual(jsScalar.type, "Duration");
 
-    const encoding = jsScalar.getEncoding("ISO8601", string);
+      const encoding = jsScalar.getEncoding("ISO8601", string);
 
-    if (!encoding) {
-      throw new Error("Expected ISO8601 encoding");
-    }
+      if (!encoding) {
+        throw new Error("Expected ISO8601 encoding");
+      }
 
-    const encoded = encoding.encode("duration");
+      const encoded = encoding.encode("duration");
 
-    strictEqual(encoded, "Duration.toISO8601((duration))");
+      strictEqual(encoded, "Duration.toISO8601((duration))");
 
-    const decoded = encoding.decode('"P1Y2M3DT4H5M6S"');
+      const decoded = encoding.decode('"P1Y2M3DT4H5M6S"');
 
-    strictEqual(decoded, 'Duration.parseISO8601(("P1Y2M3DT4H5M6S"))');
+      strictEqual(decoded, 'Duration.parseISO8601(("P1Y2M3DT4H5M6S"))');
 
-    strictEqual(mod.imports[0].from, dateTimeModule);
-    deepStrictEqual(mod.imports[0].binder, ["Duration"]);
-  });
+      strictEqual(mod.imports[0].from, dateTimeModule);
+      deepStrictEqual(mod.imports[0].binder, ["Duration"]);
+    });
 
-  it("allows default string encoding through via", async () => {
-    const [Duration, string] = await getScalar("duration", "string");
+    it("allows default string encoding through via", async () => {
+      const [Duration, string] = await getScalar("duration", "string");
 
-    const [ctx, mod] = createFakeModule(runner.program);
+      const [ctx, mod] = createFakeModule(runner.program);
 
-    const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
+      const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
 
-    strictEqual(jsScalar.type, "Duration");
+      strictEqual(jsScalar.type, "Duration");
 
-    const encoding = jsScalar.getEncoding("default", string);
+      const encoding = jsScalar.getEncoding("default", string);
 
-    if (!encoding) {
-      throw new Error("Expected default encoding");
-    }
+      if (!encoding) {
+        throw new Error("Expected default encoding");
+      }
 
-    const encoded = encoding.encode("duration");
+      const encoded = encoding.encode("duration");
 
-    strictEqual(encoded, "Duration.toISO8601(((duration)))");
+      strictEqual(encoded, "Duration.toISO8601(((duration)))");
 
-    const decoded = encoding.decode("duration");
+      const decoded = encoding.decode("duration");
 
-    strictEqual(decoded, "Duration.parseISO8601(((duration)))");
+      strictEqual(decoded, "Duration.parseISO8601(((duration)))");
+    });
+
+    it("allows encoding seconds to number types", async () => {
+      const [Duration, int32, uint32] = await getScalar("duration", "int32", "uint32");
+
+      const [ctx, mod] = createFakeModule(runner.program);
+
+      const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
+
+      strictEqual(jsScalar.type, "Duration");
+
+      const encodingInt32 = jsScalar.getEncoding("seconds", int32);
+
+      if (!encodingInt32) {
+        throw new Error("Expected seconds encoding int32");
+      }
+
+      const encodedInt32 = encodingInt32.encode("duration");
+
+      strictEqual(encodedInt32, "Duration.totalSeconds((duration))");
+
+      const decodedInt32 = encodingInt32.decode("duration");
+
+      strictEqual(decodedInt32, "Duration.fromSeconds((duration))");
+
+      const encodingUint32 = jsScalar.getEncoding("seconds", uint32);
+
+      if (!encodingUint32) {
+        throw new Error("Expected seconds encoding uint32");
+      }
+
+      const encodedUint32 = encodingUint32.encode("duration");
+
+      strictEqual(encodedUint32, "Duration.totalSeconds((duration))");
+
+      const decodedUint32 = encodingUint32.decode("duration");
+
+      strictEqual(decodedUint32, "Duration.fromSeconds((duration))");
+    });
+
+    it("allows encoding seconds to bigint types", async () => {
+      const [Duration, int64, uint64] = await getScalar("duration", "int64", "uint64");
+
+      const [ctx, mod] = createFakeModule(runner.program);
+
+      const jsScalar = getJsScalar(ctx, mod, Duration, NoTarget);
+
+      strictEqual(jsScalar.type, "Duration");
+
+      const encodingInt64 = jsScalar.getEncoding("seconds", int64);
+
+      if (!encodingInt64) {
+        throw new Error("Expected seconds encoding int64");
+      }
+
+      const encodedInt64 = encodingInt64.encode("duration");
+
+      strictEqual(encodedInt64, "Duration.totalSecondsBigInt((duration))");
+
+      const decodedInt64 = encodingInt64.decode("duration");
+
+      strictEqual(decodedInt64, "Duration.fromSeconds(globalThis.Number((duration)))");
+
+      const encodingUint64 = jsScalar.getEncoding("seconds", uint64);
+
+      if (!encodingUint64) {
+        throw new Error("Expected seconds encoding uint64");
+      }
+
+      const encodedUint64 = encodingUint64.encode("duration");
+
+      strictEqual(encodedUint64, "Duration.totalSecondsBigInt((duration))");
+
+      const decodedUint64 = encodingUint64.decode("duration");
+
+      strictEqual(decodedUint64, "Duration.fromSeconds(globalThis.Number((duration)))");
+    });
   });
 });

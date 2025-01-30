@@ -75,15 +75,12 @@ export type MaybeDependent<T> = T | Dependent<T>;
 /**
  * A definition of a scalar encoding.
  */
-export interface ScalarEncoding {
-  /**
-   * If set, the name of the encoding to use as a base for this encoding.
-   *
-   * This can be used to define an encoding that is a modification of another encoding, such as a URL-encoded version
-   * of a base64-encoded value, which depends on the base64 encoding.
-   */
-  via?: string;
+export type ScalarEncoding = ScalarEncodingTemplates | ScalarEncodingVia;
 
+/**
+ * A definition of a scalar encoding with templates.
+ */
+export interface ScalarEncodingTemplates {
   /**
    * The template to use to encode the scalar.
    *
@@ -99,6 +96,44 @@ export interface ScalarEncoding {
   decodeTemplate: MaybeDependent<string>;
 }
 
+export interface ScalarEncodingVia {
+  /**
+   * If set, the name of the encoding to use as a base for this encoding.
+   *
+   * This can be used to define an encoding that is a modification of another encoding, such as a URL-encoded version
+   * of a base64-encoded value, which depends on the base64 encoding.
+   */
+  via: string;
+
+  /**
+   * Optional encoding template, defaults to "{}"
+   */
+  encodeTemplate?: MaybeDependent<string>;
+
+  /**
+   * Optional decoding template, defaults to "{}"
+   */
+  decodeTemplate?: MaybeDependent<string>;
+}
+
+const DURATION_NUMBER_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
+  module.imports.push({ from: dateTimeModule, binder: ["Duration"] });
+
+  return {
+    encodeTemplate: "Duration.totalSeconds({})",
+    decodeTemplate: "Duration.fromSeconds({})",
+  };
+};
+
+const DURATION_BIGINT_ENCODING: Dependent<ScalarEncoding> = (_, module) => {
+  module.imports.push({ from: dateTimeModule, binder: ["Duration"] });
+
+  return {
+    encodeTemplate: "Duration.totalSecondsBigInt({})",
+    decodeTemplate: "Duration.fromSeconds(globalThis.Number({}))",
+  };
+};
+
 const TYPESPEC_DURATION: ScalarInfo = {
   type: function importDuration(_, module) {
     module.imports.push({ from: dateTimeModule, binder: ["Duration"] });
@@ -109,8 +144,6 @@ const TYPESPEC_DURATION: ScalarInfo = {
     "TypeSpec.string": {
       default: {
         via: "iso8601",
-        encodeTemplate: "{}",
-        decodeTemplate: "{}",
       },
       iso8601: function importDurationForEncode(_, module) {
         module.imports.push({ from: dateTimeModule, binder: ["Duration"] });
@@ -120,6 +153,24 @@ const TYPESPEC_DURATION: ScalarInfo = {
         };
       },
     },
+    ...Object.fromEntries(
+      ["int32", "uint32"].map((n) => [
+        `TypeSpec.${n}`,
+        {
+          default: { via: "seconds" },
+          seconds: DURATION_NUMBER_ENCODING,
+        },
+      ]),
+    ),
+    ...Object.fromEntries(
+      ["int64", "uint64"].map((n) => [
+        `TypeSpec.${n}`,
+        {
+          default: { via: "seconds" },
+          seconds: DURATION_BIGINT_ENCODING,
+        },
+      ]),
+    ),
   },
   defaultEncodings: {
     byMimeType: {
@@ -205,6 +256,9 @@ const SCALARS = new Map<string, ScalarInfo>([
     "TypeSpec.string",
     {
       type: "string",
+      // This little no-op encoding makes it so that we can attempt to encode string to itself infallibly and it will
+      // do nothing. We therefore don't need to redundantly describe HTTP encodings for query, header, etc. because
+      // they rely on the ["TypeSpec.string", "default"] encoding in the absence of a more specific encoding.
       encodings: { "TypeSpec.string": { default: { encodeTemplate: "{}", decodeTemplate: "{}" } } },
       isJsonCompatible: true,
     },
@@ -336,7 +390,7 @@ function createJsScalar(
             _decodeTemplate ??=
               typeof encodingSpec.decodeTemplate === "function"
                 ? encodingSpec.decodeTemplate(ctx, module)
-                : encodingSpec.decodeTemplate;
+                : (encodingSpec.decodeTemplate ?? "{}");
 
             subject = `(${subject})`;
 
@@ -344,7 +398,7 @@ function createJsScalar(
 
             subject = _decodeTemplate.replaceAll("{}", subject);
 
-            if (encodingSpec.via) {
+            if (isVia(encodingSpec)) {
               const via = self.getEncoding(encodingSpec.via, target);
 
               if (via === undefined) {
@@ -361,13 +415,13 @@ function createJsScalar(
             _encodeTemplate ??=
               typeof encodingSpec.encodeTemplate === "function"
                 ? encodingSpec.encodeTemplate(ctx, module)
-                : encodingSpec.encodeTemplate;
+                : (encodingSpec.encodeTemplate ?? "{}");
 
             subject = `(${subject})`;
 
             // If we have a via, encode to it first
 
-            if (encodingSpec.via) {
+            if (isVia(encodingSpec)) {
               const via = self.getEncoding(encodingSpec.via, target);
 
               if (via === undefined) {
@@ -450,6 +504,10 @@ function createJsScalar(
 
     return encoder;
   }
+}
+
+function isVia(encoding: ScalarEncoding): encoding is ScalarEncodingVia {
+  return "via" in encoding;
 }
 
 const REPORTED_UNRECOGNIZED_SCALARS = new WeakMap<Program, Set<Scalar>>();
