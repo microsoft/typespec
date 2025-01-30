@@ -21,8 +21,9 @@ await buildCurrent();
 async function buildCurrent() {
   await bundle();
   console.log("");
-  // await buildWithNodeSea();
-  await buildWithBun();
+  await buildWithNodeSea();
+  // Cannot codesign on osx with bun https://github.com/oven-sh/bun/issues/7208 so we need to use node-sea
+  // await buildWithBun();
 }
 
 async function bundle() {
@@ -51,6 +52,15 @@ async function buildWithBun() {
   action(`Build with bun`, async () => {
     execa`bun build --compile temp/bundle.cjs --outfile dist/tsp`;
   });
+
+  if (process.platform === "darwin") {
+    // This should get sent to ESRP for official signing
+    await action(`Set entitlements for ${exePath}`, async () => {
+      // execa`codesign --sign - ${exePath}`;
+      const entitlementsPath = join(projectRoot, "scripts", "osx-entitlements.plist");
+      execa`codesign --deep -s - -f --options runtime --entitlements ${entitlementsPath} ${exePath}`;
+    });
+  }
 }
 
 async function buildWithNodeSea() {
