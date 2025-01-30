@@ -21,7 +21,8 @@ await buildCurrent();
 async function buildCurrent() {
   await bundle();
   console.log("");
-  await createSea();
+  // await buildWithNodeSea();
+  await buildWithBun();
 }
 
 async function bundle() {
@@ -39,11 +40,20 @@ async function bundle() {
   // js-yaml dynamically tries to import esprima which then creates a warning for node sea that can't import anything but built in module even though it is optional
   // https://github.com/nodejs/node/issues/50547
   const content = await readFile(join(tempDir, "bundle.cjs"), "utf-8");
-  const updated = content.toString().replace(`_require("esprima")`, "undefined");
+  const updated = content
+    .toString()
+    .replace(`_require("esprima")`, "undefined")
+    .replace("var realRequire = eval(`require`)", "var realRequire = undefined"); // bun issue https://github.com/oven-sh/bun/issues/16440
   await writeFile(join(tempDir, "bundle.cjs"), updated);
 }
 
-async function createSea() {
+async function buildWithBun() {
+  action(`Build with bun`, async () => {
+    execa`bun build --compile temp/bundle.cjs --outfile dist/tsp`;
+  });
+}
+
+async function buildWithNodeSea() {
   await mkdir(distDir, { recursive: true });
   await mkdir(tempDir, { recursive: true });
   await createSeaConfig();
