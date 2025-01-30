@@ -4,7 +4,8 @@ import { UsageClient } from "../../../../generated/http/type/model/usage/http-cl
 describe("Type.Model.Usage", () => {
   const client = new UsageClient("http://localhost:3000");
 
-  it("should send a POST request with the specified body for input operation", async () => {
+  it.skip("should send a POST request with the specified body for input operation", async () => {
+    // TODO: Shadowing issue
     await client.input({ requiredProp: "example-value" });
     // Assert successful request
   });

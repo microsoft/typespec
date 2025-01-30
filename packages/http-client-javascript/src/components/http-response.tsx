@@ -33,7 +33,7 @@ export function HttpResponses(props: HttpResponsesProps) {
       let expression = code`return;`;
 
       const contentTypeCheck = body
-        ? ` && response.headers.get("content-type") === "${contentType}"`
+        ? ` && response.headers["content-type"]?.includes("${contentType}")`
         : " && !response.body";
 
       if (body && (body.bodyKind === "single" || (type && !isVoidType(type)))) {

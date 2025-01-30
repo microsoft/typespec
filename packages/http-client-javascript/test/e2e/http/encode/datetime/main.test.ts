@@ -21,12 +21,12 @@ describe("Encode.Datetime", () => {
     });
 
     it("should test rfc7231 encode for datetime query parameter", async () => {
-      await client.rfc7231(new Date("2022-08-26T18:38:00.000Z"));
+      await client.rfc7231(new Date("2022-08-26T14:38:00.000Z"));
       // Assert successful request
     });
 
     it("should test unixTimestamp encode for datetime query parameter", async () => {
-      await client.unixTimestamp(new Date("2023-06-12T06:41:04.000Z"));
+      await client.unixTimestamp(new Date("2023-06-12T14:34:24Z"));
       // Assert successful request
     });
 

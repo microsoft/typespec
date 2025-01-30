@@ -16,7 +16,7 @@ import {
   UnknownValueClient,
 } from "../../../generated/http/type/array/http-client-javascript/src/index.js";
 
-describe.skip("Type.Array", () => {
+describe("Type.Array", () => {
   describe("Int32ValueClient", () => {
     const client = new Int32ValueClient("http://localhost:3000");
 

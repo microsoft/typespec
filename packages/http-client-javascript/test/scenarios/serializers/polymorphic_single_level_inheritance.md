@@ -63,7 +63,8 @@ export function birdToTransport(item: Bird): any {
     return eagleToTransport(item as Eagle);
   }
 
-  throw new Error(`Unexpected discriminated variant ${item.kind}`);
+  console.warn(`Received unknown snake kind: ${item.kind}`);
+  return item as any;
 }
 ```
 
@@ -111,9 +112,7 @@ export function eagleToTransport(item: Eagle): any {
       wingspan: item.wingspan,
     },
     kind: item.kind,
-    friends: item.friends
-      ? arraySerializer(item.friends, birdToTransport)
-      : item.friends,
+    friends: item.friends ? arraySerializer(item.friends, birdToTransport) : item.friends,
     hate: item.hate ? recordSerializer(item.hate, birdToTransport) : item.hate,
     partner: item.partner ? birdToTransport(item.partner) : item.partner,
   };

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { SingleDiscriminatorClient } from "../../../../../generated/http/type/model/inheritance/single-discriminator/http-client-javascript/src/index.js";
+import {
+  Eagle,
+  SingleDiscriminatorClient,
+} from "../../../../../generated/http/type/model/inheritance/single-discriminator/http-client-javascript/src/index.js";
 
 describe("Type.Model.Inheritance.SingleDiscriminator", () => {
   const client = new SingleDiscriminatorClient("http://localhost:3000");
@@ -48,24 +51,23 @@ describe("Type.Model.Inheritance.SingleDiscriminator", () => {
     await client.putRecursiveModel({
       wingspan: 5,
       kind: "eagle",
-      // TODO: Fix, why are these missing?
-      // partner: {
-      //   wingspan: 2,
-      //   kind: "goose",
-      // },
-      // friends: [
-      //   {
-      //     wingspan: 2,
-      //     kind: "seagull",
-      //   },
-      // ],
-      // hate: {
-      //   key3: {
-      //     wingspan: 1,
-      //     kind: "sparrow",
-      //   },
-      // },
-    });
+      partner: {
+        wingspan: 2,
+        kind: "goose",
+      },
+      friends: [
+        {
+          wingspan: 2,
+          kind: "seagull",
+        },
+      ],
+      hate: {
+        key3: {
+          wingspan: 1,
+          kind: "sparrow",
+        },
+      },
+    } as Eagle);
     // Assert successful request
   });
 

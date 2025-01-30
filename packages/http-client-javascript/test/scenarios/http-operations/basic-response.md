@@ -76,7 +76,7 @@ export async function read(client: WidgetsClientContext): Promise<Widget> {
   };
 
   const response = await client.path(path).get(httpRequestOptions);
-  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return widgetToApplication(response.body);
   }
 
@@ -122,7 +122,7 @@ export async function read(client: WidgetsClientContext): Promise<Widget | void>
   };
 
   const response = await client.path(path).get(httpRequestOptions);
-  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return widgetToApplication(response.body);
   }
 
@@ -180,11 +180,11 @@ export async function read(client: WidgetsClientContext): Promise<Widget> {
   };
 
   const response = await client.path(path).get(httpRequestOptions);
-  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return widgetToApplication(response.body);
   }
 
-  if (+response.status === 200 && response.headers.get("content-type") === "application/xml") {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/xml")) {
     return widgetToApplication(response.body);
   }
 

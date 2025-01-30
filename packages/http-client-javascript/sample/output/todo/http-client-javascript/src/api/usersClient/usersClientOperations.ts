@@ -22,7 +22,7 @@ export async function create(
   };
 
   const response = await client.path(path).post(httpRequestOptions);
-  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return {
       id: response.body.id,
       username: response.body.username,

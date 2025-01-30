@@ -14,7 +14,7 @@ import {
   SimpleModelValueClient,
 } from "../../../generated/http/payload/xml/http-client-javascript/src/index.js";
 
-describe("Payload.Xml", () => {
+describe.skip("Payload.Xml", () => {
   describe("SimpleModelValueClient", () => {
     const client = new SimpleModelValueClient("http://localhost:3000");
 

@@ -38,7 +38,7 @@ export async function list(
   };
 
   const response = await client.path(path).get(httpRequestOptions);
-  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return responsePageToApplication(response.body);
   }
 
@@ -54,11 +54,11 @@ export async function read(client: PetsClientContext, petId: number): Promise<Pe
   };
 
   const response = await client.path(path).get(httpRequestOptions);
-  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return petToApplication(response.body);
   }
 
-  if (+response.status === 304 && response.headers.get("content-type") === "application/json") {
+  if (+response.status === 304 && response.headers["content-type"]?.includes("application/json")) {
     return {
       name: response.body.name,
       tag: response.body.tag,
@@ -79,7 +79,7 @@ export async function create(client: PetsClientContext, pet: Pet): Promise<Pet> 
   };
 
   const response = await client.path(path).post(httpRequestOptions);
-  if (+response.status === 200 && response.headers.get("content-type") === "application/json") {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return petToApplication(response.body);
   }
 

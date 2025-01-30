@@ -51,11 +51,16 @@ function DiscriminateExpression(props: DiscriminateExpressionProps) {
   
   const discriminatedUnion = $.type.getDiscriminatedUnion(props.type)!;
 
-  const unhandledVariant = `\n\nthrow new Error(\`Unexpected discriminated variant $\{item.${props.discriminator.propertyName}}\`);`;
+  const discriminatorRef = `item.${props.discriminator.propertyName}`
+
+  const unhandledVariant = `
+  \n\nconsole.warn(\`Received unknown snake kind: \${${discriminatorRef}}\`); 
+  return item as any;
+  `;
 
   return mapJoin(discriminatedUnion.variants, (name, variant) => {
     return code`
-    if(item.${props.discriminator.propertyName} === ${JSON.stringify(name)}) {
+    if( ${discriminatorRef} === ${JSON.stringify(name)}) {
       return ${<TypeTransformCall type={variant.type} target={props.target} castInput itemPath={["item"]}/>}
     }
     `

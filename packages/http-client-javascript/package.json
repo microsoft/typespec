@@ -7,6 +7,7 @@
   "scripts": {
     "build-src": "babel src -d dist/src --extensions '.ts,.tsx'",
     "build": "tsc -p . && npm run build-src",
+    "clean": " rimraf ./dist",
     "watch-src": "babel src -d dist/src --extensions '.ts,.tsx' --watch",
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
@@ -57,6 +58,7 @@
     "concurrently": "^8.2.2",
     "ts-morph": "^23.0.0",
     "typescript": "^5.5.3",
-    "vitest": "^3.0.4"
+    "vitest": "^3.0.4",
+    "@vitest/ui": "^3.0.4" 
   }
 }

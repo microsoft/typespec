@@ -482,6 +482,70 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@18.11.19)(@vitest/ui@1.6.0)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
 
+  packages/efv2-aspire-sketch:
+    dependencies:
+      '@alloy-js/core':
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
+      '@alloy-js/csharp':
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
+      '@typespec/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@typespec/emitter-framework':
+        specifier: workspace:*
+        version: link:../emitter-framework
+      '@typespec/http':
+        specifier: workspace:*
+        version: link:../http
+      '@typespec/json-schema':
+        specifier: workspace:*
+        version: link:../json-schema
+      '@typespec/openapi':
+        specifier: workspace:*
+        version: link:../openapi
+      '@typespec/openapi3':
+        specifier: workspace:*
+        version: link:../openapi3
+      '@typespec/rest':
+        specifier: workspace:*
+        version: link:../rest
+    devDependencies:
+      '@alloy-js/babel-preset':
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-preset@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/babel-preset@903a8321e8e85c7c9b47d4d9b4f0aadc40422615(@babel/core@7.26.0)
+      '@alloy-js/prettier-plugin-alloy':
+        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/prettier-plugin-alloy@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
+        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/prettier-plugin-alloy@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
+      '@azure-tools/cadl-ranch-expect':
+        specifier: 0.15.4
+        version: 0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)
+      '@azure-tools/cadl-ranch-specs':
+        specifier: 0.37.2
+        version: 0.37.2(@azure-tools/cadl-ranch-expect@0.15.4(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@azure-tools/typespec-azure-core@0.47.0(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest))(@types/express@4.17.21)(@typespec/compiler@packages+compiler)(@typespec/http@packages+http)(@typespec/rest@packages+rest)(@typespec/streams@0.61.0(@typespec/compiler@packages+compiler))(@typespec/xml@0.63.0(@typespec/compiler@packages+compiler))
+      '@babel/cli':
+        specifier: ^7.24.8
+        version: 7.25.9(@babel/core@7.26.0)
+      '@babel/core':
+        specifier: ^7.24.9
+        version: 7.26.0
+      '@rollup/plugin-babel':
+        specifier: ^6.0.4
+        version: 6.0.4(@babel/core@7.26.0)(@types/babel__core@7.20.5)(rollup@4.24.0)
+      concurrently:
+        specifier: ^8.2.2
+        version: 8.2.2
+      ts-morph:
+        specifier: ^23.0.0
+        version: 23.0.0
+      typescript:
+        specifier: ^5.5.3
+        version: 5.6.3
+      vitest:
+        specifier: ^2.0.3
+        version: 2.1.8(@types/node@22.10.2)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
+
   packages/efv2-zod-sketch:
     dependencies:
       '@alloy-js/core':
@@ -614,7 +678,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^3.0.4
-        version: 3.0.4(@types/debug@4.1.12)(@types/node@22.10.2)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
+        version: 3.0.4(@types/debug@4.1.12)(@types/node@22.10.2)(@vitest/ui@3.0.4)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/emitter-sample:
     dependencies:
@@ -913,6 +977,9 @@ importers:
       '@typespec/versioning':
         specifier: workspace:~
         version: link:../versioning
+      '@vitest/ui':
+        specifier: ^3.0.4
+        version: 3.0.4(vitest@3.0.4)
       chalk:
         specifier: ^2.4.2
         version: 2.4.2
@@ -942,7 +1009,7 @@ importers:
         version: 2.0.0
       vitest:
         specifier: ^3.0.4
-        version: 3.0.4(@types/debug@4.1.12)(@types/node@22.10.2)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
+        version: 3.0.4(@types/debug@4.1.12)(@types/node@22.10.2)(@vitest/ui@3.0.4)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -994,7 +1061,7 @@ importers:
         version: 5.6.3
       vitest:
         specifier: ^3.0.4
-        version: 3.0.4(@types/debug@4.1.12)(@types/node@22.8.5)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
+        version: 3.0.4(@types/debug@4.1.12)(@types/node@22.8.5)(@vitest/ui@3.0.4)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
 
   packages/http-client-library-azure:
     dependencies:
@@ -1130,6 +1197,9 @@ importers:
       '@typespec/xml':
         specifier: workspace:~
         version: link:../xml
+      http-client-javascript:
+        specifier: workspace:~
+        version: link:../http-client-javascript
     devDependencies:
       '@types/multer':
         specifier: ^1.4.10
@@ -2702,6 +2772,10 @@ packages:
 
   '@alloy-js/core@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@903a8321e8e85c7c9b47d4d9b4f0aadc40422615':
     resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@903a8321e8e85c7c9b47d4d9b4f0aadc40422615}
+    version: 0.3.0
+
+  '@alloy-js/csharp@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@903a8321e8e85c7c9b47d4d9b4f0aadc40422615':
+    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@903a8321e8e85c7c9b47d4d9b4f0aadc40422615}
     version: 0.3.0
 
   '@alloy-js/prettier-plugin-alloy@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/prettier-plugin-alloy@903a8321e8e85c7c9b47d4d9b4f0aadc40422615':
@@ -6812,6 +6886,11 @@ packages:
     peerDependencies:
       vitest: 2.1.2
 
+  '@vitest/ui@3.0.4':
+    resolution: {integrity: sha512-e+s2F9e9FUURkZ5aFIe1Fi3Y8M7UF6gEuShcaV/ur7y/Ldri+1tzWQ1TJq9Vas42NXnXvCAIrU39Z4U2RyET6g==}
+    peerDependencies:
+      vitest: 3.0.4
+
   '@vitest/utils@1.6.0':
     resolution: {integrity: sha512-21cPiuGMoMZwiOHa2i4LXkMkMkCGzA+MVFV70jRwHo95dL4x/ts5GZhML1QWuy7yfp3WzK3lRvZi3JnXTYqrBw==}
 
@@ -8865,6 +8944,9 @@ packages:
 
   flatted@3.3.1:
     resolution: {integrity: sha512-X8cqMLLie7KsNUDSdzeN8FYK9rEt4Dt67OsG/DNGnYTSDBG4uFAJFBnUeiV+zCVAvwFy56IjM9sH51jVaEhNxw==}
+
+  flatted@3.3.2:
+    resolution: {integrity: sha512-AiwGJM8YcNOaobumgtng+6NHuOqC3A7MixFeDafM3X9cIUM+xUXoS5Vfgf+OihAYe20fxqNM9yPBXJzRtZ/4eA==}
 
   flattie@1.1.1:
     resolution: {integrity: sha512-9UbaD6XdAL97+k/n+N7JwX46K/M6Zc6KcFYskrYL8wbBV/Uyk0CTAMY0VT+qiK5PM7AIc9aTWYtq65U7T+aCNQ==}
@@ -11800,6 +11882,10 @@ packages:
     resolution: {integrity: sha512-94Bdh3cC2PKrbgSOUqTiGPWVZeSiXfKOVZNJniWoqrWrRkB1CJzBU3NEbiTsPcYy1lDsANA/THzS+9WBiy5nfQ==}
     engines: {node: '>= 10'}
 
+  sirv@3.0.0:
+    resolution: {integrity: sha512-BPwJGUeDaDCHihkORDchNyyTvWFhcusy1XMmhEVTQTwGeybFbp8YEmB+njbPnth1FibULBSBVwCQni25XlCUDg==}
+    engines: {node: '>=18'}
+
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
@@ -13623,6 +13709,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@alloy-js/csharp@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@903a8321e8e85c7c9b47d4d9b4f0aadc40422615':
+    dependencies:
+      '@alloy-js/core': https://pkg.pr.new/alloy-framework/alloy/@alloy-js/core@903a8321e8e85c7c9b47d4d9b4f0aadc40422615
+      change-case: 5.4.4
+      pathe: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
+
   '@alloy-js/prettier-plugin-alloy@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/prettier-plugin-alloy@903a8321e8e85c7c9b47d4d9b4f0aadc40422615': {}
 
   '@alloy-js/typescript@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/typescript@903a8321e8e85c7c9b47d4d9b4f0aadc40422615':
@@ -13854,7 +13948,7 @@ snapshots:
     dependencies:
       '@azure/identity': 4.4.1
       '@azure/storage-blob': 12.25.0
-      '@types/node': 22.10.2
+      '@types/node': 22.7.9
     transitivePeerDependencies:
       - supports-color
 
@@ -14277,7 +14371,7 @@ snapshots:
 
   '@babel/generator@7.25.7':
     dependencies:
-      '@babel/types': 7.25.8
+      '@babel/types': 7.26.5
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 3.0.2
@@ -14473,13 +14567,13 @@ snapshots:
   '@babel/helper-simple-access@7.25.7':
     dependencies:
       '@babel/traverse': 7.25.7
-      '@babel/types': 7.25.8
+      '@babel/types': 7.26.5
     transitivePeerDependencies:
       - supports-color
 
   '@babel/helper-skip-transparent-expression-wrappers@7.22.5':
     dependencies:
-      '@babel/types': 7.25.8
+      '@babel/types': 7.26.5
 
   '@babel/helper-skip-transparent-expression-wrappers@7.25.9':
     dependencies:
@@ -15148,7 +15242,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.25.7
-      '@babel/types': 7.25.8
+      '@babel/types': 7.26.5
       esutils: 2.0.3
 
   '@babel/preset-typescript@7.24.1(@babel/core@7.26.0)':
@@ -15196,7 +15290,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.25.7
       '@babel/parser': 7.25.8
-      '@babel/types': 7.25.8
+      '@babel/types': 7.26.5
 
   '@babel/template@7.25.9':
     dependencies:
@@ -19519,6 +19613,17 @@ snapshots:
       tinyrainbow: 1.2.0
       vitest: 2.1.8(@types/node@22.7.9)(@vitest/ui@2.1.2)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
 
+  '@vitest/ui@3.0.4(vitest@3.0.4)':
+    dependencies:
+      '@vitest/utils': 3.0.4
+      fflate: 0.8.2
+      flatted: 3.3.2
+      pathe: 2.0.2
+      sirv: 3.0.0
+      tinyglobby: 0.2.10
+      tinyrainbow: 2.0.0
+      vitest: 3.0.4(@types/debug@4.1.12)(@types/node@22.10.2)(@vitest/ui@3.0.4)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1)
+
   '@vitest/utils@1.6.0':
     dependencies:
       diff-sequences: 29.6.3
@@ -22174,6 +22279,8 @@ snapshots:
   flat@5.0.2: {}
 
   flatted@3.3.1: {}
+
+  flatted@3.3.2: {}
 
   flattie@1.1.1: {}
 
@@ -25840,6 +25947,12 @@ snapshots:
       mrmime: 2.0.0
       totalist: 3.0.1
 
+  sirv@3.0.0:
+    dependencies:
+      '@polka/url': 1.0.0-next.25
+      mrmime: 2.0.0
+      totalist: 3.0.1
+
   sisteransi@1.0.5: {}
 
   sitemap@8.0.0:
@@ -27242,7 +27355,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@3.0.4(@types/debug@4.1.12)(@types/node@22.10.2)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1):
+  vitest@3.0.4(@types/debug@4.1.12)(@types/node@22.10.2)(@vitest/ui@3.0.4)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1):
     dependencies:
       '@vitest/expect': 3.0.4
       '@vitest/mocker': 3.0.4(vite@5.4.11(@types/node@22.10.2)(terser@5.34.1))
@@ -27267,6 +27380,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 22.10.2
+      '@vitest/ui': 3.0.4(vitest@3.0.4)
       happy-dom: 15.11.3
       jsdom: 25.0.1
     transitivePeerDependencies:
@@ -27280,7 +27394,7 @@ snapshots:
       - supports-color
       - terser
 
-  vitest@3.0.4(@types/debug@4.1.12)(@types/node@22.8.5)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1):
+  vitest@3.0.4(@types/debug@4.1.12)(@types/node@22.8.5)(@vitest/ui@3.0.4)(happy-dom@15.11.3)(jsdom@25.0.1)(terser@5.34.1):
     dependencies:
       '@vitest/expect': 3.0.4
       '@vitest/mocker': 3.0.4(vite@5.4.11(@types/node@22.8.5)(terser@5.34.1))
@@ -27305,6 +27419,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 22.8.5
+      '@vitest/ui': 3.0.4(vitest@3.0.4)
       happy-dom: 15.11.3
       jsdom: 25.0.1
     transitivePeerDependencies:
