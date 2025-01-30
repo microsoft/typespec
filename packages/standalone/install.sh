@@ -55,7 +55,7 @@ success() {
 }
 
 
-install_dir="$HOME/.tsp/bin"
+install_dir="$HOME/.tsp"
 
 
 case $platform in
@@ -141,8 +141,7 @@ download_tsp() {
     filename=$(get_filename)
 
     echo "Downloading $URL..."
-
-    mkdir -p "$install_dir" &>/dev/null
+    bin_dir="$install_dir/bin"
 
     compressed_file_path="$download_dir/$filename"
     if ! curl --progress-bar --fail -L "$URL" -o "$compressed_file_path"; then
@@ -156,7 +155,10 @@ download_tsp() {
     rm "$compressed_file_path"
     chmod +x "$extract_location/$bin_name"
 
-    mv "$extract_location/$bin_name" "$install_dir/$bin_name"
+    # Move to install directory
+    mkdir -p "$bin_dir" &>/dev/null
+    mv "$extract_location/$bin_name" "$bin_dir/$bin_name"
+    success "TypeSpec was installed successfully to $Bold_Green$("$install_dir")"
 }
 
 check_dependencies() {
