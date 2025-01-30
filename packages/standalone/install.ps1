@@ -96,9 +96,7 @@ function Get-Filename {
 }
 
 function Install-tsp {
-  param(
-    [string]$Version,
-  );
+  param([string]$Version);
 
   # if a semver is given, we need to adjust it to this format: tsp-v0.0.0
   if ($Version -match "^\d+\.\d+\.\d+$") {
