@@ -19,18 +19,16 @@ namespace Microsoft.Generator.CSharp.Providers
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
 
-        public FormattableString Description { get; }
-        public XmlDocSummaryStatement XmlDocSummary { get; }
+        public FormattableString? Description { get; }
         public MethodSignatureModifiers Modifiers { get; internal set; }
         public CSharpType Type { get; internal set; }
         public string Name { get; internal set; }
         public PropertyBody Body { get; internal set; }
         public CSharpType? ExplicitInterface { get; }
-        public XmlDocProvider XmlDocs { get; private set; }
+        public XmlDocProvider? XmlDocs { get; private set; }
         public PropertyWireInformation? WireInfo { get; internal set; }
         public bool IsDiscriminator { get; internal set; }
         public bool IsAdditionalProperties { get; init; }
-
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
 
@@ -91,8 +89,15 @@ namespace Microsoft.Generator.CSharp.Providers
                 : inputProperty.Name.ToCleanName();
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
             Description = DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
-            XmlDocSummary = PropertyDescriptionBuilder.BuildPropertyDescription(inputProperty, propertyType, serializationFormat, Description);
-            XmlDocs = GetXmlDocs();
+            XmlDocs = new XmlDocProvider
+            {
+                // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
+                Summary = PropertyDescriptionBuilder.BuildPropertyDescription(
+                    inputProperty,
+                    propertyType,
+                    serializationFormat,
+                    Description)
+            };
             WireInfo = new PropertyWireInformation(inputProperty);
             IsDiscriminator = inputProperty.IsDiscriminator;
 
@@ -109,18 +114,30 @@ namespace Microsoft.Generator.CSharp.Providers
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null)
         {
-            Description = description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter);
-            XmlDocSummary = new XmlDocSummaryStatement([Description]);
+            Description = description ?? (IsPropertyPrivate(modifiers, enclosingType.DeclarationModifiers) ? null
+                : PropertyDescriptionBuilder.CreateDefaultPropertyDescription(name, !body.HasSetter));
+
+            if (Description != null)
+            {
+                XmlDocs = new XmlDocProvider { Summary = new XmlDocSummaryStatement([Description]) };
+            }
+
             Modifiers = modifiers;
             Type = type;
             Name = name;
             Body = body;
             ExplicitInterface = explicitInterface;
-            XmlDocs = GetXmlDocs();
+
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
+        }
+
+        private static bool IsPropertyPrivate(MethodSignatureModifiers modifiers, TypeSignatureModifiers enclosingTypeModifiers)
+        {
+            return (modifiers.HasFlag(MethodSignatureModifiers.Private) && !modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                   || enclosingTypeModifiers.HasFlag(TypeSignatureModifiers.Private);
         }
 
         [MemberNotNull(nameof(_parameter))]
@@ -130,16 +147,6 @@ namespace Microsoft.Generator.CSharp.Providers
         }
 
         public VariableExpression AsVariableExpression => _variable ??= new(Type, Name.ToVariableName());
-
-        private XmlDocProvider GetXmlDocs()
-        {
-            // TODO -- should write parameter xml doc if this is an IndexerDeclaration: https://github.com/microsoft/typespec/issues/3276
-
-            return new XmlDocProvider()
-            {
-                Summary = XmlDocSummary,
-            };
-        }
 
         /// <summary>
         /// Returns true if the property has a setter.

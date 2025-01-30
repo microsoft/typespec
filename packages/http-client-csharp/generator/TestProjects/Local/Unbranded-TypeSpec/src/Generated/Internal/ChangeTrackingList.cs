@@ -33,12 +33,16 @@ namespace UnbrandedTypeSpec
             }
         }
 
+        /// <summary> Gets the IsUndefined. </summary>
         public bool IsUndefined => _innerList == null;
 
+        /// <summary> Gets the Count. </summary>
         public int Count => IsUndefined ? 0 : EnsureList().Count;
 
+        /// <summary> Gets the IsReadOnly. </summary>
         public bool IsReadOnly => IsUndefined ? false : EnsureList().IsReadOnly;
 
+        /// <summary> Gets or sets the this. </summary>
         public T this[int index]
         {
             get

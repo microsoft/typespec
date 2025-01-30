@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)..\..\Microsoft.Generator.CSharp\src\Shared\**\*.cs" LinkBase="Shared" />
+    <Compile Remove="Providers\CodeGenTypeAttributeDefinition.cs" />
   </ItemGroup>
 
   <!-- Copy output to package dist path for local execution and  -->
