@@ -4,45 +4,26 @@ stages:
     variables:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
     jobs:
-      - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
         parameters:
-          name: linux-x64
-          pool: $(LINUXPOOL)
-          vmImage: $(LINUXVMIMAGE)
-          os: linux
+          platform: linux-x64
 
-      - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
         parameters:
-          name: linux-arm64
-          pool: $(LINUXARMPOOL)
-          vmImage: $(LINUXARMVMIMAGE)
-          os: linux
-          hostArchitecture: arm64
+          platform: linux-arm64
 
-      - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
         parameters:
-          name: macos-x64
-          pool: $(MACPOOL)
-          vmImage: $(MACVMIMAGE)
-          os: macOS
+          platform: macos-x64
 
-      - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
         parameters:
-          name: macos-arm64
-          pool: $(MACPOOL)
-          vmImage: $(MACVMIMAGEM1)
-          os: macOS
+          platform: macos-arm64
 
-      - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+      - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
         parameters:
-          name: windows-x64
-          pool: $(WINDOWSPOOL)
-          vmImage: $(WINDOWSVMIMAGE)
-          os: windows
+          platform: windows-x64
 
-      # - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli.yml
+      # - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
       #   parameters:
-      #     name: windows-arm64
-      #     pool: $(ARMPOOL)
-      #     vmImage: $(WINDOWSARMVMIMAGE)
-      #     os: windows
+      #     platform: windows-arm64
