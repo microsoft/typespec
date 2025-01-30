@@ -54,7 +54,7 @@ namespace UnbrandedTypeSpec
         /// <summary> Gets the Values. </summary>
         public ICollection<TValue> Values => IsUndefined ? Array.Empty<TValue>() : EnsureDictionary().Values;
 
-        /// <summary> Gets or sets the this. </summary>
+        /// <summary> Gets or sets the value associated with the specified key. </summary>
         public TValue this[TKey key]
         {
             get

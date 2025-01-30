@@ -42,7 +42,7 @@ namespace UnbrandedTypeSpec
         /// <summary> Gets the IsReadOnly. </summary>
         public bool IsReadOnly => IsUndefined ? false : EnsureList().IsReadOnly;
 
-        /// <summary> Gets or sets the this. </summary>
+        /// <summary> Gets or sets the value associated with the specified key. </summary>
         public T this[int index]
         {
             get
