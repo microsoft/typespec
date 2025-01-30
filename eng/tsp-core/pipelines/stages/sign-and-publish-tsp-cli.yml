@@ -39,13 +39,13 @@ stages:
         parameters:
           platform: windows-x64
           artifactName: windows-macos-signed
-          exePath: standalone-macos-x64/tsp
+          exePath: standalone-macos-x64/tsp.xe
 
       # - template: /eng/tsp-core/pipelines/jobs/cli/verify-tsp-cli.yml
       #   parameters:
       #     platform: windows-arm64
       #     artifactName: standalone-windows-signed
-      #     exePath: standalone-windows-arm64/tsp
+      #     exePath: standalone-windows-arm64/tsp.exe
 
   - stage: publish_tsp_cli
     displayName: Publish tsp cli
