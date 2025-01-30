@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Input", "Microsoft.Generator.CSharp.Input\src\Microsoft.Generator.CSharp.Input.csproj", "{B5484903-F77E-4C50-82C6-240AFECDF309}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Customization", "Microsoft.Generator.CSharp.Customization\src\Microsoft.Generator.CSharp.Customization.csproj", "{82508C25-0623-4EDE-A6FA-3DB395A5BB37}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Generator.CSharp.Input.Tests", "Microsoft.Generator.CSharp.Input\test\Microsoft.Generator.CSharp.Input.Tests.csproj", "{043B51D2-52CB-4521-BF9A-9D3A45E8998D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{37E859E7-8CCE-426B-8232-35B2C1503230}"
@@ -53,10 +51,6 @@ Global
 		{B5484903-F77E-4C50-82C6-240AFECDF309}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5484903-F77E-4C50-82C6-240AFECDF309}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5484903-F77E-4C50-82C6-240AFECDF309}.Release|Any CPU.Build.0 = Release|Any CPU
-		{82508C25-0623-4EDE-A6FA-3DB395A5BB37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{82508C25-0623-4EDE-A6FA-3DB395A5BB37}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{82508C25-0623-4EDE-A6FA-3DB395A5BB37}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{82508C25-0623-4EDE-A6FA-3DB395A5BB37}.Release|Any CPU.Build.0 = Release|Any CPU
 		{043B51D2-52CB-4521-BF9A-9D3A45E8998D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{043B51D2-52CB-4521-BF9A-9D3A45E8998D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{043B51D2-52CB-4521-BF9A-9D3A45E8998D}.Release|Any CPU.ActiveCfg = Release|Any CPU

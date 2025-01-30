@@ -270,10 +270,9 @@ namespace Microsoft.Generator.CSharp
             }
         }
 
-        public void WriteProperty(PropertyProvider property, bool isPublicContext = false)
+        public void WriteProperty(PropertyProvider property)
         {
-            if (isPublicContext)
-                WriteXmlDocsNoScope(property.XmlDocs);
+            WriteXmlDocsNoScope(property.XmlDocs);
 
             CodeScope? indexerScope = null;
 
@@ -420,6 +419,7 @@ namespace Microsoft.Generator.CSharp
 
             AppendRawIf("out ", parameter.IsOut);
             AppendRawIf("ref ", parameter.IsRef);
+            AppendRawIf("params ", parameter.IsParams);
 
             Append($"{parameter.Type} {parameter.AsExpression().Declaration}");
             if (parameter.DefaultValue != null)

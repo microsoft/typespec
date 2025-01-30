@@ -8,9 +8,10 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     internal class IndexPropertyProvider : PropertyProvider
     {
+        private static readonly FormattableString DefaultDescription = $"Gets or sets the value associated with the specified key.";
         public ParameterProvider IndexerParameter { get; }
         public IndexPropertyProvider(FormattableString? description, MethodSignatureModifiers modifiers, CSharpType propertyType, ParameterProvider indexerParameter, PropertyBody propertyBody, TypeProvider enclosingType, CSharpType? explicitInterface = null)
-            : base(description, modifiers, propertyType, "this", propertyBody, enclosingType, explicitInterface)
+            : base(description ?? DefaultDescription, modifiers, propertyType, "this", propertyBody, enclosingType, explicitInterface)
         {
             IndexerParameter = indexerParameter;
         }
