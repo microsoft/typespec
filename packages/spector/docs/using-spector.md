@@ -43,8 +43,8 @@ tsp-spector server start ./path/to/scenarios # Takes the same arguments as serve
 ### Stop running server
 
 ```bash
-tsp-spector server stop # Stop at the default port
-tsp-spector server stop --port  1234 # If started the server at another port
+tsp-spector server stop             # Stop at the default port
+tsp-spector server stop --port 1234 # If started the server at another port
 ```
 
 ### Validate and merge coverage
@@ -72,7 +72,7 @@ Upload the coverage. Upload from the `main` branch. DO NOT upload on PR this WIL
 tsp-spector upload-coverage --generatorName typescript --version=0.1.0
 
 # Specify Coverage file
-tsp-spector upload-coverage --generatorName typescript --version=0.1.0  --coverageFile ./path/to/spector-final-coverage.json
+tsp-spector upload-coverage --generatorName typescript --version=0.1.0 --coverageFile ./path/to/spector-final-coverage.json
 ```
 
 Options:

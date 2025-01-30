@@ -24,7 +24,7 @@ jobs:
 
       - uses: ./.github/actions/setup
 
-      - run: git pull --force --no-tags origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
+      - run: git fetch --force --no-tags origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}
         name: Get ${{ github.event.pull_request.base.ref }} ref for ${{ github.ref}}, evt ${{ github.event_name }}
 
       - run: pnpm install
