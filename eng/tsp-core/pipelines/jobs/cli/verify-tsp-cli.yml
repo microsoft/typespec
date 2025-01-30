@@ -43,7 +43,7 @@ jobs:
         artifact: ${{ parameters.artifactName }}
         displayName: Download binary
 
-      - ${{ if ne(variables['Agent.OS'], 'Windows_NT') }}:
+      - ${{ not(startsWith(parameters.platform, 'windows')) }}:
           - script: chmod +x $(Pipeline.Workspace)/${{parameters.artifactName}}/${{parameters.exePath}}
             displayName: Set permissions
 
