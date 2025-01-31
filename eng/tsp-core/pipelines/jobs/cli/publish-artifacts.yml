@@ -31,8 +31,8 @@ jobs:
       PACKAGE_VERSION: $[ dependencies.A.outputs['PACKAGE_VERSION'] ]
     condition: ne(dependencies.A.outputs['SKIP_PUBLISH'], 'true')
     pool:
-      name: $(LINUXPOOL)
-      image: $(LINUXVMIMAGE)
+      name: azsdk-pool-mms-ubuntu-2004-general
+      image: azsdk-pool-mms-ubuntu-2004-1espt
       os: linux
     strategy:
       runOnce:
