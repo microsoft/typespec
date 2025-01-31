@@ -7,10 +7,10 @@ import { dirname, join } from "path";
 import { writeSeaConfig } from "./sea-config.js";
 // cspell:ignore postject
 
-const [major, minor, patch] = process.versions.node.split('.').map(Number)
+const [major, minor, patch] = process.versions.node.split(".").map(Number);
 if (major < 20) {
-  console.error("Cannot build standalone cli on node under 20")
-  process.exit(0)
+  console.error("Cannot build standalone cli on node under 20");
+  process.exit(0);
 }
 
 const projectRoot = dirname(import.meta.dirname);
@@ -25,8 +25,6 @@ const exePath = join(distDir, exeName);
 await buildCurrent();
 
 async function buildCurrent() {
-
-  
   await bundle();
   console.log("");
   await buildWithNodeSea();

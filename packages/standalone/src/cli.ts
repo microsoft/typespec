@@ -18,19 +18,23 @@ const tspDir = homedir() + "/.tsp";
 
 async function main() {
   await install({
-    npxCache: tspDir + "/installs",
+    installDir: tspDir + "/compiler-installs",
   });
 
   const url = pathToFileURL(
-    tspDir + "/installs/node_modules/@typespec/compiler/entrypoints/cli.js",
+    tspDir + "/compiler-installs/node_modules/@typespec/compiler/entrypoints/cli.js",
   ).href;
   await import(url);
 }
 
-main().catch(console.error);
+main().catch((error) => {
+  // eslint-disable-next-line no-console
+  console.error(error);
+  process.exit(1);
+});
 
 interface InstallOptions {
-  npxCache: string;
+  installDir: string;
 }
 
 const plugins = {
@@ -39,7 +43,7 @@ const plugins = {
   "@yarnpkg/plugin-pnp": pnpPlugin,
 };
 async function install(options: InstallOptions) {
-  const installDir = options.npxCache;
+  const installDir = options.installDir;
   await mkdir(installDir, { recursive: true });
   await writeFile(
     installDir + "/package.json",
