@@ -1,7 +1,7 @@
 import { isErrorModel } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
-import { FlatHttpResponse } from "./http-operation.js";
 import { HttpStatusCodeRange, HttpStatusCodesEntry } from "../../../types.js";
+import { FlatHttpResponse } from "./http-operation.js";
 
 /**
  * Utilities for working with HTTP responses.

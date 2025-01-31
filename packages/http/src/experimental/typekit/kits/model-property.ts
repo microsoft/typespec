@@ -1,7 +1,15 @@
 import { ModelProperty } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
+import {
+  getHeaderFieldOptions,
+  getPathParamOptions,
+  getQueryParamOptions,
+  isHeader,
+  isMultipartBodyProperty,
+  isPathParam,
+  isQueryParam,
+} from "../../../decorators.js";
 import { HeaderFieldOptions, PathParameterOptions, QueryParameterOptions } from "../../../types.js";
-import { isHeader, getHeaderFieldOptions, isPathParam, getPathParamOptions, isQueryParam, getQueryParamOptions, isMultipartBodyProperty } from "../../../decorators.js";
 
 /**
  * Utilities for working with model properties in the context of Http.
