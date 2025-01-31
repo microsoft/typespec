@@ -31,6 +31,9 @@ namespace Microsoft.Generator.CSharp
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
             var output = CodeModelPlugin.Instance.OutputLibrary;
 
+            // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
+            // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
+
             List<Task> generateAttributeTasks = new();
             foreach (var attributeProvider in output.AttributeProviders)
             {
