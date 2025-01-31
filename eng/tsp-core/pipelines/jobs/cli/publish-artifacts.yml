@@ -10,8 +10,8 @@ jobs:
       - script: |
           PACKAGE_VERSION=$(jq -r .version package.json)
           LATEST=$(curl https://typespec.blob.core.windows.net/dist/latest.txt)
-          echo "Package version is '$PACKAGE_VERSION'"
-          echo "Package version is '$LATEST'"
+          echo "Current version is '$PACKAGE_VERSION'"
+          echo "Latest version is '$LATEST'"
 
           if [ "$PACKAGE_VERSION" == "$LATEST" ]; then
             SKIP_PUBLISH=true
@@ -28,9 +28,8 @@ jobs:
     displayName: Publish artifacts
     dependsOn: CheckIFPublish
     variables:
-      SKIP_PUBLISH: $[ dependencies.A.outputs['SKIP_PUBLISH'] ]
       PACKAGE_VERSION: $[ dependencies.A.outputs['PACKAGE_VERSION'] ]
-    condition: ne(variables['SKIP_PUBLISH'], 'true')
+    condition: ne(dependencies.A.outputs['SKIP_PUBLISH'], 'true')
     pool:
       name: $(LINUXPOOL)
       image: $(LINUXVMIMAGE)
