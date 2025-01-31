@@ -7,8 +7,9 @@ import {ArrayExpression} from "./array-expression.js";
 import { RecordExpression } from "./record-expression.js";
 import { InterfaceExpression } from "./interface-declaration.js";
 import { $ } from "@typespec/compiler/experimental/typekit";
+import "@typespec/http/experimental/typekit";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
-import "@typespec/http/typekit";
+
 
 export interface TypeExpressionProps {
   type: Type;

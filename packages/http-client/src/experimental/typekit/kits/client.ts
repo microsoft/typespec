@@ -9,10 +9,9 @@ import {
 } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { getServers } from "@typespec/http";
-import "@typespec/http/typekit";
-import { InternalClient } from "../../interfaces.js";
-import { reportDiagnostic } from "../../lib.js";
-import { createBaseConstructor, getConstructors } from "../../utils/client-helpers.js";
+import { InternalClient } from "../../../interfaces.js";
+import { reportDiagnostic } from "../../../lib.js";
+import { createBaseConstructor, getConstructors } from "../../../utils/client-helpers.js";
 import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<InternalClient> {

@@ -13,7 +13,7 @@ import {
 } from "@typespec/compiler";
 import { $, defineKit } from "@typespec/compiler/experimental/typekit";
 import { isHttpFile } from "@typespec/http";
-import { InternalClient } from "../../interfaces.js";
+import { InternalClient } from "../../../interfaces.js";
 
 interface ClientLibraryKit {
   /**
@@ -47,15 +47,19 @@ interface ClientLibraryKit {
   listDataTypes(namespace: InternalClient): Array<Model | Enum | Union>;
 }
 
-interface TK {
+interface TypekitExtension {
+  /**
+   * Utilities for working with HTTP client libraries.
+   * @experimental
+   */
   clientLibrary: ClientLibraryKit;
 }
 
 declare module "@typespec/compiler/experimental/typekit" {
-  interface Typekit extends TK {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<TK>({
+defineKit<TypekitExtension>({
   clientLibrary: {
     listNamespaces(namespace) {
       if (namespace) {

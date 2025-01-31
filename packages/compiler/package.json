@@ -49,10 +49,6 @@
     "./experimental/typekit": {
       "types": "./dist/src/experimental/typekit/index.d.ts",
       "default": "./dist/src/experimental/typekit/index.js"
-    },
-    "./typekit": {
-      "types": "./dist/src/experimental/typekit/index.d.ts",
-      "default": "./dist/src/experimental/typekit/index.js"
     }
   },
   "browser": {

@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@alloy-js/core": "~0.4.0",
-    "@alloy-js/typescript": "~0.3.0"
+    "@alloy-js/typescript": "~0.4.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.8",

@@ -1,7 +1,11 @@
 import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
 import { defineKit, Typekit } from "@typespec/compiler/experimental/typekit";
-import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../../types.js";
 import { getHttpOperation } from "../../../operations.js";
+import {
+  HttpOperation,
+  HttpOperationResponseContent,
+  HttpStatusCodesEntry,
+} from "../../../types.js";
 
 /**
  * Utilities for working with HTTP operations.
@@ -29,7 +33,6 @@ export interface HttpOperationKit {
 
 /**
  * Structure of a flat HTTP response, which is grouped by status code and content type.
- * @experimental
  */
 export interface FlatHttpResponse {
   /**
