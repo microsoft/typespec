@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Customization;
 using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.SourceInput
@@ -18,11 +17,13 @@ namespace Microsoft.Generator.CSharp.SourceInput
 
         public const string CodeGenTypeAttributeName = "CodeGenTypeAttribute";
 
-        public const string CodeGenModelAttributeName = "CodeGenModelAttribute";
-
-        public const string CodeGenClientAttributeName = "CodeGenClientAttribute";
-
         public const string CodeGenSerializationAttributeName = "CodeGenSerializationAttribute";
+
+        private const string PropertySerializationName = "PropertySerializationName";
+
+        private const string SerializationValueHook = "SerializationValueHook";
+
+        private const string DeserializationValueHook = "DeserializationValueHook";
 
         internal static bool TryGetCodeGenMemberAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
         {
@@ -65,41 +66,19 @@ namespace Microsoft.Generator.CSharp.SourceInput
             {
                 switch (key)
                 {
-                    case nameof(CodeGenSerializationAttribute.PropertySerializationName):
+                    case nameof(PropertySerializationName):
                         serializationName = namedArgument.Value as string;
                         break;
-                    case nameof(CodeGenSerializationAttribute.SerializationValueHook):
+                    case nameof(SerializationValueHook):
                         serializationHook = namedArgument.Value as string;
                         break;
-                    case nameof(CodeGenSerializationAttribute.DeserializationValueHook):
+                    case nameof(DeserializationValueHook):
                         deserializationHook = namedArgument.Value as string;
                         break;
                 }
             }
 
             return propertyName != null && (serializationName != null || serializationHook != null || deserializationHook != null || bicepSerializationHook != null);
-        }
-
-        internal static bool TryGetCodeGenModelAttributeValue(AttributeData attributeData, out string[]? usage, out string[]? formats)
-        {
-            usage = null;
-            formats = null;
-            if (attributeData.AttributeClass?.Name != CodeGenModelAttributeName)
-                return false;
-            foreach (var namedArgument in attributeData.NamedArguments)
-            {
-                switch (namedArgument.Key)
-                {
-                    case nameof(CodeGenModelAttribute.Usage):
-                        usage = ToStringArray(namedArgument.Value.Values);
-                        break;
-                    case nameof(CodeGenModelAttribute.Formats):
-                        formats = ToStringArray(namedArgument.Value.Values);
-                        break;
-                }
-            }
-
-            return usage != null || formats != null;
         }
 
         private static string[]? ToStringArray(ImmutableArray<TypedConstant> values)

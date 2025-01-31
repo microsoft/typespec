@@ -11,6 +11,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "lib:openapi": ["packages/openapi/"],
   "lib:rest": ["packages/rest/"],
   "lib:versioning": ["packages/versioning/"],
+  "lib:http-specs": ["packages/http-specs/"],
   "meta:blog": ["blog/"],
   "meta:website": ["website/"],
   tspd: ["packages/tspd/"],

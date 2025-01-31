@@ -77,7 +77,7 @@
           "typespec.initTemplatesUrls": {
             "type": "array",
             "default": [],
-            "description": "List of URLs to fetch templates from when creating a new project.",
+            "description": "List of URLs to fetch templates from when creating a new project.\n\nExample:\n\"typespec.initTemplatesUrls\": [{\n\"name\": \"displayName\",\n\"url\": \"https://urlToTheFileContainsTemplates\"\n}],",
             "scope": "machine-overridable",
             "items": {
               "type": "object",

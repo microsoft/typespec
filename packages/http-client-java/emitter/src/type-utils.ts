@@ -56,10 +56,6 @@ export class ProcessingCache<In, Out> {
   }
 }
 
-export function isStable(version: string): boolean {
-  return !version.toLowerCase().includes("preview");
-}
-
 /** adds only if the item is not in the collection already
  *
  * @note  While this isn't very efficient, it doesn't disturb the original
