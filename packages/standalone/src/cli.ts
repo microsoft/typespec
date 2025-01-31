@@ -6,7 +6,7 @@ import {
   Project,
   stringifyMessageName,
 } from "@yarnpkg/core";
-import { PortablePath } from "@yarnpkg/fslib";
+import { npath } from "@yarnpkg/fslib";
 import nmPlugin from "@yarnpkg/plugin-nm";
 import npmPlugin from "@yarnpkg/plugin-npm";
 import pnpPlugin from "@yarnpkg/plugin-pnp";
@@ -47,7 +47,7 @@ async function install(options: InstallOptions) {
     "utf8",
   );
 
-  const path = installDir as PortablePath;
+  const path = npath.toPortablePath(installDir);
   const configuration = await Configuration.find(path, {
     modules: new Map(Object.entries(plugins)),
     plugins: new Set(Object.keys(plugins)),

@@ -146,6 +146,7 @@ words:
   - nosec
   - nostdlib
   - noverify
+  - npath
   - npmjs
   - nspkg
   - nupkg
