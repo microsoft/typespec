@@ -3,7 +3,7 @@
 
 namespace UnbrandedTypeSpec.Models.Custom
 {
-    // Demonstrates customizing the namespace of a model
+    // Demonstrates customizing the name of a model
     [CodeGenType("ProjectedModel")]
     public partial class ProjectedModelCustom
     {
