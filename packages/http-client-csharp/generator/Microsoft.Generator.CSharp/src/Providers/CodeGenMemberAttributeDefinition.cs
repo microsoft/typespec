@@ -17,6 +17,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildName() => "CodeGenMemberAttribute";
 
+        private protected sealed override NamedTypeSymbolProvider? GetCustomCodeView() => null;
+
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 

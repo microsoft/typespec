@@ -5,20 +5,20 @@
 using System;
 using System.Collections.Generic;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec.Models.Custom
 {
     /// <summary> this is a model with a projected name. </summary>
-    public partial class ProjectedModel
+    public partial class ProjectedModelCustom
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        internal ProjectedModel(string name)
+        internal ProjectedModelCustom(string name)
         {
             Name = name;
         }
 
-        internal ProjectedModel(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal ProjectedModelCustom(string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
