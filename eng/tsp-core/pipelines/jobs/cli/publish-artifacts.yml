@@ -31,8 +31,8 @@ jobs:
     displayName: Publish artifacts
     dependsOn: CheckIfPublish
     variables:
-      PACKAGE_VERSION: $[ dependencies.CheckIfPublish.outputs['CheckIfPublish.SetPackageVersion.PACKAGE_VERSION'] ]
-    condition: ne(dependencies.CheckIfPublish.outputs['CheckIfPublish.SetPackageVersion.SKIP_PUBLISH'], 'true')
+      PACKAGE_VERSION: $[ dependencies.CheckIfPublish.outputs['SetPackageVersion.PACKAGE_VERSION'] ]
+    condition: ne(dependencies.CheckIfPublish.outputs['SetPackageVersion.SKIP_PUBLISH'], 'true')
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
       image: azsdk-pool-mms-ubuntu-2004-1espt
