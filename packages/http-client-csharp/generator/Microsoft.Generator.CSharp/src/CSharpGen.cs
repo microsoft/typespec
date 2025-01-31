@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
@@ -29,13 +29,12 @@ namespace Microsoft.Generator.CSharp
             var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
-            var output = CodeModelPlugin.Instance.OutputLibrary;
 
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
             List<Task> generateAttributeTasks = new();
-            foreach (var attributeProvider in output.CustomCodeAttributeProviders)
+            foreach (var attributeProvider in GetAttributeProviders())
             {
                 var writer = CodeModelPlugin.Instance.GetWriter(attributeProvider);
                 generateAttributeTasks.Add(workspace.AddGeneratedFile(writer.Write()));
@@ -45,6 +44,7 @@ namespace Microsoft.Generator.CSharp
 
             CodeModelPlugin.Instance.SourceInputModel = new SourceInputModel(await workspace.GetCompilationAsync());
 
+            var output = CodeModelPlugin.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 
@@ -95,6 +95,14 @@ namespace Microsoft.Generator.CSharp
             {
                 await CodeModelPlugin.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
+        }
+
+        private static IEnumerable<TypeProvider> GetAttributeProviders()
+        {
+            yield return new CodeGenTypeAttributeDefinition();
+            yield return new CodeGenMemberAttributeDefinition();
+            yield return new CodeGenSuppressAttributeDefinition();
+            yield return new CodeGenSerializationAttributeDefinition();
         }
 
         /// <summary>

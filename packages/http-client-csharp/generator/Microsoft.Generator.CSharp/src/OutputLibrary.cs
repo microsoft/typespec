@@ -16,9 +16,6 @@ namespace Microsoft.Generator.CSharp
             internal set => _typeProviders = value;
         }
 
-        private IReadOnlyList<TypeProvider>? _customCodeAttributeProviders;
-        internal IReadOnlyList<TypeProvider> CustomCodeAttributeProviders => _customCodeAttributeProviders ??= BuildCustomCodeAttributeProviders();
-
         private static TypeProvider[] BuildEnums()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
@@ -79,17 +76,6 @@ namespace Microsoft.Generator.CSharp
                 new ArgumentDefinition(),
                 new OptionalDefinition(),
                 .. BuildModelFactory()
-            ];
-        }
-
-        private TypeProvider[] BuildCustomCodeAttributeProviders()
-        {
-            return
-            [
-                new CodeGenTypeAttributeDefinition(),
-                new CodeGenMemberAttributeDefinition(),
-                new CodeGenSuppressAttributeDefinition(),
-                new CodeGenSerializationAttributeDefinition(),
             ];
         }
 
