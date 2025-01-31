@@ -1,6 +1,6 @@
 # cspell:ignore cvzf
 jobs:
-  - job: CheckIFPublish
+  - job: CheckIfPublish
     displayName: Check if we should publish
     pool:
       name: $(LINUXPOOL)
@@ -17,7 +17,9 @@ jobs:
             SKIP_PUBLISH=true
           fi
 
-          echo "SKIP PUBLISH is '$SKIP_PUBLISH'"
+          if [ "$SKIP_PUBLISH" == "true" ]; then
+            echo "Skipping publish as latest version '$LATEST' is the same as current version '$PACKAGE_VERSION'"
+          fi
           echo "##vso[task.setvariable variable=SKIP_PUBLISH;isOutput=true]$SKIP_PUBLISH"
           echo "##vso[task.setvariable variable=PACKAGE_VERSION;isOutput=true]$PACKAGE_VERSION"
         displayName: Get package version
@@ -26,10 +28,10 @@ jobs:
   - deployment: PublishCliArtifacts
     environment: typespec-cli
     displayName: Publish artifacts
-    dependsOn: CheckIFPublish
+    dependsOn: CheckIfPublish
     variables:
-      PACKAGE_VERSION: $[ dependencies.A.outputs['PACKAGE_VERSION'] ]
-    condition: ne(dependencies.A.outputs['SKIP_PUBLISH'], 'true')
+      PACKAGE_VERSION: $[ dependencies.CheckIfPublish.outputs['PACKAGE_VERSION'] ]
+    condition: ne(dependencies.CheckIfPublish.outputs['SKIP_PUBLISH'], 'true')
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
       image: azsdk-pool-mms-ubuntu-2004-1espt
