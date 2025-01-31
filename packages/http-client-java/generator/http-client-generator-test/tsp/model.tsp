@@ -6,7 +6,7 @@ using TypeSpec.Http;
 @service({
   title: "Model",
 })
-namespace Cadl.Model;
+namespace TspTest.Model;
 
 // input-output
 model Resource1 {

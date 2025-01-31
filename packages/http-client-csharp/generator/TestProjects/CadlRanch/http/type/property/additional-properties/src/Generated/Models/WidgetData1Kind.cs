@@ -24,6 +24,7 @@ namespace _Type.Property.AdditionalProperties.Models
 
         public bool Equals(WidgetData1Kind other) => throw null;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

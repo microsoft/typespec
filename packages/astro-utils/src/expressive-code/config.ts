@@ -42,7 +42,6 @@ export function defineTypeSpecEcConfig(base: string) {
           },
         },
       },
-      // @ts-expect-error type version mismatch
       tspTryitCode(base + "playground/"),
     ],
   });

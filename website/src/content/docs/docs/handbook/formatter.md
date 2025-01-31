@@ -42,7 +42,7 @@ This only affect the formatting, when using `tab` key to indent it will still us
 
 For VSCode to respect the TypeSpec standard style set the following options style
 
-```json
+```json title=.vscode/settings.json
 {
   ["typespec"]: {
     "editor.detectIndentation": false,
@@ -56,7 +56,7 @@ For VSCode to respect the TypeSpec standard style set the following options styl
 
 If using `.editorconfig` with the editor config extension
 
-```toml
+```ini title=.editorconfig
 [*.tsp]
 indent_size = 2
 indent_style = space
@@ -68,7 +68,7 @@ The tsp formatter is essentially a `prettier` plugin. If you already have a `pre
 
 In your `prettier` config file, add:
 
-```yaml
+```yaml title=.prettier.yaml
 plugins:
   - "./node_modules/@typespec/prettier-plugin-typespec"
 overrides: [{ "files": "*.tsp", "options": { "parser": "typespec" } }]

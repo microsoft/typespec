@@ -11,12 +11,14 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "lib:openapi": ["packages/openapi/"],
   "lib:rest": ["packages/rest/"],
   "lib:versioning": ["packages/versioning/"],
+  "lib:http-specs": ["packages/http-specs/"],
   "meta:blog": ["blog/"],
   "meta:website": ["website/"],
   tspd: ["packages/tspd/"],
   "emitter:client:csharp": ["packages/http-client-csharp/"],
   "emitter:client:java": ["packages/http-client-java/"],
   "emitter:client:python": ["packages/http-client-python/"],
+  "emitter:graphql": ["packages/graphql/"],
   "emitter:json-schema": ["packages/json-schema/"],
   "emitter:protobuf": ["packages/protobuf/"],
   "emitter:openapi3": ["packages/openapi3/"],
@@ -27,6 +29,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   eng: ["eng/", ".github/"],
   "ui:playground": ["packages/playground/"],
   "ui:type-graph-viewer": ["packages/html-program-viewer/"],
+  spector: ["packages/spector/", "packages/http-specs"],
 };
 
 /**

@@ -7,6 +7,7 @@ using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using static Microsoft.Generator.CSharp.Snippets.Snippet;
 using Microsoft.Generator.CSharp.Statements;
+using System;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Providers
 {
@@ -18,6 +19,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         private static HttpRequestApi? _instance;
         internal static HttpRequestApi Instance => _instance ??= new PipelineRequestProvider(Empty);
+
+        public override Type UriBuilderType => typeof(ClientUriBuilderDefinition);
 
         public override ValueExpression Content()
             => Original.Property(nameof(PipelineRequest.Content));

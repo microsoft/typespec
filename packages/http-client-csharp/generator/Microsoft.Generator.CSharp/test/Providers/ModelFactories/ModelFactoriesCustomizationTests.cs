@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
@@ -123,8 +125,59 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             ValidateModelFactoryCommon(modelFactory);
         }
 
+        // This test validates that the model factory method for a model is omitted if the
+        // model type is customized to be internal.
         [Test]
-        public async Task CanCustomizeModelFullConstructor()
+        public async Task OmitsModelFactoryMethodIfModelTypeInternal()
+        {
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        properties:
+                        [
+                            InputFactory.Property("Prop1", InputPrimitiveType.String),
+                            InputFactory.Property("OptionalBool", InputPrimitiveType.Boolean, isRequired: false)
+                        ])
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // Model factory should be omitted since there are no methods to generate
+            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNull(modelFactory);
+        }
+
+        // This test validates that the model factory method for a model is omitted if the
+        // any of the model's serialization ctor have parameters whose type are customized to be internal.
+        [Test]
+        public async Task OmitsModelFactoryMethodIfParamTypeInternal()
+        {
+            var modelProperty = InputFactory.Property("Prop1", InputFactory.Model("otherModel"));
+            var plugin = await MockHelpers.LoadMockPluginAsync(
+                inputModelTypes: [
+                    InputFactory.Model(
+                        "mockInputModel",
+                        properties:
+                        [
+                            modelProperty,
+                        ])
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var csharpGen = new CSharpGen();
+
+            await csharpGen.ExecuteAsync();
+
+            // Model factory should be omitted since there are no methods to generate
+            var modelFactory = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNull(modelFactory);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task CanCustomizeModelFullConstructor(bool extraParameters)
         {
             var plugin = await MockHelpers.LoadMockPluginAsync(
                inputModelTypes: [
@@ -135,7 +188,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
                             InputFactory.Property("Prop1", InputPrimitiveType.String, isRequired: true),
                         ])
                ],
-               compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+               compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(extraParameters.ToString()),
+               additionalMetadataReferences: [MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location)]);
+
             var csharpGen = new CSharpGen();
 
             await csharpGen.ExecuteAsync();
@@ -155,12 +210,22 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             var modelFactoryMethod = modelFactoryMethods[0];
             Assert.AreEqual("MockInputModel", modelFactoryMethod.Signature.Name);
 
-            Assert.AreEqual(2, modelFactoryMethod.Signature.Parameters.Count);
-            Assert.AreEqual("data", modelFactoryMethod.Signature.Parameters[0].Name);
-            Assert.AreEqual("prop1", modelFactoryMethod.Signature.Parameters[1].Name);
-
-            Assert.IsTrue(modelFactoryMethod.BodyStatements!.ToDisplayString()
-                .Contains("return new global::Sample.Models.MockInputModel(data?.ToList(), prop1, additionalBinaryDataProperties: null);"));
+            Assert.AreEqual(extraParameters ? 2 : 1, modelFactoryMethod.Signature.Parameters.Count);
+            if (extraParameters)
+            {
+                Assert.AreEqual("data", modelFactoryMethod.Signature.Parameters[0].Name);
+                Assert.AreEqual("prop1", modelFactoryMethod.Signature.Parameters[1].Name);
+                Assert.IsTrue(modelFactoryMethod.BodyStatements!.ToDisplayString()
+                        .Contains("return new global::Sample.Models.MockInputModel(data?.ToList(), prop1, additionalData: null);"),
+                    modelFactoryMethod.BodyStatements!.ToDisplayString());
+            }
+            else
+            {
+                Assert.AreEqual("prop1", modelFactoryMethod.Signature.Parameters[0].Name);
+                Assert.IsTrue(modelFactoryMethod.BodyStatements!.ToDisplayString()
+                        .Contains("return new global::Sample.Models.MockInputModel(prop1, additionalData: null);"),
+                    modelFactoryMethod.BodyStatements!.ToDisplayString());
+            }
         }
     }
 }

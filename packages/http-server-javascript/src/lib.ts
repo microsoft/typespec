@@ -95,10 +95,22 @@ export const $lib = createTypeSpecLibrary({
           "Union variant cannot be differentiated from other variants of the union an an ambiguous context.",
       },
     },
+    "unspeakable-status-code": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Status code property '${"name"}' is unspeakable and does not have an exact value. Provide an exact status code value or rename the property.`,
+      },
+    },
     "name-conflict": {
       severity: "error",
       messages: {
         default: paramMessage`Name ${"name"} conflicts with a prior declaration and must be unique.`,
+      },
+    },
+    "dynamic-request-content-type": {
+      severity: "error",
+      messages: {
+        default: "Operation has multiple possible content-type values and cannot be emitted.",
       },
     },
   },

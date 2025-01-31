@@ -1,5 +1,22 @@
 # Changelog - @typespec/http-server-javascript
 
+## 0.58.0-alpha.7
+
+### Features
+
+- [#5514](https://github.com/microsoft/typespec/pull/5514) - Implemented new-style multipart request handling.
+- Fixed JSON serialization/deserialization in some cases where models that required serialization occurred within arrays.
+
+
+## 0.58.0-alpha.6
+
+### Bug Fixes
+
+- [#5253](https://github.com/microsoft/typespec/pull/5253) Added an additional check for the presence of a property before performing a bounds check on integer properties constrained to a range.
+- [#5253](https://github.com/microsoft/typespec/pull/5253) Fixed a null check in query parameter requiredness check by replacing it with a falseness check.
+- [#5188](https://github.com/microsoft/typespec/pull/5188) Added logic to handle "unspeakable" identifier names (#5185)
+
+
 ## 0.58.0-alpha.5
 
 ### Bump dependencies

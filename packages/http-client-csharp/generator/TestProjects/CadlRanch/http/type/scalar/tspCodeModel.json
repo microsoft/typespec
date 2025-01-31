@@ -17,7 +17,7 @@
      "$id": "4",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "5",
       "kind": "url",
@@ -55,7 +55,7 @@
      "$id": "9",
      "Name": "get",
      "ResourceName": "String",
-     "Description": "get string value",
+     "Doc": "get string value",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -121,14 +121,14 @@
      "$id": "15",
      "Name": "put",
      "ResourceName": "String",
-     "Description": "put string value",
+     "Doc": "put string value",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "16",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "17",
         "kind": "constant",
@@ -156,7 +156,7 @@
        "$id": "19",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "_",
+       "Doc": "_",
        "Type": {
         "$id": "20",
         "kind": "string",
@@ -209,7 +209,7 @@
      "$id": "23",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "24",
       "kind": "url",
@@ -247,7 +247,7 @@
      "$id": "28",
      "Name": "get",
      "ResourceName": "Boolean",
-     "Description": "get boolean value",
+     "Doc": "get boolean value",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -313,14 +313,14 @@
      "$id": "34",
      "Name": "put",
      "ResourceName": "Boolean",
-     "Description": "put boolean value",
+     "Doc": "put boolean value",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "35",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "36",
         "kind": "constant",
@@ -348,7 +348,7 @@
        "$id": "38",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "_",
+       "Doc": "_",
        "Type": {
         "$id": "39",
         "kind": "boolean",
@@ -401,7 +401,7 @@
      "$id": "42",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "43",
       "kind": "url",
@@ -439,7 +439,7 @@
      "$id": "47",
      "Name": "get",
      "ResourceName": "Unknown",
-     "Description": "get unknown value",
+     "Doc": "get unknown value",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -505,14 +505,14 @@
      "$id": "53",
      "Name": "put",
      "ResourceName": "Unknown",
-     "Description": "put unknown value",
+     "Doc": "put unknown value",
      "Accessibility": "public",
      "Parameters": [
       {
        "$id": "54",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "55",
         "kind": "constant",
@@ -540,7 +540,7 @@
        "$id": "57",
        "Name": "body",
        "NameInRequest": "body",
-       "Description": "_",
+       "Doc": "_",
        "Type": {
         "$id": "58",
         "kind": "unknown",
@@ -593,7 +593,7 @@
      "$id": "61",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "62",
       "kind": "url",
@@ -626,7 +626,7 @@
   {
    "$id": "65",
    "Name": "DecimalType",
-   "Description": "Decimal type",
+   "Doc": "Decimal type",
    "Operations": [
     {
      "$id": "66",
@@ -703,7 +703,7 @@
        "$id": "73",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "74",
         "kind": "constant",
@@ -832,7 +832,7 @@
      "$id": "84",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "85",
       "kind": "url",
@@ -865,7 +865,7 @@
   {
    "$id": "88",
    "Name": "Decimal128Type",
-   "Description": "Decimal128 type",
+   "Doc": "Decimal128 type",
    "Operations": [
     {
      "$id": "89",
@@ -942,7 +942,7 @@
        "$id": "96",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "97",
         "kind": "constant",
@@ -1071,7 +1071,7 @@
      "$id": "107",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "108",
       "kind": "url",
@@ -1104,7 +1104,7 @@
   {
    "$id": "111",
    "Name": "DecimalVerify",
-   "Description": "Decimal type verification",
+   "Doc": "Decimal type verification",
    "Operations": [
     {
      "$id": "112",
@@ -1188,7 +1188,7 @@
        "$id": "120",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "121",
         "kind": "constant",
@@ -1268,7 +1268,7 @@
      "$id": "127",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "128",
       "kind": "url",
@@ -1301,7 +1301,7 @@
   {
    "$id": "131",
    "Name": "Decimal128Verify",
-   "Description": "Decimal128 type verification",
+   "Doc": "Decimal128 type verification",
    "Operations": [
     {
      "$id": "132",
@@ -1385,7 +1385,7 @@
        "$id": "140",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
         "$id": "141",
         "kind": "constant",
@@ -1465,7 +1465,7 @@
      "$id": "147",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Service host",
+     "Doc": "Service host",
      "Type": {
       "$id": "148",
       "kind": "url",

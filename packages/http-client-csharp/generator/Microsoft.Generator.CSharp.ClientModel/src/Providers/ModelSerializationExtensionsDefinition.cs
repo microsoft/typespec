@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
@@ -98,7 +98,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 this);
 
             var charValueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(char));
-            var value = charValueParameter.AsExpression.As<char>();
+            var value = charValueParameter.As<char>();
             var writeStringChar = new MethodProvider(
                 new MethodSignature(
                     Name: WriteStringValueMethodName,

@@ -23,52 +23,62 @@ interface UnionDescriptor {
   variants?: Record<string | symbol, string | number> | UnionVariant[];
 }
 
+/**
+ * Utilities for working with unions.
+ * @experimental
+ */
 export interface UnionKit {
-  union: {
-    /**
-     * Create a union type.
-     *
-     * @param desc The descriptor of the union.
-     */
-    create(desc: UnionDescriptor): Union;
+  /**
+   * Create a union type.
+   *
+   * @param desc The descriptor of the union.
+   */
+  create(desc: UnionDescriptor): Union;
 
-    /**
-     * Check if the given `type` is a union.
-     *
-     * @param type The type to check.
-     */
-    is(type: Type): type is Union;
+  /**
+   * Check if the given `type` is a union.
+   *
+   * @param type The type to check.
+   */
+  is(type: Type): type is Union;
 
-    /**
-     * Check if the union is a valid enum. Specifically, this checks if the
-     * union has a name (since there are no enum expressions), and whether each
-     * of the variant types is a valid enum member value.
-     *
-     * @param type The union to check.
-     */
-    isValidEnum(type: Union): boolean;
+  /**
+   * Check if the union is a valid enum. Specifically, this checks if the
+   * union has a name (since there are no enum expressions), and whether each
+   * of the variant types is a valid enum member value.
+   *
+   * @param type The union to check.
+   */
+  isValidEnum(type: Union): boolean;
 
-    /**
-     * Check if a union is extensible. Extensible unions are unions which contain a variant
-     * that is a supertype of all the other types. This means that the subtypes of the common
-     * supertype are known example values, but others may be present.
-     * @param type The union to check.
-     */
-    isExtensible(type: Union): boolean;
-  };
+  /**
+   * Check if a union is extensible. Extensible unions are unions which contain a variant
+   * that is a supertype of all the other types. This means that the subtypes of the common
+   * supertype are known example values, but others may be present.
+   * @param type The union to check.
+   */
+  isExtensible(type: Union): boolean;
+}
+
+interface TypekitExtension {
+  /**
+   * Utilities for working with unions.
+   * @experimental
+   */
+  union: UnionKit;
 }
 
 declare module "../define-kit.js" {
-  interface TypekitPrototype extends UnionKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-export const UnionKit = defineKit<UnionKit>({
+export const UnionKit = defineKit<TypekitExtension>({
   union: {
     create(desc) {
       const union: Union = this.program.checker.createType({
         kind: "Union",
         name: desc.name,
-        decorators: decoratorApplication(desc.decorators),
+        decorators: decoratorApplication(this, desc.decorators),
         variants: createRekeyableMap(),
         get options() {
           return Array.from(this.variants.values()).map((v) => v.type);

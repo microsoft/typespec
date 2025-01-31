@@ -9,14 +9,17 @@ using Azure.Core.Foundations;
   title: "ErrorModel",
 })
 @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-namespace Cadl.ErrorModel;
+namespace TspTest.ErrorModel;
 
 model Diagnostic {
   name: string;
   error: Error;
 }
 
+@error
+model NotFoundErrorResponse is NotFoundResponse;
+
 @route("/error")
 interface ErrorOp {
-  read(): ResourceCreatedOrOkResponse<Diagnostic> | ErrorResponse;
+  read(): ResourceCreatedOrOkResponse<Diagnostic> | NotFoundErrorResponse | ErrorResponse;
 }

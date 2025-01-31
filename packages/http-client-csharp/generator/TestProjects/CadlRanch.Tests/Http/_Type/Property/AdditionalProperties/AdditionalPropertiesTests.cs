@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using _Type.Property.AdditionalProperties.Models;
 using _Type.Property.AdditionalProperties;
+using System.Reflection;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
 {
@@ -130,6 +131,40 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
             Assert.AreEqual(200, response.GetRawResponse().Status);
             Assert.AreEqual(1, value.AdditionalProperties.Count);
             Assert.IsTrue(value.AdditionalProperties.ContainsKey("prop"));
+            var prop = value.AdditionalProperties["prop"].Select(item => ModelReaderWriter.Read<ModelForRecord>(item)).ToList();
+            Assert.AreEqual(2, prop.Count);
+            Assert.AreEqual("ok", prop[0]!.State);
+            Assert.AreEqual("ok", prop[1]!.State);
+        });
+
+        [CadlRanchTest]
+        public Task ExtendsModelArrayPut() => Test(async (host) =>
+        {
+            var value = new ExtendsModelArrayAdditionalProperties([new ModelForRecord("ok"), new ModelForRecord("ok")])
+            {
+                AdditionalProperties =
+                {
+                    ["prop"] =
+                    [
+                        ModelReaderWriter.Write(new ModelForRecord("ok")),
+                        ModelReaderWriter.Write(new ModelForRecord("ok"))
+                    ]
+                }
+            };
+            var response = await new AdditionalPropertiesClient(host, null).GetExtendsModelArrayClient().PutAsync(value);
+            Assert.AreEqual(204, response.GetRawResponse().Status);
+        });
+
+        [CadlRanchTest]
+        public Task IsModelArrayGet() => Test(async (host) =>
+        {
+            var response = await new AdditionalPropertiesClient(host, null).GetIsModelArrayClient().GetAsync();
+            Assert.AreEqual(200, response.GetRawResponse().Status);
+
+            var value = response.Value;
+            Assert.AreEqual(1, value.AdditionalProperties.Count);
+            Assert.IsTrue(value.AdditionalProperties.ContainsKey("prop"));
+
             var prop = value.AdditionalProperties["prop"].Select(item => ModelReaderWriter.Read<ModelForRecord>(item)).ToList();
             Assert.AreEqual(2, prop.Count);
             Assert.AreEqual("ok", prop[0]!.State);
@@ -259,7 +294,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsUnknownDerivedPut() => Test(async (host) =>
         {
-            var value = new ExtendsUnknownAdditionalPropertiesDerived(314, "ExtendsUnknownAdditionalProperties")
+            var value = new ExtendsUnknownAdditionalPropertiesDerived("ExtendsUnknownAdditionalProperties", 314)
             {
                 Age = 2.71875f,
                 AdditionalProperties =
@@ -280,7 +315,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
             var value = response.Value;
             Assert.AreEqual(200, response.GetRawResponse().Status);
             Assert.AreEqual("Derived", value.Name);
-            Assert.AreEqual("derived", value.Kind);
+            var kindProperty = value.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual("derived", kindProperty?.GetValue(value));
             var derived = value as ExtendsUnknownAdditionalPropertiesDiscriminatedDerived;
             Assert.IsNotNull(derived);
             Assert.AreEqual(314, derived!.Index);
@@ -296,7 +332,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsUnknownDiscriminatedPut() => Test(async (host) =>
         {
-            var value = new ExtendsUnknownAdditionalPropertiesDiscriminatedDerived(314, "Derived")
+            var value = new ExtendsUnknownAdditionalPropertiesDiscriminatedDerived("Derived", 314)
             {
                 Age = 2.71875f,
                 AdditionalProperties =
@@ -361,7 +397,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task IsUnknownDerivedPut() => Test(async (host) =>
         {
-            var value = new IsUnknownAdditionalPropertiesDerived(314, "IsUnknownAdditionalProperties")
+            var value = new IsUnknownAdditionalPropertiesDerived("IsUnknownAdditionalProperties", 314)
             {
                 Age = 2.71875f,
                 AdditionalProperties =
@@ -382,7 +418,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
             var value = response.Value;
             Assert.AreEqual(200, response.GetRawResponse().Status);
             Assert.AreEqual("Derived", value.Name);
-            Assert.AreEqual("derived", value.Kind);
+            var kindProperty = value.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual("derived", kindProperty?.GetValue(value));
             var derived = value as IsUnknownAdditionalPropertiesDiscriminatedDerived;
             Assert.IsNotNull(derived);
             Assert.AreEqual(314, derived!.Index);
@@ -398,7 +435,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task IsUnknownDiscriminatedPut() => Test(async (host) =>
         {
-            var value = new IsUnknownAdditionalPropertiesDiscriminatedDerived(314, "Derived")
+            var value = new IsUnknownAdditionalPropertiesDiscriminatedDerived("Derived", 314)
             {
                 Age = 2.71875f,
                 AdditionalProperties =
@@ -426,7 +463,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsDifferentSpreadFloatPut() => Test(async host =>
         {
-            var value = new DifferentSpreadFloatDerived(43.125f, "abc")
+            var value = new DifferentSpreadFloatDerived("abc", 43.125f)
             {
                 AdditionalProperties =
                 {
@@ -453,7 +490,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsDifferentSpreadModelPut() => Test(async host =>
         {
-            var value = new DifferentSpreadModelDerived(new ModelForRecord("ok"), "abc")
+            var value = new DifferentSpreadModelDerived("abc", new ModelForRecord("ok"))
             {
                 AdditionalProperties =
                 {
@@ -485,7 +522,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsDifferentSpreadModelArrayPut() => Test(async host =>
         {
-            var value = new DifferentSpreadModelArrayDerived(new[] { new ModelForRecord("ok"), new ModelForRecord("ok") }, "abc")
+            var value = new DifferentSpreadModelArrayDerived("abc", new[] { new ModelForRecord("ok"), new ModelForRecord("ok") })
             {
                 AdditionalProperties =
                 {
@@ -510,7 +547,7 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
         [CadlRanchTest]
         public Task ExtendsDifferentSpreadStringPut() => Test(async host =>
         {
-            var value = new DifferentSpreadStringDerived("abc", 43.125f)
+            var value = new DifferentSpreadStringDerived(43.125f, "abc")
             {
                 AdditionalProperties =
                 {

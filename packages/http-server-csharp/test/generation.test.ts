@@ -1,12 +1,12 @@
 import { Program, Type, navigateProgram } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
-import assert from "assert";
+import assert, { deepStrictEqual } from "assert";
 import { beforeEach, it } from "vitest";
-import { getPropertySource, getSourceModel } from "../src/utils.js";
+import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
 import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
 
 function getGeneratedFile(runner: BasicTestRunner, fileName: string): [string, string] {
-  const result = [...runner.fs.entries()].filter((e) => e[0].includes(fileName));
+  const result = [...runner.fs.entries()].filter((e) => e[0].includes(`/${fileName}`));
   assert.strictEqual(
     result === null || result === undefined,
     false,
@@ -378,7 +378,7 @@ it("generates literal properties", async () => {
       "public partial class Foo",
       `public string StringLiteralProp { get; } = "This is a string literal";`,
       "public bool? BoolLiteralProp { get; } = true;",
-      "public object? NumericLiteralProp { get; set; }",
+      "public int? NumericLiteralProp { get; } = 17",
     ],
   );
 });
@@ -542,6 +542,28 @@ it("handles enum, complex type properties, and circular references", async () =>
   );
 });
 
+it("processes sub-namespaces of a service", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      namespace Bar {
+      /** A simple test model*/
+      model Foo {
+        #suppress "@azure-tools/typespec-azure-core/casing-style" "Testing"
+        #suppress "@typespec/http-server-csharp/invalid-identifier" "Testing"
+        /** An invalid name test */
+        \`**()invalid~~Name\`?: string = "This is a string literal";
+      }
+  }
+      `,
+    "Foo.cs",
+    [
+      "public partial class Foo",
+      `public string GeneratedInvalidName { get; set; } = "This is a string literal";`,
+    ],
+  );
+});
+
 it("creates Valid Identifiers", async () => {
   await compileAndValidateSingleModel(
     runner,
@@ -557,6 +579,7 @@ it("creates Valid Identifiers", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
+      `[JsonPropertyName( "**()invalid~~Name")]`,
       `public string GeneratedInvalidName { get; set; } = "This is a string literal";`,
     ],
   );
@@ -623,5 +646,664 @@ it("Generates types for generic model instantiation", async () => {
     `,
     "ToyCollectionWithNextLink.cs",
     ["public partial class ToyCollectionWithNextLink"],
+  );
+});
+
+it("Generates good name for model instantiation without hints", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       model Toy {
+        @key("toyId")
+        id: int64;
+      
+        petId: int64;
+        name: string;
+      }
+
+      model Foo<T> {
+        prop: T;
+      }
+
+       op foo(): Foo<Toy>;
+    `,
+    "FooToy.cs",
+    ["public partial class FooToy"],
+  );
+});
+
+it("Generates types and controllers in a service subnamespace", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       namespace MyService {
+         model Toy {
+          @key("toyId")
+          id: int64;
+      
+          petId: int64;
+          name: string;
+        }
+
+         op foo(): CollectionWithNextLink<Toy>;
+      }
+    `,
+    [
+      ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
+      [
+        "MyServiceOperationsController.cs",
+        ["public partial class MyServiceOperationsController: ControllerBase"],
+      ],
+      ["ToyCollectionWithNextLink.cs", ["public partial class ToyCollectionWithNextLink"]],
+    ],
+  );
+});
+
+it("Handles user-defined model templates", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       namespace MyService {
+         model Toy {
+          @key("toyId")
+          id: int64;
+      
+          petId: int64;
+          name: string;
+        }
+
+       model ResponsePage<Item> {
+        items: Item[];
+        nextLink?: string;
+       }
+
+         op foo(): ResponsePage<Toy>;
+      }
+    `,
+    [
+      [
+        "IMyServiceOperations.cs",
+        ["interface IMyServiceOperations", "Task<ResponsePageToy> FooAsync( );"],
+      ],
+      [
+        "MyServiceOperationsController.cs",
+        [
+          "public partial class MyServiceOperationsController: ControllerBase",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponsePageToy))]",
+          "public virtual async Task<IActionResult> Foo()",
+        ],
+      ],
+      ["ResponsePageToy.cs", ["public partial class ResponsePageToy"]],
+    ],
+  );
+});
+
+it("Handles void type in operations", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       namespace MyService {
+         model Toy {
+          @key("toyId")
+          id: int64;
+      
+          petId: int64;
+          name: string;
+        }
+
+      @friendlyName("{name}ListResults", Item)
+       model ResponsePage<Item> {
+        items: Item[];
+        nextLink?: string;
+       }
+
+         @post @route("/foo") op foo(...Toy): void;
+      }
+    `,
+    [
+      ["IMyServiceOperations.cs", ["interface IMyServiceOperations"]],
+      [
+        "MyServiceOperationsController.cs",
+        ["public partial class MyServiceOperationsController: ControllerBase"],
+      ],
+      ["Toy.cs", ["public partial class Toy"]],
+    ],
+  );
+});
+
+it("Handles empty body 2xx as void", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+       using TypeSpec.Rest.Resource;
+
+       namespace MyService {
+         model Toy {
+          @key("toyId")
+          id: int64;
+      
+          petId: int64;
+          name: string;
+        }
+
+      @friendlyName("{name}ListResults", Item)
+       model ResponsePage<Item> {
+        items: Item[];
+        nextLink?: string;
+       }
+
+         @post @route("/foo") op foo(...Toy): OkResponse;
+      }
+    `,
+    [
+      [
+        "IMyServiceOperations.cs",
+        ["interface IMyServiceOperations", "Task FooAsync( long id, long petId, string name)"],
+      ],
+      [
+        "MyServiceOperationsController.cs",
+        [
+          "public partial class MyServiceOperationsController: ControllerBase",
+          "public virtual async Task<IActionResult> Foo(Toy body)",
+        ],
+      ],
+      ["Toy.cs", ["public partial class Toy"]],
+    ],
+  );
+  deepStrictEqual([...runner.fs.keys()].filter((k) => k.includes("OkResponse.cs")).length, 0);
+});
+
+it("generates appropriate types for literals", async () => {
+  await compileAndValidateSingleModel(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        intProp: 8;
+        /** Floating point literal */
+        floatProp: 3.14;
+        /** string literal */
+        stringProp: "A string of characters";
+        /** string template prop */
+        stringTempProp: "\${Foo.stringProp} and then some";
+        /** boolean */
+        trueProp: true;
+        /** boolean */
+        falseProp: false;
+      }
+      `,
+    "Foo.cs",
+    [
+      "public partial class Foo",
+      "public int IntProp { get; } = 8",
+      "public double FloatProp { get; } = 3.14",
+      `public string StringProp { get; } = "A string of characters"`,
+      `public string StringTempProp { get; } = "A string of characters and then some"`,
+      "public bool TrueProp { get; } = true",
+      "public bool FalseProp { get; } = false",
+    ],
+  );
+});
+
+it("generates appropriate types for literals in operation parameters", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        @header intProp: 8;
+        /** Floating point literal */
+        @header floatProp: 3.14;
+        /** string literal */
+        @header stringProp: "A string of characters";
+        /** string template prop */
+        @header stringTempProp: "\${Foo.stringProp} and then some";
+        /** boolean */
+        @header trueProp: true;
+        /** boolean */
+        @header falseProp: false;
+      }
+
+      @route("/foo") op foo(...Foo): void;
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int IntProp { get; } = 8",
+          "public double FloatProp { get; } = 3.14",
+          `public string StringProp { get; } = "A string of characters"`,
+          `public string StringTempProp { get; } = "A string of characters and then some"`,
+          "public bool TrueProp { get; } = true",
+          "public bool FalseProp { get; } = false",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] int intProp = 8, [FromHeader(Name="float-prop")] double floatProp = 3.14, [FromHeader(Name="string-prop")] string stringProp = "A string of characters", [FromHeader(Name="string-temp-prop")] string stringTempProp = "A string of characters and then some", [FromHeader(Name="true-prop")] bool trueProp = true, [FromHeader(Name="false-prop")] bool falseProp = false)`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          `Task FooAsync( int intProp, double floatProp, string stringProp, string stringTempProp, bool trueProp, bool falseProp);`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("generates appropriate types for literal tuples in operation parameters", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        @header intProp: [8, 10];
+        /** Floating point literal */
+        @header floatProp: [3.14, 5.2];
+        /** string literal */
+        @header stringProp: "string of characters";
+        /** string literal */
+        @header stringArrayProp: ["A string of characters", "and another"];
+        /** string template prop */
+        @header stringTempProp: ["A \${Foo.stringProp} and then some", "Yet another \${Foo.stringProp}"];
+        /** boolean */
+        @header trueProp: [true, true];
+        /** boolean */
+        @header falseProp: [false, false];
+      }
+
+      @route("/foo") op foo(...Foo): void;
+      `,
+    [
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int[] IntProp { get; } = [8, 10]",
+          "public double[] FloatProp { get; } = [3.14, 5.2]",
+          `public string StringProp { get; } = "string of characters"`,
+          `public string[] StringArrayProp { get; } = ["A string of characters", "and another"]`,
+          `public string[] StringTempProp { get; } = ["A string of characters and then some", "Yet another string of characters"]`,
+          "public bool[] TrueProp { get; } = [true, true]",
+          "public bool[] FalseProp { get; } = [false, false]",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Foo([FromHeader(Name="int-prop")] int[] intProp, [FromHeader(Name="float-prop")] double[] floatProp, [FromHeader(Name="string-prop")] string stringProp = "string of characters", [FromHeader(Name="string-array-prop")] string[] stringArrayProp, [FromHeader(Name="string-temp-prop")] string[] stringTempProp, [FromHeader(Name="true-prop")] bool[] trueProp, [FromHeader(Name="false-prop")] bool[] falseProp)`,
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          `Task FooAsync( int[] intProp, double[] floatProp, string stringProp, string[] stringArrayProp, string[] stringTempProp, bool[] trueProp, bool[] falseProp);`,
+        ],
+      ],
+    ],
+  );
+});
+
+it("generates valid code for overridden parameters", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A base model */
+      model FooBase {
+        intProp: int32[];
+      }
+      /** A simple test model*/
+      model Foo extends FooBase {
+        /** Numeric literal */
+        intProp: [8, 10];
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `,
+    [
+      ["FooBase.cs", ["public partial class FooBase", "public int[] IntProp { get; set; }"]],
+      [
+        "Foo.cs",
+        ["public partial class Foo : FooBase", "public new int[] IntProp { get; } = [8, 10]"],
+      ],
+      ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+    ],
+  );
+});
+
+it("generates valid code for anonymous models", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Numeric literal */
+        intProp: [8, 10];
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        /** A complex property */
+        modelProp: {
+          bar: string;
+        };
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        anotherModelProp: {
+          baz: string;
+        };
+        
+        yetAnother: Foo.modelProp;
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `,
+    [
+      ["Model0.cs", ["public partial class Model0", "public string Bar { get; set; }"]],
+      ["Model1.cs", ["public partial class Model1", "public string Baz { get; set; }"]],
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int[] IntProp { get; } = [8, 10]",
+          "public Model0 ModelProp { get; set; }",
+          "public Model1 AnotherModelProp { get; set; }",
+          "public Model0 YetAnother { get; set; }",
+        ],
+      ],
+      ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+    ],
+  );
+});
+
+it("handles nullable types correctly", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      /** A simple test model*/
+      model Foo {
+        /** Nullable numeric property */
+        intProp: int32 | null;
+        /** Nullable reference type */
+        stringProp: string | null;
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        /** A complex property */
+        modelProp: {
+          bar: string;
+        } | null;
+        #suppress "@typespec/http-server-csharp/anonymous-model" "This is a test"
+        anotherModelProp: {
+          baz: string;
+        };
+        
+        yetAnother: Foo.modelProp | null;
+        
+      }
+
+      @route("/foo") op foo(): void;
+      `,
+    [
+      ["Model0.cs", ["public partial class Model0", "public string Bar { get; set; }"]],
+      ["Model1.cs", ["public partial class Model1", "public string Baz { get; set; }"]],
+      [
+        "Foo.cs",
+        [
+          "public partial class Foo",
+          "public int? IntProp { get; set; }",
+          "public string StringProp { get; set; }",
+          "public Model0 ModelProp { get; set; }",
+          "public Model1 AnotherModelProp { get; set; }",
+          "public Model0 YetAnother { get; set; }",
+        ],
+      ],
+      ["ContosoOperationsController.cs", [`public virtual async Task<IActionResult> Foo()`]],
+      ["IContosoOperations.cs", [`Task FooAsync( );`]],
+    ],
+  );
+});
+
+it("handles implicit request body models correctly", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
+      @route("/foo") @post op foo(intProp?: int32, arrayProp?: string[]): void;
+      `,
+    [
+      [
+        "Model0.cs",
+        [
+          "public partial class Model0",
+          "public int? IntProp { get; set; }",
+          "public string[] ArrayProp { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          `public virtual async Task<IActionResult> Foo(Model0 body)`,
+          ".FooAsync(body?.IntProp, body?.ArrayProp)",
+        ],
+      ],
+      ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
+    ],
+  );
+});
+
+it("handles multipartBody requests and shared routes", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      model Bar<T extends {}> {
+        ...T;
+      }
+      model FooRequest {
+        contents: HttpPart<File>;
+        other: HttpPart<Bar<FooJsonRequest>>;
+      }
+      model FooJsonRequest {
+        mediaType: string;
+        filename: string;
+        contents: bytes;
+      }
+
+      @sharedRoute
+      @route("/foo/{id}") 
+      @post 
+      op fooBinary(
+        @path id: string,
+        @header("content-type") contentType: "multipart/form-data", 
+        @multipartBody body: FooRequest
+      ): void;
+
+      @sharedRoute
+      @route("/foo/{id}") 
+      @post 
+      op fooJson(
+        @path id: string,
+        @header("content-type") contentType: "application/json", 
+        @body body: FooJsonRequest
+      ): void;
+      `,
+    [
+      [
+        "FooJsonRequest.cs",
+        [
+          "public partial class FooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+      [
+        "ContosoOperationsController.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "using Microsoft.AspNetCore.Http.Extensions;",
+          `[Consumes("multipart/form-data")]`,
+          "public virtual async Task<IActionResult> FooBinary(string id)",
+          ".FooBinaryAsync(id, reader)",
+          "public virtual async Task<IActionResult> FooJson(string id, FooJsonRequest body)",
+          ".FooJsonAsync(id, body)",
+        ],
+      ],
+      [
+        "IContosoOperations.cs",
+        [
+          "using Microsoft.AspNetCore.WebUtilities;",
+          "Task FooBinaryAsync( string id, MultipartReader reader);",
+          "Task FooJsonAsync( string id, FooJsonRequest body);",
+        ],
+      ],
+      [
+        "BarFooJsonRequest.cs",
+        [
+          "public partial class BarFooJsonRequest",
+          "public string MediaType { get; set; }",
+          "public string Filename { get; set; }",
+          "public byte[] Contents { get; set; }",
+        ],
+      ],
+    ],
+  );
+
+  const files = [...runner.fs.keys()];
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("HttpPartFile.cs")),
+    false,
+  );
+  assert.deepStrictEqual(
+    files.some((k) => k.endsWith("FooRequest.cs")),
+    false,
+  );
+});
+
+it("Produces NoContent result", async () => {
+  await compileAndValidateMultiple(
+    runner,
+    `
+      @error
+  model NotFoundErrorResponse {
+     @statusCode statusCode: 404;
+     code: "not-found";
+  }
+model ApiError {
+  /** A machine readable error code */
+  code: string;
+
+  /** A human readable message */
+  message: string;
+}
+    /**
+ * Something is wrong with you.
+ */
+model Standard4XXResponse extends ApiError {
+  @minValue(400)
+  @maxValue(499)
+  @statusCode
+  statusCode: int32;
+}
+
+/**
+ * Something is wrong with me.
+ */
+model Standard5XXResponse extends ApiError {
+  @minValue(500)
+  @maxValue(599)
+  @statusCode
+  statusCode: int32;
+}
+
+model FileAttachmentMultipartRequest {
+  contents: HttpPart<File>;
+}
+
+    alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
+
+    @post
+    op createFileAttachment(
+      @header contentType: "multipart/form-data",
+      @path itemId: int32,
+      @multipartBody body: FileAttachmentMultipartRequest,
+    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+    `,
+    [["ContosoOperationsController.cs", ["return NoContent()"]]],
+  );
+});
+
+it("Produces correct scaffolding", async () => {
+  await compileAndValidateMultiple(
+    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "all" }),
+    `
+      @error
+  model NotFoundErrorResponse {
+     @statusCode statusCode: 404;
+     code: "not-found";
+  }
+model ApiError {
+  /** A machine readable error code */
+  code: string;
+
+  /** A human readable message */
+  message: string;
+}
+    /**
+ * Something is wrong with you.
+ */
+model Standard4XXResponse extends ApiError {
+  @minValue(400)
+  @maxValue(499)
+  @statusCode
+  statusCode: int32;
+}
+
+/**
+ * Something is wrong with me.
+ */
+model Standard5XXResponse extends ApiError {
+  @minValue(500)
+  @maxValue(599)
+  @statusCode
+  statusCode: int32;
+}
+
+model FileAttachmentMultipartRequest {
+  contents: HttpPart<File>;
+}
+
+    alias WithStandardErrors<T> = T | Standard4XXResponse | Standard5XXResponse;
+
+    @post
+    op createFileAttachment(
+      @header contentType: "multipart/form-data",
+      @path itemId: int32,
+      @multipartBody body: FileAttachmentMultipartRequest,
+    ): WithStandardErrors<NoContentResponse | NotFoundErrorResponse>;
+    `,
+    [
+      ["IInitializer.cs", ["public interface IInitializer"]],
+      ["Initializer.cs", ["public class Initializer : IInitializer"]],
+      ["ContosoOperations.cs", ["public class ContosoOperations : IContosoOperations"]],
+      [
+        "MockRegistration.cs",
+        ["public static class MockRegistration", "<IContosoOperations, ContosoOperations>()"],
+      ],
+      ["Program.cs", ["MockRegistration"]],
+    ],
   );
 });

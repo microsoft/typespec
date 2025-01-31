@@ -8,6 +8,7 @@ import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,7 +21,10 @@ public class Client extends Metadata {
     private Security security;
     private List<ApiVersion> apiVersions = new ArrayList<>();
     private ServiceVersion serviceVersion;
-    private String crossLanguageDefinitionId;
+    private Client parent;
+    private List<Client> subClients = Collections.emptyList();
+    private boolean buildMethodPublic = true;
+    private boolean parentAccessorPublic = false;
 
     /**
      * Creates a new instance of the Client class.
@@ -137,22 +141,36 @@ public class Client extends Metadata {
         this.serviceVersion = serviceVersion;
     }
 
-    /**
-     * Gets the cross-language definition id of the client.
-     *
-     * @return The cross-language definition id of the client.
-     */
-    public String getCrossLanguageDefinitionId() {
-        return crossLanguageDefinitionId;
+    public Client getParent() {
+        return parent;
     }
 
-    /**
-     * Sets the cross-language definition id of the client.
-     *
-     * @param crossLanguageDefinitionId The cross-language definition id of the client.
-     */
-    public void setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
-        this.crossLanguageDefinitionId = crossLanguageDefinitionId;
+    public void setParent(Client parent) {
+        this.parent = parent;
+    }
+
+    public List<Client> getSubClients() {
+        return subClients;
+    }
+
+    public void setSubClients(List<Client> subClients) {
+        this.subClients = subClients;
+    }
+
+    public boolean isBuildMethodPublic() {
+        return buildMethodPublic;
+    }
+
+    public void setBuildMethodPublic(boolean buildMethodPublic) {
+        this.buildMethodPublic = buildMethodPublic;
+    }
+
+    public boolean isParentAccessorPublic() {
+        return parentAccessorPublic;
+    }
+
+    public void setParentAccessorPublic(boolean parentAccessorPublic) {
+        this.parentAccessorPublic = parentAccessorPublic;
     }
 
     @Override
@@ -167,7 +185,10 @@ public class Client extends Metadata {
             .writeJsonField("security", security)
             .writeArrayField("apiVersions", apiVersions, JsonWriter::writeJson)
             .writeJsonField("serviceVersion", serviceVersion)
-            .writeStringField("crossLanguageDefinitionId", crossLanguageDefinitionId);
+            .writeJsonField("parent", parent)
+            .writeArrayField("subClients", subClients, JsonWriter::writeJson)
+            .writeBooleanField("buildMethodPublic", buildMethodPublic)
+            .writeBooleanField("parentAccessorPublic", parentAccessorPublic);
     }
 
     /**
@@ -206,8 +227,17 @@ public class Client extends Metadata {
         } else if ("serviceVersion".equals(fieldName)) {
             client.serviceVersion = ServiceVersion.fromJson(reader);
             return true;
-        } else if ("crossLanguageDefinitionId".equals(fieldName)) {
-            client.crossLanguageDefinitionId = reader.getString();
+        } else if ("parent".equals(fieldName)) {
+            client.parent = Client.fromJson(reader);
+            return true;
+        } else if ("subClients".equals(fieldName)) {
+            client.subClients = reader.readArray(Client::fromJson);
+            return true;
+        } else if ("buildMethodPublic".equals(fieldName)) {
+            client.buildMethodPublic = reader.getBoolean();
+            return true;
+        } else if ("parentAccessorPublic".equals(fieldName)) {
+            client.parentAccessorPublic = reader.getBoolean();
             return true;
         }
 

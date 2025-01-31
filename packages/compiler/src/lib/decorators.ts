@@ -22,20 +22,14 @@ import type {
   MinValueExclusiveDecorator,
   OpExampleDecorator,
   OverloadDecorator,
-  ParameterVisibilityDecorator,
   PatternDecorator,
   ProjectedNameDecorator,
-  ReturnTypeVisibilityDecorator,
   ReturnsDocDecorator,
   SecretDecorator,
   SummaryDecorator,
   TagDecorator,
-  VisibilityDecorator,
-  WithDefaultKeyVisibilityDecorator,
   WithOptionalPropertiesDecorator,
   WithPickedPropertiesDecorator,
-  WithUpdateablePropertiesDecorator,
-  WithVisibilityDecorator,
   WithoutDefaultValuesDecorator,
   WithoutOmittedPropertiesDecorator,
 } from "../../generated-defs/TypeSpec.js";
@@ -43,7 +37,6 @@ import {
   getPropertyType,
   isIntrinsicType,
   validateDecoratorNotOnType,
-  validateDecoratorTarget,
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
@@ -105,12 +98,15 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
-import { useStateMap, useStateSet } from "./utils.js";
+import { useStateMap, useStateSet } from "../utils/index.js";
+import { setKey } from "./key.js";
+import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
 export { getPagingOperation, isList, type PagingOperation, type PagingProperty } from "./paging.js";
 export * from "./service.js";
+export * from "./visibility.js";
 export { ExampleOptions };
 
 export const namespace = "TypeSpec";
@@ -126,11 +122,7 @@ function replaceTemplatedStringFromProperties(formatString: string, sourceObject
   });
 }
 
-function createStateSymbol(name: string) {
-  return Symbol.for(`TypeSpec.${name}`);
-}
-
-const [getSummary, setSummary] = useStateMap<Type, string>("summary");
+const [getSummary, setSummary] = useStateMap<Type, string>(createStateSymbol("summary"));
 /**
  * @summary attaches a documentation string. It is typically used to give a short, single-line
  * description, and can be used in combination with or instead of @doc.
@@ -331,7 +323,7 @@ function validateTargetingAString(
 
 // -- @error decorator ----------------------
 
-const [getErrorState, setErrorState] = useStateSet<Model>("error");
+const [getErrorState, setErrorState] = useStateSet<Model>(createStateSymbol("error"));
 /**
  * `@error` decorator marks a model as an error type.
  *  Any derived models (using extends) will also be seen as error types.
@@ -360,7 +352,7 @@ export function isErrorModel(program: Program, target: Type): boolean {
 
 // -- @format decorator ---------------------
 
-const [getFormat, setFormat] = useStateMap<Type, string>("format");
+const [getFormat, setFormat] = useStateMap<Type, string>(createStateSymbol("format"));
 
 /**
  * `@format` - specify the data format hint for a string type
@@ -400,7 +392,9 @@ export const $format: FormatDecorator = (
 export { getFormat };
 
 // -- @pattern decorator ---------------------
-const [getPatternData, setPatternData] = useStateMap<Type, PatternData>("patternValues");
+const [getPatternData, setPatternData] = useStateMap<Type, PatternData>(
+  createStateSymbol("patternValues"),
+);
 
 export interface PatternData {
   readonly pattern: string;
@@ -419,6 +413,14 @@ export const $pattern: PatternDecorator = (
     return;
   }
 
+  try {
+    new RegExp(pattern);
+  } catch (e) {
+    reportDiagnostic(context.program, {
+      code: "invalid-pattern-regex",
+      target: target,
+    });
+  }
   const patternData: PatternData = {
     pattern,
     validationMessage,
@@ -653,7 +655,7 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
 };
 // -- @secret decorator ---------------------
 
-const [isSecret, markSecret] = useStateSet("secretTypes");
+const [isSecret, markSecret] = useStateSet(createStateSymbol("secretTypes"));
 
 /**
  * Mark a string as a secret value that should be treated carefully to avoid exposure
@@ -687,7 +689,9 @@ export interface EncodeData {
   type: Scalar;
 }
 
-const [getEncode, setEncodeData] = useStateMap<Scalar | ModelProperty, EncodeData>("encode");
+const [getEncode, setEncodeData] = useStateMap<Scalar | ModelProperty, EncodeData>(
+  createStateSymbol("encode"),
+);
 export const $encode: EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -807,53 +811,6 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
 
 export { getEncode };
 
-// -- @visibility decorator ---------------------
-
-const [getVisibility, setVisibility, getVisibilityStateMap] = useStateMap<Type, string[]>(
-  "visibilitySettings",
-);
-export const $visibility: VisibilityDecorator = (
-  context: DecoratorContext,
-  target: ModelProperty,
-  ...visibilities: string[]
-) => {
-  validateDecoratorUniqueOnNode(context, target, $visibility);
-
-  setVisibility(context.program, target, visibilities);
-};
-
-export { getVisibility };
-
-function clearVisibilities(program: Program, target: Type) {
-  getVisibilityStateMap(program).delete(target);
-}
-
-export const $withVisibility: WithVisibilityDecorator = (
-  context: DecoratorContext,
-  target: Model,
-  ...visibilities: string[]
-) => {
-  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, visibilities));
-  [...target.properties.values()].forEach((p) => clearVisibilities(context.program, p));
-};
-
-export function isVisible(
-  program: Program,
-  property: ModelProperty,
-  visibilities: readonly string[],
-) {
-  const propertyVisibilities = getVisibility(program, property);
-  return !propertyVisibilities || propertyVisibilities.some((v) => visibilities.includes(v));
-}
-
-function filterModelPropertiesInPlace(model: Model, filter: (prop: ModelProperty) => boolean) {
-  for (const [key, prop] of model.properties) {
-    if (!filter(prop)) {
-      model.properties.delete(key);
-    }
-  }
-}
-
 // -- @withOptionalProperties decorator ---------------------
 
 export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
@@ -862,19 +819,6 @@ export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
 ) => {
   // Make all properties of the target type optional
   target.properties.forEach((p) => (p.optional = true));
-};
-
-// -- @withUpdateableProperties decorator ----------------------
-
-export const $withUpdateableProperties: WithUpdateablePropertiesDecorator = (
-  context: DecoratorContext,
-  target: Type,
-) => {
-  if (!validateDecoratorTarget(context, target, "@withUpdateableProperties", "Model")) {
-    return;
-  }
-
-  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
 };
 
 // -- @withoutOmittedProperties decorator ----------------------
@@ -939,7 +883,7 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 
 // -- @tag decorator ---------------------
 
-const [getTagsState, setTags] = useStateMap<Type, string[]>("tagProperties");
+const [getTagsState, setTags] = useStateMap<Type, string[]>(createStateSymbol("tagProperties"));
 
 // Set a tag on an operation, interface, or namespace.  There can be multiple tags on an
 // operation, interface, or namespace.
@@ -989,7 +933,9 @@ export function getAllTags(
 
 // -- @friendlyName decorator ---------------------
 
-const [getFriendlyName, setFriendlyName] = useStateMap<Type, string>("friendlyNames");
+const [getFriendlyName, setFriendlyName] = useStateMap<Type, string>(
+  createStateSymbol("friendlyNames"),
+);
 export const $friendlyName: FriendlyNameDecorator = (
   context: DecoratorContext,
   target: Type,
@@ -1027,7 +973,7 @@ export const $friendlyName: FriendlyNameDecorator = (
 
 export { getFriendlyName };
 
-const [getKnownValues, setKnownValues] = useStateMap<Type, Enum>("knownValues");
+const [getKnownValues, setKnownValues] = useStateMap<Type, Enum>(createStateSymbol("knownValues"));
 
 /**
  * `@knownValues` marks a string type with an enum that contains all known values
@@ -1087,8 +1033,6 @@ function isEnumMemberAssignableToType(program: Program, typeName: Type, member: 
 }
 export { getKnownValues };
 
-const [getKey, setKey] = useStateMap<Type, string>("key");
-
 /**
  * `@key` - mark a model property as the key to identify instances of that type
  *
@@ -1117,46 +1061,7 @@ export const $key: KeyDecorator = (
   setKey(context.program, entity, altName || entity.name);
 };
 
-export function isKey(program: Program, property: ModelProperty) {
-  return getKey(program, property) !== undefined;
-}
-
-export function getKeyName(program: Program, property: ModelProperty): string | undefined {
-  return getKey(program, property);
-}
-
-export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
-  context: DecoratorContext,
-  entity: Model,
-  visibility: string,
-) => {
-  const keyProperties: ModelProperty[] = [];
-  entity.properties.forEach((prop: ModelProperty) => {
-    // Keep track of any key property without a visibility
-    if (isKey(context.program, prop) && !getVisibility(context.program, prop)) {
-      keyProperties.push(prop);
-    }
-  });
-
-  // For each key property without a visibility, clone it and add the specified
-  // default visibility value
-  keyProperties.forEach((keyProp) => {
-    entity.properties.set(
-      keyProp.name,
-      context.program.checker.cloneType(keyProp, {
-        decorators: [
-          ...keyProp.decorators,
-          {
-            decorator: $visibility,
-            args: [
-              { value: context.program.checker.createLiteralType(visibility), jsValue: visibility },
-            ],
-          },
-        ],
-      }),
-    );
-  });
-};
+export { getKeyName, isKey } from "./key.js";
 
 /**
  * Mark a type as deprecated
@@ -1187,9 +1092,11 @@ export function getDeprecated(program: Program, type: Type): string | undefined 
   return getDeprecationDetails(program, type)?.message;
 }
 
-const [getOverloads, setOverloads] = useStateMap<Operation, Operation[]>("overloadedByKey");
+const [getOverloads, setOverloads] = useStateMap<Operation, Operation[]>(
+  createStateSymbol("overloadedByKey"),
+);
 const [getOverloadedOperation, setOverloadBase] = useStateMap<Operation, Operation>(
-  "overloadsOperation",
+  createStateSymbol("overloadsOperation"),
 );
 
 /**
@@ -1369,49 +1276,6 @@ export const $discriminator: DiscriminatorDecorator = (
   setDiscriminator(context.program, entity, discriminator);
 };
 
-const [getParameterVisibility, setParameterVisibility] = useStateMap<Type, string[]>(
-  "parameterVisibility",
-);
-
-export const $parameterVisibility: ParameterVisibilityDecorator = (
-  context: DecoratorContext,
-  entity: Operation,
-  ...visibilities: string[]
-) => {
-  validateDecoratorUniqueOnNode(context, entity, $parameterVisibility);
-  setParameterVisibility(context.program, entity, visibilities);
-};
-
-export {
-  /**
-   * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
-   *
-   * @see {@link $parameterVisibility}
-   */
-  getParameterVisibility,
-};
-
-const [getReturnTypeVisibility, setReturnTypeVisibility] = useStateMap<Type, string[]>(
-  "returnTypeVisibility",
-);
-export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
-  context: DecoratorContext,
-  entity: Operation,
-  ...visibilities: string[]
-) => {
-  validateDecoratorUniqueOnNode(context, entity, $returnTypeVisibility);
-  setReturnTypeVisibility(context.program, entity, visibilities);
-};
-
-export {
-  /**
-   * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
-   *
-   * @see {@link $returnTypeVisibility}
-   */
-  getReturnTypeVisibility,
-};
-
 export interface Example extends ExampleOptions {
   readonly value: Value;
 }
@@ -1423,7 +1287,7 @@ export interface OpExample extends ExampleOptions {
 const [getExamplesState, setExamples] = useStateMap<
   Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
   Example[]
->("examples");
+>(createStateSymbol("examples"));
 export const $example: ExampleDecorator = (
   context: DecoratorContext,
   target: Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
@@ -1464,7 +1328,9 @@ export function getExamples(
   return getExamplesState(program, target) ?? [];
 }
 
-const [getOpExamplesState, setOpExamples] = useStateMap<Operation, OpExample[]>("opExamples");
+const [getOpExamplesState, setOpExamples] = useStateMap<Operation, OpExample[]>(
+  createStateSymbol("opExamples"),
+);
 export const $opExample: OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,

@@ -62,6 +62,13 @@ configuration:
           - if:
               - includesModifiedFiles:
                   files:
+                    - packages/http-specs/**/*
+            then:
+              - addLabel:
+                  label: lib:http-specs
+          - if:
+              - includesModifiedFiles:
+                  files:
                     - blog/**/*
             then:
               - addLabel:
@@ -101,6 +108,13 @@ configuration:
             then:
               - addLabel:
                   label: emitter:client:python
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/graphql/**/*
+            then:
+              - addLabel:
+                  label: emitter:graphql
           - if:
               - includesModifiedFiles:
                   files:
@@ -171,3 +185,11 @@ configuration:
             then:
               - addLabel:
                   label: ui:type-graph-viewer
+          - if:
+              - includesModifiedFiles:
+                  files:
+                    - packages/spector/**/*
+                    - packages/http-specs
+            then:
+              - addLabel:
+                  label: spector

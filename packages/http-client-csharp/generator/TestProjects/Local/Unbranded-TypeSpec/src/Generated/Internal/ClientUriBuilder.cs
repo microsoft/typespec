@@ -56,8 +56,6 @@ namespace UnbrandedTypeSpec
 
         public void AppendPath(byte[] value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendPath(IEnumerable<string> value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
-
         public void AppendPath(DateTimeOffset value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
         public void AppendPath(TimeSpan value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
@@ -65,6 +63,13 @@ namespace UnbrandedTypeSpec
         public void AppendPath(Guid value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
         public void AppendPath(long value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
+
+        public void AppendPathDelimited<T>(IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
+        {
+            delimiter ??= ",";
+            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
+            AppendPath(string.Join(delimiter, stringValues), escape);
+        }
 
         public void AppendQuery(string name, string value, bool escape)
         {
@@ -103,6 +108,13 @@ namespace UnbrandedTypeSpec
 
         public void AppendQuery(string name, Guid value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
+        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
+        {
+            delimiter ??= ",";
+            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
+            AppendQuery(name, string.Join(delimiter, stringValues), escape);
+        }
+
         public Uri ToUri()
         {
             if (_pathBuilder != null)
@@ -114,18 +126,6 @@ namespace UnbrandedTypeSpec
                 UriBuilder.Query = _queryBuilder.ToString();
             }
             return UriBuilder.Uri;
-        }
-
-        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, bool escape = true)
-        {
-            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v));
-            AppendQuery(name, string.Join(delimiter, stringValues), escape);
-        }
-
-        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format, bool escape = true)
-        {
-            IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
-            AppendQuery(name, string.Join(delimiter, stringValues), escape);
         }
     }
 }

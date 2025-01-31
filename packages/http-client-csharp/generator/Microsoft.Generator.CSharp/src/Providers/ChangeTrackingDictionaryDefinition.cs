@@ -47,7 +47,7 @@ namespace Microsoft.Generator.CSharp.Providers
             EnsureDictionary = new(This.Invoke(_ensureDictionarySignature));
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal;
         }
@@ -107,7 +107,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var signature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [dictionary]);
             return new ConstructorProvider(signature, new MethodBodyStatement[]
             {
-                new IfStatement(dictionary.AsExpression.Equal(Null))
+                new IfStatement(dictionary.Equal(Null))
                 {
                     Return()
                 },

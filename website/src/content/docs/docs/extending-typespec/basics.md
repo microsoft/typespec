@@ -42,9 +42,9 @@ You can skip this step if you've used one of the templates above.
 Run the following commands:
 
 ```bash
-> mkdir myLibrary
-> cd myLibrary
-> npm init
+mkdir myLibrary
+cd myLibrary
+npm init
 ```
 
 After completing the wizard, you'll have a package.json file that defines your TypeSpec library.
@@ -112,7 +112,7 @@ This will create a `tsconfig.json` file. You'll need to make a few changes to th
 
 Open `./src/lib.ts` and create your library definition that registers your library with the TypeSpec compiler and defines any diagnostics your library will emit. Make sure to export the library definition as `$lib`.
 
-:::warning
+:::caution
 If `$lib` is not accessible from your library package (for example, `import {$lib} from "my-library";`), some features such as linting and emitter option validation will not be available.
 :::
 

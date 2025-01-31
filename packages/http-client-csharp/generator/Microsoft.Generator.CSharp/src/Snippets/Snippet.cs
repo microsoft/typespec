@@ -13,14 +13,17 @@ namespace Microsoft.Generator.CSharp.Snippets
 {
     public static partial class Snippet
     {
-        public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => parameter.AsExpression.As(type);
-        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => parameter.AsExpression.As<T>();
-        public static ScopedApi<T> As<T>(this PropertyProvider property) => ((MemberExpression)property).As<T>();
-        public static ScopedApi<T> As<T>(this FieldProvider field) => ((MemberExpression)field).As<T>();
+        public static ScopedApi<bool> Equal(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("==", parameter, other).As<bool>();
+        public static ScopedApi<bool> Is(this ParameterProvider parameter, ValueExpression other) => new BinaryOperatorExpression("is", parameter, other).As<bool>();
+
+        public static ScopedApi As(this ParameterProvider parameter, CSharpType type) => ((ValueExpression)parameter).As(type);
+        public static ScopedApi<T> As<T>(this ParameterProvider parameter) => ((ValueExpression)parameter).As<T>();
+        public static ScopedApi<T> As<T>(this PropertyProvider property) => ((ValueExpression)property).As<T>();
+        public static ScopedApi<T> As<T>(this FieldProvider field) => ((ValueExpression)field).As<T>();
 
         public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
 
-        public static ValueExpression NullCoalesce(this ParameterProvider parameter, ValueExpression value) => parameter.AsExpression.NullCoalesce(value);
+        public static ValueExpression NullCoalesce(this ParameterProvider parameter, ValueExpression value) => new BinaryOperatorExpression("??", parameter, value);
         public static ValueExpression PositionalReference(this ParameterProvider parameter, ValueExpression value)
             => new PositionalParameterReferenceExpression(parameter.Name, value);
 
@@ -117,6 +120,9 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
 
+        public static ValueExpression Property(this FieldProvider field, string propertyName, bool nullConditional = false)
+            => new MemberExpression(nullConditional ? new NullConditionalExpression(field) : field, propertyName);
+
         public static InvokeMethodExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters)
             => field.Invoke(methodName, parameters, false, false);
 
@@ -143,5 +149,7 @@ namespace Microsoft.Generator.CSharp.Snippets
 
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
+
+        public static VariableExpression AsExpression(this ParameterProvider variableExpression) => (VariableExpression)variableExpression;
     }
 }

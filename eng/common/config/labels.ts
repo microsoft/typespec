@@ -35,6 +35,10 @@ export const AreaLabels = defineLabels({
     color: "c7aee6",
     description: "",
   },
+  "lib:http-specs": {
+    color: "c7aee6",
+    description: "For issues/prs related to the @typespec/http-specs package",
+  },
   "meta:blog": {
     color: "007dc8",
     description: "Blog updates",
@@ -58,6 +62,10 @@ export const AreaLabels = defineLabels({
   "emitter:client:python": {
     color: "e1b300",
     description: "Issue for the Python client emitter: @typespec/http-client-python",
+  },
+  "emitter:graphql": {
+    color: "957300",
+    description: "Issues for @typespec/graphql emitter",
   },
   "emitter:json-schema": {
     color: "957300",
@@ -86,6 +94,10 @@ export const AreaLabels = defineLabels({
   "emitter:service:java": {
     color: "967200",
     description: "Issue for Java service emitter",
+  },
+  spector: {
+    color: "65bfff",
+    description: "Issues related to spector and the spec sets",
   },
   eng: {
     color: "65bfff",
@@ -167,6 +179,10 @@ export const CommonLabels = {
         description:
           "Mark an issue that needs reply from the author or it will be closed automatically",
       },
+      stale: {
+        color: "ffffff",
+        description: "Mark a PR that hasn't been recently updated and will be closed.",
+      },
       "triaged:core": {
         color: "5319e7",
         description: "",
@@ -186,6 +202,10 @@ export default defineConfig({
     misc: {
       description: "Misc labels",
       labels: {
+        "1_0_E2E": {
+          color: "5319E7",
+          description: "",
+        },
         "Client Emitter Migration": {
           color: "FD92F0",
           description: "",
@@ -193,6 +213,10 @@ export default defineConfig({
         "good first issue": {
           color: "7057ff",
           description: "Good for newcomers",
+        },
+        mq: {
+          color: "0969da",
+          description: "Good candidate for MQ",
         },
       },
     },

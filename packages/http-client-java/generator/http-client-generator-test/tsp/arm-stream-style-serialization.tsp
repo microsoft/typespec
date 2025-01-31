@@ -19,7 +19,7 @@ using Azure.ClientGenerator.Core;
 })
 @versioned(Versions)
 @doc("Arm Resource Provider management API.")
-namespace Cadl.ArmStreamStyleSerialization;
+namespace TspTest.ArmStreamStyleSerialization;
 
 @doc("Azure API versions.")
 enum Versions {
@@ -158,11 +158,58 @@ model OutputOnlyModel {
 
 model OutputOnlyModelProperties {
   title: string;
+  dog: Dog;
+}
+
+@doc("extensible enum type for discriminator")
+union DogKind {
+  string,
+
+  @doc("Species golden")
+  Golden: "golden",
+}
+
+@doc("Test extensible enum type for discriminator")
+@discriminator("kind")
+model Dog {
+  @doc("discriminator property")
+  kind: DogKind;
+
+  @doc("Weight of the dog")
+  weight: int32;
+
+  @doc("dna of the dog")
+  @visibility("read")
+  dna: string;
+}
+
+@doc("Golden dog model")
+model Golden extends Dog {
+  @doc("discriminator property")
+  kind: DogKind.Golden;
 }
 
 model OutputOnlyModelChild extends OutputOnlyModel {
   kind: "child";
   childName: string;
+}
+
+model FunctionConfiguration {
+  input?: string;
+  output?: string;
+}
+
+@discriminator("kind")
+model FunctionProperties {
+  properties: FunctionConfiguration;
+}
+
+model AggregateFunctionProperties extends FunctionProperties {
+  kind: "aggregate";
+}
+
+model Function {
+  properties: FunctionProperties;
 }
 
 @route("/model")
@@ -182,7 +229,14 @@ interface TopLevelArmResources {
   update is ArmCustomPatchAsync<TopLevelArmResource>;
 }
 
+@route("/function")
+interface Functions {
+  @put
+  createFunction(@body function: Function): Function;
+}
+
 @@flattenProperty(Fish.properties);
 @@flattenProperty(FishProperties.tailProperties);
 @@flattenProperty(Fish.anotherProperties);
 @@flattenProperty(AnotherFishProperties.eyeProperties);
+@@flattenProperty(FunctionProperties.properties);

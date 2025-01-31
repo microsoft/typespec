@@ -26,6 +26,7 @@ namespace _Type.Union.Models
 
         public bool Equals(GetResponseProp3 other) => throw null;
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode() => throw null;
 
         public override string ToString() => throw null;

@@ -6,7 +6,7 @@ See [examples docs](../../standard-library/examples.md) for general information 
 
 ## Multiple responses
 
-```tsp tryit="{"emit": ["@typespec/openapi3"]}"
+```tsp title=main.tsp tryit="{"emit": ["@typespec/openapi3"]}"
 import "@typespec/http";
 
 using Http;

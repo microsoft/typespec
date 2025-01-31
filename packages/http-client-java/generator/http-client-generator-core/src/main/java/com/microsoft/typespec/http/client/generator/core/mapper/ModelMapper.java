@@ -350,7 +350,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
             builder.properties(properties);
             builder.propertyReferences(propertyReferences);
-            builder.crossLanguageDefinitionId(compositeType.getCrossLanguageDefinitionId());
+            builder.crossLanguageDefinitionId(SchemaUtil.getCrossLanguageDefinitionId(compositeType));
 
             result = builder.build();
 
@@ -527,8 +527,8 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
         List<ClientModelPropertyReference> propertyReferences = new ArrayList<>();
         ObjectSchema targetModelSchema = (ObjectSchema) property.getSchema();
-        String originalFlattenedPropertyName = property.getLanguage().getJava().getName();  // not
-                                                                                            // modelProperty.getName()
+        // use "property.getLanguage().getJava().getName()", not "modelProperty.getName()"
+        String originalFlattenedPropertyName = property.getLanguage().getJava().getName();
         ClientModel targetModel = this.map(targetModelSchema);
         if (targetModel != null && targetModel.getProperties() != null) {
             // gather this type and its parents
@@ -663,7 +663,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
      * @return Whether the type is predefined.
      */
     protected boolean isPredefinedModel(ClassType compositeType) {
-        if (JavaSettings.getInstance().isDataPlaneClient()) {
+        if (JavaSettings.getInstance().isDataPlaneClient() && JavaSettings.getInstance().isBranded()) {
             // see ObjectMapper.mapPredefinedModel
             // this might be too simplified, and Android might require a different implementation
             return compositeType.getPackage().startsWith(ExternalPackage.CORE.getPackageName() + ".");

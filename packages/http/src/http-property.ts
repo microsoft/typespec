@@ -1,9 +1,9 @@
 import {
+  compilerAssert,
+  createDiagnosticCollector,
   DiagnosticResult,
   Model,
   Type,
-  compilerAssert,
-  createDiagnosticCollector,
   walkPropertiesInherited,
   type Diagnostic,
   type ModelProperty,
@@ -20,7 +20,8 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { Visibility, isVisible } from "./metadata.js";
+import { isVisible, Visibility } from "./metadata.js";
+import { HttpPayloadDisposition } from "./payload.js";
 import {
   CookieParameterOptions,
   HeaderFieldOptions,
@@ -100,6 +101,7 @@ function getHttpProperty(
   options: GetHttpPropertyOptions = {},
 ): [HttpProperty, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
+
   function createResult<T extends Omit<HttpProperty, "path" | "property">>(
     opts: T,
   ): [HttpProperty & T, readonly Diagnostic[]] {
@@ -162,14 +164,15 @@ function getHttpProperty(
       );
     }
   }
+  // if implicit just returns as it is. Validation above would have checked nothing was set explicitly apart from the type and that the type match
+  if (implicit) {
+    return createResult({
+      kind: implicit.type,
+      options: implicit as any,
+      property,
+    });
+  }
   if (defined.length === 0) {
-    if (implicit) {
-      return createResult({
-        kind: implicit.type,
-        options: implicit as any,
-        property,
-      });
-    }
     return createResult({ kind: "bodyProperty" });
   } else if (defined.length > 1) {
     diagnostics.push(
@@ -214,6 +217,7 @@ export function resolvePayloadProperties(
   program: Program,
   type: Type,
   visibility: Visibility,
+  disposition: HttpPayloadDisposition,
   options: GetHttpPropertyOptions = {},
 ): DiagnosticResult<HttpProperty[]> {
   const diagnostics = createDiagnosticCollector();
@@ -236,13 +240,13 @@ export function resolvePayloadProperties(
       }
 
       let httpProperty = diagnostics.pipe(getHttpProperty(program, property, propPath, options));
-      if (shouldTreatAsBodyProperty(httpProperty, visibility)) {
+      if (shouldTreatAsBodyProperty(httpProperty, disposition)) {
         httpProperty = { kind: "bodyProperty", property, path: propPath };
       }
 
       // Ignore cookies in response to avoid future breaking changes to @cookie.
       // https://github.com/microsoft/typespec/pull/4761#discussion_r1805082132
-      if (httpProperty.kind === "cookie" && visibility & Visibility.Read) {
+      if (httpProperty.kind === "cookie" && disposition === HttpPayloadDisposition.Response) {
         diagnostics.add(
           createDiagnostic({
             code: "response-cookie-not-supported",
@@ -288,13 +292,21 @@ function isModelWithProperties(type: Type): type is Model {
   return type.kind === "Model" && !type.indexer && type.properties.size > 0;
 }
 
-function shouldTreatAsBodyProperty(property: HttpProperty, visibility: Visibility): boolean {
-  if (visibility & Visibility.Read) {
-    return property.kind === "query" || property.kind === "path";
+function shouldTreatAsBodyProperty(
+  property: HttpProperty,
+  disposition: HttpPayloadDisposition,
+): boolean {
+  switch (disposition) {
+    case HttpPayloadDisposition.Request:
+      return property.kind === "statusCode";
+    case HttpPayloadDisposition.Response:
+      return property.kind === "query" || property.kind === "path";
+    case HttpPayloadDisposition.Multipart:
+      return (
+        property.kind === "path" || property.kind === "query" || property.kind === "statusCode"
+      );
+    default:
+      void (disposition satisfies never);
+      return false;
   }
-
-  if (!(visibility & Visibility.Read)) {
-    return property.kind === "statusCode";
-  }
-  return false;
 }

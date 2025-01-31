@@ -19,7 +19,7 @@ using Azure.ClientGenerator.Core;
 })
 @versioned(Versions)
 @doc("Arm Resource Provider management API.")
-namespace Cadl.ArmResourceProvider;
+namespace TspTest.ArmResourceProvider;
 
 @doc("Azure API versions.")
 enum Versions {

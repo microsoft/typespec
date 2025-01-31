@@ -2,9 +2,10 @@ import {
   Diagnostic,
   DiagnosticTarget,
   getFriendlyName,
+  getLifecycleVisibilityEnum,
   getProperty,
   getTypeName,
-  getVisibility,
+  getVisibilityForClass,
   isGlobalNamespace,
   isService,
   isTemplateInstance,
@@ -164,10 +165,11 @@ export function resolveOperationId(program: Program, operation: Operation) {
  * designate a read-only property.
  */
 export function isReadonlyProperty(program: Program, property: ModelProperty) {
-  const visibility = getVisibility(program, property);
+  const Lifecycle = getLifecycleVisibilityEnum(program);
+  const visibility = getVisibilityForClass(program, property, getLifecycleVisibilityEnum(program));
   // note: multiple visibilities that include read are not handled using
   // readonly: true, but using separate schemas.
-  return visibility?.length === 1 && visibility[0] === "read";
+  return visibility.size === 1 && visibility.has(Lifecycle.members.get("Read")!);
 }
 
 /**

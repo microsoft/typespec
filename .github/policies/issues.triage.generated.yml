@@ -32,6 +32,8 @@ configuration:
                 - hasLabel:
                     label: lib:versioning
                 - hasLabel:
+                    label: lib:http-specs
+                - hasLabel:
                     label: meta:blog
                 - hasLabel:
                     label: meta:website
@@ -43,6 +45,8 @@ configuration:
                     label: emitter:client:java
                 - hasLabel:
                     label: emitter:client:python
+                - hasLabel:
+                    label: emitter:graphql
                 - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
@@ -57,6 +61,8 @@ configuration:
                     label: emitter:service:js
                 - hasLabel:
                     label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:
@@ -88,6 +94,8 @@ configuration:
               - labelAdded:
                   label: lib:versioning
               - labelAdded:
+                  label: lib:http-specs
+              - labelAdded:
                   label: meta:blog
               - labelAdded:
                   label: meta:website
@@ -99,6 +107,8 @@ configuration:
                   label: emitter:client:java
               - labelAdded:
                   label: emitter:client:python
+              - labelAdded:
+                  label: emitter:graphql
               - labelAdded:
                   label: emitter:json-schema
               - labelAdded:
@@ -113,6 +123,8 @@ configuration:
                   label: emitter:service:js
               - labelAdded:
                   label: emitter:service:java
+              - labelAdded:
+                  label: spector
               - labelAdded:
                   label: eng
               - labelAdded:
@@ -145,6 +157,8 @@ configuration:
               - labelRemoved:
                   label: lib:versioning
               - labelRemoved:
+                  label: lib:http-specs
+              - labelRemoved:
                   label: meta:blog
               - labelRemoved:
                   label: meta:website
@@ -156,6 +170,8 @@ configuration:
                   label: emitter:client:java
               - labelRemoved:
                   label: emitter:client:python
+              - labelRemoved:
+                  label: emitter:graphql
               - labelRemoved:
                   label: emitter:json-schema
               - labelRemoved:
@@ -170,6 +186,8 @@ configuration:
                   label: emitter:service:js
               - labelRemoved:
                   label: emitter:service:java
+              - labelRemoved:
+                  label: spector
               - labelRemoved:
                   label: eng
               - labelRemoved:
@@ -193,6 +211,8 @@ configuration:
                 - hasLabel:
                     label: lib:versioning
                 - hasLabel:
+                    label: lib:http-specs
+                - hasLabel:
                     label: meta:blog
                 - hasLabel:
                     label: meta:website
@@ -204,6 +224,8 @@ configuration:
                     label: emitter:client:java
                 - hasLabel:
                     label: emitter:client:python
+                - hasLabel:
+                    label: emitter:graphql
                 - hasLabel:
                     label: emitter:json-schema
                 - hasLabel:
@@ -218,6 +240,8 @@ configuration:
                     label: emitter:service:js
                 - hasLabel:
                     label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:

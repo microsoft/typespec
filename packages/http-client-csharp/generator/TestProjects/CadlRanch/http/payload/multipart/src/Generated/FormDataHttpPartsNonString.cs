@@ -14,8 +14,8 @@ namespace Payload.MultiPart
 
         public ClientPipeline Pipeline => throw null;
 
-        public virtual ClientResult Float(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual ClientResult Float(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
 
-        public virtual Task<ClientResult> FloatAsync(BinaryContent content, string contentType, RequestOptions options) => throw null;
+        public virtual Task<ClientResult> FloatAsync(BinaryContent content, string contentType, RequestOptions options = null) => throw null;
     }
 }
