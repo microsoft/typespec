@@ -56,7 +56,9 @@ async function install(options: InstallOptions) {
   await mkdir(installDir, { recursive: true });
   await writeFile(
     installDir + "/package.json",
-    JSON.stringify({ dependencies: { "@typespec/compiler": "latest" } }),
+    JSON.stringify({
+      dependencies: { "@typespec/compiler": (process.env.TYPESPEC_CLI_GLOBAL_VERSION = "latest") },
+    }),
     "utf8",
   );
 
