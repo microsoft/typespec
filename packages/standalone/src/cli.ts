@@ -57,7 +57,7 @@ async function install(options: InstallOptions) {
   await writeFile(
     installDir + "/package.json",
     JSON.stringify({
-      dependencies: { "@typespec/compiler": (process.env.TYPESPEC_CLI_GLOBAL_VERSION = "latest") },
+      dependencies: { "@typespec/compiler": process.env.TYPESPEC_CLI_GLOBAL_VERSION ?? "latest" },
     }),
     "utf8",
   );
