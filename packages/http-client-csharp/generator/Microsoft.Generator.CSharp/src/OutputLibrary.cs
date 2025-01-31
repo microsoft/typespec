@@ -16,8 +16,8 @@ namespace Microsoft.Generator.CSharp
             internal set => _typeProviders = value;
         }
 
-        private IReadOnlyList<TypeProvider>? _attributeProviders;
-        internal IReadOnlyList<TypeProvider> AttributeProviders => _attributeProviders ??= BuildAttributeProviders();
+        private IReadOnlyList<TypeProvider>? _customCodeAttributeProviders;
+        internal IReadOnlyList<TypeProvider> CustomCodeAttributeProviders => _customCodeAttributeProviders ??= BuildCustomCodeAttributeProviders();
 
         private static TypeProvider[] BuildEnums()
         {
@@ -82,7 +82,7 @@ namespace Microsoft.Generator.CSharp
             ];
         }
 
-        internal TypeProvider[] BuildAttributeProviders()
+        private TypeProvider[] BuildCustomCodeAttributeProviders()
         {
             return
             [

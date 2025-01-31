@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
             List<Task> generateAttributeTasks = new();
-            foreach (var attributeProvider in output.AttributeProviders)
+            foreach (var attributeProvider in output.CustomCodeAttributeProviders)
             {
                 var writer = CodeModelPlugin.Instance.GetWriter(attributeProvider);
                 generateAttributeTasks.Add(workspace.AddGeneratedFile(writer.Write()));
