@@ -20,7 +20,6 @@ extends:
       - template: /eng/tsp-core/pipelines/templates/variables/globals.yml@self
 
     stages:
-
       - stage: build
         dependsOn: []
         displayName: Build
@@ -66,6 +65,8 @@ extends:
         dependsOn: build
         jobs:
           - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
+
+      - template: /eng/tsp-core/pipelines/stages/sign-publish-tsp-cli.yml@self
 
       - stage: docker
         displayName: Docker
