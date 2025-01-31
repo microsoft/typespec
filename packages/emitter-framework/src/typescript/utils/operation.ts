@@ -1,7 +1,7 @@
 import { Children, refkey as getRefkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { TypeExpression } from "../components/type-expression.jsx";
 
 export function getReturnType(

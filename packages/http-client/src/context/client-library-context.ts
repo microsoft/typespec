@@ -1,6 +1,6 @@
 import { ComponentContext, createNamedContext, useContext } from "@alloy-js/core";
 import { NoTarget } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { ClientLibrary } from "../client-library.js";
 import { reportDiagnostic } from "../lib.js";
 

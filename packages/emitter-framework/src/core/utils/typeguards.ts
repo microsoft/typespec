@@ -11,7 +11,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 
 export function isModel(type: any): type is Model {
   return type.kind === "Model";

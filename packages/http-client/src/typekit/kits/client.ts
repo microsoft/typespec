@@ -7,7 +7,7 @@ import {
   NoTarget,
   Operation,
 } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { getServers } from "@typespec/http";
 import "@typespec/http/typekit";
 import { InternalClient } from "../../interfaces.js";
@@ -64,7 +64,7 @@ interface TypeKit {
   client: ClientKit;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   interface Typekit extends TypeKit {}
 }
 
@@ -128,7 +128,7 @@ defineKit<TypeKit>({
     getName(client) {
       return client.name;
     },
-    isPubliclyinitializeable(client) {
+    isPubliclyInitializeable(client) {
       return client.type.kind === "Namespace";
     },
     listServiceOperations(client) {

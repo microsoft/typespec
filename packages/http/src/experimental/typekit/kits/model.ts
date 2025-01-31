@@ -1,5 +1,5 @@
 import { Model } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { isHttpFile } from "../../../private.decorators.js";
 
 export interface HttpModel {
@@ -10,7 +10,7 @@ interface TypekitExtension {
   model: HttpModel;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   interface ModelKit extends HttpModel {}
 }
 

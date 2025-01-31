@@ -6,7 +6,7 @@ import {
   ModelProperty,
   Type,
 } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { AccessKit, getAccess, getName, getUsage, NameKit, UsageKit } from "./utils.js";
 
 export interface SdkModelKit extends NameKit<Model>, AccessKit<Model>, UsageKit<Model> {
@@ -57,7 +57,7 @@ interface SdkKit {
   model: SdkModelKit;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   interface ModelKit extends SdkModelKit {}
 }
 

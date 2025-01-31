@@ -1,6 +1,6 @@
 import { Enum, Model, Operation, Union } from "@typespec/compiler";
 import { unsafe_mutateSubgraph, unsafe_Mutator } from "@typespec/compiler/experimental";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { Client, ClientOperation, InternalClient } from "./interfaces.js";
 import { collectDataTypes } from "./utils/type-collector.js";
 

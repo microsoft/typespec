@@ -1,5 +1,5 @@
 import { Type } from "@typespec/compiler";
-import { defineKit } from "@typespec/compiler/typekit";
+import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { getHttpPart, HttpPart } from "../../../private.decorators.js";
 
 export interface HttpPartKit {
@@ -24,7 +24,7 @@ interface TypekitExtension {
   httpPart: HttpPartKit;
 }
 
-declare module "@typespec/compiler/typekit" {
+declare module "@typespec/compiler/experimental/typekit" {
   interface Typekit extends TypekitExtension {}
 }
 

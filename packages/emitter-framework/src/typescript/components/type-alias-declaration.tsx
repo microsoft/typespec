@@ -2,7 +2,7 @@ import { refkey as getRefkey} from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { Scalar } from "@typespec/compiler";
 import { TypeExpression } from "./type-expression.jsx";
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { reportDiagnostic } from "../../lib.js";
 
 export interface TypedAliasDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {

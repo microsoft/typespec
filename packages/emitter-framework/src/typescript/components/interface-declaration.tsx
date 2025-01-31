@@ -2,7 +2,7 @@ import { Children, code, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {  Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
 import {createRekeyableMap} from "@typespec/compiler/utils"
-import { $ } from "@typespec/compiler/typekit";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
 import { reportDiagnostic } from "../../lib.js";
