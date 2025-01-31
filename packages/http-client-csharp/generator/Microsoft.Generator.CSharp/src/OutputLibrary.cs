@@ -75,10 +75,6 @@ namespace Microsoft.Generator.CSharp
                 new ChangeTrackingDictionaryDefinition(),
                 new ArgumentDefinition(),
                 new OptionalDefinition(),
-                new CodeGenTypeAttributeDefinition(),
-                new CodeGenMemberAttributeDefinition(),
-                new CodeGenSuppressAttributeDefinition(),
-                new CodeGenSerializationAttributeDefinition(),
                 .. BuildModelFactory()
             ];
         }
