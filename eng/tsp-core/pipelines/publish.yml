@@ -32,7 +32,7 @@ extends:
 
         jobs:
           - template: /eng/tsp-core/pipelines/jobs/build-for-publish.yml@self
-          - template: /eng/tsp-core/pipelines/jobs/cli/tsp-cli-all.yml@self
+          - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
 
       - stage: publish_npm
         displayName: Publish Npm Packages
