@@ -12,6 +12,7 @@ stages:
         variables:
           TYPESPEC_VS_CI_BUILD: true # Enable official Visual Studio extension build
           TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+          TYPESPEC_SKIP_CLI_BUILD: ne(nodeVersion, '18.x') # Enable CLI build
 
         strategy:
           matrix:

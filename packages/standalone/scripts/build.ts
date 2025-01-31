@@ -7,6 +7,12 @@ import { dirname, join } from "path";
 import { writeSeaConfig } from "./sea-config.js";
 // cspell:ignore postject
 
+if (process.env.TYPESPEC_SKIP_CLI_BUILD) {
+  console.log("TYPESPEC_SKIP_CLI_BUILD is set, skipping build.");
+  process.exit(0);
+}
+
+
 const projectRoot = dirname(import.meta.dirname);
 const distDir = join(projectRoot, "dist");
 const tempDir = join(projectRoot, "temp");
@@ -19,6 +25,8 @@ const exePath = join(distDir, exeName);
 await buildCurrent();
 
 async function buildCurrent() {
+
+  
   await bundle();
   console.log("");
   await buildWithNodeSea();
