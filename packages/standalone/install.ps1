@@ -256,7 +256,8 @@ function Install-tsp {
       }
     }
 
-    Write-Output "To get started, restart your terminal/editor, then type `"tsp`"`n"
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    Write-Output "To get started type `"tsp`"`n"
   }
 
   $LASTEXITCODE = 0;
