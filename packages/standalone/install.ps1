@@ -80,7 +80,7 @@ function New-TemporaryDirectory {
 }
 
 function Find-Latest-Version {
-    return (Invoke-webrequest -URI "https://typespec.blob.core.windows.net/dist/latest.txt").Content.Trim()
+    return (Invoke-webrequest -UseBasicParsing -URI "https://typespec.blob.core.windows.net/dist/latest.txt").Content.Trim()
 }
 
 function Get-Download-Url {
