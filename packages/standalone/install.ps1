@@ -1,4 +1,5 @@
 #!/usr/bin/env pwsh
+# Forked from bun install.ps1 https://github.com/oven-sh/bun/blob/main/src/cli/install.ps1
 param(
   [String]$Version = "latest",
   # Skips adding the tsp.exe directory to the user's %PATH%
