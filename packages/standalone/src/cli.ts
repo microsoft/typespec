@@ -10,19 +10,23 @@ import { npath } from "@yarnpkg/fslib";
 import nmPlugin from "@yarnpkg/plugin-nm";
 import npmPlugin from "@yarnpkg/plugin-npm";
 import pnpPlugin from "@yarnpkg/plugin-pnp";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { pathToFileURL } from "node:url";
 
 const tspDir = homedir() + "/.tsp";
 
 async function main() {
+  await installAndRun({ noCache: process.argv.includes("--no-cache") });
+}
+async function installAndRun({ noCache }: { noCache: boolean }) {
   await install({
+    noCache,
     installDir: tspDir + "/compiler-installs",
   });
 
   const url = pathToFileURL(
-    tspDir + "/compiler-installs/node_modules/@typespec/compiler/entrypoints/cli.js",
+    tspDir + "/compiler-installs/node_modules/@typespec/compiler/cmd/tsp.js",
   ).href;
   await import(url);
 }
@@ -35,6 +39,7 @@ main().catch((error) => {
 
 interface InstallOptions {
   installDir: string;
+  noCache?: boolean;
 }
 
 const plugins = {
@@ -44,6 +49,9 @@ const plugins = {
 };
 async function install(options: InstallOptions) {
   const installDir = options.installDir;
+  if (options.noCache) {
+    await rm(installDir, { recursive: true, force: true });
+  }
   await mkdir(installDir, { recursive: true });
   await writeFile(
     installDir + "/package.json",
