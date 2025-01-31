@@ -97,7 +97,7 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
   await writeFiles(host, config);
 }
 
-function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): boolean {
+export function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): boolean {
   for (const file of files) {
     if (file.destination === fileName) {
       return file.skipGeneration ?? false;
