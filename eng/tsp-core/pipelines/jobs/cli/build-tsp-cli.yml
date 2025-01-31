@@ -4,7 +4,7 @@ parameters:
 
 jobs:
   - job: build_${{ replace(parameters.platform, '-', '_') }}
-    displayName: Build ${{ parameters.platform }}
+    displayName: Build CLI ${{ parameters.platform }}
     pool:
       ${{ if eq(parameters.platform, 'linux-x64') }}:
         name: $(LINUXPOOL)
