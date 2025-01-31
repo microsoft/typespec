@@ -28,61 +28,57 @@ Bold_White=''
 Bold_Green=''
 
 if [[ -t 1 ]]; then
-    # Reset
-    Color_Off='\033[0m' # Text Reset
+  # Reset
+  Color_Off='\033[0m' # Text Reset
 
-    # Regular Colors
-    Red='\033[0;31m'   # Red
-    Green='\033[0;32m' # Green
-    Dim='\033[0;2m'    # White
+  # Regular Colors
+  Red='\033[0;31m'   # Red
+  Green='\033[0;32m' # Green
+  Dim='\033[0;2m'    # White
 
-    # Bold
-    Bold_Green='\033[1;32m' # Bold Green
-    Bold_White='\033[1m'    # Bold White
+  # Bold
+  Bold_Green='\033[1;32m' # Bold Green
+  Bold_White='\033[1m'    # Bold White
 fi
 
 error() {
-    echo -e "${Red}error${Color_Off}:" "$@" >&2
-    exit 1
+  echo -e "${Red}error${Color_Off}:" "$@" >&2
+  exit 1
 }
 
 info() {
-    echo -e "${Dim}$@ ${Color_Off}"
+  echo -e "${Dim}$@ ${Color_Off}"
 }
 
 success() {
-    echo -e "${Green}$@ ${Color_Off}"
+  echo -e "${Green}$@ ${Color_Off}"
 }
-
 
 install_dir="$HOME/.tsp"
 
-
 case $platform in
-'Darwin x86_64')
+  'Darwin x86_64')
     target=darwin-x64
     ;;
-'Darwin arm64')
+  'Darwin arm64')
     target=darwin-arm64
     ;;
-'Linux aarch64' | 'Linux arm64')
+  'Linux aarch64' | 'Linux arm64')
     target=linux-arm64
     ;;
-'Linux x86_64' | *)
+  'Linux x86_64' | *)
     target=linux-x64
     ;;
 esac
 
-
 if [[ $target = darwin-x64 ]]; then
-    # Is this process running in Rosetta?
-    # redirect stderr to devnull to avoid error message when not running in Rosetta
-    if [[ $(sysctl -n sysctl.proc_translated 2>/dev/null) = 1 ]]; then
-        target=darwin-aarch64
-        info "Your shell is running in Rosetta 2. Downloading bun for $target instead"
-    fi
+  # Is this process running in Rosetta?
+  # redirect stderr to devnull to avoid error message when not running in Rosetta
+  if [[ $(sysctl -n sysctl.proc_translated 2> /dev/null) = 1 ]]; then
+    target=darwin-aarch64
+    info "Your shell is running in Rosetta 2. Downloading bun for $target instead"
+  fi
 fi
-
 
 # Parse Flags
 parse_args() {
@@ -90,75 +86,75 @@ parse_args() {
     key="$1"
 
     case $key in
-    -d | --install-dir)
-      install_dir="$2"
-      shift # past argument
-      shift # past value
-      ;;
-    -s | --skip-shell)
-      SKIP_SHELL="true"
-      shift # past argument
-      ;;
-    --force-install | --force-no-brew)
-      echo "\`--force-install\`: I hope you know what you're doing." >&2
-      FORCE_INSTALL="true"
-      shift
-      ;;
-    -r | --release)
-      release="$2"
-      shift # past release argument
-      shift # past release value
-      ;;
-    *)
-      echo "Unrecognized argument $key"
-      exit 1
-      ;;
+      -d | --install-dir)
+        install_dir="$2"
+        shift # past argument
+        shift # past value
+        ;;
+      -s | --skip-shell)
+        SKIP_SHELL="true"
+        shift # past argument
+        ;;
+      --force-install | --force-no-brew)
+        echo "\`--force-install\`: I hope you know what you're doing." >&2
+        FORCE_INSTALL="true"
+        shift
+        ;;
+      -r | --release)
+        release="$2"
+        shift # past release argument
+        shift # past release value
+        ;;
+      *)
+        echo "Unrecognized argument $key"
+        exit 1
+        ;;
     esac
   done
 }
 
 find_latest_version() {
-    curl "https://typespec.blob.core.windows.net/dist/latest.txt"
+  curl "https://typespec.blob.core.windows.net/dist/latest.txt"
 }
 
 get_filename() {
-        echo "tsp-$target.tar.gz"
+  echo "tsp-$target.tar.gz"
 }
 
 get_download_url() {
-    if [ "$release" = "latest" ]; then
-        release=$(find_latest_version)
-    fi
+  if [ "$release" = "latest" ]; then
+    release=$(find_latest_version)
+  fi
 
-    echo "https://typespec.blob.core.windows.net/dist/$release/$(get_filename)"
+  echo "https://typespec.blob.core.windows.net/dist/$release/$(get_filename)"
 }
 
 download_tsp() {
-    URL=$(get_download_url)
-    info "Downloading Typespec from $URL"
+  URL=$(get_download_url)
+  info "Downloading Typespec from $URL"
 
-    download_dir=$(mktemp -d)
-    filename=$(get_filename)
+  download_dir=$(mktemp -d)
+  filename=$(get_filename)
 
-    echo "Downloading $URL..."
-    bin_dir="$install_dir/bin"
+  echo "Downloading $URL..."
+  bin_dir="$install_dir/bin"
 
-    compressed_file_path="$download_dir/$filename"
-    if ! curl --progress-bar --fail -L "$URL" -o "$compressed_file_path"; then
-      error "Download failed.  Check that the release/filename are correct."
-      exit 1
-    fi
+  compressed_file_path="$download_dir/$filename"
+  if ! curl --progress-bar --fail -L "$URL" -o "$compressed_file_path"; then
+    error "Download failed.  Check that the release/filename are correct."
+    exit 1
+  fi
 
-    extract_location="$download_dir/extracted"
-    mkdir $extract_location
-    tar -zxvf "$compressed_file_path" -C "$extract_location"/
-    rm "$compressed_file_path"
-    chmod +x "$extract_location/$bin_name"
+  extract_location="$download_dir/extracted"
+  mkdir $extract_location
+  tar -zxvf "$compressed_file_path" -C "$extract_location"/
+  rm "$compressed_file_path"
+  chmod +x "$extract_location/$bin_name"
 
-    # Move to install directory
-    mkdir -p "$bin_dir" &>/dev/null
-    mv "$extract_location/$bin_name" "$bin_dir/$bin_name"
-    success "TypeSpec was installed successfully to $Bold_Green$("$install_dir")"
+  # Move to install directory
+  mkdir -p "$bin_dir" &> /dev/null
+  mv "$extract_location/$bin_name" "$bin_dir/$bin_name"
+  success "TypeSpec was installed successfully to $Bold_Green$("$install_dir")"
 }
 
 check_dependencies() {
@@ -166,7 +162,7 @@ check_dependencies() {
   info "Checking dependencies for the installation script..."
 
   info "Checking availability of curl... "
-  if hash curl 2>/dev/null; then
+  if hash curl 2> /dev/null; then
     info "OK!"
   else
     error "curl is required to instal typespec"
