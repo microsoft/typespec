@@ -73,12 +73,11 @@ jobs:
 
             - task: AzureCLI@1
               displayName: "Upload to storage"
-              condition: ne(variables['SKIP_PUBLISH'], 'true')
               inputs:
                 azureSubscription: "Azure SDK Engineering System"
                 scriptLocation: inlineScript
                 inlineScript: |
-                  echo -n "$PACKAGE_VERSION" > latest.txt
+                  echo -n "$(PACKAGE_VERSION)" > latest.txt
 
                   az storage blob upload-batch \
                     --auth-mode login \
