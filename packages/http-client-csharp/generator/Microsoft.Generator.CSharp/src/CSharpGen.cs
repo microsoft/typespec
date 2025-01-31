@@ -29,9 +29,19 @@ namespace Microsoft.Generator.CSharp
             var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
+            var output = CodeModelPlugin.Instance.OutputLibrary;
+
+            List<Task> generateAttributeTasks = new();
+            foreach (var attributeProvider in output.AttributeProviders)
+            {
+                var writer = CodeModelPlugin.Instance.GetWriter(attributeProvider);
+                generateAttributeTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+            }
+
+            await Task.WhenAll(generateAttributeTasks);
+
             CodeModelPlugin.Instance.SourceInputModel = new SourceInputModel(await workspace.GetCompilationAsync());
 
-            var output = CodeModelPlugin.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
 

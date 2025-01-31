@@ -16,6 +16,13 @@ namespace Microsoft.Generator.CSharp
             internal set => _typeProviders = value;
         }
 
+        private IReadOnlyList<TypeProvider>? _attributeProviders;
+        internal IReadOnlyList<TypeProvider> AttributeProviders
+        {
+            get => _attributeProviders ??= BuildAttributeProviders();
+            set => _attributeProviders = value;
+        }
+
         private static TypeProvider[] BuildEnums()
         {
             var input = CodeModelPlugin.Instance.InputLibrary.InputNamespace;
@@ -75,11 +82,18 @@ namespace Microsoft.Generator.CSharp
                 new ChangeTrackingDictionaryDefinition(),
                 new ArgumentDefinition(),
                 new OptionalDefinition(),
+                .. BuildModelFactory()
+            ];
+        }
+
+        internal TypeProvider[] BuildAttributeProviders()
+        {
+            return
+            [
                 new CodeGenTypeAttributeDefinition(),
                 new CodeGenMemberAttributeDefinition(),
                 new CodeGenSuppressAttributeDefinition(),
                 new CodeGenSerializationAttributeDefinition(),
-                .. BuildModelFactory()
             ];
         }
 
