@@ -339,7 +339,7 @@ describe("getConstructor", () => {
   });
 });
 
-describe("isPubliclyinitializeable", () => {
+describe("isPubliclyInitializeable", () => {
   it("namespace", async () => {
     const { DemoService } = (await runner.compile(`
       @service({
@@ -351,7 +351,7 @@ describe("isPubliclyinitializeable", () => {
     const responses = $.clientLibrary.listClients(DemoService);
     expect(responses).toHaveLength(1);
     expect(responses[0].name).toEqual("DemoServiceClient");
-    expect($.client.isPubliclyinitializeable(responses[0])).toBeTruthy();
+    expect($.client.isPubliclyInitializeable(responses[0])).toBeTruthy();
   });
   it("nested namespace", async () => {
     const { DemoService } = (await runner.compile(`
@@ -366,12 +366,12 @@ describe("isPubliclyinitializeable", () => {
     const responses = $.clientLibrary.listClients(DemoService);
     expect(responses).toHaveLength(1);
     expect(responses[0].name).toEqual("DemoServiceClient");
-    expect($.client.isPubliclyinitializeable(responses[0])).toBeTruthy();
+    expect($.client.isPubliclyInitializeable(responses[0])).toBeTruthy();
 
     const subclients = $.clientLibrary.listClients(responses[0]);
     expect(subclients).toHaveLength(1);
     expect(subclients[0].name).toEqual("NestedServiceClient");
-    expect($.client.isPubliclyinitializeable(subclients[0])).toBeTruthy();
+    expect($.client.isPubliclyInitializeable(subclients[0])).toBeTruthy();
   });
   it("nested interface", async () => {
     const { DemoService } = (await runner.compile(`
@@ -386,12 +386,12 @@ describe("isPubliclyinitializeable", () => {
     const responses = $.clientLibrary.listClients(DemoService);
     expect(responses).toHaveLength(1);
     expect(responses[0].name).toEqual("DemoServiceClient");
-    expect($.client.isPubliclyinitializeable(responses[0])).toBeTruthy();
+    expect($.client.isPubliclyInitializeable(responses[0])).toBeTruthy();
 
     const subclients = $.clientLibrary.listClients(responses[0]);
     expect(subclients).toHaveLength(1);
     expect(subclients[0].name).toEqual("NestedInterfaceClient");
-    expect($.client.isPubliclyinitializeable(subclients[0])).toBeFalsy();
+    expect($.client.isPubliclyInitializeable(subclients[0])).toBeFalsy();
   });
 });
 

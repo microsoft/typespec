@@ -95,7 +95,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@alloy-js/core": "~0.3.0",
+    "@alloy-js/core": "~0.4.0",
     "@babel/code-frame": "~7.26.2",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
