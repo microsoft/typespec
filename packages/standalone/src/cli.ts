@@ -28,6 +28,7 @@ async function installAndRun({ noCache }: { noCache: boolean }) {
   const url = pathToFileURL(
     tspDir + "/compiler-installs/node_modules/@typespec/compiler/cmd/tsp.js",
   ).href;
+  (globalThis as any).TYPESPEC_ENGINE = "tsp";
   await import(url);
 }
 

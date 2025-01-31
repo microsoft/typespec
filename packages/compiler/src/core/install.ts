@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 import { mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { CliCompilerHost } from "./cli/types.js";
+import { getTypeSpecEngine } from "./engine.js";
 import { joinPaths } from "./path-utils.js";
 
 interface SpawnError {
@@ -17,7 +18,13 @@ export async function installTypeSpecDependencies(
   host: CliCompilerHost,
   directory: string,
 ): Promise<void> {
-  await installWithBuiltinNpm(host, directory);
+  // Only use the builtin npm when running in standalone tsp mode.
+  // TBD how we'll change this as we move to a more integrated setup and resolve the user package manager.
+  if (getTypeSpecEngine() === "tsp") {
+    await installWithBuiltinNpm(host, directory);
+  } else {
+    await installWithNpmExe(host, directory);
+  }
 }
 
 async function installWithBuiltinNpm(host: CliCompilerHost, directory: string): Promise<void> {
@@ -33,8 +40,7 @@ async function installWithBuiltinNpm(host: CliCompilerHost, directory: string): 
   await arb.reify();
 }
 
-// Keeping here for now as we'll try to figure out which pm user is using and delegate to that.
-async function _installWithNpmExe(host: CliCompilerHost, directory: string): Promise<void> {
+async function installWithNpmExe(host: CliCompilerHost, directory: string): Promise<void> {
   const child = spawn("npm", ["install"], {
     shell: process.platform === "win32",
     stdio: "inherit",
