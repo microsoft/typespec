@@ -10,7 +10,8 @@
     "watch-src": "babel src -d dist/src --extensions '.ts,.tsx' --watch",
     "watch-tsc": "tsc -p . --watch",
     "watch": "concurrently --kill-others \"npm run watch-tsc\" \"npm run watch-src\"",
-    "test": "vitest run"
+    "test": "vitest run",
+    "postinstall": "echo '@typespec/emitter-framework is a highly experimental package and may change at any time.'"
   },
   "exports": {
     ".": {
