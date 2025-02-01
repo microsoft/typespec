@@ -1,6 +1,6 @@
 {
   "name": "@typespec/emitter-framework",
-  "version": "1.0.0",
+  "version": "0.64.0",
   "type": "module",
   "private": true,
   "main": "dist/index.js",
