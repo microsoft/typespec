@@ -445,10 +445,30 @@ export function mutateSubgraph<T extends MutableType>(
       interstitialFunctions.length = 0;
     }
 
+    function mutateSubMap<T extends MutableType, K extends keyof T>(type: T, prop: K, clone: any) {
+      for (const [key, value] of (type as any)[prop].entries()) {
+        const newValue = mutateSubgraphWorker(value, newMutators);
+        if (clone) {
+          (clone as any)[prop].set(key, newValue);
+        }
+      }
+    }
+
     function visitSubgraph() {
-      const root = clone ?? type;
+      const root: MutableType | Namespace = clone ?? (type as MutableType | Namespace);
       switch (root.kind) {
+        case "Namespace":
+          mutateSubMap(root as any, "namespaces", clone);
+          mutateSubMap(root as any, "models", clone);
+          mutateSubMap(root as any, "operations", clone);
+          mutateSubMap(root as any, "interfaces", clone);
+          mutateSubMap(root as any, "enums", clone);
+          mutateSubMap(root as any, "unions", clone);
+          mutateSubMap(root as any, "scalars", clone);
+
+          break;
         case "Model":
+          mutateSubMap(root, "properties", clone);
           for (const prop of root.properties.values()) {
             const newProp = mutateSubgraphWorker(prop, newMutators);
 
@@ -475,6 +495,12 @@ export function mutateSubgraph<T extends MutableType>(
           if (clone) {
             (clone as any).parameters = newParams;
           }
+
+          // const newReturnType = mutateSubgraphWorker(root.returnType as MutableType, newMutators);
+          // console.log("New return type", newReturnType);
+          // if (clone) {
+          //   (clone as any).returnType = newReturnType;
+          // }
 
           break;
         case "Scalar":

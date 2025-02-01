@@ -16,10 +16,21 @@ export function getVersionsMutators(program: Program, namespace: Namespace): Ver
     versions.map((x) => x.versions),
   );
   const helper = new VersioningHelper(program, timeline);
-  return versions.map((resolution) => ({
-    version: resolution.rootVersion!,
-    mutator: createVersionMutator(helper, timeline.get(resolution.versions.values().next().value!)),
-  }));
+  return versions
+    .map((resolution) => {
+      if (resolution.versions.size === 0) {
+        return undefined;
+      } else {
+        return {
+          version: resolution.rootVersion!,
+          mutator: createVersionMutator(
+            helper,
+            timeline.get(resolution.versions.values().next().value!),
+          ),
+        };
+      }
+    })
+    .filter((x) => x !== undefined);
 }
 
 export function createVersionMutator(

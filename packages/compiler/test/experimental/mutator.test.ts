@@ -8,6 +8,7 @@ import {
   MutatorWithNamespace,
 } from "../../src/experimental/mutators.js";
 import { Model, ModelProperty, Namespace } from "../../src/index.js";
+import { expectIdenticalTypes } from "../../src/testing/expect.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { createTestWrapper } from "../../src/testing/test-utils.js";
 import { BasicTestRunner, TestHost } from "../../src/testing/types.js";
@@ -77,6 +78,44 @@ it("recurses the model", async () => {
   mutateSubgraph(runner.program, [mutator], Foo);
 
   expect(visited).toStrictEqual(["Foo", "Bar"]);
+});
+
+it("doesn't duplicate references", async () => {
+  const code = `
+    @test model Bar {
+      bar: string;
+    }
+    @test model Baz {
+      bar: Bar;
+    }
+    @test model Foo {
+      baz: Baz;
+      bar: Bar;
+    };
+  `;
+
+  const visited: Model[] = [];
+  const { Foo } = (await runner.compile(code)) as { Foo: Model };
+  const mutator: Mutator = {
+    name: "test",
+    Model: {
+      filter: () => {
+        return MutatorFlow.MutateAndRecur;
+      },
+      mutate: (clone) => {
+        visited.push(clone);
+      },
+    },
+  };
+  mutateSubgraph(runner.program, [mutator], Foo);
+
+  expect(visited.map((x) => x.name)).toEqual(["Foo", "Baz", "Bar"]);
+  const [MutatedFoo, _MutatedBaz, MutatedBar] = visited;
+  expectIdenticalTypes(MutatedFoo.properties.get("bar")!.type, MutatedBar);
+  expectIdenticalTypes(
+    (MutatedFoo.properties.get("baz")!.type as Model).properties.get("bar")?.type!,
+    MutatedBar,
+  );
 });
 
 it("removes model reference from namespace", async () => {
