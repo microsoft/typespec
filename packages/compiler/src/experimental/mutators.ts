@@ -315,6 +315,7 @@ export function mutateSubgraph<T extends MutableType>(
   function mutateSubgraphWorker<T extends MutableType>(
     type: T,
     activeMutators: Set<Mutator>,
+    forceClone = false,
   ): MutableType {
     let existing = seen.get([type, activeMutators]);
     if (existing) {
@@ -381,7 +382,7 @@ export function mutateSubgraph<T extends MutableType>(
     const mutatorsToApply = mutatorsWithOptions.map((v) => v.mutator);
 
     // if we have no mutators to apply, let's bail out.
-    if (mutatorsWithOptions.length === 0) {
+    if (mutatorsWithOptions.length === 0 && !forceClone) {
       if (newMutators.size > 0) {
         // we might need to clone this type later if something in our subgraph needs mutated.
         interstitialFunctions.push(initializeClone);
@@ -450,13 +451,14 @@ export function mutateSubgraph<T extends MutableType>(
       callback: (value: any) => void,
     ) {
       for (const [key, value] of (type as any)[prop].entries()) {
-        const newValue: any = mutateSubgraphWorker(value, newMutators);
+        const newValue: any = mutateSubgraphWorker(value, newMutators, true);
         if (clone) {
-          callback(newValue);
+          if (newValue !== value) {
+            callback(newValue);
+          }
           (clone as any)[prop].set(key, newValue);
 
           if (newValue.name !== value.name) {
-            console.log("Update name", value.name, newValue.name);
             (clone as any)[prop].rekey(key, newValue.name);
           }
         }
@@ -506,6 +508,15 @@ export function mutateSubgraph<T extends MutableType>(
             (clone as any).returnType = newReturnType;
           }
 
+          break;
+        case "Interface":
+          mutateSubMap(root, "operations", clone, (value) => (value.interface = clone));
+          break;
+        case "Enum":
+          mutateSubMap(root, "members", clone, (value) => (value.enum = clone));
+          break;
+        case "Union":
+          mutateSubMap(root, "variants", clone, (value) => (value.union = clone));
           break;
         case "Scalar":
           const newBaseScalar = root.baseScalar

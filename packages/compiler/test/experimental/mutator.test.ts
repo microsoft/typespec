@@ -218,9 +218,11 @@ it("removes model reference from namespace", async () => {
 
   //Original namespace should have Bar model
   expect(Foo.models.has("Bar")).toBeTruthy();
+  expectIdenticalTypes(Foo.models.get("Baz")!.namespace!, Foo);
   // Mutated namespace should not have Bar model
   expect(mutatedNs.models.has("Bar")).toBeFalsy();
   // Mutated namespace is propagated to the models
+  expectTypeEquals(mutatedNs, mutatedNs.models.get("Baz")!.namespace!);
   expect(mutatedNs.models.get("Baz")!.namespace?.models.get("Bar")).toBeUndefined();
   // Original should be unchanged
   expect(Foo.models.get("Baz")!.namespace?.models.get("Bar")).toBeDefined();
