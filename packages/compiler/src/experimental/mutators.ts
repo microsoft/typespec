@@ -475,6 +475,20 @@ export function mutateSubgraph<T extends MutableType>(
       }
     }
 
+    function mutateProperty<T extends MutableType, K extends keyof T>(
+      original: T,
+      prop: K,
+      clone: any,
+    ) {
+      if (original[prop] === undefined) {
+        return;
+      }
+      const newValue: any = mutateSubgraphWorker(original[prop] as any, newMutators);
+      if (clone) {
+        clone[prop] = newValue;
+      }
+    }
+
     function visitSubgraph() {
       const root: MutableType | Namespace = clone ?? (type as MutableType | Namespace);
       switch (root.kind) {
@@ -505,16 +519,9 @@ export function mutateSubgraph<T extends MutableType>(
           }
           break;
         case "ModelProperty":
-          const newType = mutateSubgraphWorker(root.type as MutableType, newMutators);
-          if (clone) {
-            (clone as any).type = newType;
-          }
-          if (root.sourceProperty) {
-            const newType = mutateSubgraphWorker(root.sourceProperty as MutableType, newMutators);
-            if (clone) {
-              (clone as any).sourceProperty = newType;
-            }
-          }
+          mutateProperty(root, "type", clone);
+          mutateProperty(root, "sourceProperty", clone);
+          mutateProperty(root, "model", clone);
 
           break;
         case "Operation":
@@ -537,6 +544,10 @@ export function mutateSubgraph<T extends MutableType>(
           break;
         case "Union":
           mutateSubMap(root, "variants", clone, (value) => (value.union = clone));
+          break;
+        case "UnionVariant":
+          mutateProperty(root, "type", clone);
+          mutateProperty(root, "union", clone);
           break;
         case "Scalar":
           const newBaseScalar = root.baseScalar

@@ -94,6 +94,8 @@ defineKit<TypekitExtension>({
           break;
       }
       this.realm.addType(clone);
+      // TODO: find better way to debug realm
+      (clone as any).__cloned = true;
       return clone;
     },
   },
