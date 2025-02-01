@@ -68,9 +68,7 @@ function processReports(
 ) {
   const generatorReports: Record<string, GeneratorCoverageSuiteReport | undefined> = {};
   for (const [emitterName, report] of Object.entries(reports)) {
-    if (report) {
-      generatorReports[emitterName] = getSuiteReportForManifest(report, manifest);
-    }
+    generatorReports[emitterName] = report && getSuiteReportForManifest(report, manifest);
   }
   return generatorReports;
 }

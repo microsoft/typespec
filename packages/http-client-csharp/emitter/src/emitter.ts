@@ -74,7 +74,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       process.exit(1);
     }
     const tspNamespace = root.Name; // this is the top-level namespace defined in the typespec file, which is actually always different from the namespace of the SDK
-    // await program.host.writeFile(outPath, prettierOutput(JSON.stringify(root, null, 2)));
+
     if (root) {
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
 
@@ -93,37 +93,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         "output-folder": ".",
         namespace: namespace,
         "library-name": options["library-name"] ?? namespace,
-        "single-top-level-client": options["single-top-level-client"],
         "unreferenced-types-handling": options["unreferenced-types-handling"],
-        "keep-non-overloadable-protocol-signature":
-          options["keep-non-overloadable-protocol-signature"],
         "model-namespace": options["model-namespace"],
-        "models-to-treat-empty-string-as-null": options["models-to-treat-empty-string-as-null"],
-        "intrinsic-types-to-treat-empty-string-as-null": options[
-          "models-to-treat-empty-string-as-null"
-        ]
-          ? options["additional-intrinsic-types-to-treat-empty-string-as-null"].concat(
-              ["Uri", "Guid", "ResourceIdentifier", "DateTimeOffset"].filter(
-                (item) =>
-                  options["additional-intrinsic-types-to-treat-empty-string-as-null"].indexOf(
-                    item,
-                  ) < 0,
-              ),
-            )
-          : undefined,
-        "methods-to-keep-client-default-value": options["methods-to-keep-client-default-value"],
-        "head-as-boolean": options["head-as-boolean"],
-        "deserialize-null-collection-as-null-value":
-          options["deserialize-null-collection-as-null-value"],
-        flavor: options["flavor"],
-        //only emit these if they are not the default values
-        "generate-sample-project":
-          options["generate-sample-project"] === true
-            ? undefined
-            : options["generate-sample-project"],
-        "generate-test-project":
-          options["generate-test-project"] === false ? undefined : options["generate-test-project"],
-        "use-model-reader-writer": options["use-model-reader-writer"] ?? true,
         "disable-xml-docs":
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
       };
@@ -142,9 +113,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         Logger.getInstance().info(`Checking if ${csProjFile} exists`);
         const newProjectOption =
           options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
-        const existingProjectOption = options["existing-project-folder"]
-          ? `--existing-project-folder ${options["existing-project-folder"]}`
-          : "";
         const debugFlag = (options.debug ?? false) ? "--debug" : "";
 
         const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
@@ -153,7 +121,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll",
         );
 
-        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(existingProjectOption)}${constructCommandArg(debugFlag)}`;
+        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
         Logger.getInstance().info(command);
 
         try {
@@ -167,7 +135,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
               "-p",
               options["plugin-name"],
               newProjectOption,
-              existingProjectOption,
               debugFlag,
             ],
             { stdio: "inherit" },
