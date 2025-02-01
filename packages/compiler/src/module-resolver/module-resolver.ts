@@ -29,6 +29,11 @@ export interface ResolveModuleOptions {
   readonly conditions?: string[];
 
   /**
+   * Search these node_modules paths before the default module resolution.
+   */
+  readonly nodeModules?: string[];
+
+  /**
    * If exports is defined ignore if the none of the given condition is found and fallback to using main field resolution.
    * By default it will throw an error.
    */
@@ -127,7 +132,7 @@ export async function resolveModule(
   }
 
   // Try to resolve as a node_module package.
-  const module = await resolveAsNodeModule(specifier, absoluteStart);
+  const module = await resolveAsNodeModule(specifier, absoluteStart, options.nodeModules);
   if (module) return module;
 
   throw new ResolveModuleError(
@@ -171,10 +176,11 @@ export async function resolveModule(
   async function resolveAsNodeModule(
     importSpecifier: string,
     baseDir: string,
+    nodeModules?: string[],
   ): Promise<ResolvedModule | undefined> {
     const module = parseNodeModuleSpecifier(importSpecifier);
     if (module === null) return undefined;
-    const dirs = listDirHierarchy(baseDir);
+    const dirs = (nodeModules ?? []).concat(listDirHierarchy(baseDir));
 
     for (const dir of dirs) {
       const self = await resolveSelf(module, dir);

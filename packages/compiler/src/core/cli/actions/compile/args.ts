@@ -21,6 +21,7 @@ export interface CompileCliArgs {
   "warn-as-error"?: boolean;
   "no-emit"?: boolean;
   "ignore-deprecated"?: boolean;
+  "node-modules"?: string[];
   args?: string[];
 }
 
@@ -55,6 +56,7 @@ export async function getCompilerOptions(
         trace: args.trace,
         emit: args.emit,
         options: cliOptions.options,
+        nodeModules: args["node-modules"],
       }),
     }),
   );

@@ -50,6 +50,7 @@ interface TypeSpecLibraryReference {
 export interface LoadSourceOptions {
   readonly parseOptions?: ParseOptions;
   readonly tracer?: Tracer;
+  readonly nodeModules?: string[];
   getCachedScript?: (file: SourceFile) => TypeSpecScriptNode | undefined;
 }
 
@@ -255,6 +256,7 @@ export async function createSourceLoader(
           return resolveTspMain(pkg) ?? pkg.main;
         },
         conditions: ["typespec"],
+        nodeModules: options?.nodeModules ?? [],
         fallbackOnMissingCondition: true,
       });
     } catch (e: any) {

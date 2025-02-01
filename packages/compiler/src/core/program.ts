@@ -315,6 +315,8 @@ export async function compile(
   async function loadSources(entrypoint: string) {
     const sourceLoader = await createSourceLoader(host, {
       parseOptions: options.parseOptions,
+      nodeModules: options.nodeModules,
+      tracer,
       getCachedScript: (file) =>
         oldProgram?.sourceFiles.get(file.path) ?? host.parseCache?.get(file),
     });
@@ -634,7 +636,7 @@ export async function compile(
   ): Promise<[ModuleResolutionResult | undefined, readonly Diagnostic[]]> {
     try {
       return [
-        await resolveModule(getResolveModuleHost(), specifier, { baseDir, conditions: ["import"] }),
+        await resolveModule(getResolveModuleHost(), specifier, { baseDir, nodeModules: options.nodeModules, conditions: ["import"] }),
         [],
       ];
     } catch (e: any) {
@@ -676,7 +678,7 @@ export async function compile(
           },
         },
         "@typespec/compiler",
-        { baseDir },
+        { baseDir, nodeModules: options.nodeModules },
       );
       compilerAssert(
         resolved.type === "module",
