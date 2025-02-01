@@ -204,7 +204,6 @@ export type MutableType = Exclude<
   | FunctionParameter
   | ObjectType
   | Projection
-  | Namespace
 >;
 
 /**
@@ -221,7 +220,6 @@ export function isMutableType(type: Type): type is MutableType {
     case "FunctionParameter":
     case "Object":
     case "Projection":
-    case "Namespace":
       return false;
     default:
       void (type satisfies MutableType);
@@ -445,11 +443,22 @@ export function mutateSubgraph<T extends MutableType>(
       interstitialFunctions.length = 0;
     }
 
-    function mutateSubMap<T extends MutableType, K extends keyof T>(type: T, prop: K, clone: any) {
+    function mutateSubMap<T extends MutableType, K extends keyof T>(
+      type: T,
+      prop: K,
+      clone: any,
+      callback: (value: any) => void,
+    ) {
       for (const [key, value] of (type as any)[prop].entries()) {
-        const newValue = mutateSubgraphWorker(value, newMutators);
+        const newValue: any = mutateSubgraphWorker(value, newMutators);
         if (clone) {
+          callback(newValue);
           (clone as any)[prop].set(key, newValue);
+
+          if (newValue.name !== value.name) {
+            console.log("Update name", value.name, newValue.name);
+            (clone as any)[prop].rekey(key, newValue.name);
+          }
         }
       }
     }
@@ -458,24 +467,20 @@ export function mutateSubgraph<T extends MutableType>(
       const root: MutableType | Namespace = clone ?? (type as MutableType | Namespace);
       switch (root.kind) {
         case "Namespace":
-          mutateSubMap(root as any, "namespaces", clone);
-          mutateSubMap(root as any, "models", clone);
-          mutateSubMap(root as any, "operations", clone);
-          mutateSubMap(root as any, "interfaces", clone);
-          mutateSubMap(root as any, "enums", clone);
-          mutateSubMap(root as any, "unions", clone);
-          mutateSubMap(root as any, "scalars", clone);
+          const register = (value: any) => {
+            value.namespace = clone;
+          };
+          mutateSubMap(root, "namespaces", clone, register);
+          mutateSubMap(root, "models", clone, register);
+          mutateSubMap(root, "operations", clone, register);
+          mutateSubMap(root, "interfaces", clone, register);
+          mutateSubMap(root, "enums", clone, register);
+          mutateSubMap(root, "unions", clone, register);
+          mutateSubMap(root, "scalars", clone, register);
 
           break;
         case "Model":
-          mutateSubMap(root, "properties", clone);
-          for (const prop of root.properties.values()) {
-            const newProp = mutateSubgraphWorker(prop, newMutators);
-
-            if (clone) {
-              (clone as any).properties.set(prop.name, newProp);
-            }
-          }
+          mutateSubMap(root, "properties", clone, (value) => (value.model = clone));
           if (root.indexer) {
             const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
             if (clone) {
@@ -496,11 +501,10 @@ export function mutateSubgraph<T extends MutableType>(
             (clone as any).parameters = newParams;
           }
 
-          // const newReturnType = mutateSubgraphWorker(root.returnType as MutableType, newMutators);
-          // console.log("New return type", newReturnType);
-          // if (clone) {
-          //   (clone as any).returnType = newReturnType;
-          // }
+          const newReturnType = mutateSubgraphWorker(root.returnType as MutableType, newMutators);
+          if (clone) {
+            (clone as any).returnType = newReturnType;
+          }
 
           break;
         case "Scalar":

@@ -1,6 +1,13 @@
-import type { Namespace, Program, RekeyableMap, Type } from "@typespec/compiler";
+import type {
+  ModelProperty,
+  Namespace,
+  Operation,
+  Program,
+  RekeyableMap,
+  Type,
+} from "@typespec/compiler";
 import type { unsafe_MutatorWithNamespace as MutatorWithNamespace } from "@typespec/compiler/experimental";
-import { getRenamedFrom, getReturnTypeChangedFrom } from "./decorators.js";
+import { getMadeOptionalOn, getRenamedFrom, getReturnTypeChangedFrom } from "./decorators.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
 import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
@@ -45,25 +52,39 @@ export function createVersionMutator(
       if (!versioning.existsAtVersion(type, moment)) {
         map.delete(name);
       }
-      if (type.name !== undefined) {
-        const nameAtVersion = versioning.getNameAtVersion(type, moment);
-        if (nameAtVersion !== undefined && nameAtVersion !== type.name) {
-          rename(type.name, nameAtVersion, type);
-          type.name = nameAtVersion;
-        }
-      }
+      // if (type.name !== undefined) {
+      //   const nameAtVersion = versioning.getNameAtVersion(type, moment);
+      //   if (nameAtVersion !== undefined && nameAtVersion !== type.name) {
+      //     rename(type.name, nameAtVersion, type);
+      //     type.name = nameAtVersion;
+      //   }
+      // }
     }
   }
+
   function deleteAndRenameUnordered(map: Map<string | symbol, NameableType>) {
     return deleteAndRename(map, (oldName, newName, type: NameableType) => {
       map.delete(oldName);
       map.set(newName, type);
     });
   }
+
   function deleteAndRenameOrdered(map: RekeyableMap<string | symbol, NameableType>) {
     return deleteAndRename(map, (oldName, newName) => {
       map.rekey(oldName, newName);
     });
+  }
+
+  function rename(original: NameableType, type: NameableType) {
+    if (type.name !== undefined) {
+      const nameAtVersion = versioning.getNameAtVersion(original, moment);
+      if (type.name === "B") {
+        console.log("rename", type.name, nameAtVersion);
+      }
+      if (nameAtVersion !== undefined && nameAtVersion !== type.name) {
+        type.name = nameAtVersion;
+      }
+    }
   }
   return {
     name: "VersionSnapshot",
@@ -79,19 +100,33 @@ export function createVersionMutator(
       deleteAndRenameOrdered(clone.operations);
     },
     Model: (original, clone, p, realm) => {
+      rename(original, clone);
       deleteAndRenameOrdered(clone.properties);
     },
     Union: (original, clone, p, realm) => {
+      rename(original, clone);
       deleteAndRenameOrdered(clone.variants);
     },
+    UnionVariant: (original, clone, p, realm) => {
+      rename(original, clone);
+    },
     Enum: (original, clone, p, realm) => {
+      rename(original, clone);
       deleteAndRenameOrdered(clone.members);
     },
+    EnumMember: (original, clone, p, realm) => {
+      rename(original, clone);
+    },
     Operation: (original, clone, p, realm) => {
+      rename(original, clone);
       const returnTypeAtVersion = versioning.getReturnTypeAtVersion(clone, moment);
       if (returnTypeAtVersion !== clone.returnType) {
         clone.returnType = returnTypeAtVersion;
       }
+    },
+    ModelProperty: (original, clone, p, realm) => {
+      rename(original, clone);
+      clone.optional = versioning.getOptionalAtVersion(original, moment);
     },
   };
 }
@@ -114,6 +149,7 @@ class VersioningHelper {
 
   getNameAtVersion<T extends NameableType>(type: T, moment: TimelineMoment): T["name"] {
     const allValues = getRenamedFrom(this.#program, type);
+
     if (!allValues) return type.name;
 
     for (const val of allValues) {
@@ -123,9 +159,9 @@ class VersioningHelper {
     }
     return type.name;
   }
-  getReturnTypeAtVersion(type: Type, moment: TimelineMoment): Type {
+  getReturnTypeAtVersion(type: Operation, moment: TimelineMoment): Type {
     const map = getReturnTypeChangedFrom(this.#program, type);
-    if (!map) return type;
+    if (!map) return type.returnType;
 
     for (const [changedAtVersion, val] of map) {
       if (this.#timeline.isBefore(moment, changedAtVersion)) {
@@ -133,6 +169,16 @@ class VersioningHelper {
       }
     }
     return type;
+  }
+  getOptionalAtVersion(type: ModelProperty, moment: TimelineMoment): boolean {
+    const version = getMadeOptionalOn(this.#program, type);
+    if (!version) return type.optional;
+
+    if (this.#timeline.isBefore(moment, version)) {
+      return false;
+    } else {
+      return true;
+    }
   }
 }
 

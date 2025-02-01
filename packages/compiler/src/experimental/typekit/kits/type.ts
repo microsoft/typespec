@@ -1,5 +1,5 @@
-import { type Namespace, type Type } from "../../../core/types.js";
-import { defineKit, Typekit } from "../define-kit.js";
+import { type Type } from "../../../core/types.js";
+import { defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 
 /**  @experimental */
@@ -75,42 +75,15 @@ defineKit<TypekitExtension>({
               ? [...type.instantiationParameters]
               : undefined,
             projections: [...type.projections],
-          });
-          const clonedNamespace = clone as Namespace;
-          clonedNamespace.decoratorDeclarations = cloneTypeCollection(
-            this,
-            type.decoratorDeclarations,
-            {
-              namespace: clonedNamespace,
-            },
-          );
-          clonedNamespace.models = cloneTypeCollection(this, type.models, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.enums = cloneTypeCollection(this, type.enums, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.functionDeclarations = cloneTypeCollection(
-            this,
-            type.functionDeclarations,
-            {
-              namespace: clonedNamespace,
-            },
-          );
-          clonedNamespace.interfaces = cloneTypeCollection(this, type.interfaces, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.namespaces = cloneTypeCollection(this, type.namespaces, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.operations = cloneTypeCollection(this, type.operations, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.scalars = cloneTypeCollection(this, type.scalars, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.unions = cloneTypeCollection(this, type.unions, {
-            namespace: clonedNamespace,
+            models: copyMap(type.models as any),
+            decoratorDeclarations: copyMap(type.decoratorDeclarations as any),
+            enums: copyMap(type.enums as any),
+            unions: copyMap(type.unions as any),
+            operations: copyMap(type.operations as any),
+            interfaces: copyMap(type.interfaces as any),
+            functionDeclarations: copyMap(type.functionDeclarations as any),
+            namespaces: copyMap(type.namespaces as any),
+            scalars: copyMap(type.scalars as any),
           });
           break;
         default:
@@ -125,19 +98,3 @@ defineKit<TypekitExtension>({
     },
   },
 });
-
-function cloneTypeCollection<T extends Type>(
-  kit: Typekit,
-  collection: Map<string, T>,
-  options: { namespace?: Namespace } = {},
-): Map<string, T> {
-  const cloneCollection = new Map<string, T>();
-  for (const [key, type] of collection) {
-    const clone = kit.type.clone(type);
-    if ("namespace" in clone && options.namespace) {
-      clone.namespace = options.namespace;
-    }
-    cloneCollection.set(key, clone);
-  }
-  return cloneCollection;
-}
