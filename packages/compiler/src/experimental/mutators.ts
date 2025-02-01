@@ -1,4 +1,5 @@
 import { Program } from "../core/program.js";
+import { getParentTemplateNode, isTemplateInstance } from "../core/type-utils.js";
 import {
   Decorator,
   FunctionParameter,
@@ -9,8 +10,10 @@ import {
   Projection,
   TemplateParameter,
   Type,
+  TypeMapper,
 } from "../core/types.js";
 import { CustomKeyMap } from "../emitter-framework/custom-key-map.js";
+import { mutate } from "../utils/misc.js";
 import { Realm } from "./realm.js";
 import { $ } from "./typekit/index.js";
 
@@ -426,7 +429,14 @@ export function mutateSubgraph<T extends MutableType>(
       visitSubgraph();
     }
 
-    $(realm).type.finishType(clone!);
+    function shouldFinishType(type: Type) {
+      const parentTemplate = type.node && getParentTemplateNode(type.node);
+      return !parentTemplate || isTemplateInstance(type);
+    }
+
+    if (shouldFinishType(type!)) {
+      $(realm).type.finishType(clone!);
+    }
 
     return clone!;
 
@@ -482,6 +492,10 @@ export function mutateSubgraph<T extends MutableType>(
 
           break;
         case "Model":
+          console.log("Mutating", root.name);
+          if (root.templateMapper) {
+            (clone as any).templateMapper = mutateTemplateMapper(root.templateMapper);
+          }
           mutateSubMap(root, "properties", clone, (value) => (value.model = clone));
           if (root.indexer) {
             const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
@@ -494,6 +508,12 @@ export function mutateSubgraph<T extends MutableType>(
           const newType = mutateSubgraphWorker(root.type as MutableType, newMutators);
           if (clone) {
             (clone as any).type = newType;
+          }
+          if (root.sourceProperty) {
+            const newType = mutateSubgraphWorker(root.sourceProperty as MutableType, newMutators);
+            if (clone) {
+              (clone as any).sourceProperty = newType;
+            }
           }
 
           break;
@@ -526,6 +546,21 @@ export function mutateSubgraph<T extends MutableType>(
             (clone as any).baseScalar = newBaseScalar;
           }
       }
+    }
+
+    function mutateTemplateMapper(mapper: TypeMapper): TypeMapper {
+      const mutatedMapper: TypeMapper = {
+        ...mapper,
+        args: [],
+        map: new Map(),
+      };
+      for (const arg of mapper.args) {
+        mutate(mutatedMapper.args).push(mutateSubgraphWorker(arg as any, newMutators));
+      }
+      for (const [param, type] of mapper.map) {
+        mutatedMapper.map.set(param, mutateSubgraphWorker(type as any, newMutators));
+      }
+      return mutatedMapper;
     }
   }
 }

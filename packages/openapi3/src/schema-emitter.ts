@@ -730,6 +730,7 @@ export class OpenAPI3SchemaEmitterBase<
     const visibility = this.#getVisibilityContext();
     const fullName =
       name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
+    console.log("Creating for", { name, fullName });
 
     const decl = this.emitter.result.declaration(fullName, schema);
     checkDuplicateTypeName(

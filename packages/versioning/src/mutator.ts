@@ -78,9 +78,6 @@ export function createVersionMutator(
   function rename(original: NameableType, type: NameableType) {
     if (type.name !== undefined) {
       const nameAtVersion = versioning.getNameAtVersion(original, moment);
-      if (type.name === "B") {
-        console.log("rename", type.name, nameAtVersion);
-      }
       if (nameAtVersion !== undefined && nameAtVersion !== type.name) {
         type.name = nameAtVersion;
       }
