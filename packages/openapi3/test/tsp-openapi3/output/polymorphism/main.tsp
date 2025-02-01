@@ -34,12 +34,4 @@ model Pet {
   kind?: string;
 }
 
-/**
- * The request has succeeded.
- */
-model root_read200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-}
-
-@route("/Pets") @get op root_read(): root_read200ApplicationJsonResponse;
+@route("/Pets") @get op root_read(): Pet;

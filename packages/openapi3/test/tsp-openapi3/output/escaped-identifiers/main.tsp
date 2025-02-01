@@ -20,22 +20,28 @@ model `Escaped-Model` {
   `escaped-property`?: string;
 }
 
-/**
- * Success
- */
-@defaultResponse
-model `get-thingDefaultResponse` {}
-
 @route("/{escaped-property}") @get op `get-thing`(
   @query(#{ explode: true }) `weird@param`?: `Foo-Bar`,
   ...Parameters.`Escaped-Model`.`escaped-property`,
   @bodyRoot body: `Escaped-Model`,
-): `get-thingDefaultResponse`;
+): GeneratedHelpers.DefaultResponse<Description = "Success">;
 
 namespace Parameters {
   namespace `Escaped-Model` {
     model `escaped-property` {
       @path `escaped-property`: string;
     }
+  }
+}
+namespace GeneratedHelpers {
+  @doc(Description)
+  @defaultResponse
+  model DefaultResponse<
+    Description extends valueof string = "",
+    Body = void,
+    Headers extends {} = {}
+  > {
+    @body body: Body;
+    ...Headers;
   }
 }

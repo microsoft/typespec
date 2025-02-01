@@ -1,8 +1,9 @@
+import OpenAPIParser from "@readme/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
-import { describe, it } from "vitest";
-import { createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Schema, Refable } from "../../src/types.js";
+import { beforeAll, describe, it } from "vitest";
+import { Context, createContext } from "../../src/cli/actions/convert/utils/context.js";
+import { OpenAPI3Document, OpenAPI3Schema, Refable } from "../../src/types.js";
 
 interface TestScenario {
   schema: Refable<OpenAPI3Schema>;
@@ -145,10 +146,15 @@ const testScenarios: TestScenario[] = [
 ];
 
 describe("tsp-openapi: generate-type", () => {
-  const context = createContext({
-    openapi: "3.0.0",
-    info: { title: "Test", version: "1.0.0" },
-    paths: {},
+  let context: Context;
+  beforeAll(async () => {
+    const parser = new OpenAPIParser();
+    const doc = await parser.bundle({
+      openapi: "3.0.0",
+      info: { title: "Test", version: "1.0.0" },
+      paths: {},
+    });
+    context = createContext(parser, doc as OpenAPI3Document);
   });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {
