@@ -101,13 +101,25 @@ describe("compiler: decorator utils", () => {
       strictEqual(diagnostics.length, 0);
     });
 
-    it("can a nested model", async () => {
+    it("can convert a nested model", async () => {
       const [data, diagnostics] = await convertDecoratorDataToJson(`
         @jsonData({string: "string", nested: {foo: "bar"}, bool: true})
         model Foo {}
       `);
 
       deepStrictEqual(data, { string: "string", nested: { foo: "bar" }, bool: true });
+      strictEqual(diagnostics.length, 0);
+    });
+
+    it("can convert a named model with inherited properties", async () => {
+      const [data, diagnostics] = await convertDecoratorDataToJson(`
+        model Parent {number: 123}
+        model Child extends Parent {string: "child", bool: true}
+        @jsonData(Child)
+        model Foo {}
+      `);
+
+      deepStrictEqual(data, { string: "child", number: 123, bool: true });
       strictEqual(diagnostics.length, 0);
     });
 

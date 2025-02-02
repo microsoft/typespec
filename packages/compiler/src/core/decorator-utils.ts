@@ -1,3 +1,4 @@
+import { walkPropertiesInherited } from "./checker.js";
 import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { getTypeName } from "./helpers/type-name-utils.js";
 import { createDiagnostic, reportDiagnostic } from "./messages.js";
@@ -404,15 +405,15 @@ function typespecTypeToJsonInternal(
     }
     case "Model": {
       const result: Record<string, any> = {};
-      for (const [name, type] of typespecType.properties.entries()) {
-        const [item, diagnostics] = typespecTypeToJsonInternal(type.type, target, [
+      for (const property of walkPropertiesInherited(typespecType)) {
+        const [item, diagnostics] = typespecTypeToJsonInternal(property.type, target, [
           ...path,
-          name.toString(),
+          property.name.toString(),
         ]);
         if (diagnostics.length > 0) {
           return [undefined, diagnostics];
         }
-        result[name] = item;
+        result[property.name] = item;
       }
       return [result, []];
     }
