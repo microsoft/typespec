@@ -506,7 +506,6 @@ export function mutateSubgraph<T extends MutableType>(
 
           break;
         case "Model":
-          console.log("Mutating", root.name);
           if (root.templateMapper) {
             (clone as any).templateMapper = mutateTemplateMapper(root.templateMapper);
           }
