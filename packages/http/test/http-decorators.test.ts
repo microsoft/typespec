@@ -867,6 +867,31 @@ describe("http: decorators", () => {
       });
     });
 
+    it("can specify custom name using id", async () => {
+      const { Foo } = (await runner.compile(`
+        @doc("My basic auth with a custom name")
+        model MyAuth extends BasicAuth { id: "YourAuth"; };
+        @useAuth(MyAuth)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      expect(getAuthentication(runner.program, Foo)).toEqual({
+        options: [
+          {
+            schemes: [
+              {
+                id: "YourAuth",
+                description: "My basic auth with a custom name",
+                type: "http",
+                scheme: "basic",
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
+          },
+        ],
+      });
+    });
+
     it("can specify BearerAuth", async () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BearerAuth)
