@@ -1,7 +1,7 @@
 #nullable disable
 
 using System;
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 
 namespace NewNamespace.Models;
 

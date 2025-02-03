@@ -1,6 +1,6 @@
 #nullable disable
 
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 using Microsoft.Generator.CSharp.Primitives;
 
 namespace Sample.Models
