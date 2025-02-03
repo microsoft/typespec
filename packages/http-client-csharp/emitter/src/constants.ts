@@ -17,4 +17,3 @@ export const configurationFileName = "Configuration.json";
  * @internal
  */
 export const _minSupportedDotNetSdkVersion = 8;
-

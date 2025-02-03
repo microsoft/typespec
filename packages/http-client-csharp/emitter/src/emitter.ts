@@ -17,8 +17,8 @@ import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import {
-  configurationFileName,
   _minSupportedDotNetSdkVersion,
+  configurationFileName,
   tspOutputFileName,
 } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
@@ -26,7 +26,7 @@ import { reportDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
-import { NetEmitterOptions, resolveOptions, _resolveOutputFolder } from "./options.js";
+import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
 
@@ -157,7 +157,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             }
           }
         } catch (error: any) {
-          const isValid = await _validateDotNetSdk(sdkContext.program, _minSupportedDotNetSdkVersion);
+          const isValid = await _validateDotNetSdk(
+            sdkContext.program,
+            _minSupportedDotNetSdkVersion,
+          );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) throw new Error(error);
         }
