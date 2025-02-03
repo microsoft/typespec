@@ -643,7 +643,7 @@ function extractHttpAuthentication(
   return [
     {
       ...auth,
-      id: modelType.name || result.type,
+      ...{ id: auth.id || modelType.name || result.type },
       ...(description && { description }),
     },
     diagnostics,
