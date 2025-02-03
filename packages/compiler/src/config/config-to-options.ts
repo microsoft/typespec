@@ -97,6 +97,7 @@ export function resolveOptionsFromConfig(config: TypeSpecConfig, options: Config
     outputDir: expandedConfig.outputDir,
     config: config.filename,
     configFile: config,
+    nodeModules: expandedConfig.nodeModules,
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,

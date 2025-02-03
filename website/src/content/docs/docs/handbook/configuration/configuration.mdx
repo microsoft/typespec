@@ -36,6 +36,7 @@ model TypeSpecProjectSchema {
   imports?: string;
   emit?: string[];
   options?: Record<unknown>;
+  "node-modules"?: string[];
   linter?: LinterConfig;
 }
 
@@ -194,6 +195,7 @@ Due to this capability, emitter option names should not contain a `.` in their n
 | `imports`       | `--import`                | Additional imports to include                            |
 | `emit`          | `--emit`                  | Emitter configuration                                    |
 | `options`       | `--option` or `--options` | Emitter configuration                                    |
+| `node-modules`  | `--node-modules`          | Paths to prefer when resolving node modules              |
 | `linter`        |                           | Linter configuration                                     |
 
 ### `output-dir` - Configure the default output dir
@@ -320,6 +322,18 @@ Represent the path where the emitter should be outputing the generated files.
 Default: `{output-dir}/{emitter-name}`
 
 See [output directory configuration for mode details](#configuring-output-directory)
+
+### `node-modules` - Overriding module resolution
+
+This allows you to specify one or more paths that will be checked first when resolving node modules.
+
+Do not include the `node_modules` folder in the path.
+
+```yaml
+node-modules:
+  - '{project-root}/custom_modules'
+  - '{project-root}/another_modules'
+```
 
 ### `linter` - Setting Up Linters
 

@@ -121,6 +121,11 @@ async function main() {
             default: false,
             describe: "Suppresses all `deprecated` diagnostics.",
           })
+          .option("node-modules", {
+            type: "array",
+            string: true,
+            describe: "Additional paths that should be preferred in the node module resolution.",
+          })
           .option("arg", {
             type: "array",
             alias: "args",

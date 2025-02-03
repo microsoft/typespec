@@ -43,6 +43,8 @@ export interface CompilerOptions {
    */
   ignoreDeprecated?: boolean;
 
+  nodeModules?: string[];
+
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];

@@ -68,6 +68,11 @@ export interface TypeSpecConfig {
    */
   options?: Record<string, EmitterOptions>;
 
+  /**
+   * Additional paths that should be preferred in the node module resolution (order matters).
+   */
+  nodeModules: string[];
+
   linter?: LinterConfig;
 }
 
@@ -88,6 +93,7 @@ export interface TypeSpecRawConfig {
   options?: Record<string, EmitterOptions>;
   emitters?: Record<string, boolean | EmitterOptions>;
 
+  "node-modules"?: string[];
   linter?: LinterConfig;
 }
 

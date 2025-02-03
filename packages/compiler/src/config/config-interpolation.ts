@@ -39,8 +39,13 @@ export function expandConfigVariables(
   const outputDir = diagnostics.pipe(
     resolveValue(expandOptions.outputDir ?? config.outputDir, commonVars),
   );
+  const nodeModules: string[] = config.nodeModules.map(nodeModuleDir => {
+    return diagnostics.pipe(
+      resolveValue(nodeModuleDir, commonVars),
+    )
+  });
 
-  const result = { ...config, outputDir };
+  const result = { ...config, outputDir, nodeModules };
   if (config.options) {
     const options: Record<string, EmitterOptions> = {};
     for (const [name, emitterOptions] of Object.entries(config.options)) {

@@ -16,6 +16,7 @@ export const TypeSpecConfigFilename = "tspconfig.yaml";
 export const defaultConfig = deepFreeze({
   outputDir: "{cwd}/tsp-output",
   diagnostics: [] as Diagnostic[],
+  nodeModules: [] as string[],
 });
 
 /**
@@ -222,6 +223,7 @@ async function loadConfigFile(
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
     emit,
     options,
+    nodeModules: data["node-modules"],
     linter: data.linter,
   });
 }
@@ -245,6 +247,9 @@ export function validateConfigPathsAbsolute(config: TypeSpecConfig): readonly Di
   checkPath(config.outputDir, ["output-dir"]);
   for (const [emitterName, emitterOptions] of Object.entries(config.options ?? {})) {
     checkPath(emitterOptions["emitter-output-dir"], ["options", emitterName, "emitter-output-dir"]);
+  }
+  for (const nodeModulesDir of config.nodeModules ?? []) {
+    checkPath(nodeModulesDir, ["node-modules"]);
   }
   return diagnostics;
 }
