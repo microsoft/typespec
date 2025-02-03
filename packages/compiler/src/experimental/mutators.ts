@@ -1,10 +1,13 @@
 import { Program } from "../core/program.js";
-import { getParentTemplateNode, isTemplateInstance } from "../core/type-utils.js";
+import { getParentTemplateNode, isTemplateInstance, isType } from "../core/type-utils.js";
 import {
+  DecoratedType,
   Decorator,
+  DecoratorArgument,
   FunctionParameter,
   FunctionType,
   IntrinsicType,
+  Model,
   Namespace,
   ObjectType,
   Projection,
@@ -489,33 +492,68 @@ export function mutateSubgraph<T extends MutableType>(
       }
     }
 
+    function visitNamespace(root: Namespace) {
+      visitDecorators(root);
+      const register = (value: any) => {
+        value.namespace = clone;
+      };
+      mutateSubMap(root, "namespaces", clone, register);
+      mutateSubMap(root, "models", clone, register);
+      mutateSubMap(root, "operations", clone, register);
+      mutateSubMap(root, "interfaces", clone, register);
+      mutateSubMap(root, "enums", clone, register);
+      mutateSubMap(root, "unions", clone, register);
+      mutateSubMap(root, "scalars", clone, register);
+    }
+
+    function visitModel(root: Model) {
+      visitDecorators(root);
+      if (root.templateMapper) {
+        (clone as any).templateMapper = mutateTemplateMapper(root.templateMapper);
+      }
+      mutateSubMap(root, "properties", clone, (value) => (value.model = clone));
+      if (root.indexer) {
+        const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
+        if (clone) {
+          (clone as any).indexer.value = res;
+        }
+      }
+      if (root.baseModel) {
+        mutateSubgraphWorker(root.baseModel, newMutators);
+      }
+    }
+
+    function visitDecorators(root: MutableTypeWithNamespace & DecoratedType) {
+      for (const [index, dec] of root.decorators.entries()) {
+        const args: DecoratorArgument[] = [];
+        for (const arg of dec.args) {
+          const jsValue =
+            isType(arg.value) && isMutableType(arg.value)
+              ? mutateSubgraphWorker(arg.value, newMutators)
+              : arg.jsValue;
+          args.push({
+            ...arg,
+            value:
+              isType(arg.value) && isMutableType(arg.value)
+                ? mutateSubgraphWorker(arg.value, newMutators)
+                : arg.value,
+            jsValue,
+          });
+        }
+
+        if (clone) {
+          (clone as any).decorators[index] = { ...dec, args };
+        }
+      }
+    }
+
     function visitSubgraph() {
-      const root: MutableType | Namespace = clone ?? (type as MutableType | Namespace);
+      const root: MutableType | Namespace = clone ?? (type as MutableTypeWithNamespace);
       switch (root.kind) {
         case "Namespace":
-          const register = (value: any) => {
-            value.namespace = clone;
-          };
-          mutateSubMap(root, "namespaces", clone, register);
-          mutateSubMap(root, "models", clone, register);
-          mutateSubMap(root, "operations", clone, register);
-          mutateSubMap(root, "interfaces", clone, register);
-          mutateSubMap(root, "enums", clone, register);
-          mutateSubMap(root, "unions", clone, register);
-          mutateSubMap(root, "scalars", clone, register);
-
-          break;
+          return visitNamespace(root);
         case "Model":
-          if (root.templateMapper) {
-            (clone as any).templateMapper = mutateTemplateMapper(root.templateMapper);
-          }
-          mutateSubMap(root, "properties", clone, (value) => (value.model = clone));
-          if (root.indexer) {
-            const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
-            if (clone) {
-              (clone as any).indexer.value = res;
-            }
-          }
+          return visitModel(root);
           break;
         case "ModelProperty":
           mutateProperty(root, "type", clone);
