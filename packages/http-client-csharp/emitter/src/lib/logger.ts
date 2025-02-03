@@ -5,6 +5,10 @@ import { NoTarget, Program, Tracer } from "@typespec/compiler";
 import { getTracer, reportDiagnostic } from "./lib.js";
 import { LoggerLevel } from "./log-level.js";
 
+/**
+ * The Logger class for the emitter.
+ * @beta
+ */
 export class Logger {
   private static instance: Logger;
   private initialized: boolean = false;
