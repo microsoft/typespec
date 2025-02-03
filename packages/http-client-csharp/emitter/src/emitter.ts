@@ -263,7 +263,7 @@ function transformJSONProperties(this: any, key: string, value: any): any {
 function deleteFile(filePath: string) {
   fs.unlink(filePath, (err) => {
     if (err) {
-      //Logger.error(`stderr: ${err}`);
+      //logger.error(`stderr: ${err}`);
     } else {
       Logger.getInstance().info(`File ${filePath} is deleted.`);
     }
