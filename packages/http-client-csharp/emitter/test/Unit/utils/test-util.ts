@@ -19,12 +19,12 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
+import { LoggerLevel } from "../../../src/index.js";
+import { CSharpEmitterContext } from "../../../src/lib/client-model-builder.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
 import { NetEmitterOptions } from "../../../src/options.js";
 import { InputEnumType, InputModelType } from "../../../src/type/input-type.js";
-import { CSharpEmitterContext } from "../../../src/lib/client-model-builder.js";
-import { LoggerLevel } from "../../../src/index.js";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
   return createTestHost({
@@ -143,6 +143,10 @@ export async function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>,
   sdkContextOptions: CreateSdkContextOptions = {},
 ): Promise<CSharpEmitterContext> {
-  const context = await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);
+  const context = await createSdkContext(
+    program,
+    "@typespec/http-client-csharp",
+    sdkContextOptions,
+  );
   return { ...context, logger: new Logger(program.program, LoggerLevel.INFO) };
 }

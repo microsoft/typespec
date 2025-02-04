@@ -27,7 +27,7 @@ import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 
-export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions>{
+export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions> {
   logger: Logger;
 }
 
