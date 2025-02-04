@@ -42,8 +42,8 @@
     "test": "vitest run",
     "test:watch": "vitest -w",
     "watch": "vite",
-    "test:e2e": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
-    "test:e2e:headed": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e --headed",
+    "test:e2e": "cross-env NODE_ENV=production PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
+    "test:e2e:headed": "cross-env NODE_ENV=production PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e --headed",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },
