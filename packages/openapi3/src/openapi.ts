@@ -235,7 +235,7 @@ function createOAPIEmitter(
     getRawBinarySchema,
     isRawBinarySchema,
   } = getOpenApiSpecProps(specVersion);
-  let program = context.program;
+  const program = context.program;
   let schemaEmitter: AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
   let root: SupportedOpenAPIDocuments;

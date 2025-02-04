@@ -1,12 +1,5 @@
-import type {
-  ModelProperty,
-  Namespace,
-  Operation,
-  Program,
-  RekeyableMap,
-  Type,
-} from "@typespec/compiler";
-import type { unsafe_MutatorWithNamespace as MutatorWithNamespace } from "@typespec/compiler/experimental";
+import type { ModelProperty, Namespace, Operation, Program, Type } from "@typespec/compiler";
+import { type unsafe_MutatorWithNamespace as MutatorWithNamespace } from "@typespec/compiler/experimental";
 import { getMadeOptionalOn, getRenamedFrom, getReturnTypeChangedFrom } from "./decorators.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
@@ -44,35 +37,19 @@ export function createVersionMutator(
   versioning: VersioningHelper,
   moment: TimelineMoment,
 ): MutatorWithNamespace {
-  function deleteAndRename<T extends Map<string | symbol, NameableType>>(
-    map: T,
-    rename: (oldName: string | symbol, newName: string | symbol, type: NameableType) => void,
-  ) {
+  function deleteFromMap<T extends Map<string | symbol, NameableType>>(map: T) {
     for (const [name, type] of map) {
       if (!versioning.existsAtVersion(type, moment)) {
         map.delete(name);
       }
-      // if (type.name !== undefined) {
-      //   const nameAtVersion = versioning.getNameAtVersion(type, moment);
-      //   if (nameAtVersion !== undefined && nameAtVersion !== type.name) {
-      //     rename(type.name, nameAtVersion, type);
-      //     type.name = nameAtVersion;
-      //   }
-      // }
     }
   }
-
-  function deleteAndRenameUnordered(map: Map<string | symbol, NameableType>) {
-    return deleteAndRename(map, (oldName, newName, type: NameableType) => {
-      map.delete(oldName);
-      map.set(newName, type);
-    });
-  }
-
-  function deleteAndRenameOrdered(map: RekeyableMap<string | symbol, NameableType>) {
-    return deleteAndRename(map, (oldName, newName) => {
-      map.rekey(oldName, newName);
-    });
+  function deleteFromArray<T extends Array<NameableType>>(array: T) {
+    for (let i = array.length - 1; i >= 0; i--) {
+      if (!versioning.existsAtVersion(array[i], moment)) {
+        array.splice(i, 1);
+      }
+    }
   }
 
   function rename(original: NameableType, type: NameableType) {
@@ -85,31 +62,34 @@ export function createVersionMutator(
   }
   return {
     name: "VersionSnapshot",
-    Namespace: (original, clone, p, realm) => {
-      deleteAndRenameUnordered(clone.models);
-      deleteAndRenameUnordered(clone.operations);
-      deleteAndRenameUnordered(clone.interfaces);
-      deleteAndRenameUnordered(clone.enums);
-      deleteAndRenameUnordered(clone.unions);
-      deleteAndRenameUnordered(clone.namespaces);
+    Namespace: {
+      mutate: (original, clone, p, realm) => {
+        deleteFromMap(clone.models);
+        deleteFromMap(clone.operations);
+        deleteFromMap(clone.interfaces);
+        deleteFromMap(clone.enums);
+        deleteFromMap(clone.unions);
+        deleteFromMap(clone.namespaces);
+      },
     },
     Interface: (original, clone, p, realm) => {
-      deleteAndRenameOrdered(clone.operations);
+      deleteFromMap(clone.operations);
     },
     Model: (original, clone, p, realm) => {
       rename(original, clone);
-      deleteAndRenameOrdered(clone.properties);
+      deleteFromMap(clone.properties);
+      deleteFromArray(clone.derivedModels);
     },
     Union: (original, clone, p, realm) => {
       rename(original, clone);
-      deleteAndRenameOrdered(clone.variants);
+      deleteFromMap(clone.variants);
     },
     UnionVariant: (original, clone, p, realm) => {
       rename(original, clone);
     },
     Enum: (original, clone, p, realm) => {
       rename(original, clone);
-      deleteAndRenameOrdered(clone.members);
+      deleteFromMap(clone.members);
     },
     EnumMember: (original, clone, p, realm) => {
       rename(original, clone);

@@ -39,6 +39,7 @@ defineKit<TypekitExtension>({
           clone = this.program.checker.createType({
             ...type,
             decorators: [...type.decorators],
+            derivedModels: [...type.derivedModels],
             properties: copyMap(type.properties),
             indexer: type.indexer ? { ...type.indexer } : undefined,
           });
@@ -64,6 +65,7 @@ defineKit<TypekitExtension>({
         case "Enum":
           clone = this.program.checker.createType({
             ...type,
+            decorators: [...type.decorators],
             members: copyMap(type.members),
           });
           break;
