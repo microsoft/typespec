@@ -489,7 +489,7 @@ function createOAPIEmitter(
 
           serviceRecord.versions.push({
             service,
-            version: record.version!.name,
+            version: record.version!.value,
             document: document[0],
             diagnostics: document[1],
           });
@@ -506,7 +506,7 @@ function createOAPIEmitter(
     compilerAssert(subgraph.type.kind === "Namespace", "Should not have mutated to another type");
     const document = await getOpenApiFromVersion(
       getService(program, subgraph.type)!,
-      snapshot.version?.name,
+      snapshot.version?.value,
     );
 
     return document;
