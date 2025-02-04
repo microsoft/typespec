@@ -517,11 +517,11 @@ model Foo {
     const sdkContext = await createNetSdkContext(context);
     createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
-    const noAuthDiagnostic = diagnostics.find(
+    const unsupportedSdkType = diagnostics.find(
       (d) => d.code === "@typespec/http-client-csharp/unsupported-sdk-type",
     );
-    ok(noAuthDiagnostic);
-    strictEqual(noAuthDiagnostic.message, "Unsupported SDK type: credential.");
+    ok(unsupportedSdkType);
+    strictEqual(unsupportedSdkType.message, "Unsupported SDK type: credential.");
   });
 });
 
