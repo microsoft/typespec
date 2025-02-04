@@ -75,10 +75,11 @@ export function getInputType(
   context: SdkContext<NetEmitterOptions>,
   type: Type,
   typeCache: SdkTypeMap,
+  logger: Logger,
   operation?: Operation,
   literalTypeContext?: LiteralTypeContext,
 ): InputType {
-  Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
+  logger.debug(`getInputType for kind: ${type.kind}`);
 
   const sdkType = getClientType(context, type, operation);
   return fromSdkType(sdkType, context, typeCache, literalTypeContext);

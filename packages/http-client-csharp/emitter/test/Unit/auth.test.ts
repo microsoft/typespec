@@ -8,6 +8,7 @@ import {
   createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { Logger, LoggerLevel } from "../../src/index.js";
 
 describe("Test auth", () => {
   let runner: TestHost;
@@ -28,7 +29,8 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostic = diagnostics.find(
@@ -54,7 +56,8 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostic = diagnostics.find(

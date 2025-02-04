@@ -58,6 +58,30 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
+    "unsupported-endpoint-url": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unsupported server endpoint URL: ${"endpoint"}`,
+      },
+    },
+    "unsupported-sdk-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unsupported SDK type: ${"sdkType"}.`,
+      },
+    },
+    "unsupported-default-value-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unsupported default value type: ${"valueType"}.`,
+      },
+    },
+    "unsupported-cookie-parameter": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Cookie parameter is not supported: ${"parameterName"}, found in operation ${"path"}`,
+      },
+    },
   },
   emitter: {
     options: NetEmitterOptionsSchema,

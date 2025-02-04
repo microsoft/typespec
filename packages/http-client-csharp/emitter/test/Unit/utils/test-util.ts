@@ -121,8 +121,9 @@ export function navigateModels(
   namespace: Namespace,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>,
+  logger: Logger
 ) {
-  const computeModel = (x: Type) => getInputType(context, x, models, enums) as any;
+  const computeModel = (x: Type) => getInputType(context, x, models, enums, logger) as any;
   const skipSubNamespaces = isGlobalNamespace(context.program, namespace);
   navigateTypesInNamespace(
     namespace,
@@ -141,6 +142,5 @@ export async function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>,
   sdkContextOptions: CreateSdkContextOptions = {},
 ): Promise<SdkContext<NetEmitterOptions>> {
-  Logger.initialize(program.program, LoggerLevel.INFO);
   return await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);
 }

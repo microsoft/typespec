@@ -8,6 +8,7 @@ import {
   createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { Logger, LoggerLevel } from "../../src/index.js";
 
 describe("Test string format", () => {
   let runner: TestHost;
@@ -25,7 +26,8 @@ describe("Test string format", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "sourceUrl",
     );
@@ -49,7 +51,8 @@ describe("Test string format", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const codeModel = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const codeModel = createModel(sdkContext, logger);
     const models = codeModel.Models;
     const foo = models.find((m) => m.name === "Foo");
     ok(foo);

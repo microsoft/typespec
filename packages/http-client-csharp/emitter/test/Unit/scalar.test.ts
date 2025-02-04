@@ -8,6 +8,7 @@ import {
   createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { Logger, LoggerLevel } from "../../src/index.js";
 
 describe("Test GetInputType for scalar", () => {
   let runner: TestHost;
@@ -26,7 +27,8 @@ describe("Test GetInputType for scalar", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "location",
     );

@@ -8,6 +8,7 @@ import {
   createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { Logger, LoggerLevel } from "../../src/index.js";
 
 describe("Test emitting decorator list", () => {
   let runner: TestHost;
@@ -31,7 +32,8 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createNetSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const clients = root.Clients;
     strictEqual(clients.length, 2);
     deepStrictEqual(clients[1].Decorators, [

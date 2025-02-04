@@ -27,7 +27,7 @@ import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: Logger): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -52,7 +52,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       : rootClients[0].apiVersions;
 
   const inputClients: InputClient[] = [];
-  fromSdkClients(rootClients, inputClients, []);
+  fromSdkClients(rootClients, inputClients, [], logger);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
@@ -68,27 +68,28 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
+    logger: Logger
   ) {
     for (const client of clients) {
-      const inputClient = emitClient(client, parentClientNames);
+      const inputClient = emitClient(client, parentClientNames, logger);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames);
+      fromSdkClients(subClients, inputClients, parentClientNames, logger);
       parentClientNames.pop();
     }
   }
 
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
+  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[], logger: Logger): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
     return {
-      Name: getClientName(client, parentNames),
+      Name: getClientName(client, parentNames, logger),
       Summary: client.summary,
       Doc: client.doc,
       Operations: client.methods
@@ -100,6 +101,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
             rootApiVersions,
             sdkContext,
             sdkTypeMap,
+            logger
           ),
         ),
       Protocol: {},
@@ -112,6 +114,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   function getClientName(
     client: SdkClientType<SdkHttpOperation>,
     parentClientNames: string[],
+    logger: Logger
   ): string {
     const clientName = client.name;
 
@@ -123,7 +126,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       clientName === "Models" &&
       resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
     ) {
-      Logger.getInstance().warn(`Invalid client name "${clientName}"`);
+      logger.warn(`Invalid client name "${clientName}"`);
       return "ModelsOps";
     }
 
@@ -144,8 +147,14 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       .replace("https://", "")
       .replace("http://", "")
       .split("/")[0];
-    if (!/^\{\w+\}$/.test(endpointExpr))
-      throw new Error(`Unsupported server url "${type.serverUrl}"`);
+    if (!/^\{\w+\}$/.test(endpointExpr)){
+      reportDiagnostic(sdkContext.program, {
+        code: "unsupported-endpoint-url",
+        format: { endpoint: type.serverUrl },
+        target: NoTarget,
+      });
+      return [];
+    }
     const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
 
     const parameters: InputParameter[] = [];
@@ -174,7 +183,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         SkipUrlEncoding: false,
         Explode: false,
         Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(parameter.clientDefaultValue, parameterType),
+        DefaultValue: getParameterDefaultValue(sdkContext, parameter.clientDefaultValue, parameterType),
       });
     }
     return parameters;

@@ -9,6 +9,7 @@ import {
   createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { Logger, LoggerLevel } from "../../src/index.js";
 
 describe("Test Usage", () => {
   let runner: TestHost;
@@ -31,7 +32,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -52,7 +54,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -73,7 +76,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -95,7 +99,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -122,7 +127,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const fooModel = root.Models.find((model) => model.name === "Foo");
     const templateModel = root.Models.find((model) => model.name === "TemplateModelFoo");
 
@@ -152,7 +158,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const baseModel = root.Models.find((model) => model.name === "BaseModel");
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -189,7 +196,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const baseModel = root.Models.find((model) => model.name === "BaseModel");
     const fooModel = root.Models.find((model) => model.name === "Foo");
     const propertyModel = root.Models.find((model) => model.name === "PropertyModel");
@@ -216,7 +224,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const fooAlias = root.Models.find((model) => model.name === "TestRequest");
 
     ok(fooAlias);
@@ -264,7 +273,8 @@ describe("Test Usage", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const fooInfo = root.Models.find((model) => model.name === "FooInfo");
     const batchCreateFooListItemsRequest = root.Models.find(
       (model) => model.name === "BatchCreateFooListItemsRequest",
@@ -310,7 +320,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
     ok(fooModel);
@@ -369,7 +380,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const baseModel = root.Models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
       (model) => model.name === "DerivedModelWithDiscriminatorA",
@@ -439,7 +451,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const baseModel = root.Models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
       (model) => model.name === "DerivedModelWithDiscriminatorA",
@@ -476,7 +489,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const simpleEnumRenamed = root.Enums.find((enumType) => enumType.name === "SimpleEnumRenamed");
 
     ok(simpleEnumRenamed);
@@ -500,7 +514,8 @@ describe("Test Usage", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const renamedModel = root.Models.find((model) => model.name === "RenamedModel");
 
     ok(renamedModel);
@@ -658,7 +673,8 @@ interface LegacyLro {
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const root = createModel(sdkContext);
+    const logger = new Logger(program, LoggerLevel.INFO);
+    const root = createModel(sdkContext, logger);
     const radiologyInsightsInferenceResult = root.Models.find(
       (model) => model.name === "RadiologyInsightsInferenceResult",
     );
