@@ -461,7 +461,6 @@ export function mutateSubgraph<T extends MutableType>(
     if (newMutators.size > 0) {
       if (preparingNamespace && type.kind === "Namespace") {
         prepareNamespace(clone as any);
-        console.log("PReparing NS", type.name);
         postVisits.push(() => visitNamespaceContents(clone as any));
       } else {
         visitSubgraph();
@@ -565,7 +564,6 @@ export function mutateSubgraph<T extends MutableType>(
       mutateSubMap(clone, "namespaces", clone);
     }
     function visitNamespaceContents(root: Namespace) {
-      console.log("Visiting namespace contents", root.name);
       mutateSubMap(root, "models", clone);
       mutateSubMap(root, "operations", clone);
       mutateSubMap(root, "interfaces", clone);
