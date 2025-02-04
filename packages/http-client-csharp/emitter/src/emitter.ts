@@ -70,7 +70,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       "@typespec/http-client-csharp",
       defaultSDKContextOptions,
     );
-    const root = createModel(sdkContext, logger);
+    const root = createModel({...sdkContext, logger: logger});
     if (
       context.program.diagnostics.length > 0 &&
       context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
