@@ -321,7 +321,6 @@ export function mutateSubgraph<T extends MutableType>(
     preparingNamespace = true;
     // Prepare namespaces first
     mutateSubgraphWorker(program.getGlobalNamespaceType(), muts);
-    mutateSubgraphWorker(program.getGlobalNamespaceType(), muts);
     preparingNamespace = false;
 
     postVisits.forEach((visit) => visit());
@@ -344,7 +343,11 @@ export function mutateSubgraph<T extends MutableType>(
     const newMutators = new Set(activeMutators.values());
     let existing = seen.get([type, activeMutators]);
     if (existing) {
-      if (existing.kind === "Namespace" && !namespacesVisitedContent.has(existing as any)) {
+      if (
+        mutateSubNamespace &&
+        existing.kind === "Namespace" &&
+        !namespacesVisitedContent.has(existing as any)
+      ) {
         namespacesVisitedContent.add(existing);
         mutateSubMap(existing, "namespaces", existing);
       }
@@ -465,8 +468,12 @@ export function mutateSubgraph<T extends MutableType>(
     }
 
     // Namespaces needs to be finished before we visit their content.
+    // TODO: this can be combined now
     if (type.kind === "Namespace") {
       $(realm).type.finishType(clone!);
+      if (mutateSubNamespace) {
+        visitSubNamespaces(clone as any);
+      }
     }
 
     function shouldFinishType(type: Type) {
@@ -536,20 +543,25 @@ export function mutateSubgraph<T extends MutableType>(
       }
     }
 
-    function prepareNamespace(root: Namespace) {
-      visitDecorators(clone as any);
-      if (root.namespace) {
+    function mutateNamespaceProperty(root: MutableType) {
+      if ("namespace" in root && root.namespace) {
         const newNs = mutateSubgraphWorker(root.namespace, newMutators, false);
         if (clone) {
           (clone as any).namespace = newNs;
         }
       }
-      if (mutateSubNamespace) {
-        if (clone) {
-          namespacesVisitedContent.add(clone as any);
-        }
-        mutateSubMap(root, "namespaces", clone);
+    }
+
+    function prepareNamespace(root: Namespace) {
+      visitDecorators(clone as any);
+      mutateNamespaceProperty(root);
+    }
+
+    function visitSubNamespaces(clone: Namespace) {
+      if (clone) {
+        namespacesVisitedContent.add(clone as any);
       }
+      mutateSubMap(clone, "namespaces", clone);
     }
     function visitNamespaceContents(root: Namespace) {
       mutateSubMap(root, "models", clone);
@@ -648,8 +660,7 @@ export function mutateSubgraph<T extends MutableType>(
       if ("decorators" in root && root.kind !== "Namespace") {
         visitDecorators(root);
       }
-
-      mutateProperty(root as any, "namespace", clone);
+      mutateNamespaceProperty(root);
     }
 
     // Parents needs to be visited after the type is finished
