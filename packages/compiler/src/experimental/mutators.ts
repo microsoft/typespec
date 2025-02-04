@@ -314,15 +314,18 @@ export function mutateSubgraph<T extends MutableType>(
   let preparingNamespace = false;
   const muts = new Set(mutators);
   const postVisits: (() => void)[] = [];
+  let mutated;
+
   if (type.kind === "Namespace") {
     preparingNamespace = true;
     // Prepare namespaces first
-    mutateSubgraphWorker(type, muts);
+    mutated = mutateSubgraphWorker(type, muts);
     preparingNamespace = false;
 
     postVisits.forEach((visit) => visit());
+  } else {
+    mutated = mutateSubgraphWorker(type, muts);
   }
-  const mutated = mutateSubgraphWorker(type, muts);
 
   if (mutated === type) {
     return { realm: null, type };
@@ -525,7 +528,6 @@ export function mutateSubgraph<T extends MutableType>(
     }
 
     function visitModel(root: Model) {
-      mutateTemplateMapper(root);
       mutateSubMap(root, "properties", clone);
       if (root.indexer) {
         const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
@@ -608,6 +610,9 @@ export function mutateSubgraph<T extends MutableType>(
           break;
       }
 
+      if ("templateMapper" in root) {
+        mutateTemplateMapper(root);
+      }
       if ("decorators" in root && root.kind !== "Namespace") {
         visitDecorators(root);
       }
@@ -629,7 +634,9 @@ export function mutateSubgraph<T extends MutableType>(
       for (const [param, type] of root.templateMapper.map) {
         mutatedMapper.map.set(param, mutateSubgraphWorker(type as any, newMutators));
       }
-      root.templateMapper = mutatedMapper;
+      if (clone) {
+        (clone as any).templateMapper = mutatedMapper;
+      }
     }
   }
 }
