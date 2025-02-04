@@ -314,11 +314,13 @@ export function mutateSubgraph<T extends MutableType>(
   let preparingNamespace = false;
   const muts = new Set(mutators);
   const postVisits: (() => void)[] = [];
+  const namespacesVisitedContent = new Set<Namespace>();
   let mutated;
 
   if (type.kind === "Namespace") {
     preparingNamespace = true;
     // Prepare namespaces first
+    mutateSubgraphWorker(program.getGlobalNamespaceType(), muts);
     mutateSubgraphWorker(program.getGlobalNamespaceType(), muts);
     preparingNamespace = false;
 
@@ -337,9 +339,15 @@ export function mutateSubgraph<T extends MutableType>(
   function mutateSubgraphWorker<T extends MutableType>(
     type: T,
     activeMutators: Set<Mutator>,
+    mutateSubNamespace: boolean = true,
   ): MutableType {
+    const newMutators = new Set(activeMutators.values());
     let existing = seen.get([type, activeMutators]);
     if (existing) {
+      if (existing.kind === "Namespace" && !namespacesVisitedContent.has(existing as any)) {
+        namespacesVisitedContent.add(existing);
+        mutateSubMap(existing, "namespaces", existing);
+      }
       clearInterstitialFunctions();
       return existing as T;
     }
@@ -355,7 +363,6 @@ export function mutateSubgraph<T extends MutableType>(
     }[] = [];
 
     // step 1: see what mutators to run
-    const newMutators = new Set(activeMutators.values());
     for (const mutator of activeMutators) {
       const record = mutator[type.kind] as MutatorRecord<T> | undefined;
       if (!record) {
@@ -459,7 +466,6 @@ export function mutateSubgraph<T extends MutableType>(
 
     // Namespaces needs to be finished before we visit their content.
     if (type.kind === "Namespace") {
-      visitDecorators(clone as any);
       $(realm).type.finishType(clone!);
     }
 
@@ -531,8 +537,19 @@ export function mutateSubgraph<T extends MutableType>(
     }
 
     function prepareNamespace(root: Namespace) {
-      mutateSubMap(root, "namespaces", clone);
-      mutateProperty(root as any, "namespace", clone);
+      visitDecorators(clone as any);
+      if (root.namespace) {
+        const newNs = mutateSubgraphWorker(root.namespace, newMutators, false);
+        if (clone) {
+          (clone as any).namespace = newNs;
+        }
+      }
+      if (mutateSubNamespace) {
+        if (clone) {
+          namespacesVisitedContent.add(clone as any);
+        }
+        mutateSubMap(root, "namespaces", clone);
+      }
     }
     function visitNamespaceContents(root: Namespace) {
       mutateSubMap(root, "models", clone);
