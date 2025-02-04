@@ -1,4 +1,4 @@
-import { getLocationContext, TemplatedType } from "../core/index.js";
+import { getLocationContext, getTypeName, TemplatedType } from "../core/index.js";
 import { Program } from "../core/program.js";
 import { getParentTemplateNode, isTemplateInstance, isType } from "../core/type-utils.js";
 import {
@@ -311,7 +311,18 @@ export function mutateSubgraph<T extends MutableType>(
   const realm = new Realm(program, "realm for mutation");
   const interstitialFunctions: (() => void)[] = [];
 
-  const mutated = mutateSubgraphWorker(type, new Set(mutators));
+  let preparingNamespace = false;
+  const muts = new Set(mutators);
+  const postVisits: (() => void)[] = [];
+  if (type.kind === "Namespace") {
+    preparingNamespace = true;
+    // Prepare namespaces first
+    mutateSubgraphWorker(type, muts);
+    preparingNamespace = false;
+
+    postVisits.forEach((visit) => visit());
+  }
+  const mutated = mutateSubgraphWorker(type, muts);
 
   if (mutated === type) {
     return { realm: null, type };
@@ -439,7 +450,13 @@ export function mutateSubgraph<T extends MutableType>(
     }
 
     if (newMutators.size > 0) {
-      visitSubgraph();
+      if (preparingNamespace && type.kind === "Namespace") {
+        console.log("preping", getTypeName(clone as any));
+        prepareNamespace(clone as any);
+        postVisits.push(visitSubgraph);
+      } else {
+        visitSubgraph();
+      }
     }
 
     function shouldFinishType(type: Type) {
@@ -494,8 +511,11 @@ export function mutateSubgraph<T extends MutableType>(
       }
     }
 
-    function visitNamespace(root: Namespace) {
-      // mutateSubMap(root, "namespaces", clone);
+    function prepareNamespace(root: Namespace) {
+      mutateSubMap(root, "namespaces", clone);
+      mutateProperty(root as any, "namespace", clone);
+    }
+    function visitNamespaceContents(root: Namespace) {
       mutateSubMap(root, "models", clone);
       mutateSubMap(root, "operations", clone);
       mutateSubMap(root, "interfaces", clone);
@@ -552,10 +572,9 @@ export function mutateSubgraph<T extends MutableType>(
       const root: MutableType | Namespace = clone ?? (type as MutableTypeWithNamespace);
       switch (root.kind) {
         case "Namespace":
-          visitNamespace(root);
+          visitNamespaceContents(root);
           break;
         case "Model":
-          console.log("Loop");
           visitModel(root);
           break;
         case "ModelProperty":
