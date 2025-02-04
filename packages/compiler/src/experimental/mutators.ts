@@ -456,7 +456,7 @@ export function mutateSubgraph<T extends MutableType>(
     if (newMutators.size > 0) {
       if (preparingNamespace && type.kind === "Namespace") {
         prepareNamespace(clone as any);
-        postVisits.push(visitSubgraph);
+        postVisits.push(() => visitNamespaceContents(clone as any));
       } else {
         visitSubgraph();
       }
@@ -499,6 +499,19 @@ export function mutateSubgraph<T extends MutableType>(
           if (newValue.name !== value.name) {
             (clone as any)[prop].rekey(key, newValue.name);
           }
+        }
+      }
+    }
+    function mutateSubArray<T extends MutableType, K extends keyof T>(
+      type: T,
+      prop: K,
+      clone: any,
+    ) {
+      for (const [index, value] of (type as any)[prop].entries()) {
+        const newValue: any = mutateSubgraphWorker(value, newMutators);
+
+        if (clone) {
+          (clone as any)[prop][index] = newValue;
         }
       }
     }
@@ -589,7 +602,7 @@ export function mutateSubgraph<T extends MutableType>(
         case "Operation":
           mutateProperty(root, "parameters", clone);
           mutateProperty(root, "returnType", clone);
-          mutateProperty(root, "interface", clone);
+          mutateProperty(root, "sourceOperation", clone);
           break;
         case "Interface":
           mutateSubMap(root, "operations", clone);
@@ -607,6 +620,8 @@ export function mutateSubgraph<T extends MutableType>(
           break;
         case "Scalar":
           mutateProperty(root, "baseScalar", clone);
+          mutateSubMap(root, "constructors", clone);
+          mutateSubArray(root, "derivedScalars", clone);
           break;
       }
 
@@ -634,6 +649,9 @@ export function mutateSubgraph<T extends MutableType>(
           break;
         case "UnionVariant":
           mutateProperty(root, "union", clone);
+          break;
+        case "ScalarConstructor":
+          mutateProperty(root, "scalar", clone);
           break;
       }
     }

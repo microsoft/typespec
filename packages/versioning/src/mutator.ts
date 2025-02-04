@@ -70,6 +70,7 @@ export function createVersionMutator(
         deleteFromMap(clone.enums);
         deleteFromMap(clone.unions);
         deleteFromMap(clone.namespaces);
+        deleteFromMap(clone.scalars);
       },
     },
     Interface: (original, clone, p, realm) => {
@@ -90,6 +91,10 @@ export function createVersionMutator(
     Enum: (original, clone, p, realm) => {
       rename(original, clone);
       deleteFromMap(clone.members);
+    },
+    Scalar: (original, clone, p, realm) => {
+      rename(original, clone);
+      deleteFromArray(clone.derivedScalars);
     },
     EnumMember: (original, clone, p, realm) => {
       rename(original, clone);
