@@ -1,4 +1,4 @@
-import type OpenAPIParser from "@readme/openapi-parser";
+import type OpenAPIParser from "@apidevtools/swagger-parser";
 import { OpenAPI3Document, OpenAPI3Schema, Refable } from "../../../../types.js";
 import { SchemaToExpressionGenerator } from "../generators/generate-types.js";
 import { generateNamespaceName } from "./generate-namespace-name.js";
@@ -13,7 +13,11 @@ export interface Context {
   getByRef<T>(ref: string): T | undefined;
 }
 
-export function createContext(parser: OpenAPIParser, openApi3Doc: OpenAPI3Document): Context {
+export type Parser = {
+  $refs: OpenAPIParser["$refs"];
+};
+
+export function createContext(parser: Parser, openApi3Doc: OpenAPI3Document): Context {
   const rootNamespace = generateNamespaceName(openApi3Doc.info.title);
   const schemaExpressionGenerator = new SchemaToExpressionGenerator(rootNamespace);
 

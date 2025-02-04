@@ -1,4 +1,4 @@
-import OpenAPIParser from "@readme/openapi-parser";
+import OpenAPIParser from "@apidevtools/swagger-parser";
 import { formatTypeSpec, resolvePath } from "@typespec/compiler";
 import { OpenAPI3Document } from "../../../types.js";
 import { CliHost } from "../../types.js";

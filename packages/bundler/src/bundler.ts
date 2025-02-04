@@ -1,9 +1,12 @@
+import alias from "@rollup/plugin-alias";
 import commonjs from "@rollup/plugin-commonjs";
+import inject from "@rollup/plugin-inject";
 import json from "@rollup/plugin-json";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import virtual from "@rollup/plugin-virtual";
 import { compile, joinPaths, NodeHost, normalizePath, resolvePath } from "@typespec/compiler";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
+import stdLibBrowser from "node-stdlib-browser";
 import { basename, join, resolve } from "path";
 import { OutputChunk, rollup, RollupBuild, RollupOptions, watch } from "rollup";
 import { relativeTo } from "./utils.js";
@@ -181,7 +184,13 @@ async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise
       }),
       (commonjs as any)(),
       (json as any)(),
+      (alias as any)({
+        entries: stdLibBrowser,
+      }),
       (nodeResolve as any)({ preferBuiltins: true, browser: true }),
+      (inject as any)({
+        process: stdLibBrowser.process,
+      }),
     ],
     external: (id) => {
       return (

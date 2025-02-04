@@ -1,4 +1,4 @@
-import OpenAPIParser from "@readme/openapi-parser";
+import OpenAPIParser from "@apidevtools/swagger-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
