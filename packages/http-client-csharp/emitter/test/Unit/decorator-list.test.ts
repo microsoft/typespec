@@ -1,7 +1,6 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Logger, LoggerLevel } from "../../src/index.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
@@ -32,8 +31,7 @@ describe("Test emitting decorator list", () => {
     const sdkContext = await createNetSdkContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const clients = root.Clients;
     strictEqual(clients.length, 2);
     deepStrictEqual(clients[1].Decorators, [

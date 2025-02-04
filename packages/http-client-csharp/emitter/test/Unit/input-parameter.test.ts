@@ -1,7 +1,6 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Logger, LoggerLevel } from "../../src/index.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
@@ -34,8 +33,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -66,8 +64,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -98,8 +95,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -132,8 +128,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -164,8 +159,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -196,8 +190,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -230,8 +223,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -262,8 +254,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -294,8 +285,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -328,8 +318,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -360,8 +349,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -392,8 +380,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -428,8 +415,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -460,8 +446,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -492,8 +477,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -526,8 +510,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -558,8 +541,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -590,8 +572,7 @@ describe("Test Parameter Explode", () => {
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
-        const logger = new Logger(program, LoggerLevel.INFO);
-        const root = createModel(sdkContext, logger);
+        const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
         );
@@ -627,8 +608,7 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
         const diagnostics = context.program.diagnostics;
-        const logger = new Logger(program, LoggerLevel.INFO);
-        createModel(sdkContext, logger);
+        createModel(sdkContext);
 
         const unsupportedCookie = diagnostics.find(
           (d) => d.code === "@typespec/http-client-csharp/unsupported-cookie-parameter",
@@ -669,8 +649,7 @@ describe("Test Parameter Explode", () => {
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
         const diagnostics = context.program.diagnostics;
-        const logger = new Logger(program, LoggerLevel.INFO);
-        createModel(sdkContext, logger);
+        createModel(sdkContext);
 
         const unsupportedCookie = diagnostics.find(
           (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",

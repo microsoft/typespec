@@ -27,7 +27,11 @@ import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: Logger): CodeModel {
+export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions>{
+  logger: Logger;
+}
+
+export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -52,7 +56,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: L
       : rootClients[0].apiVersions;
 
   const inputClients: InputClient[] = [];
-  fromSdkClients(rootClients, inputClients, [], logger);
+  fromSdkClients(rootClients, inputClients, [], sdkContext.logger);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,

@@ -1,7 +1,6 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Logger, LoggerLevel } from "../../src/index.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
@@ -29,8 +28,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostic = diagnostics.find(
@@ -56,8 +54,7 @@ describe("Test auth", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostic = diagnostics.find(

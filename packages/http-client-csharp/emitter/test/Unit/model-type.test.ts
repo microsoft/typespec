@@ -1,7 +1,6 @@
 import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Logger, LoggerLevel } from "../../src/index.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
@@ -49,8 +48,7 @@ op test(@body input: Pet): Pet;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const models = root.Models;
     const petModel = models.find((m) => m.name === "Pet");
     const catModel = models.find((m) => m.name === "Cat");
@@ -133,8 +131,7 @@ op test(@body input: Pet): Pet;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const codeModel = createModel(sdkContext, logger);
+    const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const pet = models.find((m) => m.name === "Pet");
     assert(pet !== undefined);
@@ -227,8 +224,7 @@ op test(@body input: Pet): Pet;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const codeModel = createModel(sdkContext, logger);
+    const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const pet = models.find((m) => m.name === "Pet");
     assert(pet !== undefined);
@@ -348,8 +344,7 @@ op op5(@body body: ExtendsFooArray): ExtendsFooArray;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const models = root.Models;
     const extendsUnknownModel = models.find((m) => m.name === "ExtendsUnknown");
     const extendsStringModel = models.find((m) => m.name === "ExtendsString");
@@ -441,8 +436,7 @@ op op5(@body body: IsFooArray): IsFooArray;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const models = root.Models;
     const isUnknownModel = models.find((m) => m.name === "IsUnknown");
     const isStringModel = models.find((m) => m.name === "IsString");
@@ -493,8 +487,7 @@ op op1(): void;
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const models = root.Models;
     const isEmptyModel = models.find((m) => m.name === "Empty");
     ok(isEmptyModel);
@@ -522,8 +515,7 @@ model Foo {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    createModel(sdkContext, logger);
+    createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
     const noAuthDiagnostic = diagnostics.find(
       (d) => d.code === "@typespec/http-client-csharp/unsupported-sdk-type",
@@ -555,8 +547,7 @@ describe("typespec-client-generator-core: general decorators list", () => {
 
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const models = root.Models;
     strictEqual(models.length, 1);
     deepStrictEqual(models[0].decorators, [

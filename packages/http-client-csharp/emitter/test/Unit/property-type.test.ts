@@ -2,7 +2,6 @@ import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Logger, LoggerLevel } from "../../src/index.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
@@ -27,8 +26,7 @@ describe("Test GetInputType for array", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "input",
     );
@@ -49,8 +47,7 @@ describe("Test GetInputType for array", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const bodyType = root.Clients[0].Operations[0].Responses[0].BodyType;
     strictEqual(bodyType?.kind, "array");
     strictEqual(bodyType.crossLanguageDefinitionId, "TypeSpec.Array");
@@ -89,8 +86,7 @@ describe("Test GetInputType for enum", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "input",
     );
@@ -136,8 +132,7 @@ describe("Test GetInputType for enum", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "input",
     );
@@ -176,8 +171,7 @@ describe("Test GetInputType for enum", () => {
     );
     const context = createEmitterContext(program);
     const sdkContext = await createNetSdkContext(context);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const root = createModel(sdkContext, logger);
+    const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "input",
     );
