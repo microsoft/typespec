@@ -100,7 +100,7 @@ export function fromSdkType(
         format: { sdkType: "Credential" },
         target: NoTarget,
       });
-      return undefined!;
+      return { kind: "unknown", name: "credential", crossLanguageDefinitionId: "" };
     default:
       retVar = fromSdkBuiltInType(sdkType);
       break;
