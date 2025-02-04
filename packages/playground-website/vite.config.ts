@@ -17,8 +17,6 @@ function getPrNumber() {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
   const useLocalLibraries = env["VITE_USE_LOCAL_LIBRARIES"] === "true";
-  console.log(`using local libraries: ${useLocalLibraries}`);
-  console.log(`mode: ${mode}`);
   const config = definePlaygroundViteConfig({
     ...TypeSpecPlaygroundConfig,
     links: {
