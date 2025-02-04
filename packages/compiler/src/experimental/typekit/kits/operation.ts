@@ -25,6 +25,12 @@ export interface OperationKit {
    * @param desc The descriptor of the operation.
    */
   create(desc: OperationDescriptor): Operation;
+  /**
+   * Returns true if the given type is an operation.
+   *
+   * @param type The type to examine.
+   */
+  is(type: any): type is Operation;
 }
 
 interface TypekitExtension {
@@ -61,6 +67,9 @@ defineKit<TypekitExtension>({
       });
       this.program.checker.finishType(operation);
       return operation;
+    },
+    is(type: any): type is Operation {
+      return type.kind === "Operation";
     },
   },
 });

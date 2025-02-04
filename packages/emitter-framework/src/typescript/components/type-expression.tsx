@@ -1,7 +1,6 @@
 import { refkey } from "@alloy-js/core";
 import { ValueExpression, Reference } from "@alloy-js/typescript";
 import { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
-import { isDeclaration } from "../../core/utils/typeguards.js";
 import { UnionExpression } from "./union-expression.js";
 import {ArrayExpression} from "./array-expression.js";
 import { RecordExpression } from "./record-expression.js";
@@ -17,7 +16,7 @@ export interface TypeExpressionProps {
 
 export function TypeExpression(props: TypeExpressionProps) {
   const type = $.httpPart.unpack(props.type);
-  if (isDeclaration(type)) {
+  if ($.operation.is(type)) {
     // todo: probably need abstraction around deciding what's a declaration in the output
     // (it may not correspond to things which are declarations in TypeSpec?)
     return <Reference refkey={refkey(type)} />;

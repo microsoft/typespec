@@ -1,6 +1,5 @@
 import { useTSNamePolicy } from "@alloy-js/typescript";
 import { isNeverType, ModelProperty, Operation } from "@typespec/compiler";
-import { isOperation } from "../../core/utils/typeguards.js";
 import { FunctionDeclaration } from "./function-declaration.js";
 import { TypeExpression } from "./type-expression.js";
 import { $ } from "@typespec/compiler/experimental/typekit";
@@ -35,7 +34,7 @@ export function InterfaceMember({ type, optional  }: InterfaceMemberProps) {
     );
   }
 
-  if (isOperation(type)) {
+  if ($.operation.is(type)) {
     const returnType = <TypeExpression type={type.returnType} />;
     const params = <FunctionDeclaration.Parameters type={type.parameters} />;
     return (
