@@ -1,4 +1,4 @@
-import { ModelProperty, Namespace, Operation } from "@typespec/compiler";
+import { ModelProperty, Namespace } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
@@ -27,13 +27,6 @@ import {
   isQueryParam,
   isStatusCode,
 } from "../src/decorators.js";
-import {
-  Visibility,
-  createMetadataInfo,
-  getRequestVisibility,
-  resolveRequestVisibility,
-} from "../src/metadata.js";
-import { getHttpOperation } from "../src/operations.js";
 import { createHttpTestRunner } from "./test-host.js";
 describe("http: decorators", () => {
   let runner: BasicTestRunner;
@@ -1171,23 +1164,6 @@ describe("http: decorators", () => {
     });
   });
 
-  describe("@visibility", () => {
-    it("warns on unsupported write visibility", async () => {
-      const diagnostics = await runner.diagnose(`
-        @test model M {
-          @visibility("write") w: string;
-        }
-      `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          severity: "warning",
-          code: "@typespec/http/write-visibility-not-supported",
-        },
-      ]);
-    });
-  });
-
   describe("@includeInapplicableMetadataInPayload", () => {
     it("defaults to true", async () => {
       const { M } = await runner.compile(`
@@ -1251,94 +1227,6 @@ describe("http: decorators", () => {
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
         true,
       );
-    });
-  });
-
-  describe("@parameterVisibility", () => {
-    it("ensures getRequestVisibility and resolveRequestVisibility return the same value for default PATCH operations", async () => {
-      const { testPatch } = await runner.compile(`
-      @patch
-      @test op testPatch(): void;
-      `);
-      deepStrictEqual(
-        getRequestVisibility("patch"),
-        resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
-      );
-    });
-
-    it("ensures getRequestVisibility and resolveRequestVisibility return expected values for customized PATCH operations", async () => {
-      const { testPatch } = await runner.compile(`
-      @parameterVisibility("create", "update")
-      @patch
-      @test op testPatch(): void;
-      `);
-      deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
-      deepStrictEqual(
-        resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
-        Visibility.Update | Visibility.Create | Visibility.Patch,
-      );
-    });
-
-    it("ensures legacy behavior of parameterVisibility with no arguments", async () => {
-      const { test } = (await runner.compile(`
-        model Example {
-          @visibility(Lifecycle.Read)
-          @path
-          id: string;
-
-          // @parameterVisibility with no args activates a hidden mode that hides all properties with explicit
-          // visibility.
-          @visibility(Lifecycle.Read, Lifecycle.Create, Lifecycle.Update, Lifecycle.Delete, Lifecycle.Query)
-          stillNotVisible: string;
-
-          // This is the only property that will be visible in the payload.
-          name: string
-        }
-
-      @parameterVisibility
-      @test
-      @route("/test")
-      @patch op test(@path id: Example.id, @bodyRoot example: Example): void;
-      `)) as { test: Operation };
-      const requestVisibility = resolveRequestVisibility(runner.program, test, "patch");
-      deepStrictEqual(
-        requestVisibility,
-        Visibility.All | Visibility.Patch | Visibility.LegacyParameterVisibility,
-      );
-      deepStrictEqual(
-        resolveRequestVisibility(runner.program, test, "get"),
-        Visibility.All | Visibility.LegacyParameterVisibility,
-      );
-
-      const [httpOperation, diagnostics] = getHttpOperation(runner.program, test);
-
-      // Ensure id parameter is not duplicated in route
-      strictEqual(httpOperation.uriTemplate, "/test/{id}");
-
-      const metadataInfo = createMetadataInfo(runner.program);
-
-      const { body: requestBody } = httpOperation.parameters;
-
-      strictEqual(diagnostics.length, 0);
-      ok(requestBody);
-      strictEqual(requestBody.bodyKind, "single");
-      strictEqual(requestBody.type.kind, "Model");
-      strictEqual(requestBody.type.name, "Example");
-
-      const properties = {
-        id: requestBody.type.properties.get("id")!,
-        stillNotVisible: requestBody.type.properties.get("stillNotVisible")!,
-        name: requestBody.type.properties.get("name")!,
-      } as const;
-
-      strictEqual(metadataInfo.isPayloadProperty(properties.id, requestVisibility), false);
-      strictEqual(
-        metadataInfo.isPayloadProperty(properties.stillNotVisible, requestVisibility),
-        false,
-      );
-      strictEqual(metadataInfo.isPayloadProperty(properties.name, requestVisibility), true);
-
-      strictEqual(metadataInfo.isOptional(properties.name, requestVisibility), false);
     });
   });
 });

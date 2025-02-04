@@ -7,7 +7,6 @@ import {
 } from "@typespec/compiler";
 import { getOperationVerb } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { resolveRequestVisibility } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
   HttpOperation,
@@ -60,12 +59,11 @@ function getOperationParametersForVerb(
   partialUriTemplate: string,
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const visibility = resolveRequestVisibility(program, operation, verb);
   const parsedUriTemplate = parseUriTemplate(partialUriTemplate);
 
   const parameters: HttpOperationParameter[] = [];
   const { body: resolvedBody, metadata } = diagnostics.pipe(
-    resolveHttpPayload(program, operation.parameters, visibility, HttpPayloadDisposition.Request, {
+    resolveHttpPayload(program, operation.parameters, HttpPayloadDisposition.Request, {
       implicitParameter: (
         param: ModelProperty,
       ): QueryParameterOptions | PathParameterOptions | undefined => {

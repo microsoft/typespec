@@ -595,6 +595,33 @@ export type DiscriminatorDecorator = (
 ) => void;
 
 /**
+ * Sets the default MIME type associated with a TypeSpec type.
+ *
+ * This is a hint to emitters that specifies how a type should be serialized by default.
+ *
+ * It is not guaranteed that emitters or libraries will respect this hint. Emitters may choose to ignore it or provide
+ * their own default serialization behavior. The HTTP library will honor this hint when serializing and deserializing
+ * the body of HTTP requests or responses.
+ *
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mimeType("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+export type MimeTypeDecorator = (
+  context: DecoratorContext,
+  target: Model | Scalar,
+  mimeType: string,
+) => void;
+
+/**
  * Provide an example value for a data type.
  *
  * @param example Example value.
@@ -1090,6 +1117,7 @@ export type TypeSpecDecorators = {
   projectedName: ProjectedNameDecorator;
   encodedName: EncodedNameDecorator;
   discriminator: DiscriminatorDecorator;
+  mimeType: MimeTypeDecorator;
   example: ExampleDecorator;
   opExample: OpExampleDecorator;
   list: ListDecorator;

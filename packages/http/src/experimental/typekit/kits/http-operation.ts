@@ -1,5 +1,13 @@
-import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
+import {
+  createDiagnosticCollector,
+  getMimeTypeHint,
+  ignoreDiagnostics,
+  Operation,
+  Type,
+  VoidType,
+} from "@typespec/compiler";
 import { defineKit, Typekit } from "@typespec/compiler/experimental/typekit";
+import { getContentTypes } from "../../../content-types.js";
 import { getHttpOperation } from "../../../operations.js";
 import {
   HttpOperation,
@@ -42,7 +50,7 @@ export interface FlatHttpResponse {
   /**
    * Content type. Might be undefined if the response does not have a body.
    */
-  contentType?: string;
+  contentTypes?: string[];
   /**
    * Response content.
    */
@@ -96,6 +104,7 @@ defineKit<TypekitExtension>({
       return httpReturnType;
     },
     getResponses(operation) {
+      const diagnostics = createDiagnosticCollector();
       const responsesMap: FlatHttpResponse[] = [];
       const httpOperation = this.httpOperation.get(operation);
       for (const response of httpOperation.responses) {
@@ -104,15 +113,18 @@ defineKit<TypekitExtension>({
             (property) => property.kind === "contentType",
           );
 
-          let contentType: string | undefined;
+          let contentTypes: string[] | undefined;
+
+          const { body } = responseContent;
 
           if (contentTypeProperty) {
-            contentType = (contentTypeProperty.property.type as StringLiteral).value;
-          } else if (responseContent.body) {
-            contentType = "application/json";
+            contentTypes = diagnostics.pipe(getContentTypes(contentTypeProperty.property));
+          } else if (body) {
+            // In this default case, we will fall back to the preferred MIME type of the body.
+            contentTypes = [getMimeTypeHint(this.program, body.type) ?? "application/json"];
           }
 
-          responsesMap.push({ statusCode: response.statusCodes, contentType, responseContent });
+          responsesMap.push({ statusCode: response.statusCodes, contentTypes, responseContent });
         }
       }
 

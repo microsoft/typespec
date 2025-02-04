@@ -388,12 +388,6 @@ export interface HttpOperation {
   path: string;
 
   /**
-   * Path segments
-   * @deprecated use {@link uriTemplate} instead
-   */
-  pathSegments: string[];
-
-  /**
    * Route verb.
    */
   verb: HttpVerb;

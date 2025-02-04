@@ -16,6 +16,7 @@ import type {
   MaxLengthDecorator,
   MaxValueDecorator,
   MaxValueExclusiveDecorator,
+  MimeTypeDecorator,
   MinItemsDecorator,
   MinLengthDecorator,
   MinValueDecorator,
@@ -1275,6 +1276,65 @@ export const $discriminator: DiscriminatorDecorator = (
   }
   setDiscriminator(context.program, entity, discriminator);
 };
+
+/**
+ * A type that can have a default MIME type.
+ */
+type MimeTypeable = Model | Scalar;
+
+const [_getMimeType, setMimeType] = useStateMap<MimeTypeable, string>(
+  createStateSymbol("mimeType"),
+);
+
+export const $mimeType: MimeTypeDecorator = (
+  context: DecoratorContext,
+  target: MimeTypeable,
+  mimeType: string,
+) => {
+  validateDecoratorUniqueOnNode(context, target, $mimeType);
+
+  setMimeType(context.program, target, mimeType);
+};
+
+/**
+ * Get the default MIME type hint for the given target.
+ *
+ * @param program - the Program containing the target
+ * @param target - the target to get the MIME type for
+ * @returns the default MIME type hint for the target, if any
+ */
+export function getMimeTypeHint(program: Program, target: Type): string | undefined {
+  // This special-casing is necessary because we cannot apply a decorator with a `valueof string` argument to `string`
+  // itself. It creates a circular dependency in the checker where initializing the decorator value depends on `string`
+  // already being initialized, which it isn't if we're still checking its decorators. This simple special-casing allows
+  // us to avoid that circularity or having to special-case the initialization of string itself.
+  if (target.kind === "Scalar" && isIntrinsicType(program, target, "string")) {
+    return "text/plain";
+  }
+
+  switch (target.kind) {
+    case "Scalar":
+    case "Model": {
+      // Assert this satisfies clause to make sure we've handled everything that is MimeTypeable
+      void 0 as unknown as MimeTypeable["kind"] satisfies typeof target.kind;
+
+      const hint = _getMimeType(program, target);
+
+      if (!hint) {
+        // Look up the hierarchy for a MIME type hint if we don't have one on this type.
+        const ancestor = target.kind === "Model" ? target.baseModel : target.baseScalar;
+
+        if (ancestor) {
+          return getMimeTypeHint(program, ancestor);
+        }
+      }
+
+      return hint;
+    }
+    default:
+      return undefined;
+  }
+}
 
 export interface Example extends ExampleOptions {
   readonly value: Value;

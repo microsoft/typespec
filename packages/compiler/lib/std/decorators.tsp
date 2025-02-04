@@ -512,6 +512,29 @@ extern dec encode(
   encodedAs?: Scalar
 );
 
+/**
+ * Sets the default MIME type associated with a TypeSpec type.
+ *
+ * This is a hint to emitters that specifies how a type should be serialized by default.
+ *
+ * It is not guaranteed that emitters or libraries will respect this hint. Emitters may choose to ignore it or provide
+ * their own default serialization behavior. The HTTP library will honor this hint when serializing and deserializing
+ * the body of HTTP requests or responses.
+ *
+ * @example create a model that serializes as XML by default
+ *
+ * ```tsp
+ * @mimeType("application/xml")
+ * model Example {
+ *   @visibility(Lifecycle.Read)
+ *   id: string;
+ *
+ *   name: string;
+ * }
+ * ```
+ */
+extern dec mimeType(target: Model | Scalar, mimeType: valueof string);
+
 /** Options for example decorators */
 model ExampleOptions {
   /** The title of the example */

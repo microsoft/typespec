@@ -20,7 +20,6 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { isVisible, Visibility } from "./metadata.js";
 import { HttpPayloadDisposition } from "./payload.js";
 import {
   CookieParameterOptions,
@@ -216,7 +215,6 @@ function getHttpProperty(
 export function resolvePayloadProperties(
   program: Program,
   type: Type,
-  visibility: Visibility,
   disposition: HttpPayloadDisposition,
   options: GetHttpPropertyOptions = {},
 ): DiagnosticResult<HttpProperty[]> {
@@ -234,10 +232,6 @@ export function resolvePayloadProperties(
     let foundBodyProperty = false;
     for (const property of walkPropertiesInherited(model)) {
       const propPath = [...path, property.name];
-
-      if (!isVisible(program, property, visibility)) {
-        continue;
-      }
 
       let httpProperty = diagnostics.pipe(getHttpProperty(program, property, propPath, options));
       if (shouldTreatAsBodyProperty(httpProperty, disposition)) {

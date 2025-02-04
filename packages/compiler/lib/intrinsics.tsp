@@ -7,6 +7,7 @@ namespace TypeSpec;
 /**
  * Represent a byte array
  */
+@mimeType("application/octet-stream")
 scalar bytes;
 
 /**
@@ -91,6 +92,8 @@ scalar decimal extends numeric;
  */
 scalar decimal128 extends decimal;
 
+// Default mimeType: "text/plain". This is special-cased in the compiler because a string value cannot be used as an
+// argument to a decorator of string itself, since `TypeSpec.string` will not be finished initializing.
 /**
  * A sequence of textual characters.
  */

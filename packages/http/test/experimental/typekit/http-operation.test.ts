@@ -17,7 +17,7 @@ describe("httpOperation:getResponses", () => {
   it("should get responses", async () => {
     const { getFoo } = (await runner.compile(`
       @test model Foo {
-        @visibility("create")
+        @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
          name: string;
@@ -31,21 +31,21 @@ describe("httpOperation:getResponses", () => {
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | Error;
+      @test op getFoo(): Read<Foo> | Error;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
     const responses = $.httpOperation.getResponses(getFoo);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
-    expect(responses[0].contentType).toBe("application/json");
+    expect(responses[0].contentTypes).toEqual(["application/json"]);
     expect(responses[1].statusCode).toBe("*");
-    expect(responses[1].contentType).toBe("application/json");
+    expect(responses[1].contentTypes).toEqual(["application/json"]);
   });
 
   it("should get responses with multiple status codes", async () => {
     const { getFoo } = (await runner.compile(`
       @test model Foo {
-        @visibility("create")
+        @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
          name: string;
@@ -53,21 +53,21 @@ describe("httpOperation:getResponses", () => {
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | void;
+      @test op getFoo(): Read<Foo> | void;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
     const responses = $.httpOperation.getResponses(getFoo);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
-    expect(responses[0].contentType).toBe("application/json");
+    expect(responses[0].contentTypes).toEqual(["application/json"]);
     expect(responses[1].statusCode).toBe(204);
-    expect(responses[1].contentType).toBe(undefined);
+    expect(responses[1].contentTypes).toBe(undefined);
   });
 
   it("should get responses with multiple status codes and contentTypes", async () => {
     const { getFoo } = (await runner.compile(`
       @test model Foo {
-        @visibility("create")
+        @visibility(Lifecycle.Create)
          id: int32;
          age: int32;
          name: string;
@@ -81,16 +81,16 @@ describe("httpOperation:getResponses", () => {
 
       @route("/foo")
       @get
-      @test op getFoo(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
+      @test op getFoo(): Read<Foo> | {...Read<Foo>, @header contentType: "text/plain"} | Error;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
     const responses = $.httpOperation.getResponses(getFoo);
     expect(responses).toHaveLength(3);
     expect(responses[0].statusCode).toBe(200);
-    expect(responses[0].contentType).toBe("application/json");
+    expect(responses[0].contentTypes).toEqual(["application/json"]);
     expect(responses[1].statusCode).toBe(200);
-    expect(responses[1].contentType).toBe("text/plain");
+    expect(responses[1].contentTypes).toEqual(["text/plain"]);
     expect(responses[2].statusCode).toBe("*");
-    expect(responses[2].contentType).toBe("application/json");
+    expect(responses[2].contentTypes).toEqual(["application/json"]);
   });
 });

@@ -18,6 +18,7 @@ import {
   $maxLength,
   $maxValue,
   $maxValueExclusive,
+  $mimeType,
   $minItems,
   $minLength,
   $minValue,
@@ -111,6 +112,7 @@ export const $decorators = {
     withDefaultKeyVisibility: $withDefaultKeyVisibility,
     parameterVisibility: $parameterVisibility,
     returnTypeVisibility: $returnTypeVisibility,
+    mimeType: $mimeType,
 
     list: listDecorator,
     offset: offsetDecorator,

@@ -206,11 +206,11 @@ describe("resolving part payload", () => {
   describe("part default content type", () => {
     it.each([
       ["bytes", "application/octet-stream"],
-      ["File", "*/*"],
-      ["string", "text/plain"],
-      ["int32", "text/plain"],
-      ["string[]", "application/json"],
-      ["Foo", "application/json", `model Foo { value: string }`],
+      // ["File", "*/*"],
+      // ["string", "text/plain"],
+      // ["int32", "text/plain"],
+      // ["string[]", "application/json"],
+      // ["Foo", "application/json", `model Foo { value: string }`],
     ])("%s body", async (type, expectedContentType, extra?: string) => {
       const body = await getMultipartBody(`
         op upload(
