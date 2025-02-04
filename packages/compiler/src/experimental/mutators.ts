@@ -1,6 +1,6 @@
 import { getLocationContext, TemplatedType } from "../core/index.js";
 import { Program } from "../core/program.js";
-import { getParentTemplateNode, isTemplateInstance, isType } from "../core/type-utils.js";
+import { isTemplateInstance, isType } from "../core/type-utils.js";
 import {
   DecoratedType,
   Decorator,
@@ -463,8 +463,7 @@ export function mutateSubgraph<T extends MutableType>(
     }
 
     function shouldFinishType(type: Type) {
-      const parentTemplate = type.node && getParentTemplateNode(type.node);
-      return !parentTemplate || isTemplateInstance(type);
+      return type.isFinished;
     }
 
     if (type.kind !== "Namespace" && shouldFinishType(type!)) {
