@@ -270,10 +270,10 @@ const seen = new CustomKeyMap<[MutableType, Set<Mutator> | Mutator[]], Type>(([t
  *
  * @experimental
  */
-export function mutateSubgraphWithNamespace<T extends MutableTypeWithNamespace>(
+export function mutateSubgraphWithNamespace<Namespace>(
   program: Program,
   mutators: MutatorWithNamespace[],
-  type: T,
+  type: Namespace,
 ): { realm: Realm | null; type: MutableTypeWithNamespace } {
   return mutateSubgraph(program, mutators, type as any);
 }
@@ -322,7 +322,6 @@ export function mutateSubgraph<T extends MutableType>(
   function mutateSubgraphWorker<T extends MutableType>(
     type: T,
     activeMutators: Set<Mutator>,
-    forceClone = false,
   ): MutableType {
     let existing = seen.get([type, activeMutators]);
     if (existing) {
@@ -392,10 +391,11 @@ export function mutateSubgraph<T extends MutableType>(
     const mutatorsToApply = mutatorsWithOptions.map((v) => v.mutator);
 
     // if we have no mutators to apply, let's bail out.
-    if (mutatorsWithOptions.length === 0 && !forceClone) {
+    if (mutatorsWithOptions.length === 0) {
       if (newMutators.size > 0) {
         // we might need to clone this type later if something in our subgraph needs mutated.
         interstitialFunctions.push(initializeClone);
+        seen.set([type, activeMutators], type);
         visitSubgraph();
         interstitialFunctions.pop();
         return clone ?? type;
@@ -467,18 +467,10 @@ export function mutateSubgraph<T extends MutableType>(
       interstitialFunctions.length = 0;
     }
 
-    function mutateSubMap<T extends MutableType, K extends keyof T>(
-      type: T,
-      prop: K,
-      clone: any,
-      callback: (value: any) => void,
-    ) {
+    function mutateSubMap<T extends MutableType, K extends keyof T>(type: T, prop: K, clone: any) {
       for (const [key, value] of (type as any)[prop].entries()) {
-        const newValue: any = mutateSubgraphWorker(value, newMutators, true);
+        const newValue: any = mutateSubgraphWorker(value, newMutators);
         if (clone) {
-          if (newValue !== value) {
-            callback(newValue);
-          }
           (clone as any)[prop].set(key, newValue);
 
           if (newValue.name !== value.name) {
@@ -503,21 +495,18 @@ export function mutateSubgraph<T extends MutableType>(
     }
 
     function visitNamespace(root: Namespace) {
-      const register = (value: any) => {
-        // value.namespace = clone; // TODO: remove
-      };
-      mutateSubMap(root, "namespaces", clone, register);
-      mutateSubMap(root, "models", clone, register);
-      mutateSubMap(root, "operations", clone, register);
-      mutateSubMap(root, "interfaces", clone, register);
-      mutateSubMap(root, "enums", clone, register);
-      mutateSubMap(root, "unions", clone, register);
-      mutateSubMap(root, "scalars", clone, register);
+      // mutateSubMap(root, "namespaces", clone);
+      mutateSubMap(root, "models", clone);
+      mutateSubMap(root, "operations", clone);
+      mutateSubMap(root, "interfaces", clone);
+      mutateSubMap(root, "enums", clone);
+      mutateSubMap(root, "unions", clone);
+      mutateSubMap(root, "scalars", clone);
     }
 
     function visitModel(root: Model) {
       mutateTemplateMapper(root);
-      mutateSubMap(root, "properties", clone, (value) => (value.model = clone));
+      mutateSubMap(root, "properties", clone);
       if (root.indexer) {
         const res = mutateSubgraphWorker(root.indexer.value as any, newMutators);
         if (clone) {
@@ -531,7 +520,6 @@ export function mutateSubgraph<T extends MutableType>(
           (clone as any).derivedModels[index] = newDerivedModel;
         }
       }
-      visitDecorators(root);
     }
 
     function visitDecorators(root: MutableTypeWithNamespace & DecoratedType) {
@@ -567,6 +555,7 @@ export function mutateSubgraph<T extends MutableType>(
           visitNamespace(root);
           break;
         case "Model":
+          console.log("Loop");
           visitModel(root);
           break;
         case "ModelProperty":
@@ -575,35 +564,33 @@ export function mutateSubgraph<T extends MutableType>(
           mutateProperty(root, "model", clone);
           break;
         case "Operation":
-          const newParams = mutateSubgraphWorker(root.parameters, newMutators);
-          if (clone) {
-            (clone as any).parameters = newParams;
-          }
-
+          mutateProperty(root, "parameters", clone);
           mutateProperty(root, "returnType", clone);
+          mutateProperty(root, "interface", clone);
           break;
         case "Interface":
-          mutateSubMap(root, "operations", clone, (value) => (value.interface = clone));
+          mutateSubMap(root, "operations", clone);
           break;
         case "Enum":
-          visitDecorators(root);
-          mutateSubMap(root, "members", clone, (value) => null);
+          mutateSubMap(root, "members", clone);
           break;
         case "EnumMember":
-          visitDecorators(root);
           mutateProperty(root, "enum", clone);
           break;
         case "Union":
-          mutateSubMap(root, "variants", clone, (value) => (value.union = clone));
+          mutateSubMap(root, "variants", clone);
           break;
         case "UnionVariant":
           mutateProperty(root, "type", clone);
           mutateProperty(root, "union", clone);
           break;
         case "Scalar":
-          console.log("Muting", root.name, getLocationContext(program, type));
           mutateProperty(root, "baseScalar", clone);
           break;
+      }
+
+      if ("decorators" in root && root.kind !== "Namespace") {
+        visitDecorators(root);
       }
       mutateProperty(root as any, "namespace", clone);
     }

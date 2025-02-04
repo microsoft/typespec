@@ -92,10 +92,11 @@ it("propagate mutated model to model property", async () => {
   const { Foo } = (await runner.compile(code)) as { Foo: Model };
   const mutator: Mutator = {
     name: "test",
-    Model: {
-      mutate: (_, clone) => {
-        visited.push(clone.name);
-      },
+    Model: (_, clone) => {
+      visited.push(clone.name);
+    },
+    ModelProperty: (_, clone) => {
+      // Just to force mutation
     },
   };
   const MutatedFoo = mutateSubgraph(runner.program, [mutator], Foo).type as Model;
@@ -126,7 +127,8 @@ describe("handles circular references", () => {
   });
 });
 
-it("doesn't duplicate references", async () => {
+// We said we didn't actually want model properties to be cloned if they are not explicitly mutated.`¡
+it.skip("doesn't duplicate references", async () => {
   const code = `
     @test model Bar {
       bar: string;
