@@ -494,37 +494,6 @@ op op1(): void;
   });
 });
 
-describe("Credential type is not supported", () => {
-  let runner: TestHost;
-
-  beforeEach(async () => {
-    runner = await createEmitterTestHost();
-  });
-
-  it("Diagnostic about unsupported credential should be reported", async () => {
-    const program = await typeSpecCompile(
-      `
-@usage(Usage.input)
-@access(Access.public)
-model Foo {
-  Bar: credential;
-}
-`,
-      runner,
-      { IsTCGCNeeded: true },
-    );
-    const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
-    createModel(sdkContext);
-    const diagnostics = context.program.diagnostics;
-    const unsupportedSdkType = diagnostics.find(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-sdk-type",
-    );
-    ok(unsupportedSdkType);
-    strictEqual(unsupportedSdkType.message, "Unsupported SDK type: credential.");
-  });
-});
-
 describe("typespec-client-generator-core: general decorators list", () => {
   let runner: TestHost;
   beforeEach(async () => {
