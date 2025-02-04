@@ -319,10 +319,11 @@ export function mutateSubgraph<T extends MutableType>(
   if (type.kind === "Namespace") {
     preparingNamespace = true;
     // Prepare namespaces first
-    mutated = mutateSubgraphWorker(type, muts);
+    mutateSubgraphWorker(program.getGlobalNamespaceType(), muts);
     preparingNamespace = false;
 
     postVisits.forEach((visit) => visit());
+    mutated = mutateSubgraphWorker(type, muts);
   } else {
     mutated = mutateSubgraphWorker(type, muts);
   }
