@@ -17,8 +17,8 @@ import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import {
+  _minSupportedDotNetSdkVersion,
   configurationFileName,
-  minSupportedDotNetSdkVersion,
   tspOutputFileName,
 } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
@@ -26,7 +26,7 @@ import { reportDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
-import { NetEmitterOptions, resolveOptions, resolveOutputFolder } from "./options.js";
+import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
 
@@ -50,10 +50,15 @@ function findProjectRoot(path: string): string | undefined {
   }
 }
 
+/**
+ * The entry point for the emitter. This function is called by the typespec compiler.
+ * @param context - The emit context
+ * @beta
+ */
 export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
-  const outputFolder = resolveOutputFolder(context);
+  const outputFolder = _resolveOutputFolder(context);
 
   /* set the loglevel. */
   Logger.initialize(program, options.logLevel ?? LoggerLevel.INFO);
@@ -140,9 +145,9 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             { stdio: "inherit" },
           );
           if (result.exitCode !== 0) {
-            const isValid = await validateDotNetSdk(
+            const isValid = await _validateDotNetSdk(
               sdkContext.program,
-              minSupportedDotNetSdkVersion,
+              _minSupportedDotNetSdkVersion,
             );
             // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
             if (isValid) {
@@ -152,7 +157,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             }
           }
         } catch (error: any) {
-          const isValid = await validateDotNetSdk(sdkContext.program, minSupportedDotNetSdkVersion);
+          const isValid = await _validateDotNetSdk(
+            sdkContext.program,
+            _minSupportedDotNetSdkVersion,
+          );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) throw new Error(error);
         }
@@ -168,10 +176,11 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
 /** check the dotnet sdk installation.
  * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
- * @param program The typespec compiler program
- * @param minVersionRequisite The minimum required major version
+ * @param program - The typespec compiler program
+ * @param minVersionRequisite - The minimum required major version
+ * @internal
  */
-export async function validateDotNetSdk(
+export async function _validateDotNetSdk(
   program: Program,
   minMajorVersion: number,
 ): Promise<boolean> {
