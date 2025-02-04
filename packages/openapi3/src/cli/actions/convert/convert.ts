@@ -5,11 +5,24 @@ import { generateMain } from "./generators/generate-main.js";
 import { transform } from "./transforms/transforms.js";
 import { createContext } from "./utils/context.js";
 
-export async function convertOpenAPI3Document(document: OpenAPI3Document) {
+export interface ConvertOpenAPI3DocumentOptions {
+  /**
+   * Whether external $ref pointers will be resolved and included in the output.
+   */
+  disableExternalRefs?: boolean;
+}
+
+export async function convertOpenAPI3Document(
+  document: OpenAPI3Document,
+  { disableExternalRefs }: ConvertOpenAPI3DocumentOptions = {},
+) {
   const parser = new OpenAPIParser();
-  await parser.bundle(document as any, {
-    resolve: { external: false, http: false, file: false },
-  });
+  const bundleOptions = disableExternalRefs
+    ? {
+        resolve: { external: false, http: false, file: false },
+      }
+    : {};
+  await parser.bundle(document as any, bundleOptions);
   const context = createContext(parser, document);
   const program = transform(context);
   const content = generateMain(program, context);
