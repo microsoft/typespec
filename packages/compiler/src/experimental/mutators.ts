@@ -1,4 +1,4 @@
-import { getLocationContext, getTypeName, TemplatedType } from "../core/index.js";
+import { getLocationContext, TemplatedType } from "../core/index.js";
 import { Program } from "../core/program.js";
 import { getParentTemplateNode, isTemplateInstance, isType } from "../core/type-utils.js";
 import {
@@ -411,6 +411,7 @@ export function mutateSubgraph<T extends MutableType>(
         interstitialFunctions.push(initializeClone);
         seen.set([type, activeMutators], type);
         visitSubgraph();
+        visitParents();
         interstitialFunctions.pop();
         return clone ?? type;
       } else {
@@ -454,7 +455,6 @@ export function mutateSubgraph<T extends MutableType>(
 
     if (newMutators.size > 0) {
       if (preparingNamespace && type.kind === "Namespace") {
-        console.log("preping", getTypeName(clone as any));
         prepareNamespace(clone as any);
         postVisits.push(visitSubgraph);
       } else {
@@ -471,6 +471,9 @@ export function mutateSubgraph<T extends MutableType>(
       $(realm).type.finishType(clone!);
     }
 
+    if (type.kind !== "Namespace") {
+      visitParents();
+    }
     return clone!;
 
     function initializeClone() {
@@ -582,7 +585,6 @@ export function mutateSubgraph<T extends MutableType>(
         case "ModelProperty":
           mutateProperty(root, "type", clone);
           mutateProperty(root, "sourceProperty", clone);
-          mutateProperty(root, "model", clone);
           break;
         case "Operation":
           mutateProperty(root, "parameters", clone);
@@ -596,14 +598,12 @@ export function mutateSubgraph<T extends MutableType>(
           mutateSubMap(root, "members", clone);
           break;
         case "EnumMember":
-          mutateProperty(root, "enum", clone);
           break;
         case "Union":
           mutateSubMap(root, "variants", clone);
           break;
         case "UnionVariant":
           mutateProperty(root, "type", clone);
-          mutateProperty(root, "union", clone);
           break;
         case "Scalar":
           mutateProperty(root, "baseScalar", clone);
@@ -617,6 +617,25 @@ export function mutateSubgraph<T extends MutableType>(
         visitDecorators(root);
       }
       mutateProperty(root as any, "namespace", clone);
+    }
+
+    // Parents needs to be visited after the type is finished
+    function visitParents() {
+      const root: MutableType | Namespace = clone ?? (type as MutableTypeWithNamespace);
+      switch (root.kind) {
+        case "ModelProperty":
+          mutateProperty(root, "model", clone);
+          break;
+        case "Operation":
+          mutateProperty(root, "interface", clone);
+          break;
+        case "EnumMember":
+          mutateProperty(root, "enum", clone);
+          break;
+        case "UnionVariant":
+          mutateProperty(root, "union", clone);
+          break;
+      }
     }
 
     function mutateTemplateMapper(root: TemplatedType) {
