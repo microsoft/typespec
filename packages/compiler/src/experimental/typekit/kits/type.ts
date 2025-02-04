@@ -92,7 +92,7 @@ defineKit<TypekitExtension>({
           clone = this.program.checker.createType({
             ...type,
             decorators: [...type.decorators],
-            derivedScalar: [...type.derivedScalars],
+            derivedScalars: [...type.derivedScalars],
             constructors: copyMap(type.constructors as any),
           });
           break;

@@ -67,7 +67,7 @@ export function createVersionMutator(
     }
   }
   return {
-    name: "VersionSnapshot",
+    name: `VersionSnapshot ${moment.name}`,
     Namespace: {
       mutate: (original, clone, p, realm) => {
         deleteFromMap(clone.models);

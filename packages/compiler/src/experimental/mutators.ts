@@ -308,7 +308,7 @@ export function mutateSubgraph<T extends MutableType>(
   mutators: Mutator[],
   type: T,
 ): { realm: Realm | null; type: MutableType } {
-  const realm = new Realm(program, "realm for mutation");
+  const realm = new Realm(program, `Mutator realm ${mutators.map((m) => m.name).join(", ")}`);
   const interstitialFunctions: (() => void)[] = [];
 
   let preparingNamespace = false;
@@ -461,6 +461,7 @@ export function mutateSubgraph<T extends MutableType>(
     if (newMutators.size > 0) {
       if (preparingNamespace && type.kind === "Namespace") {
         prepareNamespace(clone as any);
+        console.log("PReparing NS", type.name);
         postVisits.push(() => visitNamespaceContents(clone as any));
       } else {
         visitSubgraph();
@@ -564,6 +565,7 @@ export function mutateSubgraph<T extends MutableType>(
       mutateSubMap(clone, "namespaces", clone);
     }
     function visitNamespaceContents(root: Namespace) {
+      console.log("Visiting namespace contents", root.name);
       mutateSubMap(root, "models", clone);
       mutateSubMap(root, "operations", clone);
       mutateSubMap(root, "interfaces", clone);
@@ -581,12 +583,7 @@ export function mutateSubgraph<T extends MutableType>(
         }
       }
       mutateProperty(root, "baseModel", clone);
-      for (const [index, derivedModel] of root.derivedModels.entries()) {
-        const newDerivedModel = mutateSubgraphWorker(derivedModel, newMutators);
-        if (clone) {
-          (clone as any).derivedModels[index] = newDerivedModel;
-        }
-      }
+      mutateSubArray(root, "derivedModels", clone);
     }
 
     function visitDecorators(root: MutableTypeWithNamespace & DecoratedType) {
@@ -648,16 +645,19 @@ export function mutateSubgraph<T extends MutableType>(
           mutateProperty(root, "type", clone);
           break;
         case "Scalar":
-          mutateProperty(root, "baseScalar", clone);
           mutateSubMap(root, "constructors", clone);
+          mutateProperty(root, "baseScalar", clone);
           mutateSubArray(root, "derivedScalars", clone);
+          break;
+        case "ScalarConstructor":
+          mutateProperty(root, "scalar", clone);
           break;
       }
 
       if ("templateMapper" in root) {
         mutateTemplateMapper(root);
       }
-      if ("decorators" in root && root.kind !== "Namespace") {
+      if ("decorators" in root) {
         visitDecorators(root);
       }
       mutateNamespaceProperty(root);
