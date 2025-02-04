@@ -19,7 +19,6 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
-import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
 import { NetEmitterOptions } from "../../../src/options.js";
@@ -121,7 +120,7 @@ export function navigateModels(
   namespace: Namespace,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>,
-  logger: Logger
+  logger: Logger,
 ) {
   const computeModel = (x: Type) => getInputType(context, x, models, enums, logger) as any;
   const skipSubNamespaces = isGlobalNamespace(context.program, namespace);

@@ -1,6 +1,7 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { Logger, LoggerLevel } from "../../src/index.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
@@ -9,7 +10,6 @@ import {
   createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
-import { Logger, LoggerLevel } from "../../src/index.js";
 
 describe("Test Parameter Explode", () => {
   let runner: TestHost;
@@ -611,25 +611,25 @@ describe("Test Parameter Explode", () => {
 
     describe("Cookie parameter not supported", () => {
       let runner: TestHost;
-    
+
       beforeEach(async () => {
         runner = await createEmitterTestHost();
       });
-    
+
       it("cookie parameter is not supported", async () => {
         const program = await typeSpecCompile(
           `
                 @route("test")
                 op test(@cookie cookie: string): NoContentResponse;
           `,
-          runner
+          runner,
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
         const diagnostics = context.program.diagnostics;
         const logger = new Logger(program, LoggerLevel.INFO);
         createModel(sdkContext, logger);
-    
+
         const unsupportedCookie = diagnostics.find(
           (d) => d.code === "@typespec/http-client-csharp/unsupported-cookie-parameter",
         );
@@ -643,11 +643,11 @@ describe("Test Parameter Explode", () => {
 
     describe("Unsupported endpoint url", () => {
       let runner: TestHost;
-    
+
       beforeEach(async () => {
         runner = await createEmitterTestHost();
       });
-    
+
       it("cookie parameter is not supported", async () => {
         const program = await typeSpecCompile(
           `
@@ -664,14 +664,14 @@ describe("Test Parameter Explode", () => {
                 namespace Test;
           `,
           runner,
-          {IsNamespaceNeeded: false}
+          { IsNamespaceNeeded: false },
         );
         const context = createEmitterContext(program);
         const sdkContext = await createNetSdkContext(context);
         const diagnostics = context.program.diagnostics;
         const logger = new Logger(program, LoggerLevel.INFO);
         createModel(sdkContext, logger);
-    
+
         const unsupportedCookie = diagnostics.find(
           (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
         );

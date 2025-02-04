@@ -1,6 +1,7 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { Logger, LoggerLevel } from "../../src/index.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
@@ -8,7 +9,6 @@ import {
   createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
-import { Logger, LoggerLevel } from "../../src/index.js";
 
 describe("Test GetInputType for scalar", () => {
   let runner: TestHost;

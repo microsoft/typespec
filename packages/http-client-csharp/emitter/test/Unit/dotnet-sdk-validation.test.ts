@@ -4,9 +4,9 @@ import { strictEqual } from "assert";
 import { SpawnOptions } from "child_process";
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { _validateDotNetSdk } from "../../src/emitter.js";
+import { Logger, LoggerLevel } from "../../src/index.js";
 import { execAsync } from "../../src/lib/utils.js";
 import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
-import { Logger, LoggerLevel } from "../../src/index.js";
 
 describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;

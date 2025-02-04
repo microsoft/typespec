@@ -186,7 +186,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 export async function _validateDotNetSdk(
   program: Program,
   minMajorVersion: number,
-  logger: Logger
+  logger: Logger,
 ): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
@@ -211,7 +211,7 @@ function validateDotNetSdkVersion(
   program: Program,
   version: string,
   minMajorVersion: number,
-  logger: Logger
+  logger: Logger,
 ): boolean {
   if (version) {
     const dotIndex = version.indexOf(".");

@@ -98,7 +98,7 @@ export function fromSdkType(
       reportDiagnostic(context.program, {
         code: "unsupported-sdk-type",
         format: { sdkType: "Credential" },
-        target: NoTarget
+        target: NoTarget,
       });
       return undefined!;
     default:

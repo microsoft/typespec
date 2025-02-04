@@ -68,7 +68,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: L
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
-    logger: Logger
+    logger: Logger,
   ) {
     for (const client of clients) {
       const inputClient = emitClient(client, parentClientNames, logger);
@@ -82,7 +82,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: L
     }
   }
 
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[], logger: Logger): InputClient {
+  function emitClient(
+    client: SdkClientType<SdkHttpOperation>,
+    parentNames: string[],
+    logger: Logger,
+  ): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
@@ -101,7 +105,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: L
             rootApiVersions,
             sdkContext,
             sdkTypeMap,
-            logger
+            logger,
           ),
         ),
       Protocol: {},
@@ -114,7 +118,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: L
   function getClientName(
     client: SdkClientType<SdkHttpOperation>,
     parentClientNames: string[],
-    logger: Logger
+    logger: Logger,
   ): string {
     const clientName = client.name;
 
@@ -147,7 +151,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: L
       .replace("https://", "")
       .replace("http://", "")
       .split("/")[0];
-    if (!/^\{\w+\}$/.test(endpointExpr)){
+    if (!/^\{\w+\}$/.test(endpointExpr)) {
       reportDiagnostic(sdkContext.program, {
         code: "unsupported-endpoint-url",
         format: { endpoint: type.serverUrl },
@@ -183,7 +187,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>, logger: L
         SkipUrlEncoding: false,
         Explode: false,
         Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(sdkContext, parameter.clientDefaultValue, parameterType),
+        DefaultValue: getParameterDefaultValue(
+          sdkContext,
+          parameter.clientDefaultValue,
+          parameterType,
+        ),
       });
     }
     return parameters;

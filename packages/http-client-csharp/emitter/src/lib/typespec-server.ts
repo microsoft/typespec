@@ -12,9 +12,9 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { getDefaultValue, getInputType } from "./model.js";
-import { Logger } from "./logger.js";
 import { LoggerLevel } from "./log-level.js";
+import { Logger } from "./logger.js";
+import { getDefaultValue, getInputType } from "./model.js";
 
 export interface TypeSpecServer {
   url: string;
