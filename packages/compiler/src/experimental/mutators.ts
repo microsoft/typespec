@@ -447,12 +447,6 @@ export function mutateSubgraph<T extends MutableType>(
       }
     }
 
-    // Namespaces needs to be finished before we visit their content.
-    if (type.kind === "Namespace") {
-      visitDecorators(clone as any);
-      $(realm).type.finishType(clone!);
-    }
-
     if (newMutators.size > 0) {
       if (preparingNamespace && type.kind === "Namespace") {
         prepareNamespace(clone as any);
@@ -460,6 +454,12 @@ export function mutateSubgraph<T extends MutableType>(
       } else {
         visitSubgraph();
       }
+    }
+
+    // Namespaces needs to be finished before we visit their content.
+    if (type.kind === "Namespace") {
+      visitDecorators(clone as any);
+      $(realm).type.finishType(clone!);
     }
 
     function shouldFinishType(type: Type) {
@@ -630,6 +630,7 @@ export function mutateSubgraph<T extends MutableType>(
       if ("decorators" in root && root.kind !== "Namespace") {
         visitDecorators(root);
       }
+
       mutateProperty(root as any, "namespace", clone);
     }
 
