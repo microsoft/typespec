@@ -1,6 +1,12 @@
 import type { ModelProperty, Namespace, Operation, Program, Type } from "@typespec/compiler";
 import { type unsafe_MutatorWithNamespace as MutatorWithNamespace } from "@typespec/compiler/experimental";
-import { getMadeOptionalOn, getRenamedFrom, getReturnTypeChangedFrom } from "./decorators.js";
+import {
+  getMadeOptionalOn,
+  getMadeRequiredOn,
+  getRenamedFrom,
+  getReturnTypeChangedFrom,
+  getTypeChangedFrom,
+} from "./decorators.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
 import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
@@ -101,7 +107,7 @@ export function createVersionMutator(
     },
     Operation: (original, clone, p, realm) => {
       rename(original, clone);
-      const returnTypeAtVersion = versioning.getReturnTypeAtVersion(clone, moment);
+      const returnTypeAtVersion = versioning.getReturnTypeAtVersion(original, moment);
       if (returnTypeAtVersion !== clone.returnType) {
         clone.returnType = returnTypeAtVersion;
       }
@@ -109,6 +115,10 @@ export function createVersionMutator(
     ModelProperty: (original, clone, p, realm) => {
       rename(original, clone);
       clone.optional = versioning.getOptionalAtVersion(original, moment);
+      const typeAtVersion = versioning.getTypeAtVersion(original, moment);
+      if (typeAtVersion !== clone.type) {
+        clone.type = typeAtVersion;
+      }
     },
   };
 }
@@ -141,6 +151,19 @@ class VersioningHelper {
     }
     return type.name;
   }
+
+  getTypeAtVersion(type: ModelProperty, moment: TimelineMoment): Type {
+    const map = getTypeChangedFrom(this.#program, type);
+    if (!map) return type.type;
+
+    for (const [changedAtVersion, val] of map) {
+      if (this.#timeline.isBefore(moment, changedAtVersion)) {
+        return val;
+      }
+    }
+    return type.type;
+  }
+
   getReturnTypeAtVersion(type: Operation, moment: TimelineMoment): Type {
     const map = getReturnTypeChangedFrom(this.#program, type);
     if (!map) return type.returnType;
@@ -150,17 +173,28 @@ class VersioningHelper {
         return val;
       }
     }
-    return type;
+    return type.returnType;
   }
   getOptionalAtVersion(type: ModelProperty, moment: TimelineMoment): boolean {
-    const version = getMadeOptionalOn(this.#program, type);
-    if (!version) return type.optional;
+    const optionalAt = getMadeOptionalOn(this.#program, type);
+    const requiredAt = getMadeRequiredOn(this.#program, type);
+    if (!optionalAt && !requiredAt) return type.optional;
 
-    if (this.#timeline.isBefore(moment, version)) {
-      return false;
-    } else {
-      return true;
+    if (optionalAt) {
+      if (this.#timeline.isBefore(moment, optionalAt)) {
+        return false;
+      } else {
+        return true;
+      }
     }
+    if (requiredAt) {
+      if (this.#timeline.isBefore(moment, requiredAt)) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    return type.optional;
   }
 }
 
