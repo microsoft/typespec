@@ -937,9 +937,33 @@ export const $withPickedProperties: WithPickedPropertiesDecorator = (
     }
   }
 
+  // Validate that all picked properties exist
+  for (const name of pickedNames) {
+    validatePropertyName(context, target, name);
+  }
+
   // Remove all properties not picked
   filterModelPropertiesInPlace(target, (prop) => pickedNames.has(prop.name));
 };
+
+function validatePropertyName(
+  context: DecoratorContext,
+  target: Model,
+  name: string
+) {
+  const source = target.templateMapper?.args[0] as Model;
+  if (source && !source.properties?.has(name)) {
+    reportDiagnostic(context.program, {
+      code:"unexpected-property",
+      format: {
+        propertyName: name,
+        type: getTypeName(source),
+      },
+      target: context.decoratorTarget,
+    });
+  }
+}
+
 
 // -- @withoutDefaultValues decorator ----------------------
 

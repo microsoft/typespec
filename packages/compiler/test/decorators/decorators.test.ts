@@ -825,6 +825,27 @@ describe("compiler: built-in decorators", () => {
       const properties = TestModel.kind === "Model" ? Array.from(TestModel.properties.keys()) : [];
       deepStrictEqual(properties, ["pickMe", "pickMeToo"]);
     });
+
+    it("emits diagnostics if any given key is not a property of a model", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        model OriginalModel {
+          pickMe: string;
+          pickMeToo: string;
+          notMe: string;
+        }
+
+        model TestModel is PickProperties<OriginalModel, "pickMe" | "notMee"> {
+        }`,
+      );
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "unexpected-property",
+          message: "Object value may only specify known properties, and 'notMee' does not exist in type 'OriginalModel'.",
+        },
+      ]);
+    });
   });
 
   describe("@overload", () => {
