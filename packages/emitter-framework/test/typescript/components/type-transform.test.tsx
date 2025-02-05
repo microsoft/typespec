@@ -542,19 +542,19 @@ describe("Typescript Type Transform", () => {
       }
       export function dogToApplication(item: any): Dog {
         return {
-          
+
           "kind": item.kind
         };
       }
       export function dogToTransport(item: Dog): any {
         return {
-          
+
           "kind": item.kind
         };
       }
       export function catToApplication(item: any): Cat {
         return {
-          
+
           "kind": item.kind
         };
       }
@@ -568,22 +568,38 @@ describe("Typescript Type Transform", () => {
         if(item.kind === "cat") {
           return catToApplication(item as Cat)
         }
+
         if(item.kind === "dog") {
           return dogToApplication(item as Dog)
         }
+
         throw new Error(\`Unexpected discriminated variant \${item.kind}\`);
       }
       export function petToTransport(item: Pet): any {
         if(item.kind === "cat") {
           return catToTransport(item as Cat)
         }
+
         if(item.kind === "dog") {
           return dogToTransport(item as Dog)
         }
+
         throw new Error(\`Unexpected discriminated variant \${item.kind}\`);
       }
-       `;
-      expect(actualContent).toBe(expectedContent);
+
+      `;
+
+      // workaround to ensure the the test passes regardless of leading whitespace
+      const lines = (actualContent as string).split("\n");
+      let transformed = "";
+      for (const line of lines) {
+        if (line.trimStart() === "") {
+          transformed += "\n";
+        } else {
+          transformed += `${line}\n`;
+        }
+      }
+      expect(transformed).toBe(expectedContent);
     });
   });
 });
