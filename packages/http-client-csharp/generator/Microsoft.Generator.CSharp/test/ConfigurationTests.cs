@@ -120,7 +120,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             PropertyProvider property = new($"IntProperty description", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), new TestTypeProvider());
             using var writer = new CodeWriter();
-            writer.WriteProperty(property, true);
+            writer.WriteProperty(property);
             Assert.AreEqual("public int IntProperty { get; set; }\n", writer.ToString(false));
         }
 

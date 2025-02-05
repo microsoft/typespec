@@ -1,6 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Client.Structure.Service",
-  "library-name": "Client.Structure.Service.Multi.Client",
-  "use-model-reader-writer": true
+  "library-name": "Client.Structure.Service.Multi.Client"
 }
