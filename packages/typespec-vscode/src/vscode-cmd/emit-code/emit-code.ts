@@ -604,5 +604,7 @@ async function compile(
     args.push("--option", `${emitter}.${key}=${value}`);
   }
 
-  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile));
+  return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), {
+    NO_COLOR: "true",
+  });
 }
