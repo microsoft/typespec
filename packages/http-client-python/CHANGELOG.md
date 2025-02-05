@@ -1,11 +1,5 @@
 # Change Log - @typespec/http-client-python
 
-## 0.7.0
-
-### Bug Fixes
-
-- Fix crash when value of `--package-pprint-name` contains space
-
 ## 0.6.9
 
 ### Bug Fixes
