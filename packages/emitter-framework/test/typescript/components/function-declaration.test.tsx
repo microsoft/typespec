@@ -1,11 +1,11 @@
 import { Output, render } from "@alloy-js/core";
+import { d } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
 import { FunctionDeclaration } from "../../../src/typescript/components/function-declaration.js";
 import { getProgram } from "../test-host.js";
-import { d } from "@alloy-js/core/testing";
 describe("Typescript Function Declaration", () => {
   describe("Function bound to Typespec Types", () => {
     describe("Bound to Operation", () => {
@@ -23,7 +23,7 @@ describe("Typescript Function Declaration", () => {
             <SourceFile path="test.ts">
               <FunctionDeclaration type={operation} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -49,18 +49,21 @@ describe("Typescript Function Declaration", () => {
             <SourceFile path="test.ts">
               <FunctionDeclaration async type={operation} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
         assert(testFile, "test.ts file not rendered");
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
-        const expectedContent = await format(d`async function getName(id: string): Promise<string> {
+        const expectedContent = await format(
+          d`async function getName(id: string): Promise<string> {
           
           
-          }`, {
-          parser: "typescript",
-        });
+          }`,
+          {
+            parser: "typescript",
+          },
+        );
         expect(actualContent).toBe(expectedContent);
       });
 
@@ -78,7 +81,7 @@ describe("Typescript Function Declaration", () => {
             <SourceFile path="test.ts">
               <FunctionDeclaration export type={operation} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -104,7 +107,7 @@ describe("Typescript Function Declaration", () => {
             <SourceFile path="test.ts">
               <FunctionDeclaration name="newName" type={operation} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -133,7 +136,7 @@ describe("Typescript Function Declaration", () => {
                 parameters={{ name: "string", age: "number" }}
               />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -143,7 +146,7 @@ describe("Typescript Function Declaration", () => {
           `function createPerson(name: string, age: number, id: string): string{}`,
           {
             parser: "typescript",
-          }
+          },
         );
         expect(actualContent).toBe(expectedContent);
       });
@@ -170,7 +173,7 @@ describe("Typescript Function Declaration", () => {
                 <FunctionDeclaration.Parameters type={model} />
               </FunctionDeclaration>
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -179,7 +182,7 @@ describe("Typescript Function Declaration", () => {
 
         const expectedContent = await format(
           `function createPerson(name: string, age: number): string{}`,
-          { parser: "typescript" }
+          { parser: "typescript" },
         );
 
         expect(actualContent).toBe(expectedContent);
@@ -201,7 +204,7 @@ describe("Typescript Function Declaration", () => {
                 const message = "Hello World!"; console.log(message);
               </FunctionDeclaration>
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -213,7 +216,7 @@ describe("Typescript Function Declaration", () => {
                const message = "Hello World!";
                console.log(message);
            }`,
-          { parser: "typescript" }
+          { parser: "typescript" },
         );
 
         expect(actualContent).toBe(expectedContent);

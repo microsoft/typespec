@@ -586,20 +586,9 @@ describe("Typescript Type Transform", () => {
 
         throw new Error(\`Unexpected discriminated variant \${item.kind}\`);
       }
-
       `;
-
-      // workaround to ensure the the test passes regardless of leading whitespace
-      const lines = (actualContent as string).split("\n");
-      let transformed = "";
-      for (const line of lines) {
-        if (line.trimStart() === "") {
-          transformed += "\n";
-        } else {
-          transformed += `${line}\n`;
-        }
-      }
-      expect(transformed).toBe(expectedContent);
+      // FIXME: This test needs to be fixed because it generates bad whitespace
+      expect(actualContent).toBe(expectedContent);
     });
   });
 });

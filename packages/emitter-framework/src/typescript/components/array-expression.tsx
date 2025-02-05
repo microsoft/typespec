@@ -6,10 +6,11 @@ export interface ArrayExpressionProps {
 }
 
 export function ArrayExpression({ elementType }: ArrayExpressionProps) {
-
   return (
     <>
-      Array{"<"}<TypeExpression type={elementType} />{">"} 
+      Array{"<"}
+      <TypeExpression type={elementType} />
+      {">"}
     </>
   );
 }

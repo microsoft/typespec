@@ -1,25 +1,31 @@
 import { Children, code, mapJoin, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Discriminator, Model, ModelProperty, RekeyableMap, Scalar, Type, Union } from "@typespec/compiler";
+import {
+  Discriminator,
+  Model,
+  ModelProperty,
+  RekeyableMap,
+  Scalar,
+  Type,
+  Union,
+} from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import {createRekeyableMap} from "@typespec/compiler/utils"
+import { createRekeyableMap } from "@typespec/compiler/utils";
+import { reportDiagnostic } from "../../lib.js";
+import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import {
   ArraySerializerRefkey,
   DateDeserializerRefkey,
   DateRfc3339SerializerRefkey,
   RecordSerializerRefkey,
 } from "./static-serializers.jsx";
-import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
-import { reportDiagnostic } from "../../lib.js";
-
 
 export interface TypeTransformProps {
   name?: string;
   type: Type;
   target: "application" | "transport";
-  refkey?: Refkey
+  refkey?: Refkey;
 }
-
 
 export interface UnionTransformProps {
   name?: string;
@@ -29,16 +35,18 @@ export interface UnionTransformProps {
 function UnionTransformExpression(props: UnionTransformProps) {
   const discriminator = $.type.getDiscriminator(props.type);
 
-  if(!discriminator) {
+  if (!discriminator) {
     // TODO: Handle non-discriminated unions
     reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-nondiscriminated-union",
       target: props.type,
-    })
+    });
     return null;
   }
 
-  return <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} />;
+  return (
+    <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} />
+  );
 }
 
 interface DiscriminateExpressionProps {
@@ -48,19 +56,21 @@ interface DiscriminateExpressionProps {
 }
 
 function DiscriminateExpression(props: DiscriminateExpressionProps) {
-  
   const discriminatedUnion = $.type.getDiscriminatedUnion(props.type)!;
 
   const unhandledVariant = `\n\nthrow new Error(\`Unexpected discriminated variant $\{item.${props.discriminator.propertyName}}\`);`;
 
-  return mapJoin(discriminatedUnion.variants, (name, variant) => {
-    return code`
+  return mapJoin(
+    discriminatedUnion.variants,
+    (name, variant) => {
+      return code`
     if(item.${props.discriminator.propertyName} === ${JSON.stringify(name)}) {
-      return ${<TypeTransformCall type={variant.type} target={props.target} castInput itemPath={["item"]}/>}
+      return ${(<TypeTransformCall type={variant.type} target={props.target} castInput itemPath={["item"]} />)}
     }
-    `
-  }, { joiner: "\n\n", ender: unhandledVariant });
-
+    `;
+    },
+    { joiner: "\n\n", ender: unhandledVariant },
+  );
 }
 
 /**
@@ -70,7 +80,7 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
   const namePolicy = ts.useTSNamePolicy();
 
   // Record and array have their general serializers
-  if($.array.is(props.type) || $.record.is(props.type)) {
+  if ($.array.is(props.type) || $.record.is(props.type)) {
     return null;
   }
 
@@ -81,35 +91,42 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
 
   const originalName = props.name ?? props.type.name;
 
-  if(!originalName || originalName === "") {
+  if (!originalName || originalName === "") {
     reportDiagnostic($.program, {
       code: "type-declaration-missing-name",
       target: props.type,
-    })
+    });
   }
 
-  const baseName = namePolicy.getName(
-    originalName!,
-    "function"
-  );
+  const baseName = namePolicy.getName(originalName!, "function");
   const functionSuffix = props.target === "application" ? "ToApplication" : "ToTransport";
   const functionName = props.name ? props.name : `${baseName}${functionSuffix}`;
-  const itemType = props.target === "application" ? "any" : <ts.Reference refkey={refkey(props.type)} />;
+  const itemType =
+    props.target === "application" ? "any" : <ts.Reference refkey={refkey(props.type)} />;
 
   let transformExpression: Children;
-  if($.model.is(props.type)) {
+  if ($.model.is(props.type)) {
     const discriminator = $.type.getDiscriminator(props.type);
-  
-      transformExpression = discriminator ?
-       <DiscriminateExpression type={props.type} discriminator={discriminator} target={props.target} /> : 
-      <>return <ModelTransformExpression  type={props.type} itemPath={["item"]} target={props.target} />;</> 
-  } else if($.union.is(props.type)) {
-  transformExpression = <UnionTransformExpression type={props.type} target={props.target} />;
+
+    transformExpression = discriminator ? (
+      <DiscriminateExpression
+        type={props.type}
+        discriminator={discriminator}
+        target={props.target}
+      />
+    ) : (
+      <>
+        return{" "}
+        <ModelTransformExpression type={props.type} itemPath={["item"]} target={props.target} />;
+      </>
+    );
+  } else if ($.union.is(props.type)) {
+    transformExpression = <UnionTransformExpression type={props.type} target={props.target} />;
   } else {
     reportTypescriptDiagnostic($.program, {
       code: "typescript-unsupported-type-transform",
       target: props.type,
-    }) 
+    });
   }
 
   const returnType = props.target === "application" ? refkey(props.type) : "any";
@@ -129,7 +146,6 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
   );
 }
 
-
 /**
  * Gets a refkey for a TypeTransformer function
  * @param type type to be transformed
@@ -139,7 +155,6 @@ export function TypeTransformDeclaration(props: TypeTransformProps) {
 export function getTypeTransformerRefkey(type: Type, target: "application" | "transport") {
   return refkey(type, target);
 }
-
 
 export interface ModelTransformExpressionProps {
   type: Model;
@@ -152,35 +167,35 @@ export interface ModelTransformExpressionProps {
  * Component that represents an object expression that transforms a model to a transport or application model.
  */
 export function ModelTransformExpression(props: ModelTransformExpressionProps) {
-  if(props.type.baseModel) {
+  if (props.type.baseModel) {
     reportTypescriptDiagnostic($.program, {
       code: "typescript-extended-model-transform-nyi",
       target: props.type,
-    })
+    });
   }
 
-  if($.model.getSpreadType(props.type)) { 
+  if ($.model.getSpreadType(props.type)) {
     reportTypescriptDiagnostic($.program, {
       code: "typescript-spread-model-transformation-nyi",
       target: props.type,
-    })
+    });
   }
   const namePolicy = ts.useTSNamePolicy();
   const modelProperties: RekeyableMap<string, ModelProperty> = createRekeyableMap();
-  
-  $.model.getProperties(props.type).forEach(property => {
-    if($.type.isNever(property.type)) {
+
+  $.model.getProperties(props.type).forEach((property) => {
+    if ($.type.isNever(property.type)) {
       return;
     }
 
     modelProperties.set(property.name, property);
-  })
-  
+  });
+
   let baseModelTransform: Children = null;
-  if(props.type.baseModel) {
-    baseModelTransform = code`...${<ModelTransformExpression type={props.type.baseModel} itemPath={props.itemPath} target={props.target} optionsBagName={props.optionsBagName} />},\n`
+  if (props.type.baseModel) {
+    baseModelTransform = code`...${(<ModelTransformExpression type={props.type.baseModel} itemPath={props.itemPath} target={props.target} optionsBagName={props.optionsBagName} />)},\n`;
   }
-  
+
   return (
     <ts.ObjectExpression>
       {baseModelTransform}
@@ -199,19 +214,27 @@ export function ModelTransformExpression(props: ModelTransformExpressionProps) {
           }
 
           const itemPath = [...(props.itemPath ?? []), sourcePropertyName];
-          if(property.optional && props.optionsBagName) {
+          if (property.optional && props.optionsBagName) {
             itemPath.unshift(`${props.optionsBagName}?`);
           }
 
-          let value = <TypeTransformCall target={props.target} type={unpackedType} itemPath={itemPath} />
+          let value = (
+            <TypeTransformCall target={props.target} type={unpackedType} itemPath={itemPath} />
+          );
 
-          if(property.optional && needsTransform(unpackedType)) {
-            value = <>{itemPath.join(".")} ? <TypeTransformCall target={props.target} type={unpackedType} itemPath={itemPath} /> : {itemPath.join(".")}</>
+          if (property.optional && needsTransform(unpackedType)) {
+            value = (
+              <>
+                {itemPath.join(".")} ?{" "}
+                <TypeTransformCall target={props.target} type={unpackedType} itemPath={itemPath} />{" "}
+                : {itemPath.join(".")}
+              </>
+            );
           }
 
           return <ts.ObjectProperty name={JSON.stringify(targetPropertyName)} value={value} />;
         },
-        { joiner: ",\n" }
+        { joiner: ",\n" },
       )}
     </ts.ObjectExpression>
   );
@@ -242,7 +265,7 @@ function TransformReference(props: TransformReferenceProps) {
     `;
   }
 
-  if($.model.is(props.type)) {
+  if ($.model.is(props.type)) {
     return <ts.Reference refkey={getTypeTransformerRefkey(props.type, props.target)} />;
   }
 }
@@ -259,7 +282,8 @@ function TransformScalarReference(props: TransformScalarReferenceProps) {
   let reference: Refkey | undefined;
   if ($.scalar.isUtcDateTime(props.type)) {
     // TODO: Handle encoding, likely to need access to parents to avoid passing the modelProperty
-    reference = props.target === "application" ? DateDeserializerRefkey : DateRfc3339SerializerRefkey;
+    reference =
+      props.target === "application" ? DateDeserializerRefkey : DateRfc3339SerializerRefkey;
   }
 
   if (reference) {
@@ -275,7 +299,7 @@ export interface TypeTransformCallProps {
    */
   type: Type;
   /**
-   * 
+   *
    */
   castInput?: boolean;
   /**
@@ -285,7 +309,7 @@ export interface TypeTransformCallProps {
   /**
    * When type is a model with a single property, collapses the model to the property.
    */
-  collapse?: boolean,
+  collapse?: boolean;
   /**
    * Path of the item to be transformed
    */
@@ -297,7 +321,7 @@ export interface TypeTransformCallProps {
 }
 
 function needsTransform(type: Type): boolean {
-  return $.model.is(type)   || $.scalar.isUtcDateTime(type)
+  return $.model.is(type) || $.scalar.isUtcDateTime(type);
 }
 
 /**
@@ -305,59 +329,78 @@ function needsTransform(type: Type): boolean {
  */
 export function TypeTransformCall(props: TypeTransformCallProps) {
   const collapsedProperty = getCollapsedProperty(props.type, props.collapse ?? false);
-  const itemPath = collapsedProperty ? [...(props.itemPath ?? []), collapsedProperty.name] : props.itemPath ?? [];
-  if(collapsedProperty?.optional) {
+  const itemPath = collapsedProperty
+    ? [...(props.itemPath ?? []), collapsedProperty.name]
+    : (props.itemPath ?? []);
+  if (collapsedProperty?.optional) {
     itemPath.unshift(`${props.optionsBagName}?`);
   }
   let itemName: Children = itemPath.join(".");
-  if(props.castInput) {
+  if (props.castInput) {
     itemName = code`${itemName} as ${refkey(props.type)}`;
   }
   const transformType = collapsedProperty?.type ?? props.type;
   if ($.model.is(transformType) && $.array.is(transformType)) {
-    const unpackedElement = $.httpPart.unpack($.array.getElementType(transformType)) ?? $.array.getElementType(transformType);
+    const unpackedElement =
+      $.httpPart.unpack($.array.getElementType(transformType)) ??
+      $.array.getElementType(transformType);
     return (
       <ts.FunctionCallExpression
         refkey={ArraySerializerRefkey}
-        args={[
-          itemName,
-          <TransformReference target={props.target} type={unpackedElement} />,
-        ]}
+        args={[itemName, <TransformReference target={props.target} type={unpackedElement} />]}
       />
     );
   }
 
   if ($.model.is(transformType) && $.record.is(transformType)) {
-    const unpackedElement = $.httpPart.unpack($.record.getElementType(transformType)) ?? $.record.getElementType(transformType);
+    const unpackedElement =
+      $.httpPart.unpack($.record.getElementType(transformType)) ??
+      $.record.getElementType(transformType);
     return (
       <ts.FunctionCallExpression
         refkey={RecordSerializerRefkey}
-        args={[
-          itemName,
-          <TransformReference target={props.target} type={unpackedElement} />,
-        ]}
+        args={[itemName, <TransformReference target={props.target} type={unpackedElement} />]}
       />
     );
   }
 
-  if($.scalar.isUtcDateTime(transformType)) {
-    return <ts.FunctionCallExpression refkey={props.target === "application" ? DateDeserializerRefkey : DateRfc3339SerializerRefkey} args={[itemName]} />
+  if ($.scalar.isUtcDateTime(transformType)) {
+    return (
+      <ts.FunctionCallExpression
+        refkey={
+          props.target === "application" ? DateDeserializerRefkey : DateRfc3339SerializerRefkey
+        }
+        args={[itemName]}
+      />
+    );
   }
 
   if ($.model.is(transformType)) {
-    if($.model.isExpresion(transformType)) {
+    if ($.model.isExpresion(transformType)) {
       const effectiveModel = $.model.getEffectiveModel(transformType);
-      
-      return <ModelTransformExpression type={effectiveModel} itemPath={itemPath} target={props.target} optionsBagName={props.optionsBagName} />;
+
+      return (
+        <ModelTransformExpression
+          type={effectiveModel}
+          itemPath={itemPath}
+          target={props.target}
+          optionsBagName={props.optionsBagName}
+        />
+      );
     }
-    return <ts.FunctionCallExpression refkey={ getTypeTransformerRefkey(transformType, props.target)} args={[itemName]} />
+    return (
+      <ts.FunctionCallExpression
+        refkey={getTypeTransformerRefkey(transformType, props.target)}
+        args={[itemName]}
+      />
+    );
   }
 
   return itemName;
 }
 
 function getCollapsedProperty(model: Type, collapse: boolean): ModelProperty | undefined {
-  if(!$.model.is(model)) {
+  if (!$.model.is(model)) {
     return undefined;
   }
 

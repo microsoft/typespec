@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { getEmitOutput } from "../../utils.js";
-import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
-import { Enum, Union } from "@typespec/compiler";
-import { d } from "@alloy-js/core/testing";
 import { refkey } from "@alloy-js/core";
+import { d } from "@alloy-js/core/testing";
+import { Enum, Union } from "@typespec/compiler";
+import { describe, expect, it } from "vitest";
+import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
+import { getEmitOutput } from "../../utils.js";
 
 describe("Typescript Enum Declaration", () => {
   it("takes an enum type parameter", async () => {
@@ -16,7 +16,7 @@ describe("Typescript Enum Declaration", () => {
     `;
     const output = await getEmitOutput(code, (program) => {
       const Foo = program.resolveTypeReference("Foo")[0]! as Enum;
-      return <EnumDeclaration type={Foo} />
+      return <EnumDeclaration type={Foo} />;
     });
 
     expect(output).toBe(d`
@@ -25,7 +25,7 @@ describe("Typescript Enum Declaration", () => {
         two = 2,
         three = 3
       }
-    `)
+    `);
   });
 
   it("takes a union type parameter", async () => {
@@ -38,7 +38,7 @@ describe("Typescript Enum Declaration", () => {
     `;
     const output = await getEmitOutput(code, (program) => {
       const Foo = program.resolveTypeReference("Foo")[0]! as Union;
-      return <EnumDeclaration type={Foo} />
+      return <EnumDeclaration type={Foo} />;
     });
 
     expect(output).toBe(d`
@@ -47,7 +47,7 @@ describe("Typescript Enum Declaration", () => {
         two = 2,
         three = 3
       }
-    `)
+    `);
   });
 
   it("can be referenced", async () => {
@@ -61,11 +61,12 @@ describe("Typescript Enum Declaration", () => {
 
     const output = await getEmitOutput(code, (program) => {
       const Foo = program.resolveTypeReference("Foo")[0]! as Enum;
-      return <>
-        <EnumDeclaration type={Foo} />
-        {refkey(Foo)};
-        {refkey(Foo.members.get("one"))};
-      </>
+      return (
+        <>
+          <EnumDeclaration type={Foo} />
+          {refkey(Foo)};{refkey(Foo.members.get("one"))};
+        </>
+      );
     });
 
     expect(output).toBe(d`
@@ -76,7 +77,7 @@ describe("Typescript Enum Declaration", () => {
       }
       Foo;
       Foo.one;
-    `)
+    `);
   });
 
   it("can be referenced using union", async () => {
@@ -90,11 +91,12 @@ describe("Typescript Enum Declaration", () => {
 
     const output = await getEmitOutput(code, (program) => {
       const Foo = program.resolveTypeReference("Foo")[0]! as Union;
-      return <>
-        <EnumDeclaration type={Foo} />
-        {refkey(Foo)};
-        {refkey(Foo.variants.get("one"))};
-      </>
+      return (
+        <>
+          <EnumDeclaration type={Foo} />
+          {refkey(Foo)};{refkey(Foo.variants.get("one"))};
+        </>
+      );
     });
 
     expect(output).toBe(d`
@@ -105,7 +107,6 @@ describe("Typescript Enum Declaration", () => {
       }
       Foo;
       Foo.one;
-    `)
+    `);
   });
 });
-

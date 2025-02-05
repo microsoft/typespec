@@ -17,7 +17,7 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
       (_, value) => {
         return <ts.ValueExpression jsValue={value.value ?? value.name} />;
       },
-      { joiner: " | " }
+      { joiner: " | " },
     );
   } else {
     variants = mapJoin(
@@ -25,12 +25,16 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
       (_, variant) => {
         return <TypeExpression type={variant.type} />;
       },
-      { joiner: " | " }
+      { joiner: " | " },
     );
   }
 
-  if(children || (Array.isArray(children) && children.length)) {
-   return  <>{variants} {` | ${children}`}</>
+  if (children || (Array.isArray(children) && children.length)) {
+    return (
+      <>
+        {variants} {` | ${children}`}
+      </>
+    );
   }
 
   return variants;
