@@ -25,6 +25,11 @@ export interface OperationKit {
    * @param desc The descriptor of the operation.
    */
   create(desc: OperationDescriptor): Operation;
+  /**
+   * Check if the type is an operation.
+   * @param type type to check
+   */
+  is(type: Type): type is Operation;
 }
 
 interface TypekitExtension {
@@ -40,6 +45,9 @@ declare module "../define-kit.js" {
 
 defineKit<TypekitExtension>({
   operation: {
+    is(type: Type) {
+      return type.kind === "Operation";
+    },
     create(desc) {
       const parametersModel = this.model.create({
         name: `${desc.name}Parameters`,
