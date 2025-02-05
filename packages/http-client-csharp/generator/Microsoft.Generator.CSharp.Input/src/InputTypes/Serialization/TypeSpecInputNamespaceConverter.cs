@@ -30,8 +30,8 @@ namespace Microsoft.Generator.CSharp.Input
                 reader.Read();
             }
 
-            var badNamespaceSegments = new List<string>();
-            resolver.AddReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey, badNamespaceSegments);
+            var invalidNamespaceSegments = new List<string>();
+            resolver.AddReference(TypeSpecSerialization.InvalidNamespaceSegmentsKey, invalidNamespaceSegments);
 
             string? name = null;
             IReadOnlyList<string>? apiVersions = null;
@@ -69,7 +69,7 @@ namespace Microsoft.Generator.CSharp.Input
                 models,
                 clients,
                 auth,
-                badNamespaceSegments);
+                invalidNamespaceSegments);
         }
     }
 }

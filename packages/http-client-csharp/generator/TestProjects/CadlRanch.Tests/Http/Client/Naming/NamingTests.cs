@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+// These are temporarily disabled until this issue https://github.com/microsoft/typespec/issues/5653 is resolved.
+
 // using System.Threading.Tasks;
 // using Client.Naming;
 // using Client.Naming._UnionEnum;

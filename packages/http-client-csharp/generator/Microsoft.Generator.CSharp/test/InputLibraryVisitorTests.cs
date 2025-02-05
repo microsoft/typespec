@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Tests
         {
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputModelProperty = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
-            var inputModel = InputFactory.Model("foo", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
+            var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
@@ -51,7 +51,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputEnum = InputFactory.Enum("enum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
             var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
-            var inputModel = InputFactory.Model("foo", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
+            var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
@@ -66,7 +66,7 @@ namespace Microsoft.Generator.CSharp.Tests
             _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
             var inputEnum = InputFactory.Enum("enum", InputPrimitiveType.Int32, usage: InputModelTypeUsage.Input, values: [InputFactory.EnumMember.Int32("value", 1)]);
             var inputModelProperty = InputFactory.Property("prop1", inputEnum, true, true);
-            var inputModel = InputFactory.Model("foo", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
+            var inputModel = InputFactory.Model("foo", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModelProperty]);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel]));
 
@@ -79,11 +79,11 @@ namespace Microsoft.Generator.CSharp.Tests
         public void RemovedInputModelCausesExceptionWhenReferencedInDifferentModel()
         {
             var inputModel1Property = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
-            var inputModel1 = InputFactory.Model("Model1", usage: InputModelTypeUsage.Input, properties: [inputModel1Property]);
+            var inputModel1 = InputFactory.Model("Model1", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModel1Property]);
 
             var inputModel2Property = InputFactory.Property("prop2", inputModel1, true, true);
 
-            var inputModel2 = InputFactory.Model("Model2", usage: InputModelTypeUsage.Input, properties: [inputModel2Property]);
+            var inputModel2 = InputFactory.Model("Model2", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModel2Property]);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel1, inputModel2]));
 
@@ -96,11 +96,11 @@ namespace Microsoft.Generator.CSharp.Tests
         public void CanCleanUpRemovedReferencesToRemovedModels()
         {
             var inputModel1Property = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
-            var inputModel1 = InputFactory.Model("Model1", usage: InputModelTypeUsage.Input, properties: [inputModel1Property]);
+            var inputModel1 = InputFactory.Model("Model1", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModel1Property]);
 
             var inputModel2Property = InputFactory.Property("prop2", inputModel1, true, true);
 
-            var inputModel2 = InputFactory.Model("Model2", usage: InputModelTypeUsage.Input, properties: [inputModel2Property]);
+            var inputModel2 = InputFactory.Model("Model2", access: "internal", usage: InputModelTypeUsage.Input, properties: [inputModel2Property]);
 
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace("test library", models: [inputModel1, inputModel2]));
 
