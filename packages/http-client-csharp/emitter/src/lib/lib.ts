@@ -64,4 +64,20 @@ const $lib = createTypeSpecLibrary({
   },
 });
 
-export const { reportDiagnostic, createDiagnostic, getTracer } = $lib;
+/**
+ * Reports a diagnostic. Defined in the core compiler.
+ * @beta
+ */
+export const reportDiagnostic = $lib.reportDiagnostic;
+
+/**
+ * Creates a diagnostic. Defined in the core compiler.
+ * @beta
+ */
+export const createDiagnostic = $lib.createDiagnostic;
+
+/**
+ * Gets a tracer. Defined in the core compiler.
+ * @beta
+ */
+export const getTracer = $lib.getTracer;

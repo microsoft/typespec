@@ -1,5 +1,17 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.8
+
+### Bug Fixes
+
+- [#5626](https://github.com/microsoft/typespec/pull/5626) Fixes controller generation with incorrect return when NoContent is in the spec
+- [#5733](https://github.com/microsoft/typespec/pull/5733) Add scaffolding option for csharp generator
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
 ## 0.58.0-alpha.7
 
 ### Bug Fixes

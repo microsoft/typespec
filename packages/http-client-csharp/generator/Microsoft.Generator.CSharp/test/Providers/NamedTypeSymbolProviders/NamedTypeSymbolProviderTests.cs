@@ -55,7 +55,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.NamedTypeSymbolProviders
 
                 Assert.IsTrue(properties.ContainsKey(expected.Name));
                 Assert.AreEqual(expected.Name, actual.Name);
-                Assert.AreEqual($"{expected.Description}.", actual.Description.ToString()); // the writer adds a period
+                Assert.IsNotNull(actual.Description);
+                Assert.AreEqual($"{expected.Description}.", actual.Description!.ToString()); // the writer adds a period
                 Assert.AreEqual(expected.Modifiers, actual.Modifiers);
                 Assert.AreEqual(expected.Type, actual.Type);
                 Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());

@@ -10,6 +10,8 @@ namespace Microsoft.Generator.CSharp;
 
 public class CSharpProjectWriter
 {
+    private const char NewLine = '\n';
+
     public CSharpProjectWriter()
     {
         ProjectReferences = new List<CSProjDependencyPackage>();
@@ -64,7 +66,9 @@ public class CSharpProjectWriter
         using var writer = XmlWriter.Create(builder, new XmlWriterSettings
         {
             OmitXmlDeclaration = true,
-            Indent = true
+            Indent = true,
+            NewLineChars = "\n",
+            NewLineHandling = NewLineHandling.Replace
         });
         writer.WriteStartDocument();
         // write the Project element
@@ -79,7 +83,7 @@ public class CSharpProjectWriter
             // this is the only way I know to write a blank line in an xml document using APIs instead of just write raw strings
             // feel free to change this if other elegant way is found.
             writer.Flush();
-            builder.AppendLine();
+            builder.Append(NewLine);
             writer.WriteStartElement("ItemGroup");
             foreach (var compileInclude in CompileIncludes)
             {
@@ -92,7 +96,7 @@ public class CSharpProjectWriter
         if (ProjectReferences.Count > 0)
         {
             writer.Flush();
-            builder.AppendLine();
+            builder.Append(NewLine);
             writer.WriteStartElement("ItemGroup");
             foreach (var package in ProjectReferences)
             {
@@ -105,7 +109,7 @@ public class CSharpProjectWriter
         if (PackageReferences.Count > 0)
         {
             writer.Flush();
-            builder.AppendLine();
+            builder.Append(NewLine);
             writer.WriteStartElement("ItemGroup");
             foreach (var package in PackageReferences)
             {
@@ -118,7 +122,7 @@ public class CSharpProjectWriter
         if (PrivatePackageReferences.Count > 0)
         {
             writer.Flush();
-            builder.AppendLine();
+            builder.Append(NewLine);
             writer.WriteStartElement("ItemGroup");
             foreach (var package in PrivatePackageReferences)
             {
@@ -132,7 +136,7 @@ public class CSharpProjectWriter
         writer.Flush();
 
         // add an empty on the end of file
-        builder.AppendLine();
+        builder.Append(NewLine);
 
         return builder.ToString();
     }

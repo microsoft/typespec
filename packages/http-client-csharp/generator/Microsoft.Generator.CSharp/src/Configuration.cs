@@ -44,9 +44,6 @@ namespace Microsoft.Generator.CSharp
             string outputPath,
             Dictionary<string, BinaryData> additionalConfigOptions,
             bool clearOutputFolder,
-            bool generateModelFactory,
-            bool generateSampleProject,
-            bool generateTestProject,
             string libraryName,
             bool useModelNamespace,
             string libraryNamespace,
@@ -56,9 +53,6 @@ namespace Microsoft.Generator.CSharp
             OutputDirectory = outputPath;
             AdditionalConfigOptions = additionalConfigOptions;
             ClearOutputFolder = clearOutputFolder;
-            GenerateModelFactory = generateModelFactory;
-            GenerateSampleProject = generateSampleProject;
-            GenerateTestProject = generateTestProject;
             LibraryName = libraryName;
             UseModelNamespace = useModelNamespace;
             RootNamespace = GetCleanNameSpace(libraryNamespace);
@@ -129,9 +123,6 @@ namespace Microsoft.Generator.CSharp
         private static class Options
         {
             public const string ClearOutputFolder = "clear-output-folder";
-            public const string GenerateModelFactory = "generate-model-factory";
-            public const string GenerateSampleProject = "generate-sample-project";
-            public const string GenerateTestProject = "generate-test-project";
             public const string LibraryName = "library-name";
             public const string Namespace = "namespace";
             public const string UseModelNamespace = "use-model-namespace";
@@ -150,7 +141,10 @@ namespace Microsoft.Generator.CSharp
         /// <summary> Gets the namespace for the models. </summary>
         public string ModelNamespace { get; }
 
-        internal string OutputDirectory { get; }
+        /// <summary>
+        /// Gets the root output directory for the generated library.
+        /// </summary>
+        public string OutputDirectory { get; }
 
         internal static UnreferencedTypesHandlingOption UnreferencedTypesHandling { get; private set; } = UnreferencedTypesHandlingOption.RemoveOrInternalize;
 
@@ -217,9 +211,6 @@ namespace Microsoft.Generator.CSharp
                 Path.GetFullPath(outputPath),
                 ParseAdditionalConfigOptions(root),
                 ReadOption(root, Options.ClearOutputFolder),
-                ReadOption(root, Options.GenerateModelFactory),
-                ReadOption(root, Options.GenerateSampleProject),
-                ReadOption(root, Options.GenerateTestProject),
                 ReadRequiredStringOption(root, Options.LibraryName),
                 ReadOption(root, Options.UseModelNamespace),
                 ReadRequiredStringOption(root, Options.Namespace),
@@ -233,10 +224,7 @@ namespace Microsoft.Generator.CSharp
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
             { Options.UseModelNamespace, true },
-            { Options.GenerateModelFactory, true },
-            { Options.GenerateSampleProject, true },
             { Options.ClearOutputFolder, true },
-            { Options.GenerateTestProject, false },
             { Options.DisableXmlDocs, false },
         };
 
@@ -246,9 +234,6 @@ namespace Microsoft.Generator.CSharp
         private static readonly HashSet<string> _knownOptions = new()
         {
             Options.ClearOutputFolder,
-            Options.GenerateModelFactory,
-            Options.GenerateSampleProject,
-            Options.GenerateTestProject,
             Options.LibraryName,
             Options.UseModelNamespace,
             Options.Namespace,

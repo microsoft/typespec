@@ -1,6 +1,6 @@
 #nullable disable
 
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 using System;
 using System.Collections.Generic;
 
