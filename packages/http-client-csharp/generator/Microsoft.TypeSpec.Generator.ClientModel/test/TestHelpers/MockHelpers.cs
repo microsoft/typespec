@@ -48,8 +48,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<InputParameter, ParameterProvider>? createParameterCore = null,
-            Func<InputApiKeyAuth>? apiKeyAuth = null,
-            Func<InputOAuth2Auth>? oauth2Auth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
@@ -59,13 +57,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             string? configuration = null,
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
-            HttpMessageApi? httpMessageApi = null)
+            HttpMessageApi? httpMessageApi = null,
+            Func<InputAuth>? auth = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
             IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
-            InputAuth inputNsAuth = new InputAuth(apiKeyAuth?.Invoke(), oauth2Auth?.Invoke());
+            InputAuth? inputAuth = auth?.Invoke() ?? null;
+
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
                 "Sample",
@@ -73,7 +73,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 inputNsEnums,
                 inputNsModels,
                 inputNsClients,
-                inputNsAuth,
+                inputAuth!,
                 Array.Empty<string>());
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
             mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);

@@ -31,10 +31,22 @@ export function processServiceAuthentication(
   if (!authClientParameter) {
     return undefined;
   }
-  if (authClientParameter.type.kind === "credential") {
-    return processAuthType(sdkContext, authClientParameter.type);
-  }
+
   const inputAuth: InputAuth = {};
+
+  if (authClientParameter.type.kind === "credential") {
+    const auth = processAuthType(sdkContext, authClientParameter.type);
+    if (!auth) {
+      reportDiagnostic(sdkContext.program, {
+        code: "only-unsupported-auth-provided",
+        target: authClientParameter.type.__raw ?? NoTarget,
+      });
+
+      return inputAuth;
+    }
+    return auth;
+  }
+
   for (const authType of authClientParameter.type.variantTypes) {
     const auth = processAuthType(sdkContext, authType);
     if (auth?.ApiKey) {
@@ -44,6 +56,14 @@ export function processServiceAuthentication(
       inputAuth.OAuth2 = auth.OAuth2;
     }
   }
+
+  if (!inputAuth?.ApiKey && !inputAuth?.OAuth2) {
+    reportDiagnostic(sdkContext.program, {
+      code: "only-unsupported-auth-provided",
+      target: authClientParameter.type.__raw ?? NoTarget,
+    });
+  }
+
   return inputAuth;
 }
 

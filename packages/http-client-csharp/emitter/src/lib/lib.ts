@@ -82,6 +82,13 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`Cookie parameter is not supported: ${"parameterName"}, found in operation ${"path"}`,
       },
     },
+    "only-unsupported-auth-provided": {
+      severity: "warning",
+      messages: {
+        default:
+          "No supported authentication methods were provided. No public client constructors will be generated, so please provide your own custom constructor for client instantiation.",
+      },
+    },
   },
   emitter: {
     options: NetEmitterOptionsSchema,

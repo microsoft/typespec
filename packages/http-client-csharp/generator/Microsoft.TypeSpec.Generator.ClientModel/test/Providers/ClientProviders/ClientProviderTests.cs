@@ -25,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         private const string SubClientsCategory = "WithSubClients";
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
+        private const string OnlyUnsupportedAuthCategory = "WithOnlyUnsupportedAuth";
         private const string TestClientName = "TestClient";
         private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: TestClientName);
         private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient.Name);
@@ -40,7 +41,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         private bool _containsSubClients;
         private bool _hasKeyAuth;
         private bool _hasOAuth2;
-        private bool _hasAuth;
+        private bool _hasSupportedAuth;
+        private bool _hasOnlyUnsupportedAuth;
 
         [SetUp]
         public void SetUp()
@@ -49,18 +51,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             _containsSubClients = categories?.Contains(SubClientsCategory) ?? false;
             _hasKeyAuth = categories?.Contains(KeyAuthCategory) ?? false;
             _hasOAuth2 = categories?.Contains(OAuth2Category) ?? false;
-            _hasAuth = _hasKeyAuth || _hasOAuth2;
+            _hasSupportedAuth = _hasKeyAuth || _hasOAuth2;
+            _hasOnlyUnsupportedAuth = categories?.Contains(OnlyUnsupportedAuthCategory) ?? false;
 
             Func<IReadOnlyList<InputClient>>? clients = _containsSubClients ?
                 () => [_animalClient, _dogClient, _huskyClient] :
                 null;
-            Func<InputApiKeyAuth>? apiKeyAuth = _hasKeyAuth ? () => new InputApiKeyAuth("mock", null) : null;
-            Func<InputOAuth2Auth>? oauth2Auth = _hasOAuth2 ? () => new InputOAuth2Auth(["mock"]) : null;
+            InputApiKeyAuth? apiKeyAuth = _hasKeyAuth ? new InputApiKeyAuth("mock", null) : null;
+            InputOAuth2Auth? oauth2Auth = _hasOAuth2 ? new InputOAuth2Auth(["mock"]) : null;
+            Func<InputAuth>? auth = (_hasSupportedAuth || _hasOnlyUnsupportedAuth)
+                ? () => new InputAuth(apiKeyAuth, oauth2Auth)
+                : null;
+
             MockHelpers.LoadMockPlugin(
-                apiKeyAuth: apiKeyAuth,
-                oauth2Auth: oauth2Auth,
                 clients: clients,
-                clientPipelineApi: TestClientPipelineApi.Instance);
+                clientPipelineApi: TestClientPipelineApi.Instance,
+                auth: auth);
         }
 
         [Test]
@@ -97,6 +103,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = KeyAuthCategory)]
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = OAuth2Category)]
         [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(BuildAuthFieldsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildAuthFields_WithAuth(List<InputParameter> inputParameters)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
@@ -122,6 +129,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     new(FieldModifiers.Private | FieldModifiers.ReadOnly, new CSharpType(typeof(FakeTokenCredential)), "_tokenCredential"),
                 });
             }
+
+            if (_hasOnlyUnsupportedAuth)
+            {
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Contains("credential", StringComparison.OrdinalIgnoreCase)));
+                Assert.IsFalse(clientProvider.Fields.Any(f => f.Name.Contains("auth", StringComparison.OrdinalIgnoreCase)));
+            }
         }
 
         [TestCaseSource(nameof(BuildAuthFieldsTestCases))]
@@ -145,6 +158,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsFalse(authFieldFound);
         }
 
+
         // validates the fields are built correctly when a client has sub-clients
         [TestCaseSource(nameof(SubClientFieldsTestCases), Category = SubClientsCategory)]
         public void TestBuildFields_WithSubClients(InputClient client, List<ExpectedFieldProvider> expectedFields)
@@ -156,8 +170,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             AssertHasFields(clientProvider, expectedFields);
         }
 
-        // validates the credential fields are built correctly when a client has sub-clients
+        // validates the credential fields do not exist within sub-clients
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = SubClientsCategory)]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildAuthFields_WithSubClients_NoAuth(InputClient client)
         {
             var clientProvider = new ClientProvider(client);
@@ -207,10 +222,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
-        // validates the credential fields are built correctly when a client has sub-clients
+        // validates the credential fields do not exist within sub-clients
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory}")]
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{OAuth2Category}")]
         [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = $"{SubClientsCategory},{KeyAuthCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(SubClientAuthFieldsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildAuthFields_SubClients_WithAuth(InputClient client)
         {
             var clientProvider = new ClientProvider(client);
@@ -231,6 +247,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = KeyAuthCategory)]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2Category)]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildConstructors_PrimaryConstructor(List<InputParameter> inputParameters)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
@@ -245,7 +262,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             // for no auth or one auth case, this should be 1
             // for both auth case, this should be 2
-            var expectedPrimaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            // for only unsupported auth case, this should be 0
+            int expectedPrimaryCtorCount;
+            if (_hasOnlyUnsupportedAuth)
+            {
+                expectedPrimaryCtorCount = 0;
+            }
+            else
+            {
+                expectedPrimaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            }
             Assert.AreEqual(expectedPrimaryCtorCount, primaryPublicConstructors.Length);
 
             for (int i = 0; i < primaryPublicConstructors.Length; i++)
@@ -258,6 +284,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = KeyAuthCategory)]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OAuth2Category)]
         [TestCaseSource(nameof(BuildConstructorsTestCases), Category = $"{KeyAuthCategory},{OAuth2Category}")]
+        [TestCaseSource(nameof(BuildConstructorsTestCases), Category = OnlyUnsupportedAuthCategory)]
         public void TestBuildConstructors_SecondaryConstructor(List<InputParameter> inputParameters)
         {
             var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
@@ -274,7 +301,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             // for no auth or one auth case, this should be 1
             // for both auth case, this should be 2
-            var expectedSecondaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            // for only unsupported auth case, this should be 0
+            int expectedSecondaryCtorCount;
+            if (_hasOnlyUnsupportedAuth)
+            {
+                expectedSecondaryCtorCount = 0;
+            }
+            else
+            {
+                expectedSecondaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+            }
+
             Assert.AreEqual(expectedSecondaryCtorCount, secondaryPublicConstructors.Length);
             foreach (var secondaryPublicConstructor in secondaryPublicConstructors)
             {
@@ -379,7 +416,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var optionsParam = primaryCtorParams?[^1];
             Assert.AreEqual("options", optionsParam?.Name);
 
-            if (_hasAuth)
+            if (_hasSupportedAuth)
             {
                 // when there is any auth, the second should be auth parameter
                 var authParam = primaryCtorParams?[1];
@@ -415,14 +452,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             // secondary ctor should consist of all required parameters + auth parameter (when present)
             var requiredParams = inputParameters.Where(p => p.IsRequired).ToList();
-            var authParameterCount = _hasAuth ? 1 : 0;
+            var authParameterCount = _hasSupportedAuth ? 1 : 0;
             Assert.AreEqual(requiredParams.Count + authParameterCount, ctorParams?.Count);
             var endpointParam = ctorParams?.FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
 
             if (requiredParams.Count == 0)
             {
                 // auth should be the only parameter if endpoint is optional when there is auth
-                if (_hasAuth)
+                if (_hasSupportedAuth)
                 {
                     Assert.IsTrue(ctorParams?[0].Name.EndsWith("Credential"));
                 }
@@ -436,7 +473,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 // otherwise, it should only consist of the auth parameter
                 Assert.AreEqual(KnownParameters.Endpoint.Name, ctorParams?[0].Name);
-                if (_hasAuth)
+                if (_hasSupportedAuth)
                 {
                     Assert.IsTrue(ctorParams?[1].Name.EndsWith("Credential"));
                 }
@@ -558,6 +595,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             TypeProviderWriter writer = new(clientProvider!);
             var codeFile = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(isAsync.ToString()), codeFile.Content);
+        }
+
+        // This test validates that no public constructors are generated when the client has only unsupported auth
+        [Test]
+        public void ValidateConstructorsWhenUnsupportedAuth()
+        {
+            MockHelpers.LoadMockPlugin(
+                createClientCore: (client) => new UnsupportedAuthClientProvider(client),
+                auth: () => new InputAuth(null, null));
+
+            var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(InputFactory.Client(TestClientName));
+            Assert.IsNotNull(clientProvider);
+
+            TypeProviderWriter writer = new(clientProvider!);
+            var codeFile = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), codeFile.Content);
         }
 
         [Test]
@@ -798,6 +851,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             protected override FieldProvider[] BuildFields() => [];
             protected override ConstructorProvider[] BuildConstructors() => [];
+            protected override PropertyProvider[] BuildProperties() => [];
+        }
+
+        private class UnsupportedAuthClientProvider : ClientProvider
+        {
+            public UnsupportedAuthClientProvider(InputClient client)
+                : base(client) { }
+
+            protected override MethodProvider[] BuildMethods() => [];
+
+            protected override FieldProvider[] BuildFields() => [];
             protected override PropertyProvider[] BuildProperties() => [];
         }
 
