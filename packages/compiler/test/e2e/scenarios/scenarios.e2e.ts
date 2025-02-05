@@ -130,16 +130,14 @@ describe("compiler: entrypoints", () => {
       expectDiagnosticEmpty(program.diagnostics);
     });
 
-    // FIXME: Fix before merge!
-    it.skip("succeed if loading different install of the same library at the same version", async () => {
+    it("succeed if loading different install of the same library at the same version", async () => {
       const program = await compileScenario("same-library-same-version", {
         emit: ["@typespec/lib2"],
       });
       expectDiagnosticEmpty(program.diagnostics);
     });
 
-    // FIXME: Fix before merge!
-    it.skip("emit error if loading different install of the same library at different version", async () => {
+    it("emit error if loading different install of the same library at different version", async () => {
       const program = await compileScenario("same-library-diff-version", {
         emit: ["@typespec/lib2"],
       });

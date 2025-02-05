@@ -10,12 +10,14 @@ import type {
   PageSizeDecorator,
   PrevLinkDecorator,
 } from "../../generated-defs/TypeSpec.js";
-import { createDiagnosticCollector } from "../core/diagnostics.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
+import {
+  createDiagnosticCollector,
+  isArrayModelType,
+  navigateProgram,
+  Program,
+} from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
-import { Program } from "../core/program.js";
-import { navigateProgram } from "../core/semantic-walker.js";
-import { isArrayModelType } from "../core/type-utils.js";
 import type {
   DecoratorContext,
   DecoratorFunction,
