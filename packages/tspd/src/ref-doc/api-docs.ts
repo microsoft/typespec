@@ -31,6 +31,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     readme: "none",
     hideGenerator: true,
     disableSources: true,
+    out: outputDir,
     ...markdownPluginOptions,
   });
 
@@ -41,7 +42,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     return;
   }
 
-  await app.generateDocs(project, outputDir);
+  await app.generateOutputs(project);
 
   await writeFile(
     joinPaths(outputDir, "_category_.json"),

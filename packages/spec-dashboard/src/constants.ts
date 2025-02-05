@@ -1,7 +1,9 @@
+import { tokens } from "@fluentui/react-components";
+
 export const Colors = {
-  bgSubtle: "#f7f7f7",
-  borderDefault: "#f0f0f0",
-  lightText: "#555",
+  bgSubtle: tokens.colorNeutralBackground3,
+  borderDefault: tokens.colorNeutralStroke3,
+  lightText: tokens.colorNeutralForeground2,
 
   good: "#5E9732",
   ok: "#73A773",

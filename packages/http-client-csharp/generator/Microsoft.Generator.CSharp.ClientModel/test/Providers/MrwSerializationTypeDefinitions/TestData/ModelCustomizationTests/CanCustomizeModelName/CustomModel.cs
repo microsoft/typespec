@@ -1,9 +1,9 @@
 #nullable disable
 
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 
 namespace Sample.Models
 {
-    [CodeGenModel("MockInputModel")]
+    [CodeGenType("MockInputModel")]
     internal partial class CustomModel { }
 }

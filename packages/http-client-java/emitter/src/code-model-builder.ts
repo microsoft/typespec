@@ -100,7 +100,6 @@ import {
   HttpStatusCodesEntry,
   Visibility,
   getAuthentication,
-  isCookieParam,
 } from "@typespec/http";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
@@ -138,13 +137,13 @@ import {
   getNonNullSdkType,
   getUnionDescription,
   getUsage,
-  isStable,
   modelIs,
   pushDistinct,
 } from "./type-utils.js";
 import {
   DiagnosticError,
   getNamespace,
+  isStableApiVersion,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
@@ -764,7 +763,10 @@ export class CodeModelBuilder {
     }
     return versions
       .slice(0, versions.indexOf(pinnedApiVersion) + 1)
-      .filter((version) => !excludePreview || !isStable(pinnedApiVersion) || isStable(version));
+      .filter(
+        (version) =>
+          !excludePreview || !isStableApiVersion(pinnedApiVersion) || isStableApiVersion(version),
+      );
   }
 
   private needToSkipProcessingOperation(
@@ -909,8 +911,7 @@ export class CodeModelBuilder {
     clientContext.hostParameters.forEach((it) => codeModelOperation.addParameter(it));
     // path/query/header parameters
     for (const param of httpOperation.parameters) {
-      // TODO, switch to TCGC param.kind=="cookie"
-      if (param.__raw && isCookieParam(this.program, param.__raw)) {
+      if (param.kind === "cookie") {
         // ignore cookie parameter
         continue;
       }
@@ -1287,12 +1288,7 @@ export class CodeModelBuilder {
         }
       }
 
-      // TODO: use param.onClient after TCGC fix
-      const parameterOnClient =
-        !isApiVersion(this.sdkContext, param) &&
-        param.correspondingMethodParams &&
-        param.correspondingMethodParams.length > 0 &&
-        param.correspondingMethodParams[0].onClient;
+      const parameterOnClient = param.onClient;
 
       const nullable = param.type.kind === "nullable";
       const parameter = new Parameter(param.name, param.doc ?? "", schema, {
@@ -2311,9 +2307,9 @@ export class CodeModelBuilder {
       extensions["x-ms-mutability"] = mutability;
     }
 
-    if (prop.kind === "property" && prop.multipartOptions) {
+    if (prop.kind === "property" && prop.serializationOptions.multipart) {
       // TODO: handle MultipartOptions.isMulti
-      if (prop.multipartOptions.isFilePart) {
+      if (prop.serializationOptions.multipart?.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchema(prop);
       } else if (
         prop.type.kind === "model" &&

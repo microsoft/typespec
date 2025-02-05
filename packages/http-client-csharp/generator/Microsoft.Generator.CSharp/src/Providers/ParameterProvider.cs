@@ -30,6 +30,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
+        public bool IsParams { get; }
+
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
         public WireInformation WireInfo { get; }
         public ParameterLocation Location { get; }
@@ -73,6 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
             ValueExpression? defaultValue = null,
             bool isRef = false,
             bool isOut = false,
+            bool isParams = false,
             IReadOnlyList<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
             FieldProvider? field = null,
@@ -88,6 +91,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = description;
             IsRef = isRef;
             IsOut = isOut;
+            IsParams = isParams;
             DefaultValue = defaultValue;
             Attributes = attributes ?? Array.Empty<AttributeStatement>();
             Property = property;
@@ -114,6 +118,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 DefaultValue,
                 IsRef,
                 IsOut,
+                IsParams,
                 Attributes,
                 Property,
                 Field,
@@ -218,6 +223,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 Type,
                 DefaultValue,
                 true,
+                false,
                 false,
                 Attributes,
                 Property,
