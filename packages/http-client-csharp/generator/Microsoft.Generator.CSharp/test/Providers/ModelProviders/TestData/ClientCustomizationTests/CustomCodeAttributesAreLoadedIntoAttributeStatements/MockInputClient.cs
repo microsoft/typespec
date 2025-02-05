@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 
 namespace Sample;
 

@@ -5,6 +5,10 @@ export function trace(program: Program, msg: string) {
   program.trace("http-client-java", msg);
 }
 
+export function isStableApiVersion(version: string): boolean {
+  return !version.toLowerCase().includes("preview");
+}
+
 export function pascalCase(name: string): string {
   if (name.length > 0) {
     return name[0].toUpperCase() + name.slice(1);
