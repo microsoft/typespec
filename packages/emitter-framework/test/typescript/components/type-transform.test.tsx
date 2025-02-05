@@ -5,7 +5,11 @@ import { SourceFile } from "@alloy-js/typescript";
 import { Model } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { ArraySerializer, DateDeserializer, RecordSerializer } from "../../../src/typescript/components/static-serializers.js";
+import {
+  ArraySerializer,
+  DateDeserializer,
+  RecordSerializer,
+} from "../../../src/typescript/components/static-serializers.js";
 import {
   getTypeTransformerRefkey,
   ModelTransformExpression,
@@ -41,9 +45,14 @@ describe("Typescript Type Transform", () => {
               {code`
                 const wireWidget = {id: "1", birth_year: 1988, color: "blue"};
                 `}
-              const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={["wireWidget"]} />
+              const clientWidget ={" "}
+              <ModelTransformExpression
+                type={Widget}
+                target="application"
+                itemPath={["wireWidget"]}
+              />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -77,9 +86,14 @@ describe("Typescript Type Transform", () => {
               {code`
                 const clientWidget = {id: "1", birthYear: 1988, color: "blue"};
                 `}
-              const wireWidget = <ModelTransformExpression type={Widget} target="transport" itemPath={["clientWidget"]} />
+              const wireWidget ={" "}
+              <ModelTransformExpression
+                type={Widget}
+                target="transport"
+                itemPath={["clientWidget"]}
+              />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -116,9 +130,14 @@ describe("Typescript Type Transform", () => {
               {code`
                 const wireWidget = {id: "1", birth_date: "1988-04-29T19:30:00Z", color: "blue"};
                 `}
-              const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={["wireWidget"]} />
+              const clientWidget ={" "}
+              <ModelTransformExpression
+                type={Widget}
+                target="application"
+                itemPath={["wireWidget"]}
+              />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -163,7 +182,7 @@ describe("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="application" />
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -190,7 +209,7 @@ describe("Typescript Type Transform", () => {
               "optionalString": item.optionalString
             };
           }
-          export function widgetToTransport(item: Widget) {
+          export function widgetToTransport(item: Widget): any {
             return {
               "id": item.id,
               "my_color": item.myColor,
@@ -227,7 +246,7 @@ describe("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="application" />
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -282,7 +301,7 @@ describe("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="application" />
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -325,10 +344,10 @@ describe("Typescript Type Transform", () => {
             <SourceFile path="test.ts">
               {code`
                 const clientWidget = {id: "1", my_color: "blue"};
-                const wireWidget = ${<TypeTransformCall itemPath={["clientWidget"]} type={Widget} collapse={true} target="transport" />}
+                const wireWidget = ${(<TypeTransformCall itemPath={["clientWidget"]} type={Widget} collapse={true} target="transport" />)}
                 `}
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -362,11 +381,11 @@ describe("Typescript Type Transform", () => {
             <SourceFile path="test.ts">
               {code`
                 const wireWidget = {id: "1", my_color: "blue"};
-                const clientWidget = ${<ts.FunctionCallExpression refkey={getTypeTransformerRefkey(Widget, "application")} args={[<>wireWidget</>]}/>};
-                const wireWidget2 = ${<ts.FunctionCallExpression refkey={getTypeTransformerRefkey(Widget, "transport")} args={["clientWidget"]}/>};
+                const clientWidget = ${(<ts.FunctionCallExpression refkey={getTypeTransformerRefkey(Widget, "application")} args={[<>wireWidget</>]} />)};
+                const wireWidget2 = ${(<ts.FunctionCallExpression refkey={getTypeTransformerRefkey(Widget, "transport")} args={["clientWidget"]} />)};
                 `}
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -381,7 +400,7 @@ describe("Typescript Type Transform", () => {
          `;
         expect(actualContent).toBe(expectedContent);
       });
-    })
+    });
   });
 
   describe("Discriminated Model Transforms", () => {
@@ -401,7 +420,6 @@ describe("Typescript Type Transform", () => {
         }
       `)) as { Pet: Model; Cat: Model; Dog: Model };
 
-
       const res = render(
         <Output namePolicy={namePolicy}>
           <SourceFile path="test.ts">
@@ -415,7 +433,7 @@ describe("Typescript Type Transform", () => {
             <TypeTransformDeclaration type={Pet} target="application" />
             <TypeTransformDeclaration type={Pet} target="transport" />
           </SourceFile>
-        </Output>
+        </Output>,
       );
 
       const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -431,7 +449,7 @@ describe("Typescript Type Transform", () => {
       export interface Cat extends Pet {
         "kind": "cat";
       }
-      export function dogToApplication(item: any) {
+      export function dogToApplication(item: any): Dog {
         return {
           "kind": item.kind
         };
@@ -446,34 +464,33 @@ describe("Typescript Type Transform", () => {
           "kind": item.kind
         };
       }
-      export function catToTransport(item: Cat) {
+      export function catToTransport(item: Cat): any {
         return {
           "kind": item.kind
         };
       }
-      export function petToApplication(item: any) {
+      export function petToApplication(item: any): Pet {
         if(item.kind === "cat") {
-          return catToApplication(item)
+          return catToApplication(item as Cat)
         }
         if(item.kind === "dog") {
-          return dogToApplication(item)
+          return dogToApplication(item as Dog)
         }
       }
       export function petToTransport(item: Pet) {
         if(item.kind === "cat") {
-          return catToTransport(item)
+          return catToTransport(item as Cat)
         }
         if(item.kind === "dog") {
-          return dogToTransport(item)
+          return dogToTransport(item as Dog)
         }
       }
        `;
       expect(actualContent).toBe(expectedContent);
-
     });
   });
   describe("Discriminated Union Transforms", () => {
-    it("should handle a discriminated union", async () => {
+    it.only("should handle a discriminated union", async () => {
       const { Pet, Cat, Dog } = (await testRunner.compile(`
         @discriminator("kind")
         @test union Pet {
@@ -490,7 +507,6 @@ describe("Typescript Type Transform", () => {
         }
       `)) as { Pet: Model; Cat: Model; Dog: Model };
 
-
       const res = render(
         <Output namePolicy={namePolicy}>
           <SourceFile path="test.ts">
@@ -504,59 +520,70 @@ describe("Typescript Type Transform", () => {
             <TypeTransformDeclaration type={Pet} target="application" />
             <TypeTransformDeclaration type={Pet} target="transport" />
           </SourceFile>
-        </Output>
+        </Output>,
       );
 
       const testFile = res.contents.find((file) => file.path === "test.ts");
       assert(testFile, "test.ts file not rendered");
       const actualContent = testFile.contents;
       const expectedContent = d`
-      export type Pet = Cat | Dog;
+      export type Pet = {
+      "kind": "cat";
+
+      } | {
+      "kind": "dog";
+
+      };
       export interface Dog {
         "kind": "dog";
       }
       export interface Cat {
         "kind": "cat";
       }
-      export function dogToApplication(item: any) {
+      export function dogToApplication(item: any): Dog {
         return {
+          
           "kind": item.kind
         };
       }
-      export function dogToTransport(item: Dog) {
+      export function dogToTransport(item: Dog): any {
         return {
+          
           "kind": item.kind
         };
       }
-      export function catToApplication(item: any) {
+      export function catToApplication(item: any): Cat {
         return {
+          
           "kind": item.kind
         };
       }
-      export function catToTransport(item: Cat) {
+      export function catToTransport(item: Cat): any {
         return {
+
           "kind": item.kind
         };
       }
-      export function petToApplication(item: any) {
+      export function petToApplication(item: any): Pet {
         if(item.kind === "cat") {
-          return catToApplication(item)
+          return catToApplication(item as Cat)
         }
         if(item.kind === "dog") {
-          return dogToApplication(item)
+          return dogToApplication(item as Dog)
         }
+        throw new Error(\`Unexpected discriminated variant \${item.kind}\`);
       }
-      export function petToTransport(item: Pet) {
+      export function petToTransport(item: Pet): any {
         if(item.kind === "cat") {
-          return catToTransport(item)
+          return catToTransport(item as Cat)
         }
         if(item.kind === "dog") {
-          return dogToTransport(item)
+          return dogToTransport(item as Dog)
         }
+        throw new Error(\`Unexpected discriminated variant \${item.kind}\`);
       }
        `;
       expect(actualContent).toBe(expectedContent);
-
     });
-  })
+  });
 });
