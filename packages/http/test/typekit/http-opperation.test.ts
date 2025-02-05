@@ -1,11 +1,9 @@
 import { Model, Operation } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
-import { createHttpTestRunner } from "./../../test-host.js";
-
-// Activate  Http TypeKit augmentation
-import "../../../src/experimental/typekit/index.js";
+import "../../src/experimental/typekit/index.js";
+import { createHttpTestRunner } from "./../test-host.js";
 
 let runner: BasicTestRunner;
 
