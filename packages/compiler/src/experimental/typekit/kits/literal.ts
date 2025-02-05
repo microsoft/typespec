@@ -4,72 +4,64 @@ import { defineKit } from "../define-kit.js";
 
 /** @experimental */
 export interface LiteralKit {
-  /**
-   * Create a literal type from a JavaScript value.
-   *
-   * @param value The JavaScript value to turn into a TypeSpec literal type.
-   */
-  create(value: string | number | boolean): StringLiteral | NumericLiteral | BooleanLiteral;
+    /**
+     * Create a literal type from a JavaScript value.
+     *
+     * @param value The JavaScript value to turn into a TypeSpec literal type.
+     */
+    create(value: string | number | boolean): StringLiteral | NumericLiteral | BooleanLiteral;
 
-  /**
-   * Create a string literal type from a JavaScript string value.
-   *
-   * @param value The string value.
-   */
-  createString(value: string): StringLiteral;
+    /**
+     * Create a string literal type from a JavaScript string value.
+     *
+     * @param value The string value.
+     */
+    createString(value: string): StringLiteral;
 
-  /**
-   * Create a numeric literal type from a JavaScript number value.
-   *
-   * @param value The numeric value.
-   */
-  createNumeric(value: number): NumericLiteral;
+    /**
+     * Create a numeric literal type from a JavaScript number value.
+     *
+     * @param value The numeric value.
+     */
+    createNumeric(value: number): NumericLiteral;
 
-  /**
-   * Create a boolean literal type from a JavaScript boolean value.
-   *
-   * @param value The boolean value.
-   */
-  createBoolean(value: boolean): BooleanLiteral;
+    /**
+     * Create a boolean literal type from a JavaScript boolean value.
+     *
+     * @param value The boolean value.
+     */
+    createBoolean(value: boolean): BooleanLiteral;
 
-  /**
-   * Check if `type` is a literal type.
-   *
-   * @param type The type to check.
-   */
-  is(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral;
+    /**
+     * Check if `type` is a literal type.
+     *
+     * @param type The type to check.
+     */
+    is(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral;
 
-  /**
-   * Check if `type` is a string literal type.
-   *
-   * @param type The type to check.
-   */
-  isString(type: Type): type is StringLiteral;
+    /**
+     * Check if `type` is a string literal type.
+     *
+     * @param type The type to check.
+     */
+    isString(type: Type): type is StringLiteral;
 
-  /**
-   * Check if `type` is a numeric literal type.
-   *
-   * @param type The type to check.
-   */
-  isNumeric(type: Type): type is NumericLiteral;
+    /**
+     * Check if `type` is a numeric literal type.
+     *
+     * @param type The type to check.
+     */
+    isNumeric(type: Type): type is NumericLiteral;
 
-  /**
-   * Check if `type` is a boolean literal type.
-   *
-   * @param type The type to check.
-   */
-  isBoolean(type: Type): type is BooleanLiteral;
+    /**
+     * Check if `type` is a boolean literal type.
+     *
+     * @param type The type to check.
+     */
+    isBoolean(type: Type): type is BooleanLiteral;
 }
 
 interface TypekitExtension {
-  /**
-   * Utilities for working with literal types.
-   *
-   * Literal types are types that represent a single value, such as a string,
-   * number, or boolean.
-   *
-   * @experimental
-   */
   literal: LiteralKit;
 }
 
