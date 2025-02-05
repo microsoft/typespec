@@ -35,7 +35,6 @@ namespace Microsoft.Generator.CSharp.Input
             // create an empty model property to resolve circular references
             var property = new InputModelProperty(
                 name: null!,
-                serializedName: null!,
                 summary: null,
                 doc: null,
                 type: null!,
@@ -46,7 +45,6 @@ namespace Microsoft.Generator.CSharp.Input
             resolver.AddReference(id, property);
 
             var isFirstProperty = true;
-            string? serializedName = null;
             string? summary = null;
             string? doc = null;
             InputType? propertyType = null;
@@ -60,7 +58,6 @@ namespace Microsoft.Generator.CSharp.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
-                    || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadWithConverter("type", options, ref propertyType)
@@ -77,7 +74,6 @@ namespace Microsoft.Generator.CSharp.Input
             }
 
             property.Name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
-            property.SerializedName = serializedName ?? name;
             property.Summary = summary;
             property.Doc = doc;
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");

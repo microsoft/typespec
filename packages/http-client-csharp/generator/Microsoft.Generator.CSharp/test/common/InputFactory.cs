@@ -152,14 +152,13 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         {
             return new InputModelProperty(
                 name,
-                wireName ?? name.ToVariableName(),
                 summary,
                 doc ?? $"Description for {name}",
                 type,
                 isRequired,
                 isReadOnly,
                 isDiscriminator,
-                new(json: wireName != null ? new(wireName) : null));
+                new(json: new(wireName ?? name.ToVariableName())));
         }
 
         public static InputModelType Model(
