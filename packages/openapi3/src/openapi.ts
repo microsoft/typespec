@@ -43,7 +43,10 @@ import {
 } from "@typespec/compiler";
 
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
-import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
+import {
+  unsafe_mutateSubgraphWithNamespace,
+  unsafe_MutatorWithNamespace,
+} from "@typespec/compiler/experimental";
 import {} from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
@@ -82,7 +85,7 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { getVersionsMutators, VersionSnapshot } from "@typespec/versioning";
+import { getVersioningMutators } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
@@ -452,19 +455,25 @@ function createOAPIEmitter(
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
-      const versions = getVersionsMutators(program, service.type);
-      // const versions = buildVersionProjections(program, service.type);
-      if (versions.length === 0 || (versions.length === 1 && versions[0].version === undefined)) {
-        // non-versioned spec
-        const document =
-          versions.length === 0
-            ? await getOpenApiFromVersion(service)
-            : await getVersionSnapshotDocument(service, versions[0]); // This is when service is not versioned but used versioned dep
+      const versions = getVersioningMutators(program, service.type);
+      if (versions === undefined) {
+        const document = await getOpenApiFromVersion(service);
         if (document === undefined) {
           // an error occurred producing this document, so don't return it
           return serviceRecords;
         }
-
+        serviceRecords.push({
+          service,
+          versioned: false,
+          document: document[0],
+          diagnostics: document[1],
+        });
+      } else if (versions.kind === "transient") {
+        const document = await getVersionSnapshotDocument(service, versions.mutator);
+        if (document === undefined) {
+          // an error occurred producing this document, so don't return it
+          return serviceRecords;
+        }
         serviceRecords.push({
           service,
           versioned: false,
@@ -480,8 +489,12 @@ function createOAPIEmitter(
         };
         serviceRecords.push(serviceRecord);
 
-        for (const record of versions) {
-          const document = await getVersionSnapshotDocument(service, record);
+        for (const snapshot of versions.snapshots) {
+          const document = await getVersionSnapshotDocument(
+            service,
+            snapshot.mutator,
+            snapshot.version?.value,
+          );
           if (document === undefined) {
             // an error occurred producing this document
             continue;
@@ -489,7 +502,7 @@ function createOAPIEmitter(
 
           serviceRecord.versions.push({
             service,
-            version: record.version!.value,
+            version: snapshot.version!.value,
             document: document[0],
             diagnostics: document[1],
           });
@@ -500,14 +513,15 @@ function createOAPIEmitter(
     return serviceRecords;
   }
 
-  async function getVersionSnapshotDocument(service: Service, snapshot: VersionSnapshot) {
-    const subgraph = unsafe_mutateSubgraphWithNamespace(program, [snapshot.mutator], service.type);
+  async function getVersionSnapshotDocument(
+    service: Service,
+    mutator: unsafe_MutatorWithNamespace,
+    version?: string,
+  ) {
+    const subgraph = unsafe_mutateSubgraphWithNamespace(program, [mutator], service.type);
 
     compilerAssert(subgraph.type.kind === "Namespace", "Should not have mutated to another type");
-    const document = await getOpenApiFromVersion(
-      getService(program, subgraph.type)!,
-      snapshot.version?.value,
-    );
+    const document = await getOpenApiFromVersion(getService(program, subgraph.type)!, version);
 
     return document;
   }

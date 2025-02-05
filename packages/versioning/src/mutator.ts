@@ -11,18 +11,59 @@ import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
 import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
 
-export interface VersionSnapshot {
-  readonly version?: Version;
+/**
+ * When the service is versioned.
+ */
+export interface VersionedMutators {
+  readonly kind: "versioned";
+  readonly snapshots: VersionSnapshotMutation[];
+}
+
+/** Mutator to mutate the service to the specific version. */
+export interface VersionSnapshotMutation {
+  readonly version: Version;
   readonly mutator: MutatorWithNamespace;
 }
-export function getVersionsMutators(program: Program, namespace: Namespace): VersionSnapshot[] {
+
+/**
+ * When the service itself is not versioned but use specific version from another library.
+ */
+export interface TransientVersioningMutator {
+  readonly kind: "transient";
+  readonly mutator: MutatorWithNamespace;
+}
+
+/**
+ * Resolve the set of mutators needed to apply versioning to the service.
+ * @returns either:
+ *   - VersionedMutators when the service is versioned.
+ *   - TransientVersioningMutator when the service is not versioned but use specific version from another library.
+ *   - undefined when the service is not versioned.
+ */
+export function getVersioningMutators(
+  program: Program,
+  namespace: Namespace,
+): VersionedMutators | TransientVersioningMutator | undefined {
   const versions = resolveVersions(program, namespace);
   const timeline = new VersioningTimeline(
     program,
     versions.map((x) => x.versions),
   );
   const helper = new VersioningHelper(program, timeline);
-  return versions
+  if (
+    versions.length === 1 &&
+    versions[0].rootVersion === undefined &&
+    versions[0].versions.size > 0
+  ) {
+    return {
+      kind: "transient",
+      mutator: createVersionMutator(
+        helper,
+        timeline.get(versions[0].versions.values().next().value!),
+      ),
+    };
+  }
+  const snapshots: VersionSnapshotMutation[] = versions
     .map((resolution) => {
       if (resolution.versions.size === 0) {
         return undefined;
@@ -37,6 +78,13 @@ export function getVersionsMutators(program: Program, namespace: Namespace): Ver
       }
     })
     .filter((x) => x !== undefined);
+  if (snapshots.length === 0) {
+    return undefined;
+  }
+  return {
+    kind: "versioned",
+    snapshots,
+  };
 }
 
 export function createVersionMutator(
