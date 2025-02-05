@@ -100,7 +100,7 @@ import {
 } from "../core/types.js";
 import { useStateMap, useStateSet } from "../utils/index.js";
 import { setKey } from "./key.js";
-import { createStateSymbol } from "./utils.js";
+import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
@@ -810,17 +810,6 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
 }
 
 export { getEncode };
-
-export function filterModelPropertiesInPlace(
-  model: Model,
-  filter: (prop: ModelProperty) => boolean,
-) {
-  for (const [key, prop] of model.properties) {
-    if (!filter(prop)) {
-      model.properties.delete(key);
-    }
-  }
-}
 
 // -- @withOptionalProperties decorator ---------------------
 

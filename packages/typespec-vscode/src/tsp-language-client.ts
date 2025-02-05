@@ -161,7 +161,7 @@ export class TspLanguageClient {
             `TypeSpec server executable was not found: '${this.exe.command}' is not found. Make sure either:`,
             ` - TypeSpec is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
             " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
-            " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
+            " - TypeSpec server path is configured with https://typespec.io/docs/introduction/editor/vscode/#configure.",
           ].join("\n"),
           [],
           { showOutput: false, showPopup: true },

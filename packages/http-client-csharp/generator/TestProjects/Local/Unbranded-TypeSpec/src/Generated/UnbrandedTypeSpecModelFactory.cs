@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnbrandedTypeSpec;
+using UnbrandedTypeSpec.Models.Custom;
 
 namespace UnbrandedTypeSpec.Models
 {
@@ -129,7 +130,7 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> this is not a friendly model but with a friendly name. </summary>
         /// <param name="name"> name of the NotFriend. </param>
-        /// <returns> A new <see cref="Models.Friend"/> instance for mocking. </returns>
+        /// <returns> A new <see cref="Custom.Friend"/> instance for mocking. </returns>
         public static Friend Friend(string name = default)
         {
 
@@ -138,11 +139,11 @@ namespace UnbrandedTypeSpec.Models
 
         /// <summary> this is a model with a projected name. </summary>
         /// <param name="name"> name of the ModelWithProjectedName. </param>
-        /// <returns> A new <see cref="Models.ProjectedModel"/> instance for mocking. </returns>
-        public static ProjectedModel ProjectedModel(string name = default)
+        /// <returns> A new <see cref="Custom.ProjectedModelCustom"/> instance for mocking. </returns>
+        public static ProjectedModelCustom ProjectedModelCustom(string name = default)
         {
 
-            return new ProjectedModel(name, additionalBinaryDataProperties: null);
+            return new ProjectedModelCustom(name, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>
