@@ -181,7 +181,7 @@ function resolveVersionsForNamespace(
   }
 }
 
-function getAllVersions(p: Program, t: Type): Version[] | undefined {
+export function getAllVersions(p: Program, t: Type): Version[] | undefined {
   const [namespace, _] = getVersions(p, t);
   if (namespace === undefined) return undefined;
 
