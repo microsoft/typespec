@@ -68,7 +68,7 @@ describe("Typescript Enum Declaration", () => {
         </>
       );
     });
-
+    // FIXME: This output is correct which implies a bug in the emitter.
     expect(output).toBe(d`
       enum Foo {
         one = 1,
@@ -99,6 +99,7 @@ describe("Typescript Enum Declaration", () => {
       );
     });
 
+    // FIXME: This output is correct which implies a bug in the emitter.
     expect(output).toBe(d`
       enum Foo {
         one = 1,

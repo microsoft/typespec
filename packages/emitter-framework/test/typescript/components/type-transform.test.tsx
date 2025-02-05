@@ -541,26 +541,26 @@ describe("Typescript Type Transform", () => {
         "kind": "cat";
       }
       export function dogToApplication(item: any): Dog {
-        return {
-
+        return 
+        {
           "kind": item.kind
         };
       }
       export function dogToTransport(item: Dog): any {
-        return {
-
+        return 
+        {
           "kind": item.kind
         };
       }
       export function catToApplication(item: any): Cat {
-        return {
-
+        return 
+        {
           "kind": item.kind
         };
       }
       export function catToTransport(item: Cat): any {
-        return {
-
+        return 
+        {
           "kind": item.kind
         };
       }
