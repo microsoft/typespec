@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Deprecate experiemntal projection. 
+Deprecate experimental projection. 
