@@ -111,6 +111,7 @@
      "$id": "12",
      "Name": "postValid",
      "ResourceName": "NotDiscriminated",
+     "OperationId": "postValid",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -187,6 +188,7 @@
      "$id": "18",
      "Name": "getValid",
      "ResourceName": "NotDiscriminated",
+     "OperationId": "getValid",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -248,6 +250,7 @@
      "$id": "23",
      "Name": "putValid",
      "ResourceName": "NotDiscriminated",
+     "OperationId": "putValid",
      "Accessibility": "public",
      "Parameters": [
       {

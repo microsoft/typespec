@@ -14,6 +14,7 @@
      "$id": "3",
      "Name": "fixed",
      "ResourceName": "Routes",
+     "OperationId": "fixed",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
@@ -84,6 +85,7 @@
      "$id": "11",
      "Name": "templateOnly",
      "ResourceName": "PathParameters",
+     "OperationId": "PathParameters_templateOnly",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -133,6 +135,7 @@
      "$id": "15",
      "Name": "explicit",
      "ResourceName": "PathParameters",
+     "OperationId": "PathParameters_explicit",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -182,6 +185,7 @@
      "$id": "19",
      "Name": "annotationOnly",
      "ResourceName": "PathParameters",
+     "OperationId": "PathParameters_annotationOnly",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -275,6 +279,7 @@
      "$id": "29",
      "Name": "template",
      "ResourceName": "ReservedExpansion",
+     "OperationId": "ReservedExpansion_template",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -324,6 +329,7 @@
      "$id": "33",
      "Name": "annotation",
      "ResourceName": "ReservedExpansion",
+     "OperationId": "ReservedExpansion_annotation",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -460,6 +466,7 @@
      "$id": "49",
      "Name": "primitive",
      "ResourceName": "Standard",
+     "OperationId": "Standard_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -509,6 +516,7 @@
      "$id": "53",
      "Name": "array",
      "ResourceName": "Standard",
+     "OperationId": "Standard_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -565,6 +573,7 @@
      "$id": "58",
      "Name": "record",
      "ResourceName": "Standard",
+     "OperationId": "Standard_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -670,6 +679,7 @@
      "$id": "70",
      "Name": "primitive",
      "ResourceName": "Explode",
+     "OperationId": "Explode_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -719,6 +729,7 @@
      "$id": "74",
      "Name": "array",
      "ResourceName": "Explode",
+     "OperationId": "Explode_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -775,6 +786,7 @@
      "$id": "79",
      "Name": "record",
      "ResourceName": "Explode",
+     "OperationId": "Explode_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -923,6 +935,7 @@
      "$id": "97",
      "Name": "primitive",
      "ResourceName": "Standard",
+     "OperationId": "Standard_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -972,6 +985,7 @@
      "$id": "101",
      "Name": "array",
      "ResourceName": "Standard",
+     "OperationId": "Standard_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1028,6 +1042,7 @@
      "$id": "106",
      "Name": "record",
      "ResourceName": "Standard",
+     "OperationId": "Standard_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1133,6 +1148,7 @@
      "$id": "118",
      "Name": "primitive",
      "ResourceName": "Explode",
+     "OperationId": "Explode_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1182,6 +1198,7 @@
      "$id": "122",
      "Name": "array",
      "ResourceName": "Explode",
+     "OperationId": "Explode_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1238,6 +1255,7 @@
      "$id": "127",
      "Name": "record",
      "ResourceName": "Explode",
+     "OperationId": "Explode_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1386,6 +1404,7 @@
      "$id": "145",
      "Name": "primitive",
      "ResourceName": "Standard",
+     "OperationId": "Standard_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1435,6 +1454,7 @@
      "$id": "149",
      "Name": "array",
      "ResourceName": "Standard",
+     "OperationId": "Standard_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1491,6 +1511,7 @@
      "$id": "154",
      "Name": "record",
      "ResourceName": "Standard",
+     "OperationId": "Standard_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1596,6 +1617,7 @@
      "$id": "166",
      "Name": "primitive",
      "ResourceName": "Explode",
+     "OperationId": "Explode_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1645,6 +1667,7 @@
      "$id": "170",
      "Name": "array",
      "ResourceName": "Explode",
+     "OperationId": "Explode_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1701,6 +1724,7 @@
      "$id": "175",
      "Name": "record",
      "ResourceName": "Explode",
+     "OperationId": "Explode_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1849,6 +1873,7 @@
      "$id": "193",
      "Name": "primitive",
      "ResourceName": "Standard",
+     "OperationId": "Standard_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1898,6 +1923,7 @@
      "$id": "197",
      "Name": "array",
      "ResourceName": "Standard",
+     "OperationId": "Standard_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -1954,6 +1980,7 @@
      "$id": "202",
      "Name": "record",
      "ResourceName": "Standard",
+     "OperationId": "Standard_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2059,6 +2086,7 @@
      "$id": "214",
      "Name": "primitive",
      "ResourceName": "Explode",
+     "OperationId": "Explode_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2108,6 +2136,7 @@
      "$id": "218",
      "Name": "array",
      "ResourceName": "Explode",
+     "OperationId": "Explode_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2164,6 +2193,7 @@
      "$id": "223",
      "Name": "record",
      "ResourceName": "Explode",
+     "OperationId": "Explode_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2269,6 +2299,7 @@
      "$id": "235",
      "Name": "templateOnly",
      "ResourceName": "QueryParameters",
+     "OperationId": "QueryParameters_templateOnly",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2318,6 +2349,7 @@
      "$id": "239",
      "Name": "explicit",
      "ResourceName": "QueryParameters",
+     "OperationId": "QueryParameters_explicit",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2367,6 +2399,7 @@
      "$id": "243",
      "Name": "annotationOnly",
      "ResourceName": "QueryParameters",
+     "OperationId": "QueryParameters_annotationOnly",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2503,6 +2536,7 @@
      "$id": "259",
      "Name": "primitive",
      "ResourceName": "Standard",
+     "OperationId": "Standard_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2552,6 +2586,7 @@
      "$id": "263",
      "Name": "array",
      "ResourceName": "Standard",
+     "OperationId": "Standard_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2608,6 +2643,7 @@
      "$id": "268",
      "Name": "record",
      "ResourceName": "Standard",
+     "OperationId": "Standard_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2713,6 +2749,7 @@
      "$id": "280",
      "Name": "primitive",
      "ResourceName": "Explode",
+     "OperationId": "Explode_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2762,6 +2799,7 @@
      "$id": "284",
      "Name": "array",
      "ResourceName": "Explode",
+     "OperationId": "Explode_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2818,6 +2856,7 @@
      "$id": "289",
      "Name": "record",
      "ResourceName": "Explode",
+     "OperationId": "Explode_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -2966,6 +3005,7 @@
      "$id": "307",
      "Name": "primitive",
      "ResourceName": "Standard",
+     "OperationId": "Standard_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3015,6 +3055,7 @@
      "$id": "311",
      "Name": "array",
      "ResourceName": "Standard",
+     "OperationId": "Standard_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3071,6 +3112,7 @@
      "$id": "316",
      "Name": "record",
      "ResourceName": "Standard",
+     "OperationId": "Standard_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3176,6 +3218,7 @@
      "$id": "328",
      "Name": "primitive",
      "ResourceName": "Explode",
+     "OperationId": "Explode_primitive",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3225,6 +3268,7 @@
      "$id": "332",
      "Name": "array",
      "ResourceName": "Explode",
+     "OperationId": "Explode_array",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3281,6 +3325,7 @@
      "$id": "337",
      "Name": "record",
      "ResourceName": "Explode",
+     "OperationId": "Explode_record",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -3386,6 +3431,7 @@
      "$id": "349",
      "Name": "fixed",
      "ResourceName": "InInterface",
+     "OperationId": "InInterface_fixed",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [

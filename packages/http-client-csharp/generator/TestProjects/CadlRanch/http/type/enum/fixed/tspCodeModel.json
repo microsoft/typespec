@@ -202,6 +202,7 @@
      "$id": "25",
      "Name": "getKnownValue",
      "ResourceName": "String",
+     "OperationId": "String_getKnownValue",
      "Doc": "getKnownValue",
      "Accessibility": "public",
      "Parameters": [
@@ -264,6 +265,7 @@
      "$id": "30",
      "Name": "putKnownValue",
      "ResourceName": "String",
+     "OperationId": "String_putKnownValue",
      "Doc": "putKnownValue",
      "Accessibility": "public",
      "Parameters": [
@@ -342,6 +344,7 @@
      "$id": "36",
      "Name": "putUnknownValue",
      "ResourceName": "String",
+     "OperationId": "String_putUnknownValue",
      "Doc": "putUnknownValue",
      "Accessibility": "public",
      "Parameters": [

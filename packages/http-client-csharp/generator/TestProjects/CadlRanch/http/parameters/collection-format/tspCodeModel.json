@@ -56,6 +56,7 @@
      "$id": "9",
      "Name": "multi",
      "ResourceName": "Query",
+     "OperationId": "Query_multi",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -113,6 +114,7 @@
      "$id": "14",
      "Name": "ssv",
      "ResourceName": "Query",
+     "OperationId": "Query_ssv",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -171,6 +173,7 @@
      "$id": "19",
      "Name": "tsv",
      "ResourceName": "Query",
+     "OperationId": "Query_tsv",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -229,6 +232,7 @@
      "$id": "24",
      "Name": "pipes",
      "ResourceName": "Query",
+     "OperationId": "Query_pipes",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -287,6 +291,7 @@
      "$id": "29",
      "Name": "csv",
      "ResourceName": "Query",
+     "OperationId": "Query_csv",
      "Accessibility": "public",
      "Parameters": [
       {
@@ -389,6 +394,7 @@
      "$id": "40",
      "Name": "csv",
      "ResourceName": "Header",
+     "OperationId": "Header_csv",
      "Accessibility": "public",
      "Parameters": [
       {
