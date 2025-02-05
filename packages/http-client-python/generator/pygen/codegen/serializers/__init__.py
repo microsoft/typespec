@@ -238,7 +238,7 @@ class JinjaSerializer(ReaderAndWriter):
         self, env: Environment, namespace: str, models: List[ModelType], enums: List[EnumType]
     ) -> None:
         # Write the models folder
-        models_path = self.exec_path(namespace + ".models")
+        models_path = self.exec_path(namespace) / "models"
         serializer = DpgModelSerializer if self.code_model.options["models_mode"] == "dpg" else MsrestModelSerializer
         if self.code_model.has_non_json_models(models):
             self.write_file(

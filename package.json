@@ -65,6 +65,7 @@
     "prettier": "~3.4.2",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-organize-imports": "~4.1.0",
+    "prettier-plugin-sh": "^0.14.0",
     "rimraf": "~6.0.1",
     "syncpack": "^13.0.0",
     "tsx": "^4.19.2",

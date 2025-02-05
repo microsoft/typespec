@@ -1,11 +1,11 @@
-import { ResolvedCoverageReport } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent } from "react";
+import type { GeneratorCoverageSuiteReport } from "../apis.js";
 import { InfoEntry, InfoReport } from "./info-table.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
 
 export type GeneratorInformationProps = {
   status: number;
-  report: ResolvedCoverageReport;
+  report: GeneratorCoverageSuiteReport;
 };
 
 export const GeneratorInformation: FunctionComponent<GeneratorInformationProps> = ({
@@ -52,7 +52,7 @@ export const GeneratorInformation: FunctionComponent<GeneratorInformationProps> 
   );
 };
 
-function getCompletedRatioAtTimeOfReport(report: ResolvedCoverageReport) {
+function getCompletedRatioAtTimeOfReport(report: GeneratorCoverageSuiteReport) {
   let coveredCount = 0;
   const statues = Object.values(report.results);
   for (const status of statues) {
