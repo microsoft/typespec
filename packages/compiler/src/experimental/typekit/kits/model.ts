@@ -1,8 +1,15 @@
 import { getEffectiveModelType } from "../../../core/checker.js";
-import type { Model, ModelProperty, SourceModel, Type } from "../../../core/types.js";
+import type {
+  Model,
+  ModelIndexer,
+  ModelProperty,
+  RekeyableMap,
+  SourceModel,
+  Type,
+} from "../../../core/types.js";
 import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
-import { decoratorApplication, DecoratorArgs } from "../utils.js";
+import { copyMap, decoratorApplication, DecoratorArgs } from "../utils.js";
 
 /** @experimental */
 interface ModelDescriptor {
@@ -31,12 +38,12 @@ interface ModelDescriptor {
    * Models that this model extends.
    */
   sourceModels?: SourceModel[];
+  /**
+   * The indexer property of the model.
+   */
+  indexer?: ModelIndexer;
 }
 
-/**
- * Utilities for working with models.
- * @experimental
- */
 export interface ModelKit {
   /**
    * Create a model type.
@@ -51,6 +58,14 @@ export interface ModelKit {
    * @param type The type to check.
    */
   is(type: Type): type is Model;
+
+  /**
+   * Check if the enum is an anonyous model. Specifically, this checks if the
+   * model has a name.
+   *
+   * @param type The model to check.
+   */
+  isExpresion(type: Model): boolean;
 
   /**
    * If the input is anonymous (or the provided filter removes properties)
@@ -69,12 +84,27 @@ export interface ModelKit {
    * properties.
    */
   getEffectiveModel(model: Model, filter?: (property: ModelProperty) => boolean): Model;
+
+  /**
+   * Given a model, return the type that is spread
+   * @returns the type that is spread or undefined if no spread
+   */
+  getSpreadType: (model: Model) => Type | undefined;
+  /**
+   * Gets all properties from a model, explicitly defined, implicitly defined.
+   * @param model model to get the properties from
+   */
+  getProperties(model: Model): RekeyableMap<string, ModelProperty>;
 }
 
 interface TypekitExtension {
   /**
-   * Utilities for working with models.
-   * @experimental
+   * Utilities for working with model properties.
+   *
+   * For many reflection operations, the metadata being asked for may be found
+   * on the model or the type of the model. In such cases,
+   * these operations will return the metadata from the model if it
+   * exists, or the type of the model if it exists.
    */
   model: ModelKit;
 }
@@ -83,7 +113,7 @@ declare module "../define-kit.js" {
   interface Typekit extends TypekitExtension {}
 }
 
-export const ModelKit = defineKit<TypekitExtension>({
+defineKit<TypekitExtension>({
   model: {
     create(desc) {
       const properties = createRekeyableMap(Array.from(Object.entries(desc.properties)));
@@ -96,6 +126,7 @@ export const ModelKit = defineKit<TypekitExtension>({
         node: undefined as any,
         derivedModels: desc.derivedModels ?? [],
         sourceModels: desc.sourceModels ?? [],
+        indexer: desc.indexer,
       });
 
       this.program.checker.finishType(model);
@@ -105,8 +136,44 @@ export const ModelKit = defineKit<TypekitExtension>({
     is(type) {
       return type.kind === "Model";
     },
+
+    isExpresion(type) {
+      return type.name === "";
+    },
     getEffectiveModel(model, filter?: (property: ModelProperty) => boolean) {
       return getEffectiveModelType(this.program, model, filter);
+    },
+    getSpreadType(model) {
+      if (!model.indexer) {
+        return undefined;
+      }
+
+      if (model.indexer.key.name === "string") {
+        return this.record.create(model.indexer.value);
+      }
+
+      if (model.indexer.key.name === "integer") {
+        return this.array.create(model.indexer.value);
+      }
+
+      return undefined;
+    },
+    getProperties(model) {
+      // Add explicitly defined properties
+      const properties = copyMap(model.properties);
+
+      // Add discriminator property if it exists
+      const discriminator = this.type.getDiscriminator(model);
+      if (discriminator) {
+        const discriminatorName = discriminator.propertyName;
+        properties.set(
+          discriminatorName,
+          this.modelProperty.create({ name: discriminatorName, type: this.builtin.string }),
+        );
+      }
+
+      // TODO: Add Spread?
+      return properties;
     },
   },
 });
