@@ -128,6 +128,7 @@ export function createVersionMutator(
       },
     },
     Interface: (original, clone, p, realm) => {
+      rename(original, clone);
       deleteFromMap(clone.operations);
     },
     Model: (original, clone, p, realm) => {
