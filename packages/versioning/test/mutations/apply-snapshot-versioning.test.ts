@@ -1,4 +1,4 @@
-import type { Namespace, Type } from "@typespec/compiler";
+import type { Namespace, Scalar, Type } from "@typespec/compiler";
 import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
 import { strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
@@ -107,10 +107,44 @@ describe("models", () => {
 });
 
 describe("model properties", () => {
+  const accessor = (ns: Namespace) => ns.models.get("Test")!.properties;
   itCanBeAddedRemovedAndRenamed(
-    (ns) => ns.models.get("Test")!.properties,
+    accessor,
     (decorators) => `model Test { ${decorators} A: string; }`,
   );
+
+  it("can change the property type", async () => {
+    const { v1, v2, v3 } = await testMutationLogic(`
+      model Test {
+        @typeChangedFrom(Versions.v2, string)
+        a: int32;
+    }`);
+    expect((accessor(v1).get("a")!.type as Scalar).name).toBe("string");
+    expect((accessor(v2).get("a")!.type as Scalar).name).toBe("int32");
+    expect((accessor(v3).get("a")!.type as Scalar).name).toBe("int32");
+  });
+
+  it("can make a property optional", async () => {
+    const { v1, v2, v3 } = await testMutationLogic(`
+      model Test {
+        @madeOptional(Versions.v2)
+        a?: int32;
+    }`);
+    expect(accessor(v1).get("a")!.optional).toBe(false);
+    expect(accessor(v2).get("a")!.optional).toBe(true);
+    expect(accessor(v3).get("a")!.optional).toBe(true);
+  });
+
+  it("can make a property required", async () => {
+    const { v1, v2, v3 } = await testMutationLogic(`
+      model Test {
+        @madeRequired(Versions.v2)
+        a: int32;
+    }`);
+    expect(accessor(v1).get("a")!.optional).toBe(true);
+    expect(accessor(v2).get("a")!.optional).toBe(false);
+    expect(accessor(v3).get("a")!.optional).toBe(false);
+  });
 });
 
 describe("enums", () => {
@@ -149,10 +183,18 @@ describe("scalar", () => {
 });
 
 describe("operations", () => {
-  itCanBeAddedRemovedAndRenamed(
-    (ns) => ns.operations,
-    (decorators) => `${decorators} op A(): void;`,
-  );
+  const accessor = (ns: Namespace) => ns.operations;
+  itCanBeAddedRemovedAndRenamed(accessor, (decorators) => `${decorators} op A(): void;`);
+
+  it("can change the return type", async () => {
+    const { v1, v2, v3 } = await testMutationLogic(`
+      @returnTypeChangedFrom(Versions.v2, string)
+      op a(): int32;
+    `);
+    expect((accessor(v1).get("a")!.returnType as Scalar).name).toBe("string");
+    expect((accessor(v2).get("a")!.returnType as Scalar).name).toBe("int32");
+    expect((accessor(v3).get("a")!.returnType as Scalar).name).toBe("int32");
+  });
 });
 
 describe("interfaces", () => {
