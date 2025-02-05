@@ -81,6 +81,10 @@ namespace Microsoft.Generator.CSharp
 
         public virtual void Configure()
         {
+            AddTypeToKeep("CodeGenTypeAttribute");
+            AddTypeToKeep("CodeGenMemberAttribute");
+            AddTypeToKeep("CodeGenSuppressAttribute");
+            AddTypeToKeep("CodeGenSerializationAttribute");
         }
 
         public void AddVisitor(LibraryVisitor visitor)

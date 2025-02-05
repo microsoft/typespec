@@ -51,7 +51,7 @@ export interface CoverageReport {
   createdAt: string;
 }
 
-export interface ResolvedCoverageReport extends CoverageReport {
+export interface ResolvedCoverageReport extends Record<number, CoverageReport> {
   generatorMetadata: GeneratorMetadata;
 }
 

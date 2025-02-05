@@ -212,7 +212,7 @@ public class Main {
                     options.setOutputDir(options.getOutputDir() + "/");
                 }
             } catch (IOException e) {
-                LOGGER.info("Read emitter options failed, emitter options json: {}", emitterOptionsJson);
+                LOGGER.warn("Read emitter options failed, emitter options json: {}", emitterOptionsJson);
             }
         }
 

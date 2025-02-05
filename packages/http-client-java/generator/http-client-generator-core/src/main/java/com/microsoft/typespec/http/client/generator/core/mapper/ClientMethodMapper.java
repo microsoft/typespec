@@ -784,7 +784,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .groupedParameterRequired(false)
             .methodVisibility(methodVisibility);
 
-        methods.add(builder.build());
+        if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
+            methods.add(builder.build());
+        }
 
         // Generate an overload with all parameters, optionally include context.
         builder.methodVisibility(visibilityFunction.methodVisibility(true, defaultOverloadType, true));
@@ -806,10 +808,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .groupedParameterRequired(false)
             .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false));
 
-        methods.add(builder.build());
+        if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
+            // generate the overload, if "sync-methods != NONE"
 
-        // overload for versioning
-        createOverloadForVersioning(isProtocolMethod, methods, builder, parameters);
+            methods.add(builder.build());
+
+            // overload for versioning
+            createOverloadForVersioning(isProtocolMethod, methods, builder, parameters);
+        }
 
         if (generateClientMethodWithOnlyRequiredParameters) {
             methods.add(builder.onlyRequiredParameters(true)

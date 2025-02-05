@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.Generator.CSharp.Customization;
+using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.SourceInput
 {
@@ -18,13 +17,15 @@ namespace Microsoft.Generator.CSharp.SourceInput
 
         public const string CodeGenTypeAttributeName = "CodeGenTypeAttribute";
 
-        public const string CodeGenModelAttributeName = "CodeGenModelAttribute";
-
-        public const string CodeGenClientAttributeName = "CodeGenClientAttribute";
-
         public const string CodeGenSerializationAttributeName = "CodeGenSerializationAttribute";
 
-        public static bool TryGetCodeGenMemberAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
+        private const string PropertySerializationName = "PropertySerializationName";
+
+        private const string SerializationValueHook = "SerializationValueHook";
+
+        private const string DeserializationValueHook = "DeserializationValueHook";
+
+        internal static bool TryGetCodeGenMemberAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
         {
             name = null;
             if (attributeData.AttributeClass?.Name != CodeGenMemberAttributeName)
@@ -34,14 +35,15 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return name != null;
         }
 
-        public static bool TryGetCodeGenSerializationAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string propertyName, out string? serializationName, out string? serializationHook, out string? deserializationHook, out string? bicepSerializationHook)
+        public static bool TryGetCodeGenSerializationAttributeValue(AttributeStatement attribute, [MaybeNullWhen(false)] out string propertyName, out string? serializationName, out string? serializationHook, out string? deserializationHook, out string? bicepSerializationHook)
         {
             propertyName = null;
             serializationName = null;
             serializationHook = null;
             deserializationHook = null;
             bicepSerializationHook = null;
-            if (attributeData.AttributeClass?.Name != CodeGenSerializationAttributeName)
+            var attributeData = attribute.Data;
+            if (attributeData!.AttributeClass?.Name != CodeGenSerializationAttributeName)
             {
                 return false;
             }
@@ -64,41 +66,19 @@ namespace Microsoft.Generator.CSharp.SourceInput
             {
                 switch (key)
                 {
-                    case nameof(CodeGenSerializationAttribute.PropertySerializationName):
+                    case nameof(PropertySerializationName):
                         serializationName = namedArgument.Value as string;
                         break;
-                    case nameof(CodeGenSerializationAttribute.SerializationValueHook):
+                    case nameof(SerializationValueHook):
                         serializationHook = namedArgument.Value as string;
                         break;
-                    case nameof(CodeGenSerializationAttribute.DeserializationValueHook):
+                    case nameof(DeserializationValueHook):
                         deserializationHook = namedArgument.Value as string;
                         break;
                 }
             }
 
             return propertyName != null && (serializationName != null || serializationHook != null || deserializationHook != null || bicepSerializationHook != null);
-        }
-
-        public static bool TryGetCodeGenModelAttributeValue(AttributeData attributeData, out string[]? usage, out string[]? formats)
-        {
-            usage = null;
-            formats = null;
-            if (attributeData.AttributeClass?.Name != CodeGenModelAttributeName)
-                return false;
-            foreach (var namedArgument in attributeData.NamedArguments)
-            {
-                switch (namedArgument.Key)
-                {
-                    case nameof(CodeGenModelAttribute.Usage):
-                        usage = ToStringArray(namedArgument.Value.Values);
-                        break;
-                    case nameof(CodeGenModelAttribute.Formats):
-                        formats = ToStringArray(namedArgument.Value.Values);
-                        break;
-                }
-            }
-
-            return usage != null || formats != null;
         }
 
         private static string[]? ToStringArray(ImmutableArray<TypedConstant> values)

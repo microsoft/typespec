@@ -11,6 +11,5 @@ export {
   NetEmitterOptionsSchema,
   defaultOptions,
   resolveOptions,
-  resolveOutputFolder,
 } from "./options.js";
 export { setSDKContextOptions } from "./sdk-context-options.js";

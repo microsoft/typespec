@@ -8,7 +8,7 @@ describe("instantiate", () => {
   });
   it("prevent new Numeric()", () => {
     // @ts-expect-error 'new' expression, whose target lacks a construct signature
-    expect(() => new Numeric("123")).toThrow(new TypeError("Numeric is not a constructor"));
+    expect(() => new Numeric("123")).toThrow(new Error("Numeric is not a constructor"));
   });
 });
 describe("parsing", () => {
