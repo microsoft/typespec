@@ -1,11 +1,7 @@
 import { ignoreDiagnostics, Operation, StringLiteral, Type, VoidType } from "@typespec/compiler";
 import { defineKit, Typekit } from "@typespec/compiler/experimental/typekit";
 import { getHttpOperation } from "../../../operations.js";
-import {
-  HttpOperation,
-  HttpOperationResponseContent,
-  HttpStatusCodesEntry,
-} from "../../../types.js";
+import { HttpOperation, HttpOperationResponseContent, HttpStatusCodesEntry } from "../../../types.js";
 
 /**
  * Utilities for working with HTTP operations.
@@ -23,12 +19,12 @@ export interface HttpOperationKit {
    * Get the responses for the given operation. This function will return an array of responses grouped by status code and content type.
    * @param op operation to extract the HttpResponse from
    */
-  getResponses(op: Operation): FlatHttpResponse[];
+  flattenResponses(op: HttpOperation): FlatHttpResponse[];
   /**
    * Get the Http Return type for the given operation. This function will resolve the returnType based on the Http Operation.
    * @param op operation to get the return type for
    */
-  getReturnType(op: Operation, options?: { includeErrors?: boolean }): Type;
+  getReturnType(op: HttpOperation, options?: { includeErrors?: boolean }): Type;
 }
 
 /**
@@ -47,17 +43,22 @@ export interface FlatHttpResponse {
    * Response content.
    */
   responseContent: HttpOperationResponseContent;
+  /**
+   * Response type.
+   *
+   */
+  type: Type;
 }
 
 interface TypekitExtension {
-  /**
+    /**
    * Utilities for working with HTTP operations.
    * @experimental
    */
   httpOperation: HttpOperationKit;
 }
 
-declare module "@typespec/compiler/experimental/typekit" {
+declare module "@typespec/compiler/experimental/typekit"{
   interface Typekit extends TypekitExtension {}
 }
 
@@ -66,11 +67,11 @@ defineKit<TypekitExtension>({
     get(op) {
       return ignoreDiagnostics(getHttpOperation(this.program, op));
     },
-    getReturnType(operation, options) {
-      let responses = this.httpOperation.getResponses(operation);
+    getReturnType(httpOperation, options) {
+      let responses = this.httpOperation.flattenResponses(httpOperation);
 
       if (!options?.includeErrors) {
-        responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r.responseContent));
+        responses = responses.filter((r) => !this.httpResponse.isErrorResponse(r));
       }
 
       const voidType = { kind: "Intrinsic", name: "void" } as VoidType;
@@ -95,9 +96,8 @@ defineKit<TypekitExtension>({
 
       return httpReturnType;
     },
-    getResponses(operation) {
+    flattenResponses(httpOperation) {
       const responsesMap: FlatHttpResponse[] = [];
-      const httpOperation = this.httpOperation.get(operation);
       for (const response of httpOperation.responses) {
         for (const responseContent of response.responses) {
           const contentTypeProperty = responseContent.properties.find(
@@ -112,7 +112,12 @@ defineKit<TypekitExtension>({
             contentType = "application/json";
           }
 
-          responsesMap.push({ statusCode: response.statusCodes, contentType, responseContent });
+          responsesMap.push({
+            statusCode: response.statusCodes,
+            contentType,
+            responseContent,
+            type: response.type,
+          });
         }
       }
 
