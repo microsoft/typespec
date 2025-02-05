@@ -26,46 +26,7 @@ async function testMutationLogic(
   return { v1, v2, v3 } as any;
 }
 
-async function itCanBeRenamed(
-  accessor: (ns: Namespace) => Map<string | symbol, Type & { name?: string | symbol }>,
-  code: (decorators: string) => string,
-) {
-  describe("rename", () => {
-    it("once", async () => {
-      const { v1, v2, v3 } = await testMutationLogic(code(`@renamedFrom(Versions.v2, "OldA")`));
-      expect(accessor(v1).get("OldA")!.name).toBe("OldA");
-      expect(accessor(v1).has("A")).toBe(false);
-
-      expect(accessor(v2).get("A")!.name).toBe("A");
-      expect(accessor(v2).has("OldA")).toBe(false);
-
-      expect(accessor(v3).get("A")!.name).toBe("A");
-      expect(accessor(v3).has("OldA")).toBe(false);
-    });
-
-    it("multiple times", async () => {
-      const { v1, v2, v3 } = await testMutationLogic(
-        code(`
-        @renamedFrom(Versions.v2, "A_V1")  
-        @renamedFrom(Versions.v3, "A_V2")  
-      `),
-      );
-      expect(accessor(v1).get("A_V1")!.name).toBe("A_V1");
-      expect(accessor(v1).has("A_V2")).toBe(false);
-      expect(accessor(v1).has("A")).toBe(false);
-
-      expect(accessor(v2).get("A_V2")!.name).toBe("A_V2");
-      expect(accessor(v2).has("A_V1")).toBe(false);
-      expect(accessor(v2).has("A")).toBe(false);
-
-      expect(accessor(v3).get("A")!.name).toBe("A");
-      expect(accessor(v3).has("A_V1")).toBe(false);
-      expect(accessor(v3).has("A_V2")).toBe(false);
-    });
-  });
-}
-
-async function itCanBeAddedAndRemoved(
+async function itCanBeAddedRemovedAndRenamed(
   accessor: (ns: Namespace) => Map<string | symbol, Type & { name?: string | symbol }>,
   code: (decorators: string) => string,
 ) {
@@ -104,115 +65,106 @@ async function itCanBeAddedAndRemoved(
     expect(accessor(v2).has("A")).toBe(false);
     expect(accessor(v3).has("A")).toBe(true);
   });
+
+  it("once", async () => {
+    const { v1, v2, v3 } = await testMutationLogic(code(`@renamedFrom(Versions.v2, "OldA")`));
+    expect(accessor(v1).get("OldA")!.name).toBe("OldA");
+    expect(accessor(v1).has("A")).toBe(false);
+
+    expect(accessor(v2).get("A")!.name).toBe("A");
+    expect(accessor(v2).has("OldA")).toBe(false);
+
+    expect(accessor(v3).get("A")!.name).toBe("A");
+    expect(accessor(v3).has("OldA")).toBe(false);
+  });
+
+  it("multiple times", async () => {
+    const { v1, v2, v3 } = await testMutationLogic(
+      code(`
+      @renamedFrom(Versions.v2, "A_V1")  
+      @renamedFrom(Versions.v3, "A_V2")  
+    `),
+    );
+    expect(accessor(v1).get("A_V1")!.name).toBe("A_V1");
+    expect(accessor(v1).has("A_V2")).toBe(false);
+    expect(accessor(v1).has("A")).toBe(false);
+
+    expect(accessor(v2).get("A_V2")!.name).toBe("A_V2");
+    expect(accessor(v2).has("A_V1")).toBe(false);
+    expect(accessor(v2).has("A")).toBe(false);
+
+    expect(accessor(v3).get("A")!.name).toBe("A");
+    expect(accessor(v3).has("A_V1")).toBe(false);
+    expect(accessor(v3).has("A_V2")).toBe(false);
+  });
 }
 
 describe("models", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.models,
-    (decorators) => `${decorators} model A {}`,
-  );
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.models,
     (decorators) => `${decorators} model A {}`,
   );
 });
 
 describe("model properties", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.models.get("Test")!.properties,
-    (decorators) => `model Test { ${decorators} A: string; }`,
-  );
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.models.get("Test")!.properties,
     (decorators) => `model Test { ${decorators} A: string; }`,
   );
 });
 
 describe("enums", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.enums,
-    (decorators) => `${decorators} enum A {}`,
-  );
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.enums,
     (decorators) => `${decorators} enum A {}`,
   );
 });
 
 describe("enum members", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.enums.get("Test")!.members,
-    (decorators) => `enum Test { ${decorators} A: "a"; }`,
-  );
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.enums.get("Test")!.members,
     (decorators) => `enum Test { ${decorators} A: "a"; }`,
   );
 });
 
 describe("union", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.unions,
-    (decorators) => `${decorators} union A {}`,
-  );
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.unions,
     (decorators) => `${decorators} union A {}`,
   );
 });
 
 describe("union variant", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.unions.get("Test")!.variants,
-    (decorators) => `union Test { ${decorators} A: string; }`,
-  );
-
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.unions.get("Test")!.variants,
     (decorators) => `union Test { ${decorators} A: string; }`,
   );
 });
 
 describe("scalar", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.scalars,
-    (decorators) => `${decorators} scalar A {}`,
-  );
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.scalars,
     (decorators) => `${decorators} scalar A {}`,
   );
 });
 
 describe("operations", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.operations,
-    (decorators) => `${decorators} op A(): void;`,
-  );
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.operations,
     (decorators) => `${decorators} op A(): void;`,
   );
 });
 
 describe("interfaces", () => {
-  itCanBeAddedAndRemoved(
-    (ns) => ns.interfaces,
-    (decorators) => `${decorators} interface A {}`,
-  );
-  itCanBeRenamed(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.interfaces,
     (decorators) => `${decorators} interface A {}`,
   );
 });
 
 describe("operations in interface", () => {
-  itCanBeAddedAndRemoved(
+  itCanBeAddedRemovedAndRenamed(
     (ns) => ns.interfaces.get("Test")!.operations,
     (decorators) => `interface Test { ${decorators} A(): void; }`,
-  );
-  itCanBeRenamed(
-    (ns) => ns.interfaces.get("Test")!.operations,
-    (decorators) => `interface Test { ${decorators} op A(): void; }`,
   );
 });
