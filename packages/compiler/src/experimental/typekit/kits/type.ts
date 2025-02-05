@@ -76,6 +76,7 @@ defineKit<TypekitExtension>({
             instantiationParameters: type.instantiationParameters
               ? [...type.instantiationParameters]
               : undefined,
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             projections: [...type.projections],
             models: copyMap(type.models as any),
             decoratorDeclarations: copyMap(type.decoratorDeclarations as any),
