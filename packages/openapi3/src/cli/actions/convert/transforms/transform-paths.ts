@@ -6,7 +6,6 @@ import {
   Refable,
 } from "../../../../types.js";
 import {
-  TypeSpecModel,
   TypeSpecOperation,
   TypeSpecOperationParameter,
   TypeSpecRequestBody,
@@ -14,7 +13,6 @@ import {
 import { getExtensions, getParameterDecorators } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
-import { collectOperationResponses } from "./transform-operation-responses.js";
 
 /**
  * Transforms each operation defined under #/paths/{route}/{httpMethod} into a TypeSpec operation.
@@ -22,10 +20,7 @@ import { collectOperationResponses } from "./transform-operation-responses.js";
  * @param paths
  * @returns
  */
-export function transformPaths(
-  models: TypeSpecModel[],
-  paths: Record<string, OpenAPI3PathItem>,
-): TypeSpecOperation[] {
+export function transformPaths(paths: Record<string, OpenAPI3PathItem>): TypeSpecOperation[] {
   const operations: TypeSpecOperation[] = [];
 
   for (const route of Object.keys(paths)) {
@@ -39,8 +34,6 @@ export function transformPaths(
       const tags = operation.tags?.map((t) => t) ?? [];
 
       const operationResponses = operation.responses ?? {};
-      const responseModels = collectOperationResponses(operation.operationId!, operationResponses);
-      models.push(...responseModels);
 
       const decorators = [
         ...getExtensions(operation),
@@ -59,7 +52,7 @@ export function transformPaths(
         doc: operation.description,
         operationId: operation.operationId,
         requestBodies: transformRequestBodies(operation.requestBody),
-        responseTypes: responseModels.map((m) => m.name),
+        responses: operationResponses,
         tags: tags,
       });
     }
