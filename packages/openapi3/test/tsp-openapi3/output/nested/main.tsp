@@ -21,7 +21,7 @@ namespace SubA {
     model Thing {
       name: string;
     }
-    @route("/sub/a/subsub") @post op doSomething(@bodyRoot body: SubA.SubSubA.Thing): Body<string>;
+    @route("/sub/a/subsub") @post op doSomething(@body body: SubA.SubSubA.Thing): Body<string>;
   }
 }
 
@@ -29,12 +29,12 @@ namespace SubB {
   model Thing {
     id: int64;
   }
-  @route("/sub/b") @post op doSomething(@bodyRoot body: SubB.Thing): Body<string>;
+  @route("/sub/b") @post op doSomething(@body body: SubB.Thing): Body<string>;
 }
 
 namespace SubC {
   @route("/") @post op anotherOp(
-    @bodyRoot body: {
+    @body body: {
       thing: SubA.Thing;
       thing2: SubA.Thing;
     },

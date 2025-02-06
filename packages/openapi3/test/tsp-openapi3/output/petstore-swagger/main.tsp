@@ -116,7 +116,11 @@ model ApiResponse {
 @summary("Add a new pet to the store")
 op addPet(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: Pet,
+
+  /**
+   * Create a new pet in the store
+   */
+  @body body: Pet,
 ): {
   @header contentType: "application/xml";
   @body body: Pet;
@@ -133,7 +137,11 @@ op addPet(
 @summary("Update an existing pet")
 op updatePet(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: Pet,
+
+  /**
+   * Update an existent pet in the store
+   */
+  @body body: Pet,
 ):
   | {
       @header contentType: "application/xml";
@@ -253,7 +261,7 @@ op uploadFile(
   @query(#{ explode: true }) additionalMetadata?: string,
 
   @header contentType: "application/octet-stream",
-  @bodyRoot body: bytes,
+  @body body: bytes,
 ): ApiResponse;
 
 /**
@@ -276,7 +284,7 @@ op getInventory(): Body<Record<int32>>;
 @summary("Place an order for a pet")
 op placeOrder(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: Order,
+  @body body: Order,
 ): Order | {
   @statusCode statusCode: 405;
 };
@@ -327,7 +335,11 @@ op getOrderById(
 @summary("Create user")
 op createUser(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: User,
+
+  /**
+   * Created user object
+   */
+  @body body: User,
 ): GeneratedHelpers.DefaultResponse<
   Description = "successful operation",
   Body = User
@@ -347,7 +359,7 @@ op createUser(
 @route("/user/createWithList")
 @post
 @summary("Creates list of users with given input array")
-op createUsersWithListInput(@bodyRoot body: User[]): {
+op createUsersWithListInput(@body body: User[]): {
   @header contentType: "application/xml";
   @body body: User;
 } | User | GeneratedHelpers.DefaultResponse<Description = "successful operation">;
@@ -446,7 +458,11 @@ op updateUser(
   @path username: string,
 
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: User,
+
+  /**
+   * Update an existent user in the store
+   */
+  @body body: User,
 ): GeneratedHelpers.DefaultResponse<Description = "successful operation">;
 
 namespace GeneratedHelpers {

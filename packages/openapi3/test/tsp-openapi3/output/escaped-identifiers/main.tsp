@@ -23,7 +23,7 @@ model `Escaped-Model` {
 @route("/{escaped-property}") @get op `get-thing`(
   @query(#{ explode: true }) `weird@param`?: `Foo-Bar`,
   ...Parameters.`Escaped-Model`.`escaped-property`,
-  @bodyRoot body: `Escaped-Model`,
+  @body body: `Escaped-Model`,
 ): GeneratedHelpers.DefaultResponse<Description = "Success">;
 
 namespace Parameters {
