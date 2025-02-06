@@ -35,7 +35,7 @@ namespace Parameters {
 }
 namespace GeneratedHelpers {
   @doc(Description)
-  @defaultResponse
+  @error
   model DefaultResponse<
     Description extends valueof string = "",
     Body = void,

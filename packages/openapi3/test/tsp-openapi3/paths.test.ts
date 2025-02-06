@@ -751,7 +751,7 @@ model Foo {
 
         namespace GeneratedHelpers {
           @doc(Description)
-          @defaultResponse
+          @error
           model DefaultResponse<
             Description extends valueof string = "",
             Body = void,
@@ -804,7 +804,7 @@ model Foo {
 
         namespace GeneratedHelpers {
           @doc(Description)
-          @defaultResponse
+          @error
           model DefaultResponse<
             Description extends valueof string = "",
             Body = void,
@@ -859,7 +859,7 @@ model Foo {
 
         namespace GeneratedHelpers {
           @doc(Description)
-          @defaultResponse
+          @error
           model DefaultResponse<
             Description extends valueof string = "",
             Body = void,
@@ -912,7 +912,7 @@ model Foo {
 
         namespace GeneratedHelpers {
           @doc(Description)
-          @defaultResponse
+          @error
           model DefaultResponse<
             Description extends valueof string = "",
             Body = void,
@@ -973,7 +973,7 @@ model Foo {
 
         namespace GeneratedHelpers {
           @doc(Description)
-          @defaultResponse
+          @error
           model DefaultResponse<
             Description extends valueof string = "",
             Body = void,
@@ -1119,7 +1119,7 @@ model Foo {
 
       namespace GeneratedHelpers {
         @doc(Description)
-        @defaultResponse
+        @error
         model DefaultResponse<
           Description extends valueof string = "",
           Body = void,
@@ -1280,7 +1280,7 @@ model Foo {
 
       namespace GeneratedHelpers {
         @doc(Description)
-        @defaultResponse
+        @error
         model DefaultResponse<
           Description extends valueof string = "",
           Body = void,

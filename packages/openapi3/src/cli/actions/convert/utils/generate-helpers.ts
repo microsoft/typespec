@@ -17,7 +17,7 @@ export function generateHelpers(context: Context): string {
 
 const DEFAULT_RESPONSE_TEMPLATE = `
 @doc(Description)
-@defaultResponse
+@error
 model DefaultResponse<Description extends valueof string = "", Body = void, Headers extends {} = {}> {
   @body body: Body;
   ...Headers;
