@@ -518,15 +518,22 @@
              "discriminator": false,
              "flatten": false,
              "decorators": [],
-             "crossLanguageDefinitionId": "Type.Union.Cat.name"
+             "crossLanguageDefinitionId": "Type.Union.Cat.name",
+             "serializationOptions": {
+              "$id": "62",
+              "json": {
+               "$id": "63",
+               "name": "name"
+              }
+             }
             }
            ]
           },
           {
-           "$id": "62",
+           "$id": "64",
            "kind": "constant",
            "valueType": {
-            "$id": "63",
+            "$id": "65",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -536,14 +543,14 @@
            "decorators": []
           },
           {
-           "$id": "64",
+           "$id": "66",
            "kind": "int32",
            "name": "int32",
            "crossLanguageDefinitionId": "TypeSpec.int32",
            "decorators": []
           },
           {
-           "$id": "65",
+           "$id": "67",
            "kind": "boolean",
            "name": "boolean",
            "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -557,10 +564,17 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.model"
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.model",
+        "serializationOptions": {
+         "$id": "68",
+         "json": {
+          "$id": "69",
+          "name": "model"
+         }
+        }
        },
        {
-        "$id": "66",
+        "$id": "70",
         "kind": "property",
         "name": "literal",
         "serializedName": "literal",
@@ -573,10 +587,17 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.literal"
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.literal",
+        "serializationOptions": {
+         "$id": "71",
+         "json": {
+          "$id": "72",
+          "name": "literal"
+         }
+        }
        },
        {
-        "$id": "67",
+        "$id": "73",
         "kind": "property",
         "name": "int",
         "serializedName": "int",
@@ -589,10 +610,17 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.int"
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.int",
+        "serializationOptions": {
+         "$id": "74",
+         "json": {
+          "$id": "75",
+          "name": "int"
+         }
+        }
        },
        {
-        "$id": "68",
+        "$id": "76",
         "kind": "property",
         "name": "boolean",
         "serializedName": "boolean",
@@ -605,16 +633,23 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.boolean"
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.boolean",
+        "serializationOptions": {
+         "$id": "77",
+         "json": {
+          "$id": "78",
+          "name": "boolean"
+         }
+        }
        },
        {
-        "$id": "69",
+        "$id": "79",
         "kind": "property",
         "name": "array",
         "serializedName": "array",
         "doc": "This should be receive/send 4 element with Cat, \"a\", int, and boolean",
         "type": {
-         "$id": "70",
+         "$id": "80",
          "kind": "array",
          "name": "Array",
          "valueType": {
@@ -628,7 +663,14 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.array"
+        "crossLanguageDefinitionId": "Type.Union.MixedTypesCases.array",
+        "serializationOptions": {
+         "$id": "81",
+         "json": {
+          "$id": "82",
+          "name": "array"
+         }
+        }
        }
       ]
      },
@@ -637,7 +679,14 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "83",
+      "json": {
+       "$id": "84",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
@@ -648,7 +697,7 @@
    "$ref": "59"
   },
   {
-   "$id": "71",
+   "$id": "85",
    "kind": "model",
    "name": "SendRequest",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -656,7 +705,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "72",
+     "$id": "86",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -668,12 +717,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.MixedTypes.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.MixedTypes.send.prop",
+     "serializationOptions": {
+      "$id": "87",
+      "json": {
+       "$id": "88",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "73",
+   "$id": "89",
    "kind": "model",
    "name": "GetResponse1",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -681,12 +737,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "74",
+     "$id": "90",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "75",
+      "$id": "91",
       "kind": "model",
       "name": "MixedLiteralsCases",
       "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases",
@@ -694,21 +750,21 @@
       "decorators": [],
       "properties": [
        {
-        "$id": "76",
+        "$id": "92",
         "kind": "property",
         "name": "stringLiteral",
         "serializedName": "stringLiteral",
         "doc": "This should be receive/send the \"a\" variant",
         "type": {
-         "$id": "77",
+         "$id": "93",
          "kind": "union",
          "name": "MixedLiteralsCasesStringLiteral1",
          "variantTypes": [
           {
-           "$id": "78",
+           "$id": "94",
            "kind": "constant",
            "valueType": {
-            "$id": "79",
+            "$id": "95",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -718,10 +774,10 @@
            "decorators": []
           },
           {
-           "$id": "80",
+           "$id": "96",
            "kind": "constant",
            "valueType": {
-            "$id": "81",
+            "$id": "97",
             "kind": "int32",
             "name": "int32",
             "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -731,10 +787,10 @@
            "decorators": []
           },
           {
-           "$id": "82",
+           "$id": "98",
            "kind": "constant",
            "valueType": {
-            "$id": "83",
+            "$id": "99",
             "kind": "float32",
             "name": "float32",
             "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -744,10 +800,10 @@
            "decorators": []
           },
           {
-           "$id": "84",
+           "$id": "100",
            "kind": "constant",
            "valueType": {
-            "$id": "85",
+            "$id": "101",
             "kind": "boolean",
             "name": "boolean",
             "crossLanguageDefinitionId": "TypeSpec.boolean",
@@ -764,55 +820,83 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.stringLiteral"
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.stringLiteral",
+        "serializationOptions": {
+         "$id": "102",
+         "json": {
+          "$id": "103",
+          "name": "stringLiteral"
+         }
+        }
        },
        {
-        "$id": "86",
+        "$id": "104",
         "kind": "property",
         "name": "intLiteral",
         "serializedName": "intLiteral",
         "doc": "This should be receive/send the 2 variant",
         "type": {
-         "$ref": "77"
+         "$ref": "93"
         },
         "optional": false,
         "readOnly": false,
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.intLiteral"
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.intLiteral",
+        "serializationOptions": {
+         "$id": "105",
+         "json": {
+          "$id": "106",
+          "name": "intLiteral"
+         }
+        }
        },
        {
-        "$id": "87",
+        "$id": "107",
         "kind": "property",
         "name": "floatLiteral",
         "serializedName": "floatLiteral",
         "doc": "This should be receive/send the 3.3 variant",
         "type": {
-         "$ref": "77"
+         "$ref": "93"
         },
         "optional": false,
         "readOnly": false,
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.floatLiteral"
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.floatLiteral",
+        "serializationOptions": {
+         "$id": "108",
+         "json": {
+          "$id": "109",
+          "name": "floatLiteral"
+         }
+        }
        },
        {
-        "$id": "88",
+        "$id": "110",
         "kind": "property",
         "name": "booleanLiteral",
         "serializedName": "booleanLiteral",
         "doc": "This should be receive/send the true variant",
         "type": {
-         "$ref": "77"
+         "$ref": "93"
         },
         "optional": false,
         "readOnly": false,
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.booleanLiteral"
+        "crossLanguageDefinitionId": "Type.Union.MixedLiteralsCases.booleanLiteral",
+        "serializationOptions": {
+         "$id": "111",
+         "json": {
+          "$id": "112",
+          "name": "booleanLiteral"
+         }
+        }
        }
       ]
      },
@@ -821,15 +905,22 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "113",
+      "json": {
+       "$id": "114",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$ref": "75"
+   "$ref": "91"
   },
   {
-   "$id": "89",
+   "$id": "115",
    "kind": "model",
    "name": "SendRequest1",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -837,24 +928,31 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "90",
+     "$id": "116",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "75"
+      "$ref": "91"
      },
      "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.MixedLiterals.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.MixedLiterals.send.prop",
+     "serializationOptions": {
+      "$id": "117",
+      "json": {
+       "$id": "118",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "91",
+   "$id": "119",
    "kind": "model",
    "name": "GetResponse2",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -862,12 +960,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "92",
+     "$id": "120",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "93",
+      "$id": "121",
       "kind": "model",
       "name": "StringAndArrayCases",
       "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases",
@@ -875,29 +973,29 @@
       "decorators": [],
       "properties": [
        {
-        "$id": "94",
+        "$id": "122",
         "kind": "property",
         "name": "string",
         "serializedName": "string",
         "doc": "This should be receive/send the string variant",
         "type": {
-         "$id": "95",
+         "$id": "123",
          "kind": "union",
          "name": "StringAndArrayCasesString",
          "variantTypes": [
           {
-           "$id": "96",
+           "$id": "124",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
            "decorators": []
           },
           {
-           "$id": "97",
+           "$id": "125",
            "kind": "array",
            "name": "Array",
            "valueType": {
-            "$id": "98",
+            "$id": "126",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -914,32 +1012,39 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.string"
+        "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.string",
+        "serializationOptions": {
+         "$id": "127",
+         "json": {
+          "$id": "128",
+          "name": "string"
+         }
+        }
        },
        {
-        "$id": "99",
+        "$id": "129",
         "kind": "property",
         "name": "array",
         "serializedName": "array",
         "doc": "This should be receive/send the array variant",
         "type": {
-         "$id": "100",
+         "$id": "130",
          "kind": "union",
          "name": "StringAndArrayCasesArray",
          "variantTypes": [
           {
-           "$id": "101",
+           "$id": "131",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
            "decorators": []
           },
           {
-           "$id": "102",
+           "$id": "132",
            "kind": "array",
            "name": "Array",
            "valueType": {
-            "$id": "103",
+            "$id": "133",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -956,7 +1061,14 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.array"
+        "crossLanguageDefinitionId": "Type.Union.StringAndArrayCases.array",
+        "serializationOptions": {
+         "$id": "134",
+         "json": {
+          "$id": "135",
+          "name": "array"
+         }
+        }
        }
       ]
      },
@@ -965,15 +1077,22 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "136",
+      "json": {
+       "$id": "137",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$ref": "93"
+   "$ref": "121"
   },
   {
-   "$id": "104",
+   "$id": "138",
    "kind": "model",
    "name": "SendRequest2",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -981,24 +1100,31 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "105",
+     "$id": "139",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "93"
+      "$ref": "121"
      },
      "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.StringAndArray.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.StringAndArray.send.prop",
+     "serializationOptions": {
+      "$id": "140",
+      "json": {
+       "$id": "141",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "106",
+   "$id": "142",
    "kind": "model",
    "name": "GetResponse3",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -1006,12 +1132,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "107",
+     "$id": "143",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "108",
+      "$id": "144",
       "kind": "model",
       "name": "EnumsOnlyCases",
       "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases",
@@ -1019,7 +1145,7 @@
       "decorators": [],
       "properties": [
        {
-        "$id": "109",
+        "$id": "145",
         "kind": "property",
         "name": "lr",
         "serializedName": "lr",
@@ -1032,10 +1158,17 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr"
+        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.lr",
+        "serializationOptions": {
+         "$id": "146",
+         "json": {
+          "$id": "147",
+          "name": "lr"
+         }
+        }
        },
        {
-        "$id": "110",
+        "$id": "148",
         "kind": "property",
         "name": "ud",
         "serializedName": "ud",
@@ -1048,7 +1181,14 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud"
+        "crossLanguageDefinitionId": "Type.Union.EnumsOnlyCases.ud",
+        "serializationOptions": {
+         "$id": "149",
+         "json": {
+          "$id": "150",
+          "name": "ud"
+         }
+        }
        }
       ]
      },
@@ -1057,15 +1197,22 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "151",
+      "json": {
+       "$id": "152",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$ref": "108"
+   "$ref": "144"
   },
   {
-   "$id": "111",
+   "$id": "153",
    "kind": "model",
    "name": "SendRequest3",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -1073,24 +1220,31 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "112",
+     "$id": "154",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "108"
+      "$ref": "144"
      },
      "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.EnumsOnly.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.EnumsOnly.send.prop",
+     "serializationOptions": {
+      "$id": "155",
+      "json": {
+       "$id": "156",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "113",
+   "$id": "157",
    "kind": "model",
    "name": "GetResponse4",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -1098,12 +1252,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "114",
+     "$id": "158",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$id": "115",
+      "$id": "159",
       "kind": "union",
       "name": "GetResponseProp",
       "variantTypes": [
@@ -1111,7 +1265,7 @@
         "$ref": "59"
        },
        {
-        "$id": "116",
+        "$id": "160",
         "kind": "model",
         "name": "Dog",
         "crossLanguageDefinitionId": "Type.Union.Dog",
@@ -1119,12 +1273,12 @@
         "decorators": [],
         "properties": [
          {
-          "$id": "117",
+          "$id": "161",
           "kind": "property",
           "name": "bark",
           "serializedName": "bark",
           "type": {
-           "$id": "118",
+           "$id": "162",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1135,7 +1289,14 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "Type.Union.Dog.bark"
+          "crossLanguageDefinitionId": "Type.Union.Dog.bark",
+          "serializationOptions": {
+           "$id": "163",
+           "json": {
+            "$id": "164",
+            "name": "bark"
+           }
+          }
          }
         ]
        }
@@ -1147,15 +1308,22 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "165",
+      "json": {
+       "$id": "166",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$ref": "116"
+   "$ref": "160"
   },
   {
-   "$id": "119",
+   "$id": "167",
    "kind": "model",
    "name": "SendRequest4",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -1163,24 +1331,31 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "120",
+     "$id": "168",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
      "type": {
-      "$ref": "115"
+      "$ref": "159"
      },
      "optional": false,
      "readOnly": false,
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.ModelsOnly.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.ModelsOnly.send.prop",
+     "serializationOptions": {
+      "$id": "169",
+      "json": {
+       "$id": "170",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "121",
+   "$id": "171",
    "kind": "model",
    "name": "GetResponse5",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -1188,7 +1363,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "122",
+     "$id": "172",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1200,12 +1375,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "173",
+      "json": {
+       "$id": "174",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "123",
+   "$id": "175",
    "kind": "model",
    "name": "SendRequest5",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -1213,7 +1395,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "124",
+     "$id": "176",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1225,12 +1407,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.FloatsOnly.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.FloatsOnly.send.prop",
+     "serializationOptions": {
+      "$id": "177",
+      "json": {
+       "$id": "178",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "125",
+   "$id": "179",
    "kind": "model",
    "name": "GetResponse6",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -1238,7 +1427,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "126",
+     "$id": "180",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1250,12 +1439,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "181",
+      "json": {
+       "$id": "182",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "127",
+   "$id": "183",
    "kind": "model",
    "name": "SendRequest6",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -1263,7 +1459,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "128",
+     "$id": "184",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1275,12 +1471,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.IntsOnly.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.IntsOnly.send.prop",
+     "serializationOptions": {
+      "$id": "185",
+      "json": {
+       "$id": "186",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "129",
+   "$id": "187",
    "kind": "model",
    "name": "GetResponse7",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -1288,7 +1491,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "130",
+     "$id": "188",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1300,12 +1503,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "189",
+      "json": {
+       "$id": "190",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "131",
+   "$id": "191",
    "kind": "model",
    "name": "SendRequest7",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -1313,7 +1523,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "132",
+     "$id": "192",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1325,12 +1535,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.StringExtensibleNamed.send.prop",
+     "serializationOptions": {
+      "$id": "193",
+      "json": {
+       "$id": "194",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "133",
+   "$id": "195",
    "kind": "model",
    "name": "GetResponse8",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -1338,7 +1555,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "134",
+     "$id": "196",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1350,12 +1567,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "197",
+      "json": {
+       "$id": "198",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "135",
+   "$id": "199",
    "kind": "model",
    "name": "SendRequest8",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -1363,7 +1587,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "136",
+     "$id": "200",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1375,12 +1599,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.StringExtensible.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.StringExtensible.send.prop",
+     "serializationOptions": {
+      "$id": "201",
+      "json": {
+       "$id": "202",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "137",
+   "$id": "203",
    "kind": "model",
    "name": "GetResponse9",
    "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous",
@@ -1388,7 +1619,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "138",
+     "$id": "204",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1400,12 +1631,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop"
+     "crossLanguageDefinitionId": "Type.Union.get.Response.anonymous.prop",
+     "serializationOptions": {
+      "$id": "205",
+      "json": {
+       "$id": "206",
+       "name": "prop"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "139",
+   "$id": "207",
    "kind": "model",
    "name": "SendRequest9",
    "crossLanguageDefinitionId": "Type.Union.send.Request.anonymous",
@@ -1413,7 +1651,7 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "140",
+     "$id": "208",
      "kind": "property",
      "name": "prop",
      "serializedName": "prop",
@@ -1425,28 +1663,35 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Type.Union.StringsOnly.send.prop"
+     "crossLanguageDefinitionId": "Type.Union.StringsOnly.send.prop",
+     "serializationOptions": {
+      "$id": "209",
+      "json": {
+       "$id": "210",
+       "name": "prop"
+      }
+     }
     }
    ]
   }
  ],
  "Clients": [
   {
-   "$id": "141",
+   "$id": "211",
    "Name": "UnionClient",
    "Doc": "Describe scenarios for various combinations of unions.",
    "Operations": [],
    "Protocol": {
-    "$id": "142"
+    "$id": "212"
    },
    "Parameters": [
     {
-     "$id": "143",
+     "$id": "213",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "144",
+      "$id": "214",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1461,9 +1706,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "145",
+      "$id": "215",
       "Type": {
-       "$id": "146",
+       "$id": "216",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1475,25 +1720,25 @@
    "Decorators": []
   },
   {
-   "$id": "147",
+   "$id": "217",
    "Name": "StringsOnly",
    "Doc": "Describe union of string \"a\" | \"b\" | \"c\"",
    "Operations": [
     {
-     "$id": "148",
+     "$id": "218",
      "Name": "get",
      "ResourceName": "StringsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "149",
+       "$id": "219",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "150",
+        "$id": "220",
         "kind": "constant",
         "valueType": {
-         "$id": "151",
+         "$id": "221",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1515,12 +1760,12 @@
      ],
      "Responses": [
       {
-       "$id": "152",
+       "$id": "222",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "137"
+        "$ref": "203"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1541,21 +1786,21 @@
      "Decorators": []
     },
     {
-     "$id": "153",
+     "$id": "223",
      "Name": "send",
      "ResourceName": "StringsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "154",
+       "$id": "224",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "155",
+        "$id": "225",
         "kind": "constant",
         "valueType": {
-         "$id": "156",
+         "$id": "226",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1575,11 +1820,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "157",
+       "$id": "227",
        "Name": "sendRequest9",
        "NameInRequest": "sendRequest9",
        "Type": {
-        "$ref": "139"
+        "$ref": "207"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1594,7 +1839,7 @@
      ],
      "Responses": [
       {
-       "$id": "158",
+       "$id": "228",
        "StatusCodes": [
         204
        ],
@@ -1618,17 +1863,17 @@
     }
    ],
    "Protocol": {
-    "$id": "159"
+    "$id": "229"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "160",
+     "$id": "230",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "161",
+      "$id": "231",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1643,9 +1888,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "162",
+      "$id": "232",
       "Type": {
-       "$id": "163",
+       "$id": "233",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1657,25 +1902,25 @@
    "Decorators": []
   },
   {
-   "$id": "164",
+   "$id": "234",
    "Name": "StringExtensible",
    "Doc": "Describe union of string string | \"b\" | \"c\"",
    "Operations": [
     {
-     "$id": "165",
+     "$id": "235",
      "Name": "get",
      "ResourceName": "StringExtensible",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "166",
+       "$id": "236",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "167",
+        "$id": "237",
         "kind": "constant",
         "valueType": {
-         "$id": "168",
+         "$id": "238",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1697,12 +1942,12 @@
      ],
      "Responses": [
       {
-       "$id": "169",
+       "$id": "239",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "133"
+        "$ref": "195"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1723,21 +1968,21 @@
      "Decorators": []
     },
     {
-     "$id": "170",
+     "$id": "240",
      "Name": "send",
      "ResourceName": "StringExtensible",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "171",
+       "$id": "241",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "172",
+        "$id": "242",
         "kind": "constant",
         "valueType": {
-         "$id": "173",
+         "$id": "243",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1757,11 +2002,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "174",
+       "$id": "244",
        "Name": "sendRequest8",
        "NameInRequest": "sendRequest8",
        "Type": {
-        "$ref": "135"
+        "$ref": "199"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1776,7 +2021,7 @@
      ],
      "Responses": [
       {
-       "$id": "175",
+       "$id": "245",
        "StatusCodes": [
         204
        ],
@@ -1800,17 +2045,17 @@
     }
    ],
    "Protocol": {
-    "$id": "176"
+    "$id": "246"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "177",
+     "$id": "247",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "178",
+      "$id": "248",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1825,9 +2070,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "179",
+      "$id": "249",
       "Type": {
-       "$id": "180",
+       "$id": "250",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1839,25 +2084,25 @@
    "Decorators": []
   },
   {
-   "$id": "181",
+   "$id": "251",
    "Name": "StringExtensibleNamed",
    "Doc": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
    "Operations": [
     {
-     "$id": "182",
+     "$id": "252",
      "Name": "get",
      "ResourceName": "StringExtensibleNamed",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "183",
+       "$id": "253",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "184",
+        "$id": "254",
         "kind": "constant",
         "valueType": {
-         "$id": "185",
+         "$id": "255",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1879,12 +2124,12 @@
      ],
      "Responses": [
       {
-       "$id": "186",
+       "$id": "256",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "129"
+        "$ref": "187"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -1905,21 +2150,21 @@
      "Decorators": []
     },
     {
-     "$id": "187",
+     "$id": "257",
      "Name": "send",
      "ResourceName": "StringExtensibleNamed",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "188",
+       "$id": "258",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "189",
+        "$id": "259",
         "kind": "constant",
         "valueType": {
-         "$id": "190",
+         "$id": "260",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1939,11 +2184,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "191",
+       "$id": "261",
        "Name": "sendRequest7",
        "NameInRequest": "sendRequest7",
        "Type": {
-        "$ref": "131"
+        "$ref": "191"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -1958,7 +2203,7 @@
      ],
      "Responses": [
       {
-       "$id": "192",
+       "$id": "262",
        "StatusCodes": [
         204
        ],
@@ -1982,17 +2227,17 @@
     }
    ],
    "Protocol": {
-    "$id": "193"
+    "$id": "263"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "194",
+     "$id": "264",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "195",
+      "$id": "265",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2007,9 +2252,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "196",
+      "$id": "266",
       "Type": {
-       "$id": "197",
+       "$id": "267",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2021,25 +2266,25 @@
    "Decorators": []
   },
   {
-   "$id": "198",
+   "$id": "268",
    "Name": "IntsOnly",
    "Doc": "Describe union of integer 1 | 2 | 3",
    "Operations": [
     {
-     "$id": "199",
+     "$id": "269",
      "Name": "get",
      "ResourceName": "IntsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "200",
+       "$id": "270",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "201",
+        "$id": "271",
         "kind": "constant",
         "valueType": {
-         "$id": "202",
+         "$id": "272",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2061,12 +2306,12 @@
      ],
      "Responses": [
       {
-       "$id": "203",
+       "$id": "273",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "125"
+        "$ref": "179"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2087,21 +2332,21 @@
      "Decorators": []
     },
     {
-     "$id": "204",
+     "$id": "274",
      "Name": "send",
      "ResourceName": "IntsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "205",
+       "$id": "275",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "206",
+        "$id": "276",
         "kind": "constant",
         "valueType": {
-         "$id": "207",
+         "$id": "277",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2121,11 +2366,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "208",
+       "$id": "278",
        "Name": "sendRequest6",
        "NameInRequest": "sendRequest6",
        "Type": {
-        "$ref": "127"
+        "$ref": "183"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2140,7 +2385,7 @@
      ],
      "Responses": [
       {
-       "$id": "209",
+       "$id": "279",
        "StatusCodes": [
         204
        ],
@@ -2164,17 +2409,17 @@
     }
    ],
    "Protocol": {
-    "$id": "210"
+    "$id": "280"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "211",
+     "$id": "281",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "212",
+      "$id": "282",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2189,9 +2434,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "213",
+      "$id": "283",
       "Type": {
-       "$id": "214",
+       "$id": "284",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2203,25 +2448,25 @@
    "Decorators": []
   },
   {
-   "$id": "215",
+   "$id": "285",
    "Name": "FloatsOnly",
    "Doc": "Describe union of floats 1.1 | 2.2 | 3.3",
    "Operations": [
     {
-     "$id": "216",
+     "$id": "286",
      "Name": "get",
      "ResourceName": "FloatsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "217",
+       "$id": "287",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "218",
+        "$id": "288",
         "kind": "constant",
         "valueType": {
-         "$id": "219",
+         "$id": "289",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2243,12 +2488,12 @@
      ],
      "Responses": [
       {
-       "$id": "220",
+       "$id": "290",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "121"
+        "$ref": "171"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2269,21 +2514,21 @@
      "Decorators": []
     },
     {
-     "$id": "221",
+     "$id": "291",
      "Name": "send",
      "ResourceName": "FloatsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "222",
+       "$id": "292",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "223",
+        "$id": "293",
         "kind": "constant",
         "valueType": {
-         "$id": "224",
+         "$id": "294",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2303,11 +2548,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "225",
+       "$id": "295",
        "Name": "sendRequest5",
        "NameInRequest": "sendRequest5",
        "Type": {
-        "$ref": "123"
+        "$ref": "175"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2322,7 +2567,7 @@
      ],
      "Responses": [
       {
-       "$id": "226",
+       "$id": "296",
        "StatusCodes": [
         204
        ],
@@ -2346,17 +2591,17 @@
     }
    ],
    "Protocol": {
-    "$id": "227"
+    "$id": "297"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "228",
+     "$id": "298",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "229",
+      "$id": "299",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2371,9 +2616,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "230",
+      "$id": "300",
       "Type": {
-       "$id": "231",
+       "$id": "301",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2385,25 +2630,25 @@
    "Decorators": []
   },
   {
-   "$id": "232",
+   "$id": "302",
    "Name": "ModelsOnly",
    "Doc": "Describe union of models",
    "Operations": [
     {
-     "$id": "233",
+     "$id": "303",
      "Name": "get",
      "ResourceName": "ModelsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "234",
+       "$id": "304",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "235",
+        "$id": "305",
         "kind": "constant",
         "valueType": {
-         "$id": "236",
+         "$id": "306",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2425,12 +2670,12 @@
      ],
      "Responses": [
       {
-       "$id": "237",
+       "$id": "307",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "113"
+        "$ref": "157"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2451,21 +2696,21 @@
      "Decorators": []
     },
     {
-     "$id": "238",
+     "$id": "308",
      "Name": "send",
      "ResourceName": "ModelsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "239",
+       "$id": "309",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "240",
+        "$id": "310",
         "kind": "constant",
         "valueType": {
-         "$id": "241",
+         "$id": "311",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2485,11 +2730,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "242",
+       "$id": "312",
        "Name": "sendRequest4",
        "NameInRequest": "sendRequest4",
        "Type": {
-        "$ref": "119"
+        "$ref": "167"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2504,7 +2749,7 @@
      ],
      "Responses": [
       {
-       "$id": "243",
+       "$id": "313",
        "StatusCodes": [
         204
        ],
@@ -2528,17 +2773,17 @@
     }
    ],
    "Protocol": {
-    "$id": "244"
+    "$id": "314"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "245",
+     "$id": "315",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "246",
+      "$id": "316",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2553,9 +2798,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "247",
+      "$id": "317",
       "Type": {
-       "$id": "248",
+       "$id": "318",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2567,25 +2812,25 @@
    "Decorators": []
   },
   {
-   "$id": "249",
+   "$id": "319",
    "Name": "EnumsOnly",
    "Doc": "Describe union of 2 different enums",
    "Operations": [
     {
-     "$id": "250",
+     "$id": "320",
      "Name": "get",
      "ResourceName": "EnumsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "251",
+       "$id": "321",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "252",
+        "$id": "322",
         "kind": "constant",
         "valueType": {
-         "$id": "253",
+         "$id": "323",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2607,12 +2852,12 @@
      ],
      "Responses": [
       {
-       "$id": "254",
+       "$id": "324",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "106"
+        "$ref": "142"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2633,21 +2878,21 @@
      "Decorators": []
     },
     {
-     "$id": "255",
+     "$id": "325",
      "Name": "send",
      "ResourceName": "EnumsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "256",
+       "$id": "326",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "257",
+        "$id": "327",
         "kind": "constant",
         "valueType": {
-         "$id": "258",
+         "$id": "328",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2667,11 +2912,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "259",
+       "$id": "329",
        "Name": "sendRequest3",
        "NameInRequest": "sendRequest3",
        "Type": {
-        "$ref": "111"
+        "$ref": "153"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2686,7 +2931,7 @@
      ],
      "Responses": [
       {
-       "$id": "260",
+       "$id": "330",
        "StatusCodes": [
         204
        ],
@@ -2710,17 +2955,17 @@
     }
    ],
    "Protocol": {
-    "$id": "261"
+    "$id": "331"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "262",
+     "$id": "332",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "263",
+      "$id": "333",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2735,9 +2980,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "264",
+      "$id": "334",
       "Type": {
-       "$id": "265",
+       "$id": "335",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2749,25 +2994,25 @@
    "Decorators": []
   },
   {
-   "$id": "266",
+   "$id": "336",
    "Name": "StringAndArray",
    "Doc": "Describe union of a string and an array of strings",
    "Operations": [
     {
-     "$id": "267",
+     "$id": "337",
      "Name": "get",
      "ResourceName": "StringAndArray",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "268",
+       "$id": "338",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "269",
+        "$id": "339",
         "kind": "constant",
         "valueType": {
-         "$id": "270",
+         "$id": "340",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2789,12 +3034,12 @@
      ],
      "Responses": [
       {
-       "$id": "271",
+       "$id": "341",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "91"
+        "$ref": "119"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2815,21 +3060,21 @@
      "Decorators": []
     },
     {
-     "$id": "272",
+     "$id": "342",
      "Name": "send",
      "ResourceName": "StringAndArray",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "273",
+       "$id": "343",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "274",
+        "$id": "344",
         "kind": "constant",
         "valueType": {
-         "$id": "275",
+         "$id": "345",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2849,11 +3094,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "276",
+       "$id": "346",
        "Name": "sendRequest2",
        "NameInRequest": "sendRequest2",
        "Type": {
-        "$ref": "104"
+        "$ref": "138"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -2868,7 +3113,7 @@
      ],
      "Responses": [
       {
-       "$id": "277",
+       "$id": "347",
        "StatusCodes": [
         204
        ],
@@ -2892,17 +3137,17 @@
     }
    ],
    "Protocol": {
-    "$id": "278"
+    "$id": "348"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "279",
+     "$id": "349",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "280",
+      "$id": "350",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2917,9 +3162,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "281",
+      "$id": "351",
       "Type": {
-       "$id": "282",
+       "$id": "352",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2931,25 +3176,25 @@
    "Decorators": []
   },
   {
-   "$id": "283",
+   "$id": "353",
    "Name": "MixedLiterals",
    "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {
-     "$id": "284",
+     "$id": "354",
      "Name": "get",
      "ResourceName": "MixedLiterals",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "285",
+       "$id": "355",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "286",
+        "$id": "356",
         "kind": "constant",
         "valueType": {
-         "$id": "287",
+         "$id": "357",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2971,12 +3216,12 @@
      ],
      "Responses": [
       {
-       "$id": "288",
+       "$id": "358",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "73"
+        "$ref": "89"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -2997,21 +3242,21 @@
      "Decorators": []
     },
     {
-     "$id": "289",
+     "$id": "359",
      "Name": "send",
      "ResourceName": "MixedLiterals",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "290",
+       "$id": "360",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "291",
+        "$id": "361",
         "kind": "constant",
         "valueType": {
-         "$id": "292",
+         "$id": "362",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3031,11 +3276,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "293",
+       "$id": "363",
        "Name": "sendRequest1",
        "NameInRequest": "sendRequest1",
        "Type": {
-        "$ref": "89"
+        "$ref": "115"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -3050,7 +3295,7 @@
      ],
      "Responses": [
       {
-       "$id": "294",
+       "$id": "364",
        "StatusCodes": [
         204
        ],
@@ -3074,17 +3319,17 @@
     }
    ],
    "Protocol": {
-    "$id": "295"
+    "$id": "365"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "296",
+     "$id": "366",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "297",
+      "$id": "367",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3099,9 +3344,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "298",
+      "$id": "368",
       "Type": {
-       "$id": "299",
+       "$id": "369",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3113,25 +3358,25 @@
    "Decorators": []
   },
   {
-   "$id": "300",
+   "$id": "370",
    "Name": "MixedTypes",
    "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {
-     "$id": "301",
+     "$id": "371",
      "Name": "get",
      "ResourceName": "MixedTypes",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "302",
+       "$id": "372",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "303",
+        "$id": "373",
         "kind": "constant",
         "valueType": {
-         "$id": "304",
+         "$id": "374",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3153,7 +3398,7 @@
      ],
      "Responses": [
       {
-       "$id": "305",
+       "$id": "375",
        "StatusCodes": [
         200
        ],
@@ -3179,21 +3424,21 @@
      "Decorators": []
     },
     {
-     "$id": "306",
+     "$id": "376",
      "Name": "send",
      "ResourceName": "MixedTypes",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "307",
+       "$id": "377",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "308",
+        "$id": "378",
         "kind": "constant",
         "valueType": {
-         "$id": "309",
+         "$id": "379",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3213,11 +3458,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "310",
+       "$id": "380",
        "Name": "sendRequest",
        "NameInRequest": "sendRequest",
        "Type": {
-        "$ref": "71"
+        "$ref": "85"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -3232,7 +3477,7 @@
      ],
      "Responses": [
       {
-       "$id": "311",
+       "$id": "381",
        "StatusCodes": [
         204
        ],
@@ -3256,17 +3501,17 @@
     }
    ],
    "Protocol": {
-    "$id": "312"
+    "$id": "382"
    },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "313",
+     "$id": "383",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "314",
+      "$id": "384",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3281,9 +3526,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "315",
+      "$id": "385",
       "Type": {
-       "$id": "316",
+       "$id": "386",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

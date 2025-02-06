@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 - [#5739](https://github.com/microsoft/typespec/pull/5739) Fix output folder of models when output folder is different with namespace in configuration
+- [#5862](https://github.com/microsoft/typespec/pull/5862) Fix crash when value of `--package-pprint-name` contains space
 - [#5764](https://github.com/microsoft/typespec/pull/5764) Fix bug in indentation for wrapping a property description that includes a long url
 - [#5853](https://github.com/microsoft/typespec/pull/5853) Improve logging by catching expected `ModuleNotFoundError`
 
