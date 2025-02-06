@@ -17,7 +17,7 @@ Using TypeSpec in Visual Studio Code with the extension enables efficient work. 
 
 - Auto-complete and intelliSense: Writing TypeSpec with auto-completion, code navigation, syntax highlighting
 - Live diagnostic reporting
-- Code formating and foldering
+- Code formatting and folding
 - Quick fixes
 - Refactorings
 
