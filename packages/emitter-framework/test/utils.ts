@@ -9,6 +9,5 @@ export async function getEmitOutput(tspCode: string, cb: (program: Program) => C
 
   const res = render(Output().children(SourceFile({ path: "test.ts" }).children(cb(program))));
   const testFile = res.contents.find((file) => file.path === "test.ts")!;
-
   return testFile.contents;
 }

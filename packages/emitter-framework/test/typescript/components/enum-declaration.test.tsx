@@ -68,15 +68,13 @@ describe("Typescript Enum Declaration", () => {
         </>
       );
     });
-    // FIXME: This output is correct which implies a bug in the emitter.
     expect(output).toBe(d`
       enum Foo {
         one = 1,
         two = 2,
         three = 3
       }
-      Foo;
-      Foo.one;
+      Foo;Foo.one;
     `);
   });
 
@@ -99,15 +97,13 @@ describe("Typescript Enum Declaration", () => {
       );
     });
 
-    // FIXME: This output is correct which implies a bug in the emitter.
     expect(output).toBe(d`
       enum Foo {
         one = 1,
         two = 2,
         three = 3
       }
-      Foo;
-      Foo.one;
+      Foo;Foo.one;
     `);
   });
 });
