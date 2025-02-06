@@ -22,8 +22,10 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ScopedApi<T> As<T>(this FieldProvider field) => ((ValueExpression)field).As<T>();
 
         public static ValueExpression NullConditional(this ParameterProvider parameter) => new NullConditionalExpression(parameter);
+        public static ValueExpression NullConditional(this FieldProvider field) => new NullConditionalExpression(field);
 
         public static ValueExpression NullCoalesce(this ParameterProvider parameter, ValueExpression value) => new BinaryOperatorExpression("??", parameter, value);
+        public static ValueExpression NullCoalesce(this FieldProvider field, ValueExpression value) => new BinaryOperatorExpression("??", field, value);
         public static ValueExpression PositionalReference(this ParameterProvider parameter, ValueExpression value)
             => new PositionalParameterReferenceExpression(parameter.Name, value);
 
