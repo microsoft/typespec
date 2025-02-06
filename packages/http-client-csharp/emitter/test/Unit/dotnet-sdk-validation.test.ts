@@ -12,7 +12,7 @@ describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
   const minVersion = 8;
-  
+
   vi.mock("../../src/lib/utils.js", () => ({
     execAsync: vi.fn(),
   }));
@@ -40,7 +40,7 @@ describe("Test _validateDotNetSdk", () => {
     /* mock the scenario that dotnet SDK is not installed, so execAsync will throw exception with error ENOENT */
     const error: any = new Error("ENOENT: no such file or directory");
     error.code = "ENOENT";
-    (execAsync as Mock).mockRejectedValueOnce(error);
+    (execAsync as Mock).mockRejectedValue(error);
     const logger = new Logger(program, LoggerLevel.INFO);
     const result = await _validateDotNetSdk(program, minVersion, logger);
     expect(result).toBe(false);
@@ -57,7 +57,7 @@ describe("Test _validateDotNetSdk", () => {
 
   it("should return true for installed SDK version whose major equals min supported version", async () => {
     /* mock the scenario that the installed SDK version whose major equals min supported version */
-    (execAsync as Mock).mockResolvedValueOnce({
+    (execAsync as Mock).mockResolvedValue({
       exitCode: 0,
       stdio: "",
       stdout: "8.0.204",
@@ -73,7 +73,7 @@ describe("Test _validateDotNetSdk", () => {
 
   it("should return true for installed SDK version whose major greaters than min supported version", async () => {
     /* mock the scenario that the installed SDK version whose major greater than min supported version */
-    (execAsync as Mock).mockImplementationOnce(
+    (execAsync as Mock).mockImplementation(
       (command: string, args: string[] = [], options: SpawnOptions = {}) => {
         return {
           exitCode: 0,
@@ -93,7 +93,7 @@ describe("Test _validateDotNetSdk", () => {
 
   it("should return false and report diagnostic for invalid .NET SDK version", async () => {
     /* mock the scenario that the installed SDK version whose major less than min supported version */
-    (execAsync as Mock).mockResolvedValueOnce({
+    (execAsync as Mock).mockResolvedValue({
       exitCode: 0,
       stdio: "",
       stdout: "5.0.408",

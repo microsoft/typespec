@@ -190,8 +190,10 @@ export async function _validateDotNetSdk(
 ): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
+    console.log(result.stdout);
     return validateDotNetSdkVersion(program, result.stdout, minMajorVersion, logger);
   } catch (error: any) {
+    console.log(error);
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
       reportDiagnostic(program, {
         code: "invalid-dotnet-sdk-dependency",
