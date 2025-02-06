@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
-                string? serializedName = specProperty?.SerializedName;
+                string? serializedName = specProperty?.SerializationOptions.Json?.Name;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
                 if (_serializedNameMap.TryGetValue(customProperty.Name, out var customSerializedName) ||
@@ -136,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     customField.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
-                string? serializedName = specProperty?.SerializedName;
+                string? serializedName = specProperty?.SerializationOptions.Json?.Name;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
                 if (_serializedNameMap.TryGetValue(customField.Name, out var customSerializedName) ||

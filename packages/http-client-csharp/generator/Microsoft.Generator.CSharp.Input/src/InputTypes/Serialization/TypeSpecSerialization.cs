@@ -41,6 +41,10 @@ namespace Microsoft.Generator.CSharp.Input
                     new TypeSpecInputDurationTypeConverter(referenceHandler),
                     new TypeSpecInputAuthConverter(referenceHandler),
                     new TypeSpecInputDecoratorInfoConverter(referenceHandler),
+                    new TypeSpecInputSerializationOptionsConverter(referenceHandler),
+                    new TypeSpecInputJsonSerializationOptionsConverter(referenceHandler),
+                    new TypeSpecInputXmlSerializationOptionsConverter(referenceHandler),
+                    new TypeSpecInputXmlNamespaceOptionsConverter(referenceHandler),
                 }
             };
 
