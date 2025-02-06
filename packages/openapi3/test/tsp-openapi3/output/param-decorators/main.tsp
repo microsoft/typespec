@@ -32,7 +32,7 @@ model Thing {
 
 @route("/thing/{name}") @put op Operations_putThing(
   ...Parameters.NameParameter,
-  @bodyRoot body: Thing,
+  @body body: Thing,
 ): Thing;
 
 namespace Parameters {
