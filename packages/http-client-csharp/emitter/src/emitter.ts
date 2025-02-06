@@ -92,10 +92,11 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       );
 
       //emit configuration.json
+      const namespace = options.namespace ?? root.Name;
       const configurations: Configuration = {
         "output-folder": ".",
-        namespace: options.namespace ?? root.Name, // this is temporarily here fore backward compatibility in autorest.csharp,
-        "library-name": options["library-name"] ?? root.Name,
+        namespace: namespace,
+        "library-name": options["library-name"] ?? namespace,
         "unreferenced-types-handling": options["unreferenced-types-handling"],
         "disable-xml-docs":
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
