@@ -2,7 +2,7 @@ import { Namespace } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
-import "../../src/typekit/index.js";
+import "../../src/experimental/typekit/index.js";
 import { createTypespecHttpClientLibraryTestRunner } from "../test-host.js";
 
 let runner: BasicTestRunner;

@@ -580,8 +580,6 @@ export async function compile(
         // assume this is an alloy component
         const tree = render(result);
         await writeOutputDirectory(tree, context.emitterOutputDir);
-      } else {
-        await emitter.emitFunction(context);
       }
     } catch (error: unknown) {
       throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
