@@ -1,9 +1,8 @@
 import { readdir, readFile } from "fs/promises";
-import { dirname, join } from "path";
+import { basename, dirname, join } from "path";
 import * as vscode from "vscode";
 import logger from "./log/logger.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
-import { createTempDir } from "./utils.js";
 
 export async function getMainTspFile(): Promise<string | undefined> {
   const files = await vscode.workspace.findFiles("**/main.tsp").then((uris) => {
@@ -28,10 +27,10 @@ export async function getMainTspFile(): Promise<string | undefined> {
   }
 }
 
-const openApi3TmpFolders = new Map<string, string>();
 const openApi3PreviewPanels = new Map<string, vscode.WebviewPanel>();
+const selectedOpenApi3OutputFile = new Map<string, string>();
 
-export function loadOpenApi3PreviewPanel(
+export async function loadOpenApi3PreviewPanel(
   mainTspFile: string,
   extensionUri: vscode.Uri,
   client: TspLanguageClient,
@@ -39,6 +38,64 @@ export function loadOpenApi3PreviewPanel(
   if (openApi3PreviewPanels.has(mainTspFile)) {
     openApi3PreviewPanels.get(mainTspFile)!.reveal();
   } else {
+    const getOpenApi3Output = async (uri?: vscode.Uri): Promise<string | undefined> => {
+      return await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: "Loading OpenAPI3 files...",
+        },
+        async (): Promise<string | undefined> => {
+          const srcFolder = dirname(mainTspFile);
+          const outputFolder = join(srcFolder, "tsp-output", "@typespec", "openapi3");
+          const result = await client.compileOpenApi3(mainTspFile, srcFolder);
+          if (result === undefined || result.exitCode !== 0) {
+            const errMsg = result?.stderr ?? "Failed to generate openAPI3 files.";
+            logger.error(errMsg);
+            vscode.window.showErrorMessage(errMsg);
+            return;
+          } else {
+            const outputs = await readdir(outputFolder);
+            if (outputs.length === 0) {
+              const errMsg = result?.stderr ?? "No openAPI3 file generated.";
+              logger.error(errMsg);
+              vscode.window.showErrorMessage(errMsg);
+              return;
+            } else if (outputs.length === 1) {
+              const first = outputs[0];
+              return parseOpenApi3File(join(outputFolder, first));
+            } else {
+              if (selectedOpenApi3OutputFile.has(mainTspFile)) {
+                return parseOpenApi3File(selectedOpenApi3OutputFile.get(mainTspFile)!);
+              }
+
+              const files = outputs.map<vscode.QuickPickItem & { path: string }>((file) => ({
+                label: basename(file),
+                path: file,
+              }));
+              const selected = await vscode.window.showQuickPick(files, {
+                title: "Select the OpenAPI3 file",
+              });
+              if (selected) {
+                const selectedFilePath = join(outputFolder, selected.path);
+                selectedOpenApi3OutputFile.set(mainTspFile, selectedFilePath);
+                return parseOpenApi3File(selectedFilePath);
+              } else {
+                const msg = "No OpenAPI3 file selected.";
+                logger.info(msg);
+                vscode.window.showInformationMessage(msg);
+                return;
+              }
+            }
+          }
+        },
+      );
+    };
+
+    const fileContent = await getOpenApi3Output();
+    if (fileContent === undefined) {
+      return;
+    }
+
     const panel = vscode.window.createWebviewPanel(
       "webview",
       `OpenAPI3 for ${mainTspFile}`,
@@ -49,70 +106,32 @@ export function loadOpenApi3PreviewPanel(
         localResourceRoots: [extensionUri],
       },
     );
+    openApi3PreviewPanels.set(mainTspFile, panel);
 
-    const loadHandler = async (uri?: vscode.Uri) => {
-      console.log("Load handler called: " + uri);
-      await vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: "Loading OpenAPI3 files...",
-        },
-        async () => {
-          const srcFolder = dirname(mainTspFile);
-          const outputFolder = join(srcFolder, "tsp-output","@typespec", "openapi3");
-          const result = await client.compileOpenApi3(mainTspFile, srcFolder);
-          if (result === undefined || result.exitCode !== 0) {
-            const errMsg = result?.stderr ?? "Failed to generate openAPI3 files.";
-            logger.error(errMsg);
-            vscode.window.showErrorMessage(errMsg);
-          } else {
-            const outputs = await readdir(outputFolder);
-            if (outputs.length === 0) {
-              const errMsg = result?.stderr ?? "No openAPI3 file generated.";
-              logger.error(errMsg);
-              vscode.window.showErrorMessage(errMsg);
-            } else {
-              const first = outputs[0];
-              try {
-                const fileContent = await readFile(join(outputFolder, first), "utf-8");
-                const content = JSON.parse(fileContent);
-                void panel.webview.postMessage({ command: "load", param: content });
-              } catch (e) {
-                const errMsg = `Failed to load OpenAPI3 file: ${first}`;
-                logger.error(`${errMsg}\nError: `, [e]);
-                vscode.window.showErrorMessage(errMsg);
-              }
-            }
-          }
-        },
-      );
-    };
+    const watch = vscode.workspace.createFileSystemWatcher("**/*.{tsp}");
+    const throttledChangeHandler = throttle(async ()=>{
+      const content = await getOpenApi3Output();
+      void panel.webview.postMessage({ command: "load", param: content });
+    }, 1000);
+    watch.onDidChange(throttledChangeHandler);
+    watch.onDidCreate(throttledChangeHandler);
+    watch.onDidDelete(throttledChangeHandler);
+
+    panel.onDidDispose(() => {
+      openApi3PreviewPanels.delete(mainTspFile);
+      selectedOpenApi3OutputFile.delete(mainTspFile);
+      watch.dispose();
+    });
 
     panel.webview.onDidReceiveMessage(async (message) => {
       switch (message.event) {
         case "initialized":
-          await loadHandler();
+          void panel.webview.postMessage({ command: "load", param: fileContent });
           break;
         default:
           logger.error(`Unknown WebView event received: ${message}`);
           break;
       }
-    });
-
-    const watch = vscode.workspace.createFileSystemWatcher("**/*.{tsp}");
-    const debouncedLoadHandler = throttle(loadHandler, 1000);
-    // const debouncedLoadHandler = loadHandler;
-    // watch.onDidChange(debounce(() => { vscode.window.showErrorMessage("aaa"); }, 500));
-    // watch.onDidChange(async () => { await debouncedLoadHandler();});
-    // watch.onDidChange(async (e) => { await debouncedLoadHandler(e);});
-    watch.onDidChange(debouncedLoadHandler);
-    watch.onDidCreate(debouncedLoadHandler);
-    watch.onDidDelete(debouncedLoadHandler);
-
-    openApi3PreviewPanels.set(mainTspFile, panel);
-    panel.onDidDispose(() => {
-      openApi3PreviewPanels.delete(mainTspFile);
-      watch.dispose();
     });
 
     loadHtml(extensionUri, panel);
@@ -171,7 +190,7 @@ function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: number): 
 /**
  * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
  * is useful when your event handler will trigger the same event multiple times in a short period.
- * 
+ *
  * @param fn Underlying function to be throttled
  * @param blockInMs Block time in milliseconds
  * @returns a throttled function
@@ -187,9 +206,12 @@ function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: number): 
   } as T;
 }
 
-function debounceAsync<T extends (...args: any[]) => Promise<any>>(func: T, wait: number): (...args: Parameters<T>) => Promise<ReturnType<T>> {
+function debounceAsync<T extends (...args: any[]) => Promise<any>>(
+  func: T,
+  wait: number,
+): (...args: Parameters<T>) => Promise<ReturnType<T>> {
   let timeout: NodeJS.Timeout | undefined;
-  return function(this: any, ...args: Parameters<T>): Promise<ReturnType<T>> {
+  return function (this: any, ...args: Parameters<T>): Promise<ReturnType<T>> {
     return new Promise((resolve, reject) => {
       if (timeout) {
         console.log(`Clearing timeout: ${timeout}`);
@@ -209,4 +231,17 @@ function debounceAsync<T extends (...args: any[]) => Promise<any>>(func: T, wait
       console.log(`Timeout set: ${timeout});`);
     });
   };
+}
+
+async function parseOpenApi3File(filePath: string): Promise<string | undefined> {
+  try {
+    const fileContent = await readFile(filePath, "utf-8");
+    const content = JSON.parse(fileContent);
+    return content;
+  } catch (e) {
+    const errMsg = `Failed to load OpenAPI3 file: ${filePath}`;
+    logger.error(`${errMsg}\nError: `, [e]);
+    vscode.window.showErrorMessage(errMsg);
+    return;
+  }
 }
