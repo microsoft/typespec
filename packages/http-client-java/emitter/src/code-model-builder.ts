@@ -135,6 +135,7 @@ import {
   getAccess,
   getDurationFormat,
   getNonNullSdkType,
+  getPropertySerializedName,
   getUnionDescription,
   getUsage,
   modelIs,
@@ -589,7 +590,7 @@ export class CodeModelBuilder {
     // client initialization
     let baseUri = "{endpoint}";
     let hostParameters: Parameter[] = [];
-    client.initialization.properties.forEach((initializationProperty) => {
+    client.clientInitialization.parameters.forEach((initializationProperty) => {
       if (initializationProperty.kind === "endpoint") {
         let sdkPathParameters: SdkPathParameter[] = [];
         if (initializationProperty.type.kind === "union") {
@@ -1664,7 +1665,10 @@ export class CodeModelBuilder {
     schema: ObjectSchema,
     originalParameter: Parameter,
   ) {
-    const serializedName = opParameter.serializedName;
+    const serializedName =
+      opParameter.kind === "property"
+        ? getPropertySerializedName(opParameter)
+        : opParameter.serializedName;
     let existParameter: Parameter | undefined;
     if (opParameter.kind !== "property") {
       // not body property
@@ -2326,15 +2330,6 @@ export class CodeModelBuilder {
     } else {
       schema = this.processSchema(nonNullType, "");
     }
-
-    const getPropertySerializedName = (property: SdkBodyModelPropertyType) => {
-      // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
-      return (
-        property.serializationOptions.json?.name ??
-        property.serializationOptions.multipart?.name ??
-        property.serializedName
-      );
-    };
 
     return new Property(prop.name, prop.doc ?? "", schema, {
       summary: prop.summary,

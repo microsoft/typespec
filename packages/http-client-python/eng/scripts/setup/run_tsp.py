@@ -26,7 +26,7 @@ if __name__ == "__main__":
     if "--debug" in sys.argv or "--debug=true" in sys.argv:
         try:
             import debugpy  # pylint: disable=import-outside-toplevel
-        except ImportError:
+        except (ImportError, ModuleNotFoundError):
             raise SystemExit("Please pip install ptvsd in order to use VSCode debugging")
 
         # 5678 is the default attach port in the VS Code debug configurations
