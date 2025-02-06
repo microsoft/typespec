@@ -3430,8 +3430,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseErrorInNextFinishedNode = true;
       treePrintable = false;
 
-      const code = "triple-quote-indent";
-      if (diagnostic.target !== NoTarget && diagnostic.code === code) {
+      const tripleQuoteWarningCode: string[] = [
+        "triple-quote-indent",
+        "no-new-line-end-triple-quote",
+        "no-new-line-start-triple-quote",
+      ];
+      if (diagnostic.target !== NoTarget && tripleQuoteWarningCode.includes(diagnostic.code)) {
         mutate(diagnostic).codefixes ??= [];
         mutate(diagnostic.codefixes).push(createTripleQuoteIndentCodeFix(diagnostic.target));
       }

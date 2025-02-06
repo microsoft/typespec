@@ -1101,8 +1101,6 @@ export function createScanner(
         end--;
       }
       end--;
-    } else {
-      error({ code: "no-new-line-end-triple-quote" });
     }
 
     return [indentationStart, indentationEnd];
