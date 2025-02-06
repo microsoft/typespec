@@ -14,7 +14,7 @@ namespace Versioning.Removed.V2Preview
 
         public enum ServiceVersion
         {
-            /// <summary> The original version v1. </summary>
+            /// <summary> The version v1. </summary>
             V1 = 1,
             /// <summary> The V2 Preview version. </summary>
             V2preview = 2

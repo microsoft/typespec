@@ -2,34 +2,25 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using System.Text.Json;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
-using Microsoft.Generator.CSharp.ClientModel.Snippets;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
-using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.ClientModel
 {
     public class ScmTypeFactory : TypeFactory
     {
-        private Dictionary<InputClient, ClientProvider>? _clientCache;
-        private Dictionary<InputClient, ClientProvider> ClientCache => _clientCache ??= [];
+        private Dictionary<InputClient, ClientProvider?>? _clientCache;
+        private Dictionary<InputClient, ClientProvider?> ClientCache => _clientCache ??= [];
 
         public virtual CSharpType MatchConditionsType => typeof(PipelineMessageClassifier);
-
-        public virtual CSharpType KeyCredentialType => typeof(ApiKeyCredential);
-
-        public virtual CSharpType TokenCredentialType => throw new NotImplementedException("Token credential is not supported in Scm libraries yet");
 
         public virtual IClientResponseApi ClientResponseApi => ClientResultProvider.Instance;
 
@@ -90,7 +81,7 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return [new ExtensibleEnumSerializationProvider(inputEnumType, typeProvider)];
         }
 
-        public ClientProvider CreateClient(InputClient inputClient)
+        public ClientProvider? CreateClient(InputClient inputClient)
         {
             if (ClientCache.TryGetValue(inputClient, out var client))
             {
@@ -98,11 +89,20 @@ namespace Microsoft.Generator.CSharp.ClientModel
             }
 
             client = CreateClientCore(inputClient);
+
+            foreach (var visitor in ClientModelPlugin.Instance.Visitors)
+            {
+                if (visitor is ScmLibraryVisitor scmVisitor)
+                {
+                    client = scmVisitor.Visit(inputClient, client);
+                }
+            }
+
             ClientCache[inputClient] = client;
             return client;
         }
 
-        protected virtual ClientProvider CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
+        protected virtual ClientProvider? CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
 
         /// <summary>
         /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input operation <paramref name="operation"/>.
@@ -127,16 +127,15 @@ namespace Microsoft.Generator.CSharp.ClientModel
             return methods;
         }
 
-        public virtual ValueExpression GetValueTypeDeserializationExpression(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
-            => MrwSerializationTypeDefinition.GetValueTypeDeserializationExpressionCore(valueType, element, format);
+        public virtual ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, format);
 
-        public virtual MethodBodyStatement SerializeValueType(
-            CSharpType type,
-            SerializationFormat serializationFormat,
-            ValueExpression value,
+        public virtual MethodBodyStatement SerializeJsonValue(
             Type valueType,
+            ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
-            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter)
-            => MrwSerializationTypeDefinition.SerializeValueTypeCore(type, serializationFormat, value, valueType, utf8JsonWriter, mrwOptionsParameter);
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat serializationFormat)
+            => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
     }
 }

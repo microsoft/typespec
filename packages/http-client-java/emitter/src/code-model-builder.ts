@@ -68,23 +68,21 @@ import {
   SdkUnionType,
   createSdkContext,
   getAllModels,
-  getWireName,
   isApiVersion,
   isSdkBuiltInKind,
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
-  Model,
-  ModelProperty,
+  Interface,
   Namespace,
+  NoTarget,
   Operation,
   Program,
   Type,
   TypeNameOptions,
   Union,
   getDoc,
-  getEffectiveModelType,
   getNamespaceFullName,
   getOverloadedOperation,
   getSummary,
@@ -99,23 +97,12 @@ import {
   HttpStatusCodesEntry,
   Visibility,
   getAuthentication,
-  getHeaderFieldName,
-  getPathParamName,
-  getQueryParamName,
-  isCookieParam,
-  isHeader,
-  isPathParam,
-  isQueryParam,
 } from "@typespec/http";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
 import pkg from "lodash";
-import {
-  Client as CodeModelClient,
-  CrossLanguageDefinition,
-  EncodedSchema,
-} from "./common/client.js";
+import { Client as CodeModelClient, EncodedSchema } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -124,8 +111,8 @@ import { ConstantSchema, ConstantValue } from "./common/schemas/constant.js";
 import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
-import { EmitterOptions } from "./emitter.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
+import { EmitterOptions, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
   CONTENT_TYPE_KEY,
@@ -135,7 +122,6 @@ import {
   getServiceVersion,
   isKnownContentType,
   isLroNewPollingStrategy,
-  isPayloadProperty,
   operationIsJsonMergePatch,
   operationIsMultipart,
   operationIsMultipleContentTypes,
@@ -145,16 +131,16 @@ import {
   getAccess,
   getDurationFormat,
   getNonNullSdkType,
+  getPropertySerializedName,
   getUnionDescription,
   getUsage,
-  isStable,
   modelIs,
   pushDistinct,
 } from "./type-utils.js";
 import {
+  DiagnosticError,
   getNamespace,
-  logError,
-  logWarning,
+  isStableApiVersion,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
@@ -176,8 +162,6 @@ export class CodeModelBuilder {
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
 
-  private loggingEnabled: boolean = false;
-
   readonly schemaCache = new ProcessingCache((type: SdkType, name: string) =>
     this.processSchemaImpl(type, name),
   );
@@ -190,9 +174,6 @@ export class CodeModelBuilder {
     this.options = context.options;
     this.program = program1;
     this.emitterContext = context;
-    if (this.options["dev-options"]?.loglevel) {
-      this.loggingEnabled = true;
-    }
 
     if (this.options["skip-special-headers"]) {
       this.options["skip-special-headers"].forEach((it) =>
@@ -202,11 +183,14 @@ export class CodeModelBuilder {
 
     const service = listServices(this.program)[0];
     if (!service) {
-      this.logError("TypeSpec for HTTP must define a service.");
+      reportDiagnostic(this.program, {
+        code: "no-service",
+        target: NoTarget,
+      });
     }
-    this.serviceNamespace = service.type;
+    this.serviceNamespace = service?.type ?? this.program.getGlobalNamespaceType();
 
-    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Azure.Client";
+    this.namespace = getNamespaceFullName(this.serviceNamespace) || "Client";
 
     const namespace1 = this.namespace;
     this.typeNameOptions = {
@@ -238,6 +222,10 @@ export class CodeModelBuilder {
   }
 
   public async build(): Promise<CodeModel> {
+    if (this.program.hasError()) {
+      return this.codeModel;
+    }
+
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
@@ -257,15 +245,14 @@ export class CodeModelBuilder {
 
     this.codeModel.language.java!.namespace = this.baseJavaNamespace;
 
-    // TODO: reportDiagnostics from TCGC temporary disabled
-    // issue https://github.com/Azure/typespec-azure/issues/1675
-    // this.program.reportDiagnostics(this.sdkContext.diagnostics);
+    // potential problem https://github.com/Azure/typespec-azure/issues/1675
+    this.program.reportDiagnostics(this.sdkContext.diagnostics);
 
     // auth
     // TODO: it is not very likely, but different client could have different auth
     const auth = getAuthentication(this.program, this.serviceNamespace);
     if (auth) {
-      this.processAuth(auth);
+      this.processAuth(auth, this.serviceNamespace);
     }
 
     if (this.sdkContext.arm) {
@@ -321,20 +308,35 @@ export class CodeModelBuilder {
     return hostParameters;
   }
 
-  private processAuth(auth: Authentication) {
+  private processAuth(auth: Authentication, serviceNamespace: Namespace | Interface | Operation) {
     const securitySchemes: SecurityScheme[] = [];
     for (const option of auth.options) {
       for (const scheme of option.schemes) {
         switch (scheme.type) {
           case "oauth2":
             {
-              const oauth2Scheme = new OAuth2SecurityScheme({
-                scopes: [],
-              });
-              scheme.flows.forEach((it) =>
-                oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
-              );
-              securitySchemes.push(oauth2Scheme);
+              if (this.isBranded()) {
+                const oauth2Scheme = new OAuth2SecurityScheme({
+                  scopes: [],
+                });
+                scheme.flows.forEach((it) =>
+                  oauth2Scheme.scopes.push(...it.scopes.map((it) => it.value)),
+                );
+                securitySchemes.push(oauth2Scheme);
+              } else {
+                // there is no TokenCredential in clientcore, hence use Bearer Authentication directly
+                reportDiagnostic(this.program, {
+                  code: "auth-scheme-not-supported",
+                  messageId: "oauth2Unbranded",
+                  target: serviceNamespace,
+                });
+
+                const keyScheme = new KeySecurityScheme({
+                  name: "authorization",
+                });
+                (keyScheme as any).prefix = "Bearer";
+                securitySchemes.push(keyScheme);
+              }
             }
             break;
 
@@ -346,9 +348,11 @@ export class CodeModelBuilder {
                 });
                 securitySchemes.push(keyScheme);
               } else {
-                this.logWarning(
-                  `ApiKey auth is currently only supported for ApiKeyLocation.header.`,
-                );
+                reportDiagnostic(this.program, {
+                  code: "auth-scheme-not-supported",
+                  messageId: "apiKeyLocation",
+                  target: serviceNamespace,
+                });
               }
             }
             break;
@@ -362,9 +366,12 @@ export class CodeModelBuilder {
 
                 if (this.isBranded()) {
                   // Azure would not allow BasicAuth or BearerAuth
-                  this.logWarning(
-                    `HTTP auth with ${scheme.scheme} scheme is not supported for Azure.`,
-                  );
+                  reportDiagnostic(this.program, {
+                    code: "auth-scheme-not-supported",
+                    messageId: "basicAuthBranded",
+                    format: { scheme: scheme.scheme },
+                    target: serviceNamespace,
+                  });
                   continue;
                 }
               }
@@ -546,7 +553,7 @@ export class CodeModelBuilder {
       // at present, use global security definition
       security: this.codeModel.security,
     });
-    codeModelClient.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
+    codeModelClient.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
 
     // versioning
     const versions = client.apiVersions;
@@ -556,7 +563,11 @@ export class CodeModelBuilder {
       } else {
         this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
         if (!this.apiVersion) {
-          this.logError("Unrecognized api-version: " + this.sdkContext.apiVersion);
+          reportDiagnostic(this.program, {
+            code: "invalid-api-version",
+            format: { apiVersion: this.sdkContext.apiVersion },
+            target: NoTarget,
+          });
         }
       }
 
@@ -575,7 +586,7 @@ export class CodeModelBuilder {
     // client initialization
     let baseUri = "{endpoint}";
     let hostParameters: Parameter[] = [];
-    client.initialization.properties.forEach((initializationProperty) => {
+    client.clientInitialization.parameters.forEach((initializationProperty) => {
       if (initializationProperty.kind === "endpoint") {
         let sdkPathParameters: SdkPathParameter[] = [];
         if (initializationProperty.type.kind === "union") {
@@ -588,7 +599,10 @@ export class CodeModelBuilder {
               }
             }
           } else if (initializationProperty.type.variantTypes.length > 2) {
-            this.logError("Multiple server url defined for one client is not supported yet.");
+            reportDiagnostic(this.program, {
+              code: "multiple-server-not-supported",
+              target: initializationProperty.type.__raw ?? NoTarget,
+            });
           }
         } else if (initializationProperty.type.kind === "endpoint") {
           sdkPathParameters = initializationProperty.type.templateArguments;
@@ -613,6 +627,7 @@ export class CodeModelBuilder {
     // operations without operation group
     const serviceMethodsWithoutSubClient = this.listServiceMethodsUnderClient(client);
     let codeModelGroup = new OperationGroup("");
+    codeModelGroup.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
     for (const serviceMethod of serviceMethodsWithoutSubClient) {
       if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
         codeModelGroup.addOperation(this.processOperation(serviceMethod, clientContext, ""));
@@ -636,6 +651,8 @@ export class CodeModelBuilder {
         // operation group with no operation is skipped
         if (serviceMethods.length > 0) {
           codeModelGroup = new OperationGroup(subClient.name);
+          codeModelGroup.language.default.crossLanguageDefinitionId =
+            subClient.crossLanguageDefinitionId;
           for (const serviceMethod of serviceMethods) {
             if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
               codeModelGroup.addOperation(
@@ -743,7 +760,10 @@ export class CodeModelBuilder {
     }
     return versions
       .slice(0, versions.indexOf(pinnedApiVersion) + 1)
-      .filter((version) => !excludePreview || !isStable(pinnedApiVersion) || isStable(version));
+      .filter(
+        (version) =>
+          !excludePreview || !isStableApiVersion(pinnedApiVersion) || isStableApiVersion(version),
+      );
   }
 
   private needToSkipProcessingOperation(
@@ -814,44 +834,59 @@ export class CodeModelBuilder {
       },
     });
 
-    (codeModelOperation as CrossLanguageDefinition).crossLanguageDefinitionId =
-      sdkMethod.crossLanguageDefintionId;
+    codeModelOperation.language.default.crossLanguageDefinitionId =
+      sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
 
-    let apiComment: string | undefined = undefined;
+    let diagnostic = undefined;
     if (generateConvenienceApi) {
       // check if the convenience API need to be disabled for some special cases
       if (operationIsMultipart(httpOperation)) {
         // do not generate protocol method for multipart/form-data, as it be very hard for user to prepare the request body as BinaryData
         generateProtocolApi = false;
-        apiComment = `Protocol API requires serialization of parts with content-disposition and data, as operation '${operationName}' is 'multipart/form-data'`;
-        this.logWarning(apiComment);
+        diagnostic = createDiagnostic({
+          code: "protocol-api-not-generated",
+          messageId: "multipartFormData",
+          format: { operationName: operationName },
+          target: sdkMethod.__raw ?? NoTarget,
+        });
+        this.program.reportDiagnostic(diagnostic);
       } else if (operationIsMultipleContentTypes(httpOperation)) {
         // and multiple content types
         // issue link: https://github.com/Azure/autorest.java/issues/1958#issuecomment-1562558219
         generateConvenienceApi = false;
-        apiComment = `Convenience API is not generated, as operation '${operationName}' is multiple content-type`;
-        this.logWarning(apiComment);
+        diagnostic = createDiagnostic({
+          code: "convenience-api-not-generated",
+          messageId: "multipleContentType",
+          format: { operationName: operationName },
+          target: sdkMethod.__raw ?? NoTarget,
+        });
+        this.program.reportDiagnostic(diagnostic);
       } else if (
         operationIsJsonMergePatch(httpOperation) &&
         this.options["stream-style-serialization"] === false
       ) {
         // do not generate convenient method for json merge patch operation if stream-style-serialization is not enabled
         generateConvenienceApi = false;
-        apiComment = `Convenience API is not generated, as operation '${operationName}' is 'application/merge-patch+json' and stream-style-serialization is not enabled`;
-        this.logWarning(apiComment);
+        diagnostic = createDiagnostic({
+          code: "convenience-api-not-generated",
+          messageId: "jsonMergePatch",
+          format: { operationName: operationName },
+          target: sdkMethod.__raw ?? NoTarget,
+        });
+        this.program.reportDiagnostic(diagnostic);
       }
     }
     if (generateConvenienceApi && convenienceApiName) {
       codeModelOperation.convenienceApi = new ConvenienceApi(convenienceApiName);
     }
-    if (apiComment) {
+    if (diagnostic) {
       codeModelOperation.language.java = new Language();
-      codeModelOperation.language.java.comment = apiComment;
+      codeModelOperation.language.java.comment = diagnostic.message;
     }
 
     // check for generating protocol api or not
@@ -873,8 +908,7 @@ export class CodeModelBuilder {
     clientContext.hostParameters.forEach((it) => codeModelOperation.addParameter(it));
     // path/query/header parameters
     for (const param of httpOperation.parameters) {
-      // TODO, switch to TCGC param.kind=="cookie"
-      if (param.__raw && isCookieParam(this.program, param.__raw)) {
+      if (param.kind === "cookie") {
         // ignore cookie parameter
         continue;
       }
@@ -958,29 +992,49 @@ export class CodeModelBuilder {
     responses: SdkHttpResponse[],
     sdkMethod: SdkMethod<SdkHttpOperation>,
   ) {
-    if (!this.isBranded()) {
-      // TODO: currently unbranded does not support paged operation
-      return;
-    }
-
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
       for (const response of responses) {
         const bodyType = response.type;
         if (bodyType && bodyType.kind === "model") {
-          const itemName = sdkMethod.response.resultPath;
-          const nextLinkName = sdkMethod.nextLinkPath;
+          const itemClientName = sdkMethod.response.resultPath;
+          const nextLinkClientName = sdkMethod.nextLinkPath;
 
-          op.extensions = op.extensions ?? {};
-          op.extensions["x-ms-pageable"] = {
-            itemName: itemName,
-            nextLinkName: nextLinkName,
-          };
+          let itemSerializedName: string | undefined = undefined;
+          let nextLinkSerializedName: string | undefined = undefined;
 
           op.responses?.forEach((r) => {
             if (r instanceof SchemaResponse) {
               this.trackSchemaUsage(r.schema, { usage: [SchemaContext.Paged] });
+
+              // find serializedName for items and nextLink
+              if (r.schema instanceof ObjectSchema) {
+                r.schema.properties?.forEach((p) => {
+                  if (
+                    itemClientName &&
+                    !itemSerializedName &&
+                    p.serializedName &&
+                    p.language.default.name === itemClientName
+                  ) {
+                    itemSerializedName = p.serializedName;
+                  }
+                  if (
+                    nextLinkClientName &&
+                    !nextLinkSerializedName &&
+                    p.serializedName &&
+                    p.language.default.name === nextLinkClientName
+                  ) {
+                    nextLinkSerializedName = p.serializedName;
+                  }
+                });
+              }
             }
           });
+
+          op.extensions = op.extensions ?? {};
+          op.extensions["x-ms-pageable"] = {
+            itemName: itemSerializedName,
+            nextLinkName: nextLinkSerializedName,
+          };
           break;
         }
       }
@@ -1046,8 +1100,22 @@ export class CodeModelBuilder {
           lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
           lroMetadata.finalResponse.resultPath
         ) {
-          // final result is the value in lroMetadata.finalStep.target
-          finalResultPropertySerializedName = lroMetadata.finalResponse.resultPath;
+          const finalResultPropertyClientName = lroMetadata.finalResponse.resultPath;
+
+          // find serializedName for lro result
+          if (finalResultPropertyClientName) {
+            lroMetadata.finalResponse.envelopeResult.properties?.forEach((p) => {
+              // TODO: "p.__raw?.name" should be "p.name", after TCGC fix https://github.com/Azure/typespec-azure/issues/2072
+              if (
+                !finalResultPropertySerializedName &&
+                p.kind === "property" &&
+                p.serializationOptions.json?.name &&
+                p.__raw?.name === finalResultPropertyClientName
+              ) {
+                finalResultPropertySerializedName = p.serializationOptions.json?.name;
+              }
+            });
+          }
         }
       }
 
@@ -1206,19 +1274,18 @@ export class CodeModelBuilder {
 
             default:
               if (format) {
-                this.logWarning(`Unrecognized header parameter format: '${format}'.`);
+                reportDiagnostic(this.program, {
+                  code: "header-parameter-format-not-supported",
+                  format: { format: format },
+                  target: param.__raw ?? NoTarget,
+                });
               }
               break;
           }
         }
       }
 
-      // TODO: use param.onClient after TCGC fix
-      const parameterOnClient =
-        !isApiVersion(this.sdkContext, param) &&
-        param.correspondingMethodParams &&
-        param.correspondingMethodParams.length > 0 &&
-        param.correspondingMethodParams[0].onClient;
+      const parameterOnClient = param.onClient;
 
       const nullable = param.type.kind === "nullable";
       const parameter = new Parameter(param.name, param.doc ?? "", schema, {
@@ -1594,7 +1661,10 @@ export class CodeModelBuilder {
     schema: ObjectSchema,
     originalParameter: Parameter,
   ) {
-    const serializedName = opParameter.serializedName;
+    const serializedName =
+      opParameter.kind === "property"
+        ? getPropertySerializedName(opParameter)
+        : opParameter.serializedName;
     let existParameter: Parameter | undefined;
     if (opParameter.kind !== "property") {
       // not body property
@@ -1647,11 +1717,6 @@ export class CodeModelBuilder {
         );
       }
     }
-  }
-
-  private findResponseBody(bodyType: Type): Type {
-    // find a type that possibly without http metadata like @statusCode
-    return this.getEffectiveSchemaType(bodyType);
   }
 
   private processResponse(
@@ -1838,9 +1903,12 @@ export class CodeModelBuilder {
           }
       }
     }
-    const errorMsg = `Unrecognized type: '${type.kind}'.`;
-    this.logError(errorMsg);
-    throw new Error(errorMsg);
+    const diagnostic = createDiagnostic({
+      code: "unrecognized-type",
+      format: { typeKind: type.kind },
+      target: type.__raw ?? NoTarget,
+    });
+    throw new DiagnosticError(diagnostic);
   }
 
   private processBuiltInType(type: SdkBuiltInType, nameHint: string): Schema {
@@ -2014,7 +2082,7 @@ export class CodeModelBuilder {
         },
       },
     });
-    schema.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+    schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
   }
 
@@ -2114,8 +2182,7 @@ export class CodeModelBuilder {
         },
       },
     });
-    (objectSchema as CrossLanguageDefinition).crossLanguageDefinitionId =
-      type.crossLanguageDefinitionId;
+    objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     this.codeModel.schemas.add(objectSchema);
 
     // cache this now before we accidentally recurse on this type.
@@ -2191,24 +2258,6 @@ export class CodeModelBuilder {
     return objectSchema;
   }
 
-  private getEffectiveSchemaType(type: Type): Type {
-    const program = this.program;
-    function isSchemaProperty(property: ModelProperty) {
-      return isPayloadProperty(program, property);
-    }
-
-    if (type.kind === "Model") {
-      const effective = getEffectiveModelType(program, type, isSchemaProperty);
-      if (this.isArm() && getNamespace(effective as Model)?.startsWith("Azure.ResourceManager")) {
-        // e.g. typespec: Catalog is TrackedResource<CatalogProperties>
-        return type;
-      } else if (effective.name) {
-        return effective;
-      }
-    }
-    return type;
-  }
-
   private processModelProperty(prop: SdkModelPropertyType): Property {
     let nullable = false;
     let nonNullType = prop.type;
@@ -2235,9 +2284,9 @@ export class CodeModelBuilder {
       extensions["x-ms-mutability"] = mutability;
     }
 
-    if (prop.kind === "property" && prop.multipartOptions) {
+    if (prop.kind === "property" && prop.serializationOptions.multipart) {
       // TODO: handle MultipartOptions.isMulti
-      if (prop.multipartOptions.isFilePart) {
+      if (prop.serializationOptions.multipart?.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchema(prop);
       } else if (
         prop.type.kind === "model" &&
@@ -2260,19 +2309,24 @@ export class CodeModelBuilder {
       required: !prop.optional,
       nullable: nullable,
       readOnly: this.isReadOnly(prop),
-      serializedName: prop.kind === "property" ? prop.serializedName : undefined,
+      serializedName: prop.kind === "property" ? getPropertySerializedName(prop) : undefined,
       extensions: extensions,
     });
   }
 
   private processUnionSchema(type: SdkUnionType, name: string): Schema {
     if (!(type.__raw && type.__raw.kind === "Union")) {
-      this.logError(`Invalid type for union: '${type.kind}'.`);
+      reportDiagnostic(this.program, {
+        code: "unrecognized-type",
+        messageId: "unionType",
+        format: { typeKind: type.kind },
+        target: type.__raw ?? NoTarget,
+      });
     }
     const rawUnionType: Union = type.__raw as Union;
     const namespace = getNamespace(rawUnionType);
     const baseName = type.name ?? pascalCase(name) + "Model";
-    this.logWarning(
+    this.trace(
       `Convert TypeSpec Union '${getUnionDescription(rawUnionType, this.typeNameOptions)}' to Class '${baseName}'`,
     );
     const unionSchema = new OrSchema(baseName + "Base", type.doc ?? "", {
@@ -2320,7 +2374,7 @@ export class CodeModelBuilder {
 
   private getUnionVariantName(type: Type | undefined, option: any): string {
     if (type === undefined) {
-      this.logError("type is undefined.");
+      this.trace("Union variant type is undefined.");
       return "UnionVariant";
     }
     switch (type.kind) {
@@ -2373,7 +2427,7 @@ export class CodeModelBuilder {
       case "UnionVariant":
         return (typeof type.name === "string" ? type.name : undefined) ?? "UnionVariant";
       default:
-        this.logError(`Unrecognized type for union variable: '${type.kind}'.`);
+        this.trace(`Unrecognized type for union variable: '${type.kind}'.`);
         return "UnionVariant";
     }
   }
@@ -2421,9 +2475,13 @@ export class CodeModelBuilder {
         },
       );
     } else {
-      const errorMsg = `Invalid type for multipart form data: '${property.type.kind}'.`;
-      this.logError(errorMsg);
-      throw new Error(errorMsg);
+      const diagnostic = createDiagnostic({
+        code: "unrecognized-type",
+        messageId: "multipartFormData",
+        format: { typeKind: property.type.kind },
+        target: property.type.__raw ?? NoTarget,
+      });
+      throw new DiagnosticError(diagnostic);
     }
   }
 
@@ -2433,19 +2491,6 @@ export class CodeModelBuilder {
 
   private getSummary(target: Type | undefined): string | undefined {
     return target ? getSummary(this.program, target) : undefined;
-  }
-
-  private getSerializedName(target: ModelProperty): string {
-    if (isHeader(this.program, target)) {
-      return getHeaderFieldName(this.program, target);
-    } else if (isQueryParam(this.program, target)) {
-      return getQueryParamName(this.program, target);
-    } else if (isPathParam(this.program, target)) {
-      return getPathParamName(this.program, target);
-    } else {
-      // TODO: currently this is only for JSON
-      return getWireName(this.sdkContext, target);
-    }
   }
 
   private isReadOnly(target: SdkModelPropertyType): boolean {
@@ -2537,25 +2582,37 @@ export class CodeModelBuilder {
     // clientNamespace from TCGC
     const clientNamespace: string | undefined = type?.clientNamespace;
 
-    if (this.isBranded() && type) {
-      // special handling for namespace of model that cannot be mapped to azure-core
-      if (type.crossLanguageDefinitionId === "TypeSpec.Http.File") {
-        // TypeSpec.Http.File
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
-        // Azure.Core.OperationState
-        return this.baseJavaNamespace;
-      } else if (
-        type.crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
-        type.crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
-      ) {
-        // Azure.Core.ResourceOperationStatus<>
-        // Azure.Core.Foundations.OperationStatus<>
-        // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
-        return this.baseJavaNamespace;
-      } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
-        // models in Azure.ResourceManager
-        return this.baseJavaNamespace;
+    if (type) {
+      const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+      if (this.isBranded()) {
+        // special handling for namespace of model that cannot be mapped to azure-core
+        if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (crossLanguageDefinitionId === "Azure.Core.Foundations.OperationState") {
+          // Azure.Core.OperationState
+          return this.baseJavaNamespace;
+        } else if (
+          crossLanguageDefinitionId === "Azure.Core.ResourceOperationStatus" ||
+          crossLanguageDefinitionId === "Azure.Core.Foundations.OperationStatus"
+        ) {
+          // Azure.Core.ResourceOperationStatus<>
+          // Azure.Core.Foundations.OperationStatus<>
+          // usually this model will not be generated, but javadoc of protocol method requires it be in SDK namespace
+          return this.baseJavaNamespace;
+        } else if (type.crossLanguageDefinitionId.startsWith("Azure.ResourceManager.")) {
+          // models in Azure.ResourceManager
+          return this.baseJavaNamespace;
+        }
+      } else {
+        // special handling for namespace of model in TypeSpec
+        if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
+          // TypeSpec.Http.File
+          return this.baseJavaNamespace;
+        } else if (crossLanguageDefinitionId.startsWith("TypeSpec.Rest.Resource.")) {
+          // models in TypeSpec.Rest.Resource
+          return this.baseJavaNamespace;
+        }
       }
     }
 
@@ -2563,16 +2620,6 @@ export class CodeModelBuilder {
       return this.baseJavaNamespace;
     } else {
       return clientNamespace.toLowerCase();
-    }
-  }
-
-  private logError(msg: string) {
-    logError(this.program, msg);
-  }
-
-  private logWarning(msg: string) {
-    if (this.loggingEnabled) {
-      logWarning(this.program, msg);
     }
   }
 

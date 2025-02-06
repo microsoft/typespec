@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.VisualStudio
                 $"TypeSpec server executable was not found: '{fileName}' is not found. Make sure either:",
                 " - TypeSpec is installed locally at the root of this workspace or in a parent directory.",
                 " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
-                " - TypeSpec server path is configured with https://github.com/microsoft/typespec/blob/main/packages/typespec-vs/README.md#configure-typespec-visual-studio-extension."
+                " - TypeSpec server path is configured with https://typespec.io/docs/introduction/editor/vs/#configure."
             }), innerException)
         {
         }

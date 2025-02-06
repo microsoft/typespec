@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
@@ -25,26 +25,47 @@ namespace Microsoft.Generator.CSharp.Input
 
         private static InputModelProperty ReadInputModelProperty(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
+            if (id == null)
+            {
+                reader.TryReadReferenceId(ref id);
+            }
+
+            id = id ?? throw new JsonException();
+
+            // create an empty model property to resolve circular references
+            var property = new InputModelProperty(
+                name: null!,
+                summary: null,
+                doc: null,
+                type: null!,
+                isRequired: false,
+                isReadOnly: false,
+                isDiscriminator: false,
+                serializationOptions: null!);
+            resolver.AddReference(id, property);
+
             var isFirstProperty = true;
-            string? serializedName = null;
-            string? description = null;
+            string? summary = null;
+            string? doc = null;
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputSerializationOptions? serializationOptions = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
-                    || reader.TryReadString("serializedName", ref serializedName)
-                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadString("summary", ref summary)
+                    || reader.TryReadString("doc", ref doc)
                     || reader.TryReadWithConverter("type", options, ref propertyType)
                     || reader.TryReadBoolean("readOnly", ref isReadOnly)
                     || reader.TryReadBoolean("optional", ref isOptional)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
-                    || reader.TryReadWithConverter("decorators", options, ref decorators);
+                    || reader.TryReadWithConverter("decorators", options, ref decorators)
+                    || reader.TryReadWithConverter("serializationOptions", options, ref serializationOptions);
 
                 if (!isKnownProperty)
                 {
@@ -52,16 +73,15 @@ namespace Microsoft.Generator.CSharp.Input
                 }
             }
 
-            name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
-            // TO-DO: Implement as part of autorest output classes migration https://github.com/Azure/autorest.csharp/issues/4198
-            // description = BuilderHelpers.EscapeXmlDocDescription(description);
-            propertyType = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
-
-            var property = new InputModelProperty(name, serializedName ?? name, description, propertyType, !isOptional, isReadOnly, isDiscriminator) { Decorators = decorators ?? [] };
-            if (id != null)
-            {
-                resolver.AddReference(id, property);
-            }
+            property.Name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
+            property.Summary = summary;
+            property.Doc = doc;
+            property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
+            property.IsRequired = !isOptional;
+            property.IsReadOnly = isReadOnly;
+            property.IsDiscriminator = isDiscriminator;
+            property.Decorators = decorators ?? [];
+            property.SerializationOptions = serializationOptions ?? throw new JsonException($"{nameof(InputModelProperty)} must have serialization options.");
 
             return property;
         }

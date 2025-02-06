@@ -3,6 +3,7 @@
 
 import { compilerAssert } from "../diagnostics.js";
 import type { Program } from "../program.js";
+import { isProjectedProgram } from "../projected-program.js";
 import type { Enum, EnumMember } from "../types.js";
 
 /**
@@ -30,9 +31,22 @@ export function getLifecycleVisibilityEnum(program: Program): Enum {
 
   compilerAssert(type!.kind === "Enum", "Expected `TypeSpec.Visibility.Lifecycle` to be an enum");
 
-  LIFECYCLE_ENUM_CACHE.set(program, type);
+  if (isProjectedProgram(program)) {
+    const projectedType = program.projector.projectType(type);
 
-  return type;
+    compilerAssert(
+      projectedType.entityKind === "Type" && projectedType.kind === "Enum",
+      "Expected `TypeSpec.Visibility.Lifecycle` to be an Enum (projected)",
+    );
+
+    LIFECYCLE_ENUM_CACHE.set(program, projectedType);
+
+    return projectedType;
+  } else {
+    LIFECYCLE_ENUM_CACHE.set(program, type);
+
+    return type;
+  }
 }
 
 /**
@@ -54,6 +68,10 @@ export function normalizeLegacyLifecycleVisibilityString(
       return lifecycle.members.get("Read")!;
     case "update":
       return lifecycle.members.get("Update")!;
+    case "delete":
+      return lifecycle.members.get("Delete")!;
+    case "query":
+      return lifecycle.members.get("Query")!;
     default:
       return undefined;
   }
@@ -83,6 +101,10 @@ export function normalizeVisibilityToLegacyLifecycleString(
       return "read";
     case "Update":
       return "update";
+    case "Delete":
+      return "delete";
+    case "Query":
+      return "query";
     default:
       return undefined;
   }

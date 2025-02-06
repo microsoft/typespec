@@ -13,7 +13,7 @@ using Microsoft.Generator.CSharp.Statements;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    public sealed class NamedTypeSymbolProvider : TypeProvider
+    internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private INamedTypeSymbol _namedTypeSymbol;
 
@@ -28,11 +28,12 @@ namespace Microsoft.Generator.CSharp.Providers
 
         protected override string BuildName() => _namedTypeSymbol.Name;
 
-        protected override string GetNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
+        protected override string BuildNamespace() => _namedTypeSymbol.ContainingNamespace.GetFullyQualifiedNameFromDisplayString();
 
-        public IEnumerable<AttributeData> GetAttributes() => _namedTypeSymbol.GetAttributes();
+        protected override IReadOnlyList<AttributeStatement> BuildAttributes()
+            => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var declaredModifiers = GetAccessModifiers(_namedTypeSymbol.DeclaredAccessibility);
             if (_namedTypeSymbol.IsReadOnly)

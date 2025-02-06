@@ -30,9 +30,7 @@ namespace ServerDrivenPagination {
         { "id": "1", "name": "dog" },
         { "id": "2", "name": "cat" }
       ],
-      "links": {
-        "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
-      }
+      "next": "http://[host]:[port]/payload/pageable/server-driven-pagination/link/nextPage"
     }
     ```
     2. Next page request:
@@ -47,15 +45,11 @@ namespace ServerDrivenPagination {
     ```
     """)
   @route("/link")
+  @list
   op link(): {
     @pageItems
     pets: Pet[];
 
-    links: {
-      @nextLink next?: url;
-      @prevLink prev?: url;
-      @firstLink first?: url;
-      @lastLink last?: url;
-    };
+    @nextLink next?: url;
   };
 }

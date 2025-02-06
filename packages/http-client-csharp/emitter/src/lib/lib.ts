@@ -37,10 +37,47 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
+    "invalid-dotnet-sdk-dependency": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Invalid .NET SDK installed.`,
+        missing: paramMessage`The dotnet command was not found in the PATH. Please install the .NET SDK version ${"dotnetMajorVersion"} or above. Guidance for installing the .NET SDK can be found at ${"downloadUrl"}.`,
+        invalidVersion: paramMessage`The .NET SDK found is version ${"installedVersion"}. Please install the .NET SDK ${"dotnetMajorVersion"} or above and ensure there is no global.json in the file system requesting a lower version. Guidance for installing the .NET SDK can be found at ${"downloadUrl"}.`,
+      },
+    },
+    "no-root-client": {
+      severity: "error",
+      messages: {
+        default:
+          "Cannot generate CSharp SDK since no public root client is defined in typespec file.",
+      },
+    },
+    "unsupported-auth": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`${"message"}`,
+      },
+    },
   },
   emitter: {
     options: NetEmitterOptionsSchema,
   },
 });
 
-export const { reportDiagnostic, createDiagnostic, getTracer } = $lib;
+/**
+ * Reports a diagnostic. Defined in the core compiler.
+ * @beta
+ */
+export const reportDiagnostic = $lib.reportDiagnostic;
+
+/**
+ * Creates a diagnostic. Defined in the core compiler.
+ * @beta
+ */
+export const createDiagnostic = $lib.createDiagnostic;
+
+/**
+ * Gets a tracer. Defined in the core compiler.
+ * @beta
+ */
+export const getTracer = $lib.getTracer;

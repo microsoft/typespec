@@ -3,7 +3,7 @@
 {{ imports }}
 
 {% for test_name in test_names %}
-{% set extra_async = ", is_async=True" if test_name.is_async else ""%}
+{% set extra_async = ", is_async=True" if test_name.async_mode else ""%}
 {% set prefix_lower = test_name.prefix|lower %}
 class {{ test_name.base_test_class_name }}(AzureRecordedTestCase):
 
@@ -15,7 +15,7 @@ class {{ test_name.base_test_class_name }}(AzureRecordedTestCase):
             endpoint=endpoint,
         )
 
-{% if not test_name.is_async %}
+{% if not test_name.async_mode %}
 {{ test_name.preparer_name }} = functools.partial(
     PowerShellPreparer,
     "{{ prefix_lower }}",

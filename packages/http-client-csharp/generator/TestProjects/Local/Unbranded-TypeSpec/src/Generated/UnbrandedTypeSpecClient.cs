@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UnbrandedTypeSpec.Models;
+using UnbrandedTypeSpec.Models.Custom;
 
 namespace UnbrandedTypeSpec
 {
@@ -17,9 +18,9 @@ namespace UnbrandedTypeSpec
     public partial class UnbrandedTypeSpecClient
     {
         private readonly Uri _endpoint;
-        private const string AuthorizationHeader = "my-api-key";
         /// <summary> A credential used to authenticate to the service. </summary>
         private readonly ApiKeyCredential _keyCredential;
+        private const string AuthorizationHeader = "my-api-key";
         private readonly string _apiVersion;
 
         /// <summary> Initializes a new instance of UnbrandedTypeSpecClient for mocking. </summary>
@@ -867,13 +868,13 @@ namespace UnbrandedTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<ProjectedModel> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
+        public virtual ClientResult<ProjectedModelCustom> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedModel spreadModel = new ProjectedModel(name, null);
+            ProjectedModelCustom spreadModel = new ProjectedModelCustom(name, null);
             ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
+            return ClientResult.FromValue((ProjectedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -881,13 +882,13 @@ namespace UnbrandedTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<ProjectedModel>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<ProjectedModelCustom>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(name, nameof(name));
 
-            ProjectedModel spreadModel = new ProjectedModel(name, null);
+            ProjectedModelCustom spreadModel = new ProjectedModelCustom(name, null);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((ProjectedModel)result, result.GetRawResponse());
+            return ClientResult.FromValue((ProjectedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary>

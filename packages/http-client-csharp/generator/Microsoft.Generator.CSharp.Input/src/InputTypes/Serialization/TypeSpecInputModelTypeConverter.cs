@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Input
         public override void Write(Utf8JsonWriter writer, InputModelType value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static InputModelType CreateModelType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputModelType CreateModelType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)
             {
@@ -38,7 +38,8 @@ namespace Microsoft.Generator.CSharp.Input
                 crossLanguageDefinitionId: null!,
                 access: null,
                 deprecation: null,
-                description: null,
+                summary: null,
+                doc: null,
                 usage: InputModelTypeUsage.None,
                 properties: [],
                 baseModel: null,
@@ -47,13 +48,15 @@ namespace Microsoft.Generator.CSharp.Input
                 discriminatorProperty: null,
                 discriminatedSubtypes: null!,
                 additionalProperties: null,
-                modelAsStruct: false);
+                modelAsStruct: false,
+                serializationOptions: null!);
             resolver.AddReference(id, model);
 
             string? crossLanguageDefinitionId = null;
             string? accessibility = null;
             string? deprecation = null;
-            string? description = null;
+            string? summary = null;
+            string? doc = null;
             string? usageString = null;
             InputModelProperty? discriminatorProperty = null;
             string? discriminatorValue = null;
@@ -63,6 +66,7 @@ namespace Microsoft.Generator.CSharp.Input
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
             bool modelAsStruct = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputSerializationOptions? serializationOptions = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -71,7 +75,8 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadString("access", ref accessibility)
                     || reader.TryReadString("deprecation", ref deprecation)
-                    || reader.TryReadString("description", ref description)
+                    || reader.TryReadString("summary", ref doc)
+                    || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("usage", ref usageString)
                     || reader.TryReadWithConverter("discriminatorProperty", options, ref discriminatorProperty)
                     || reader.TryReadString("discriminatorValue", ref discriminatorValue)
@@ -80,6 +85,7 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadWithConverter("properties", options, ref properties)
                     || reader.TryReadWithConverter("discriminatedSubtypes", options, ref discriminatedSubtypes)
                     || reader.TryReadWithConverter("decorators", options, ref decorators)
+                    || reader.TryReadWithConverter("serializationOptions", options, ref serializationOptions)
                     || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
 
                 if (!isKnownProperty)
@@ -92,7 +98,8 @@ namespace Microsoft.Generator.CSharp.Input
             model.CrossLanguageDefinitionId = crossLanguageDefinitionId ?? string.Empty;
             model.Access = accessibility;
             model.Deprecation = deprecation;
-            model.Description = description;
+            model.Summary = summary;
+            model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
             // TO-DO: Manually add JSON usage flag for now until support for parsing this is added to the TSP https://github.com/microsoft/typespec/issues/3392
             parsedUsage |= InputModelTypeUsage.Json;
@@ -101,6 +108,7 @@ namespace Microsoft.Generator.CSharp.Input
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;
             model.BaseModel = baseModel;
+            model.SerializationOptions = serializationOptions ?? new();
             if (properties != null)
             {
                 model.Properties = properties;

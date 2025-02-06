@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import { tokens } from "@fluentui/react-components";
 import {
   Checkmark20Filled,
   ErrorCircle20Filled,
@@ -8,7 +9,7 @@ import {
 } from "@fluentui/react-icons";
 import { ScenarioStatus } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent } from "react";
-import { Colors, ScenarioStatusColors } from "../constants.js";
+import { ScenarioStatusColors } from "../constants.js";
 
 export interface ScenarioStatusBoxProps {
   readonly status: ScenarioStatus | undefined;
@@ -37,7 +38,7 @@ export const ScenarioStatusBox: FunctionComponent<ScenarioStatusBoxProps> = ({ s
 const ScenarioStatusBoxStyles = css({
   height: "100%",
   width: "100%",
-  color: Colors.bgSubtle,
+  color: tokens.colorNeutralForegroundOnBrand,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",

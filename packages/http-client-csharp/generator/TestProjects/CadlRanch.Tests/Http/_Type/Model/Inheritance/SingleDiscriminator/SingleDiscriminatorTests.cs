@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.SingleDiscriminator;
 using _Type.Model.Inheritance.SingleDiscriminator.Models;
@@ -51,7 +51,15 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.SingleDiscri
         [CadlRanchTest]
         public Task PutRecursiveModel() => Test(async (host) =>
         {
-            var body = new Eagle("eagle", 5, null, new[] { new SeaGull(2) }, new Dictionary<string, Bird> { { "key3", new Sparrow(1) } }, new Goose(2));
+            var body = new Eagle(5)
+            {
+                Friends = { new SeaGull(2) },
+                Hate =
+                {
+                    ["key3"] = new Sparrow(1)
+                },
+                Partner = new Goose(2)
+            };
             var response = await new SingleDiscriminatorClient(host, null).PutRecursiveModelAsync(body);
             Assert.AreEqual(204, response.GetRawResponse().Status);
         });
@@ -61,9 +69,13 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.SingleDiscri
         {
             var result = await new SingleDiscriminatorClient(host, null).GetMissingDiscriminatorAsync();
             Assert.IsTrue(result.Value is Bird);
-            Assert.IsTrue(result.Value is UnknownBird);
+
+            var unknownBirdType = typeof(Bird).Assembly.GetType("_Type.Model.Inheritance.SingleDiscriminator.Models.UnknownBird");
+            Assert.AreEqual(unknownBirdType, result.Value.GetType());
             Assert.AreEqual(1, result.Value.Wingspan);
-            Assert.AreEqual("unknown", result.Value.Kind);
+
+            var kindProperty = result.Value.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual("unknown", kindProperty?.GetValue(result.Value));
         });
 
         [CadlRanchTest]
@@ -71,9 +83,13 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.SingleDiscri
         {
             var result = await new SingleDiscriminatorClient(host, null).GetWrongDiscriminatorAsync();
             Assert.IsTrue(result.Value is Bird);
-            Assert.IsTrue(result.Value is UnknownBird);
+
+            var unknownBirdType = typeof(Bird).Assembly.GetType("_Type.Model.Inheritance.SingleDiscriminator.Models.UnknownBird");
+            Assert.AreEqual(unknownBirdType, result.Value.GetType());
             Assert.AreEqual(1, result.Value.Wingspan);
-            Assert.AreEqual("wrongKind", result.Value.Kind);
+
+            var kindProperty = result.Value.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual("wrongKind", kindProperty?.GetValue(result.Value));
         });
 
         [CadlRanchTest]

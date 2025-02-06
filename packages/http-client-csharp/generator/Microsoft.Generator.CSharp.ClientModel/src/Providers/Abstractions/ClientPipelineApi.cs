@@ -14,6 +14,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
         public abstract CSharpType ClientPipelineType { get; }
         public abstract CSharpType ClientPipelineOptionsType { get; }
         public abstract CSharpType PipelinePolicyType { get; }
+        public abstract CSharpType? KeyCredentialType { get; }
+        public abstract CSharpType? TokenCredentialType { get; }
 
         protected ClientPipelineApi(Type type, ValueExpression original) : base(type, original)
         {
@@ -26,7 +28,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         public abstract ValueExpression Create(ValueExpression options, ValueExpression perRetryPolicies);
 
-        public abstract ValueExpression AuthorizationPolicy(params ValueExpression[] arguments);
+        public abstract ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null);
+        public abstract ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes);
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }

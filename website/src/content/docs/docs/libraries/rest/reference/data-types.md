@@ -18,9 +18,6 @@ scalar TypeSpec.Rest.ResourceLocation
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
 
-This only provides the model structure and not actual pagination support. See
-https://github.com/microsoft/typespec/issues/705 for general paging support.
-
 ```typespec
 model TypeSpec.Rest.Resource.CollectionWithNextLink<Resource>
 ```
