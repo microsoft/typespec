@@ -29,13 +29,13 @@ model Pet {
 }
 
 @route("/any") @post op putAny(
-  @bodyRoot body: {
+  @body body: {
     pet: Dog | Cat;
   },
 ): NoContentResponse;
 
 @route("/one") @post op putOne(
-  @bodyRoot body: {
+  @body body: {
     @oneOf
     pet: Dog | Cat;
   },

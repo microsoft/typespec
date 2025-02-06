@@ -83,7 +83,11 @@ function generateRequestBodyParameters(
   ).join(" | ");
 
   if (body) {
-    definitions.push(`@bodyRoot body: ${body}`);
+    let doc = "";
+    if (requestBodies[0].doc) {
+      doc = generateDocs(requestBodies[0].doc);
+    }
+    definitions.push(`${doc}@body body: ${body}`);
   }
 
   return definitions;
