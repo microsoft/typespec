@@ -27,7 +27,7 @@ Using TypeSpec in Visual Studio Code with the extension enables efficient work. 
 
 > **Note:**
 > - To emit dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
-> - To emit Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/)
+> - To emit Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/) and [Maven](https://maven.apache.org/download.cgi).
 
 - Emitting OpenAPI from TypeSpec
 - Emitting server stubs and client codes for different languages: Dotnet, Python, Java, JavaScript/TypeScript
@@ -38,7 +38,7 @@ Using TypeSpec in Visual Studio Code with the extension enables efficient work. 
 
 > **Note:**
 > - To compile and test dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
-> - To compile and test Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/)
+> - To compile and test Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/) and [Maven](https://maven.apache.org/download.cgi)
 > - To execute Python SDKs, ensure to install [Python](https://www.python.org/downloads/)
 
 If you have selected client emitted, you can use the following commands to compile the client project in the client sdk folder.
