@@ -75,8 +75,6 @@ import {
 import {
   EmitContext,
   Interface,
-  Model,
-  ModelProperty,
   Namespace,
   NoTarget,
   Operation,
@@ -85,7 +83,6 @@ import {
   TypeNameOptions,
   Union,
   getDoc,
-  getEffectiveModelType,
   getNamespaceFullName,
   getOverloadedOperation,
   getSummary,
@@ -100,7 +97,6 @@ import {
   HttpStatusCodesEntry,
   Visibility,
   getAuthentication,
-  isCookieParam,
 } from "@typespec/http";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
@@ -126,7 +122,6 @@ import {
   getServiceVersion,
   isKnownContentType,
   isLroNewPollingStrategy,
-  isPayloadProperty,
   operationIsJsonMergePatch,
   operationIsMultipart,
   operationIsMultipleContentTypes,
@@ -136,15 +131,16 @@ import {
   getAccess,
   getDurationFormat,
   getNonNullSdkType,
+  getPropertySerializedName,
   getUnionDescription,
   getUsage,
-  isStable,
   modelIs,
   pushDistinct,
 } from "./type-utils.js";
 import {
   DiagnosticError,
   getNamespace,
+  isStableApiVersion,
   pascalCase,
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
@@ -590,7 +586,7 @@ export class CodeModelBuilder {
     // client initialization
     let baseUri = "{endpoint}";
     let hostParameters: Parameter[] = [];
-    client.initialization.properties.forEach((initializationProperty) => {
+    client.clientInitialization.parameters.forEach((initializationProperty) => {
       if (initializationProperty.kind === "endpoint") {
         let sdkPathParameters: SdkPathParameter[] = [];
         if (initializationProperty.type.kind === "union") {
@@ -764,7 +760,10 @@ export class CodeModelBuilder {
     }
     return versions
       .slice(0, versions.indexOf(pinnedApiVersion) + 1)
-      .filter((version) => !excludePreview || !isStable(pinnedApiVersion) || isStable(version));
+      .filter(
+        (version) =>
+          !excludePreview || !isStableApiVersion(pinnedApiVersion) || isStableApiVersion(version),
+      );
   }
 
   private needToSkipProcessingOperation(
@@ -909,8 +908,7 @@ export class CodeModelBuilder {
     clientContext.hostParameters.forEach((it) => codeModelOperation.addParameter(it));
     // path/query/header parameters
     for (const param of httpOperation.parameters) {
-      // TODO, switch to TCGC param.kind=="cookie"
-      if (param.__raw && isCookieParam(this.program, param.__raw)) {
+      if (param.kind === "cookie") {
         // ignore cookie parameter
         continue;
       }
@@ -1287,12 +1285,7 @@ export class CodeModelBuilder {
         }
       }
 
-      // TODO: use param.onClient after TCGC fix
-      const parameterOnClient =
-        !isApiVersion(this.sdkContext, param) &&
-        param.correspondingMethodParams &&
-        param.correspondingMethodParams.length > 0 &&
-        param.correspondingMethodParams[0].onClient;
+      const parameterOnClient = param.onClient;
 
       const nullable = param.type.kind === "nullable";
       const parameter = new Parameter(param.name, param.doc ?? "", schema, {
@@ -1668,7 +1661,10 @@ export class CodeModelBuilder {
     schema: ObjectSchema,
     originalParameter: Parameter,
   ) {
-    const serializedName = opParameter.serializedName;
+    const serializedName =
+      opParameter.kind === "property"
+        ? getPropertySerializedName(opParameter)
+        : opParameter.serializedName;
     let existParameter: Parameter | undefined;
     if (opParameter.kind !== "property") {
       // not body property
@@ -1721,11 +1717,6 @@ export class CodeModelBuilder {
         );
       }
     }
-  }
-
-  private findResponseBody(bodyType: Type): Type {
-    // find a type that possibly without http metadata like @statusCode
-    return this.getEffectiveSchemaType(bodyType);
   }
 
   private processResponse(
@@ -2267,24 +2258,6 @@ export class CodeModelBuilder {
     return objectSchema;
   }
 
-  private getEffectiveSchemaType(type: Type): Type {
-    const program = this.program;
-    function isSchemaProperty(property: ModelProperty) {
-      return isPayloadProperty(program, property);
-    }
-
-    if (type.kind === "Model") {
-      const effective = getEffectiveModelType(program, type, isSchemaProperty);
-      if (this.isArm() && getNamespace(effective as Model)?.startsWith("Azure.ResourceManager")) {
-        // e.g. typespec: Catalog is TrackedResource<CatalogProperties>
-        return type;
-      } else if (effective.name) {
-        return effective;
-      }
-    }
-    return type;
-  }
-
   private processModelProperty(prop: SdkModelPropertyType): Property {
     let nullable = false;
     let nonNullType = prop.type;
@@ -2311,9 +2284,9 @@ export class CodeModelBuilder {
       extensions["x-ms-mutability"] = mutability;
     }
 
-    if (prop.kind === "property" && prop.multipartOptions) {
+    if (prop.kind === "property" && prop.serializationOptions.multipart) {
       // TODO: handle MultipartOptions.isMulti
-      if (prop.multipartOptions.isFilePart) {
+      if (prop.serializationOptions.multipart?.isFilePart) {
         schema = this.processMultipartFormDataFilePropertySchema(prop);
       } else if (
         prop.type.kind === "model" &&
@@ -2330,15 +2303,6 @@ export class CodeModelBuilder {
     } else {
       schema = this.processSchema(nonNullType, "");
     }
-
-    const getPropertySerializedName = (property: SdkBodyModelPropertyType) => {
-      // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
-      return (
-        property.serializationOptions.json?.name ??
-        property.serializationOptions.multipart?.name ??
-        property.serializedName
-      );
-    };
 
     return new Property(prop.name, prop.doc ?? "", schema, {
       summary: prop.summary,

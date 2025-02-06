@@ -241,6 +241,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
+                parameter.IsParams,
                 parameter.Attributes,
                 parameter.Property,
                 parameter.Field,
