@@ -258,6 +258,11 @@ function transformJSONProperties(this: any, key: string, value: any): any {
     }
   }
 
+  // skip __raw if there is one
+  if (key === "__raw") {
+    return undefined;
+  }
+
   return value;
 }
 

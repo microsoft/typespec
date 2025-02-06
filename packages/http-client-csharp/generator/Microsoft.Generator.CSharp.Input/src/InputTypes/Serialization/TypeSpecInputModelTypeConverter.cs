@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.Input
         public override void Write(Utf8JsonWriter writer, InputModelType value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static InputModelType CreateModelType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
+        internal static InputModelType CreateModelType(ref Utf8JsonReader reader, string? id, string? name, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             if (id == null)
             {
@@ -49,7 +49,8 @@ namespace Microsoft.Generator.CSharp.Input
                 discriminatorProperty: null,
                 discriminatedSubtypes: null!,
                 additionalProperties: null,
-                modelAsStruct: false);
+                modelAsStruct: false,
+                serializationOptions: null!);
             resolver.AddReference(id, model);
 
             string? @namespace = null;
@@ -67,6 +68,7 @@ namespace Microsoft.Generator.CSharp.Input
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
             bool modelAsStruct = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputSerializationOptions? serializationOptions = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)
@@ -86,6 +88,7 @@ namespace Microsoft.Generator.CSharp.Input
                     || reader.TryReadWithConverter("properties", options, ref properties)
                     || reader.TryReadWithConverter("discriminatedSubtypes", options, ref discriminatedSubtypes)
                     || reader.TryReadWithConverter("decorators", options, ref decorators)
+                    || reader.TryReadWithConverter("serializationOptions", options, ref serializationOptions)
                     || reader.TryReadBoolean(nameof(InputModelType.ModelAsStruct), ref modelAsStruct); // TODO -- change this to fetch from the decorator list instead when the decorator is ready
 
                 if (!isKnownProperty)
@@ -109,6 +112,7 @@ namespace Microsoft.Generator.CSharp.Input
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;
             model.BaseModel = baseModel;
+            model.SerializationOptions = serializationOptions ?? new();
             if (properties != null)
             {
                 model.Properties = properties;

@@ -30,12 +30,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Parameters.Basic.ImplicitBody.simple.name"
+     "crossLanguageDefinitionId": "Parameters.Basic.ImplicitBody.simple.name",
+     "serializationOptions": {
+      "$id": "5",
+      "json": {
+       "$id": "6",
+       "name": "name"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "5",
+   "$id": "7",
    "kind": "model",
    "name": "User",
    "clientNamespace": "Parameters.Basic.ExplicitBody",
@@ -45,12 +52,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "6",
+     "$id": "8",
      "kind": "property",
      "name": "name",
      "serializedName": "name",
      "type": {
-      "$id": "7",
+      "$id": "9",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -61,29 +68,36 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Parameters.Basic.ExplicitBody.User.name"
+     "crossLanguageDefinitionId": "Parameters.Basic.ExplicitBody.User.name",
+     "serializationOptions": {
+      "$id": "10",
+      "json": {
+       "$id": "11",
+       "name": "name"
+      }
+     }
     }
    ]
   }
  ],
  "Clients": [
   {
-   "$id": "8",
+   "$id": "12",
    "Name": "BasicClient",
    "ClientNamespace": "Parameters.Basic",
    "Doc": "Test for basic parameters cases.",
    "Operations": [],
    "Protocol": {
-    "$id": "9"
+    "$id": "13"
    },
    "Parameters": [
     {
-     "$id": "10",
+     "$id": "14",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "11",
+      "$id": "15",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -98,9 +112,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "12",
+      "$id": "16",
       "Type": {
-       "$id": "13",
+       "$id": "17",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -112,26 +126,26 @@
    "Decorators": []
   },
   {
-   "$id": "14",
+   "$id": "18",
    "Name": "ExplicitBody",
    "ClientNamespace": "Parameters.Basic.ExplicitBody",
    "Operations": [
     {
-     "$id": "15",
+     "$id": "19",
      "Name": "simple",
      "ResourceName": "ExplicitBody",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "16",
+       "$id": "20",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "17",
+        "$id": "21",
         "kind": "constant",
         "valueType": {
-         "$id": "18",
+         "$id": "22",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -151,11 +165,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "19",
+       "$id": "23",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
-        "$ref": "5"
+        "$ref": "7"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -170,7 +184,7 @@
      ],
      "Responses": [
       {
-       "$id": "20",
+       "$id": "24",
        "StatusCodes": [
         204
        ],
@@ -194,17 +208,17 @@
     }
    ],
    "Protocol": {
-    "$id": "21"
+    "$id": "25"
    },
    "Parent": "BasicClient",
    "Parameters": [
     {
-     "$id": "22",
+     "$id": "26",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "23",
+      "$id": "27",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -219,9 +233,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "24",
+      "$id": "28",
       "Type": {
-       "$id": "25",
+       "$id": "29",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -233,26 +247,26 @@
    "Decorators": []
   },
   {
-   "$id": "26",
+   "$id": "30",
    "Name": "ImplicitBody",
    "ClientNamespace": "Parameters.Basic.ImplicitBody",
    "Operations": [
     {
-     "$id": "27",
+     "$id": "31",
      "Name": "simple",
      "ResourceName": "ImplicitBody",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "28",
+       "$id": "32",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "29",
+        "$id": "33",
         "kind": "constant",
         "valueType": {
-         "$id": "30",
+         "$id": "34",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -272,7 +286,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "31",
+       "$id": "35",
        "Name": "simpleRequest",
        "NameInRequest": "simpleRequest",
        "Type": {
@@ -291,7 +305,7 @@
      ],
      "Responses": [
       {
-       "$id": "32",
+       "$id": "36",
        "StatusCodes": [
         204
        ],
@@ -315,17 +329,17 @@
     }
    ],
    "Protocol": {
-    "$id": "33"
+    "$id": "37"
    },
    "Parent": "BasicClient",
    "Parameters": [
     {
-     "$id": "34",
+     "$id": "38",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "35",
+      "$id": "39",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -340,9 +354,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "36",
+      "$id": "40",
       "Type": {
-       "$id": "37",
+       "$id": "41",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

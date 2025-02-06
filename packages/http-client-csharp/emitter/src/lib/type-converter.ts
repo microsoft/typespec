@@ -203,6 +203,7 @@ export function fromSdkModelType(
       flatten: property.flatten,
       decorators: property.decorators,
       crossLanguageDefinitionId: property.crossLanguageDefinitionId,
+      serializationOptions: property.serializationOptions,
     };
 
     return modelProperty;

@@ -109,10 +109,17 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldModel.oldProp"
+     "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldModel.oldProp",
+     "serializationOptions": {
+      "$id": "13",
+      "json": {
+       "$id": "14",
+       "name": "oldProp"
+      }
+     }
     },
     {
-     "$id": "13",
+     "$id": "15",
      "kind": "property",
      "name": "enumProp",
      "serializedName": "enumProp",
@@ -124,32 +131,39 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldModel.enumProp"
+     "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldModel.enumProp",
+     "serializationOptions": {
+      "$id": "16",
+      "json": {
+       "$id": "17",
+       "name": "enumProp"
+      }
+     }
     },
     {
-     "$id": "14",
+     "$id": "18",
      "kind": "property",
      "name": "unionProp",
      "serializedName": "unionProp",
      "type": {
-      "$id": "15",
+      "$id": "19",
       "kind": "union",
       "name": "OldUnion",
       "variantTypes": [
        {
-        "$id": "16",
+        "$id": "20",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
        },
        {
-        "$id": "17",
+        "$id": "21",
         "kind": "int32",
         "name": "OldScalar",
         "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldScalar",
         "baseType": {
-         "$id": "18",
+         "$id": "22",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -166,30 +180,37 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldModel.unionProp"
+     "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldModel.unionProp",
+     "serializationOptions": {
+      "$id": "23",
+      "json": {
+       "$id": "24",
+       "name": "unionProp"
+      }
+     }
     }
    ]
   }
  ],
  "Clients": [
   {
-   "$id": "19",
+   "$id": "25",
    "Name": "RenamedFromClient",
    "ClientNamespace": "Versioning.RenamedFrom",
    "Doc": "Test for the `@renamedFrom` decorator.",
    "Operations": [
     {
-     "$id": "20",
+     "$id": "26",
      "Name": "oldOp",
      "ResourceName": "RenamedFrom",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "21",
+       "$id": "27",
        "Name": "oldQuery",
        "NameInRequest": "newQuery",
        "Type": {
-        "$id": "22",
+        "$id": "28",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -206,15 +227,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "23",
+       "$id": "29",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "24",
+        "$id": "30",
         "kind": "constant",
         "valueType": {
-         "$id": "25",
+         "$id": "31",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -234,14 +255,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "26",
+       "$id": "32",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "27",
+        "$id": "33",
         "kind": "constant",
         "valueType": {
-         "$id": "28",
+         "$id": "34",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -261,7 +282,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "29",
+       "$id": "35",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -280,7 +301,7 @@
      ],
      "Responses": [
       {
-       "$id": "30",
+       "$id": "36",
        "StatusCodes": [
         200
        ],
@@ -310,16 +331,16 @@
     }
    ],
    "Protocol": {
-    "$id": "31"
+    "$id": "37"
    },
    "Parameters": [
     {
-     "$id": "32",
+     "$id": "38",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "33",
+      "$id": "39",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -335,7 +356,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "34",
+     "$id": "40",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1' or 'v2' in client.",
@@ -356,26 +377,26 @@
    "Decorators": []
   },
   {
-   "$id": "35",
+   "$id": "41",
    "Name": "OldInterface",
    "ClientNamespace": "Versioning.RenamedFrom",
    "Operations": [
     {
-     "$id": "36",
+     "$id": "42",
      "Name": "newOpInNewInterface",
      "ResourceName": "OldInterface",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "37",
+       "$id": "43",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "38",
+        "$id": "44",
         "kind": "constant",
         "valueType": {
-         "$id": "39",
+         "$id": "45",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -395,14 +416,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "40",
+       "$id": "46",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "41",
+        "$id": "47",
         "kind": "constant",
         "valueType": {
-         "$id": "42",
+         "$id": "48",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -422,7 +443,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "43",
+       "$id": "49",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -441,7 +462,7 @@
      ],
      "Responses": [
       {
-       "$id": "44",
+       "$id": "50",
        "StatusCodes": [
         200
        ],
@@ -471,17 +492,17 @@
     }
    ],
    "Protocol": {
-    "$id": "45"
+    "$id": "51"
    },
    "Parent": "RenamedFromClient",
    "Parameters": [
     {
-     "$id": "46",
+     "$id": "52",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "47",
+      "$id": "53",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -497,7 +518,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "48",
+     "$id": "54",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1' or 'v2' in client.",

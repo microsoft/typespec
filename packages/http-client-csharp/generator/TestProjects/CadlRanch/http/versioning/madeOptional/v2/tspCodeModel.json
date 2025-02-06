@@ -91,15 +91,22 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel.prop"
+     "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel.prop",
+     "serializationOptions": {
+      "$id": "11",
+      "json": {
+       "$id": "12",
+       "name": "prop"
+      }
+     }
     },
     {
-     "$id": "11",
+     "$id": "13",
      "kind": "property",
      "name": "changedProp",
      "serializedName": "changedProp",
      "type": {
-      "$id": "12",
+      "$id": "14",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -110,30 +117,37 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel.changedProp"
+     "crossLanguageDefinitionId": "Versioning.MadeOptional.TestModel.changedProp",
+     "serializationOptions": {
+      "$id": "15",
+      "json": {
+       "$id": "16",
+       "name": "changedProp"
+      }
+     }
     }
    ]
   }
  ],
  "Clients": [
   {
-   "$id": "13",
+   "$id": "17",
    "Name": "MadeOptionalClient",
    "ClientNamespace": "Versioning.MadeOptional",
    "Doc": "Test for the `@madeOptional` decorator.",
    "Operations": [
     {
-     "$id": "14",
+     "$id": "18",
      "Name": "test",
      "ResourceName": "MadeOptional",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "15",
+       "$id": "19",
        "Name": "param",
        "NameInRequest": "param",
        "Type": {
-        "$id": "16",
+        "$id": "20",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -150,15 +164,15 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "17",
+       "$id": "21",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "18",
+        "$id": "22",
         "kind": "constant",
         "valueType": {
-         "$id": "19",
+         "$id": "23",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -178,14 +192,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "20",
+       "$id": "24",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "21",
+        "$id": "25",
         "kind": "constant",
         "valueType": {
-         "$id": "22",
+         "$id": "26",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -205,7 +219,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "23",
+       "$id": "27",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -224,7 +238,7 @@
      ],
      "Responses": [
       {
-       "$id": "24",
+       "$id": "28",
        "StatusCodes": [
         200
        ],
@@ -254,16 +268,16 @@
     }
    ],
    "Protocol": {
-    "$id": "25"
+    "$id": "29"
    },
    "Parameters": [
     {
-     "$id": "26",
+     "$id": "30",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "27",
+      "$id": "31",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -279,7 +293,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "28",
+     "$id": "32",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1' or 'v2' in client.",
