@@ -1,10 +1,7 @@
 import Arborist from "@npmcli/arborist";
 import { spawn } from "child_process";
-import { mkdir } from "node:fs/promises";
-import { homedir } from "node:os";
 import { CliCompilerHost } from "./cli/types.js";
 import { getTypeSpecEngine } from "./engine.js";
-import { joinPaths } from "./path-utils.js";
 
 interface SpawnError {
   errno: number;
