@@ -51,6 +51,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "authentication/http/custom": {
     "package-name": "authentication-http-custom",
+    "package-pprint-name": "Authentication Http Custom",
   },
   "authentication/union": {
     "package-name": "authentication-union",
@@ -292,7 +293,7 @@ function addOptions(
     }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${v}`;
+      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${typeof v === "string" && v.indexOf(" ") > -1 ? `"${v}"` : v}`;
     });
     emitterConfigs.push({
       optionsStr: configs.join(" "),

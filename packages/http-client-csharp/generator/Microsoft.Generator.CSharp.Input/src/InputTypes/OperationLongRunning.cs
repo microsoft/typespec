@@ -34,7 +34,7 @@ namespace Microsoft.Generator.CSharp.Input
                     return FinalResponse.BodyType;
 
                 var rawResponseType = (InputModelType)FinalResponse.BodyType;
-                return rawResponseType.Properties.FirstOrDefault(p => p.SerializedName == ResultPath)!.Type;
+                return rawResponseType.Properties.FirstOrDefault(p => p.SerializationOptions.Json?.Name == ResultPath)!.Type;
             }
         }
     }

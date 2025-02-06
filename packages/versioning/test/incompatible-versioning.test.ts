@@ -117,7 +117,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+          "'TestService.{ param: TestService.Foo }.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
     });
 
@@ -162,7 +162,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+          "'TestService.{ param: TestService.Foo }.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
     });
 
@@ -715,6 +715,8 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.{ param: TestService.Foo }.param' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
       });
     });
   });
@@ -771,6 +773,8 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
       });
     });
 
@@ -915,7 +919,7 @@ describe("versioning: validate incompatible references", () => {
       runner = await createVersioningTestRunner();
     });
 
-    it("emit diagnostic when referencing incompatible version via version dependency", async () => {
+    it("emit diagnostic when referencing incompatible version addition via version dependency", async () => {
       // Here Foo was added in v2 which makes it only available in 1 & 2.
       const diagnostics = await runner.diagnose(`
         @versioned(Versions)
@@ -946,6 +950,40 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was added in version 'v1' but referencing type 'VersionedLib.Foo' added in version 'v3'.",
+      });
+    });
+
+    it("emit diagnostic when referencing incompatible version removal via version dependency", async () => {
+      // Here Foo was added in v2 which makes it only available in 1 & 2.
+      const diagnostics = await runner.diagnose(`
+        @versioned(Versions)
+        namespace VersionedLib {
+          enum Versions {l1, l2, l3}
+          @removed(Versions.l2)
+          model Foo {}
+        }
+
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l1)
+            v1,
+            @useDependency(VersionedLib.Versions.l1)
+            v2,
+            @useDependency(VersionedLib.Versions.l2)
+            v3,
+            @useDependency(VersionedLib.Versions.l3)
+            v4
+          }
+
+          @removed(Versions.v4)
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' was removed in version 'v4' but referencing type 'VersionedLib.Foo' removed in version 'v3'.",
       });
     });
 
@@ -995,7 +1033,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' is referencing type 'VersionedLib.Foo' added in version 'l2' but version used is l1.",
+          "'TestService.test' is referencing type 'VersionedLib.Foo' added in version 'l2' but version used is 'l1'.",
       });
     });
 
@@ -1017,7 +1055,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is l2.",
+          "'TestService.test' is referencing type 'VersionedLib.Foo' removed in version 'l2' but version used is 'l2'.",
       });
     });
   });
