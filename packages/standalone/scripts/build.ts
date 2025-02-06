@@ -100,16 +100,14 @@ async function buildWithNodeSea() {
     }
   });
 
-  // This should get sent to ESRP for official signing
-  await action(`Sign executable ${exePath}`, async () => {
-    if (process.platform === "darwin") {
-      // execa`codesign --sign - ${exePath}`;
+  // On osx we need to register some entitlements for the app to run.
+  if (process.platform === "darwin") {
+    // This should get sent to ESRP for official signing
+    await action(`Sign executable ${exePath}`, async () => {
       const entitlementsPath = join(projectRoot, "scripts", "osx-entitlements.plist");
       execa`codesign --deep -s - -f --options runtime --entitlements ${entitlementsPath} ${exePath}`;
-    } else if (process.platform === "win32") {
-      // execa`signtool sign /fd SHA256 ${exePath}`;
-    }
-  });
+    });
+  }
 }
 
 async function createSeaConfig() {

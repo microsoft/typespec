@@ -165,8 +165,7 @@ function Install-tsp {
   if ($DownloadWithoutCurl -or ($LASTEXITCODE -ne 0)) {
     Write-Warning "The command 'curl.exe $URL -o $ZipPath' exited with code ${LASTEXITCODE}`nTrying an alternative download method..."
     try {
-      # Use Invoke-RestMethod instead of Invoke-WebRequest because Invoke-WebRequest breaks on
-      # some machines, see 
+      # Use Invoke-RestMethod instead of Invoke-WebRequest because Invoke-WebRequest breaks on some platform(From bun script not sure why)
       Invoke-RestMethod -Uri $URL -OutFile $ZipPath
     } catch {
       Write-Output "Install Failed - could not download $URL"
