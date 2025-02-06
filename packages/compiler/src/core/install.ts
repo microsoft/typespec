@@ -28,11 +28,8 @@ export async function installTypeSpecDependencies(
 }
 
 async function installWithBuiltinNpm(host: CliCompilerHost, directory: string): Promise<void> {
-  const installDir = joinPaths(homedir(), ".tsp/installs");
-  await mkdir(installDir, { recursive: true });
-
   const arb = new Arborist({
-    path: installDir,
+    path: directory,
   });
 
   await arb.loadActual();
