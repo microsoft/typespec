@@ -6,7 +6,7 @@ import { getTracer, reportDiagnostic } from "./lib.js";
 import { LoggerLevel } from "./log-level.js";
 
 /**
- * The Logger class for the emitter.
+ * The Logger class for the emitter. test
  * @beta
  */
 export class Logger {
