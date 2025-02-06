@@ -50,9 +50,9 @@ If you have selected client emitted, you can use the following commands to compi
 | Python       | N/A                        |
 | JS/TS        | `npm install && npm build` |
 
-## Configure
+## Configuration
 
-TypeSpec wil interpolate a few variables using this pattern `${<name>}`. For example `${workspaceFolder}`.
+TypeSpec will interpolate a few variables using this pattern `${<name>}`. For example `${workspaceFolder}`.
 
 Available variables:
 
