@@ -27,16 +27,18 @@ Using TypeSpec in Visual Studio Code with the extension enables efficient work. 
 
 - Emitting OpenAPI from TypeSpec
 - Emitting server stubs and client codes for different languages: Dotnet, Python, Java, JavaScript/TypeScript
-> **Note:** To emit dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
-> **Note:** To emit Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/)
+> **Note:** 
+> - To emit dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
+> - To emit Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/)
 
 ![vscode_tsp_to_openapi3_generation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)
 
 ## Post-generation Steps
 
-> **Note:** To compile and test dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
-> **Note:** To compile and test Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/)
-> **Note:** To execute Python SDKs, ensure to install [Python](https://www.python.org/downloads/)
+> **Note:**
+> - To compile and test dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
+> - To compile and test Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/)
+> - To execute Python SDKs, ensure to install [Python](https://www.python.org/downloads/)
 
 ### Compile Client SDKs
 
