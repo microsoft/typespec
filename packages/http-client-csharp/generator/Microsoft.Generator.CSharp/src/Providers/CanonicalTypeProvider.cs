@@ -75,7 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
-                string? serializedName = specProperty?.SerializedName;
+                string? serializedName = specProperty?.SerializationOptions.Json?.Name;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
                 if (_serializedNameMap.TryGetValue(customProperty.Name, out var customSerializedName) ||
@@ -136,7 +136,7 @@ namespace Microsoft.Generator.CSharp.Providers
                     customField.WireInfo = new PropertyWireInformation(specProperty);
                 }
 
-                string? serializedName = specProperty?.SerializedName;
+                string? serializedName = specProperty?.SerializationOptions.Json?.Name;
                 bool hasCustomSerialization = false;
                 // Update the serializedName of custom properties if necessary
                 if (_serializedNameMap.TryGetValue(customField.Name, out var customSerializedName) ||
@@ -295,10 +295,8 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private Dictionary<string, string?> BuildSerializationNameMap()
         {
-            var serializationAttributes = _generatedTypeProvider.CustomCodeView?.GetAttributes().
-                Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSerializationAttributeName) ?? [];
             var serializedNameMapping = new Dictionary<string, string?>();
-            foreach (var serializationAttribute in serializationAttributes)
+            foreach (var serializationAttribute in _generatedTypeProvider.CustomCodeView?.Attributes ?? [])
             {
                 if (CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
                         serializationAttribute,

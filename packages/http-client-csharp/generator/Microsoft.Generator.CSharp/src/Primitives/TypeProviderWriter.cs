@@ -144,7 +144,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             for (int i = 0; i < _provider.Properties.Count; i++)
             {
                 var property = _provider.Properties[i];
-                writer.WriteProperty(property, property.Modifiers.HasFlag(MethodSignatureModifiers.Public) && IsPublicContext(_provider));
+                writer.WriteProperty(property);
                 if (i < _provider.Properties.Count - 1)
                 {
                     writer.WriteLine();

@@ -3,7 +3,7 @@ import { defineKit, Typekit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 
 /**  @experimental */
-export interface TypeKit {
+export interface TypeTypekit {
   /**
    * Clones a type and adds it to the typekit's realm.
    * @param type Type to clone
@@ -15,18 +15,19 @@ export interface TypeKit {
   finishType(type: Type): void;
 }
 
-interface BaseTypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with general types.
+   * @experimental
    */
-  type: TypeKit;
+  type: TypeTypekit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends BaseTypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<BaseTypeKit>({
+defineKit<TypekitExtension>({
   type: {
     finishType(type: Type) {
       this.program.checker.finishType(type);

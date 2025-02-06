@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Generator.CSharp.Primitives;
+using Microsoft.Generator.CSharp.Providers;
 using Microsoft.Generator.CSharp.SourceInput;
 
 namespace Microsoft.Generator.CSharp
@@ -29,6 +29,19 @@ namespace Microsoft.Generator.CSharp
             var generatedTestOutputPath = CodeModelPlugin.Instance.Configuration.TestGeneratedDirectory;
 
             GeneratedCodeWorkspace workspace = await GeneratedCodeWorkspace.Create();
+
+            // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
+            // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
+
+            List<Task> generateAttributeTasks = new();
+            foreach (var attributeProvider in GetCustomCodeAttributeProviders())
+            {
+                var writer = CodeModelPlugin.Instance.GetWriter(attributeProvider);
+                generateAttributeTasks.Add(workspace.AddGeneratedFile(writer.Write()));
+            }
+
+            await Task.WhenAll(generateAttributeTasks);
+
             CodeModelPlugin.Instance.SourceInputModel = new SourceInputModel(await workspace.GetCompilationAsync());
 
             var output = CodeModelPlugin.Instance.OutputLibrary;
@@ -80,9 +93,16 @@ namespace Microsoft.Generator.CSharp
             // Write project scaffolding files
             if (CodeModelPlugin.Instance.IsNewProject)
             {
-                var scaffolding = new NewProjectScaffolding();
-                await scaffolding.Execute();
+                await CodeModelPlugin.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
+        }
+
+        private static IEnumerable<TypeProvider> GetCustomCodeAttributeProviders()
+        {
+            yield return new CodeGenTypeAttributeDefinition();
+            yield return new CodeGenMemberAttributeDefinition();
+            yield return new CodeGenSuppressAttributeDefinition();
+            yield return new CodeGenSerializationAttributeDefinition();
         }
 
         /// <summary>

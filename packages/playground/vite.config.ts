@@ -36,6 +36,7 @@ export default defineConfig({
         "tooling/index": "src/tooling/index.ts",
         "vite/index": "src/vite/index.ts",
       },
+      cssFileName: "style",
       formats: ["es"],
     },
 
