@@ -27,7 +27,7 @@ Using TypeSpec in Visual Studio Code with the extension enables efficient work. 
 
 - Emitting OpenAPI from TypeSpec
 - Emitting server stubs and client codes for different languages: Dotnet, Python, Java, JavaScript/TypeScript
-> **Note:** 
+> **Note:**
 > - To emit dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
 > - To emit Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/)
 
