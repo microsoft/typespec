@@ -1,5 +1,6 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
+  SdkBodyModelPropertyType,
   SdkDurationType,
   SdkModelType,
   SdkType,
@@ -335,6 +336,15 @@ export function isArmCommonType(entity: Type): boolean {
     );
   }
   return false;
+}
+
+export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
+  // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
+  return (
+    property.serializationOptions.json?.name ??
+    property.serializationOptions.multipart?.name ??
+    property.serializedName
+  );
 }
 
 function getDecoratorScopedValue<T>(

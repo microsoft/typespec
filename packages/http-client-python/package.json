@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.6.9",
+  "version": "0.6.10",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -80,7 +80,7 @@
     "@types/semver": "7.5.8",
     "@typespec/compiler": "~0.64.0",
     "@typespec/http": "~0.64.0",
-    "@typespec/http-specs": "0.1.0-alpha.7",
+    "@typespec/http-specs": "0.1.0-alpha.8",
     "@typespec/openapi": "~0.64.0",
     "@typespec/rest": "~0.64.0",
     "@typespec/versioning": "~0.64.0",

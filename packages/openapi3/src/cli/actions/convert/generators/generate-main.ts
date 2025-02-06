@@ -1,5 +1,6 @@
 import { TypeSpecProgram } from "../interfaces.js";
 import { Context } from "../utils/context.js";
+import { generateHelpers } from "../utils/generate-helpers.js";
 import { generateDataType } from "./generate-model.js";
 import { generateNamespace } from "./generate-namespace.js";
 import { generateOperation } from "./generate-operation.js";
@@ -23,5 +24,6 @@ export function generateMain(program: TypeSpecProgram, context: Context): string
   ${Object.entries(program.namespaces)
     .map(([name, namespace]) => generateNamespace(name, namespace, context))
     .join("\n\n")}
+  ${generateHelpers(context)}
   `;
 }

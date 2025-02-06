@@ -30,12 +30,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Numeric.Property.SafeintAsStringProperty.value"
+     "crossLanguageDefinitionId": "Encode.Numeric.Property.SafeintAsStringProperty.value",
+     "serializationOptions": {
+      "$id": "5",
+      "json": {
+       "$id": "6",
+       "name": "value"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "5",
+   "$id": "7",
    "kind": "model",
    "name": "Uint32AsStringProperty",
    "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint32AsStringProperty",
@@ -43,12 +50,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "6",
+     "$id": "8",
      "kind": "property",
      "name": "value",
      "serializedName": "value",
      "type": {
-      "$id": "7",
+      "$id": "9",
       "kind": "uint32",
       "name": "uint32",
       "encode": "string",
@@ -60,12 +67,19 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint32AsStringProperty.value"
+     "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint32AsStringProperty.value",
+     "serializationOptions": {
+      "$id": "10",
+      "json": {
+       "$id": "11",
+       "name": "value"
+      }
+     }
     }
    ]
   },
   {
-   "$id": "8",
+   "$id": "12",
    "kind": "model",
    "name": "Uint8AsStringProperty",
    "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint8AsStringProperty",
@@ -73,12 +87,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "9",
+     "$id": "13",
      "kind": "property",
      "name": "value",
      "serializedName": "value",
      "type": {
-      "$id": "10",
+      "$id": "14",
       "kind": "uint8",
       "name": "uint8",
       "encode": "string",
@@ -90,28 +104,35 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint8AsStringProperty.value"
+     "crossLanguageDefinitionId": "Encode.Numeric.Property.Uint8AsStringProperty.value",
+     "serializationOptions": {
+      "$id": "15",
+      "json": {
+       "$id": "16",
+       "name": "value"
+      }
+     }
     }
    ]
   }
  ],
  "Clients": [
   {
-   "$id": "11",
+   "$id": "17",
    "Name": "NumericClient",
    "Doc": "Test for encode decorator on integer.",
    "Operations": [],
    "Protocol": {
-    "$id": "12"
+    "$id": "18"
    },
    "Parameters": [
     {
-     "$id": "13",
+     "$id": "19",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "14",
+      "$id": "20",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -126,9 +147,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "15",
+      "$id": "21",
       "Type": {
-       "$id": "16",
+       "$id": "22",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -140,25 +161,25 @@
    "Decorators": []
   },
   {
-   "$id": "17",
+   "$id": "23",
    "Name": "Property",
    "Operations": [
     {
-     "$id": "18",
+     "$id": "24",
      "Name": "safeintAsString",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "19",
+       "$id": "25",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "20",
+        "$id": "26",
         "kind": "constant",
         "valueType": {
-         "$id": "21",
+         "$id": "27",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -178,14 +199,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "22",
+       "$id": "28",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "23",
+        "$id": "29",
         "kind": "constant",
         "valueType": {
-         "$id": "24",
+         "$id": "30",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -205,7 +226,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "25",
+       "$id": "31",
        "Name": "value",
        "NameInRequest": "value",
        "Type": {
@@ -224,7 +245,7 @@
      ],
      "Responses": [
       {
-       "$id": "26",
+       "$id": "32",
        "StatusCodes": [
         200
        ],
@@ -253,21 +274,21 @@
      "Decorators": []
     },
     {
-     "$id": "27",
+     "$id": "33",
      "Name": "uint32AsStringOptional",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "28",
+       "$id": "34",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "29",
+        "$id": "35",
         "kind": "constant",
         "valueType": {
-         "$id": "30",
+         "$id": "36",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -287,14 +308,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "31",
+       "$id": "37",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "32",
+        "$id": "38",
         "kind": "constant",
         "valueType": {
-         "$id": "33",
+         "$id": "39",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -314,11 +335,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "34",
+       "$id": "40",
        "Name": "value",
        "NameInRequest": "value",
        "Type": {
-        "$ref": "5"
+        "$ref": "7"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -333,12 +354,12 @@
      ],
      "Responses": [
       {
-       "$id": "35",
+       "$id": "41",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "5"
+        "$ref": "7"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -362,21 +383,21 @@
      "Decorators": []
     },
     {
-     "$id": "36",
+     "$id": "42",
      "Name": "uint8AsString",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "37",
+       "$id": "43",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "38",
+        "$id": "44",
         "kind": "constant",
         "valueType": {
-         "$id": "39",
+         "$id": "45",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -396,14 +417,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "40",
+       "$id": "46",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "41",
+        "$id": "47",
         "kind": "constant",
         "valueType": {
-         "$id": "42",
+         "$id": "48",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -423,11 +444,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "43",
+       "$id": "49",
        "Name": "value",
        "NameInRequest": "value",
        "Type": {
-        "$ref": "8"
+        "$ref": "12"
        },
        "Location": "Body",
        "IsApiVersion": false,
@@ -442,12 +463,12 @@
      ],
      "Responses": [
       {
-       "$id": "44",
+       "$id": "50",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$ref": "8"
+        "$ref": "12"
        },
        "BodyMediaType": "Json",
        "Headers": [],
@@ -472,17 +493,17 @@
     }
    ],
    "Protocol": {
-    "$id": "45"
+    "$id": "51"
    },
    "Parent": "NumericClient",
    "Parameters": [
     {
-     "$id": "46",
+     "$id": "52",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "47",
+      "$id": "53",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -497,9 +518,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "48",
+      "$id": "54",
       "Type": {
-       "$id": "49",
+       "$id": "55",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
