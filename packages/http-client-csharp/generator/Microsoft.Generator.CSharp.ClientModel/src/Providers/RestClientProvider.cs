@@ -441,7 +441,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // convert the property to a parameter
                 var inputParameter = new InputParameter(
                     property.Name,
-                    property.SerializedName,
+                    property.SerializationOptions.Json?.Name ?? property.Name,
                     property.Summary,
                     property.Doc,
                     property.Type,
