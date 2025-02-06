@@ -11,7 +11,7 @@ Using TypeSpec in Visual Studio Code with the extension enables efficient work. 
 - Step 3. [Install the TypeSpec extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode).
 - Step 4. Open or Create a TypeSpec project and start coding!
 
-![](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_project_scaffolding.gif)
+![vscode_project_scaffolding.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_project_scaffolding.gif)
 
 ## Writing TypeSpec
 
@@ -21,7 +21,7 @@ Using TypeSpec in Visual Studio Code with the extension enables efficient work. 
 - Quick fixes
 - Refactorings
 
-![](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode.gif)
+![vscode.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode.gif)
 
 ## Generating from TypeSpec
 
@@ -30,7 +30,7 @@ Using TypeSpec in Visual Studio Code with the extension enables efficient work. 
 > **Note:** To emit dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
 > **Note:** To emit Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/)
 
-![](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)
+![vscode_tsp_to_openapi3_generation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)
 
 ## Post-generation Steps
 
