@@ -1,4 +1,4 @@
-import { getLocationContext, TemplatedType } from "../core/index.js";
+import { compilerAssert, getLocationContext, TemplatedType } from "../core/index.js";
 import { Program } from "../core/program.js";
 import { isTemplateInstance, isType } from "../core/type-utils.js";
 import {
@@ -365,6 +365,12 @@ interface MutatorEngine {
   mutate(type: MutableTypeWithNamespace): MutableTypeWithNamespace;
 }
 
+interface MutatorWithOptions<T extends MutableTypeWithNamespace> {
+  mutator: MutatorAll;
+  mutationFn: MutatorFn<T> | null;
+  replaceFn: MutatorReplaceFn<T> | null;
+}
+
 function createMutatorEngine(
   program: Program,
   mutators: MutatorAll[],
@@ -400,11 +406,7 @@ function createMutatorEngine(
     activeMutators: Set<MutatorAll>,
     type: T,
   ) {
-    const mutatorsWithOptions: {
-      mutator: MutatorAll;
-      mutationFn: MutatorFn<T> | null;
-      replaceFn: MutatorReplaceFn<T> | null;
-    }[] = [];
+    const mutatorsWithOptions: MutatorWithOptions<T>[] = [];
     const newMutators = new Set(activeMutators.values());
 
     // step 1: see what mutators to run
@@ -455,6 +457,29 @@ function createMutatorEngine(
       }
     }
     return { mutatorsWithOptions, newMutators };
+  }
+
+  function applyMutations<T extends MutableTypeWithNamespace>(
+    type: T,
+    clone: T,
+    mutatorsWithOptions: MutatorWithOptions<T>[],
+  ) {
+    let resolved: MutableTypeWithNamespace = clone;
+    for (const { mutationFn, replaceFn } of mutatorsWithOptions) {
+      // todo: handle replace earlier in the mutation chain
+      const result: MutableType = (mutationFn! ?? replaceFn!)(
+        type,
+        resolved as any,
+        program,
+        realm,
+      ) as any;
+
+      if (replaceFn && result !== undefined) {
+        resolved = result;
+      }
+    }
+
+    return resolved;
   }
 
   function mutateSubgraphWorker<T extends MutableTypeWithNamespace>(
@@ -513,24 +538,16 @@ function createMutatorEngine(
     clearInterstitialFunctions();
     initializeClone();
 
-    for (const { mutationFn, replaceFn } of mutatorsWithOptions) {
-      // todo: handle replace earlier in the mutation chain
-      const result: MutableType = (mutationFn! ?? replaceFn!)(
-        type,
-        clone! as any,
-        program,
-        realm,
-      ) as any;
-
-      if (replaceFn && result !== undefined) {
-        clone = result;
-        seen.set([type, activeMutators], clone);
-        seen.set([type, mutatorsToApply], clone);
-      }
+    const result = applyMutations(type, clone as any, mutatorsWithOptions);
+    if (result !== clone) {
+      clone = result;
+      seen.set([type, activeMutators], clone);
+      seen.set([type, mutatorsToApply], clone);
     }
 
     if (newMutators.size > 0) {
       if (preparingNamespace && type.kind === "Namespace") {
+        compilerAssert(mutating, "Cannot be preparing namespaces and not have cloned it.");
         prepareNamespace(clone as any);
         postVisits.push(() => visitNamespaceContents(clone as any));
       } else {
@@ -543,6 +560,7 @@ function createMutatorEngine(
     }
 
     if (type.kind === "Namespace" && mutateSubNamespace) {
+      compilerAssert(mutating, "Cannot be preparing namespaces and not have cloned it.");
       visitSubNamespaces(clone as any);
     }
     if (type.kind !== "Namespace") {
@@ -571,9 +589,8 @@ function createMutatorEngine(
       }
       if ("namespace" in root && root.namespace) {
         const newNs = mutateSubgraphWorker(root.namespace, newMutators, false);
-        if (clone) {
-          (clone as any).namespace = newNs;
-        }
+        compilerAssert(newNs.kind === "Namespace", `Expected to be mutated to a namespace`);
+        (clone as any).namespace = newNs;
       }
     }
 
@@ -582,11 +599,9 @@ function createMutatorEngine(
       mutateNamespaceProperty(root);
     }
 
-    function visitSubNamespaces(clone: Namespace) {
-      if (clone) {
-        namespacesVisitedContent.add(clone as any);
-      }
-      mutateSubMap(clone, "namespaces", true, newMutators);
+    function visitSubNamespaces(type: Namespace) {
+      namespacesVisitedContent.add(type);
+      mutateSubMap(type, "namespaces", true, newMutators);
     }
     function visitNamespaceContents(root: Namespace) {
       mutateSubMap(root, "models", mutating, newMutators);
