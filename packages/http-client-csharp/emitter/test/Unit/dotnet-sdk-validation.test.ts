@@ -1,3 +1,7 @@
+vi.mock("../../src/lib/utils.js", () => ({
+  execAsync: vi.fn(),
+}));
+
 import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
@@ -12,10 +16,6 @@ describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
   const minVersion = 8;
-
-  vi.mock("../../src/lib/utils.js", () => ({
-    execAsync: vi.fn(),
-  }));
 
   beforeEach(async () => {
     runner = await createEmitterTestHost();
