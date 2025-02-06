@@ -500,7 +500,7 @@ function createMutatorEngine(
       clearInterstitialFunctions();
       return existing as T;
     }
-    // TODO: mutating the compiler scalar cause lots of issues, but is this the right way to handle it?
+    // Mutating compiler types breaks a lot of things in the type checker. It is better to keep any of those as they are.
     if (getLocationContext(program, type).type === "compiler" && !isTemplateInstance(type)) {
       return type;
     }
@@ -527,15 +527,15 @@ function createMutatorEngine(
       }
     }
 
+    clearInterstitialFunctions();
+
     // step 2: see if we need to mutate based on the set of mutators we're actually going to run
     existing = seen.get([type, mutatorsToApply]);
     if (existing) {
-      clearInterstitialFunctions();
       return existing as T;
     }
 
     // step 3: run the mutators
-    clearInterstitialFunctions();
     initializeClone();
 
     const result = applyMutations(type, clone as any, mutatorsWithOptions);
