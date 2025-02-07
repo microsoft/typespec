@@ -1,6 +1,6 @@
-import { splitLines } from "../../formatter/print/printer.js";
 import { isWhiteSpaceSingleLine } from "../charcode.js";
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
+import { splitLines } from "../helpers/syntax-utils.js";
 import type { DiagnosticTarget } from "../types.js";
 
 export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarget) {
@@ -9,8 +9,7 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
     label: "Format triple-quote-indent",
     fix: (context) => {
       const location = getSourceLocation(diagnosticTarget);
-      const splitStr = "\r\n";
-      const newlineRegex = /(\r\n|\n|\r)/gm;
+      const splitStr = "\n";
       const tripleQuote = '"""';
       const tripleQuoteLen = tripleQuote.length;
       const text = location.file.text.slice(
@@ -18,7 +17,7 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
         location.end - tripleQuoteLen,
       );
 
-      const lines = splitLines(text).map((line) => line.replace(newlineRegex, ""));
+      const lines = splitLines(text);
       if (lines.length === 0) {
         return;
       }
@@ -49,21 +48,20 @@ export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarge
         prefix = " ".repeat(indentDiff);
       }
 
-      const middle = lines.map((line) => `${splitStr}${prefix}${line}`).join("");
+      const middle = lines.map((line) => `${prefix}${line}`).join(splitStr);
       return context.replaceText(
         location,
-        `${tripleQuote}${middle}${splitStr}${" ".repeat(lastLineIndentNumb)}${tripleQuote}`,
+        `${tripleQuote}${splitStr}${middle}${splitStr}${" ".repeat(lastLineIndentNumb)}${tripleQuote}`,
       );
 
       function getIndentNumbInLine(lineText: string): number {
         let curStart = 0;
-        const text = lineText.replace(newlineRegex, "");
-        const len = text.length;
-
-        while (curStart < len && isWhiteSpaceSingleLine(text.charCodeAt(curStart))) {
+        while (
+          curStart < lineText.length &&
+          isWhiteSpaceSingleLine(lineText.charCodeAt(curStart))
+        ) {
           curStart++;
         }
-
         return curStart;
       }
     },
