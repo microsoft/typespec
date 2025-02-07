@@ -1,6 +1,7 @@
 vi.mock("../../src/lib/utils.js", () => ({
   execAsync: vi.fn(),
 }));
+console.log("✅ vi.mock() applied");
 
 import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
@@ -10,6 +11,8 @@ import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { _validateDotNetSdk } from "../../src/emitter.js";
 import { Logger, LoggerLevel } from "../../src/index.js";
 import { execAsync } from "../../src/lib/utils.js";
+console.log("✅ execAsync after mock:", execAsync);
+console.log("✅ execAsync is mocked:", vi.isMockFunction(execAsync));
 import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
 
 describe("Test _validateDotNetSdk", () => {
