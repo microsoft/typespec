@@ -14,6 +14,7 @@ import {
   Value,
 } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
+import { createDiagnostic } from "./lib.js";
 /**
  * Checks if two objects are deeply equal.
  *
@@ -157,4 +158,20 @@ export function getDefaultValue(
 
 export function isBytesKeptRaw(program: Program, type: Type) {
   return type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined;
+}
+
+
+export function validateComponentFixedFieldKey(program: Program, type: Type, name: string) {
+  const pattern = /^[a-zA-Z0-9.\-_]+$/;
+  if (!pattern.test(name)) {
+    program.reportDiagnostic(
+      createDiagnostic({
+        code: "invalid-component-fixed-field-key",
+        format: {
+          value: name,
+        },
+        target: type,
+      }),
+    );
+  }
 }

@@ -299,7 +299,7 @@ export const libDef = {
       },
     },
     "invalid-component-fixed-field-key": {
-      severity: "error",
+      severity: "warning",
       messages: {
         default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
       },

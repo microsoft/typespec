@@ -75,7 +75,7 @@ import {
   OpenAPI3SchemaProperty,
   OpenAPISchema3_1,
 } from "./types.js";
-import { getDefaultValue, includeDerivedModel, isBytesKeptRaw, isStdType } from "./util.js";
+import { getDefaultValue, includeDerivedModel, isBytesKeptRaw, isStdType, validateComponentFixedFieldKey } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
@@ -157,6 +157,7 @@ export class OpenAPI3SchemaEmitterBase<
 
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
+    validateComponentFixedFieldKey(program, model, model.name);
     const visibility = this.#getVisibilityContext();
     const schema: ObjectBuilder<any> = new ObjectBuilder({
       type: "object",
