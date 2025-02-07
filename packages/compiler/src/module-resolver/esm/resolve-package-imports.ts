@@ -3,7 +3,7 @@ import { resolvePackageImportsExports } from "./resolve-package-imports-exports.
 import {
   EsmResolutionContext,
   InvalidModuleSpecifierError,
-  PackageImportNotDefinedError
+  PackageImportNotDefinedError,
 } from "./utils.js";
 
 /** Implementation of PACKAGE_IMPORTS_RESOLVE https://github.com/nodejs/node/blob/main/doc/api/esm.md */
@@ -12,7 +12,7 @@ export async function resolvePackageImports(
   imports: Imports,
 ): Promise<string | null | undefined> {
   // If specifier is exactly equal to "#" or starts with "#/", then
-  if (context.specifier === '#' || context.specifier.startsWith('#/')) {
+  if (context.specifier === "#" || context.specifier.startsWith("#/")) {
     // Throw an Invalid Module Specifier error.
     throw new InvalidModuleSpecifierError(context);
   }

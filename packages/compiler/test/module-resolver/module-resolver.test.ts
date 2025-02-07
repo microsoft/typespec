@@ -551,7 +551,7 @@ describe("resolve self", () => {
         });
         await expect(resolveModule(host, "#utils", { baseDir: "/ws/proj" })).rejects.toThrowError(
           new ResolveModuleError(
-            "MODULE_NOT_FOUND",
+            "INVALID_MODULE",
             `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
           ),
         );
@@ -563,7 +563,7 @@ describe("resolve self", () => {
         });
         await expect(resolveModule(host, "#utils", { baseDir: "/ws/proj" })).rejects.toThrowError(
           new ResolveModuleError(
-            "MODULE_NOT_FOUND",
+            "INVALID_MODULE",
             `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
           ),
         );
@@ -591,7 +591,7 @@ describe("resolve self", () => {
               }),
             ).rejects.toThrowError(
               new ResolveModuleError(
-                "MODULE_NOT_FOUND",
+                "INVALID_MODULE",
                 `Could not resolve import "#utils"  using imports defined in file:///ws/proj.`,
               ),
             );

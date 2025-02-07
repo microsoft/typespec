@@ -44,7 +44,7 @@ export type Imports = {
  */
 type ImportConditions = {
   [condition: string]: string | ImportConditions;
-}
+};
 
 /**
  * Entry points of a module, optionally with conditions and subpath exports.
