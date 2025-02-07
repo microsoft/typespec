@@ -172,8 +172,10 @@ type NamespaceMutator = {
   Namespace?: MutatorRecord<Namespace>;
 };
 
-// TODO: better name?
-type MutatorAll = Mutator & NamespaceMutator;
+/** Mutator with all the mutable types defined.
+ * Differ from Mutator which is the standard type exposed externally which doesn't allow mutating Namespace
+ */
+type AnyMutator = Mutator & NamespaceMutator;
 
 /**
  * Flow control for mutators.
@@ -366,21 +368,21 @@ interface MutatorEngine {
 }
 
 interface MutatorWithOptions<T extends MutableTypeWithNamespace> {
-  mutator: MutatorAll;
+  mutator: AnyMutator;
   mutationFn: MutatorFn<T> | null;
   replaceFn: MutatorReplaceFn<T> | null;
 }
 
 function createMutatorEngine(
   program: Program,
-  mutators: MutatorAll[],
+  mutators: AnyMutator[],
   options: MutatorEngineOptions,
 ): MutatorEngine {
   const realm = new Realm(program, `Mutator realm ${mutators.map((m) => m.name).join(", ")}`);
   const interstitialFunctions: (() => void)[] = [];
 
   let preparingNamespace = false;
-  const muts: Set<MutatorAll> = new Set(mutators);
+  const muts: Set<AnyMutator> = new Set(mutators);
   const postVisits: (() => void)[] = [];
   const namespacesVisitedContent = new Set<Namespace>();
 
@@ -403,7 +405,7 @@ function createMutatorEngine(
 
   /** Resolve the mutators to apply. */
   function resolveMutators<T extends MutableTypeWithNamespace>(
-    activeMutators: Set<MutatorAll>,
+    activeMutators: Set<AnyMutator>,
     type: T,
   ) {
     const mutatorsWithOptions: MutatorWithOptions<T>[] = [];
@@ -484,7 +486,7 @@ function createMutatorEngine(
 
   function mutateSubgraphWorker<T extends MutableTypeWithNamespace>(
     type: T,
-    activeMutators: Set<MutatorAll>,
+    activeMutators: Set<AnyMutator>,
     mutateSubNamespace: boolean = true,
   ): MutableTypeWithNamespace {
     let existing = seen.get([type, activeMutators]);
@@ -701,7 +703,7 @@ function createMutatorEngine(
   function visitDecorators(
     type: MutableTypeWithNamespace & DecoratedType,
     mutating: boolean,
-    newMutators: Set<MutatorAll>,
+    newMutators: Set<AnyMutator>,
   ) {
     for (const [index, dec] of type.decorators.entries()) {
       const args: DecoratorArgument[] = [];
@@ -731,7 +733,7 @@ function createMutatorEngine(
   function mutateTemplateMapper(
     type: TemplatedType,
     mutating: boolean,
-    newMutators: Set<MutatorAll>,
+    newMutators: Set<AnyMutator>,
   ) {
     if (type.templateMapper === undefined) {
       return;
@@ -756,7 +758,7 @@ function createMutatorEngine(
     type: T,
     prop: K,
     mutate: boolean,
-    newMutators: Set<MutatorAll>,
+    newMutators: Set<AnyMutator>,
   ) {
     for (const [key, value] of (type as any)[prop].entries()) {
       const newValue: any = mutateSubgraphWorker(value, newMutators);
@@ -773,7 +775,7 @@ function createMutatorEngine(
     type: T,
     prop: K,
     mutate: boolean,
-    newMutators: Set<MutatorAll>,
+    newMutators: Set<AnyMutator>,
   ) {
     for (const [index, value] of (type as any)[prop].entries()) {
       const newValue: any = mutateSubgraphWorker(value, newMutators);
