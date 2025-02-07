@@ -6,5 +6,5 @@
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "generated-defs/**/*.ts"]
+  "include": ["src/**/*.ts", "generated-defs/**/*.ts", "src/scripts/scaffold/bin.mts"]
 }
