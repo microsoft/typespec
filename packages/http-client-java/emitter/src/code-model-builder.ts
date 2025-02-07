@@ -92,7 +92,6 @@ import {
 } from "@typespec/compiler";
 import {
   Authentication,
-  HttpOperation,
   HttpStatusCodeRange,
   HttpStatusCodesEntry,
   Visibility,
@@ -937,7 +936,7 @@ export class CodeModelBuilder {
     if (httpOperation.bodyParam && httpOperation.__raw && httpOperation.bodyParam.type.__raw) {
       this.processParameterBody(
         codeModelOperation,
-        httpOperation.__raw,
+        sdkMethod,
         httpOperation,
         httpOperation.bodyParam,
       );
@@ -1464,7 +1463,7 @@ export class CodeModelBuilder {
 
   private processParameterBody(
     op: CodeModelOperation,
-    rawHttpOperation: HttpOperation,
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     sdkHttpOperation: SdkHttpOperation,
     sdkBody: SdkBodyParameter,
   ) {
@@ -1520,14 +1519,20 @@ export class CodeModelBuilder {
     }
 
     if (op.convenienceApi) {
-      // Explicit body parameter @body or @bodyRoot would result to the existence of rawHttpOperation.parameters.body.property
-      // Implicit body parameter would result to rawHttpOperation.parameters.body.property be undefined
-      // see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
+      /**
+       * Explicit body parameter @body or @bodyRoot would result to the existence of rawHttpOperation.parameters.body.property
+       * Implicit body parameter would result to rawHttpOperation.parameters.body.property be undefined
+       * see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
+       */
+      /**
+       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type'.
+       * Basically, it means that the model of the SDK method parameters (typically, more than 1) be different from the model of this single HTTP body parameter.
+       */
       const bodyParameterFlatten =
+        !this.isArm() &&
         schema instanceof ObjectSchema &&
         sdkType.kind === "model" &&
-        !rawHttpOperation.parameters.body?.property &&
-        !this.isArm();
+        sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type;
 
       if (schema instanceof ObjectSchema && bodyParameterFlatten) {
         // flatten body parameter
@@ -1594,7 +1599,7 @@ export class CodeModelBuilder {
           if (request.signatureParameters.length > 6) {
             // create an option bag
             const name = op.language.default.name + "Options";
-            const namespace = getNamespace(rawHttpOperation.operation);
+            const namespace = this.namespace;
             // option bag schema
             const optionBagSchema = this.codeModel.schemas.add(
               new GroupSchema(name, `Options for ${op.language.default.name} API`, {
