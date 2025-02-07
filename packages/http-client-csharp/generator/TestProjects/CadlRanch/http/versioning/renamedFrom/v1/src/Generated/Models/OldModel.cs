@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Versioning.RenamedFrom.V1.Models
+namespace Versioning.RenamedFrom
 {
     public partial class OldModel
     {

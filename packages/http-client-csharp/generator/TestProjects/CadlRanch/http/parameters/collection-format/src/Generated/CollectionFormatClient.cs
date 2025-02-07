@@ -4,6 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using Parameters.CollectionFormat._Header;
+using Parameters.CollectionFormat._Query;
 
 namespace Parameters.CollectionFormat
 {

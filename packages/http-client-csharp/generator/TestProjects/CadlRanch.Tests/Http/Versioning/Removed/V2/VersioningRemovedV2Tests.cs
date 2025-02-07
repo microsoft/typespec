@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+extern alias RemovedV2;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Versioning.Removed.V2;
-using Versioning.Removed.V2.Models;
+using RemovedV2::Versioning.Removed;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V2
 {

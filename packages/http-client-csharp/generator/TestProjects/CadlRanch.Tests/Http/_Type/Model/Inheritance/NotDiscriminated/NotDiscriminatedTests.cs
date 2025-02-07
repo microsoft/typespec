@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.NotDiscriminated;
-using _Type.Model.Inheritance.NotDiscriminated.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.NotDiscriminated

@@ -102,6 +102,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Client.Structure.Service",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input",
@@ -113,6 +114,7 @@
   {
    "$id": "14",
    "Name": "FirstClient",
+   "ClientNamespace": "Client.Structure.ClientOperationGroup",
    "Operations": [
     {
      "$id": "15",
@@ -191,6 +193,7 @@
   {
    "$id": "21",
    "Name": "Group3",
+   "ClientNamespace": "Client.Structure.ClientOperationGroup",
    "Operations": [
     {
      "$id": "22",
@@ -297,6 +300,7 @@
   {
    "$id": "30",
    "Name": "Group4",
+   "ClientNamespace": "Client.Structure.ClientOperationGroup",
    "Operations": [
     {
      "$id": "31",
@@ -376,6 +380,7 @@
   {
    "$id": "37",
    "Name": "SubNamespace.SecondClient",
+   "ClientNamespace": "Client.Structure.AnotherClientOperationGroup",
    "Operations": [
     {
      "$id": "38",
@@ -454,6 +459,7 @@
   {
    "$id": "44",
    "Name": "Group5",
+   "ClientNamespace": "Client.Structure.AnotherClientOperationGroup",
    "Operations": [
     {
      "$id": "45",

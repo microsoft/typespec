@@ -3,8 +3,8 @@
 
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Serialization.EncodedName.Json.Models;
 using Serialization.EncodedName.Json;
+using Serialization.EncodedName.Json._Property;
 
 namespace TestProjects.CadlRanch.Tests.Http.Serialization.EncodedName.Json
 {

@@ -125,28 +125,33 @@ namespace Microsoft.Generator.CSharp.Snippets
         public static ValueExpression Property(this FieldProvider field, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(field) : field, propertyName);
 
-        public static InvokeMethodExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters)
-            => field.Invoke(methodName, parameters, false, false);
+        public static InvokeMethodExpression Invoke(this FieldProvider field, string methodName, IEnumerable<ValueExpression> parameters, CSharpType? extensionType = null)
+            => field.Invoke(methodName, parameters, false, false, extensionType: extensionType);
 
         public static InvokeMethodExpression Invoke(this FieldProvider field,
             string methodName,
             IEnumerable<ValueExpression> parameters,
             bool isAsync,
-            bool configureAwait)
+            bool configureAwait,
+            CSharpType? extensionType = null)
             => new InvokeMethodExpression(field, methodName, [.. parameters])
             {
-                CallAsAsync = isAsync, AddConfigureAwaitFalse = configureAwait
+                CallAsAsync = isAsync,
+                AddConfigureAwaitFalse = configureAwait,
+                ExtensionType = extensionType
             };
 
         public static ValueExpression Invoke(this PropertyProvider property,
             string methodName,
             IEnumerable<ValueExpression> parameters,
             bool isAsync,
-            bool configureAwait)
+            bool configureAwait,
+            CSharpType? extensionType = null)
             => new InvokeMethodExpression(property, methodName, [.. parameters])
             {
                 CallAsAsync = isAsync,
-                AddConfigureAwaitFalse = configureAwait
+                AddConfigureAwaitFalse = configureAwait,
+                ExtensionType = extensionType
             };
 
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)

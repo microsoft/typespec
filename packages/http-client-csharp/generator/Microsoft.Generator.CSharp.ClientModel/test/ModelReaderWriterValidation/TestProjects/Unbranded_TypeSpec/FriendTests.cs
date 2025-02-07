@@ -3,9 +3,8 @@
 
 using System.ClientModel;
 using System.IO;
-using NUnit.Framework;
-using UnbrandedTypeSpec.Models;
 using Microsoft.Generator.CSharp.Tests.Common;
+using NUnit.Framework;
 using UnbrandedTypeSpec.Models.Custom;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec

@@ -4,6 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using Payload.ContentNegotiation._DifferentBody;
+using Payload.ContentNegotiation._SameBody;
 
 namespace Payload.ContentNegotiation
 {

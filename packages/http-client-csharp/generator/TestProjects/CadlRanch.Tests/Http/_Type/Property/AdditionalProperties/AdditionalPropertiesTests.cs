@@ -2,15 +2,14 @@
 // Licensed under the MIT License.
 
 
-using NUnit.Framework;
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using _Type.Property.AdditionalProperties.Models;
-using _Type.Property.AdditionalProperties;
 using System.Reflection;
+using System.Threading.Tasks;
+using _Type.Property.AdditionalProperties;
+using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
 {

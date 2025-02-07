@@ -4,7 +4,7 @@
 
 using System;
 
-namespace _Type.Union.Models
+namespace _Type.Union
 {
     public partial class MixedLiteralsCases
     {
