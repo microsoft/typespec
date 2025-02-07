@@ -34,7 +34,7 @@ stages:
             displayName: "Install deps"
             workingDirectory: packages/http-client-csharp
 
-          - script: npm run build
+          - script: npm run build:emitter
             displayName: Build
             workingDirectory: packages/http-client-csharp
 
