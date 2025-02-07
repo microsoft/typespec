@@ -38,7 +38,7 @@ stages:
             displayName: Build
             workingDirectory: packages/http-client-csharp
 
-          - script: npm run test
+          - script: npm run test:emitter
             displayName: Test
 
   - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
