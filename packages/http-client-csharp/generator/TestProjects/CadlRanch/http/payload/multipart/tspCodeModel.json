@@ -30,6 +30,7 @@
     }
    ],
    "crossLanguageDefinitionId": "",
+   "clientNamespace": "Payload.MultiPart",
    "doc": "The FileSpecificContentType_contentType",
    "isFixed": false,
    "isFlags": false,
@@ -42,6 +43,7 @@
    "$id": "5",
    "kind": "model",
    "name": "MultiPartRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.MultiPartRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -111,6 +113,7 @@
    "$id": "14",
    "kind": "model",
    "name": "ComplexPartsRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.ComplexPartsRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -153,6 +156,7 @@
       "$id": "20",
       "kind": "model",
       "name": "Address",
+      "clientNamespace": "Payload.MultiPart",
       "crossLanguageDefinitionId": "Payload.MultiPart.Address",
       "usage": "Input",
       "decorators": [],
@@ -274,6 +278,7 @@
    "$id": "35",
    "kind": "model",
    "name": "JsonPartRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.JsonPartRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -339,6 +344,7 @@
    "$id": "43",
    "kind": "model",
    "name": "BinaryArrayPartsRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.BinaryArrayPartsRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -415,6 +421,7 @@
    "$id": "53",
    "kind": "model",
    "name": "MultiBinaryPartsRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.MultiBinaryPartsRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -485,6 +492,7 @@
    "$id": "62",
    "kind": "model",
    "name": "AnonymousModelRequest",
+   "clientNamespace": "",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.anonymousModel.Request.anonymous",
    "usage": "MultipartFormData,Spread",
    "decorators": [],
@@ -525,6 +533,7 @@
    "$id": "67",
    "kind": "model",
    "name": "ComplexHttpPartsModelRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.ComplexHttpPartsModelRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -596,6 +605,7 @@
       "$id": "76",
       "kind": "model",
       "name": "FileRequiredMetaData",
+      "clientNamespace": "Payload.MultiPart",
       "crossLanguageDefinitionId": "Payload.MultiPart.FileRequiredMetaData",
       "usage": "Input",
       "decorators": [],
@@ -603,6 +613,7 @@
        "$id": "77",
        "kind": "model",
        "name": "File",
+       "clientNamespace": "TypeSpec.Http",
        "crossLanguageDefinitionId": "TypeSpec.Http.File",
        "usage": "Input",
        "decorators": [],
@@ -930,6 +941,7 @@
    "$id": "4781",
    "kind": "model",
    "name": "FloatRequest",
+   "clientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.anonymous",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -1001,6 +1013,7 @@
    "$id": "5620",
    "kind": "model",
    "name": "FloatRequestTemperature",
+   "clientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "crossLanguageDefinitionId": "Payload.MultiPart.FormData.HttpParts.NonString.float.Request.temperature.anonymous",
    "usage": "Input",
    "decorators": [],
@@ -1010,6 +1023,7 @@
    "$id": "5621",
    "kind": "model",
    "name": "FileWithHttpPartSpecificContentTypeRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartSpecificContentTypeRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -1023,6 +1037,7 @@
       "$id": "5623",
       "kind": "model",
       "name": "FileSpecificContentType",
+      "clientNamespace": "Payload.MultiPart",
       "crossLanguageDefinitionId": "Payload.MultiPart.FileSpecificContentType",
       "usage": "Input",
       "decorators": [],
@@ -1168,6 +1183,7 @@
    "$id": "5642",
    "kind": "model",
    "name": "FileWithHttpPartRequiredContentTypeRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartRequiredContentTypeRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -1259,6 +1275,7 @@
    "$id": "5652",
    "kind": "model",
    "name": "FileWithHttpPartOptionalContentTypeRequest",
+   "clientNamespace": "Payload.MultiPart",
    "crossLanguageDefinitionId": "Payload.MultiPart.FileWithHttpPartOptionalContentTypeRequest",
    "usage": "Input,MultipartFormData",
    "decorators": [],
@@ -1272,6 +1289,7 @@
       "$id": "5654",
       "kind": "model",
       "name": "FileOptionalContentType",
+      "clientNamespace": "Payload.MultiPart",
       "crossLanguageDefinitionId": "Payload.MultiPart.FileOptionalContentType",
       "usage": "Input",
       "decorators": [],
@@ -1386,6 +1404,7 @@
   {
    "$id": "5668",
    "Name": "MultiPartClient",
+   "ClientNamespace": "Payload.MultiPart",
    "Doc": "Test for multipart",
    "Operations": [],
    "Protocol": {
@@ -1429,6 +1448,7 @@
   {
    "$id": "5674",
    "Name": "FormData",
+   "ClientNamespace": "Payload.MultiPart.FormData",
    "Operations": [
     {
      "$id": "5675",
@@ -2005,6 +2025,7 @@
   {
    "$id": "5722",
    "Name": "FormDataHttpParts",
+   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts",
    "Operations": [
     {
      "$id": "5723",
@@ -2125,6 +2146,7 @@
   {
    "$id": "5734",
    "Name": "FormDataHttpPartsContentType",
+   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts.ContentType",
    "Operations": [
     {
      "$id": "5735",
@@ -2397,6 +2419,7 @@
   {
    "$id": "5758",
    "Name": "FormDataHttpPartsNonString",
+   "ClientNamespace": "Payload.MultiPart.FormData.HttpParts.NonString",
    "Operations": [
     {
      "$id": "5759",

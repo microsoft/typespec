@@ -55,6 +55,7 @@ export function fromSdkType(
       retVar = {
         kind: "nullable",
         type: inputType,
+        clientNamespace: sdkType.clientNamespace,
       };
       break;
     case "model":
@@ -115,6 +116,7 @@ export function fromSdkModelType(
     inputModelType = {
       kind: "model",
       name: modelTypeName,
+      clientNamespace: modelType.clientNamespace,
       crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
       access: getAccessOverride(
         context,
@@ -142,6 +144,7 @@ export function fromSdkModelType(
       const ourProperty = fromSdkModelProperty(property, {
         ModelName: modelTypeName,
         Usage: modelType.usage,
+        ClientNamespace: modelType.clientNamespace,
       } as LiteralTypeContext);
       propertiesDict.set(property, ourProperty);
     }
@@ -227,6 +230,7 @@ export function fromSdkEnumType(
         context,
         enumType.__raw as any,
       ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the enumType.access,*/,
+      clientNamespace: enumType.clientNamespace,
       deprecation: enumType.deprecation,
       summary: enumType.summary,
       doc: enumType.doc,
@@ -304,6 +308,7 @@ function fromUnionType(
     kind: "union",
     name: union.name,
     variantTypes: variantTypes,
+    clientNamespace: union.clientNamespace,
     decorators: union.decorators,
   };
 }
@@ -341,6 +346,7 @@ function fromSdkConstantType(
       values: values,
       crossLanguageDefinitionId: "",
       access: undefined,
+      clientNamespace: literalTypeContext.ClientNamespace,
       doc: `The ${enumName}`, // TODO -- what should we put here?
       isFixed: false,
       isFlags: false,

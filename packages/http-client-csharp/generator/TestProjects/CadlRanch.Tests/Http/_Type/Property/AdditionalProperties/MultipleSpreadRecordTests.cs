@@ -3,7 +3,7 @@
 
 using System.ClientModel;
 using System.IO;
-using _Type.Property.AdditionalProperties.Models;
+using _Type.Property.AdditionalProperties;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
 using TestProjects.CadlRanch.Tests.Infrastructure;

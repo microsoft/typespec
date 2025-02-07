@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
-using NUnit.Framework;
 using System;
-using System.Xml;
-using _Type.Property.ValueTypes;
-using _Type.Property.ValueTypes.Models;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
+using System.Xml;
+using _Type.Property.ValueTypes;
+using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Property.ValueTypes
 {
