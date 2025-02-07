@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Encode.Datetime.Models
+namespace Encode.Datetime
 {
     public partial class UnixTimestampArrayDatetimeProperty
     {

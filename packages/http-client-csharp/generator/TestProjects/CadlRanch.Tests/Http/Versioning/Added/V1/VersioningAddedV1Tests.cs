@@ -6,8 +6,7 @@ extern alias VersioningAddedV1;
 using System;
 using System.Linq;
 using NUnit.Framework;
-using VersioningAddedV1::Versioning.Added.V1;
-using VersioningAddedV1::Versioning.Added.V1.Models;
+using VersioningAddedV1::Versioning.Added;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V1
 {

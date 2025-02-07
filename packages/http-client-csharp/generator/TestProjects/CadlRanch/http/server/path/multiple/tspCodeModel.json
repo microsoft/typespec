@@ -37,6 +37,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Server.Path.Multiple",
    "doc": "Service versions",
    "isFixed": true,
    "isFlags": false,
@@ -49,6 +50,7 @@
   {
    "$id": "6",
    "Name": "MultipleClient",
+   "ClientNamespace": "Server.Path.Multiple",
    "Operations": [
     {
      "$id": "7",

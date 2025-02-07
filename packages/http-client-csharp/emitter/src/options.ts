@@ -19,7 +19,6 @@ export interface NetEmitterOptions extends SdkEmitterOptions {
   "new-project"?: boolean;
   "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
-  "model-namespace"?: boolean;
   debug?: boolean;
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
@@ -53,7 +52,6 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     "new-project": { type: "boolean", nullable: true },
     "clear-output-folder": { type: "boolean", nullable: true },
     "save-inputs": { type: "boolean", nullable: true },
-    "model-namespace": { type: "boolean", nullable: true },
     "generate-protocol-methods": { type: "boolean", nullable: true },
     "generate-convenience-methods": { type: "boolean", nullable: true },
     "flatten-union-as-enum": { type: "boolean", nullable: true },

@@ -2,7 +2,10 @@
 
 #nullable disable
 
-namespace Parameters.Basic.Models
+using Parameters.Basic._ExplicitBody;
+using Parameters.Basic._ImplicitBody;
+
+namespace Parameters.Basic
 {
     public static partial class ParametersBasicModelFactory
     {

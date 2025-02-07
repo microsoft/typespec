@@ -75,8 +75,6 @@ import {
 import {
   EmitContext,
   Interface,
-  Model,
-  ModelProperty,
   Namespace,
   NoTarget,
   Operation,
@@ -85,7 +83,6 @@ import {
   TypeNameOptions,
   Union,
   getDoc,
-  getEffectiveModelType,
   getNamespaceFullName,
   getOverloadedOperation,
   getSummary,
@@ -125,7 +122,6 @@ import {
   getServiceVersion,
   isKnownContentType,
   isLroNewPollingStrategy,
-  isPayloadProperty,
   operationIsJsonMergePatch,
   operationIsMultipart,
   operationIsMultipleContentTypes,
@@ -1723,11 +1719,6 @@ export class CodeModelBuilder {
     }
   }
 
-  private findResponseBody(bodyType: Type): Type {
-    // find a type that possibly without http metadata like @statusCode
-    return this.getEffectiveSchemaType(bodyType);
-  }
-
   private processResponse(
     op: CodeModelOperation,
     statusCode: number | HttpStatusCodeRange | "*",
@@ -2265,24 +2256,6 @@ export class CodeModelBuilder {
     }
 
     return objectSchema;
-  }
-
-  private getEffectiveSchemaType(type: Type): Type {
-    const program = this.program;
-    function isSchemaProperty(property: ModelProperty) {
-      return isPayloadProperty(program, property);
-    }
-
-    if (type.kind === "Model") {
-      const effective = getEffectiveModelType(program, type, isSchemaProperty);
-      if (this.isArm() && getNamespace(effective as Model)?.startsWith("Azure.ResourceManager")) {
-        // e.g. typespec: Catalog is TrackedResource<CatalogProperties>
-        return type;
-      } else if (effective.name) {
-        return effective;
-      }
-    }
-    return type;
   }
 
   private processModelProperty(prop: SdkModelPropertyType): Property {

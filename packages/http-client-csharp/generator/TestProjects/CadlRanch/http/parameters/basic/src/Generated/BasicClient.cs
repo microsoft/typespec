@@ -4,6 +4,8 @@
 
 using System;
 using System.ClientModel.Primitives;
+using Parameters.Basic._ExplicitBody;
+using Parameters.Basic._ImplicitBody;
 
 namespace Parameters.Basic
 {

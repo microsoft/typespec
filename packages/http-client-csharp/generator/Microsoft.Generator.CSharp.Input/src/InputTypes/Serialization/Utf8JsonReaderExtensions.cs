@@ -53,6 +53,24 @@ namespace Microsoft.Generator.CSharp.Input
             return true;
         }
 
+        public static bool TryReadNullableBoolean(this ref Utf8JsonReader reader, string propertyName, ref bool? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            value = reader.TokenType == JsonTokenType.Null ? null : reader.GetBoolean();
+            reader.Read();
+            return true;
+        }
+
         public static bool TryReadBoolean(this ref Utf8JsonReader reader, string propertyName, ref bool value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)

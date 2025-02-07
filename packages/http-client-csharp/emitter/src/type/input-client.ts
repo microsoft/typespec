@@ -8,6 +8,7 @@ import { Protocols } from "./protocols.js";
 
 export interface InputClient {
   Name: string;
+  ClientNamespace: string;
   Summary?: string;
   Doc?: string;
   Operations: InputOperation[];

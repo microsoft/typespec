@@ -1,7 +1,7 @@
 using UnbrandedTypeSpec;
 using System;
 
-namespace Sample.Models
+namespace Sample
 {
     internal static partial class SampleNamespaceModelFactory
     {

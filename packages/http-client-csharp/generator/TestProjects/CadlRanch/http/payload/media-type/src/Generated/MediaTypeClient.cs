@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using Payload.MediaType._StringBody;
 
 namespace Payload.MediaType
 {

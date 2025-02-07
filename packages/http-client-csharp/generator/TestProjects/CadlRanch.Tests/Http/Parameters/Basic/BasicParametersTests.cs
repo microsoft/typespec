@@ -5,7 +5,7 @@ using System.ClientModel;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Parameters.Basic;
-using Parameters.Basic.Models;
+using Parameters.Basic._ExplicitBody;
 
 namespace TestProjects.CadlRanch.Tests.Http.Parameters.Basic
 {
