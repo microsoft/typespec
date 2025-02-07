@@ -41,7 +41,8 @@
     "ci": "npm run test:emitter && npm run ci:generator --",
     "ci:generator": "tsx ./eng/scripts/ci/run-ci.ts",
     "test:generator": "tsx ./eng/scripts/ci/run-ci.ts --command=test",
-    "test:emitter": "vitest run -c ./emitter/vitest.config.ts"
+    "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
+    "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python"
   },
   "files": [
     "dist/**",

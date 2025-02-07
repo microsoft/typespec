@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "VisibilityModel",
+   "clientNamespace": "Type.Model.Visibility",
    "crossLanguageDefinitionId": "Type.Model.Visibility.VisibilityModel",
    "usage": "Input,Output,Json",
    "doc": "Output model with visibility properties.",
@@ -168,6 +169,7 @@
    "$id": "25",
    "kind": "model",
    "name": "ReadOnlyModel",
+   "clientNamespace": "Type.Model.Visibility",
    "crossLanguageDefinitionId": "Type.Model.Visibility.ReadOnlyModel",
    "usage": "Input,Output,Json",
    "doc": "RoundTrip model with readonly optional properties.",
@@ -195,7 +197,8 @@
        },
        "crossLanguageDefinitionId": "TypeSpec.Array",
        "decorators": []
-      }
+      },
+      "clientNamespace": ""
      },
      "optional": true,
      "readOnly": true,
@@ -257,6 +260,7 @@
   {
    "$id": "38",
    "Name": "VisibilityClient",
+   "ClientNamespace": "Type.Model.Visibility",
    "Doc": "Illustrates models with visibility properties.",
    "Operations": [
     {

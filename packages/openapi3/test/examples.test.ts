@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { OpenAPI3Document } from "../src/types.js";
+import { OpenAPI3Document, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 import { worksFor } from "./works-for.js";
 
@@ -67,7 +67,9 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
 
       `,
     );
-    expect(res.paths["/"].post?.requestBody?.content["application/json"].example).toEqual({
+    expect(
+      (res.paths["/"].post?.requestBody as OpenAPI3RequestBody).content["application/json"].example,
+    ).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -87,7 +89,10 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
 
       `,
     );
-    expect(res.paths["/"].post?.requestBody?.content["application/json"].examples).toEqual({
+    expect(
+      (res.paths["/"].post?.requestBody as OpenAPI3RequestBody).content["application/json"]
+        .examples,
+    ).toEqual({
       MyExample: {
         summary: "MyExample",
         value: {

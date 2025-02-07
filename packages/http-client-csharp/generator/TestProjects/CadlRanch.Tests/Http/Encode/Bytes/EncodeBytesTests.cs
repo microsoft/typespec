@@ -6,7 +6,6 @@ using System.ClientModel;
 using System.IO;
 using System.Threading.Tasks;
 using Encode.Bytes;
-using Encode.Bytes.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Encode.Bytes

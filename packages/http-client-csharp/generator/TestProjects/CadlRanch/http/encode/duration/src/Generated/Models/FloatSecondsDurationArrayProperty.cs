@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Encode.Duration.Models
+namespace Encode.Duration._Property
 {
     public partial class FloatSecondsDurationArrayProperty
     {

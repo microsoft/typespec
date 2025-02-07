@@ -4,6 +4,10 @@
 
 using System;
 using System.ClientModel.Primitives;
+using Encode.Datetime._Header;
+using Encode.Datetime._Property;
+using Encode.Datetime._Query;
+using Encode.Datetime._ResponseHeader;
 
 namespace Encode.Datetime
 {

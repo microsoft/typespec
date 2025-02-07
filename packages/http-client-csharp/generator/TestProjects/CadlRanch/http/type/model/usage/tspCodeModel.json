@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InputRecord",
+   "clientNamespace": "Type.Model.Usage",
    "crossLanguageDefinitionId": "Type.Model.Usage.InputRecord",
    "usage": "Input,Json",
    "doc": "Record used in operation parameters",
@@ -45,6 +46,7 @@
    "$id": "7",
    "kind": "model",
    "name": "OutputRecord",
+   "clientNamespace": "Type.Model.Usage",
    "crossLanguageDefinitionId": "Type.Model.Usage.OutputRecord",
    "usage": "Output,Json",
    "doc": "Record used in operation return type",
@@ -82,6 +84,7 @@
    "$id": "12",
    "kind": "model",
    "name": "InputOutputRecord",
+   "clientNamespace": "Type.Model.Usage",
    "crossLanguageDefinitionId": "Type.Model.Usage.InputOutputRecord",
    "usage": "Input,Output,Json",
    "doc": "Record used both as operation parameter and return type",
@@ -120,6 +123,7 @@
   {
    "$id": "17",
    "Name": "UsageClient",
+   "ClientNamespace": "Type.Model.Usage",
    "Doc": "Illustrates usage of Record in different places(Operation parameters, return type or both).",
    "Operations": [
     {

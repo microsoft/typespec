@@ -10,6 +10,7 @@ import {
   TypeSpecOperationParameter,
   TypeSpecRequestBody,
 } from "../interfaces.js";
+import { Context } from "../utils/context.js";
 import { getExtensions, getParameterDecorators } from "../utils/decorators.js";
 import { getScopeAndName } from "../utils/get-scope-and-name.js";
 import { supportedHttpMethods } from "../utils/supported-http-methods.js";
@@ -20,7 +21,10 @@ import { supportedHttpMethods } from "../utils/supported-http-methods.js";
  * @param paths
  * @returns
  */
-export function transformPaths(paths: Record<string, OpenAPI3PathItem>): TypeSpecOperation[] {
+export function transformPaths(
+  paths: Record<string, OpenAPI3PathItem>,
+  context: Context,
+): TypeSpecOperation[] {
   const operations: TypeSpecOperation[] = [];
 
   for (const route of Object.keys(paths)) {
@@ -51,7 +55,7 @@ export function transformPaths(paths: Record<string, OpenAPI3PathItem>): TypeSpe
         parameters: dedupeParameters([...routeParameters, ...parameters]),
         doc: operation.description,
         operationId: operation.operationId,
-        requestBodies: transformRequestBodies(operation.requestBody),
+        requestBodies: transformRequestBodies(operation.requestBody, context),
         responses: operationResponses,
         tags: tags,
       });
@@ -102,7 +106,20 @@ function transformOperationParameter(
   };
 }
 
-function transformRequestBodies(requestBodies?: OpenAPI3RequestBody): TypeSpecRequestBody[] {
+function transformRequestBodies(
+  requestBodies: Refable<OpenAPI3RequestBody> | undefined,
+  context: Context,
+): TypeSpecRequestBody[] {
+  if (!requestBodies) {
+    return [];
+  }
+
+  const description = requestBodies.description;
+
+  if ("$ref" in requestBodies) {
+    requestBodies = context.getByRef<OpenAPI3RequestBody>(requestBodies.$ref);
+  }
+
   if (!requestBodies) {
     return [];
   }
@@ -113,7 +130,7 @@ function transformRequestBodies(requestBodies?: OpenAPI3RequestBody): TypeSpecRe
     typespecBodies.push({
       contentType,
       isOptional: !requestBodies.required,
-      doc: requestBodies.description,
+      doc: description ?? requestBodies.description,
       encoding: contentBody.encoding,
       schema: contentBody.schema,
     });

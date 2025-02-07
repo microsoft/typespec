@@ -6,9 +6,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.Removed.V1.Models;
 
-namespace Versioning.Removed.V1
+namespace Versioning.Removed
 {
     public partial class InterfaceV1
     {

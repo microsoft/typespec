@@ -13,13 +13,6 @@ namespace Microsoft.Generator.CSharp
     /// </summary>
     public class Configuration
     {
-        private static readonly string[] _badNamespaces =
-        [
-            "Type",
-            "Array",
-            "Enum",
-        ];
-
         internal enum UnreferencedTypesHandlingOption
         {
             RemoveOrInternalize = 0,
@@ -36,8 +29,6 @@ namespace Microsoft.Generator.CSharp
             OutputDirectory = null!;
             AdditionalConfigOptions = null!;
             LibraryName = null!;
-            RootNamespace = null!;
-            ModelNamespace = null!;
         }
 
         private Configuration(
@@ -45,8 +36,6 @@ namespace Microsoft.Generator.CSharp
             Dictionary<string, BinaryData> additionalConfigOptions,
             bool clearOutputFolder,
             string libraryName,
-            bool useModelNamespace,
-            string libraryNamespace,
             bool disableXmlDocs,
             UnreferencedTypesHandlingOption unreferencedTypesHandling)
         {
@@ -54,67 +43,8 @@ namespace Microsoft.Generator.CSharp
             AdditionalConfigOptions = additionalConfigOptions;
             ClearOutputFolder = clearOutputFolder;
             LibraryName = libraryName;
-            UseModelNamespace = useModelNamespace;
-            RootNamespace = GetCleanNameSpace(libraryNamespace);
-            ModelNamespace = useModelNamespace ? $"{RootNamespace}.Models" : RootNamespace;
             DisableXmlDocs = disableXmlDocs;
             UnreferencedTypesHandling = unreferencedTypesHandling;
-        }
-
-        private string GetCleanNameSpace(string libraryNamespace)
-        {
-            Span<char> dest = stackalloc char[libraryNamespace.Length + GetSegmentCount(libraryNamespace)];
-            var source = libraryNamespace.AsSpan();
-            var destIndex = 0;
-            var nextDot = source.IndexOf('.');
-            while (nextDot != -1)
-            {
-                var segment = source.Slice(0, nextDot);
-                if (IsSpecialSegment(segment))
-                {
-                    dest[destIndex] = '_';
-                    destIndex++;
-                }
-                segment.CopyTo(dest.Slice(destIndex));
-                destIndex += segment.Length;
-                dest[destIndex] = '.';
-                destIndex++;
-                source = source.Slice(nextDot + 1);
-                nextDot = source.IndexOf('.');
-            }
-            if (IsSpecialSegment(source))
-            {
-                dest[destIndex] = '_';
-                destIndex++;
-            }
-            source.CopyTo(dest.Slice(destIndex));
-            destIndex += source.Length;
-            return dest.Slice(0, destIndex).ToString();
-        }
-
-        private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
-        {
-            for (int i = 0; i < _badNamespaces.Length; i++)
-            {
-                if (readOnlySpan.Equals(_badNamespaces[i], StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private static int GetSegmentCount(string libraryNamespace)
-        {
-            int count = 0;
-            for (int i = 0; i < libraryNamespace.Length; i++)
-            {
-                if (libraryNamespace[i] == '.')
-                {
-                    count++;
-                }
-            }
-            return ++count;
         }
 
         /// <summary>
@@ -124,8 +54,6 @@ namespace Microsoft.Generator.CSharp
         {
             public const string ClearOutputFolder = "clear-output-folder";
             public const string LibraryName = "library-name";
-            public const string Namespace = "namespace";
-            public const string UseModelNamespace = "use-model-namespace";
             public const string DisableXmlDocs = "disable-xml-docs";
             public const string UnreferencedTypesHandling = "unreferenced-types-handling";
         }
@@ -134,12 +62,6 @@ namespace Microsoft.Generator.CSharp
         /// Gets whether XML docs are disabled.
         /// </summary>
         public bool DisableXmlDocs { get; }
-
-        /// <summary> Gets the root namespace for the library. </summary>
-        public string RootNamespace { get; }
-
-        /// <summary> Gets the namespace for the models. </summary>
-        public string ModelNamespace { get; }
 
         /// <summary>
         /// Gets the root output directory for the generated library.
@@ -187,11 +109,6 @@ namespace Microsoft.Generator.CSharp
         public Dictionary<string, BinaryData> AdditionalConfigOptions { get; }
 
         /// <summary>
-        /// True if the models contain a separate namespace.
-        /// </summary>
-        internal bool UseModelNamespace { get; private set; }
-
-        /// <summary>
         /// Initializes the configuration from the given path to the configuration file.
         /// </summary>
         /// <param name="outputPath">The path to the configuration JSON file.</param>
@@ -212,8 +129,6 @@ namespace Microsoft.Generator.CSharp
                 ParseAdditionalConfigOptions(root),
                 ReadOption(root, Options.ClearOutputFolder),
                 ReadRequiredStringOption(root, Options.LibraryName),
-                ReadOption(root, Options.UseModelNamespace),
-                ReadRequiredStringOption(root, Options.Namespace),
                 ReadOption(root, Options.DisableXmlDocs),
                 ReadEnumOption<UnreferencedTypesHandlingOption>(root, Options.UnreferencedTypesHandling));
         }
@@ -223,7 +138,6 @@ namespace Microsoft.Generator.CSharp
         /// </summary>
         private static readonly Dictionary<string, bool> _defaultBoolOptionValues = new()
         {
-            { Options.UseModelNamespace, true },
             { Options.ClearOutputFolder, true },
             { Options.DisableXmlDocs, false },
         };
@@ -235,8 +149,6 @@ namespace Microsoft.Generator.CSharp
         {
             Options.ClearOutputFolder,
             Options.LibraryName,
-            Options.UseModelNamespace,
-            Options.Namespace,
             Options.DisableXmlDocs,
             Options.UnreferencedTypesHandling,
         };

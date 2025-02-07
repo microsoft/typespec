@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace _Type.Property.ValueTypes.Models
+namespace _Type.Property.ValueTypes
 {
     public static partial class TypePropertyValueTypesModelFactory
     {

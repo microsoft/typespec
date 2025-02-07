@@ -1379,3 +1379,220 @@ model Foo {
     await validateTsp(tsp);
   });
 });
+
+describe("requestBody", () => {
+  it("generates operations with body", async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      schemas: {
+        Foo: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            message: { type: "string" },
+          },
+          required: ["id"],
+        },
+      },
+      paths: {
+        "/": {
+          post: {
+            operationId: "postFoo",
+            parameters: [],
+            responses: {
+              "200": {
+                description: "test response",
+              },
+            },
+            requestBody: {
+              description: "This is a test",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Foo" },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(tsp).toMatchInlineSnapshot(`
+      "import "@typespec/http";
+      import "@typespec/openapi";
+      import "@typespec/openapi3";
+
+      using Http;
+      using OpenAPI;
+
+      @service({
+        title: "Test Service",
+      })
+      @info({
+        version: "1.0.0",
+      })
+      namespace TestService;
+
+      model Foo {
+        id: string;
+        message?: string;
+      }
+
+      @route("/") @post op postFoo(
+        /**
+         * This is a test
+         */
+        @body body: Foo,
+      ): OkResponse;
+      "
+    `);
+
+    await validateTsp(tsp);
+  });
+
+  it("supports $ref", async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      schemas: {
+        Foo: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            message: { type: "string" },
+          },
+          required: ["id"],
+        },
+      },
+      requestBodies: {
+        FooBody: {
+          description: "This is a test",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Foo" },
+            },
+          },
+        },
+      },
+      paths: {
+        "/": {
+          post: {
+            operationId: "postFoo",
+            parameters: [],
+            responses: {
+              "200": {
+                description: "test response",
+              },
+            },
+            requestBody: {
+              $ref: "#/components/requestBodies/FooBody",
+            },
+          },
+        },
+      },
+    });
+
+    expect(tsp).toMatchInlineSnapshot(`
+      "import "@typespec/http";
+      import "@typespec/openapi";
+      import "@typespec/openapi3";
+
+      using Http;
+      using OpenAPI;
+
+      @service({
+        title: "Test Service",
+      })
+      @info({
+        version: "1.0.0",
+      })
+      namespace TestService;
+
+      model Foo {
+        id: string;
+        message?: string;
+      }
+
+      @route("/") @post op postFoo(
+        /**
+         * This is a test
+         */
+        @body body: Foo,
+      ): OkResponse;
+      "
+    `);
+
+    await validateTsp(tsp);
+  });
+
+  it("supports overriding description in $ref", async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      schemas: {
+        Foo: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            message: { type: "string" },
+          },
+          required: ["id"],
+        },
+      },
+      requestBodies: {
+        FooBody: {
+          description: "This is a test",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/Foo" },
+            },
+          },
+        },
+      },
+      paths: {
+        "/": {
+          post: {
+            operationId: "postFoo",
+            parameters: [],
+            responses: {
+              "200": {
+                description: "test response",
+              },
+            },
+            requestBody: {
+              description: "Overwritten description",
+              $ref: "#/components/requestBodies/FooBody",
+            },
+          },
+        },
+      },
+    });
+
+    expect(tsp).toMatchInlineSnapshot(`
+      "import "@typespec/http";
+      import "@typespec/openapi";
+      import "@typespec/openapi3";
+
+      using Http;
+      using OpenAPI;
+
+      @service({
+        title: "Test Service",
+      })
+      @info({
+        version: "1.0.0",
+      })
+      namespace TestService;
+
+      model Foo {
+        id: string;
+        message?: string;
+      }
+
+      @route("/") @post op postFoo(
+        /**
+         * Overwritten description
+         */
+        @body body: Foo,
+      ): OkResponse;
+      "
+    `);
+
+    await validateTsp(tsp);
+  });
+});

@@ -45,7 +45,7 @@ op Widgets_list(): Body<Widget[]> | GeneratedHelpers.DefaultResponse<
 @tag("Widgets")
 @route("/widgets")
 @post
-op Widgets_create(@bodyRoot body: WidgetCreate): Widget | GeneratedHelpers.DefaultResponse<
+op Widgets_create(@body body: WidgetCreate): Widget | GeneratedHelpers.DefaultResponse<
   Description = "An unexpected error response.",
   Body = Error
 >;
@@ -71,7 +71,7 @@ op Widgets_read(@path id: string): Widget | GeneratedHelpers.DefaultResponse<
 @patch
 op Widgets_update(
   ...Parameters.Widget.id,
-  @bodyRoot body: WidgetUpdate,
+  @body body: WidgetUpdate,
 ): Widget | GeneratedHelpers.DefaultResponse<
   Description = "An unexpected error response.",
   Body = Error
