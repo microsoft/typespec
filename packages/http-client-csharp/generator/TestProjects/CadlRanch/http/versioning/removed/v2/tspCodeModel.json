@@ -38,6 +38,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Removed",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -91,6 +92,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Removed",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -164,6 +166,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Removed",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -176,6 +179,7 @@
    "$id": "20",
    "kind": "model",
    "name": "ModelV2",
+   "clientNamespace": "Versioning.Removed",
    "crossLanguageDefinitionId": "Versioning.Removed.ModelV2",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -253,6 +257,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "Versioning.Removed",
       "decorators": []
      },
      "optional": false,
@@ -275,6 +280,7 @@
    "$id": "34",
    "kind": "model",
    "name": "ModelV3",
+   "clientNamespace": "Versioning.Removed",
    "crossLanguageDefinitionId": "Versioning.Removed.ModelV3",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -334,6 +340,7 @@
   {
    "$id": "42",
    "Name": "RemovedClient",
+   "ClientNamespace": "Versioning.Removed",
    "Doc": "Test for the `@removed` decorator.",
    "Operations": [
     {

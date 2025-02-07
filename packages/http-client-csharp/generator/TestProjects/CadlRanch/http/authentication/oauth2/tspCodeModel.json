@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "InvalidAuth",
+   "clientNamespace": "Authentication.OAuth2",
    "crossLanguageDefinitionId": "Authentication.OAuth2.InvalidAuth",
    "usage": "Error,Json,Exception",
    "decorators": [],
@@ -45,6 +46,7 @@
   {
    "$id": "7",
    "Name": "OAuth2Client",
+   "ClientNamespace": "Authentication.OAuth2",
    "Doc": "Illustrates clients generated with OAuth2 authentication.",
    "Operations": [
     {

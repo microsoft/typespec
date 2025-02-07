@@ -2,7 +2,6 @@ using System.ClientModel;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Parameters.BodyOptionality;
-using Parameters.BodyOptionality.Models;
 
 namespace TestProjects.CadlRanch.Tests.Http.Parameters.BodyOptionality
 {

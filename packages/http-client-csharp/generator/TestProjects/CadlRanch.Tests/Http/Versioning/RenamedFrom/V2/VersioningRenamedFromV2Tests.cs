@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
+extern alias RenamedFromV2;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Versioning.RenamedFrom.V2;
-using Versioning.RenamedFrom.V2.Models;
+using NUnit.Framework;
+using RenamedFromV2::Versioning.RenamedFrom;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
 {
@@ -17,9 +17,9 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
         {
             var assembly = typeof(RenamedFromClient).Assembly;
             /* check the renamed model from `OldModel` to `NewModel` */
-            var oldModel = assembly.GetType("Versioning.RenamedFrom.V2.Models.OldModel");
+            var oldModel = assembly.GetType("Versioning.RenamedFrom.OldModel");
             Assert.IsNull(oldModel);
-            var newModel = assembly.GetType("Versioning.RenamedFrom.V2.Models.NewModel");
+            var newModel = assembly.GetType("Versioning.RenamedFrom.NewModel");
             Assert.IsNotNull(newModel);
 
             /* check the renamed property of model */
@@ -30,9 +30,9 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
             Assert.IsNotNull(typeof(NewModel).GetProperty("NewProp"));
 
             /* check the renamed enum from `OldEnum` to `NewEnum` */
-            var oldEnum = assembly.GetType("Versioning.RenamedFrom.V2.Models.OldEnum");
+            var oldEnum = assembly.GetType("Versioning.RenamedFrom.OldEnum");
             Assert.IsNull(oldEnum);
-            var newEnum = assembly.GetType("Versioning.RenamedFrom.V2.Models.NewEnum");
+            var newEnum = assembly.GetType("Versioning.RenamedFrom.NewEnum");
             Assert.IsNotNull(newEnum);
 
             /* check the renamed enum value */
@@ -49,9 +49,9 @@ namespace TestProjects.CadlRanch.Tests.Http.Versioning.RenamedFrom.V2
             Assert.AreEqual(4, newMethods.Count());
 
             /* check the renamed interface */
-            var oldInterface = assembly.GetType("Versioning.RenamedFrom.V2.OldInterface");
+            var oldInterface = assembly.GetType("Versioning.RenamedFrom.OldInterface");
             Assert.IsNull(oldInterface);
-            var newInterface = assembly.GetType("Versioning.RenamedFrom.V2.NewInterface");
+            var newInterface = assembly.GetType("Versioning.RenamedFrom.NewInterface");
             Assert.IsNotNull(newInterface);
         }
 

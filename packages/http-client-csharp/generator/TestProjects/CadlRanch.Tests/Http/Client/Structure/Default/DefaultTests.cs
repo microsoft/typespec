@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+extern alias ClientStructureDefault;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Client.Structure.Service.Default;
-using Client.Structure.Service.Default.Models;
+using ClientStructureDefault::Client.Structure.Service;
+using ClientStructureDefault::Client.Structure.Service._Baz;
+using ClientStructureDefault::Client.Structure.Service._Qux;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.Default

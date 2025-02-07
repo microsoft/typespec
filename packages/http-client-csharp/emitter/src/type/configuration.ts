@@ -6,6 +6,5 @@ export interface Configuration {
   namespace: string;
   "library-name": string | null;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
-  "model-namespace"?: boolean;
   "disable-xml-docs"?: boolean;
 }

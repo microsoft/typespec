@@ -19,8 +19,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
             string[] expectedValueTypeNames,
             string[] expectedValueKindChecks)
         {
-            var inputModel = InputFactory.Model("cat",
-                properties:
+            var inputModel = InputFactory.Model("cat", properties:
                 [
                     InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
                 ],
@@ -74,8 +73,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         public void TestBuildJsonModelWriteCore(
             InputType additionalPropsValueType)
         {
-            var inputModel = InputFactory.Model("cat",
-               properties:
+            var inputModel = InputFactory.Model("cat", properties:
                [
                    InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
                ],
