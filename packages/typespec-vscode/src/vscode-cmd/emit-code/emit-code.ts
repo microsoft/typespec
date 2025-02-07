@@ -8,7 +8,10 @@ import logger from "../../log/logger.js";
 import { InstallAction, npmDependencyType, NpmUtil } from "../../npm-utils.js";
 import { getDirectoryPath } from "../../path-utils.js";
 import { resolveTypeSpecCli } from "../../tsp-executable-resolver.js";
-import { getEntrypointTspFile, TraverseMainTspFileInWorkspace } from "../../typespec-utils.js";
+import {
+  getEntrypointTspFile,
+  TraverseEntrypointTspFileInWorkspace,
+} from "../../typespec-utils.js";
 import { ExecOutput, isFile, spawnExecutionAndLogToOutput } from "../../utils.js";
 import { EmitQuickPickItem } from "./emit-quick-pick-item.js";
 import {
@@ -385,7 +388,7 @@ async function doEmit(mainTspFile: string, emitter: Emitter) {
 export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri) {
   let tspProjectFile: string = "";
   if (!uri) {
-    const targetPathes = await TraverseMainTspFileInWorkspace();
+    const targetPathes = await TraverseEntrypointTspFileInWorkspace();
     logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
     if (targetPathes.length === 0) {
       logger.info(`No entrypoint file (${StartFileName}) found. Generating Cancelled.`, [], {
