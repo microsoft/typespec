@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Agumenting a model expression will now report an error instead of silently failing to apply.
+Augmenting an expression will now report an error instead of silently failing to apply.
