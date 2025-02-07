@@ -8,6 +8,9 @@ pr:
     include:
       - main
       - release/*
+  path:
+    exclude:
+      - website/src/content/docs/docs/release-notes
 
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
