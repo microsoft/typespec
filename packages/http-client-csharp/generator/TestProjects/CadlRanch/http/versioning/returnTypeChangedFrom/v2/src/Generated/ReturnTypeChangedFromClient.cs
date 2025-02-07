@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Versioning.ReturnTypeChangedFrom.V2
+namespace Versioning.ReturnTypeChangedFrom
 {
     public partial class ReturnTypeChangedFromClient
     {

@@ -46,6 +46,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
 
         protected override string BuildName() => _inputClient.Name.ToCleanName();
 
+        protected override string BuildNamespace() => ClientProvider.Namespace;
+
         protected override PropertyProvider[] BuildProperties()
         {
             return [.. _pipelineMessage20xClassifiers.Values.OrderBy(v => v.Name)];
@@ -441,7 +443,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // convert the property to a parameter
                 var inputParameter = new InputParameter(
                     property.Name,
-                    property.SerializedName,
+                    property.SerializationOptions.Json?.Name ?? property.Name,
                     property.Summary,
                     property.Doc,
                     property.Type,

@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using _Type.Model.Empty;
-using _Type.Model.Empty.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Empty

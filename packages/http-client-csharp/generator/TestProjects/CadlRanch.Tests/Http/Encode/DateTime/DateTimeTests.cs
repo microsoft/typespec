@@ -4,7 +4,6 @@
 using System;
 using System.Threading.Tasks;
 using Encode.Datetime;
-using Encode.Datetime.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Encode.Datetime

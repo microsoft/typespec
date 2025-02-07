@@ -7,7 +7,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Client.Structure.Service
+namespace Client.Structure.ClientOperationGroup
 {
     public partial class Group4
     {

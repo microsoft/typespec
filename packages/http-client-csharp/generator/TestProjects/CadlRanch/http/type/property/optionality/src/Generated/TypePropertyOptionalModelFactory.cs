@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace _Type.Property.Optional.Models
+namespace _Type.Property.Optional
 {
     public static partial class TypePropertyOptionalModelFactory
     {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Versioning.Removed.V2Preview.Models
+namespace Versioning.Removed
 {
     public enum EnumV2
     {

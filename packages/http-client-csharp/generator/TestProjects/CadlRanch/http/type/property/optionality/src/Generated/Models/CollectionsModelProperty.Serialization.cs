@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace _Type.Property.Optional.Models
+namespace _Type.Property.Optional
 {
     public partial class CollectionsModelProperty : IJsonModel<CollectionsModelProperty>
     {

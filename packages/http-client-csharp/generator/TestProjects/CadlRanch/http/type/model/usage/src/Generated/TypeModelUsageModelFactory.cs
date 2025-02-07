@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace _Type.Model.Usage.Models
+namespace _Type.Model.Usage
 {
     public static partial class TypeModelUsageModelFactory
     {

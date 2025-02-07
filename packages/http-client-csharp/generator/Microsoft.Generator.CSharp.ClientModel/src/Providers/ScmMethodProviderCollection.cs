@@ -23,6 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
     {
         private string _cleanOperationName;
         private readonly MethodProvider _createRequestMethod;
+        private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
 
         private ClientProvider Client { get; }
 
@@ -432,7 +433,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             MethodBodyStatement[] methodBody =
             [
                 UsingDeclare("message", ClientModelPlugin.Instance.TypeFactory.HttpMessageApi.HttpMessageType, This.Invoke(createRequestMethod.Signature, [.. requiredParameters, ..optionalParameters, requestOptionsParameter]), out var message),
-                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true))),
+                Return(ClientModelPlugin.Instance.TypeFactory.ClientResponseApi.ToExpression().FromResponse(client.PipelineProperty.Invoke(processMessageName, [message, requestOptionsParameter], isAsync, true, extensionType: _clientPipelineExtensionsDefinition.Type))),
             ];
 
             var protocolMethod =
