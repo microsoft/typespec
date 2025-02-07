@@ -18,7 +18,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
         protected override string BuildName() => _typeName;
 
-        protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+        protected override string BuildNamespace() => "Sample.Models";
 
         public NamedSymbol(Type? propertyType = null, string name = "NamedSymbol")
         {

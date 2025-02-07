@@ -125,10 +125,12 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
             IEnumerable<InputEnumTypeValue>? values = null,
-            bool isExtensible = false)
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models")
         {
             return new InputEnumType(
                 name,
+                clientNamespace,
                 name,
                 access,
                 null,
@@ -152,17 +154,18 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         {
             return new InputModelProperty(
                 name,
-                wireName ?? name.ToVariableName(),
                 summary,
                 doc ?? $"Description for {name}",
                 type,
                 isRequired,
                 isReadOnly,
-                isDiscriminator);
+                isDiscriminator,
+                new(json: new(wireName ?? name.ToVariableName())));
         }
 
         public static InputModelType Model(
             string name,
+            string clientNamespace = "Sample.Models",
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input | InputModelTypeUsage.Json,
             IEnumerable<InputModelProperty>? properties = null,
@@ -176,6 +179,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
             return new InputModelType(
                 name,
+                clientNamespace,
                 name,
                 access,
                 null,
@@ -189,7 +193,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 propertiesList.FirstOrDefault(p => p.IsDiscriminator),
                 discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
                 additionalProperties,
-                modelAsStruct);
+                modelAsStruct,
+                new());
         }
 
         public static InputType Array(InputType elementType)
@@ -251,12 +256,13 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 ["application/json"]);
         }
 
-        public static InputClient Client(string name, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null)
+        public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputOperation>? operations = null, IEnumerable<InputParameter>? parameters = null, string? parent = null)
         {
             return new InputClient(
                 name,
-                "",
-                $"{name} description",
+                clientNamespace,
+                string.Empty,
+                doc ?? $"{name} description",
                 operations is null ? [] : [.. operations],
                 parameters is null ? [] : [.. parameters],
                 parent);

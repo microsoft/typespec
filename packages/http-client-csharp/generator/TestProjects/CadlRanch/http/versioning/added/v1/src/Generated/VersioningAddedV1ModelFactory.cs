@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Versioning.Added.V1.Models
+namespace Versioning.Added
 {
     public static partial class VersioningAddedV1ModelFactory
     {

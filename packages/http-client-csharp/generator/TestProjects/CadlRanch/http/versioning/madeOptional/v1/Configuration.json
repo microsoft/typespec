@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
-  "namespace": "Versioning.MadeOptional.V1",
+  "namespace": "Versioning.MadeOptional",
   "library-name": "Versioning.MadeOptional.V1"
 }

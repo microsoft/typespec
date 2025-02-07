@@ -86,8 +86,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void MultipleAdditionalProperties()
         {
-            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)],
-                additionalProperties: new InputUnionType("union", [InputPrimitiveType.String, InputPrimitiveType.Float64]));
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)], additionalProperties: new InputUnionType("union", [InputPrimitiveType.String, InputPrimitiveType.Float64]));
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);
@@ -98,8 +97,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
         [Test]
         public void BinaryDataAdditionalProperties()
         {
-            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)],
-                additionalProperties: InputPrimitiveType.Any);
+            var inputModel = InputFactory.Model("TestModel", properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)], additionalProperties: InputPrimitiveType.Any);
 
             var mrwProvider = new ModelProvider(inputModel).SerializationProviders.First();
             var writer = new TypeProviderWriter(mrwProvider);

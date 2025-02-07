@@ -7,9 +7,8 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Versioning.MadeOptional.V1.Models;
 
-namespace Versioning.MadeOptional.V1
+namespace Versioning.MadeOptional
 {
     public partial class MadeOptionalClient
     {

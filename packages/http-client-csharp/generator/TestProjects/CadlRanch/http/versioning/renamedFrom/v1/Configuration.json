@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
-  "namespace": "Versioning.RenamedFrom.V1",
+  "namespace": "Versioning.RenamedFrom",
   "library-name": "Versioning.RenamedFrom.V1"
 }
