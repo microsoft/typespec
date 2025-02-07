@@ -1,5 +1,5 @@
 // Set of projections consuming the @projectedName decorator
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection op#target {
   to(targetName) {
     if hasProjectedName(self, targetName) {
@@ -13,7 +13,7 @@ projection op#target {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection interface#target {
   to(targetName) {
     if hasProjectedName(self, targetName) {
@@ -27,7 +27,7 @@ projection interface#target {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection model#target {
   to(targetName) {
     if hasProjectedName(self, targetName) {
@@ -53,7 +53,7 @@ projection model#target {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection enum#target {
   to(targetName) {
     if hasProjectedName(self, targetName) {
@@ -79,7 +79,7 @@ projection enum#target {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection union#target {
   to(targetName) {
     if hasProjectedName(self, targetName) {
