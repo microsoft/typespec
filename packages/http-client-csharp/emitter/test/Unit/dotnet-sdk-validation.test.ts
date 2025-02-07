@@ -1,11 +1,11 @@
 
-console.log("✅ vi.mock() applied");
+console.log("vi.mock() applied");
 
 import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { SpawnOptions } from "child_process";
-import { afterAll, afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { _validateDotNetSdk } from "../../src/emitter.js";
 import { Logger, LoggerLevel } from "../../src/index.js";
 import { execAsync } from "../../src/lib/utils.js";
