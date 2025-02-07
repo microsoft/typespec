@@ -675,7 +675,7 @@ describe("compiler: semantic walker", () => {
 
     it("by default only include the template instantiations", async () => {
       const results = await runNavigator(`
-        @test namespace Foo;
+        namespace Foo;
       
         model Bar<T> {
           id: string;
