@@ -13,6 +13,7 @@ import {
   OpenAPI3Header,
   OpenAPI3Parameter,
   OpenAPI3PathItem,
+  OpenAPI3RequestBody,
   OpenAPI3Response,
   OpenAPI3Schema,
   Refable,
@@ -27,6 +28,7 @@ function wrapCodeInTest(code: string): string {
 export interface OpenAPI3Options {
   headers?: Record<string, OpenAPI3Header>;
   responses?: Record<string, OpenAPI3Response>;
+  requestBodies?: Record<string, Refable<OpenAPI3RequestBody>>;
   schemas?: Record<string, Refable<OpenAPI3Schema>>;
   parameters?: Record<string, Refable<OpenAPI3Parameter>>;
   paths?: Record<string, OpenAPI3PathItem>;
@@ -97,6 +99,9 @@ function buildOpenAPI3Doc(props: OpenAPI3Options): OpenAPI3Document {
       },
       responses: {
         ...(props.responses as any),
+      },
+      requestBodies: {
+        ...(props.requestBodies as any),
       },
       schemas: {
         ...(props.schemas as any),

@@ -19,12 +19,6 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`No Route for service for service ${"service"}`,
       },
     },
-    "invalid-name": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Invalid interface or operation group name ${"name"} when configuration "model-namespace" is on`,
-      },
-    },
     "general-warning": {
       severity: "warning",
       messages: {
@@ -56,6 +50,12 @@ const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         default: paramMessage`${"message"}`,
+      },
+    },
+    "client-namespace-conflict": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`namespace ${"clientNamespace"} conflicts with client ${"clientName"}, please use @clientName to specify a different name for the client.`,
       },
     },
     "unsupported-endpoint-url": {

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
+extern alias MadeOptionalV2;
 using System.Linq;
 using System.Threading.Tasks;
-using Versioning.MadeOptional.V2;
-using Versioning.MadeOptional.V2.Models;
+using MadeOptionalV2::Versioning.MadeOptional;
+using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.MadeOptional.V2
 {

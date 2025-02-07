@@ -6,7 +6,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace _Type.Property.AdditionalProperties.Models
+namespace _Type.Property.AdditionalProperties
 {
     internal partial class UnknownExtendsUnknownAdditionalPropertiesDiscriminated : IJsonModel<ExtendsUnknownAdditionalPropertiesDiscriminated>
     {

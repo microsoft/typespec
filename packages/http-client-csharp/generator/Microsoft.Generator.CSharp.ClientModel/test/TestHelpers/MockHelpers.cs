@@ -68,12 +68,13 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             InputAuth inputNsAuth = new InputAuth(apiKeyAuth?.Invoke(), oauth2Auth?.Invoke());
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
-                string.Empty,
+                "Sample",
                 inputNsApiVersions,
                 inputNsEnums,
                 inputNsModels,
                 inputNsClients,
-                inputNsAuth);
+                inputNsAuth,
+                Array.Empty<string>());
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
             mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);
 

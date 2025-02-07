@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Client.Structure.Service.Multi.Client.Models
+namespace Client.Structure.Service
 {
     public enum ClientType
     {

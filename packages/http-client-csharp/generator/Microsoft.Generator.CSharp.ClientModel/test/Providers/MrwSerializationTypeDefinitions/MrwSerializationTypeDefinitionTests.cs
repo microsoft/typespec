@@ -693,7 +693,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.MrwSerializatio
                 new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, false, new(json: new("requiredInt"))),
              };
 
-            var inputModel = new InputModelType("TestModel", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new());
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new());
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 

@@ -36,6 +36,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Added",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -73,6 +74,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.Added",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -85,6 +87,7 @@
    "$id": "10",
    "kind": "model",
    "name": "ModelV1",
+   "clientNamespace": "Versioning.Added",
    "crossLanguageDefinitionId": "Versioning.Added.ModelV1",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -144,6 +147,7 @@
   {
    "$id": "18",
    "Name": "AddedClient",
+   "ClientNamespace": "Versioning.Added",
    "Doc": "Test for the `@added` decorator.",
    "Operations": [
     {
