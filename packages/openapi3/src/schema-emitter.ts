@@ -75,7 +75,13 @@ import {
   OpenAPI3SchemaProperty,
   OpenAPISchema3_1,
 } from "./types.js";
-import { getDefaultValue, includeDerivedModel, isBytesKeptRaw, isStdType, validateComponentFixedFieldKey } from "./util.js";
+import {
+  getDefaultValue,
+  includeDerivedModel,
+  isBytesKeptRaw,
+  isStdType,
+  validateComponentFixedFieldKey,
+} from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
