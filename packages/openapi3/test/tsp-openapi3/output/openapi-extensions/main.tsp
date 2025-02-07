@@ -48,12 +48,4 @@ model NestedConfig {
   id: "some";
 }
 
-/**
- * The request has succeeded.
- */
-model foo200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Foo;
-}
-
-@route("/") @get op foo(): foo200ApplicationJsonResponse;
+@route("/") @get op foo(): Foo;
