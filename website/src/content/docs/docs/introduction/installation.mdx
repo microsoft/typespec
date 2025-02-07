@@ -6,6 +6,7 @@ slug: docs
 
 import { Badge } from "@astrojs/starlight/components";
 import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
 
 TypeSpec can be used in two ways:
 
@@ -63,26 +64,23 @@ TypeSpec provides extensions for the following editors:
 
 ## Create a new TypeSpec project
 
-Run the following command in a clean directory to create a new TypeSpec project.
+<Steps>
 
-```bash
-tsp init
-```
+1. Create a new TypeSpec project.
 
-This will prompt you with a few questions. Pick the `Generic REST API` template, your project name, and make sure the `@typespec\http` and `@typespec/openapi3` libraries are selected.
+   ```bash
+   tsp init
+   ```
 
-Next, you can install the dependencies.
+   This will prompt you with a few questions. Pick the `Generic REST API` template, your project name, and make sure the `@typespec/http` and `@typespec/openapi3` libraries are selected.
 
-```bash
-tsp install
-```
+2. Run a build to generate the OpenAPI specification output file.
 
-Run a build to generate the OpenAPI specification output file.
+   ```bash
+   tsp compile .
+   ```
 
-```bash
-tsp compile .
-```
-
+</Steps>
 You should now have a basic TypeSpec project setup with a structure looking like this:
 
 {/* prettier-ignore */}
