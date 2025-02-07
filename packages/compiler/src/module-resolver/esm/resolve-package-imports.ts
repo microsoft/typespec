@@ -17,7 +17,7 @@ export async function resolvePackageImports(
     throw new InvalidModuleSpecifierError(context);
   }
 
-  // If pjson.imports is a non-null Object, then
+  // If packageJson.imports is a non-null Object, then
   if (imports !== null) {
     // Let resolved be the result of PACKAGE_IMPORTS_EXPORTS_RESOLVE.
     const resolvedMatch = await resolvePackageImportsExports(context, {
