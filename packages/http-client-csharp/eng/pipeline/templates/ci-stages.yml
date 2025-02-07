@@ -8,6 +8,7 @@ parameters:
 
 stages:
   - stage: test_stage_delete
+    dependsOn: []
     jobs:
       - job: test
         displayName: Test
@@ -35,6 +36,7 @@ stages:
 
           - script: npm run build
             displayName: Build
+            workingDirectory: packages/http-client-csharp
 
           - script: npm run test
             displayName: Test
