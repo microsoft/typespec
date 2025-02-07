@@ -1,54 +1,69 @@
-# TypeSpec in Visual Studio Code
+# TypeSpec Extension in Visual Studio Code
 
 [Repository](https://github.com/microsoft/typespec) | [Documentation](https://typespec.io/docs) | [Issues](https://github.com/microsoft/typespec/issues) | [Samples](https://github.com/microsoft/typespec/tree/main/packages/samples/specs)
 
-Using TypeSpec in Visual Studio Code with the extension enables efficient work. It utilizes the capabilities of VS Code to offer IntelliSense, syntax highlighting, code autocompletion, formatting, live diagnostics, rename refactoring, and go-to definition. The extension also provides a seamless experience for TypeSpec project setup and emitter configuration.
+The TypeSpec extension for Visual Studio Code enhances the development of TypeSpec by leveraging VS Code's powerful features. It provides:
 
-## Quick Start
+- IntelliSense and syntax highlighting
+- Code autocompletion and formatting
+- Live diagnostics and quick fixes
+- Refactoring tools (rename, go-to definition, etc.)
+- Seamless project setup and emitter configuration
 
-- Step 1. [Install Node.js](https://nodejs.org/en/download/) and ensure you can run the [npm](https://www.npmjs.com/) command in a command promot: `npm --version`.
-- Step 2. Install the TypeSpec Compiler/CLI: `npm install -g @typespec/compiler`. Note: if the TypeSpec Compiler/CLI is not installed earlier, the extension will prompt for installation when needed.
-- Step 3. [Install the TypeSpec extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode).
-- Step 4. Open or Create a TypeSpec project and start coding!
+## Prerequisites
 
+Before using the TypeSpec extension, install [Node.js](https://nodejs.org/en/download/) and verify npm is available:
+
+   ```sh
+   npm --version
+   ```
+
+Other necessary installations will be prompted within the extension as needed.
+
+## Features
+
+### Project Initialization
+
+- **Create TypeSpec Project**: Easily initialize a new TypeSpec project based on a template, ensuring a structured and ready-to-use setup.
 ![vscode_project_scaffolding.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_project_scaffolding.gif)
 
-## Writing TypeSpec
+### Writing TypeSpec
 
-- Auto-complete and intelliSense: Writing TypeSpec with auto-completion, code navigation, syntax highlighting
-- Live diagnostic reporting
-- Code formatting and folding
-- Quick fixes
-- Refactorings
+- **IntelliSense & Auto-completion**: Code faster with smart suggestions.
+- **Code Formatting & Folding**: Keep your code clean and organized with built-in formatting and folding support.
+- **Syntax Highlighting**: Clear and readable TypeSpec syntax.
+- **Live Diagnostics**: Get real-time feedback on code issues.
+- **Quick Fixes & Refactoring**: Rename, go-to definition, and format with ease.
 
 ![vscode.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode.gif)
 
-## Generating from TypeSpec
+### Generating Code from TypeSpec
 
-> **Note:**
-> - To emit dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
-> - To emit Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/) and [Maven](https://maven.apache.org/download.cgi).
+The extension allows generating various outputs from TypeSpec:
 
-- Emitting OpenAPI from TypeSpec
-- Emitting server stubs and client codes for different languages: Dotnet, Python, Java, JavaScript/TypeScript
+- **OpenAPI Specification**
+- **Server SDKs**: Generate server stubs for different back-end frameworks.
+- **Client SDKs**: Generate client code for multiple languages, including:
+  - .NET (C#)
+  - Python
+  - Java
+  - JavaScript/TypeScript
+
+Invoke `TypeSpec: Generate From TypeSpec` to generate code:
 
 ![vscode_tsp_to_openapi3_generation.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_tsp_to_openapi3_generation.gif)
 
-## Compile Client SDKs
+## Commands
 
-> **Note:**
-> - To compile and test dotnet SDKs, ensure to install [dotnet SDK](https://dotnet.microsoft.com/download)
-> - To compile and test Java SDKs, ensure to install [JDK](https://www.oracle.com/java/technologies/downloads/) and [Maven](https://maven.apache.org/download.cgi)
-> - To execute Python SDKs, ensure to install [Python](https://www.python.org/downloads/)
+The extension provides the following commands:
 
-If you have selected client emitted, you can use the following commands to compile the client project in the client sdk folder.
-
-| **Language** | **Command**                |
-| ------------ | -------------------------- |
-| C#           | `dotnet build`             |
-| Java         | `mvn package`              |
-| Python       | N/A                        |
-| JS/TS        | `npm install && npm build` |
+| **Command**                                  | **Description**                                          |
+|----------------------------------------------|----------------------------------------------------------|
+| `TypeSpec: Create TypeSpec Project`         | Scaffold a new TypeSpec project.                         |
+| `TypeSpec: Install TypeSpec Compiler/CLI globally` | Install the TypeSpec Compiler/CLI globally.          |
+| `TypeSpec: Generate From TypeSpec`          | Compile and generate from TypeSpec files into the specified output.        |
+| `TypeSpec: Restart TypeSpec Server`         | Restart the TypeSpec language server.                    |
+| `TypeSpec: Show Output Channel`             | Open the TypeSpec output channel to view logs.          |
 
 ## Configuration
 
