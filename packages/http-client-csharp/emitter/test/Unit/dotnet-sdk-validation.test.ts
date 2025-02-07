@@ -33,11 +33,8 @@ describe("Test _validateDotNetSdk", () => {
     vi.mock("../../src/lib/utils.js", () => ({
       execAsync: vi.fn(),
     }));
-  });
 
-  afterEach(() => {
-    // Restore all mocks after each test
-    vi.restoreAllMocks();
+    (execAsync as Mock).mockReset();
   });
 
   it("should return false and report diagnostic when dotnet SDK is not installed.", async () => {
