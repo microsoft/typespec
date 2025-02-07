@@ -12,7 +12,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
-import { NetEmitterOptions } from "../options.js";
+import { NetEmitterOptions, resolveOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
@@ -25,6 +25,7 @@ import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
+import { Logger } from "./logger.js";
 
 export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions> {
   logger: Logger;
@@ -56,7 +57,8 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   // this is a set tracking the bad namespace segments
   const inputClients: InputClient[] = [];
-  fromSdkClients(sdkContext, rootClients, inputClients, []);
+  const logger = sdkContext.logger;
+  fromSdkClients(sdkContext, rootClients, inputClients, [], logger);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
@@ -83,7 +85,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames);
+      fromSdkClients(sdkContext, subClients, inputClients, parentClientNames, logger);
       parentClientNames.pop();
     }
   }
@@ -98,7 +100,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
-    const clientName = getClientName(client, parentNames);
+    const clientName = getClientName(client, parentNames, logger);
     // see if this namespace is a sub-namespace of an existing bad namespace
     const segments = client.clientNamespace.split(".");
     const lastSegment = segments[segments.length - 1];
@@ -147,14 +149,6 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     if (parentClientNames.length === 0) return clientName;
     if (parentClientNames.length >= 2)
       return `${parentClientNames.slice(parentClientNames.length - 1).join("")}${clientName}`;
-
-    if (
-      clientName === "Models" &&
-      resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
-    ) {
-      Logger.getInstance().warn(`Invalid client name "${clientName}"`);
-      return "ModelsOps";
-    }
 
     return clientName;
   }
