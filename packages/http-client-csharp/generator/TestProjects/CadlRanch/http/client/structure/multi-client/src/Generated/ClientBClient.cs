@@ -7,9 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Client.Structure.Service.Multi.Client.Models;
+using Client.Structure.Service;
 
-namespace Client.Structure.Service.Multi.Client
+namespace Client.Structure.MultiClient
 {
     public partial class ClientBClient
     {

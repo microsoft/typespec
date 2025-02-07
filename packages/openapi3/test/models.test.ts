@@ -22,24 +22,6 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
     });
   });
 
-  it("uses json name specified via @projectedName (LEGACY)", async () => {
-    const res = await oapiForModel(
-      "Foo",
-      `model Foo {
-        #suppress "deprecated" "for testing"
-        @projectedName("json", "xJson")
-        x: int32;
-      };`,
-    );
-
-    expect(res.schemas.Foo).toMatchObject({
-      required: ["xJson"],
-      properties: {
-        xJson: { type: "integer", format: "int32" },
-      },
-    });
-  });
-
   it("uses json name specified via @encodedName", async () => {
     const res = await oapiForModel(
       "Foo",

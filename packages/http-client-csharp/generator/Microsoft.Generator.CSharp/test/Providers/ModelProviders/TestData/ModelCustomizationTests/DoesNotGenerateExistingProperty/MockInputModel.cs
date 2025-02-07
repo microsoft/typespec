@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Generator.CSharp.Customization;
 
 namespace Sample.Models;
 

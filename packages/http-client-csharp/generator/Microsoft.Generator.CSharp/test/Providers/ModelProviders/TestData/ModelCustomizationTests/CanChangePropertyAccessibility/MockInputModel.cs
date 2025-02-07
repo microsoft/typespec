@@ -1,7 +1,7 @@
 #nullable disable
 
 using Sample;
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 
 namespace Sample.Models
 {

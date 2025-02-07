@@ -36,7 +36,7 @@ describe("compiler: projections: logic", () => {
        b: int32;
      }
 
-     #suppress "projections-are-experimental"
+     #suppress "deprecated"
      projection Foo#v {
         to(version) {
           if version <= 1 {
@@ -121,7 +121,7 @@ describe("compiler: projections: logic", () => {
         c: string;
       }
 
-      #suppress "projections-are-experimental"
+      #suppress "deprecated"
       projection Foo#v {
         to(version) {
           if version <= 1 {
@@ -148,7 +148,7 @@ describe("compiler: projections: logic", () => {
         a: int32;
       }
 
-      #suppress "projections-are-experimental"
+      #suppress "deprecated"
       projection Foo#test {
         to {
           @doc(self, "This is a model Foo");
@@ -174,7 +174,7 @@ describe("compiler: projections: logic", () => {
         a: int32;
       }
 
-      #suppress "projections-are-experimental"
+      #suppress "deprecated"
       projection Bar#munge {
         to {
          self::deleteProperty("a");
@@ -199,7 +199,7 @@ describe("compiler: projections: logic", () => {
         import "./test.js";
         @test model Foo { }
 
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection Foo#test {
           to {
             self::addProperty("value", foo());
@@ -266,7 +266,7 @@ describe("compiler: projections: logic", () => {
           @renamedFrom(2, "oldName") newName: string;
         }
 
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection model#v {
           to(version) {
             if getAddedOn(self) > version {
@@ -307,7 +307,7 @@ describe("compiler: projections: logic", () => {
           };
         }
         
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection model#test {
           to {
             self::properties::forEach((p) => {
@@ -346,7 +346,7 @@ describe("compiler: projections: logic", () => {
           prop: string;
         }
         
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection Foo#test {
           to {
             self::rename("Bar");
@@ -365,7 +365,7 @@ describe("compiler: projections: logic", () => {
           prop: string;
         }
         
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection Foo#test {
           to {
             if 1 {
@@ -392,7 +392,7 @@ describe("compiler: projections: logic", () => {
         `;
         const code = `
           ${modelCode ?? defaultModelCode}
-          #suppress "projections-are-experimental"
+          #suppress "deprecated"
           projection Foo#test {
             to {
               self::properties::forEach((p) => {
@@ -411,7 +411,7 @@ describe("compiler: projections: logic", () => {
             bar_prop: int32;
           }
 
-          #suppress "projections-are-experimental"
+          #suppress "deprecated"
           projection model#toCamelCase {
             to {
               self::properties::forEach((p) => {
@@ -538,7 +538,7 @@ describe("compiler: projections: logic", () => {
       const code = `
        ${unionCode}
         
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection Foo#test {
           to {
             self::rename("Bar");
@@ -597,7 +597,7 @@ describe("compiler: projections: logic", () => {
           a: string;
           b: Bar;
         }
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection Bar#test {
           to {
             return never;
@@ -619,7 +619,7 @@ describe("compiler: projections: logic", () => {
         `
         @test op Foo(): void;
         
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection op#test {
           to {
             return { x: self::parameters, y: self::returnType };
@@ -640,7 +640,7 @@ describe("compiler: projections: logic", () => {
       const code = `
         @test op Foo(): string;
         
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection Foo#test {
           to {
             self::rename("Bar");
@@ -671,7 +671,7 @@ describe("compiler: projections: logic", () => {
       const code = `
         ${interfaceCode}
         
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection Foo#test {
           to {
             self::rename("Bar");
@@ -728,7 +728,7 @@ describe("compiler: projections: logic", () => {
       const code = `
         ${enumCode}
         
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection Foo#test {
           to {
             self::rename("Bar");
@@ -792,7 +792,7 @@ describe("compiler: projections: logic", () => {
       @doc("abc")
       @test model Foo {}
 
-      #suppress "projections-are-experimental"
+      #suppress "deprecated"
       projection Foo#test {
         to { self::rename("Bar"); }
       }
@@ -834,7 +834,7 @@ describe("compiler: projections: logic", () => {
 
       ${code}
 
-      #suppress "projections-are-experimental"
+      #suppress "deprecated"
       projection model#test {
           to {
             
@@ -900,7 +900,7 @@ describe("compiler: projections: logic", () => {
   
         ${code}
   
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection model#test {
             to {
               
@@ -974,7 +974,7 @@ describe("compiler: projections: logic", () => {
   
         ${code}
   
-        #suppress "projections-are-experimental"
+        #suppress "deprecated"
         projection model#test {
             to {
               
@@ -999,7 +999,7 @@ describe("compiler: projections: logic", () => {
     it("on union", () => checkSelfRefInDecorator(`@selfRef(Foo) union Foo {} `));
   });
   const projectionCode = (body: string) => `
-      #suppress "projections-are-experimental"
+      #suppress "deprecated"
       projection Foo#test {
         to {
           ${body}

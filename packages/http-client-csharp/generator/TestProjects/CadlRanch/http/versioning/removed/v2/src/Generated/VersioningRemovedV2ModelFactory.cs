@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Versioning.Removed.V2.Models
+namespace Versioning.Removed
 {
     public static partial class VersioningRemovedV2ModelFactory
     {

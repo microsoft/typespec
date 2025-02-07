@@ -54,7 +54,7 @@ namespace Microsoft.Generator.CSharp.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override string BuildNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+        protected override string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
 
         protected override XmlDocProvider BuildXmlDocs()
         {
@@ -241,6 +241,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
+                parameter.IsParams,
                 parameter.Attributes,
                 parameter.Property,
                 parameter.Field,

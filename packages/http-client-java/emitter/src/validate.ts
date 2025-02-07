@@ -1,5 +1,6 @@
-import { Program } from "@typespec/compiler";
-import { logError, spawnAsync, trace } from "./utils.js";
+import { NoTarget, Program } from "@typespec/compiler";
+import { reportDiagnostic } from "./lib.js";
+import { spawnAsync, trace } from "./utils.js";
 
 export const JDK_NOT_FOUND_MESSAGE =
   "Java Development Kit (JDK) is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download";
@@ -21,23 +22,32 @@ export async function validateDependencies(
       if (javaMajorVersion < 11) {
         // the message is JDK 17, because clientcore depends on JDK 17
         // emitter only require JDK 11
-        const message = `Java Development Kit (JDK) in PATH is version ${javaVersion}. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download`;
-        // // eslint-disable-next-line no-console
-        // console.log("[ERROR] " + message);
         if (program && logDiagnostic) {
-          logError(program, message, CODE_JAVA_SDK_DEPENDENCY);
+          reportDiagnostic(program, {
+            code: "invalid-java-sdk-dependency",
+            messageId: "jdkVersion",
+            format: { javaVersion: javaVersion },
+            target: NoTarget,
+          });
         }
       }
     }
   } catch (error: any) {
-    let message = error.message;
     if (error && "code" in error && error["code"] === "ENOENT") {
-      message = JDK_NOT_FOUND_MESSAGE;
-    }
-    // // eslint-disable-next-line no-console
-    // console.log("[ERROR] " + message);
-    if (program && logDiagnostic) {
-      logError(program, message, CODE_JAVA_SDK_DEPENDENCY);
+      if (program && logDiagnostic) {
+        reportDiagnostic(program, {
+          code: "invalid-java-sdk-dependency",
+          target: NoTarget,
+        });
+      }
+    } else {
+      if (program && logDiagnostic) {
+        reportDiagnostic(program, {
+          code: "unknown-error",
+          format: { errorMessage: error.message },
+          target: NoTarget,
+        });
+      }
     }
   }
 
@@ -53,15 +63,22 @@ export async function validateDependencies(
       }
     }
   } catch (error: any) {
-    let message = error.message;
     if (shell || (error && "code" in error && error["code"] === "ENOENT")) {
-      message =
-        "Apache Maven is not found in PATH. Apache Maven can be downloaded from https://maven.apache.org/download.cgi";
-    }
-    // // eslint-disable-next-line no-console
-    // console.log("[ERROR] " + message);
-    if (program && logDiagnostic) {
-      logError(program, message, CODE_JAVA_SDK_DEPENDENCY);
+      if (program && logDiagnostic) {
+        reportDiagnostic(program, {
+          code: "invalid-java-sdk-dependency",
+          messageId: "maven",
+          target: NoTarget,
+        });
+      }
+    } else {
+      if (program && logDiagnostic) {
+        reportDiagnostic(program, {
+          code: "unknown-error",
+          format: { errorMessage: error.message },
+          target: NoTarget,
+        });
+      }
     }
   }
 }

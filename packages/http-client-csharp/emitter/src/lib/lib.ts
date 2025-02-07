@@ -19,12 +19,6 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`No Route for service for service ${"service"}`,
       },
     },
-    "invalid-name": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Invalid interface or operation group name ${"name"} when configuration "model-namespace" is on`,
-      },
-    },
     "general-warning": {
       severity: "warning",
       messages: {
@@ -35,6 +29,14 @@ const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default: paramMessage`${"message"}`,
+      },
+    },
+    "invalid-dotnet-sdk-dependency": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Invalid .NET SDK installed.`,
+        missing: paramMessage`The dotnet command was not found in the PATH. Please install the .NET SDK version ${"dotnetMajorVersion"} or above. Guidance for installing the .NET SDK can be found at ${"downloadUrl"}.`,
+        invalidVersion: paramMessage`The .NET SDK found is version ${"installedVersion"}. Please install the .NET SDK ${"dotnetMajorVersion"} or above and ensure there is no global.json in the file system requesting a lower version. Guidance for installing the .NET SDK can be found at ${"downloadUrl"}.`,
       },
     },
     "no-root-client": {
@@ -50,10 +52,32 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
+    "client-namespace-conflict": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`namespace ${"clientNamespace"} conflicts with client ${"clientName"}, please use @clientName to specify a different name for the client.`,
+      },
+    },
   },
   emitter: {
     options: NetEmitterOptionsSchema,
   },
 });
 
-export const { reportDiagnostic, createDiagnostic, getTracer } = $lib;
+/**
+ * Reports a diagnostic. Defined in the core compiler.
+ * @beta
+ */
+export const reportDiagnostic = $lib.reportDiagnostic;
+
+/**
+ * Creates a diagnostic. Defined in the core compiler.
+ * @beta
+ */
+export const createDiagnostic = $lib.createDiagnostic;
+
+/**
+ * Gets a tracer. Defined in the core compiler.
+ * @beta
+ */
+export const getTracer = $lib.getTracer;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { createRekeyableMap, mutate } from "../utils/misc.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
@@ -312,7 +313,6 @@ export function createProjector(
 
     if (model.templateMapper) {
       projectedModel.templateMapper = projectTemplateMapper(model.templateMapper);
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedModel.templateArguments = mutate(projectedModel.templateMapper.args);
     }
 
@@ -382,7 +382,6 @@ export function createProjector(
 
     if (scalar.templateMapper) {
       projectedScalar.templateMapper = projectTemplateMapper(scalar.templateMapper);
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedScalar.templateArguments = mutate(projectedScalar.templateMapper.args);
     }
 
@@ -448,7 +447,6 @@ export function createProjector(
 
     if (op.templateMapper) {
       projectedOp.templateMapper = projectTemplateMapper(op.templateMapper);
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedOp.templateArguments = mutate(projectedOp.templateMapper.args);
     }
 
@@ -480,7 +478,6 @@ export function createProjector(
 
     if (iface.templateMapper) {
       projectedIface.templateMapper = projectTemplateMapper(iface.templateMapper);
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedIface.templateArguments = mutate(projectedIface.templateMapper.args);
     }
 
@@ -511,7 +508,6 @@ export function createProjector(
 
     if (union.templateMapper) {
       projectedUnion.templateMapper = projectTemplateMapper(union.templateMapper);
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       projectedUnion.templateArguments = mutate(projectedUnion.templateMapper.args);
     }
 

@@ -311,6 +311,11 @@ namespace Microsoft.Generator.CSharp
             return [];
         }
 
+        public virtual NewProjectScaffolding CreateNewProjectScaffolding()
+        {
+            return new NewProjectScaffolding();
+        }
+
         private readonly struct EnumCacheKey
         {
             public InputEnumType EnumType { get; }
@@ -320,6 +325,66 @@ namespace Microsoft.Generator.CSharp
                 EnumType = enumType;
                 DeclaringType = declaringType;
             }
+        }
+
+        private string? _rootNamespace;
+        public virtual string RootNamespace => _rootNamespace ??= GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
+
+        public string GetCleanNameSpace(string clientNamespace)
+        {
+            Span<char> dest = stackalloc char[clientNamespace.Length + GetSegmentCount(clientNamespace)];
+            var source = clientNamespace.AsSpan();
+            var destIndex = 0;
+            var nextDot = source.IndexOf('.');
+            while (nextDot != -1)
+            {
+                var segment = source.Slice(0, nextDot);
+                if (IsSpecialSegment(segment))
+                {
+                    dest[destIndex] = '_';
+                    destIndex++;
+                }
+                segment.CopyTo(dest.Slice(destIndex));
+                destIndex += segment.Length;
+                dest[destIndex] = '.';
+                destIndex++;
+                source = source.Slice(nextDot + 1);
+                nextDot = source.IndexOf('.');
+            }
+            if (IsSpecialSegment(source))
+            {
+                dest[destIndex] = '_';
+                destIndex++;
+            }
+            source.CopyTo(dest.Slice(destIndex));
+            destIndex += source.Length;
+            return dest.Slice(0, destIndex).ToString();
+        }
+
+        private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
+        {
+            var badNamespaceSegments = CodeModelPlugin.Instance.InputLibrary.InputNamespace.InvalidNamespaceSegments;
+            for (int i = 0; i < badNamespaceSegments.Count; i++)
+            {
+                if (readOnlySpan.Equals(badNamespaceSegments[i], StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static int GetSegmentCount(string clientNamespace)
+        {
+            int count = 0;
+            for (int i = 0; i < clientNamespace.Length; i++)
+            {
+                if (clientNamespace[i] == '.')
+                {
+                    count++;
+                }
+            }
+            return ++count;
         }
     }
 }

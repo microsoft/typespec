@@ -130,10 +130,10 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.code_model.options["package_mode"]:
                     self._serialize_and_write_package_files(client_namespace)
 
-                # write apiview_mapping_python.json
+                # write apiview-properties.json
                 if self.code_model.options.get("emit_cross_language_definition_file"):
                     self.write_file(
-                        exec_path / Path("apiview_mapping_python.json"),
+                        exec_path / Path("apiview-properties.json"),
                         general_serializer.serialize_cross_language_definition_file(),
                     )
 
@@ -238,7 +238,7 @@ class JinjaSerializer(ReaderAndWriter):
         self, env: Environment, namespace: str, models: List[ModelType], enums: List[EnumType]
     ) -> None:
         # Write the models folder
-        models_path = self.exec_path(namespace + ".models")
+        models_path = self.exec_path(namespace) / "models"
         serializer = DpgModelSerializer if self.code_model.options["models_mode"] == "dpg" else MsrestModelSerializer
         if self.code_model.has_non_json_models(models):
             self.write_file(
@@ -479,7 +479,12 @@ class JinjaSerializer(ReaderAndWriter):
             else Path(".")
         )
 
+    def exec_path_for_test_sample(self, namespace: str) -> Path:
+        return self.exec_path_compensation / Path(*namespace.split("."))
+
     def exec_path(self, namespace: str) -> Path:
+        if self.code_model.options["no_namespace_folders"] and not self.code_model.options["multiapi"]:
+            return Path(".")
         return self.exec_path_compensation / Path(*namespace.split("."))
 
     @property
@@ -492,7 +497,7 @@ class JinjaSerializer(ReaderAndWriter):
         return Path("")
 
     def _serialize_and_write_sample(self, env: Environment, namespace: str):
-        out_path = self.exec_path(namespace) / Path("generated_samples")
+        out_path = self.exec_path_for_test_sample(namespace) / Path("generated_samples")
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
@@ -526,7 +531,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_test(self, env: Environment, namespace: str):
         self.code_model.for_test = True
-        out_path = self.exec_path(namespace) / Path("generated_tests")
+        out_path = self.exec_path_for_test_sample(namespace) / Path("generated_tests")
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
         if not self.code_model.options["azure_arm"]:

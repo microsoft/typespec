@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 const releaseNotes = await getCollection("docs", (x) => x.id.startsWith("docs/release-notes"));
+releaseNotes.sort((a, b) => a.id.localeCompare(b.id));
 const last = releaseNotes[releaseNotes.length - 1];
 const releaseDate = last.data.releaseDate;
 if (!releaseDate) {
@@ -10,6 +11,8 @@ if (!releaseDate) {
       `Last release notes(${last.id}) should have a releaseDate: property in frontmatter. For example:`,
       `  releaseDate: ${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
       "",
+      "Loaded release notes:",
+      ...releaseNotes.map((x) => ` - ${x.id}`),
     ].join("\n"),
   );
 }

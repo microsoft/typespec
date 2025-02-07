@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using _Type._Enum.Extensible;
-using _Type._Enum.Extensible.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type._Enum.Extensible

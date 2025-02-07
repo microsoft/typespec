@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Tests.Common
             [CallerFilePath] string filePath = "")
         {
             var directory = GetAssetFileOrDirectoryPath(false, parameters, method, filePath);
-            var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "Microsoft.Generator.CSharp.Customization", "src");
+            var codeGenAttributeFiles = Path.Combine(_assemblyLocation, "..", "..", "..", "..", "..", "TestProjects", "Local", "Unbranded-TypeSpec", "src", "Generated", "Internal");
             var project = CreateExistingCodeProject([directory, codeGenAttributeFiles], Path.Combine(directory, "Generated"));
             var compilation = await project.GetCompilationAsync();
             Assert.IsNotNull(compilation);
