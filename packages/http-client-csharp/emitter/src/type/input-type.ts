@@ -5,13 +5,15 @@ import {
   AccessFlags,
   DecoratorInfo,
   SdkBuiltInKinds,
+  SerializationOptions,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 
 interface InputTypeBase {
   kind: string;
-  description?: string;
+  summary?: string;
+  doc?: string;
   deprecation?: string;
   decorators?: DecoratorInfo[];
 }
@@ -95,6 +97,7 @@ export interface InputModelType extends InputTypeBase {
   discriminatedSubtypes?: Record<string, InputModelType>;
   discriminatorProperty?: InputModelProperty;
   baseModel?: InputModelType;
+  serializationOptions: SerializationOptions;
 }
 
 export interface InputModelProperty extends InputTypeBase {
@@ -107,6 +110,7 @@ export interface InputModelProperty extends InputTypeBase {
   discriminator: boolean;
   crossLanguageDefinitionId: string;
   flatten: boolean;
+  serializationOptions: SerializationOptions;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {

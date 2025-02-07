@@ -14,7 +14,9 @@ export type NamespacedType = Extract<Type, { namespace?: Namespace | undefined }
 export function getFullyQualifiedTypeName(type: NamespacedType): string {
   const name = type.name ?? "<unknown>";
   if (type.namespace) {
-    return getFullyQualifiedNamespacePath(type.namespace).join(".") + "." + name;
+    const nsPath = getFullyQualifiedNamespacePath(type.namespace);
+
+    return (nsPath[0] === "" ? nsPath.slice(1) : nsPath).join(".") + "." + name;
   } else {
     return name;
   }

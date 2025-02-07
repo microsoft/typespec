@@ -18,8 +18,8 @@ import com.azure.core.http.rest.PagedResponseBase;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.util.BinaryData;
 import java.util.stream.Collectors;
-import payload.pageable.implementation.PageableClientImpl;
-import payload.pageable.models.User;
+import payload.pageable.implementation.ServerDrivenPaginationsImpl;
+import payload.pageable.models.Pet;
 import reactor.core.publisher.Flux;
 
 /**
@@ -28,7 +28,7 @@ import reactor.core.publisher.Flux;
 @ServiceClient(builder = PageableClientBuilder.class, isAsync = true)
 public final class PageableAsyncClient {
     @Generated
-    private final PageableClientImpl serviceClient;
+    private final ServerDrivenPaginationsImpl serviceClient;
 
     /**
      * Initializes an instance of PageableAsyncClient class.
@@ -36,24 +36,18 @@ public final class PageableAsyncClient {
      * @param serviceClient the service client implementation.
      */
     @Generated
-    PageableAsyncClient(PageableClientImpl serviceClient) {
+    PageableAsyncClient(ServerDrivenPaginationsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
-     * List users.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * The link operation.
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
      * {@code
      * {
+     *     id: String (Required)
      *     name: String (Required)
      * }
      * }
@@ -64,39 +58,39 @@ public final class PageableAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return paged collection of User items as paginated response with {@link PagedFlux}.
+     * @return the paginated response with {@link PagedFlux}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.listAsync(requestOptions);
+    public PagedFlux<BinaryData> link(RequestOptions requestOptions) {
+        return this.serviceClient.linkAsync(requestOptions);
     }
 
     /**
-     * List users.
+     * The link operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return paged collection of User items as paginated response with {@link PagedFlux}.
+     * @return the paginated response with {@link PagedFlux}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<User> list() {
-        // Generated convenience method for list
+    public PagedFlux<Pet> link() {
+        // Generated convenience method for link
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = list(requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = link(requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
                 ? pagedFluxResponse.byPage().take(1)
                 : pagedFluxResponse.byPage(continuationTokenParam).take(1);
-            return flux.map(pagedResponse -> new PagedResponseBase<Void, User>(pagedResponse.getRequest(),
+            return flux.map(pagedResponse -> new PagedResponseBase<Void, Pet>(pagedResponse.getRequest(),
                 pagedResponse.getStatusCode(), pagedResponse.getHeaders(),
                 pagedResponse.getValue()
                     .stream()
-                    .map(protocolMethodData -> protocolMethodData.toObject(User.class))
+                    .map(protocolMethodData -> protocolMethodData.toObject(Pet.class))
                     .collect(Collectors.toList()),
                 pagedResponse.getContinuationToken(), null));
         });

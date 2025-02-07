@@ -46,7 +46,7 @@ import {
 } from "../type/input-type.js";
 import { OperationResponse } from "../type/operation-response.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { fromSdkType } from "./converter.js";
+import { fromSdkType } from "./type-converter.js";
 
 export function fromSdkHttpExamples(
   sdkContext: SdkContext<NetEmitterOptions>,

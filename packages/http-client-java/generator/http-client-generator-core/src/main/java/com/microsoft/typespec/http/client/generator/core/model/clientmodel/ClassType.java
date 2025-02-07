@@ -143,6 +143,7 @@ public class ClassType implements IType {
             put(SimpleResponse.class, new ClassDetails(SimpleResponse.class, "io.clientcore.core.http.SimpleResponse"));
             put(ExpandableStringEnum.class,
                 new ClassDetails(ExpandableStringEnum.class, "io.clientcore.core.util.ExpandableEnum"));
+            put(ExpandableEnum.class, new ClassDetails(ExpandableEnum.class, "io.clientcore.core.util.ExpandableEnum"));
             put(HttpResponseException.class, new ClassDetails(HttpResponseException.class,
                 "io.clientcore.core.http.exception.HttpResponseException"));
             put(HttpTrait.class, new ClassDetails(HttpTrait.class, "io.clientcore.core.models.traits.HttpTrait"));
@@ -153,8 +154,12 @@ public class ClassType implements IType {
             put(KeyCredentialTrait.class,
                 new ClassDetails(KeyCredentialTrait.class, "io.clientcore.core.models.traits.KeyCredentialTrait"));
             put(TypeReference.class, new ClassDetails(TypeReference.class, "io.clientcore.core.models.TypeReference"));
-            put(ClientLogger.class, new ClassDetails(ClientLogger.class, "io.clientcore.core.util.ClientLogger"));
-            put(LogLevel.class, new ClassDetails(LogLevel.class, "io.clientcore.core.util.ClientLogger.LogLevel"));
+            put(ClientLogger.class,
+                new ClassDetails(ClientLogger.class, "io.clientcore.core.instrumentation.logging.ClientLogger"));
+            put(LogLevel.class,
+                new ClassDetails(LogLevel.class, "io.clientcore.core.instrumentation.logging.ClientLogger.LogLevel"));
+            put(com.azure.core.util.ServiceVersion.class, new ClassDetails(com.azure.core.util.ServiceVersion.class,
+                "io.clientcore.core.http.models.ServiceVersion"));
         }
     };
 
@@ -450,7 +455,9 @@ public class ClassType implements IType {
     public static final ClassType INPUT_STREAM = new ClassType.Builder(false).knownClass(InputStream.class).build();
 
     public static final ClassType CONTEXT = ClassType.getClassTypeBuilder(Context.class)
-        .defaultValueExpressionConverter(epr -> "com.azure.core.util.Context.NONE")
+        .defaultValueExpressionConverter(
+            epr -> (JavaSettings.getInstance().isBranded() ? "com.azure.core.util." : "io.clientcore.core.util.")
+                + TemplateUtil.getContextNone())
         .build();
 
     public static final ClassType ANDROID_CONTEXT
@@ -480,7 +487,7 @@ public class ClassType implements IType {
     public static final ClassType CONFIGURATION = getClassTypeBuilder(Configuration.class).build();
 
     public static final ClassType SERVICE_VERSION
-        = new ClassType.Builder(false).knownClass(ServiceVersion.class).build();
+        = getClassTypeBuilder(com.azure.core.util.ServiceVersion.class).build();
 
     public static final ClassType AZURE_KEY_CREDENTIAL
         = new ClassType.Builder(false).knownClass(AzureKeyCredential.class).build();
@@ -490,6 +497,12 @@ public class ClassType implements IType {
     public static final ClassType RETRY_POLICY = getClassTypeBuilder(RetryPolicy.class).build();
     public static final ClassType REDIRECT_POLICY = getClassTypeBuilder(RedirectPolicy.class).build();
     public static final ClassType HTTP_LOGGING_POLICY = getClassTypeBuilder(HttpLoggingPolicy.class).build();
+
+    // clientcore
+    public static final ClassType HTTP_INSTRUMENTATION_POLICY
+        = new ClassType.Builder(false).packageName("io.clientcore.core.http.pipeline")
+            .name("HttpInstrumentationPolicy")
+            .build();
 
     public static final ClassType RETRY_OPTIONS = getClassTypeBuilder(RetryOptions.class).build();
 

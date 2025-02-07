@@ -23,7 +23,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _pipelineRequestHeadersParam = new ParameterProvider("headers", FormattableStringHelpers.Empty, typeof(PipelineRequestHeaders));
         }
         private readonly CSharpType _t = typeof(IEnumerable<>).GetGenericArguments()[0];
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }

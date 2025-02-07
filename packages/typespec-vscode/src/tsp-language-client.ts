@@ -1,14 +1,116 @@
+import type {
+  CustomRequestName,
+  InitProjectConfig,
+  InitProjectContext,
+  InitProjectTemplate,
+  ServerInitializeResult,
+} from "@typespec/compiler";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
+import { TspConfigFileName } from "./const.js";
 import logger from "./log/logger.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
-import { listParentFolder } from "./utils.js";
+import {
+  ExecOutput,
+  isWhitespaceStringOrUndefined,
+  listParentFolder,
+  spawnExecutionAndLogToOutput,
+} from "./utils.js";
 
 export class TspLanguageClient {
   constructor(
     private client: LanguageClient,
     private exe: Executable,
   ) {}
+
+  private initProjectContext?: InitProjectContext;
+
+  get state() {
+    return this.client.state;
+  }
+
+  get initializeResult(): ServerInitializeResult | undefined {
+    return this.client.initializeResult as ServerInitializeResult;
+  }
+
+  async getInitProjectContext(): Promise<InitProjectContext | undefined> {
+    if (this.initProjectContext) {
+      return this.initProjectContext;
+    }
+
+    if (this.initializeResult?.customCapacities?.getInitProjectContext !== true) {
+      logger.warning(
+        "Get init project context is not supported by the current TypeSpec Compiler's LSP.",
+      );
+      return undefined;
+    }
+    const getInitProjectContextRequestName: CustomRequestName = "typespec/getInitProjectContext";
+    try {
+      this.initProjectContext = await this.client.sendRequest(getInitProjectContextRequestName);
+      return this.initProjectContext;
+    } catch (e) {
+      logger.error("Unexpected error when getting init project context", [e]);
+      return undefined;
+    }
+  }
+
+  async validateInitProjectTemplate(template: InitProjectTemplate): Promise<boolean> {
+    if (this.initializeResult?.customCapacities?.validateInitProjectTemplate !== true) {
+      logger.warning(
+        "Validate init project template is not supported by the current TypeSpec Compiler's LSP.",
+      );
+      return false;
+    }
+    const validateInitProjectTemplateRequestName: CustomRequestName =
+      "typespec/validateInitProjectTemplate";
+    try {
+      return await this.client.sendRequest(validateInitProjectTemplateRequestName, { template });
+    } catch (e) {
+      logger.error("Unexpected error when validating init project template", [e]);
+      return false;
+    }
+  }
+
+  async initProject(config: InitProjectConfig): Promise<boolean> {
+    if (this.initializeResult?.customCapacities?.initProject !== true) {
+      logger.warning("Init project is not supported by the current TypeSpec Compiler's LSP.");
+      return false;
+    }
+    const initProjectRequestName: CustomRequestName = "typespec/initProject";
+    try {
+      const result = await this.client.sendRequest(initProjectRequestName, { config });
+      return result === true;
+    } catch (e) {
+      logger.error("Unexpected error when initializing project", [e]);
+      return false;
+    }
+  }
+
+  async runCliCommand(args: string[], cwd: string): Promise<ExecOutput | undefined> {
+    if (isWhitespaceStringOrUndefined(this.initializeResult?.compilerCliJsPath)) {
+      logger.warning(
+        `Failed to run cli command with args [${args.join(", ")}] because no compilerCliJsPath is provided by the server. Please consider upgrade TypeSpec Compiler.`,
+      );
+      return undefined;
+    }
+    try {
+      const result = await spawnExecutionAndLogToOutput(
+        "node",
+        [this.initializeResult!.compilerCliJsPath!, ...args],
+        cwd,
+      );
+      if (result.exitCode !== 0) {
+        logger.error(
+          `Cli command with args [${args.join(", ")}] finishes with non-zero exit code ${result.exitCode}. Please check previous log for details`,
+          result.error ? [result.error] : [],
+        );
+      }
+      return result;
+    } catch (e) {
+      logger.error(`Unexpected error when running Cli command with args [${args.join(", ")}]`, [e]);
+      return undefined;
+    }
+  }
 
   async restart(): Promise<void> {
     try {
@@ -44,6 +146,7 @@ export class TspLanguageClient {
   async start(): Promise<void> {
     try {
       if (this.client.needsStart()) {
+        // please be aware that this method would popup error notification in vscode directly
         await this.client.start();
         logger.info("TypeSpec server started");
       } else {
@@ -58,7 +161,7 @@ export class TspLanguageClient {
             `TypeSpec server executable was not found: '${this.exe.command}' is not found. Make sure either:`,
             ` - TypeSpec is installed locally at the root of this workspace ("${workspaceFolder}") or in a parent directory.`,
             " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
-            " - TypeSpec server path is configured with https://github.com/microsoft/typespec#installing-vs-code-extension.",
+            " - TypeSpec server path is configured with https://typespec.io/docs/introduction/editor/vscode/#configure.",
           ].join("\n"),
           [],
           { showOutput: false, showPopup: true },
@@ -89,7 +192,7 @@ export class TspLanguageClient {
       workspace.createFileSystemWatcher("**/*.cadl"),
       workspace.createFileSystemWatcher("**/cadl-project.yaml"),
       workspace.createFileSystemWatcher("**/*.tsp"),
-      workspace.createFileSystemWatcher("**/tspconfig.yaml"),
+      workspace.createFileSystemWatcher(`**/${TspConfigFileName}`),
       // please be aware that the vscode watch with '**' will honer the files.watcherExclude settings
       // so we won't get notification for those package.json under node_modules
       // if our customers exclude the node_modules folder in files.watcherExclude settings.
@@ -111,7 +214,7 @@ export class TspLanguageClient {
       documentSelector: [
         { scheme: "file", language: "typespec" },
         { scheme: "untitled", language: "typespec" },
-        { scheme: "file", language: "yaml", pattern: "**/tspconfig.yaml" },
+        { scheme: "file", language: "yaml", pattern: `**/${TspConfigFileName}` },
       ],
       outputChannel,
     };

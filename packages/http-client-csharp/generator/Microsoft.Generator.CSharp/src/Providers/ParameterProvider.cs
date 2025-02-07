@@ -11,6 +11,7 @@ using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
 using Microsoft.Generator.CSharp.Snippets;
 using Microsoft.Generator.CSharp.Statements;
+using Microsoft.Generator.CSharp.Utilities;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
@@ -29,6 +30,8 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterValidationType Validation { get; init; } = ParameterValidationType.None;
         public bool IsRef { get; }
         public bool IsOut { get; }
+        public bool IsParams { get; }
+
         internal IReadOnlyList<AttributeStatement> Attributes { get; } = [];
         public WireInformation WireInfo { get; }
         public ParameterLocation Location { get; }
@@ -50,7 +53,7 @@ namespace Microsoft.Generator.CSharp.Providers
         public ParameterProvider(InputParameter inputParameter)
         {
             Name = inputParameter.Name;
-            Description = FormattableStringHelpers.FromString(inputParameter.Description) ?? FormattableStringHelpers.Empty;
+            Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelPlugin.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             if (!inputParameter.IsRequired && !type.IsCollection)
             {
@@ -72,6 +75,7 @@ namespace Microsoft.Generator.CSharp.Providers
             ValueExpression? defaultValue = null,
             bool isRef = false,
             bool isOut = false,
+            bool isParams = false,
             IReadOnlyList<AttributeStatement>? attributes = null,
             PropertyProvider? property = null,
             FieldProvider? field = null,
@@ -87,6 +91,7 @@ namespace Microsoft.Generator.CSharp.Providers
             Description = description;
             IsRef = isRef;
             IsOut = isOut;
+            IsParams = isParams;
             DefaultValue = defaultValue;
             Attributes = attributes ?? Array.Empty<AttributeStatement>();
             Property = property;
@@ -113,6 +118,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 DefaultValue,
                 IsRef,
                 IsOut,
+                IsParams,
                 Attributes,
                 Property,
                 Field,
@@ -217,6 +223,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 Type,
                 DefaultValue,
                 true,
+                false,
                 false,
                 Attributes,
                 Property,

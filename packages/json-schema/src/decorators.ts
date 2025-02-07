@@ -12,7 +12,7 @@ import {
   typespecTypeToJson,
   type Union,
 } from "@typespec/compiler";
-import { unsafe_useStateMap, unsafe_useStateSet } from "@typespec/compiler/experimental";
+import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import type { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
 import type {
   ContainsDecorator,
@@ -43,7 +43,7 @@ export const [
   /** Check if the given type is annotated with `@jsonSchema`  */
   getJsonSchema,
   markJsonSchema,
-] = unsafe_useStateSet(JsonSchemaStateKeys.JsonSchema);
+] = useStateSet(JsonSchemaStateKeys.JsonSchema);
 /** {@inheritdoc JsonSchemaDecorator} */
 export const $jsonSchema: JsonSchemaDecorator = (
   context: DecoratorContext,
@@ -135,7 +135,7 @@ export const [
   /** Check if given type is annotated with `@oneOf` decorator */
   isOneOf,
   markOneOf,
-] = unsafe_useStateSet(JsonSchemaStateKeys["JsonSchema.oneOf"]);
+] = useStateSet(JsonSchemaStateKeys["JsonSchema.oneOf"]);
 
 /** {@inheritdoc OneOfDecorator} */
 export const $oneOf: OneOfDecorator = (context: DecoratorContext, target: Type) => {
@@ -170,7 +170,7 @@ export const [
   /** Check if the given array is annotated with `@uniqueItems` decorator */
   getUniqueItems,
   setUniqueItems,
-] = unsafe_useStateMap(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
+] = useStateMap(JsonSchemaStateKeys["JsonSchema.uniqueItems"]);
 /** {@inheritdoc UniqueItemsDecorator} */
 export const $uniqueItems: UniqueItemsDecorator = (context: DecoratorContext, target: Type) =>
   setUniqueItems(context.program, target, true);
@@ -226,7 +226,7 @@ export const [
   /** Get prefix items set with `@prefixItems` decorator */
   getPrefixItems,
   setPrefixItems,
-] = unsafe_useStateMap<Type, Tuple>(JsonSchemaStateKeys["JsonSchema.prefixItems"]);
+] = useStateMap<Type, Tuple>(JsonSchemaStateKeys["JsonSchema.prefixItems"]);
 
 /** {@inheritdoc PrefixItemsDecorator} */
 export const $prefixItems: PrefixItemsDecorator = (
@@ -247,10 +247,9 @@ export interface ExtensionRecord {
   value: Type | unknown;
 }
 
-const [getExtensionsInternal, _, getExtensionsStateMap] = unsafe_useStateMap<
-  Type,
-  ExtensionRecord[]
->(JsonSchemaStateKeys["JsonSchema.extension"]);
+const [getExtensionsInternal, _, getExtensionsStateMap] = useStateMap<Type, ExtensionRecord[]>(
+  JsonSchemaStateKeys["JsonSchema.extension"],
+);
 /** {@inheritdoc ExtensionDecorator} */
 export const $extension: ExtensionDecorator = (
   context: DecoratorContext,

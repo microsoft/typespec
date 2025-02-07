@@ -3,25 +3,19 @@
 
 package payload.pageable;
 
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.http.rest.PagedIterable;
-import java.util.Arrays;
-import java.util.HashSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import payload.pageable.models.User;
+import payload.pageable.models.Pet;
 
 public class PageableTests {
 
-    private final PageableClient client = new PageableClientBuilder()
-        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
-            .setAllowedQueryParamNames(new HashSet<>(Arrays.asList("maxpagesize", "skipToken"))))
-        .buildClient();
+    private final PageableClient client = new PageableClientBuilder().buildClient();
 
     @Test
-    public void testPageable() {
-        PagedIterable<User> pagedIterable = client.list();
-        Assertions.assertEquals(4, pagedIterable.streamByPage(3).mapToInt(p -> p.getValue().size()).sum());
+    public void test() {
+        PagedIterable<Pet> pagedIterable = client.link();
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
     }
 }

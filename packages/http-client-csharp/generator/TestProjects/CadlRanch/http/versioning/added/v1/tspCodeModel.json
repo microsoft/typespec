@@ -69,11 +69,11 @@
      "enumType": {
       "$ref": "6"
      },
-     "description": "The version v1.",
+     "doc": "The version v1.",
      "decorators": []
     }
    ],
-   "description": "The version of the API.",
+   "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,ApiVersionEnum",
@@ -106,10 +106,17 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Versioning.Added.ModelV1.prop"
+     "crossLanguageDefinitionId": "Versioning.Added.ModelV1.prop",
+     "serializationOptions": {
+      "$id": "13",
+      "json": {
+       "$id": "14",
+       "name": "prop"
+      }
+     }
     },
     {
-     "$id": "13",
+     "$id": "15",
      "kind": "property",
      "name": "enumProp",
      "serializedName": "enumProp",
@@ -121,33 +128,40 @@
      "discriminator": false,
      "flatten": false,
      "decorators": [],
-     "crossLanguageDefinitionId": "Versioning.Added.ModelV1.enumProp"
+     "crossLanguageDefinitionId": "Versioning.Added.ModelV1.enumProp",
+     "serializationOptions": {
+      "$id": "16",
+      "json": {
+       "$id": "17",
+       "name": "enumProp"
+      }
+     }
     }
    ]
   }
  ],
  "Clients": [
   {
-   "$id": "14",
+   "$id": "18",
    "Name": "AddedClient",
-   "Description": "Test for the `@added` decorator.",
+   "Doc": "Test for the `@added` decorator.",
    "Operations": [
     {
-     "$id": "15",
+     "$id": "19",
      "Name": "v1",
      "ResourceName": "Added",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "16",
+       "$id": "20",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
-       "Description": "Body parameter's content type. Known values are application/json",
+       "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "17",
+        "$id": "21",
         "kind": "constant",
         "valueType": {
-         "$id": "18",
+         "$id": "22",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -167,14 +181,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "19",
+       "$id": "23",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "20",
+        "$id": "24",
         "kind": "constant",
         "valueType": {
-         "$id": "21",
+         "$id": "25",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -194,7 +208,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "22",
+       "$id": "26",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -213,7 +227,7 @@
      ],
      "Responses": [
       {
-       "$id": "23",
+       "$id": "27",
        "StatusCodes": [
         200
        ],
@@ -243,16 +257,16 @@
     }
    ],
    "Protocol": {
-    "$id": "24"
+    "$id": "28"
    },
    "Parameters": [
     {
-     "$id": "25",
+     "$id": "29",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
-     "Description": "Need to be set as 'http://localhost:3000' in client.",
+     "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "26",
+      "$id": "30",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -268,10 +282,10 @@
      "Kind": "Client"
     },
     {
-     "$id": "27",
+     "$id": "31",
      "Name": "version",
      "NameInRequest": "version",
-     "Description": "Need to be set as 'v1' or 'v2' in client.",
+     "Doc": "Need to be set as 'v1' or 'v2' in client.",
      "Type": {
       "$ref": "6"
      },
