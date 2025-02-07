@@ -1,6 +1,6 @@
 parameters:
   path: ""
-  pattern: "**/*.vsix"
+  pattern: "**"
 
 steps:
   - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
@@ -10,17 +10,21 @@ steps:
       inlineOperation: |
         [
             {
-                "KeyCode" : "CP-233016",
-                "OperationCode" : "OpcSign",
+                "KeyCode" : "CP-230012",
+                "OperationCode" : "SigntoolSign",
                 "Parameters" : {
-                    "FileDigest" : "/fd SHA256"
+                    "OpusName" : "Microsoft",
+                    "OpusInfo" : "http://www.microsoft.com",
+                    "FileDigest" : "/fd \"SHA256\"",
+                    "PageHash" : "/NPH",
+                    "TimeStamp" : "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
                 },
                 "ToolName" : "sign",
                 "ToolVersion" : "1.0"
             },
             {
-                "KeyCode" : "CP-233016",
-                "OperationCode" : "OpcVerify",
+                "KeyCode" : "CP-230012",
+                "OperationCode" : "SigntoolVerify",
                 "Parameters" : {},
                 "ToolName" : "sign",
                 "ToolVersion" : "1.0"
