@@ -84,6 +84,10 @@ function main() {
     applyEdit(paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit) {
       return connection.workspace.applyEdit(paramOrEdit);
     },
+    getOneOpenDocumentUrl() {
+      const allOpenDoc = documents.all();
+      return allOpenDoc && allOpenDoc.length > 0 ? allOpenDoc[0].uri : undefined;
+    },
   };
 
   const s = createServer(host);
@@ -135,12 +139,6 @@ function main() {
   connection.onRequest(getInitProjectContextRequestName, profile(s.getInitProjectContext));
   const initProjectRequestName: CustomRequestName = "typespec/initProject";
   connection.onRequest(initProjectRequestName, profile(s.initProject));
-  const updateImportsOnFileMovedOrRenamedRequestName: CustomRequestName =
-    "typespec/updateImportsOnFileMovedOrRenamed";
-  connection.onRequest(
-    updateImportsOnFileMovedOrRenamedRequestName,
-    profile(s.updateImportsOnFileRename),
-  );
 
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));

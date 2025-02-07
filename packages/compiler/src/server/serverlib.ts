@@ -15,6 +15,7 @@ import {
   DocumentSymbol,
   DocumentSymbolParams,
   ExecuteCommandParams,
+  FileEvent,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -26,6 +27,7 @@ import {
   MarkupContent,
   MarkupKind,
   ParameterInformation,
+  Position,
   PrepareRenameParams,
   Range,
   ReferenceParams,
@@ -64,7 +66,7 @@ import {
   ensureTrailingDirectorySeparator,
   getBaseFileName,
   getDirectoryPath,
-  getRelativePathByComparePaths,
+  getRelativePathFromDirectory,
   joinPaths,
   normalizePath,
 } from "../core/path-utils.js";
@@ -187,7 +189,6 @@ export function createServer(host: ServerHost): Server {
     getInitProjectContext,
     validateInitProjectTemplate,
     initProject,
-    updateImportsOnFileRename: updateImportsOnFileMovedOrRenamed,
   };
 
   async function initialize(params: InitializeParams): Promise<InitializeResult> {
@@ -342,43 +343,80 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function updateImportsOnFileMovedOrRenamed(param: {
-    oldFilePath: string;
-    newFilePath: string;
-    openedFilePath: string;
-  }): Promise<string[]> {
-    const result: string[] = [];
+  async function updateImportsOnFileMovedOrRenamed(changes: FileEvent[]): Promise<void> {
+    // add this method to get the url of an open document
+    // so that the diagnostic results are obtained through the compile method below
+    const openedDocUrl = host.getOneOpenDocumentUrl();
+    if (!openedDocUrl) {
+      log({ level: "warning", message: "No open document found for rename file." });
+      return;
+    }
 
-    const resultCompile = await compileService.compile({
-      uri: fileService.getURL(normalizePath(param.openedFilePath)),
-    });
+    changes = changes.filter((change) => change.uri.endsWith(".tsp"));
+    let newFilePath: string | undefined, oldFilePath: string | undefined;
+    for (const change of changes) {
+      // type 1: Created, type 2: Changed, type 3: Deleted
+      if (change.type === 1) {
+        newFilePath = await fileService.getPath({ uri: change.uri });
+      } else if (change.type === 3) {
+        oldFilePath = normalizePath(change.uri);
+      }
+    }
+
+    if (!oldFilePath || !newFilePath) {
+      return;
+    }
+
+    const resultCompile = await compileService.compile({ uri: openedDocUrl });
     if (resultCompile === undefined) {
-      return [];
+      return;
     }
 
     const { program } = resultCompile;
-    const oldFileName = getBaseFileName(param.oldFilePath);
+    const oldFileName = getBaseFileName(oldFilePath);
     for (const diagnostic of program.diagnostics) {
       if (diagnostic.code === "import-not-found") {
         const target = diagnostic.target as Node;
         if (
           target.parent &&
           target.kind === SyntaxKind.ImportStatement &&
-          target.path.value.includes(oldFileName)
+          target.path.value.endsWith(oldFileName)
         ) {
           const filePath = target.parent.file.path;
-          const text = target.parent.file.text;
-          result.push(getBaseFileName(filePath));
+          const targetPath = target.path;
+          const targetVal = targetPath.value;
+          const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
+            targetPath.pos,
+          );
+
           // The value of 'target.path.value' is the value of imports, so the value of imports needs to be replaced here.
-          const replaceText = getRelativePathByComparePaths(filePath, param.newFilePath);
+          const replaceText = getRelativePathFromDirectory(filePath, newFilePath, true);
           if (replaceText.length > 0) {
-            await compilerHost.writeFile(filePath, text.replace(target.path.value, replaceText));
+            log({
+              level: "info",
+              message: `The imports content '${targetVal}' needs to be modified is a tsp file '${filePath}' for '${replaceText}'`,
+            });
+
+            const vsEdits = [
+              TextEdit.replace(
+                Range.create(
+                  Position.create(
+                    changeImpLineAndOffset.line,
+                    changeImpLineAndOffset.character + 1,
+                  ),
+                  Position.create(
+                    changeImpLineAndOffset.line,
+                    changeImpLineAndOffset.character + 1 + targetVal.length,
+                  ),
+                ),
+                replaceText,
+              ),
+            ];
+            await host.applyEdit({ changes: { [fileService.getURL(filePath)]: vsEdits } });
           }
         }
       }
     }
-
-    return result;
   }
 
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
@@ -397,9 +435,11 @@ export function createServer(host: ServerHost): Server {
     log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
   }
 
-  function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
+  async function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
     fileSystemCache.notify(params.changes);
     npmPackageProvider.notify(params.changes);
+
+    await updateImportsOnFileMovedOrRenamed(params.changes);
   }
 
   function isTspConfigFile(doc: TextDocument | TextDocumentIdentifier) {

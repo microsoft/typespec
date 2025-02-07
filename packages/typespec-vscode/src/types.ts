@@ -1,7 +1,6 @@
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
   InitTemplatesUrls = "typespec.initTemplatesUrls",
-  UpdateImportsOnFileMovedOrRenamed = "typespec.updateImportsOnFileMovedOrRenamed.enabled",
 }
 
 export const enum CommandName {
@@ -10,11 +9,6 @@ export const enum CommandName {
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",
   OpenUrl = "typespec.openUrl",
-}
-
-export interface MoveOrRenameAction {
-  readonly newFilePath: string;
-  readonly oldFilePath: string;
 }
 
 export interface InstallGlobalCliCommandArgs {
