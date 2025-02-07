@@ -75,8 +75,6 @@ import {
 import {
   EmitContext,
   Interface,
-  Model,
-  ModelProperty,
   Namespace,
   NoTarget,
   Operation,
@@ -85,7 +83,6 @@ import {
   TypeNameOptions,
   Union,
   getDoc,
-  getEffectiveModelType,
   getNamespaceFullName,
   getOverloadedOperation,
   getSummary,
@@ -125,7 +122,6 @@ import {
   getServiceVersion,
   isKnownContentType,
   isLroNewPollingStrategy,
-  isPayloadProperty,
   operationIsJsonMergePatch,
   operationIsMultipart,
   operationIsMultipleContentTypes,
@@ -135,6 +131,7 @@ import {
   getAccess,
   getDurationFormat,
   getNonNullSdkType,
+  getPropertySerializedName,
   getUnionDescription,
   getUsage,
   modelIs,
@@ -589,7 +586,7 @@ export class CodeModelBuilder {
     // client initialization
     let baseUri = "{endpoint}";
     let hostParameters: Parameter[] = [];
-    client.initialization.properties.forEach((initializationProperty) => {
+    client.clientInitialization.parameters.forEach((initializationProperty) => {
       if (initializationProperty.kind === "endpoint") {
         let sdkPathParameters: SdkPathParameter[] = [];
         if (initializationProperty.type.kind === "union") {
@@ -1664,7 +1661,10 @@ export class CodeModelBuilder {
     schema: ObjectSchema,
     originalParameter: Parameter,
   ) {
-    const serializedName = opParameter.serializedName;
+    const serializedName =
+      opParameter.kind === "property"
+        ? getPropertySerializedName(opParameter)
+        : opParameter.serializedName;
     let existParameter: Parameter | undefined;
     if (opParameter.kind !== "property") {
       // not body property
@@ -1717,11 +1717,6 @@ export class CodeModelBuilder {
         );
       }
     }
-  }
-
-  private findResponseBody(bodyType: Type): Type {
-    // find a type that possibly without http metadata like @statusCode
-    return this.getEffectiveSchemaType(bodyType);
   }
 
   private processResponse(
@@ -2263,24 +2258,6 @@ export class CodeModelBuilder {
     return objectSchema;
   }
 
-  private getEffectiveSchemaType(type: Type): Type {
-    const program = this.program;
-    function isSchemaProperty(property: ModelProperty) {
-      return isPayloadProperty(program, property);
-    }
-
-    if (type.kind === "Model") {
-      const effective = getEffectiveModelType(program, type, isSchemaProperty);
-      if (this.isArm() && getNamespace(effective as Model)?.startsWith("Azure.ResourceManager")) {
-        // e.g. typespec: Catalog is TrackedResource<CatalogProperties>
-        return type;
-      } else if (effective.name) {
-        return effective;
-      }
-    }
-    return type;
-  }
-
   private processModelProperty(prop: SdkModelPropertyType): Property {
     let nullable = false;
     let nonNullType = prop.type;
@@ -2326,15 +2303,6 @@ export class CodeModelBuilder {
     } else {
       schema = this.processSchema(nonNullType, "");
     }
-
-    const getPropertySerializedName = (property: SdkBodyModelPropertyType) => {
-      // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
-      return (
-        property.serializationOptions.json?.name ??
-        property.serializationOptions.multipart?.name ??
-        property.serializedName
-      );
-    };
 
     return new Property(prop.name, prop.doc ?? "", schema, {
       summary: prop.summary,

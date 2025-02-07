@@ -318,6 +318,7 @@ export async function compile(
   async function loadSources(entrypoint: string) {
     const sourceLoader = await createSourceLoader(host, {
       parseOptions: options.parseOptions,
+      tracer,
       getCachedScript: (file) =>
         oldProgram?.sourceFiles.get(file.path) ?? host.parseCache?.get(file),
     });

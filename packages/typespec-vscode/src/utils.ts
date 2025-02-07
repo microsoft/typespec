@@ -165,8 +165,9 @@ export function spawnExecutionAndLogToOutput(
   exe: string,
   args: string[],
   cwd: string,
+  env?: NodeJS.ProcessEnv,
 ): Promise<ExecOutput> {
-  return spawnExecution(exe, args, cwd, {
+  return spawnExecution(exe, args, cwd, env, {
     onStdioOut: (data) => {
       logger.info(data.trim());
     },
@@ -194,6 +195,7 @@ export function spawnExecution(
   exe: string,
   args: string[],
   cwd: string,
+  env?: NodeJS.ProcessEnv,
   on?: spawnExecutionEvents,
 ): Promise<ExecOutput> {
   const shell = process.platform === "win32";
@@ -207,6 +209,9 @@ export function spawnExecution(
     windowsHide: true,
     cwd,
   };
+  if (env) {
+    options.env = { ...process.env, ...env };
+  }
   const child = spawn(cmd, args, options);
 
   child.stdout!.on("data", (data) => {

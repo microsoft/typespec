@@ -3,11 +3,11 @@ import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { SpawnOptions } from "child_process";
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { validateDotNetSdk } from "../../src/emitter.js";
+import { _validateDotNetSdk } from "../../src/emitter.js";
 import { execAsync } from "../../src/lib/utils.js";
 import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
 
-describe("Test validateDotNetSdk", () => {
+describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
   const minVersion = 8;
@@ -40,7 +40,7 @@ describe("Test validateDotNetSdk", () => {
     const error: any = new Error("ENOENT: no such file or directory");
     error.code = "ENOENT";
     (execAsync as Mock).mockRejectedValue(error);
-    const result = await validateDotNetSdk(program, minVersion);
+    const result = await _validateDotNetSdk(program, minVersion);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
@@ -62,7 +62,7 @@ describe("Test validateDotNetSdk", () => {
       stderr: "",
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
-    const result = await validateDotNetSdk(program, minVersion);
+    const result = await _validateDotNetSdk(program, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
     strictEqual(program.diagnostics.length, 0);
@@ -81,7 +81,7 @@ describe("Test validateDotNetSdk", () => {
         };
       },
     );
-    const result = await validateDotNetSdk(program, minVersion);
+    const result = await _validateDotNetSdk(program, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
     strictEqual(program.diagnostics.length, 0);
@@ -96,7 +96,7 @@ describe("Test validateDotNetSdk", () => {
       stderr: "",
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
-    const result = await validateDotNetSdk(program, minVersion);
+    const result = await _validateDotNetSdk(program, minVersion);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(

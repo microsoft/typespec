@@ -152,13 +152,13 @@ namespace Microsoft.Generator.CSharp.Tests.Common
         {
             return new InputModelProperty(
                 name,
-                wireName ?? name.ToVariableName(),
                 summary,
                 doc ?? $"Description for {name}",
                 type,
                 isRequired,
                 isReadOnly,
-                isDiscriminator);
+                isDiscriminator,
+                new(json: new(wireName ?? name.ToVariableName())));
         }
 
         public static InputModelType Model(
@@ -189,7 +189,8 @@ namespace Microsoft.Generator.CSharp.Tests.Common
                 propertiesList.FirstOrDefault(p => p.IsDiscriminator),
                 discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
                 additionalProperties,
-                modelAsStruct);
+                modelAsStruct,
+                new());
         }
 
         public static InputType Array(InputType elementType)
