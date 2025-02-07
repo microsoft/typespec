@@ -5187,13 +5187,29 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
     } else if (
       links.finalSymbol?.flags &&
-      links.finalSymbol.flags & SymbolFlags.Model &&
-      ~links.finalSymbol.flags & SymbolFlags.Declaration
+      ~links.finalSymbol.flags & SymbolFlags.Declaration &&
+      ~links.finalSymbol.flags & SymbolFlags.Member
     ) {
       program.reportDiagnostic(
         createDiagnostic({
           code: "augment-decorator-target",
-          messageId: "noModelExpressions",
+          messageId:
+            links.finalSymbol.flags & SymbolFlags.Model
+              ? "noModelExpression"
+              : links.finalSymbol.flags & SymbolFlags.Union
+                ? "noUnionExpression"
+                : "default",
+          target: node.targetType,
+        }),
+      );
+    } else if (links.finalSymbol?.flags && links.finalSymbol.flags & SymbolFlags.Alias) {
+      const aliasNode: AliasStatementNode = getSymNode(links.finalSymbol) as AliasStatementNode;
+
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "augment-decorator-target",
+          messageId:
+            aliasNode.value.kind === SyntaxKind.UnionExpression ? "noUnionExpression" : "default",
           target: node.targetType,
         }),
       );
