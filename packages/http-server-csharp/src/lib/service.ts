@@ -14,7 +14,6 @@ import {
   Service,
   StringLiteral,
   StringTemplate,
-  StringTemplateSpan,
   Tuple,
   Type,
   Union,
@@ -49,12 +48,8 @@ import {
   MetadataInfo,
   Visibility,
   createMetadataInfo,
-  getHeaderFieldName,
   getHttpOperation,
   getHttpPart,
-  isHeader,
-  isPathParam,
-  isQueryParam,
   isStatusCode,
 } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
@@ -86,6 +81,7 @@ import {
   HttpMetadata,
   UnknownType,
   coalesceTypes,
+  coalesceUnionTypes,
   ensureCSharpIdentifier,
   ensureCleanDirectory,
   formatComment,
@@ -97,6 +93,11 @@ import {
   getModelAttributes,
   getModelInstantiationName,
   getOperationVerbDecorator,
+  getTypeInfoForTsType,
+  isContentTypeHeader,
+  isEmptyResponseModel,
+  isHttpMetadata,
+  isValidParameter,
   isValueType,
 } from "./utils.js";
 
@@ -145,7 +146,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     unionLiteral(union: Union): EmitterOutput<string> {
-      const csType = this.#coalesceUnionTypes(union);
+      const csType = coalesceUnionTypes(this.emitter.getProgram(), union);
       return this.emitter.result.rawCode(csType && csType.isBuiltIn ? csType.name : "object");
     }
 
@@ -217,11 +218,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         const memberName: string = ensureCSharpIdentifier(this.emitter.getProgram(), member, name);
         this.#metadateMap.set(member, { name: memberName });
         result.push(
-          code`${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)} = "${
-            member.value ? (member.value as string) : name
-          }"`,
+          code`
+          [JsonStringEnumMemberName("${member.value ? (member.value as string) : name}")]
+          ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)}"`,
         );
-        if (i < en.members.size) result.pushLiteralSegment(", ");
+        if (i < en.members.size) result.pushLiteralSegment(",\n");
       }
 
       return this.emitter.result.rawCode(result.reduce());
@@ -374,10 +375,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return this.modelDeclaration(model, modelName);
     }
 
-    #isRecord(type: Type): boolean {
-      return type.kind === "Model" && type.name === "Record" && type.indexer !== undefined;
-    }
-
     #isInheritedProperty(property: ModelProperty): boolean {
       const visited: Model[] = [];
       function isInherited(model: Model, propertyName: string) {
@@ -422,7 +419,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #findPropertyType(
       property: ModelProperty,
     ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-      return this.#getTypeInfoForTsType(property.type);
+      return getTypeInfoForTsType(this.emitter.getProgram(), property.type, this.emitter);
     }
 
     #isMultipartRequest(operation: HttpOperation): boolean {
@@ -440,117 +437,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return false;
     }
 
-    #getTypeInfoForUnion(
-      union: Union,
-    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-      const propResult = this.#getNonNullableTsType(union);
-      if (propResult === undefined) {
-        return [
-          code`${emitter.emitTypeReference(union)}`,
-          undefined,
-          [...union.variants.values()].filter((v) => isNullType(v.type)).length > 0,
-        ];
-      }
-      const [typeName, typeDefault, _] = this.#getTypeInfoForTsType(propResult.type);
-      return [typeName, typeDefault, propResult.nullable];
-    }
-    #getTypeInfoForTsType(
-      tsType: Type,
-    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-      function extractStringValue(type: Type, span: StringTemplateSpan): string {
-        switch (type.kind) {
-          case "String":
-            return type.value;
-          case "Boolean":
-            return `${type.value}`;
-          case "Number":
-            return type.valueAsString;
-          case "StringTemplateSpan":
-            if (type.isInterpolated) {
-              return extractStringValue(type.type, span);
-            } else {
-              return type.type.value;
-            }
-          case "ModelProperty":
-            return extractStringValue(type.type, span);
-          case "EnumMember":
-            if (type.value === undefined) return type.name;
-            if (typeof type.value === "string") return type.value;
-            if (typeof type.value === "number") return `${type.value}`;
-        }
-        reportDiagnostic(emitter.getProgram(), {
-          code: "invalid-interpolation",
-          target: span,
-          format: {},
-        });
-        return "";
-      }
-      switch (tsType.kind) {
-        case "String":
-          return [code`string`, `"${tsType.value}"`, false];
-        case "StringTemplate":
-          const template = tsType;
-          if (template.stringValue !== undefined)
-            return [code`string`, `"${template.stringValue}"`, false];
-          const spanResults: string[] = [];
-          for (const span of template.spans) {
-            spanResults.push(extractStringValue(span, span));
-          }
-          return [code`string`, `"${spanResults.join("")}"`, false];
-        case "Boolean":
-          return [code`bool`, `${tsType.value === true ? true : false}`, false];
-        case "Number":
-          const [type, value] = this.#findNumericType(tsType);
-          return [code`${type}`, `${value}`, false];
-        case "Tuple":
-          const defaults = [];
-          const [csharpType, isObject] = this.#coalesceTypes(tsType.values);
-          if (isObject) return ["object[]", undefined, false];
-          for (const value of tsType.values) {
-            const [_, itemDefault] = this.#getTypeInfoForTsType(value);
-            defaults.push(itemDefault);
-          }
-          return [
-            code`${csharpType.getTypeReference()}[]`,
-            `[${defaults.join(", ")}]`,
-            csharpType.isNullable,
-          ];
-        case "Object":
-          return [code`object`, undefined, false];
-        case "Model":
-          if (this.#isRecord(tsType)) {
-            return [code`JsonObject`, undefined, false];
-          }
-          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
-        case "ModelProperty":
-          return this.#getTypeInfoForTsType(tsType.type);
-        case "Enum":
-          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
-        case "EnumMember":
-          if (typeof tsType.value === "number") {
-            const stringValue = tsType.value.toString();
-            if (stringValue.includes(".") || stringValue.includes("e"))
-              return ["double", stringValue, false];
-            return ["int", stringValue, false];
-          }
-          if (typeof tsType.value === "string") {
-            return ["string", tsType.value, false];
-          }
-          return [code`object`, undefined, false];
-        case "Union":
-          return this.#getTypeInfoForUnion(tsType);
-        case "UnionVariant":
-          return this.#getTypeInfoForTsType(tsType.type);
-        default:
-          return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
-      }
-    }
-
-    #findNumericType(type: NumericLiteral): [string, string] {
-      const stringValue = type.valueAsString;
-      if (stringValue.includes(".") || stringValue.includes("e")) return ["double", stringValue];
-      return ["int", stringValue];
-    }
     modelPropertyReference(property: ModelProperty): EmitterOutput<string> {
       return code`${this.emitter.emitTypeReference(property.type)}`;
     }
@@ -1047,7 +933,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     unionDeclaration(union: Union, name: string): EmitterOutput<string> {
-      const baseType = this.#coalesceUnionTypes(union);
+      const baseType = coalesceUnionTypes(this.emitter.getProgram(), union);
       if (baseType.isBuiltIn && baseType.name === "string") {
         const program = this.emitter.getProgram();
         const unionName = ensureCSharpIdentifier(program, union, name);
@@ -1078,7 +964,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
 
     unionDeclarationContext(union: Union): Context {
-      const baseType = this.#coalesceUnionTypes(union);
+      const baseType = coalesceUnionTypes(this.emitter.getProgram(), union);
       if (baseType.isBuiltIn && baseType.name === "string") {
         const unionName = ensureCSharpIdentifier(
           this.emitter.getProgram(),
@@ -1175,11 +1061,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const bodyParameters = this.#getBodyParameters(operation);
       //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
       const valid = operation.parameters.parameters.filter((p) =>
-        isValidParameter(
-          this.emitter.getProgram(),
-          p.param,
-          isExplicitBodyParam && operation.parameters.body?.bodyKind === "single",
-        ),
+        isValidParameter(this.emitter.getProgram(), p.param),
       );
       const required: HttpOperationParameter[] = valid.filter(
         (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
@@ -1477,79 +1359,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return "";
     }
 
-    #coalesceUnionTypes(union: Union): CSharpType {
-      const [result, _] = this.#coalesceTypes([...union.variants.values()].flatMap((v) => v.type));
-      return result;
-    }
-
-    #getNonNullableTsType(union: Union): { type: Type; nullable: boolean } | undefined {
-      const types = [...union.variants.values()];
-      const nulls = types.flatMap((v) => v.type).filter((t) => isNullType(t));
-      const nonNulls = types.flatMap((v) => v.type).filter((t) => !isNullType(t));
-      if (nonNulls.length === 1) return { type: nonNulls[0], nullable: nulls.length > 0 };
-      return undefined;
-    }
-
-    #coalesceTypes(types: Type[]): [CSharpType, boolean] {
-      const defaultValue: [CSharpType, boolean] = [
-        new CSharpType({
-          name: "object",
-          namespace: "System",
-          isValueType: false,
-        }),
-        true,
-      ];
-      let current: CSharpType | undefined = undefined;
-      let nullable: boolean = false;
-      for (const type of types) {
-        let candidate: CSharpType | undefined = undefined;
-        switch (type.kind) {
-          case "Boolean":
-            candidate = new CSharpType({ name: "bool", namespace: "System", isValueType: true });
-            break;
-          case "StringTemplate":
-          case "String":
-            candidate = new CSharpType({ name: "string", namespace: "System", isValueType: false });
-            break;
-          case "Number":
-            const stringValue = type.valueAsString;
-            if (stringValue.includes(".") || stringValue.includes("e")) {
-              candidate = new CSharpType({
-                name: "double",
-                namespace: "System",
-                isValueType: true,
-              });
-            } else {
-              candidate = new CSharpType({ name: "int", namespace: "System", isValueType: true });
-            }
-            break;
-          case "Union":
-            candidate = this.#coalesceUnionTypes(type);
-            break;
-          case "Scalar":
-            candidate = getCSharpTypeForScalar(this.emitter.getProgram(), type);
-            break;
-          case "Intrinsic":
-            if (isNullType(type)) {
-              nullable = true;
-              candidate = current;
-            } else {
-              return defaultValue;
-            }
-            break;
-          default:
-            return defaultValue;
-        }
-
-        current = current ?? candidate;
-        if (current === undefined || (candidate !== undefined && !candidate.equals(current)))
-          return defaultValue;
-      }
-
-      if (current !== undefined && nullable) current.isNullable = true;
-      return current === undefined ? defaultValue : [current, false];
-    }
-
     writeOutput(sourceFiles: SourceFile<string>[]): Promise<void> {
       for (const source of this.#libraryFiles) {
         sourceFiles.push(source.source);
@@ -1610,39 +1419,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     }
   }
 
-  function isEmptyResponseModel(program: Program, model: Type): boolean {
-    if (model.kind !== "Model") return false;
-    return model.properties.size === 1 && isStatusCode(program, [...model.properties.values()][0]);
-  }
-
-  function isContentTypeHeader(program: Program, parameter: ModelProperty): boolean {
-    return (
-      isHeader(program, parameter) &&
-      (parameter.name === "contentType" ||
-        getHeaderFieldName(program, parameter) === "Content-type")
-    );
-  }
-
-  function isValidParameter(
-    program: Program,
-    parameter: ModelProperty,
-    hasExplicitBodyParam: boolean = false,
-  ): boolean {
-    return (
-      !isContentTypeHeader(program, parameter) &&
-      (parameter.type.kind !== "Intrinsic" || parameter.type.name !== "never") &&
-      parameter.model?.name === ""
-    );
-  }
-
-  /** Determine whether the given parameter is http metadata */
-  function isHttpMetadata(program: Program, property: ModelProperty) {
-    return (
-      isPathParam(program, property) ||
-      isHeader(program, property) ||
-      isQueryParam(program, property)
-    );
-  }
   function processNameSpace(program: Program, target: Namespace, service?: Service | undefined) {
     if (!service) service = getService(program, target);
     if (service) {

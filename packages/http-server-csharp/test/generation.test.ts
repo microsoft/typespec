@@ -504,7 +504,11 @@ it("handles enum, complex type properties, and circular references", async () =>
     runner,
     `
       /** A simple enum */
-      enum Bar { /** one */ One, /** two */Two, /** three */ Three}
+      enum SimpleBar { /** one */ One, /** two */Two, /** three */ Three}
+      /** A named enum */
+      enum ComplexBar {/** one */ One: "first", /** two */Two: "second", /** three */ Three: "third"}
+      /** An escaped enum */
+      enum EscapedBar {/** one */ One:"2023-02-01-preview", /** two */Two:"2024-02-01-preview", /** three */ Three:"2025-02-01"}
       /** A model with a circular references */
       model Baz {
         /** Mutually circular with Foo */
@@ -515,7 +519,7 @@ it("handles enum, complex type properties, and circular references", async () =>
       /** A simple test model*/
       model Foo {
         /** enum */
-        barProp?: Bar;
+        barProp?: SimpleBar;
         /** circular */
         bazProp?: Baz;
       }
@@ -525,11 +529,43 @@ it("handles enum, complex type properties, and circular references", async () =>
         "Foo.cs",
         [
           "public partial class Foo",
-          `public Bar? BarProp { get; set; }`,
+          `public SimpleBar? BarProp { get; set; }`,
           `public Baz BazProp { get; set; }`,
         ],
       ],
-      ["Bar.cs", ["public enum Bar"]],
+      [
+        "SimpleBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum SimpleBar",
+          "One",
+          "Two",
+          "Three",
+        ],
+      ],
+      [
+        "ComplexBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum ComplexBar",
+          `[JsonStringEnumMemberName("first")]`,
+          "One",
+          `[JsonStringEnumMemberName("second")]`,
+          "Two",
+          `[JsonStringEnumMemberName("third")]`,
+          "Three",
+        ],
+      ],
+      [
+        "EscapedBar.cs",
+        [
+          "[JsonConverter(typeof(JsonStringEnumConverter))]",
+          "public enum EscapedBar",
+          `[JsonStringEnumMemberName("2023-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2024-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2025-02-01-preview")]`,
+        ],
+      ],
       [
         "Baz.cs",
         [

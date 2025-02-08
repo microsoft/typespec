@@ -27,7 +27,7 @@ import {
   StringValue,
 } from "./interfaces.js";
 import { getStringConstraint, isArrayType } from "./type-helpers.js";
-import { getCSharpIdentifier, getCSharpTypeForScalar } from "./utils.js";
+import { getCSharpTypeForScalar } from "./utils.js";
 
 export const JsonNamespace: string = "System.Text.Json";
 
@@ -463,8 +463,8 @@ export function getSafeIntAttribute(type: Scalar): Attribute | undefined {
 function getEnumAttribute(type: Enum, cSharpName?: string): Attribute {
   return new Attribute(
     new AttributeType({
-      name: `StringEnumConverter<${cSharpName !== undefined ? cSharpName : getCSharpIdentifier(type.name)}>`,
-      namespace: "System.Text.Json",
+      name: `JsonConverter(typeof(JsonStringEnumConverter))`,
+      namespace: "System.Text.Json.Serialization",
     }),
     [],
   );
