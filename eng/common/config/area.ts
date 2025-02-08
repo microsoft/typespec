@@ -35,12 +35,17 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
 /**
  * Path that should trigger every CI build.
  */
-const all = ["eng/common/", "vitest.config.ts"];
+const all = [ "vitest.config.ts"]; //just for validation
 
 /**
  * Path that should trigger all isolated emitter builds
  */
 const isolatedEmitters = ["eng/emitters/"];
+
+/**
+ * Release notes are not part of the CI build
+ */
+const releaseNotes = ["website/src/content/docs/docs/release-notes/"];
 
 export const CIRules = {
   CSharp: [...all, ...isolatedEmitters, ...AreaPaths["emitter:client:csharp"], ".editorconfig"],
@@ -54,13 +59,13 @@ export const CIRules = {
     "!cspell.yaml", // CSpell is already run as its dedicated CI(via github action)
     "!eslint.config.json", // Eslint is already run as its dedicated CI(via github action)
     ...ignore(isolatedEmitters),
+    ...ignore(releaseNotes),
+    ...ignore(["eng/common/"]), //just for validation
     ...ignore(AreaPaths["emitter:client:csharp"]),
     ...ignore(AreaPaths["emitter:client:java"]),
     ...ignore(AreaPaths["emitter:client:python"]),
-    ...ignore(["website/src/content/docs/docs/release-notes/", "eng/common/pipelines/ci.yml"])
   ],
 };
-
 
 function ignore(paths: string[]) {
   return paths.map((x) => `!${x}`);
