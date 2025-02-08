@@ -77,17 +77,29 @@ class ClientSerializer:
         retval.append('"""')
         return retval
 
-    def initialize_config(self) -> str:
+    def initialize_config(self) -> List[str]:
+        retval = []
+        additional_signatures = []
+        if self.client.need_cloud_setting:
+            additional_signatures.append("credential_scopes=credential_scopes")
+            retval.extend([
+              'cloud = kwargs.pop("cloud_setting", None) or settings.current.azure_cloud',
+              "endpoints = get_arm_endpoints(cloud)",
+              "if not base_url:",
+              '    base_url = endpoints["resource_manager"]',
+              'credential_scopes = kwargs.pop("credential_scopes", endpoints["credential_scopes"])',
+            ])
         config_name = f"{self.client.name}Configuration"
         config_call = ", ".join(
             [
                 f"{p.client_name}={p.client_name}"
                 for p in self.client.config.parameters.method
                 if p.method_location != ParameterMethodLocation.KWARG
-            ]
+            ] + additional_signatures + 
             + ["**kwargs"]
         )
-        return f"self._config = {config_name}({config_call})"
+        retval.append(f"self._config = {config_name}({config_call})")
+        return retval
 
     @property
     def host_variable_name(self) -> str:
