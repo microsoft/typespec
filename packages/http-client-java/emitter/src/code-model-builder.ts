@@ -68,6 +68,7 @@ import {
   SdkUnionType,
   createSdkContext,
   getAllModels,
+  getHttpOperationParameter,
   isApiVersion,
   isSdkBuiltInKind,
   isSdkIntKind,
@@ -1348,7 +1349,150 @@ export class CodeModelBuilder {
     op: CodeModelOperation,
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   ) {
-    // TODO
+    let request = op.convenienceApi?.requests?.[0];
+    let requestParameters: Parameter[];
+    if (request) {
+      requestParameters = request.parameters!;
+    } else {
+      op.convenienceApi!.requests = [];
+      request = new Request({
+        protocol: op.requests![0].protocol,
+      });
+      op.convenienceApi!.requests.push(request);
+
+      requestParameters = op.parameters!;
+    }
+    request.parameters = [];
+    request.signatureParameters = [];
+
+    function findOpParameter(
+      parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkBodyModelPropertyType,
+    ): Parameter | undefined {
+      let opParameter;
+      // ignore constant parameter
+      if (parameter.type.kind !== "constant") {
+        if (parameter.kind === "body") {
+          opParameter = requestParameters.find((it) => it.protocol.http?.in === "body");
+        } else if (parameter.kind === "property") {
+          opParameter = requestParameters.find(
+            (it) =>
+              it instanceof VirtualParameter &&
+              it.language.default.serializedName === parameter.serializedName,
+          );
+        } else {
+          opParameter = requestParameters.find(
+            (it) =>
+              it.protocol.http?.in === parameter.kind &&
+              it.language.default.serializedName === parameter.serializedName,
+          );
+        }
+      }
+      return opParameter;
+    }
+
+    for (const sdkMethodParameter of sdkMethod.parameters) {
+      let httpOperationParameter = getHttpOperationParameter(sdkMethod, sdkMethodParameter);
+      if (httpOperationParameter) {
+        const opParameter = findOpParameter(httpOperationParameter);
+        if (opParameter) {
+          request.signatureParameters.push(opParameter);
+          request.parameters.push(opParameter);
+        }
+      } else {
+        // sdkMethodParameter is a grouping parameter
+        if (sdkMethodParameter.type.kind === "model") {
+          const opParameters = [];
+          for (const property of sdkMethodParameter.type.properties) {
+            httpOperationParameter = getHttpOperationParameter(sdkMethod, property);
+            if (httpOperationParameter) {
+              const opParameter = findOpParameter(httpOperationParameter);
+              if (opParameter) {
+                if (opParameter instanceof VirtualParameter) {
+                  opParameters.push(opParameter);
+                } else {
+                  opParameters.push(opParameter);
+                }
+              }
+            }
+          }
+          // group schema
+          const groupSchema = this.processGroupSchema(
+            sdkMethodParameter.type,
+            opParameters,
+            sdkMethodParameter.type.name,
+          );
+          this.trackSchemaUsage(groupSchema, { usage: [SchemaContext.Input] });
+          if (op.convenienceApi) {
+            this.trackSchemaUsage(groupSchema, {
+              usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+            });
+          }
+
+          // group parameter
+          const groupParameter = new Parameter(
+            sdkMethodParameter.name,
+            sdkMethodParameter.doc ?? "",
+            groupSchema,
+            {
+              summary: sdkMethodParameter.summary,
+              implementation: ImplementationLocation.Method,
+              required: !sdkMethodParameter.optional,
+              nullable: false,
+            },
+          );
+          request.signatureParameters.push(groupParameter);
+          request.parameters.push(...opParameters);
+          request.parameters.push(groupParameter);
+
+          opParameters.forEach((it) => {
+            it.groupedBy = groupParameter;
+          });
+        }
+      }
+    }
+  }
+
+  private processGroupSchema(
+    type: SdkModelType | undefined,
+    parameters: Parameter[],
+    name: string,
+    description: string | undefined = undefined,
+  ): GroupSchema {
+    if (type && this.schemaCache.has(type)) {
+      return this.schemaCache.get(type) as GroupSchema;
+    }
+
+    // option bag schema
+    const optionBagSchema = this.codeModel.schemas.add(
+      new GroupSchema(name, type?.doc ?? description ?? "", {
+        summary: type?.summary,
+        language: {
+          default: {
+            namespace: type ? getNamespace(type.__raw) : this.namespace,
+          },
+          java: {
+            namespace: this.getJavaNamespace(type),
+          },
+        },
+      }),
+    );
+    parameters.forEach((it) => {
+      optionBagSchema.add(
+        new GroupProperty(it.language.default.name, it.language.default.description, it.schema, {
+          originalParameter: [it],
+          summary: it.summary,
+          required: it.required,
+          nullable: it.nullable,
+          readOnly: false,
+          serializedName: it.language.default.serializedName,
+        }),
+      );
+    });
+
+    if (type) {
+      this.schemaCache.set(type, optionBagSchema);
+    }
+    return optionBagSchema;
   }
 
   private checkGroupingAfterBodyParameterFlatten(op: CodeModelOperation) {
@@ -1363,33 +1507,7 @@ export class CodeModelBuilder {
     ) {
       // create an option bag
       const name = op.language.default.name + "Options";
-      const namespace = this.namespace;
-      // option bag schema
-      const optionBagSchema = this.codeModel.schemas.add(
-        new GroupSchema(name, `Options for ${op.language.default.name} API`, {
-          language: {
-            default: {
-              namespace: namespace,
-            },
-            java: {
-              namespace: this.getJavaNamespace(),
-            },
-          },
-        }),
-      );
-      request.parameters.forEach((it) => {
-        optionBagSchema.add(
-          new GroupProperty(it.language.default.name, it.language.default.description, it.schema, {
-            originalParameter: [it],
-            summary: it.summary,
-            required: it.required,
-            nullable: it.nullable,
-            readOnly: false,
-            serializedName: it.language.default.serializedName,
-          }),
-        );
-      });
-
+      const optionBagSchema = this.processGroupSchema(undefined, request.parameters, name);
       this.trackSchemaUsage(optionBagSchema, { usage: [SchemaContext.Input] });
       if (op.convenienceApi) {
         this.trackSchemaUsage(optionBagSchema, {
