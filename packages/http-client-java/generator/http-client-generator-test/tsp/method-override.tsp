@@ -79,10 +79,21 @@ namespace MethodOverride {
 
 // customization in client.tsp
 namespace Customization {
-  op groupQueryCustomization(options?: MethodOverride.GroupQueryOptions, ...ApiVersionParameter): void;
+  op groupQueryCustomization(
+    options?: MethodOverride.GroupQueryOptions,
+    ...ApiVersionParameter,
+  ): void;
   op groupAllCustomization(options: MethodOverride.GroupAllOptions, ...ApiVersionParameter): void;
-  op groupPartCustomization(...MethodOverride.GroupPartNotGrouped, options?: MethodOverride.GroupPartOptions, ...ApiVersionParameter): void;
-  op groupExcludeBodyCustomization(...MethodOverride.GroupExcludeBody, options?: MethodOverride.GroupQueryOptions, ...ApiVersionParameter): void;
+  op groupPartCustomization(
+    ...MethodOverride.GroupPartNotGrouped,
+    options?: MethodOverride.GroupPartOptions,
+    ...ApiVersionParameter,
+  ): void;
+  op groupExcludeBodyCustomization(
+    ...MethodOverride.GroupExcludeBody,
+    options?: MethodOverride.GroupQueryOptions,
+    ...ApiVersionParameter,
+  ): void;
 
   @@override(MethodOverride.groupQuery, Customization.groupQueryCustomization);
   @@override(MethodOverride.groupAll, Customization.groupAllCustomization);
