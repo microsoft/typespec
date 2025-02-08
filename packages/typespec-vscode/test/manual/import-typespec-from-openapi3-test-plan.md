@@ -21,16 +21,12 @@ Install TypeSpec Compiler before starting to write TypeSpec.
 ### Step 1: Install the typespec extension.
 
 _Option 1_. Install using .vsix file:
-`Extension` -> `…` -> `Install form VSIX...`
+Click `Extension` -> `…` -> `Install form VSIX...`. Choose the `.vsix` file you want to install locally.
 
 ![alt text](./images/InstallTypespec_VSIX.png)
 
-Find the .vsix file you want to install locally.
-
-![alt text](./images/InstallTypeSpec_SelectVSIXFileTest.png)
-
 _Option 2_. Install typespec with vscode extension marketplace:
-`Extension` -> input `TypeSpec for VS Code` -> `Install`
+`Extension` -> input `TypeSpec` -> `Install`
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
@@ -76,10 +72,9 @@ _Option 2_. From the right-click context menu of a folder.
 
 ### Step 5: Importing from OpenAPI will run on the backend.
 
-![alt text](./images/ImportTypeSpecfromOpenAPI3_ImportingOpenapi3.png)
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_ImportingOpenapi3Succeeded.png)
 
-After Importing from OpenAPI succeeded, the corresponding .tsp file will be generated in the target file.
+After Importing from OpenAPI succeeded, the corresponding `.tsp` file will be generated in the target file.
 
 ![alt text](./images/ImportTypeSpecfromOpenAPI3_ImportingOpenapi3_TspFile.png)
 

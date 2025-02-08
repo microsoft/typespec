@@ -40,16 +40,12 @@ Install TypeSpec Compiler before starting to write TypeSpec.
 #### Step 1: Install the typespec extension.
 
 _Option 1_. Install using .vsix file:
-`Extension` -> `…` -> `Install form VSIX...`
+Click `Extension` -> `…` -> `Install form VSIX...`. Choose the `.vsix` file you want to install locally.
 
 ![alt text](./images/InstallTypespec_VSIX.png)
 
-Find the .vsix file you want to install locally.
-
-![alt text](./images/InstallTypeSpec_SelectVSIXFileTest.png)
-
 _Option 2_. Install typespec with vscode extension marketplace:
-`Extension` -> input `TypeSpec for VS Code` -> `Install`
+`Extension` -> input `TypeSpec` -> `Install`
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
@@ -91,7 +87,6 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 1. Select a template _(Single choice)_.
 
    **Validate:** There should be a prompt "Select a template", and should see four options: `Empty project`, `Generic REST API`, `TypeSpec Library (With TypeScript)`, `TypeSpec Emitter (With TypeScript)`.
-   &emsp;&emsp;![alt text](./images/CreateTypeSpecProject_SelectTemplate.png)
 
 2. Input project name - _(Text input)_ by default, it is the project root folder name.
 
@@ -145,8 +140,7 @@ Configure more initialization templates.
 
 1. Open settings.
 
-   ![alt text](./images/CreateTypeSpecProject_testcase2_opensettings_1.png)
-   ![alt text](./images/CreateTypeSpecProject_testcase2_opensettings_2.png)
+   ![alt text](./images/CreateTypeSpecProject_testcase2_opensettings.png)
 
 2. Add configuration as below and save.
 
@@ -158,8 +152,6 @@ Configure more initialization templates.
    }
    ]
    ```
-
-   ![alt text](./images/CreateTypeSpecProject_testcase2_addconfiguration.png)
 
 #### Step 3: Trigger create TypeSpec Project
 
@@ -207,16 +199,11 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
      **Validate:** Verify that the project was created correctly.
 
-     ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateProject.png)
      ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder.png)
 
    - For `stand alone`:
 
      **Validate:** Verify that the project was created correctly.
-
-     ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateProject.png)
-
-     ![alt text](./images/CreateTypeSpecProject_TestCase_2_InstallDependencies.png)
 
      ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder_standalone.png)
 

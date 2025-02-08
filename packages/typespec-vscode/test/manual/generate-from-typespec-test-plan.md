@@ -36,16 +36,12 @@ Install required SDK/runtime for executing the specified language:
 ### Step 1: Install the typespec extension.
 
 _Option 1_. Install using .vsix file:
-`Extension` -> `…` -> `Install form VSIX...`
+Click `Extension` -> `…` -> `Install form VSIX...`. Choose the `.vsix` file you want to install locally.
 
 ![alt text](./images/InstallTypespec_VSIX.png)
 
-Find the .vsix file you want to install locally.
-
-![alt text](./images/InstallTypeSpec_SelectVSIXFileTest.png)
-
 _Option 2_. Install typespec with vscode extension marketplace:
-`Extension` -> input `TypeSpec for VS Code` -> `Install`
+`Extension` -> input `TypeSpec` -> `Install`
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
@@ -83,8 +79,6 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      **Validate:** There should be a prompt "Select a Language", and should see four languages: `DotNet`, `Java`, `JavaScript`, `Python`.
 
-     ![alt text](./images/GeneratefromTypeSpec_SelectClientLanguage.png)
-
   2. Select a Language, Confirm the emitter type. (e.g. Select `DotNet`)
 
      **Validate**: There should be a prompt `Select an emitter for code generation`.
@@ -92,8 +86,6 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
      ![alt text](./images/GenerateClientCode_ConfirmEmittersType_DotNet.png)
 
   3. Check if the package needs to be installed or updated.
-
-     ![alt text](./images/GenerateClientCode_CheckPackageInstalledOrUpdated_DotNet.png)
 
      - If installation or update is required, it will prompt `Here are libraries to install or update`. Click `OK` to install.
 
@@ -109,26 +101,18 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      - For `DotNet`:
 
-       ![alt text](./images/GenerateClientCode_VerifyInstallEmitter_DotNet.png)
-       ![alt text](./images/GenerateClientCode_VerifyGenerateSuccessful_DotNet.png)
        ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_DotNet.png)
 
      - For `Java`:
 
-       ![alt text](./images/GenerateClientCode_VerifyInstallEmitter_Java.png)
-       ![alt text](./images/GenerateClientCode_VerifyGenerateSuccessful_Java.png)
        ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_Java.png)
 
      - For `JavaScript`:
 
-       ![alt text](./images/GenerateClientCode_VerifyInstallEmitter_JS.png)
-       ![alt text](./images/GenerateClientCode_VerifyGenerateSuccessful_JS.png)
        ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_JS.png)
 
      - For `Python`:
 
-       ![alt text](./images/GenerateClientCode_VerifyInstallEmitter_Python.png)
-       ![alt text](./images/GenerateClientCode_VerifyGenerateSuccessful_Python.png)
        ![alt text](./images/GenerateClientCode_VerifyGenerateCodeSucceeded_Python.png)
 
 - For Emitter Type `<PREVIEW> Server Stub`:
@@ -140,8 +124,6 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
   1. Click `<PREVIEW> Server Stub`.
 
      **Validate:** There should be a prompt "Select a Language", and should see two languages: `DotNet`, `JavaScript`.
-
-     ![alt text](./images/GeneratefromTypeSpec_SelectServerStubLanguage.png)
 
   2. Select a Language, confirm the TypeSpec emitters you want to install and their minimum requirements.
 
@@ -157,9 +139,7 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      - For `DotNet`:
 
-       ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodeInstallDependencies_DotNet.png)
        ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodePrompt_DotNet.png)
-       ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodeFolder_DotNet.png)
 
 - For Emitter Type `Protocol Schema`:
 
@@ -171,8 +151,6 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      **Validate:** There should be a prompt "Select a Language", and should see languages: `OpenAPI3`.
 
-     ![alt text](./images/GeneratefromTypeSpec_SelectOpenAPILanguage.png)
-
   2. Select a Language, Confirm the emitter type.
 
      **Validate**: There should be a prompt `Select an emitter for code generation`.
@@ -180,8 +158,6 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
      ![alt text](./images/GenerateOpenAPI_ConfirmEmittersType_OpenAPI3.png)
 
   3. Check if the package needs to be installed or updated.
-
-     ![alt text](./images/GenerateClientCode_CheckPackageInstalledOrUpdated_DotNet.png)
 
      - If installation or update is required, it will prompt `Here are libraries to install or update`. Click `OK` to install.
 
@@ -196,7 +172,6 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
      **Validate:** A detailed trace log should be printed in the OUTPUT window. The result appears as a Notification in the bottom right corner, and generate the schema folder.
 
      ![alt text](./images/GeneratefromTypeSpec_GenerateOpenAPIResult_prompt.png)
-     ![alt text](./images/GeneratefromTypeSpec_GenerateOpenAPIResult_Folder.png)
 
 ## Issue Report
 

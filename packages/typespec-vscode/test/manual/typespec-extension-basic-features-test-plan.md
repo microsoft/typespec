@@ -31,16 +31,12 @@ The TypeSpec for VS Code extension provides TypeSpec language support for VS Cod
 ### Step 2: Install the TypeSpec for VS Code extension.
 
 _Option 1_. Install using .vsix file:
-`Extension` -> `…` -> `Install form VSIX...`
+Click `Extension` -> `…` -> `Install form VSIX...`. Choose the `.vsix` file you want to install locally.
 
 ![alt text](./images/InstallTypespec_VSIX.png)
 
-Find the .vsix file you want to install locally.
-
-![alt text](./images/InstallTypeSpec_SelectVSIXFileTest.png)
-
 _Option 2_. Install typespec with vscode extension marketplace:
-`Extension` -> input `TypeSpec for VS Code` -> `Install`
+`Extension` -> input `TypeSpec` -> `Install`
 
 ![alt text](./images/InstallTypespec_ExtensionMarketplaceTest01.png)
 
@@ -100,8 +96,6 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
   2. Using the formatting command.
 
-     ![alt text](./images/TypeSpecForvscodeFeatures_FormattingCommands.png)
-
      **Validate:** Once formatted, the document should conform to the expected style standards.
 
      ![alt text](./images/TypeSpecForvscodeFeatures_AfterFormatting.png)
@@ -118,8 +112,6 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
   Select a tag name in the file and use the Rename command to rename it.
 
-  ![alt text](./images/TypeSpecForvscodeFeatures_RenameCommand.png)
-
   **Validate:** All references to the variable should be automatically updated to ensure consistent code.
 
   ![alt text](./images/TypeSpecForvscodeFeatures_AfterRename.png)
@@ -127,8 +119,6 @@ _Option 2_. Install typespec with vscode extension marketplace:
 - #### For Go to definition:
 
   Select a type or function name in a .tsp file and use the Go to Definition command.
-
-  ![alt text](./images/TypeSpecForvscodeFeatures_GoToDefinitionCommand.png)
 
   **Validate:** Should jump to the definition of the selected type or function.
 
