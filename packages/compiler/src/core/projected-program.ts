@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import type { Program, ProjectedProgram } from "./index.js";
 
 export function isProjectedProgram(

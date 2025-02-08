@@ -674,13 +674,6 @@ const diagnostics = {
       required: "dec first parameter must be required.",
     },
   },
-  "projections-are-experimental": {
-    severity: "warning",
-    messages: {
-      default:
-        "Projections are experimental - your code will need to change as this feature evolves.",
-    },
-  },
   "mixed-string-template": {
     severity: "error",
     messages: {

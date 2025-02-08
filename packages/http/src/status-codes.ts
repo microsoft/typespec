@@ -118,6 +118,7 @@ function getStatusCodesRange(
 function isInt32(program: Program, type: Type) {
   return ignoreDiagnostics(
     program.checker.isTypeAssignableTo(
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       type.projectionBase ?? type,
       program.checker.getStdType("int32"),
       type,

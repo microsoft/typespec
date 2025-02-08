@@ -230,6 +230,12 @@ export class Realm {
     return clone;
   }
 
+  // TODO better way?
+  /** @internal */
+  public get types() {
+    return this.#types;
+  }
+
   static #knownRealms = new Map<symbol, Realm>();
 
   static realmForKey(key: symbol, parentRealm?: Realm) {
