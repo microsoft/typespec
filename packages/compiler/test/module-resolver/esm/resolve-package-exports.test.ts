@@ -7,7 +7,7 @@ const context: EsmResolutionContext = {
   packageUrl: "file:///test/node_modules/test-lib/",
   moduleDirs: ["node_modules"],
   conditions: ["import"],
-  resolveId: () => {},
+  resolveId: async () => undefined,
 };
 
 describe("exports is a string", () => {

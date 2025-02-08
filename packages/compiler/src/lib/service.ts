@@ -4,6 +4,7 @@ import { Type, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import type { Program } from "../core/program.js";
 import { DecoratorContext, Namespace } from "../core/types.js";
+import { Realm } from "../experimental/realm.js";
 import { useStateMap } from "../utils/index.js";
 
 export interface ServiceDetails {
@@ -26,7 +27,7 @@ const [getService, setService, getServiceMap] = useStateMap<Namespace, Service>(
  * @returns List of service.
  */
 export function listServices(program: Program): Service[] {
-  return [...getServiceMap(program).values()];
+  return [...getServiceMap(program).values()].filter((x) => !Realm.realmForType.has(x.type));
 }
 
 export {

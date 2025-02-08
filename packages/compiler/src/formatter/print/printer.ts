@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
 import { CharCode } from "../../core/charcode.js";

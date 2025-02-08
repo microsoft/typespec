@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { docFromCommentDecorator, getIndexer } from "../lib/intrinsic/decorators.js";
 import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
@@ -4776,7 +4777,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         const defaultValue = checkDefaultValue(prop.default, type.type);
         if (defaultValue !== null) {
           type.defaultValue = defaultValue;
-          // eslint-disable-next-line @typescript-eslint/no-deprecated
           type.default = checkLegacyDefault(prop.default);
         }
       }
@@ -6110,7 +6110,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     processedProjections.add(node);
     reportCheckerDiagnostic(
-      createDiagnostic({ code: "projections-are-experimental", target: node }),
+      createDiagnostic({
+        code: "deprecated",
+        format: { message: "Projection are deprecated and will be removed in next version" },
+        target: node,
+      }),
     );
 
     let type;
