@@ -1329,11 +1329,11 @@ export class CodeModelBuilder {
     bodyParameterFlattened: boolean,
   ) {
     const httpOperation = sdkMethod.operation;
-    const methodSignatureOverriden = sdkMethod.decorators.some(
+    const methodSignatureOverridden = sdkMethod.decorators.some(
       (it) => it.name === "Azure.ClientGenerator.Core.@override",
     );
 
-    if (methodSignatureOverriden) {
+    if (methodSignatureOverridden) {
       this.processSdkMethodOverride(op, sdkMethod);
     } else if (bodyParameterFlattened) {
       this.checkGroupingAfterBodyParameterFlatten(op);
@@ -1365,7 +1365,7 @@ export class CodeModelBuilder {
     request.parameters = [];
     request.signatureParameters = [];
 
-    function findOpParameter(
+    function findOperationParameter(
       parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkBodyModelPropertyType,
     ): Parameter | undefined {
       let opParameter;
@@ -1393,7 +1393,7 @@ export class CodeModelBuilder {
     for (const sdkMethodParameter of sdkMethod.parameters) {
       let httpOperationParameter = getHttpOperationParameter(sdkMethod, sdkMethodParameter);
       if (httpOperationParameter) {
-        const opParameter = findOpParameter(httpOperationParameter);
+        const opParameter = findOperationParameter(httpOperationParameter);
         if (opParameter) {
           request.signatureParameters.push(opParameter);
           request.parameters.push(opParameter);
@@ -1405,7 +1405,7 @@ export class CodeModelBuilder {
           for (const property of sdkMethodParameter.type.properties) {
             httpOperationParameter = getHttpOperationParameter(sdkMethod, property);
             if (httpOperationParameter) {
-              const opParameter = findOpParameter(httpOperationParameter);
+              const opParameter = findOperationParameter(httpOperationParameter);
               if (opParameter) {
                 if (opParameter instanceof VirtualParameter) {
                   opParameters.push(opParameter);
@@ -1507,7 +1507,12 @@ export class CodeModelBuilder {
     ) {
       // create an option bag
       const name = op.language.default.name + "Options";
-      const optionBagSchema = this.processGroupSchema(undefined, request.parameters, name);
+      const optionBagSchema = this.processGroupSchema(
+        undefined,
+        request.parameters,
+        name,
+        `Options for ${op.language.default.name} API`,
+      );
       this.trackSchemaUsage(optionBagSchema, { usage: [SchemaContext.Input] });
       if (op.convenienceApi) {
         this.trackSchemaUsage(optionBagSchema, {
