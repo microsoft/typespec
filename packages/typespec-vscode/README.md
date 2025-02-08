@@ -14,18 +14,13 @@ The TypeSpec extension for Visual Studio Code enhances the development of TypeSp
 
 Before using the TypeSpec extension, install [Node.js](https://nodejs.org/en/download/) and verify npm is available:
 
-   ```sh
-   npm --version
-   ```
+```sh
+npm --version
+```
 
 Other necessary installations will be prompted within the extension as needed.
 
 ## Features
-
-### Project Initialization
-
-- **Create TypeSpec Project**: Easily initialize a new TypeSpec project based on a template, ensuring a structured and ready-to-use setup.
-![vscode_project_scaffolding.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_project_scaffolding.gif)
 
 ### Writing TypeSpec
 
@@ -34,8 +29,14 @@ Other necessary installations will be prompted within the extension as needed.
 - **Syntax Highlighting**: Clear and readable TypeSpec syntax.
 - **Live Diagnostics**: Get real-time feedback on code issues.
 - **Quick Fixes & Refactoring**: Rename, go-to definition, and format with ease.
+- **Hover Info**: Get detailed information about TypeSpec elements by hovering over them.
 
 ![vscode.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode.gif)
+
+### Project Initialization
+
+- **Create TypeSpec Project**: Easily initialize a new TypeSpec project based on a template, ensuring a structured and ready-to-use setup.
+  ![vscode_project_scaffolding.gif](https://raw.githubusercontent.com/microsoft/typespec/main/website/src/content/docs/docs/images/vscode_project_scaffolding.gif)
 
 ### Generating Code from TypeSpec
 
@@ -57,13 +58,13 @@ Invoke `TypeSpec: Generate From TypeSpec` to generate code:
 
 The extension provides the following commands:
 
-| **Command**                                  | **Description**                                          |
-|----------------------------------------------|----------------------------------------------------------|
-| `TypeSpec: Create TypeSpec Project`         | Scaffold a new TypeSpec project.                         |
-| `TypeSpec: Install TypeSpec Compiler/CLI globally` | Install the TypeSpec Compiler/CLI globally.          |
-| `TypeSpec: Generate From TypeSpec`          | Compile and generate from TypeSpec files into the specified output.        |
-| `TypeSpec: Restart TypeSpec Server`         | Restart the TypeSpec language server.                    |
-| `TypeSpec: Show Output Channel`             | Open the TypeSpec output channel to view logs.          |
+| **Command**                                        | **Description**                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------- |
+| `TypeSpec: Create TypeSpec Project`                | Scaffold a new TypeSpec project.                                    |
+| `TypeSpec: Install TypeSpec Compiler/CLI globally` | Install the TypeSpec Compiler/CLI globally.                         |
+| `TypeSpec: Generate From TypeSpec`                 | Compile and generate from TypeSpec files into the specified output. |
+| `TypeSpec: Restart TypeSpec Server`                | Restart the TypeSpec language server.                               |
+| `TypeSpec: Show Output Channel`                    | Open the TypeSpec output channel to view logs.                      |
 
 ## Configuration
 
