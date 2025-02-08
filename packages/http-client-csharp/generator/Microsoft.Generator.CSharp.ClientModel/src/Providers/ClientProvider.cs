@@ -143,6 +143,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _subClients = new(GetSubClients);
         }
 
+        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputClient.Namespace) ?
+            base.BuildNamespace() :
+            ClientModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()
         {
             var subClientParameters = new List<ParameterProvider>
@@ -311,7 +315,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 AppendConstructors(_apiKeyAuthFields, primaryConstructors, secondaryConstructors);
             }
             // if there is oauth2 auth
-            if (_oauth2Fields!= null)
+            if (_oauth2Fields != null)
             {
                 AppendConstructors(_oauth2Fields, primaryConstructors, secondaryConstructors);
             }

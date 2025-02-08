@@ -1,5 +1,11 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["**/*.ts", "**/*.tsx", "**/.storybook/**/*.ts", "**/.storybook/**/*.tsx"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/.storybook/**/*.ts",
+    "**/.storybook/**/*.tsx",
+    "eng/tsp-core/scripts/resolve-cli-artifacts.js"
+  ],
   "exclude": ["**/node_modules/", "**/dist/", "**/build/", "**/coverage/"]
 }

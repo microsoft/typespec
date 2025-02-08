@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
+// TODO: remove after projection removal
 import type {
   DeprecatedDecorator,
   DiscriminatorDecorator,
@@ -875,7 +877,6 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 ) => {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     delete p.default;
     delete p.defaultValue;
   });
@@ -1074,7 +1075,6 @@ export { getKeyName, isKey } from "./key.js";
  *     model Foo {}
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-deprecated
 export const $deprecated: DeprecatedDecorator = (
   context: DecoratorContext,
   target: Type,

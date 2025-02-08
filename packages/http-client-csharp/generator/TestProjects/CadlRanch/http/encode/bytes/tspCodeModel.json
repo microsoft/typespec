@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "DefaultBytesProperty",
+   "clientNamespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.DefaultBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -45,6 +46,7 @@
    "$id": "7",
    "kind": "model",
    "name": "Base64BytesProperty",
+   "clientNamespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64BytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -82,6 +84,7 @@
    "$id": "12",
    "kind": "model",
    "name": "Base64urlBytesProperty",
+   "clientNamespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64urlBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -119,6 +122,7 @@
    "$id": "17",
    "kind": "model",
    "name": "Base64urlArrayBytesProperty",
+   "clientNamespace": "Encode.Bytes",
    "crossLanguageDefinitionId": "Encode.Bytes.Base64urlArrayBytesProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -172,6 +176,7 @@
   {
    "$id": "24",
    "Name": "BytesClient",
+   "ClientNamespace": "Encode.Bytes",
    "Doc": "Test for encode decorator on bytes.",
    "Operations": [],
    "Protocol": {
@@ -215,6 +220,7 @@
   {
    "$id": "30",
    "Name": "Query",
+   "ClientNamespace": "Encode.Bytes.Query",
    "Operations": [
     {
      "$id": "31",
@@ -475,6 +481,7 @@
   {
    "$id": "54",
    "Name": "Property",
+   "ClientNamespace": "Encode.Bytes.Property",
    "Operations": [
     {
      "$id": "55",
@@ -955,6 +962,7 @@
   {
    "$id": "96",
    "Name": "Header",
+   "ClientNamespace": "Encode.Bytes.Header",
    "Operations": [
     {
      "$id": "97",
@@ -1215,6 +1223,7 @@
   {
    "$id": "120",
    "Name": "RequestBody",
+   "ClientNamespace": "Encode.Bytes.RequestBody",
    "Operations": [
     {
      "$id": "121",
@@ -1660,6 +1669,7 @@
   {
    "$id": "161",
    "Name": "ResponseBody",
+   "ClientNamespace": "Encode.Bytes.ResponseBody",
    "Operations": [
     {
      "$id": "162",

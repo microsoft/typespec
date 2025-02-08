@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
-  "namespace": "Versioning.TypeChangedFrom.V1",
+  "namespace": "Versioning.TypeChangedFrom",
   "library-name": "Versioning.TypeChangedFrom.V1"
 }

@@ -36,6 +36,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.RenamedFrom",
    "isFixed": true,
    "isFlags": false,
    "usage": "Input,Output,Json",
@@ -73,6 +74,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.RenamedFrom",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -85,6 +87,7 @@
    "$id": "10",
    "kind": "model",
    "name": "OldModel",
+   "clientNamespace": "Versioning.RenamedFrom",
    "crossLanguageDefinitionId": "Versioning.RenamedFrom.OldModel",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -169,6 +172,7 @@
         "decorators": []
        }
       ],
+      "clientNamespace": "Versioning.RenamedFrom",
       "decorators": []
      },
      "optional": false,
@@ -192,6 +196,7 @@
   {
    "$id": "25",
    "Name": "RenamedFromClient",
+   "ClientNamespace": "Versioning.RenamedFrom",
    "Doc": "Test for the `@renamedFrom` decorator.",
    "Operations": [
     {
@@ -374,6 +379,7 @@
   {
    "$id": "41",
    "Name": "OldInterface",
+   "ClientNamespace": "Versioning.RenamedFrom",
    "Operations": [
     {
      "$id": "42",

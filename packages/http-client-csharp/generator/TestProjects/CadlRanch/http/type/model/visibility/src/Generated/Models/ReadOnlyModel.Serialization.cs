@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace _Type.Model.Visibility.Models
+namespace _Type.Model.Visibility
 {
     public partial class ReadOnlyModel : IJsonModel<ReadOnlyModel>
     {

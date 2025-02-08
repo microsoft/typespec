@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using System.Xml;
 using _Type.Property.Optional;
-using _Type.Property.Optional.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Property.Optionality
