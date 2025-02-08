@@ -35,13 +35,6 @@ extends:
               - script: pnpm tsx ./eng/common/scripts/dispatch-area-triggers.ts --target-branch $(TARGET_BRANCH)
                 displayName: "Analyze PR changes"
                 name: InitStep
-              - script: |
-                  if git diff --name-only $(Build.SourceVersion) $(Build.SourceBranch) | grep -qv 'website/src/content/docs/docs/release-notes/'; then
-                    echo "##vso[task.setvariable variable=only_release_notes_changes]false"
-                  else
-                    echo "##vso[task.setvariable variable=only_release_notes_changes]true"
-                  fi
-                displayName: Check if only release notes changed
 
       # Run csharp stages if RunCSharp == true
       - template: /packages/http-client-csharp/eng/pipeline/templates/ci-stages.yml
@@ -65,4 +58,4 @@ extends:
       - template: /eng/tsp-core/pipelines/stages/ci-stages.yml
         parameters:
           DependsOn: InitStage
-          Condition: and(eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore']), eq(variables['only_release_notes_changes'], 'false'))
+          Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])

@@ -57,8 +57,10 @@ export const CIRules = {
     ...ignore(AreaPaths["emitter:client:csharp"]),
     ...ignore(AreaPaths["emitter:client:java"]),
     ...ignore(AreaPaths["emitter:client:python"]),
+    ...ignore(["website/src/content/docs/docs/release-notes/", "eng/common/pipelines/ci.yml"])
   ],
 };
+
 
 function ignore(paths: string[]) {
   return paths.map((x) => `!${x}`);
