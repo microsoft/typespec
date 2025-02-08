@@ -99,5 +99,3 @@ This project has adopted the [Microsoft Open Source Code of Conduct][coc]. For m
 [cg]: https://github.com/Azure/azure-sdk-for-java/blob/main/CONTRIBUTING.md
 [coc]: https://opensource.microsoft.com/codeofconduct/
 [coc_faq]: https://opensource.microsoft.com/codeofconduct/faq/
-
-{{impression-pixel}}
