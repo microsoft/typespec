@@ -36,7 +36,11 @@ extends:
                 displayName: "Analyze PR changes"
                 name: InitStep
               - script: |
-                  echo "only_release_notes_changes=$(git diff --name-only $(Build.SourceVersion) $(Build.SourceBranch) | grep -qv 'website/src/content/docs/docs/release-notes/' && echo false || echo true)"
+                  if git diff --name-only $(Build.SourceVersion) $(Build.SourceBranch) | grep -qv 'website/src/content/docs/docs/release-notes/'; then
+                    echo "##vso[task.setvariable variable=only_release_notes_changes]false"
+                  else
+                    echo "##vso[task.setvariable variable=only_release_notes_changes]true"
+                  fi
                 displayName: Check if only release notes changed
 
       # Run csharp stages if RunCSharp == true
