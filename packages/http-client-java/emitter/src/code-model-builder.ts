@@ -226,6 +226,7 @@ export class CodeModelBuilder {
     }
 
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
+      additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
 
@@ -1327,9 +1328,14 @@ export class CodeModelBuilder {
     bodyParameterFlattened: boolean,
   ) {
     const httpOperation = sdkMethod.operation;
+    const methodSignatureOverriden = sdkMethod.decorators.some(
+      (it) => it.name === "Azure.ClientGenerator.Core.@override",
+    );
 
-    if (bodyParameterFlattened) {
-      this.createOptionsModelAfterBodyParameterFlatten(op);
+    if (methodSignatureOverriden) {
+      this.processSdkMethodOverride(op, sdkMethod);
+    } else if (bodyParameterFlattened) {
+      this.checkGroupingAfterBodyParameterFlatten(op);
     }
 
     // group ETag header parameters, if exists
@@ -1338,7 +1344,14 @@ export class CodeModelBuilder {
     }
   }
 
-  private createOptionsModelAfterBodyParameterFlatten(op: CodeModelOperation) {
+  private processSdkMethodOverride(
+    op: CodeModelOperation,
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
+  ) {
+    // TODO
+  }
+
+  private checkGroupingAfterBodyParameterFlatten(op: CodeModelOperation) {
     // method signature of the convenience API after body parameter flatten
     const request = op.convenienceApi?.requests?.[0];
 
