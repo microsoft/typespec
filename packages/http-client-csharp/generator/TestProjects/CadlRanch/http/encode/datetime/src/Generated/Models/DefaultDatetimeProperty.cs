@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Encode.Datetime.Models
+namespace Encode.Datetime
 {
     public partial class DefaultDatetimeProperty
     {

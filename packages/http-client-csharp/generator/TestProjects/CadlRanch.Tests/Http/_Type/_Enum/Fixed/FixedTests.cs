@@ -5,7 +5,6 @@ using System;
 using System.ClientModel;
 using System.Threading.Tasks;
 using _Type._Enum.Fixed;
-using _Type._Enum.Fixed.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type._Enum.Fixed

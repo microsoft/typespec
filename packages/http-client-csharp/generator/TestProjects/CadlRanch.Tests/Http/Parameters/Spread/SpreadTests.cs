@@ -1,17 +1,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
-using Parameters.Spread.Models;
-using Parameters.Spread;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Threading.Tasks;
 using System;
-using System.Linq;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using Parameters.Spread;
+using Parameters.Spread._Alias;
+using Parameters.Spread._Model;
 
 namespace TestProjects.CadlRanch.Tests.Http.Parameters.Spread
 {

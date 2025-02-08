@@ -8,7 +8,7 @@ using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Resiliency.SrvDriven.V1
+namespace Resiliency.ServiceDriven
 {
     public partial class ResiliencyServiceDrivenClient
     {

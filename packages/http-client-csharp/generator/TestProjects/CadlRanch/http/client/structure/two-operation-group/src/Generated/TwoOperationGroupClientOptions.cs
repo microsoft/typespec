@@ -4,7 +4,7 @@
 
 using System.ClientModel.Primitives;
 
-namespace Client.Structure.Service.TwoOperationGroup
+namespace Client.Structure.Service
 {
     public partial class TwoOperationGroupClientOptions : ClientPipelineOptions
     {

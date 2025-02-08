@@ -6,7 +6,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type._Enum.Extensible.Models;
 
 namespace _Type._Enum.Extensible
 {

@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "Resource",
+   "clientNamespace": "Payload.JsonMergePatch",
    "crossLanguageDefinitionId": "Payload.JsonMergePatch.Resource",
    "usage": "Input,Output,Json",
    "doc": "Details about a resource.",
@@ -84,6 +85,7 @@
        "$id": "14",
        "kind": "model",
        "name": "InnerModel",
+       "clientNamespace": "Payload.JsonMergePatch",
        "crossLanguageDefinitionId": "Payload.JsonMergePatch.InnerModel",
        "usage": "Input,Output,JsonMergePatch,Json",
        "doc": "It is the model used by Resource model",
@@ -304,6 +306,7 @@
    "$id": "45",
    "kind": "model",
    "name": "ResourcePatch",
+   "clientNamespace": "Payload.JsonMergePatch",
    "crossLanguageDefinitionId": "Payload.JsonMergePatch.ResourcePatch",
    "usage": "Input,JsonMergePatch,Json",
    "doc": "Details about a resource for patch operation.",
@@ -512,6 +515,7 @@
   {
    "$id": "75",
    "Name": "JsonMergePatchClient",
+   "ClientNamespace": "Payload.JsonMergePatch",
    "Doc": "Test for merge-patch+json content-type",
    "Operations": [
     {

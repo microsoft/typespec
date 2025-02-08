@@ -7,9 +7,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Client.Structure.Service.Models;
+using Client.Structure.Service;
 
-namespace Client.Structure.Service
+namespace Client.Structure.ClientOperationGroup
 {
     public partial class FirstClient
     {

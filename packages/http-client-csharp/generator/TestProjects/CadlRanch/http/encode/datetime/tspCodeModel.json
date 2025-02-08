@@ -8,6 +8,7 @@
    "$id": "2",
    "kind": "model",
    "name": "DefaultDatetimeProperty",
+   "clientNamespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.DefaultDatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -52,6 +53,7 @@
    "$id": "8",
    "kind": "model",
    "name": "Rfc3339DatetimeProperty",
+   "clientNamespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.Rfc3339DatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -96,6 +98,7 @@
    "$id": "14",
    "kind": "model",
    "name": "Rfc7231DatetimeProperty",
+   "clientNamespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.Rfc7231DatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -140,6 +143,7 @@
    "$id": "20",
    "kind": "model",
    "name": "UnixTimestampDatetimeProperty",
+   "clientNamespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.UnixTimestampDatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -184,6 +188,7 @@
    "$id": "26",
    "kind": "model",
    "name": "UnixTimestampArrayDatetimeProperty",
+   "clientNamespace": "Encode.Datetime",
    "crossLanguageDefinitionId": "Encode.Datetime.UnixTimestampArrayDatetimeProperty",
    "usage": "Input,Output,Json",
    "decorators": [],
@@ -251,6 +256,7 @@
   {
    "$id": "35",
    "Name": "DatetimeClient",
+   "ClientNamespace": "Encode.Datetime",
    "Doc": "Test for encode decorator on datetime.",
    "Operations": [],
    "Protocol": {
@@ -294,6 +300,7 @@
   {
    "$id": "41",
    "Name": "Query",
+   "ClientNamespace": "Encode.Datetime.Query",
    "Operations": [
     {
      "$id": "42",
@@ -646,6 +653,7 @@
   {
    "$id": "75",
    "Name": "Property",
+   "ClientNamespace": "Encode.Datetime.Property",
    "Operations": [
     {
      "$id": "76",
@@ -1235,6 +1243,7 @@
   {
    "$id": "126",
    "Name": "Header",
+   "ClientNamespace": "Encode.Datetime.Header",
    "Operations": [
     {
      "$id": "127",
@@ -1587,6 +1596,7 @@
   {
    "$id": "160",
    "Name": "ResponseHeader",
+   "ClientNamespace": "Encode.Datetime.ResponseHeader",
    "Operations": [
     {
      "$id": "161",

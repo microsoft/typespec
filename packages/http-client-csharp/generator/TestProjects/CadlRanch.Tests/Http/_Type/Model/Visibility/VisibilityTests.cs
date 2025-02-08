@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Model.Visibility;
-using _Type.Model.Visibility.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Visibility
