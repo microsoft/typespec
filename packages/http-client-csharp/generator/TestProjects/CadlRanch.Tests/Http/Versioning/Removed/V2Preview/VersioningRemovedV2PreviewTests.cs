@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+extern alias RemovedV2Preview;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Versioning.Removed.V2Preview;
-using Versioning.Removed.V2Preview.Models;
+using RemovedV2Preview::Versioning.Removed;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Removed.V2Preview
 {

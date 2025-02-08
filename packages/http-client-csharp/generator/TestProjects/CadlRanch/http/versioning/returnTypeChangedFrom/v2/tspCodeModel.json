@@ -56,6 +56,7 @@
      "decorators": []
     }
    ],
+   "clientNamespace": "Versioning.ReturnTypeChangedFrom",
    "doc": "The version of the API.",
    "isFixed": true,
    "isFlags": false,
@@ -68,6 +69,7 @@
   {
    "$id": "8",
    "Name": "ReturnTypeChangedFromClient",
+   "ClientNamespace": "Versioning.ReturnTypeChangedFrom",
    "Doc": "Test for the `@returnTypeChangedFrom` decorator.",
    "Operations": [
     {

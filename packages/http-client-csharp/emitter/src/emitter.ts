@@ -78,7 +78,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       logDiagnostics(context.program.diagnostics, context.program.host.logSink);
       process.exit(1);
     }
-    const tspNamespace = root.Name; // this is the top-level namespace defined in the typespec file, which is actually always different from the namespace of the SDK
 
     if (root) {
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
@@ -93,13 +92,12 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       );
 
       //emit configuration.json
-      const namespace = options.namespace ?? tspNamespace;
+      const namespace = options.namespace ?? root.Name;
       const configurations: Configuration = {
         "output-folder": ".",
         namespace: namespace,
         "library-name": options["library-name"] ?? namespace,
         "unreferenced-types-handling": options["unreferenced-types-handling"],
-        "model-namespace": options["model-namespace"],
         "disable-xml-docs":
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
       };
@@ -258,6 +256,11 @@ function transformJSONProperties(this: any, key: string, value: any): any {
       }
       return result.join(",");
     }
+  }
+
+  // skip __raw if there is one
+  if (key === "__raw") {
+    return undefined;
   }
 
   return value;

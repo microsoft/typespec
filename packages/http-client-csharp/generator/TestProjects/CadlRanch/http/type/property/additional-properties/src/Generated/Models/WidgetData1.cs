@@ -4,7 +4,7 @@
 
 using System;
 
-namespace _Type.Property.AdditionalProperties.Models
+namespace _Type.Property.AdditionalProperties
 {
     public partial class WidgetData1
     {

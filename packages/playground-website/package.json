@@ -91,6 +91,7 @@
     "typescript": "~5.7.3",
     "vite": "^6.0.11",
     "vite-plugin-dts": "4.5.0",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "vitest": "^3.0.4"
   }
 }

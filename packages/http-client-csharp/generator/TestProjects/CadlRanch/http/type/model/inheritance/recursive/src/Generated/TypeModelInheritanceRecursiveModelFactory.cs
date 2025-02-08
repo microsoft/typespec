@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace _Type.Model.Inheritance.Recursive.Models
+namespace _Type.Model.Inheritance.Recursive
 {
     public static partial class TypeModelInheritanceRecursiveModelFactory
     {

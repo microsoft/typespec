@@ -4,7 +4,7 @@
 
 using System.ClientModel.Primitives;
 
-namespace Versioning.RenamedFrom.V2
+namespace Versioning.RenamedFrom
 {
     public partial class RenamedFromClientOptions : ClientPipelineOptions
     {

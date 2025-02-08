@@ -44,7 +44,7 @@ namespace Microsoft.Generator.CSharp.Providers
             => _isApiVersionEnum ? $"The version of the service to use." : base.Description;
 
         protected override string BuildNamespace()
-            => _isApiVersionEnum ? CodeModelPlugin.Instance.Configuration.RootNamespace : base.BuildNamespace();
+            => _isApiVersionEnum ? CodeModelPlugin.Instance.TypeFactory.RootNamespace : base.BuildNamespace();
 
         protected override TypeProvider[] BuildSerializationProviders()
         {

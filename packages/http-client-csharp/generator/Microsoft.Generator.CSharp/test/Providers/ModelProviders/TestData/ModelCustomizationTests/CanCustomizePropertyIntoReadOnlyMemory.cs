@@ -3,8 +3,9 @@
 #nullable disable
 
 using System;
+using Sample.Models;
 
-namespace Sample.Models
+namespace Sample
 {
     /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class SampleNamespaceModelFactory

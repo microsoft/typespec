@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Encode.Bytes.Models
+namespace Encode.Bytes
 {
     public partial class Base64urlArrayBytesProperty
     {

@@ -26,9 +26,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
         private const string TestClientName = "TestClient";
-        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [], [], _dogClient.Name);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: TestClientName);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient.Name);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -736,7 +736,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public void ClientProviderIsAddedToLibrary()
         {
             var plugin = MockHelpers.LoadMockPlugin(
-                clients: () => [new InputClient("test", "test", "test", [], [], null)]);
+                clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "test")]);
 
             Assert.AreEqual(1, plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Count());
         }
@@ -745,7 +745,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         public void NullClientProviderIsNotAddedToLibrary()
         {
             var plugin = MockHelpers.LoadMockPlugin(
-                clients: () => [new InputClient("test", "test", "test", [], [], null)],
+                clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "test")],
                 createClientCore: (client) => null);
 
             Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());

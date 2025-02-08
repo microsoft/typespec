@@ -4,9 +4,8 @@
 
 using System;
 using System.ComponentModel;
-using UnbrandedTypeSpec;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     /// <summary> The Thing_optionalLiteralString. </summary>
     public readonly partial struct ThingOptionalLiteralString : IEquatable<ThingOptionalLiteralString>

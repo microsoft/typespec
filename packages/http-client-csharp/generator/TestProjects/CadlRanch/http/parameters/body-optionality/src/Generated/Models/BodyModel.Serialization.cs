@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Parameters.BodyOptionality.Models
+namespace Parameters.BodyOptionality
 {
     public partial class BodyModel : IJsonModel<BodyModel>
     {

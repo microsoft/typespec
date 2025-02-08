@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Encode.Bytes.Models
+namespace Encode.Bytes
 {
     public partial class Base64BytesProperty
     {

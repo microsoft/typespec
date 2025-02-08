@@ -4,6 +4,9 @@
 
 using System;
 using System.ClientModel.Primitives;
+using Encode.Duration._Header;
+using Encode.Duration._Property;
+using Encode.Duration._Query;
 
 namespace Encode.Duration
 {

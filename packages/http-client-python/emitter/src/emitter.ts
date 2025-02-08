@@ -104,7 +104,9 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     resolvedOptions["package-pprint-name"] !== undefined &&
     !resolvedOptions["package-pprint-name"].startsWith('"')
   ) {
-    resolvedOptions["package-pprint-name"] = `${resolvedOptions["package-pprint-name"]}`;
+    resolvedOptions["package-pprint-name"] = resolvedOptions["use-pyodide"]
+      ? `${resolvedOptions["package-pprint-name"]}`
+      : `"${resolvedOptions["package-pprint-name"]}"`;
   }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Versioning.TypeChangedFrom.V2.Models
+namespace Versioning.TypeChangedFrom
 {
     public partial class TestModel
     {
