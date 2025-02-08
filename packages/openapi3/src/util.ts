@@ -160,7 +160,7 @@ export function isBytesKeptRaw(program: Program, type: Type) {
   return type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined;
 }
 
-export function validateComponentFixedFieldKey(program: Program, type: Type, name: string): boolean {
+export function validateComponentFixedFieldKey(program: Program, type: Type, name: string) {
   const pattern = /^[a-zA-Z0-9.\-_]+$/;
   if (!pattern.test(name)) {
     program.reportDiagnostic(
@@ -172,11 +172,5 @@ export function validateComponentFixedFieldKey(program: Program, type: Type, nam
         target: type,
       }),
     );
-    return false;
   }
-  return true;
-}
-
-export function removeInvalidCharactersInComponentFixedFiledKey(key: string) {
-  return key.replace(/[^a-zA-Z0-9.\-_]/g, "");
 }
