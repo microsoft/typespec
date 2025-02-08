@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.postprocessor.Postproce
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -114,6 +115,12 @@ public class Main {
         // XML include POM
         javaPackage.getXmlFiles()
             .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
+        // properties file
+        String artifactId = FluentUtils.getArtifactId();
+        if (!CoreUtils.isNullOrEmpty(artifactId)) {
+            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
+                null);
+        }
         // Others
         javaPackage.getTextFiles()
             .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));

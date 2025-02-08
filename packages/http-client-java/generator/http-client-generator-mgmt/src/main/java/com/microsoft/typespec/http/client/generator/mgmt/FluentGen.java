@@ -120,6 +120,12 @@ public class FluentGen extends Javagen {
             for (TextFile textFile : javaPackage.getTextFiles()) {
                 writeFile(textFile.getFilePath(), textFile.getContents(), null);
             }
+
+            // properties file
+            String artifactId = FluentUtils.getArtifactId();
+            if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n", null);
+            }
             return true;
         } catch (Exception e) {
             logger.error("Failed to successfully run fluentgen plugin " + e, e);
