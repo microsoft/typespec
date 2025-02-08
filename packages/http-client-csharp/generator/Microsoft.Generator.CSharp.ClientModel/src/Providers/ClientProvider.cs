@@ -143,6 +143,10 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             _subClients = new(GetSubClients);
         }
 
+        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputClient.Namespace) ?
+            base.BuildNamespace() :
+            ClientModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputClient.Namespace);
+
         private IReadOnlyList<ParameterProvider> GetSubClientInternalConstructorParameters()
         {
             var subClientParameters = new List<ParameterProvider>
@@ -227,7 +231,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // add sub-client caching fields
             foreach (var subClient in _subClients.Value)
             {
-                if (subClient.Methods.Count != 0 && subClient._clientCachingField != null)
+                if (subClient._clientCachingField != null)
                 {
                     fields.Add(subClient._clientCachingField);
                 }
@@ -254,7 +258,14 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                             FieldModifiers.Private | FieldModifiers.ReadOnly,
                             type.WithNullable(!p.IsRequired),
                             "_" + p.Name.ToVariableName(),
-                            this);
+                            this,
+                            wireInfo: new PropertyWireInformation(
+                                ClientModelPlugin.Instance.TypeFactory.GetSerializationFormat(p.Type),
+                                p.IsRequired,
+                                false,
+                                p.Type is InputNullableType,
+                                false,
+                                p.NameInRequest));
                         if (p.IsApiVersion)
                         {
                             _apiVersionField = field;
@@ -304,7 +315,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 AppendConstructors(_apiKeyAuthFields, primaryConstructors, secondaryConstructors);
             }
             // if there is oauth2 auth
-            if (_oauth2Fields!= null)
+            if (_oauth2Fields != null)
             {
                 AppendConstructors(_oauth2Fields, primaryConstructors, secondaryConstructors);
             }
@@ -477,7 +488,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
             // Build factory accessor methods for the sub-clients
             foreach (var subClient in subClients)
             {
-                if (subClient._clientCachingField is null || subClient.Methods.Count == 0)
+                if (subClient._clientCachingField is null)
                 {
                     continue;
                 }
@@ -555,7 +566,11 @@ namespace Microsoft.Generator.CSharp.ClientModel.Providers
                 // add direct child clients
                 if (client.Parent != null && client.Parent == _inputClient.Key)
                 {
-                    subClients.Add(ClientModelPlugin.Instance.TypeFactory.CreateClient(client));
+                    var subClient = ClientModelPlugin.Instance.TypeFactory.CreateClient(client);
+                    if (subClient != null)
+                    {
+                        subClients.Add(subClient);
+                    }
                 }
             }
 

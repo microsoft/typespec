@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.NestedDiscriminator;
-using _Type.Model.Inheritance.NestedDiscriminator.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.NestedDiscriminator
@@ -37,7 +38,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.NestedDiscri
             Assert.IsTrue(salmon.Partner is Shark);
 
             var shark = (Shark)salmon.Partner;
-            Assert.AreEqual("saw", shark.Sharktype);
+            var sharkTypeProperty = shark.GetType().GetProperty("Sharktype", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual("saw", sharkTypeProperty?.GetValue(shark));
             Assert.IsInstanceOf<SawShark>(shark);
             Assert.AreEqual(2, salmon.Friends.Count);
             Assert.IsInstanceOf<Salmon>(salmon.Friends[0]);
@@ -55,9 +57,13 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.NestedDiscri
         public Task GetWrongDiscriminator() => Test(async (host) =>
         {
             var result = await new NestedDiscriminatorClient(host, null).GetWrongDiscriminatorAsync();
-            Assert.IsInstanceOf<UnknownFish>(result.Value);
+
+            var unknownFishType = typeof(Fish).Assembly.GetTypes().FirstOrDefault(t => t.Name == "UnknownFish");
+            Assert.IsNotNull(unknownFishType);
+            Assert.AreEqual(unknownFishType, result.Value.GetType());
             Assert.AreEqual(1, result.Value.Age);
-            Assert.AreEqual("wrongKind", result.Value.Kind);
+            var kindProperty = result.Value.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual("wrongKind", kindProperty?.GetValue(result.Value));
         });
 
         [CadlRanchTest]

@@ -199,6 +199,10 @@ class KeyCredentialType(CredentialType[KeyCredentialPolicyType]):
         return self.policy.credential_name
 
     @property
+    def type_description(self) -> str:
+        return "key credential"
+
+    @property
     def instance_check_template(self) -> str:
         return "isinstance({}, " + f"{self.policy.credential_name})"
 

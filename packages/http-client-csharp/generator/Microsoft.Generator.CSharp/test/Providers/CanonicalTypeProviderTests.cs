@@ -65,7 +65,8 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
                 Assert.IsTrue(properties.ContainsKey(expected.Name));
                 Assert.AreEqual(expected.Name, actual.Name);
-                Assert.AreEqual($"{expected.Description}.", actual.Description.ToString()); // the writer adds a period
+                Assert.IsNotNull(actual.Description);
+                Assert.AreEqual($"{expected.Description}.", actual.Description!.ToString()); // the writer adds a period
                 Assert.AreEqual(expected.Modifiers, actual.Modifiers);
                 Assert.AreEqual(expected.Type, actual.Type);
                 Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
@@ -80,9 +81,9 @@ namespace Microsoft.Generator.CSharp.Tests.Providers
 
             protected override string BuildName() => "TestName";
 
-            protected override string GetNamespace() => CodeModelPlugin.Instance.Configuration.ModelNamespace;
+            protected override string BuildNamespace() => "Sample.Models";
 
-            protected override TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
+            protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
 
             protected override PropertyProvider[] BuildProperties()
             {

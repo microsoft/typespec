@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+extern alias ClientStructureMultiClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Client.Structure.Service.Multi.Client;
-using Client.Structure.Service.Multi.Client.Models;
+using ClientStructureMultiClient::Client.Structure.MultiClient;
 using NUnit.Framework;
+using ClientType = ClientStructureMultiClient::Client.Structure.Service.ClientType;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.MultiClient
 {

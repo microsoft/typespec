@@ -17,35 +17,14 @@ model Pet {
   name: string;
 }
 
-/**
- * The request has succeeded.
- */
-model extensive200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-}
-
-/**
- * Client error
- */
-@error
-model extensive4XXResponse {
+@route("/") @get op extensive(): Pet | {
   @statusCode
   @minValue(400)
   @maxValue(499)
   statusCode: int32;
-}
-
-/**
- * Server error
- */
-@error
-model extensive5XXResponse {
+} | {
   @statusCode
   @minValue(500)
   @maxValue(599)
   statusCode: int32;
-}
-
-@route("/") @get op extensive(
-): extensive200ApplicationJsonResponse | extensive4XXResponse | extensive5XXResponse;
+};

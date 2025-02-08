@@ -32,6 +32,8 @@ configuration:
                 - hasLabel:
                     label: lib:versioning
                 - hasLabel:
+                    label: lib:http-specs
+                - hasLabel:
                     label: meta:blog
                 - hasLabel:
                     label: meta:website
@@ -59,6 +61,8 @@ configuration:
                     label: emitter:service:js
                 - hasLabel:
                     label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:
@@ -90,6 +94,8 @@ configuration:
               - labelAdded:
                   label: lib:versioning
               - labelAdded:
+                  label: lib:http-specs
+              - labelAdded:
                   label: meta:blog
               - labelAdded:
                   label: meta:website
@@ -117,6 +123,8 @@ configuration:
                   label: emitter:service:js
               - labelAdded:
                   label: emitter:service:java
+              - labelAdded:
+                  label: spector
               - labelAdded:
                   label: eng
               - labelAdded:
@@ -149,6 +157,8 @@ configuration:
               - labelRemoved:
                   label: lib:versioning
               - labelRemoved:
+                  label: lib:http-specs
+              - labelRemoved:
                   label: meta:blog
               - labelRemoved:
                   label: meta:website
@@ -177,6 +187,8 @@ configuration:
               - labelRemoved:
                   label: emitter:service:java
               - labelRemoved:
+                  label: spector
+              - labelRemoved:
                   label: eng
               - labelRemoved:
                   label: ui:playground
@@ -198,6 +210,8 @@ configuration:
                     label: lib:rest
                 - hasLabel:
                     label: lib:versioning
+                - hasLabel:
+                    label: lib:http-specs
                 - hasLabel:
                     label: meta:blog
                 - hasLabel:
@@ -226,6 +240,8 @@ configuration:
                     label: emitter:service:js
                 - hasLabel:
                     label: emitter:service:java
+                - hasLabel:
+                    label: spector
                 - hasLabel:
                     label: eng
                 - hasLabel:

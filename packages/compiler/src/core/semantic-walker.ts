@@ -27,6 +27,10 @@ export interface NavigationOptions {
    * Skip non instantiated templates.
    */
   includeTemplateDeclaration?: boolean;
+  /**
+   * Visit derived types.
+   */
+  visitDerivedTypes?: boolean;
 }
 
 export interface NamespaceNavigationOptions {
@@ -253,6 +257,13 @@ function navigateModelType(model: Model, context: NavigationContext) {
   if (model.indexer && model.indexer.value) {
     navigateTypeInternal(model.indexer.value, context);
   }
+
+  if (context.options.visitDerivedTypes) {
+    for (const derived of model.derivedModels) {
+      navigateModelType(derived, context);
+    }
+  }
+
   context.emit("exitModel", model);
 }
 

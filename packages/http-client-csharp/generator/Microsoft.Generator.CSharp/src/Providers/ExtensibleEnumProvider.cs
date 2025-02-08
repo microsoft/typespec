@@ -21,7 +21,7 @@ namespace Microsoft.Generator.CSharp.Providers
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
         private readonly InputEnumType _inputType;
-        internal ExtensibleEnumProvider(InputEnumType input, TypeProvider? declaringType): base(input)
+        internal ExtensibleEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
         {
             _inputType = input;
             _allowedValues = input.Values;
@@ -39,7 +39,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private readonly FieldProvider _valueField;
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _modifiers;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {

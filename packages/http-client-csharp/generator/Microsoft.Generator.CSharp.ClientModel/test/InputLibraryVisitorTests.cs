@@ -23,7 +23,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
         public void Setup()
         {
             _mockInputLibrary = new Mock<InputLibrary>();
-            _mockPlugin = MockHelpers.LoadMockPlugin(createInputLibrary: () => _mockInputLibrary.Object);
+            _mockPlugin = MockHelpers.LoadMockPlugin(
+                createInputLibrary: () => _mockInputLibrary.Object,
+                createClientCore: inputClient => new ClientProvider(inputClient));
             _mockVisitor = new Mock<ScmLibraryVisitor> { CallBase = true };
         }
 
@@ -38,14 +40,30 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests
             var inputOperation = InputFactory.Operation("testOperation", parameters: [param], responses: [InputFactory.OperationResponse(bodytype: InputPrimitiveType.Any)]);
             var inputClient = InputFactory.Client("fooClient", operations: [inputOperation], parameters: [param]);
             _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
-                "test library",
+                "Sample",
                 models: [inputModel],
-                clients: [InputFactory.Client("fooClient", operations: [inputOperation], parameters: [param])]));
+                clients: [inputClient]));
 
             var mockClientProvider = new Mock<ClientProvider>(inputClient) { CallBase = true };
             _ = mockClientProvider.Object.Methods;
 
             _mockVisitor.Protected().Verify<MethodProviderCollection>("Visit", Times.Once(), inputOperation, ItExpr.IsAny<TypeProvider>(), ItExpr.IsAny<MethodProviderCollection>());
+        }
+
+        [Test]
+        public void PreVisitsClients()
+        {
+            _mockPlugin.Object.AddVisitor(_mockVisitor.Object);
+
+            var inputClient = InputFactory.Client("fooClient");
+            _mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
+                "Sample",
+                clients: [inputClient]));
+
+            var mockOutputLibrary = new Mock<ScmOutputLibrary> { CallBase = true };
+            _ = mockOutputLibrary.Object.TypeProviders;
+
+            _mockVisitor.Protected().Verify<ClientProvider?>("Visit", Times.Once(), inputClient, ItExpr.IsAny<ClientProvider?>());
         }
     }
 }

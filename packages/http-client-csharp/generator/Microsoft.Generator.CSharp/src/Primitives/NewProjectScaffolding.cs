@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Generator.CSharp.Primitives
 {
-    //TODO Keeping internal for now until we define the extensibility points https://github.com/microsoft/typespec/issues/4065
-    internal class NewProjectScaffolding
+    //TODO Need to define the rest of the extensibility points https://github.com/microsoft/typespec/issues/4065
+    public class NewProjectScaffolding
     {
         public async Task<bool> Execute()
         {
@@ -34,8 +34,8 @@ namespace Microsoft.Generator.CSharp.Primitives
         private async Task WriteProjectFiles()
         {
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.csproj"),
-                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSrcCSProj())));
+                Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.LibraryName}.csproj"),
+                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSourceProjectFileContent())));
         }
 
         private string NormalizeLineEndings(string content)
@@ -46,18 +46,18 @@ namespace Microsoft.Generator.CSharp.Primitives
         private async Task WriteSolutionFiles()
         {
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelPlugin.Instance.Configuration.OutputDirectory, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.sln"),
-                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSln())));
+                Path.Combine(CodeModelPlugin.Instance.Configuration.OutputDirectory, $"{CodeModelPlugin.Instance.Configuration.LibraryName}.sln"),
+                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSolutionFileContent())));
         }
 
-        private string GetSrcCSProj()
+        protected virtual string GetSourceProjectFileContent()
         {
-            var builder = new CSProjWriter()
+            var builder = new CSharpProjectWriter()
             {
-                Description = $"This is the {CodeModelPlugin.Instance.Configuration.RootNamespace} client library for developing .NET applications with rich experience.",
-                AssemblyTitle = $"SDK Code Generation {CodeModelPlugin.Instance.Configuration.RootNamespace}",
+                Description = $"This is the {CodeModelPlugin.Instance.Configuration.LibraryName} client library for developing .NET applications with rich experience.",
+                AssemblyTitle = $"SDK Code Generation {CodeModelPlugin.Instance.Configuration.LibraryName}",
                 Version = "1.0.0-beta.1",
-                PackageTags = CodeModelPlugin.Instance.Configuration.RootNamespace,
+                PackageTags = CodeModelPlugin.Instance.Configuration.LibraryName,
                 TargetFramework = "netstandard2.0",
                 LangVersion = "latest",
                 GenerateDocumentationFile = true,
@@ -70,13 +70,13 @@ namespace Microsoft.Generator.CSharp.Primitives
             return builder.Write();
         }
 
-        private static readonly IReadOnlyList<CSProjWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSProjWriter.CSProjDependencyPackage[]
+        private static readonly IReadOnlyList<CSharpProjectWriter.CSProjDependencyPackage> _unbrandedDependencyPackages = new CSharpProjectWriter.CSProjDependencyPackage[]
         {
             new("System.ClientModel", "1.1.0-beta.4"),
             new("System.Text.Json", "8.0.5")
         };
 
-        private string GetSln()
+        protected virtual string GetSolutionFileContent()
         {
             string slnContent = @"Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
@@ -130,7 +130,7 @@ EndProject
 	EndGlobalSection
 EndGlobal
 ";
-            return string.Format(slnContent, CodeModelPlugin.Instance.Configuration.RootNamespace);
+            return string.Format(slnContent, CodeModelPlugin.Instance.Configuration.LibraryName);
         }
     }
 }

@@ -784,7 +784,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .groupedParameterRequired(false)
             .methodVisibility(methodVisibility);
 
-        if (settings.isGenerateAsyncMethods()) {
+        if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
             methods.add(builder.build());
         }
 
@@ -808,7 +808,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .groupedParameterRequired(false)
             .methodVisibility(visibilityFunction.methodVisibility(false, defaultOverloadType, false));
 
-        if (settings.isGenerateAsyncMethods()) {
+        if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
+            // generate the overload, if "sync-methods != NONE"
+
             methods.add(builder.build());
 
             // overload for versioning

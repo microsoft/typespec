@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 
-using NUnit.Framework;
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
-using _Type.Property.AdditionalProperties.Models;
 using _Type.Property.AdditionalProperties;
+using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
 {
@@ -314,7 +314,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
             var value = response.Value;
             Assert.AreEqual(200, response.GetRawResponse().Status);
             Assert.AreEqual("Derived", value.Name);
-            Assert.AreEqual("derived", value.Kind);
+            var kindProperty = value.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual("derived", kindProperty?.GetValue(value));
             var derived = value as ExtendsUnknownAdditionalPropertiesDiscriminatedDerived;
             Assert.IsNotNull(derived);
             Assert.AreEqual(314, derived!.Index);
@@ -416,7 +417,8 @@ namespace TestProjects.CadlRanch.Tests.Http._Type.Property.AdditionalProperties
             var value = response.Value;
             Assert.AreEqual(200, response.GetRawResponse().Status);
             Assert.AreEqual("Derived", value.Name);
-            Assert.AreEqual("derived", value.Kind);
+            var kindProperty = value.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual("derived", kindProperty?.GetValue(value));
             var derived = value as IsUnknownAdditionalPropertiesDiscriminatedDerived;
             Assert.IsNotNull(derived);
             Assert.AreEqual(314, derived!.Index);

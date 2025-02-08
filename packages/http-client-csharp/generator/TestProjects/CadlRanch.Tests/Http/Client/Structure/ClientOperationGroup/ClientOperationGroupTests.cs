@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Client.Structure.Service;
-using Client.Structure.Service.Models;
-using NUnit.Framework;
+extern alias ClientStructureClientOperationGroup;
 using System.Linq;
 using System.Threading.Tasks;
+using ClientStructureClientOperationGroup::Client.Structure.AnotherClientOperationGroup;
+using ClientStructureClientOperationGroup::Client.Structure.ClientOperationGroup;
+using NUnit.Framework;
+using ClientType = ClientStructureClientOperationGroup::Client.Structure.Service.ClientType;
 
 namespace TestProjects.CadlRanch.Tests.Http.Client.Structure.ClientOperationGroup
 {

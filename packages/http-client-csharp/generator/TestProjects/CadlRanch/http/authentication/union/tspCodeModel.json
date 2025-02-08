@@ -8,6 +8,7 @@
   {
    "$id": "2",
    "Name": "UnionClient",
+   "ClientNamespace": "Authentication.Union",
    "Doc": "Illustrates clients generated with ApiKey and OAuth2 authentication.",
    "Operations": [
     {
@@ -110,7 +111,8 @@
   "$id": "12",
   "ApiKey": {
    "$id": "13",
-   "Name": "x-ms-api-key"
+   "Name": "x-ms-api-key",
+   "In": "header"
   },
   "OAuth2": {
    "$id": "14",

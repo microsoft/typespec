@@ -1,8 +1,8 @@
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 
 namespace Sample
 {
-    [CodeGenClient("Custom")]
+    [CodeGenType("Custom")]
     internal partial class CustomClient
     {
     }

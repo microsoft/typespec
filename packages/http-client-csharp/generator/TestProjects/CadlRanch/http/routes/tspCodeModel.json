@@ -8,6 +8,7 @@
   {
    "$id": "2",
    "Name": "RoutesClient",
+   "ClientNamespace": "Routes",
    "Doc": "Define scenario in building the http route/uri",
    "Operations": [
     {
@@ -79,6 +80,7 @@
   {
    "$id": "10",
    "Name": "PathParameters",
+   "ClientNamespace": "Routes.PathParameters",
    "Operations": [
     {
      "$id": "11",
@@ -270,6 +272,7 @@
   {
    "$id": "28",
    "Name": "PathParametersReservedExpansion",
+   "ClientNamespace": "Routes.PathParameters.ReservedExpansion",
    "Operations": [
     {
      "$id": "29",
@@ -412,6 +415,7 @@
   {
    "$id": "42",
    "Name": "PathParametersSimpleExpansion",
+   "ClientNamespace": "Routes.PathParameters.SimpleExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "43"
@@ -455,6 +459,7 @@
   {
    "$id": "48",
    "Name": "PathParametersSimpleExpansionStandard",
+   "ClientNamespace": "Routes.PathParameters.SimpleExpansion.Standard",
    "Operations": [
     {
      "$id": "49",
@@ -665,6 +670,7 @@
   {
    "$id": "69",
    "Name": "PathParametersSimpleExpansionExplode",
+   "ClientNamespace": "Routes.PathParameters.SimpleExpansion.Explode",
    "Operations": [
     {
      "$id": "70",
@@ -687,7 +693,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -743,7 +749,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -804,7 +810,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -875,6 +881,7 @@
   {
    "$id": "90",
    "Name": "PathParametersPathExpansion",
+   "ClientNamespace": "Routes.PathParameters.PathExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "91"
@@ -918,6 +925,7 @@
   {
    "$id": "96",
    "Name": "PathParametersPathExpansionStandard",
+   "ClientNamespace": "Routes.PathParameters.PathExpansion.Standard",
    "Operations": [
     {
      "$id": "97",
@@ -1128,6 +1136,7 @@
   {
    "$id": "117",
    "Name": "PathParametersPathExpansionExplode",
+   "ClientNamespace": "Routes.PathParameters.PathExpansion.Explode",
    "Operations": [
     {
      "$id": "118",
@@ -1150,7 +1159,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -1206,7 +1215,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -1267,7 +1276,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -1338,6 +1347,7 @@
   {
    "$id": "138",
    "Name": "PathParametersLabelExpansion",
+   "ClientNamespace": "Routes.PathParameters.LabelExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "139"
@@ -1381,6 +1391,7 @@
   {
    "$id": "144",
    "Name": "PathParametersLabelExpansionStandard",
+   "ClientNamespace": "Routes.PathParameters.LabelExpansion.Standard",
    "Operations": [
     {
      "$id": "145",
@@ -1591,6 +1602,7 @@
   {
    "$id": "165",
    "Name": "PathParametersLabelExpansionExplode",
+   "ClientNamespace": "Routes.PathParameters.LabelExpansion.Explode",
    "Operations": [
     {
      "$id": "166",
@@ -1613,7 +1625,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -1669,7 +1681,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -1730,7 +1742,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -1801,6 +1813,7 @@
   {
    "$id": "186",
    "Name": "PathParametersMatrixExpansion",
+   "ClientNamespace": "Routes.PathParameters.MatrixExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "187"
@@ -1844,6 +1857,7 @@
   {
    "$id": "192",
    "Name": "PathParametersMatrixExpansionStandard",
+   "ClientNamespace": "Routes.PathParameters.MatrixExpansion.Standard",
    "Operations": [
     {
      "$id": "193",
@@ -2054,6 +2068,7 @@
   {
    "$id": "213",
    "Name": "PathParametersMatrixExpansionExplode",
+   "ClientNamespace": "Routes.PathParameters.MatrixExpansion.Explode",
    "Operations": [
     {
      "$id": "214",
@@ -2076,7 +2091,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -2132,7 +2147,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -2193,7 +2208,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -2264,6 +2279,7 @@
   {
    "$id": "234",
    "Name": "QueryParameters",
+   "ClientNamespace": "Routes.QueryParameters",
    "Operations": [
     {
      "$id": "235",
@@ -2455,6 +2471,7 @@
   {
    "$id": "252",
    "Name": "QueryParametersQueryExpansion",
+   "ClientNamespace": "Routes.QueryParameters.QueryExpansion",
    "Operations": [],
    "Protocol": {
     "$id": "253"
@@ -2498,6 +2515,7 @@
   {
    "$id": "258",
    "Name": "QueryParametersQueryExpansionStandard",
+   "ClientNamespace": "Routes.QueryParameters.QueryExpansion.Standard",
    "Operations": [
     {
      "$id": "259",
@@ -2708,6 +2726,7 @@
   {
    "$id": "279",
    "Name": "QueryParametersQueryExpansionExplode",
+   "ClientNamespace": "Routes.QueryParameters.QueryExpansion.Explode",
    "Operations": [
     {
      "$id": "280",
@@ -2730,7 +2749,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -2786,7 +2805,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -2847,7 +2866,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -2918,6 +2937,7 @@
   {
    "$id": "300",
    "Name": "QueryParametersQueryContinuation",
+   "ClientNamespace": "Routes.QueryParameters.QueryContinuation",
    "Operations": [],
    "Protocol": {
     "$id": "301"
@@ -2961,6 +2981,7 @@
   {
    "$id": "306",
    "Name": "QueryParametersQueryContinuationStandard",
+   "ClientNamespace": "Routes.QueryParameters.QueryContinuation.Standard",
    "Operations": [
     {
      "$id": "307",
@@ -3171,6 +3192,7 @@
   {
    "$id": "327",
    "Name": "QueryParametersQueryContinuationExplode",
+   "ClientNamespace": "Routes.QueryParameters.QueryContinuation.Explode",
    "Operations": [
     {
      "$id": "328",
@@ -3193,7 +3215,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -3249,7 +3271,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -3310,7 +3332,7 @@
        "IsApiVersion": false,
        "IsContentType": false,
        "IsEndpoint": false,
-       "Explode": false,
+       "Explode": true,
        "IsRequired": true,
        "Kind": "Method",
        "Decorators": [],
@@ -3381,6 +3403,7 @@
   {
    "$id": "348",
    "Name": "InInterface",
+   "ClientNamespace": "Routes",
    "Operations": [
     {
      "$id": "349",

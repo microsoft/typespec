@@ -9,6 +9,8 @@ export const enum CommandName {
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",
   OpenUrl = "typespec.openUrl",
+  GenerateCode = "typespec.generateCode",
+  ImportFromOpenApi3 = "typespec.importFromOpenApi3",
 }
 
 export interface InstallGlobalCliCommandArgs {
@@ -51,4 +53,4 @@ interface UnsuccessResult {
   details?: any;
 }
 
-export type Result<T> = SuccessResult<T> | UnsuccessResult;
+export type Result<T = void> = SuccessResult<T> | UnsuccessResult;

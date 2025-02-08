@@ -6,9 +6,9 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Encode.Bytes.Models;
+using Encode.Bytes;
 
-namespace Encode.Bytes
+namespace Encode.Bytes._Property
 {
     public partial class Property
     {

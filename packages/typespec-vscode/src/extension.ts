@@ -1,7 +1,8 @@
 import vscode, { commands, ExtensionContext, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
 import { createCodeActionProvider } from "./code-action-provider.js";
-import { ExtensionLogListener } from "./log/extension-log-listener.js";
+import { ExtensionStateManager } from "./extension-state-manager.js";
+import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
 import { createTaskProvider } from "./task-provider.js";
@@ -12,7 +13,10 @@ import {
   RestartServerCommandArgs,
   SettingName,
 } from "./types.js";
+import { isWhitespaceStringOrUndefined } from "./utils.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
+import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
+import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
 
 let client: TspLanguageClient | undefined;
@@ -24,6 +28,8 @@ const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
 logger.registerLogListener("extension-log", new ExtensionLogListener(outputChannel));
 
 export async function activate(context: ExtensionContext) {
+  const stateManager = new ExtensionStateManager(context);
+
   context.subscriptions.push(createTaskProvider());
 
   context.subscriptions.push(createCodeActionProvider());
@@ -41,6 +47,20 @@ export async function activate(context: ExtensionContext) {
       } catch (error) {
         logger.error(`Failed to open URL: ${url}`, [error as any]);
       }
+    }),
+  );
+
+  /* emit command. */
+  context.subscriptions.push(
+    commands.registerCommand(CommandName.GenerateCode, async (uri: vscode.Uri) => {
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Window,
+          title: "Generate from TypeSpec...",
+          cancellable: false,
+        },
+        async () => await emitCode(context, uri),
+      );
     }),
   );
 
@@ -84,7 +104,13 @@ export async function activate(context: ExtensionContext) {
 
   context.subscriptions.push(
     commands.registerCommand(CommandName.CreateProject, async () => {
-      await createTypeSpecProject(client);
+      await createTypeSpecProject(client, stateManager);
+    }),
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand(CommandName.ImportFromOpenApi3, async (uri: vscode.Uri) => {
+      await importFromOpenApi3(uri);
     }),
   );
 
@@ -128,7 +154,7 @@ export async function activate(context: ExtensionContext) {
         return t.input.uri.fsPath.endsWith(".tsp");
       }) >= 0
   ) {
-    return await vscode.window.withProgress(
+    await vscode.window.withProgress(
       {
         title: "Launching TypeSpec language service...",
         location: vscode.ProgressLocation.Notification,
@@ -140,6 +166,7 @@ export async function activate(context: ExtensionContext) {
   } else {
     logger.info("No workspace opened, Skip starting TypeSpec language service.");
   }
+  showStartUpMessages(stateManager);
 }
 
 export async function deactivate() {
@@ -153,4 +180,36 @@ async function recreateLSPClient(context: ExtensionContext) {
   await oldClient?.stop();
   await client.start();
   return client;
+}
+
+function showStartUpMessages(stateManager: ExtensionStateManager) {
+  vscode.workspace.workspaceFolders?.forEach((workspaceFolder) => {
+    const msg = stateManager.loadStartUpMessage(workspaceFolder.uri.fsPath);
+    if (msg) {
+      logger.log("debug", "Start up message found for folder: " + workspaceFolder.uri.fsPath);
+      if (isWhitespaceStringOrUndefined(msg.detail)) {
+        logger.log(msg.level, msg.popupMessage, [], {
+          showPopup: true,
+        });
+      } else {
+        const SHOW_DETAIL = "View Details in Output";
+        const popupAction = getPopupAction(msg.level);
+        if (popupAction) {
+          popupAction(msg.popupMessage, SHOW_DETAIL).then((action) => {
+            if (action === SHOW_DETAIL) {
+              outputChannel.show(true);
+            }
+            // log the start up message to Output no matter user clicked the button or not
+            // and there are many logs coming when starting the extension, so
+            // log the message when the popup is clicked (or disappearing) to make sure these logs are shown at the end of the Output window to catch
+            // user's attention.
+            logger.log(msg.level, msg.popupMessage + "\n", [msg.detail]);
+          });
+        }
+      }
+    } else {
+      logger.log("debug", "No start up message found for folder: " + workspaceFolder.uri.fsPath);
+    }
+    stateManager.cleanUpStartUpMessage(workspaceFolder.uri.fsPath);
+  });
 }

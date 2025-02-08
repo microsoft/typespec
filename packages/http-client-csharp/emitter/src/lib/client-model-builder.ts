@@ -12,7 +12,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
-import { NetEmitterOptions, resolveOptions } from "../options.js";
+import { NetEmitterOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
@@ -20,12 +20,11 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { fromSdkType } from "./converter.js";
 import { reportDiagnostic } from "./lib.js";
-import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
+import { fromSdkType } from "./type-converter.js";
 
 export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
@@ -51,8 +50,9 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       ? sdkApiVersionEnums[0].values.map((v) => v.value as string).flat()
       : rootClients[0].apiVersions;
 
+  // this is a set tracking the bad namespace segments
   const inputClients: InputClient[] = [];
-  fromSdkClients(rootClients, inputClients, []);
+  fromSdkClients(sdkContext, rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
@@ -60,35 +60,57 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     Enums: Array.from(sdkTypeMap.enums.values()),
     Models: Array.from(sdkTypeMap.models.values()),
     Clients: inputClients,
-    Auth: processServiceAuthentication(sdkPackage),
+    Auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
+
   return clientModel;
 
   function fromSdkClients(
+    sdkContext: SdkContext<NetEmitterOptions>,
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
   ) {
     for (const client of clients) {
-      const inputClient = emitClient(client, parentClientNames);
+      const inputClient = fromSdkClient(sdkContext, client, parentClientNames);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(subClients, inputClients, parentClientNames);
+      fromSdkClients(sdkContext, subClients, inputClients, parentClientNames);
       parentClientNames.pop();
     }
   }
 
-  function emitClient(client: SdkClientType<SdkHttpOperation>, parentNames: string[]): InputClient {
+  function fromSdkClient(
+    sdkContext: SdkContext<NetEmitterOptions>,
+    client: SdkClientType<SdkHttpOperation>,
+    parentNames: string[],
+  ): InputClient {
     const endpointParameter = client.initialization.properties.find(
       (p) => p.kind === "endpoint",
     ) as SdkEndpointParameter;
     const uri = getMethodUri(endpointParameter);
     const clientParameters = fromSdkEndpointParameter(endpointParameter);
+    const clientName = getClientName(client, parentNames);
+    // see if this namespace is a sub-namespace of an existing bad namespace
+    const segments = client.clientNamespace.split(".");
+    const lastSegment = segments[segments.length - 1];
+    if (lastSegment === clientName) {
+      // we report diagnostics when the last segment of the namespace is the same as the client name
+      // because in our design, a sub namespace will be generated as a sub client with exact the same name as the namespace
+      // in csharp, this will cause a conflict between the namespace and the class name
+      reportDiagnostic(sdkContext.program, {
+        code: "client-namespace-conflict",
+        format: { clientNamespace: client.clientNamespace, clientName },
+        target: client.__raw.type ?? NoTarget,
+      });
+    }
+
     return {
-      Name: getClientName(client, parentNames),
+      Name: clientName,
+      ClientNamespace: client.clientNamespace,
       Summary: client.summary,
       Doc: client.doc,
       Operations: client.methods
@@ -118,14 +140,6 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
     if (parentClientNames.length === 0) return clientName;
     if (parentClientNames.length >= 2)
       return `${parentClientNames.slice(parentClientNames.length - 1).join("")}${clientName}`;
-
-    if (
-      clientName === "Models" &&
-      resolveOptions(sdkContext.emitContext)["model-namespace"] !== false
-    ) {
-      Logger.getInstance().warn(`Invalid client name "${clientName}"`);
-      return "ModelsOps";
-    }
 
     return clientName;
   }

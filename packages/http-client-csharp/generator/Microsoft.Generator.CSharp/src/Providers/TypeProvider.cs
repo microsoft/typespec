@@ -16,14 +16,14 @@ namespace Microsoft.Generator.CSharp.Providers
 {
     public abstract class TypeProvider
     {
-        private Lazy<NamedTypeSymbolProvider?> _customCodeView;
+        private Lazy<TypeProvider?> _customCodeView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
         {
             _customCodeView = new(GetCustomCodeView);
-            _canonicalView = new(GetCanonicalView);
+            _canonicalView = new(BuildCanonicalView);
             _inputType = inputType;
         }
 
@@ -34,12 +34,12 @@ namespace Microsoft.Generator.CSharp.Providers
         {
         }
 
-        private protected virtual NamedTypeSymbolProvider? GetCustomCodeView()
-            => CodeModelPlugin.Instance.SourceInputModel.FindForType(GetNamespace(), BuildName());
+        private protected virtual TypeProvider? GetCustomCodeView()
+            => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
 
-        public NamedTypeSymbolProvider? CustomCodeView => _customCodeView.Value;
+        public TypeProvider? CustomCodeView => _customCodeView.Value;
 
-        private IReadOnlyList<PropertyProvider> GetAllCustomProperties()
+        private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
             var allCustomProperties = CustomCodeView?.Properties != null
                 ? new List<PropertyProvider>(CustomCodeView.Properties)
@@ -56,7 +56,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return allCustomProperties;
         }
 
-        private IReadOnlyList<FieldProvider> GetAllCustomFields()
+        private IReadOnlyList<FieldProvider> BuildAllCustomFields()
         {
             var allCustomFields = CustomCodeView?.Fields != null
                 ? new List<FieldProvider>(CustomCodeView.Fields)
@@ -73,7 +73,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return allCustomFields;
         }
 
-        private protected virtual CanonicalTypeProvider GetCanonicalView() => new CanonicalTypeProvider(this, _inputType);
+        private protected virtual CanonicalTypeProvider BuildCanonicalView() => new CanonicalTypeProvider(this, _inputType);
         public TypeProvider CanonicalView => _canonicalView.Value;
 
         protected string? _deprecated;
@@ -90,7 +90,7 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _name;
 
-        public string Namespace => _namespace ??= GetNamespace();
+        public string Namespace => _namespace ??= BuildNamespace();
         private string? _namespace;
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
@@ -112,24 +112,24 @@ namespace Microsoft.Generator.CSharp.Providers
         private CSharpType? _type;
         public CSharpType Type => _type ??= new(
             this,
-            CustomCodeView?.GetNamespace() ?? GetNamespace(),
+            CustomCodeView?.BuildNamespace() ?? BuildNamespace(),
             GetTypeArguments(),
             GetBaseType());
 
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
 
-        protected virtual string GetNamespace() => CodeModelPlugin.Instance.Configuration.RootNamespace;
+        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.RootNamespace;
 
         private TypeSignatureModifiers? _declarationModifiers;
 
-        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= GetDeclarationModifiersInternal();
+        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= BuildDeclarationModifiersInternal();
 
-        protected virtual TypeSignatureModifiers GetDeclarationModifiers() => TypeSignatureModifiers.None;
+        protected virtual TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.None;
 
-        private TypeSignatureModifiers GetDeclarationModifiersInternal()
+        private TypeSignatureModifiers BuildDeclarationModifiersInternal()
         {
-            var modifiers = GetDeclarationModifiers();
+            var modifiers = BuildDeclarationModifiers();
             var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
             if (customModifiers != TypeSignatureModifiers.None)
             {
@@ -207,7 +207,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
 
-            foreach (var customProperty in GetAllCustomProperties())
+            foreach (var customProperty in BuildAllCustomProperties())
             {
                 customProperties.Add(customProperty.Name);
                 if (customProperty.OriginalName != null)
@@ -216,7 +216,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 }
             }
 
-            foreach (var customField in GetAllCustomFields())
+            foreach (var customField in BuildAllCustomFields())
             {
                 customProperties.Add(customField.Name);
                 if (customField.OriginalName != null)
@@ -241,7 +241,7 @@ namespace Microsoft.Generator.CSharp.Providers
             var fields = new List<FieldProvider>();
             var customFields = new HashSet<string>();
 
-            foreach (var customField in GetAllCustomFields())
+            foreach (var customField in BuildAllCustomFields())
             {
                 customFields.Add(customField.Name);
                 if (customField.OriginalName != null)
@@ -513,7 +513,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 var parameterType = ((ITypeSymbol)parameterTypes[i]!).GetCSharpType();
                 // we ignore nullability for reference types as these are generated the same regardless of nullability
                 // TODO - switch to using CSharpType.Equals once https://github.com/microsoft/typespec/issues/4624 is fixed.
-                if (GetTypeOrMethodName(parameterType.Name) != signature.Parameters[i].Type.Name ||
+                if (BuildTypeOrMethodName(parameterType.Name) != signature.Parameters[i].Type.Name ||
                     (parameterType.IsValueType && parameterType.IsNullable != signature.Parameters[i].Type.IsNullable))
                 {
                     return false;
@@ -525,14 +525,14 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private static bool IsMatch(MethodSignatureBase customMethod, MethodSignatureBase method)
         {
-            if (customMethod.Parameters.Count != method.Parameters.Count || GetTypeOrMethodName(customMethod.Name) != method.Name)
+            if (customMethod.Parameters.Count != method.Parameters.Count || BuildTypeOrMethodName(customMethod.Name) != method.Name)
             {
                 return false;
             }
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)
             {
-                if (GetTypeOrMethodName(customMethod.Parameters[i].Type.Name) != method.Parameters[i].Type.Name)
+                if (BuildTypeOrMethodName(customMethod.Parameters[i].Type.Name) != method.Parameters[i].Type.Name)
                 {
                     return false;
                 }
@@ -541,7 +541,7 @@ namespace Microsoft.Generator.CSharp.Providers
             return true;
         }
 
-        private static string GetTypeOrMethodName(string fullyQualifiedName)
+        private static string BuildTypeOrMethodName(string fullyQualifiedName)
         {
             var parts = fullyQualifiedName.Split('.');
             return parts[^1];
@@ -601,6 +601,7 @@ namespace Microsoft.Generator.CSharp.Providers
             => syntaxReference?.SyntaxTree.GetLocation(syntaxReference.Span).GetLineSpan() ?? default;
 
         private IEnumerable<AttributeData> GetMemberSuppressionAttributes()
-            => CustomCodeView?.GetAttributes()?.Where(a => a.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName) ?? [];
+            => CustomCodeView?.Attributes.Where(a => a.Data?.AttributeClass?.Name == CodeGenAttributes.CodeGenSuppressAttributeName).
+                Select(a => a.Data!).ToList() ?? [];
     }
 }

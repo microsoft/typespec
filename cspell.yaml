@@ -70,7 +70,10 @@ words:
   - espt
   - ESRP
   - etree
+  - fastify
   - fluentui
+  - français
+  - fslib
   - genproto
   - getpgid
   - giacamo
@@ -80,8 +83,11 @@ words:
   - Hdvcmxk
   - headasbooleanfalse
   - headasbooleantrue
+  - hscs
+  - HSTS
   - imple
   - Infima
+  - initcs
   - inlines
   - inmemory
   - instanceid
@@ -106,6 +112,7 @@ words:
   - kwargs
   - labelledby
   - lifecyle
+  - LINUXARMVMIMAGE
   - LINUXNEXTVMIMAGE
   - LINUXOS
   - LINUXVMIMAGE
@@ -115,6 +122,7 @@ words:
   - lstrip
   - lzutf
   - MACVMIMAGE
+  - MACVMIMAGEM
   - mday
   - mgmt
   - mgmtplane
@@ -140,6 +148,7 @@ words:
   - nosec
   - nostdlib
   - noverify
+  - npath
   - npmjs
   - nspkg
   - nupkg
@@ -203,6 +212,7 @@ words:
   - ssvs
   - statment
   - strs
+  - swaggerui
   - syncpack
   - TCGC
   - timegm
@@ -244,6 +254,7 @@ words:
   - wday
   - weidxu
   - westus
+  - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - xiangyan
   - xiaofei
@@ -266,8 +277,10 @@ ignorePaths:
   - "**/ThirdPartyNotices.txt"
   - packages/compiler/test/formatter/scenarios/**
   - packages/http-client-java/generator/http-client-generator-test/**
+  - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - pnpm-lock.yaml
   - "**/*.mp4"
+  - "**/*.plist"
   - .git/**
   - .gitignore
   - .vscode/**

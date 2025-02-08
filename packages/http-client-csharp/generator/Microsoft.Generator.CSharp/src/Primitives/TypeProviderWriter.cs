@@ -35,7 +35,7 @@ namespace Microsoft.Generator.CSharp.Primitives
         {
             if (IsPublicContext(_provider))
             {
-                writer.WriteXmlDocs(_provider.XmlDocs);
+                writer.WriteXmlDocsNoScope(_provider.XmlDocs);
             }
             foreach (var attribute in _provider.Attributes)
             {
@@ -115,7 +115,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             {
                 for (int i = 0; i < _provider.Fields.Count; i++)
                 {
-                    writer.WriteXmlDocs(_provider.Fields[i].XmlDocs);
+                    writer.WriteXmlDocsNoScope(_provider.Fields[i].XmlDocs);
                     writer.Append($"{_provider.Fields[i].Name}");
                     if (_provider.Fields[i].InitializationValue != null)
                     {
@@ -144,7 +144,7 @@ namespace Microsoft.Generator.CSharp.Primitives
             for (int i = 0; i < _provider.Properties.Count; i++)
             {
                 var property = _provider.Properties[i];
-                writer.WriteProperty(property, property.Modifiers.HasFlag(MethodSignatureModifiers.Public) && IsPublicContext(_provider));
+                writer.WriteProperty(property);
                 if (i < _provider.Properties.Count - 1)
                 {
                     writer.WriteLine();

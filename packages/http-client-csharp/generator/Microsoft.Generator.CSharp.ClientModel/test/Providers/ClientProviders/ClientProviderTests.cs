@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Microsoft.Generator.CSharp.ClientModel.Providers;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
@@ -27,13 +26,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
         private const string KeyAuthCategory = "WithKeyAuth";
         private const string OAuth2Category = "WithOAuth2";
         private const string TestClientName = "TestClient";
-        private static readonly InputOperation _inputOperation = InputFactory.Operation("HelloAgain", parameters:
-            [
-                InputFactory.Parameter("p1", InputFactory.Array(InputPrimitiveType.String))
-            ]);
-        private static readonly InputClient _animalClient = new("animal", "", "AnimalClient description", [_inputOperation], [], TestClientName);
-        private static readonly InputClient _dogClient = new("dog", "", "DogClient description", [_inputOperation], [], _animalClient.Name);
-        private static readonly InputClient _huskyClient = new("husky", "", "HuskyClient description", [_inputOperation], [], _dogClient.Name);
+        private static readonly InputClient _animalClient = InputFactory.Client("animal", doc: "AnimalClient description", parent: TestClientName);
+        private static readonly InputClient _dogClient = InputFactory.Client("dog", doc: "DogClient description", parent: _animalClient.Name);
+        private static readonly InputClient _huskyClient = InputFactory.Client("husky", doc: "HuskyClient description", parent: _dogClient.Name);
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -66,47 +61,6 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 oauth2Auth: oauth2Auth,
                 clients: clients,
                 clientPipelineApi: TestClientPipelineApi.Instance);
-        }
-
-        [Test]
-        public async Task TestEmptyClient()
-        {
-            var client = InputFactory.Client(TestClientName);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                clients: () => [client]);
-
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
-            Assert.IsNull(clientProvider);
-        }
-
-        [Test]
-        public async Task TestNonEmptySubClient()
-        {
-            var client = InputFactory.Client(TestClientName);
-            var subClient = InputFactory.Client($"Sub{TestClientName}", [_inputOperation], [], client.Name);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                clients: () => [client, subClient]);
-
-            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
-            Assert.IsNotNull(subClientProvider);
-
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
-            Assert.IsNotNull(clientProvider);
-        }
-
-        [Test]
-        public async Task TestEmptySubClient()
-        {
-            var client = InputFactory.Client(TestClientName);
-            var subClient = InputFactory.Client($"Sub{TestClientName}", [], [], client.Name);
-            var plugin = await MockHelpers.LoadMockPluginAsync(
-                clients: () => [client, subClient]);
-
-            var subClientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == subClient.Name);
-            Assert.IsNull(subClientProvider);
-
-            var clientProvider = plugin.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider && t.Name == TestClientName);
-            Assert.IsNull(clientProvider);
         }
 
         [Test]
@@ -582,7 +536,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             //protocol and convenience methods should have a different type for enum query parameters
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
             Assert.IsNotNull(clientProvider);
-            var methods = clientProvider.Methods;
+            var methods = clientProvider!.Methods;
             //4 methods, sync / async + protocol / convenience
             Assert.AreEqual(4, methods.Count);
             //two methods need to have the query parameter as an enum
@@ -599,8 +553,9 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                 createClientCore: (client) => new ValidateQueryParamDiffClientProvider(client, isAsync));
 
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(GetEnumQueryParamClient());
+            Assert.IsNotNull(clientProvider);
 
-            TypeProviderWriter writer = new(clientProvider);
+            TypeProviderWriter writer = new(clientProvider!);
             var codeFile = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(isAsync.ToString()), codeFile.Content);
         }
@@ -625,7 +580,8 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
                         ])
                 ]);
             var clientProvider = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
-            var convenienceMethod = clientProvider.Methods.FirstOrDefault(
+            Assert.IsNotNull(clientProvider);
+            var convenienceMethod = clientProvider!.Methods.FirstOrDefault(
                 m => m.Signature.Name == "Foo" &&
                      !m.Signature.Parameters.Any(p => p.Type.Equals(typeof(RequestOptions))));
             Assert.IsNotNull(convenienceMethod);
@@ -774,6 +730,25 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
             Assert.IsNotNull(method);
             /* verify that the method does not have apiVersion parameter */
             Assert.IsNull(method?.Signature.Parameters.FirstOrDefault(p => p.Name.Equals("apiVersion")));
+        }
+
+        [TestCase]
+        public void ClientProviderIsAddedToLibrary()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "test")]);
+
+            Assert.AreEqual(1, plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Count());
+        }
+
+        [TestCase]
+        public void NullClientProviderIsNotAddedToLibrary()
+        {
+            var plugin = MockHelpers.LoadMockPlugin(
+                clients: () => [InputFactory.Client("test", clientNamespace: "test", doc: "test")],
+                createClientCore: (client) => null);
+
+            Assert.IsEmpty(plugin.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>());
         }
 
         private static InputClient GetEnumQueryParamClient()
@@ -1279,7 +1254,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.Providers.ClientProviders
 
             public override ClientPipelineApi FromExpression(ValueExpression expression)
                 => new TestClientPipelineApi(expression);
-                
+
             public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
                 => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
 
