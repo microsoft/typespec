@@ -36,7 +36,7 @@ extends:
                 displayName: "Analyze PR changes"
                 name: InitStep
               - script: |
-                  echo "only_release_notes_changes=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q 'website/src/content/docs/docs/release-notes/' && echo true || echo false)"
+                  echo "only_release_notes_changes=$(git diff --name-only $(Build.SourceVersion) $(Build.SourceBranch) | grep -qv 'website/src/content/docs/docs/release-notes/' && echo false || echo true)"
                 displayName: Check if only release notes changed
 
       # Run csharp stages if RunCSharp == true
