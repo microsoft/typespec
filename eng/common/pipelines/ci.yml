@@ -59,7 +59,6 @@ extends:
 
       # Run core stages if RunCore == true
       - template: /eng/tsp-core/pipelines/stages/ci-stages.yml
-        condition: eq(variables['only_release_notes_changes'], 'false')
         parameters:
           DependsOn: InitStage
           Condition: eq('true', stageDependencies.InitStage.outputs['InitJob.InitStep.RunCore'])
