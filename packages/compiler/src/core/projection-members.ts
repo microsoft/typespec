@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import { camelCase, kebabCase, pascalCase, snakeCase } from "change-case";
 import type { Checker } from "./checker.js";
 import { ProjectionError, assertType } from "./diagnostics.js";
