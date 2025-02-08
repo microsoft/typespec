@@ -10,7 +10,7 @@ pr:
       - packages/http-client-csharp
       - cspell.yaml
       - eng/emitters
-      - website/src/content/docs/docs/release-notes/
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
