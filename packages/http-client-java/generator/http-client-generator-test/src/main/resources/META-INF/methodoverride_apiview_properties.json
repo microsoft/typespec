@@ -1,0 +1,30 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "methodoverride.MethodOverrideAsyncClient": "MethodOverride",
+    "methodoverride.MethodOverrideAsyncClient.groupAll": "MethodOverride.groupAll",
+    "methodoverride.MethodOverrideAsyncClient.groupAllWithResponse": "MethodOverride.groupAll",
+    "methodoverride.MethodOverrideAsyncClient.groupExcludeBody": "MethodOverride.groupExcludeBody",
+    "methodoverride.MethodOverrideAsyncClient.groupExcludeBodyWithResponse": "MethodOverride.groupExcludeBody",
+    "methodoverride.MethodOverrideAsyncClient.groupPart": "MethodOverride.groupPart",
+    "methodoverride.MethodOverrideAsyncClient.groupPartWithResponse": "MethodOverride.groupPart",
+    "methodoverride.MethodOverrideAsyncClient.groupQuery": "MethodOverride.groupQuery",
+    "methodoverride.MethodOverrideAsyncClient.groupQueryWithResponse": "MethodOverride.groupQuery",
+    "methodoverride.MethodOverrideClient": "MethodOverride",
+    "methodoverride.MethodOverrideClient.groupAll": "MethodOverride.groupAll",
+    "methodoverride.MethodOverrideClient.groupAllWithResponse": "MethodOverride.groupAll",
+    "methodoverride.MethodOverrideClient.groupExcludeBody": "MethodOverride.groupExcludeBody",
+    "methodoverride.MethodOverrideClient.groupExcludeBodyWithResponse": "MethodOverride.groupExcludeBody",
+    "methodoverride.MethodOverrideClient.groupPart": "MethodOverride.groupPart",
+    "methodoverride.MethodOverrideClient.groupPartWithResponse": "MethodOverride.groupPart",
+    "methodoverride.MethodOverrideClient.groupQuery": "MethodOverride.groupQuery",
+    "methodoverride.MethodOverrideClient.groupQueryWithResponse": "MethodOverride.groupQuery",
+    "methodoverride.MethodOverrideClientBuilder": "MethodOverride",
+    "methodoverride.implementation.models.GroupAllRequest": "MethodOverride.groupAll.Request.anonymous",
+    "methodoverride.implementation.models.GroupPartRequest": "MethodOverride.groupPart.Request.anonymous",
+    "methodoverride.models.GroupAllOptions": null,
+    "methodoverride.models.GroupExcludeBodyModel": "MethodOverride.GroupExcludeBodyModel",
+    "methodoverride.models.GroupPartOptions": null,
+    "methodoverride.models.GroupQueryOptions": null
+  }
+}
