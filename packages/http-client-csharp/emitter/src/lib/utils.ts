@@ -118,7 +118,8 @@ export async function execCSharpGenerator(options: {
       while ((index = buffer.indexOf("\n")) !== -1) {
         const message = buffer.slice(0, index);
         buffer = buffer.slice(index + 1);
-        // console.log('Received from C#:', message);
+        Logger.getInstance().info(`Received from C#: ${message}`);
+        processJsonRpc(message);
         // Process the JSON-RPC response
         // const response = JSON.parse(message);
         // if (response.result) {
@@ -143,6 +144,20 @@ export async function execCSharpGenerator(options: {
       });
     });
   });
+}
+
+function processJsonRpc(message: string) {
+  const response = JSON.parse(message);
+  const method = response.method;
+  const params = response.params;
+  switch (method) {
+    case "info":
+      Logger.getInstance().info(params.message);
+      break;
+    case "diagnostic":
+      Logger.getInstance().info(params.message);
+      break;
+  }
 }
 
 export async function execAsync(

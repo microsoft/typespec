@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using CommandLine;
+using Microsoft.Generator.CSharp.EmitterRpc;
 
 namespace Microsoft.Generator.CSharp
 {
@@ -42,10 +43,14 @@ namespace Microsoft.Generator.CSharp
             }
             catch (Exception e)
             {
+                // TODO -- report error to emitter
                 Console.Error.WriteLine(e.Message);
                 Console.Error.WriteLine(e.StackTrace);
                 return 1;
             }
+
+            ((IDisposable)Emitter.Instance).Dispose();
+
             return 0;
         }
     }

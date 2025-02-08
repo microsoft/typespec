@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Generator.CSharp.EmitterRpc;
 using Microsoft.Generator.CSharp.Expressions;
 using Microsoft.Generator.CSharp.Input;
 using Microsoft.Generator.CSharp.Primitives;
@@ -41,6 +42,8 @@ namespace Microsoft.Generator.CSharp.Providers
                 _baseTypeProvider = new(() => CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
+
+            Emitter.Instance.Info($"dealing with {inputModel.Name}");
         }
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
