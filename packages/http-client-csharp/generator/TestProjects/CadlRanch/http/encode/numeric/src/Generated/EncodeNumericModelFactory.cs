@@ -2,7 +2,9 @@
 
 #nullable disable
 
-namespace Encode.Numeric.Models
+using Encode.Numeric._Property;
+
+namespace Encode.Numeric
 {
     public static partial class EncodeNumericModelFactory
     {

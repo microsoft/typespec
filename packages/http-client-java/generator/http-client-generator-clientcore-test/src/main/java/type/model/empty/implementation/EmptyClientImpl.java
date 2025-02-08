@@ -62,8 +62,8 @@ public final class EmptyClientImpl {
      * @param endpoint Service host.
      */
     public EmptyClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(EmptyClientService.class, this.httpPipeline);
     }
 

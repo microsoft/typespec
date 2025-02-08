@@ -13,6 +13,8 @@ namespace Microsoft.Generator.CSharp.Tests
 
         protected override string BuildName() => "TestName";
 
+        protected override string BuildNamespace() => "Test";
+
         public static readonly TypeProvider Empty = new TestTypeProvider();
 
         internal TestTypeProvider(TypeSignatureModifiers? declarationModifiers = null)
@@ -20,6 +22,6 @@ namespace Microsoft.Generator.CSharp.Tests
             _declarationModifiers = declarationModifiers;
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers() => _declarationModifiers ?? base.GetDeclarationModifiers();
+        protected override TypeSignatureModifiers BuildDeclarationModifiers() => _declarationModifiers ?? base.BuildDeclarationModifiers();
     }
 }

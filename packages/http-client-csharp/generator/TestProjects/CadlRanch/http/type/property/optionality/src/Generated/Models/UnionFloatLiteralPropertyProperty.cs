@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace _Type.Property.Optional.Models
+namespace _Type.Property.Optional
 {
     public enum UnionFloatLiteralPropertyProperty
     {

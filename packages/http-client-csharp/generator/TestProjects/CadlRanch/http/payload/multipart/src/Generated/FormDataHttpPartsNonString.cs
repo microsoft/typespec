@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading.Tasks;
 
-namespace Payload.MultiPart
+namespace Payload.MultiPart._FormData.HttpParts.NonString
 {
     public partial class FormDataHttpPartsNonString
     {

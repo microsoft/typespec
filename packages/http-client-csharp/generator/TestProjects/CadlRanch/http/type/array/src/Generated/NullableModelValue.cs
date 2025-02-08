@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using _Type._Array.Models;
 
 namespace _Type._Array
 {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Parameters.Basic.Models
+namespace Parameters.Basic._ExplicitBody
 {
     public partial class User
     {

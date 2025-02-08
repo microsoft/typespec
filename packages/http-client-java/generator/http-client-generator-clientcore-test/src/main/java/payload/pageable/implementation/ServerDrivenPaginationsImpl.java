@@ -7,12 +7,17 @@ import io.clientcore.core.http.RestProxy;
 import io.clientcore.core.http.annotation.HeaderParam;
 import io.clientcore.core.http.annotation.HostParam;
 import io.clientcore.core.http.annotation.HttpRequestInformation;
+import io.clientcore.core.http.annotation.PathParam;
 import io.clientcore.core.http.annotation.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.exception.HttpResponseException;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.PagedIterable;
+import io.clientcore.core.http.models.PagedResponse;
 import io.clientcore.core.http.models.RequestOptions;
 import io.clientcore.core.http.models.Response;
-import payload.pageable.serverdrivenpagination.LinkResponse;
+import io.clientcore.core.util.Context;
+import payload.pageable.Pet;
+import payload.pageable.serverdrivenpagination.implementation.LinkResponse;
 
 /**
  * An instance of this class provides access to all the operations defined in ServerDrivenPaginations.
@@ -51,6 +56,12 @@ public final class ServerDrivenPaginationsImpl {
         @UnexpectedResponseExceptionDetail
         Response<LinkResponse> linkSync(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
             RequestOptions requestOptions);
+
+        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<LinkResponse> linkNextSync(@PathParam(value = "nextLink", encoded = true) String nextLink,
+            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+            RequestOptions requestOptions);
     }
 
     /**
@@ -66,12 +77,7 @@ public final class ServerDrivenPaginationsImpl {
      *             name: String (Required)
      *         }
      *     ]
-     *     links (Required): {
-     *         next: String (Optional)
-     *         prev: String (Optional)
-     *         first: String (Optional)
-     *         last: String (Optional)
-     *     }
+     *     next: String (Optional)
      * }
      * }
      * </pre>
@@ -80,8 +86,71 @@ public final class ServerDrivenPaginationsImpl {
      * @throws HttpResponseException thrown if the service returns an error.
      * @return the response.
      */
-    public Response<LinkResponse> linkWithResponse(RequestOptions requestOptions) {
+    private PagedResponse<Pet> linkSinglePage(RequestOptions requestOptions) {
         final String accept = "application/json";
-        return service.linkSync(this.client.getEndpoint(), accept, requestOptions);
+        Response<LinkResponse> res = service.linkSync(this.client.getEndpoint(), accept, requestOptions);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
+            res.getValue().getPets(), null, res.getValue().getNext(), null, null, null);
+    }
+
+    /**
+     * The link operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     pets (Required): [
+     *          (Required){
+     *             id: String (Required)
+     *             name: String (Required)
+     *         }
+     *     ]
+     *     next: String (Optional)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @return the response.
+     */
+    public PagedIterable<Pet> link(RequestOptions requestOptions) {
+        RequestOptions requestOptionsForNextPage = new RequestOptions();
+        requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null
+            ? requestOptions.getContext()
+            : Context.none());
+        return new PagedIterable<>((pagingOptions) -> linkSinglePage(requestOptions),
+            (pagingOptions, nextLink) -> linkNextSinglePage(nextLink, requestOptionsForNextPage));
+    }
+
+    /**
+     * Get the next page of items.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     pets (Required): [
+     *          (Required){
+     *             id: String (Required)
+     *             name: String (Required)
+     *         }
+     *     ]
+     *     next: String (Optional)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @return the response.
+     */
+    private PagedResponse<Pet> linkNextSinglePage(String nextLink, RequestOptions requestOptions) {
+        final String accept = "application/json";
+        Response<LinkResponse> res = service.linkNextSync(nextLink, this.client.getEndpoint(), accept, requestOptions);
+        return new PagedResponse<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getBody(),
+            res.getValue().getPets(), null, res.getValue().getNext(), null, null, null);
     }
 }

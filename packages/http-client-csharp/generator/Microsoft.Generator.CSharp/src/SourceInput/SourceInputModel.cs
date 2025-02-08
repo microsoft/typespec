@@ -53,7 +53,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
             return nameMap;
         }
 
-        public NamedTypeSymbolProvider? FindForType(string ns, string name)
+        public TypeProvider? FindForType(string ns, string name)
         {
             if (Customization == null)
             {
@@ -97,7 +97,7 @@ namespace Microsoft.Generator.CSharp.SourceInput
         private async Task<Compilation?> LoadBaselineContract()
         {
             string fullPath;
-            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.csproj"));
+            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.TypeFactory.RootNamespace}.csproj"));
             if (!File.Exists(projectFilePath))
                 return null;
 
@@ -106,15 +106,15 @@ namespace Microsoft.Generator.CSharp.SourceInput
             if (baselineVersion is not null)
             {
                 var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(new NullSettings());
-                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelPlugin.Instance.Configuration.RootNamespace.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
-                fullPath = Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.dll");
+                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelPlugin.Instance.TypeFactory.RootNamespace.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
+                fullPath = Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.TypeFactory.RootNamespace}.dll");
                 if (File.Exists(fullPath))
                 {
-                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.Configuration.RootNamespace}.xml"), fullPath);
+                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.TypeFactory.RootNamespace}.xml"), fullPath);
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelPlugin.Instance.Configuration.RootNamespace}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
+                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelPlugin.Instance.TypeFactory.RootNamespace}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
                         $"Please make sure the baseline nuget package has been installed properly");
                 }
             }

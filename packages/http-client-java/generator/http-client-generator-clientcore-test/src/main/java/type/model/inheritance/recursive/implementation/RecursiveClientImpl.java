@@ -61,8 +61,8 @@ public final class RecursiveClientImpl {
      * @param endpoint Service host.
      */
     public RecursiveClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(RecursiveClientService.class, this.httpPipeline);
     }
 

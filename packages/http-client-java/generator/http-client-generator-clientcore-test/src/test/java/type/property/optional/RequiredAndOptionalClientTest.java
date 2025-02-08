@@ -6,32 +6,32 @@ package type.property.optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class RequiredAndOptionalClientTest {
-    RequiredAndOptionalClient client = new OptionalClientBuilder().buildRequiredAndOptionalClient();
+public class RequiredAndOptionalClientTest {
+    private final RequiredAndOptionalClient client = new OptionalClientBuilder().buildRequiredAndOptionalClient();
 
     @Test
-    void getAll() {
+    public void getAll() {
         RequiredAndOptionalProperty requiredAndOptionalProperty = client.getAll();
         Assertions.assertEquals("hello", requiredAndOptionalProperty.getOptionalProperty());
         Assertions.assertEquals(42, requiredAndOptionalProperty.getRequiredProperty());
     }
 
     @Test
-    void getRequiredOnly() {
+    public void getRequiredOnly() {
         RequiredAndOptionalProperty requiredAndOptionalProperty = client.getRequiredOnly();
         Assertions.assertEquals(42, requiredAndOptionalProperty.getRequiredProperty());
         Assertions.assertNull(requiredAndOptionalProperty.getOptionalProperty());
     }
 
     @Test
-    void putAll() {
+    public void putAll() {
         RequiredAndOptionalProperty requiredAndOptionalProperty = new RequiredAndOptionalProperty(42);
         requiredAndOptionalProperty.setOptionalProperty("hello");
         client.putAll(requiredAndOptionalProperty);
     }
 
     @Test
-    void putRequiredOnly() {
+    public void putRequiredOnly() {
         RequiredAndOptionalProperty requiredAndOptionalProperty = new RequiredAndOptionalProperty(42);
         client.putRequiredOnly(requiredAndOptionalProperty);
     }

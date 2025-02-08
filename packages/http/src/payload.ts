@@ -31,19 +31,41 @@ export interface HttpPayload {
   readonly body?: HttpOperationBody | HttpOperationMultipartBody;
   readonly metadata: HttpProperty[];
 }
+
 export interface ExtractBodyAndMetadataOptions extends GetHttpPropertyOptions {}
+
+/**
+ * The disposition of a payload in an HTTP operation.
+ */
+export enum HttpPayloadDisposition {
+  /**
+   * The payload appears in a request.
+   */
+  Request,
+  /**
+   * The payload appears in a response.
+   */
+  Response,
+  /**
+   * The payload appears in a multipart part.
+   */
+  Multipart,
+}
+
 export function resolveHttpPayload(
   program: Program,
   type: Type,
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart",
+  disposition: HttpPayloadDisposition,
   options: ExtractBodyAndMetadataOptions = {},
 ): [HttpPayload, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
-  const metadata = diagnostics.pipe(resolvePayloadProperties(program, type, visibility, options));
+  const metadata = diagnostics.pipe(
+    resolvePayloadProperties(program, type, visibility, disposition, options),
+  );
 
-  const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, usedIn));
+  const body = diagnostics.pipe(resolveBody(program, type, metadata, visibility, disposition));
 
   if (body) {
     if (
@@ -69,10 +91,12 @@ function resolveBody(
   requestOrResponseType: Type,
   metadata: HttpProperty[],
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart",
+  disposition: HttpPayloadDisposition,
 ): [HttpOperationBody | HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const resolvedContentTypes = diagnostics.pipe(resolveContentTypes(program, metadata, usedIn));
+  const resolvedContentTypes = diagnostics.pipe(
+    resolveContentTypes(program, metadata, disposition),
+  );
 
   const file = getHttpFileModel(program, requestOrResponseType);
   if (file !== undefined) {
@@ -100,7 +124,7 @@ function resolveBody(
 
   // look for explicit body
   const resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined = diagnostics.pipe(
-    resolveExplicitBodyProperty(program, metadata, resolvedContentTypes, visibility, usedIn),
+    resolveExplicitBodyProperty(program, metadata, resolvedContentTypes, visibility, disposition),
   );
 
   if (resolvedBody === undefined) {
@@ -172,7 +196,7 @@ interface ResolvedContentType {
 function resolveContentTypes(
   program: Program,
   metadata: HttpProperty[],
-  usedIn: "request" | "response" | "multipart",
+  disposition: HttpPayloadDisposition,
 ): [ResolvedContentType, readonly Diagnostic[]] {
   for (const prop of metadata) {
     if (prop.kind === "contentType") {
@@ -180,8 +204,8 @@ function resolveContentTypes(
       return [{ contentTypes, contentTypeProperty: prop.property }, diagnostics];
     }
   }
-  switch (usedIn) {
-    case "multipart":
+  switch (disposition) {
+    case HttpPayloadDisposition.Multipart:
       // Figure this out later
       return [{ contentTypes: [] }, []];
     default:
@@ -194,7 +218,7 @@ function resolveExplicitBodyProperty(
   metadata: HttpProperty[],
   resolvedContentTypes: ResolvedContentType,
   visibility: Visibility,
-  usedIn: "request" | "response" | "multipart",
+  disposition: HttpPayloadDisposition,
 ): [HttpOperationBody | HttpOperationMultipartBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   let resolvedBody: HttpOperationBody | HttpOperationMultipartBody | undefined;
@@ -210,7 +234,7 @@ function resolveExplicitBodyProperty(
       case "bodyRoot":
         let containsMetadataAnnotations = false;
         if (item.kind === "body") {
-          const valid = diagnostics.pipe(validateBodyProperty(program, item.property, usedIn));
+          const valid = diagnostics.pipe(validateBodyProperty(program, item.property, disposition));
           containsMetadataAnnotations = !valid;
         }
         if (resolvedBody === undefined) {
@@ -250,7 +274,7 @@ function resolveExplicitBodyProperty(
 function validateBodyProperty(
   program: Program,
   property: ModelProperty,
-  usedIn: "request" | "response" | "multipart",
+  disposition: HttpPayloadDisposition,
 ): [boolean, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   navigateType(
@@ -260,13 +284,17 @@ function validateBodyProperty(
         const kind = isHeader(program, prop)
           ? "header"
           : // also emit metadata-ignored for response cookie
-            (usedIn === "request" || usedIn === "response") && isCookieParam(program, prop)
+            (disposition === HttpPayloadDisposition.Request ||
+                disposition === HttpPayloadDisposition.Response) &&
+              isCookieParam(program, prop)
             ? "cookie"
-            : (usedIn === "request" || usedIn === "multipart") && isQueryParam(program, prop)
+            : (disposition === HttpPayloadDisposition.Request ||
+                  disposition === HttpPayloadDisposition.Multipart) &&
+                isQueryParam(program, prop)
               ? "query"
-              : usedIn === "request" && isPathParam(program, prop)
+              : disposition === HttpPayloadDisposition.Request && isPathParam(program, prop)
                 ? "path"
-                : usedIn === "response" && isStatusCode(program, prop)
+                : disposition === HttpPayloadDisposition.Response && isStatusCode(program, prop)
                   ? "statusCode"
                   : undefined;
 
@@ -412,7 +440,7 @@ function resolvePart(
       program,
       part.type,
       visibility,
-      "multipart",
+      HttpPayloadDisposition.Multipart,
     );
     if (body === undefined) {
       return [undefined, diagnostics];
@@ -473,6 +501,7 @@ function resolveDefaultContentTypeForPart(program: Program, type: Type): string[
       if (
         ignoreDiagnostics(
           program.checker.isTypeAssignableTo(
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             type.projectionBase ?? type,
             program.checker.getStdType("bytes"),
             type,

@@ -8,6 +8,7 @@ steps:
   - template: /eng/tsp-core/pipelines/templates/install.yml
     parameters:
       nodeVersion: ${{ parameters.nodeVersion }}
+      useDotnet: true
 
   - script: pnpm run check-version-mismatch
     displayName: Check version mismatch

@@ -57,8 +57,8 @@ public final class JsonClientImpl {
      * @param endpoint Service host.
      */
     public JsonClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.properties = new PropertiesImpl(this);
     }
 }

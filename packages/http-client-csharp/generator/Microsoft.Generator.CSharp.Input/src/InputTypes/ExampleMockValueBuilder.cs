@@ -206,9 +206,13 @@ namespace Microsoft.Generator.CSharp.Input
                     if (!useAllParameters && !property.IsRequired)
                         continue;
 
+                    // skip if this property does not have json
+                    if (property.SerializationOptions.Json is not { } json)
+                        continue;
+
                     // this means a property is defined both on the base and derived type, we skip other occurrences only keep the first
                     // which means we only keep the property defined in the lowest layer (derived types)
-                    if (dict.ContainsKey(property.SerializedName))
+                    if (dict.ContainsKey(json.Name))
                         continue;
 
                     InputExampleValue exampleValue;
@@ -218,10 +222,10 @@ namespace Microsoft.Generator.CSharp.Input
                     }
                     else
                     {
-                        exampleValue = BuildExampleValue(property.Type, property.SerializedName, useAllParameters, visitedModels);
+                        exampleValue = BuildExampleValue(property.Type, json.Name, useAllParameters, visitedModels);
                     }
 
-                    dict.Add(property.SerializedName, exampleValue);
+                    dict.Add(json.Name, exampleValue);
                 }
             }
 

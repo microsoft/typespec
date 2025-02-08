@@ -7,9 +7,10 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Client.Structure.Service.Default.Models;
+using Client.Structure.Service._Baz;
+using Client.Structure.Service._Qux;
 
-namespace Client.Structure.Service.Default
+namespace Client.Structure.Service
 {
     public partial class ServiceClient
     {

@@ -46,7 +46,7 @@ namespace Microsoft.Generator.CSharp.Providers
             EnsureList = new(This.Invoke(_ensureListSignature));
         }
 
-        protected override TypeSignatureModifiers GetDeclarationModifiers()
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             return TypeSignatureModifiers.Internal;
         }

@@ -71,8 +71,8 @@ public final class ContentNegotiationClientImpl {
      * @param endpoint Service host.
      */
     public ContentNegotiationClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.sameBodies = new SameBodiesImpl(this);
         this.differentBodies = new DifferentBodiesImpl(this);
     }

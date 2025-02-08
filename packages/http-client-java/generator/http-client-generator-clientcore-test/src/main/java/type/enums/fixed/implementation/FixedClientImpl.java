@@ -57,8 +57,8 @@ public final class FixedClientImpl {
      * @param endpoint Service host.
      */
     public FixedClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.stringOperations = new StringOperationsImpl(this);
     }
 }

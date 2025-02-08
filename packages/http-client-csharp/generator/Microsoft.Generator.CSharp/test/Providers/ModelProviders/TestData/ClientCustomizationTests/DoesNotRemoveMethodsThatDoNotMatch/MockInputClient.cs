@@ -1,4 +1,4 @@
-using Microsoft.Generator.CSharp.Customization;
+using UnbrandedTypeSpec;
 
 namespace Sample;
 

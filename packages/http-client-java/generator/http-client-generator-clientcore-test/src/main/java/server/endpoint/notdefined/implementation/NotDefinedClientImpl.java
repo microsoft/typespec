@@ -57,8 +57,8 @@ public final class NotDefinedClientImpl {
      * @param endpoint Service host.
      */
     public NotDefinedClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = endpoint;
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(NotDefinedClientService.class, this.httpPipeline);
     }
 

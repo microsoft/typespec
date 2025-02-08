@@ -498,7 +498,11 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
             url_value = _escape_str(builder.url)
         else:
             url_value = f'kwargs.pop("template_url", {_escape_str(builder.url)})'
-        return f"_url = {url_value}{'  # pylint: disable=line-too-long' if len(url_value) > 114 else ''}"
+        result = "_url = " + url_value
+        # there will be always 4 spaces before the url
+        if len(result) + 4 > 120:
+            return result + "  # pylint: disable=line-too-long"
+        return result
 
 
 ############################## NORMAL OPERATIONS ##############################
@@ -1001,7 +1005,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.extend(deserialize_code)
         return retval
 
-    def handle_error_response(self, builder: OperationType) -> List[str]:
+    def handle_error_response(self, builder: OperationType) -> List[str]:   # pylint: disable=too-many-statements, too-many-branches
         async_await = "await " if self.async_mode else ""
         retval = [f"if response.status_code not in {str(builder.success_status_codes)}:"]
         response_read = [
@@ -1075,7 +1079,14 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                     )
                     if self.code_model.options["models_mode"] == "dpg":
-                        retval.append(f"        error = _failsafe_deserialize({type_annotation},  response.json())")
+                        if xml_serializable(str(e.default_content_type)):
+                            retval.append(
+                                f"        error = _failsafe_deserialize_xml({type_annotation},  response.text())"
+                            )
+                        else:
+                            retval.append(
+                                f"        error = _failsafe_deserialize({type_annotation},  response.json())"
+                            )
                     else:
                         retval.append(
                             f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "

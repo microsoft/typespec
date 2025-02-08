@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
+extern alias VersioningAddedV1;
+
 using System;
 using System.Linq;
-using Versioning.Added.V1;
-using Versioning.Added.V1.Models;
+using NUnit.Framework;
+using VersioningAddedV1::Versioning.Added;
 
 namespace TestProjects.CadlRanch.Tests.Http.Versioning.Added.V1
 {

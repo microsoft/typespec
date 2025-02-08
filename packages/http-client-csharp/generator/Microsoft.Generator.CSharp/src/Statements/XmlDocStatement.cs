@@ -15,8 +15,8 @@ namespace Microsoft.Generator.CSharp.Statements
         private const string SingleArgFormat = "{0}";
         private List<FormattableString> _lines;
 
-        public string StartTag { get; init; }
-        public string EndTag { get; init; }
+        public FormattableString StartTag { get; init; }
+        public FormattableString EndTag { get; init; }
         public IReadOnlyList<FormattableString> Lines => _lines;
         public IReadOnlyList<XmlDocStatement> InnerStatements { get; }
 
@@ -25,7 +25,7 @@ namespace Microsoft.Generator.CSharp.Statements
         {
         }
 
-        public XmlDocStatement(string startTag, string endTag, IEnumerable<FormattableString> lines, params XmlDocStatement[] innerStatements)
+        public XmlDocStatement(FormattableString startTag, FormattableString endTag, IEnumerable<FormattableString> lines, params XmlDocStatement[] innerStatements)
         {
             StartTag = startTag;
             EndTag = endTag;

@@ -1,9 +1,9 @@
-import { type Namespace, type Type } from "../../../core/types.js";
-import { defineKit, Typekit } from "../define-kit.js";
+import { type Type } from "../../../core/types.js";
+import { defineKit } from "../define-kit.js";
 import { copyMap } from "../utils.js";
 
 /**  @experimental */
-export interface TypeKit {
+export interface TypeTypekit {
   /**
    * Clones a type and adds it to the typekit's realm.
    * @param type Type to clone
@@ -15,18 +15,19 @@ export interface TypeKit {
   finishType(type: Type): void;
 }
 
-interface BaseTypeKit {
+interface TypekitExtension {
   /**
    * Utilities for working with general types.
+   * @experimental
    */
-  type: TypeKit;
+  type: TypeTypekit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends BaseTypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<BaseTypeKit>({
+defineKit<TypekitExtension>({
   type: {
     finishType(type: Type) {
       this.program.checker.finishType(type);
@@ -38,6 +39,7 @@ defineKit<BaseTypeKit>({
           clone = this.program.checker.createType({
             ...type,
             decorators: [...type.decorators],
+            derivedModels: [...type.derivedModels],
             properties: copyMap(type.properties),
             indexer: type.indexer ? { ...type.indexer } : undefined,
           });
@@ -63,6 +65,7 @@ defineKit<BaseTypeKit>({
         case "Enum":
           clone = this.program.checker.createType({
             ...type,
+            decorators: [...type.decorators],
             members: copyMap(type.members),
           });
           break;
@@ -73,43 +76,25 @@ defineKit<BaseTypeKit>({
             instantiationParameters: type.instantiationParameters
               ? [...type.instantiationParameters]
               : undefined,
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             projections: [...type.projections],
+            models: copyMap(type.models as any),
+            decoratorDeclarations: copyMap(type.decoratorDeclarations as any),
+            enums: copyMap(type.enums as any),
+            unions: copyMap(type.unions as any),
+            operations: copyMap(type.operations as any),
+            interfaces: copyMap(type.interfaces as any),
+            functionDeclarations: copyMap(type.functionDeclarations as any),
+            namespaces: copyMap(type.namespaces as any),
+            scalars: copyMap(type.scalars as any),
           });
-          const clonedNamespace = clone as Namespace;
-          clonedNamespace.decoratorDeclarations = cloneTypeCollection(
-            this,
-            type.decoratorDeclarations,
-            {
-              namespace: clonedNamespace,
-            },
-          );
-          clonedNamespace.models = cloneTypeCollection(this, type.models, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.enums = cloneTypeCollection(this, type.enums, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.functionDeclarations = cloneTypeCollection(
-            this,
-            type.functionDeclarations,
-            {
-              namespace: clonedNamespace,
-            },
-          );
-          clonedNamespace.interfaces = cloneTypeCollection(this, type.interfaces, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.namespaces = cloneTypeCollection(this, type.namespaces, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.operations = cloneTypeCollection(this, type.operations, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.scalars = cloneTypeCollection(this, type.scalars, {
-            namespace: clonedNamespace,
-          });
-          clonedNamespace.unions = cloneTypeCollection(this, type.unions, {
-            namespace: clonedNamespace,
+          break;
+        case "Scalar":
+          clone = this.program.checker.createType({
+            ...type,
+            decorators: [...type.decorators],
+            derivedScalars: [...type.derivedScalars],
+            constructors: copyMap(type.constructors as any),
           });
           break;
         default:
@@ -124,19 +109,3 @@ defineKit<BaseTypeKit>({
     },
   },
 });
-
-function cloneTypeCollection<T extends Type>(
-  kit: Typekit,
-  collection: Map<string, T>,
-  options: { namespace?: Namespace } = {},
-): Map<string, T> {
-  const cloneCollection = new Map<string, T>();
-  for (const [key, type] of collection) {
-    const clone = kit.type.clone(type);
-    if ("namespace" in clone && options.namespace) {
-      clone.namespace = options.namespace;
-    }
-    cloneCollection.set(key, clone);
-  }
-  return cloneCollection;
-}

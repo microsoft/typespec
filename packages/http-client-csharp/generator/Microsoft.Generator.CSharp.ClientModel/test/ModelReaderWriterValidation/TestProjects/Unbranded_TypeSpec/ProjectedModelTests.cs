@@ -5,18 +5,18 @@ using System.ClientModel;
 using System.IO;
 using Microsoft.Generator.CSharp.Tests.Common;
 using NUnit.Framework;
-using UnbrandedTypeSpec.Models;
+using UnbrandedTypeSpec.Models.Custom;
 
 namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidation.TestProjects.Unbranded_TypeSpec
 {
-    internal class ProjectedModelTests : LocalModelJsonTests<ProjectedModel>
+    internal class ProjectedModelTests : LocalModelJsonTests<ProjectedModelCustom>
     {
         protected override string JsonPayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ProjectedModel/ProjectedModel.json"));
         protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/ProjectedModel/ProjectedModelWireFormat.json"));
-        protected override ProjectedModel ToModel(ClientResult result) => (ProjectedModel)result;
-        protected override BinaryContent ToBinaryContent(ProjectedModel model) => model;
+        protected override ProjectedModelCustom ToModel(ClientResult result) => (ProjectedModelCustom)result;
+        protected override BinaryContent ToBinaryContent(ProjectedModelCustom model) => model;
 
-        protected override void CompareModels(ProjectedModel model, ProjectedModel model2, string format)
+        protected override void CompareModels(ProjectedModelCustom model, ProjectedModelCustom model2, string format)
         {
             Assert.AreEqual(model.Name, model2.Name);
 
@@ -31,7 +31,7 @@ namespace Microsoft.Generator.CSharp.ClientModel.Tests.ModelReaderWriterValidati
             }
         }
 
-        protected override void VerifyModel(ProjectedModel model, string format)
+        protected override void VerifyModel(ProjectedModelCustom model, string format)
         {
             Assert.AreEqual("projectedModel", model.Name);
 

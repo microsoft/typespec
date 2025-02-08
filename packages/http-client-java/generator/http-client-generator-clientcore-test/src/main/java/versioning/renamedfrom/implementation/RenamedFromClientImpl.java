@@ -109,10 +109,10 @@ public final class RenamedFromClientImpl {
      */
     public RenamedFromClientImpl(HttpPipeline httpPipeline, String endpoint, Versions version,
         RenamedFromServiceVersion serviceVersion) {
+        this.httpPipeline = httpPipeline;
         this.endpoint = endpoint;
         this.version = version;
-        this.serviceVersion = RenamedFromServiceVersion.getLatest();
-        this.httpPipeline = httpPipeline;
+        this.serviceVersion = serviceVersion;
         this.newInterfaces = new NewInterfacesImpl(this);
         this.service = RestProxy.create(RenamedFromClientService.class, this.httpPipeline);
     }

@@ -35,6 +35,7 @@ from .parameter import (
 )
 from .parameter_list import ParameterList
 from .model_type import ModelType
+from .primitive_types import BinaryIteratorType, BinaryType
 from .base import BaseType
 from .combined_type import CombinedType
 from .request_builder import OverloadedRequestBuilder, RequestBuilder
@@ -313,6 +314,10 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             )
         return file_import
 
+    @property
+    def need_deserialize(self) -> bool:
+        return any(r.type and not isinstance(r.type, BinaryIteratorType) for r in self.responses)
+
     def imports(  # pylint: disable=too-many-branches, disable=too-many-statements
         self, async_mode: bool, **kwargs: Any
     ) -> FileImport:
@@ -432,7 +437,8 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
         if self.code_model.options["models_mode"] == "dpg":
             relative_path = self.code_model.get_relative_import_path(serialize_namespace, module_name="_model_base")
-            if self.parameters.has_body:
+            body_param = self.parameters.body_parameter if self.parameters.has_body else None
+            if body_param and not isinstance(body_param.type, BinaryType):
                 if self.has_form_data_body:
                     file_import.add_submodule_import(
                         self.code_model.get_relative_import_path(serialize_namespace), "_model_base", ImportType.LOCAL
@@ -450,9 +456,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
                         ImportType.LOCAL,
                     )
                     file_import.add_import("json", ImportType.STDLIB)
-            if any(xml_serializable(str(r.default_content_type)) for r in self.responses):
+            if any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions):
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
-            elif any(r.type for r in self.responses):
+            elif self.need_deserialize:
                 file_import.add_submodule_import(relative_path, "_deserialize", ImportType.LOCAL)
             if self.default_error_deserialization or self.non_default_errors:
                 file_import.add_submodule_import(relative_path, "_failsafe_deserialize", ImportType.LOCAL)

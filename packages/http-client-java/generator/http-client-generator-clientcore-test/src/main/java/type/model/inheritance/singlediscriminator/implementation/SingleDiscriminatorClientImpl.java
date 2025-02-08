@@ -62,8 +62,8 @@ public final class SingleDiscriminatorClientImpl {
      * @param endpoint Service host.
      */
     public SingleDiscriminatorClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this.endpoint = "http://localhost:3000";
         this.httpPipeline = httpPipeline;
+        this.endpoint = endpoint;
         this.service = RestProxy.create(SingleDiscriminatorClientService.class, this.httpPipeline);
     }
 
