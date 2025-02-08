@@ -466,6 +466,9 @@ public class ClassType implements IType {
     public static final ClassType CLIENT_LOGGER = ClassType.getClassTypeBuilder(ClientLogger.class).build();
     public static final ClassType LOG_LEVEL = ClassType.getClassTypeBuilder(LogLevel.class).build();
 
+    public static final ClassType AZURE_CLOUD
+        = new ClassType.Builder(false).packageName("com.azure.core").name("AzureCloud").build();
+
     public static final ClassType AZURE_ENVIRONMENT
         = new ClassType.Builder(false).packageName("com.azure.core.management").name("AzureEnvironment").build();
 
