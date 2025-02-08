@@ -12,6 +12,7 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputParameter } from "../type/input-parameter.js";
 import { InputPrimitiveType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
+import { Logger } from "./logger.js";
 
 export function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -80,6 +81,68 @@ export function isSdkPathParameter(
   parameter: SdkModelPropertyTypeBase,
 ): parameter is SdkPathParameter {
   return (parameter as SdkPathParameter).kind === "path";
+}
+
+export async function execCSharpGenerator(options: {
+  generatorPath: string;
+  outputFolder: string;
+  pluginName: string;
+  newProject: boolean;
+  debug: boolean;
+}): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
+  const command = "dotnet";
+  const args = [
+    "--roll-forward",
+    "Major",
+    options.generatorPath,
+    options.outputFolder,
+    "-p",
+    options.pluginName,
+  ];
+  if (options.newProject) {
+    args.push("--new-project");
+  }
+  if (options.debug) {
+    args.push("--debug");
+  }
+  Logger.getInstance().info(`${command} ${args.join(" ")}`);
+
+  const child = spawn(command, args, { stdio: "pipe" });
+
+  return new Promise((resolve, reject) => {
+    let buffer = "";
+
+    child.stdout?.on("data", (data) => {
+      buffer += data.toString();
+      let index;
+      while ((index = buffer.indexOf("\n")) !== -1) {
+        const message = buffer.slice(0, index);
+        buffer = buffer.slice(index + 1);
+        // console.log('Received from C#:', message);
+        // Process the JSON-RPC response
+        // const response = JSON.parse(message);
+        // if (response.result) {
+        //     console.log('Result:', response.result);
+        // } else if (response.error) {
+        //     console.error('Error:', response.error);
+        // }
+      }
+    });
+
+    child.on("error", (error) => {
+      reject(error);
+    });
+
+    child.on("exit", (exitCode) => {
+      resolve({
+        exitCode: exitCode ?? -1,
+        stdio: "",
+        stdout: "",
+        stderr: "",
+        proc: child,
+      });
+    });
+  });
 }
 
 export async function execAsync(
