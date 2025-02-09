@@ -1,6 +1,4 @@
 
-console.log("✅ vi.mock() applied");
-
 import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
@@ -9,8 +7,6 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, Mock, vi } from 
 import { _validateDotNetSdk } from "../../src/emitter.js";
 import { Logger, LoggerLevel } from "../../src/index.js";
 import { execAsync } from "../../src/lib/utils.js";
-console.log("execAsync after mock:", execAsync);
-console.log("execAsync is mocked:", vi.isMockFunction(execAsync));
 import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
 
 describe("Test _validateDotNetSdk", () => {
@@ -74,17 +70,13 @@ describe("Test _validateDotNetSdk", () => {
 
   it("should return true for installed SDK version whose major greaters than min supported version", async () => {
     /* mock the scenario that the installed SDK version whose major greater than min supported version */
-    (execAsync as Mock).mockImplementation(
-      (command: string, args: string[] = [], options: SpawnOptions = {}) => {
-        return {
-          exitCode: 0,
-          stdio: "",
-          stdout: "9.0.102",
-          stderr: "",
-          proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
-        };
-      },
-    );
+    (execAsync as Mock).mockResolvedValue({
+      exitCode: 0,
+      stdio: "",
+      stdout: "9.0.102",
+      stderr: "",
+      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
+    });
     const logger = new Logger(program, LoggerLevel.INFO);
     const result = await _validateDotNetSdk(program, minVersion, logger);
     expect(result).toBe(true);
