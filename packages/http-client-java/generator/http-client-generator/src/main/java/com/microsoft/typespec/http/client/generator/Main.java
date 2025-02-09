@@ -7,6 +7,7 @@ import com.azure.core.util.Configuration;
 import com.azure.core.util.CoreUtils;
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
+import com.microsoft.provisioning.http.client.generator.provisioning.model.Specification;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnnotatedPropertyUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
@@ -103,20 +104,33 @@ public class Main {
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
         // write
+        Specification specification = new Specification(JavaSettings.getInstance().getPackage(), JavaSettings.getInstance().getPackage(), emitterOptions.getOutputDir()) {
+            @Override
+            protected void customize() {
+
+            }
+        };
+        specification.build();
 
         // java files
-        Postprocessor.writeToFiles(
-            javaPackage.getJavaFiles()
-                .stream()
-                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
-            fluentPlugin, fluentPlugin.getLogger());
-
-        // XML include POM
-        javaPackage.getXmlFiles()
-            .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
-        // Others
-        javaPackage.getTextFiles()
-            .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
+//        Postprocessor.writeToFiles(
+//            javaPackage.getJavaFiles()
+//                .stream()
+//                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
+//            fluentPlugin, fluentPlugin.getLogger());
+//
+//        // XML include POM
+//        javaPackage.getXmlFiles()
+//            .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
+//        // properties file
+//        String artifactId = FluentUtils.getArtifactId();
+//        if (!CoreUtils.isNullOrEmpty(artifactId)) {
+//            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
+//                null);
+//        }
+//        // Others
+//        javaPackage.getTextFiles()
+//            .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
     }
 
     private static void handleDPG(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration,
