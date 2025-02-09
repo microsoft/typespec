@@ -1,9 +1,11 @@
+vi.mock("../../src/lib/utils.js", () => ({
+  execAsync: vi.fn(),
+}));
 
 import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { SpawnOptions } from "child_process";
-import { afterAll, afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { _validateDotNetSdk } from "../../src/emitter.js";
 import { Logger, LoggerLevel } from "../../src/index.js";
 import { execAsync } from "../../src/lib/utils.js";
@@ -26,11 +28,12 @@ describe("Test _validateDotNetSdk", () => {
       `,
       runner,
     );
-    vi.mock("../../src/lib/utils.js", () => ({
-      execAsync: vi.fn(),
-    }));
 
-    (execAsync as Mock).mockReset();
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("should return false and report diagnostic when dotnet SDK is not installed.", async () => {
