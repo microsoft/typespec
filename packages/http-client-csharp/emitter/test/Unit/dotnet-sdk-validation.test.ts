@@ -10,6 +10,17 @@ import { _validateDotNetSdk } from "../../src/emitter.js";
 import { Logger, LoggerLevel } from "../../src/index.js";
 import { execAsync } from "../../src/lib/utils.js";
 import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
+const loggerMock = {
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  log: vi.fn(),
+};
+
+vi.mock("../../src/index.js", () => ({
+  Logger: vi.fn().mockImplementation(() => loggerMock),
+  LoggerLevel: { INFO: "info" },
+}));
 
 describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
