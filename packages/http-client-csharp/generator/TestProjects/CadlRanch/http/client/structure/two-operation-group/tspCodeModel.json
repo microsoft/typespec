@@ -116,17 +116,14 @@
    "Name": "TwoOperationGroupClient",
    "ClientNamespace": "Client.Structure.TwoOperationGroup",
    "Operations": [],
-   "Protocol": {
-    "$id": "15"
-   },
    "Parameters": [
     {
-     "$id": "16",
+     "$id": "15",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "17",
+      "$id": "16",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -142,7 +139,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "18",
+     "$id": "17",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -163,19 +160,19 @@
    "Decorators": []
   },
   {
-   "$id": "19",
+   "$id": "18",
    "Name": "Group1",
    "ClientNamespace": "Client.Structure.TwoOperationGroup",
    "Operations": [
     {
-     "$id": "20",
+     "$id": "19",
      "Name": "one",
      "ResourceName": "Group1",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "21",
+       "$id": "20",
        "StatusCodes": [
         204
        ],
@@ -184,7 +181,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/one",
@@ -195,14 +192,14 @@
      "Decorators": []
     },
     {
-     "$id": "22",
+     "$id": "21",
      "Name": "three",
      "ResourceName": "Group1",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "23",
+       "$id": "22",
        "StatusCodes": [
         204
        ],
@@ -211,7 +208,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/three",
@@ -222,14 +219,14 @@
      "Decorators": []
     },
     {
-     "$id": "24",
+     "$id": "23",
      "Name": "four",
      "ResourceName": "Group1",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "25",
+       "$id": "24",
        "StatusCodes": [
         204
        ],
@@ -238,7 +235,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/four",
@@ -249,18 +246,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "26"
-   },
    "Parent": "TwoOperationGroupClient",
    "Parameters": [
     {
-     "$id": "27",
+     "$id": "25",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "28",
+      "$id": "26",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -276,7 +270,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "29",
+     "$id": "27",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -297,13 +291,40 @@
    "Decorators": []
   },
   {
-   "$id": "30",
+   "$id": "28",
    "Name": "Group2",
    "ClientNamespace": "Client.Structure.TwoOperationGroup",
    "Operations": [
     {
-     "$id": "31",
+     "$id": "29",
      "Name": "two",
+     "ResourceName": "Group2",
+     "Accessibility": "public",
+     "Parameters": [],
+     "Responses": [
+      {
+       "$id": "30",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "post",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}/client/structure/{client}",
+     "Path": "/two",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true,
+     "CrossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2.two",
+     "Decorators": []
+    },
+    {
+     "$id": "31",
+     "Name": "five",
      "ResourceName": "Group2",
      "Accessibility": "public",
      "Parameters": [],
@@ -318,19 +339,19 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
-     "Path": "/two",
+     "Path": "/five",
      "BufferResponse": true,
      "GenerateProtocolMethod": true,
      "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2.two",
+     "CrossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2.five",
      "Decorators": []
     },
     {
      "$id": "33",
-     "Name": "five",
+     "Name": "six",
      "ResourceName": "Group2",
      "Accessibility": "public",
      "Parameters": [],
@@ -345,34 +366,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
-     "RequestBodyMediaType": "None",
-     "Uri": "{endpoint}/client/structure/{client}",
-     "Path": "/five",
-     "BufferResponse": true,
-     "GenerateProtocolMethod": true,
-     "GenerateConvenienceMethod": true,
-     "CrossLanguageDefinitionId": "Client.Structure.TwoOperationGroup.Group2.five",
-     "Decorators": []
-    },
-    {
-     "$id": "35",
-     "Name": "six",
-     "ResourceName": "Group2",
-     "Accessibility": "public",
-     "Parameters": [],
-     "Responses": [
-      {
-       "$id": "36",
-       "StatusCodes": [
-        204
-       ],
-       "BodyMediaType": "Json",
-       "Headers": [],
-       "IsErrorResponse": false
-      }
-     ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/six",
@@ -383,18 +377,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "37"
-   },
    "Parent": "TwoOperationGroupClient",
    "Parameters": [
     {
-     "$id": "38",
+     "$id": "35",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "39",
+      "$id": "36",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -410,7 +401,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "40",
+     "$id": "37",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",

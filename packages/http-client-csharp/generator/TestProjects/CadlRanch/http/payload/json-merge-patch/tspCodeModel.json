@@ -615,7 +615,7 @@
        ]
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/json-merge-patch/create/resource",
@@ -724,7 +724,7 @@
        ]
       }
      ],
-     "HttpMethod": "PATCH",
+     "HttpMethod": "patch",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/json-merge-patch/update/resource",
@@ -833,7 +833,7 @@
        ]
       }
      ],
-     "HttpMethod": "PATCH",
+     "HttpMethod": "patch",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/json-merge-patch/update/resource/optional",
@@ -847,17 +847,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "103"
-   },
    "Parameters": [
     {
-     "$id": "104",
+     "$id": "103",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "105",
+      "$id": "104",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -872,9 +869,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "106",
+      "$id": "105",
       "Type": {
-       "$id": "107",
+       "$id": "106",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

@@ -71,7 +71,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-none",
@@ -122,7 +122,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-one-required",
@@ -173,7 +173,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v1/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-one-optional",
@@ -184,17 +184,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "17"
-   },
    "Parameters": [
     {
-     "$id": "18",
+     "$id": "17",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "19",
+      "$id": "18",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -210,12 +207,12 @@
      "Kind": "Client"
     },
     {
-     "$id": "20",
+     "$id": "19",
      "Name": "serviceDeploymentVersion",
      "NameInRequest": "serviceDeploymentVersion",
      "Doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
      "Type": {
-      "$id": "21",
+      "$id": "20",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -232,12 +229,12 @@
      "Kind": "Client"
     },
     {
-     "$id": "22",
+     "$id": "21",
      "Name": "apiVersion",
      "NameInRequest": "apiVersion",
      "Doc": "Pass in 'v1'. This represents the API version of the service. Will grow up in the next deployment to be both 'v1' and 'v2'",
      "Type": {
-      "$id": "23",
+      "$id": "22",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -253,9 +250,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "24",
+      "$id": "23",
       "Type": {
-       "$id": "25",
+       "$id": "24",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

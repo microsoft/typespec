@@ -439,7 +439,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/v2",
@@ -549,7 +549,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/v3",
@@ -563,17 +563,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "61"
-   },
    "Parameters": [
     {
-     "$id": "62",
+     "$id": "61",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "63",
+      "$id": "62",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -589,7 +586,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "64",
+     "$id": "63",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",

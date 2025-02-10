@@ -158,17 +158,14 @@
    "Name": "ExtensibleClient",
    "ClientNamespace": "Type.Enum.Extensible",
    "Operations": [],
-   "Protocol": {
-    "$id": "19"
-   },
    "Parameters": [
     {
-     "$id": "20",
+     "$id": "19",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "21",
+      "$id": "20",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -183,9 +180,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "22",
+      "$id": "21",
       "Type": {
-       "$id": "23",
+       "$id": "22",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -197,25 +194,25 @@
    "Decorators": []
   },
   {
-   "$id": "24",
+   "$id": "23",
    "Name": "String",
    "ClientNamespace": "Type.Enum.Extensible",
    "Operations": [
     {
-     "$id": "25",
+     "$id": "24",
      "Name": "getKnownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "26",
+       "$id": "25",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "27",
+        "$id": "26",
         "kind": "constant",
         "valueType": {
-         "$id": "28",
+         "$id": "27",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -237,7 +234,7 @@
      ],
      "Responses": [
       {
-       "$id": "29",
+       "$id": "28",
        "StatusCodes": [
         200
        ],
@@ -252,7 +249,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/enum/extensible/string/known-value",
@@ -263,20 +260,20 @@
      "Decorators": []
     },
     {
-     "$id": "30",
+     "$id": "29",
      "Name": "getUnknownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "31",
+       "$id": "30",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "32",
+        "$id": "31",
         "kind": "constant",
         "valueType": {
-         "$id": "33",
+         "$id": "32",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -298,7 +295,7 @@
      ],
      "Responses": [
       {
-       "$id": "34",
+       "$id": "33",
        "StatusCodes": [
         200
        ],
@@ -313,7 +310,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/enum/extensible/string/unknown-value",
@@ -324,21 +321,21 @@
      "Decorators": []
     },
     {
-     "$id": "35",
+     "$id": "34",
      "Name": "putKnownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "36",
+       "$id": "35",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "37",
+        "$id": "36",
         "kind": "constant",
         "valueType": {
-         "$id": "38",
+         "$id": "37",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -358,7 +355,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "39",
+       "$id": "38",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -377,7 +374,7 @@
      ],
      "Responses": [
       {
-       "$id": "40",
+       "$id": "39",
        "StatusCodes": [
         204
        ],
@@ -386,7 +383,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/enum/extensible/string/known-value",
@@ -400,21 +397,21 @@
      "Decorators": []
     },
     {
-     "$id": "41",
+     "$id": "40",
      "Name": "putUnknownValue",
      "ResourceName": "String",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "42",
+       "$id": "41",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "43",
+        "$id": "42",
         "kind": "constant",
         "valueType": {
-         "$id": "44",
+         "$id": "43",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -434,7 +431,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "45",
+       "$id": "44",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -453,7 +450,7 @@
      ],
      "Responses": [
       {
-       "$id": "46",
+       "$id": "45",
        "StatusCodes": [
         204
        ],
@@ -462,7 +459,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/enum/extensible/string/unknown-value",
@@ -476,18 +473,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "47"
-   },
    "Parent": "ExtensibleClient",
    "Parameters": [
     {
-     "$id": "48",
+     "$id": "46",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "49",
+      "$id": "47",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -502,9 +496,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "50",
+      "$id": "48",
       "Type": {
-       "$id": "51",
+       "$id": "49",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

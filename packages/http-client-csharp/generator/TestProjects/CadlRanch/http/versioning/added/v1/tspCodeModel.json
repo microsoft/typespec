@@ -246,7 +246,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/added/api-version:{version}",
      "Path": "/v1",
@@ -260,17 +260,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "28"
-   },
    "Parameters": [
     {
-     "$id": "29",
+     "$id": "28",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "30",
+      "$id": "29",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -286,7 +283,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "31",
+     "$id": "30",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1' or 'v2' in client.",

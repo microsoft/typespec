@@ -23,7 +23,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/hello", false);
@@ -44,7 +44,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/againHi/", false);
@@ -63,7 +63,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/noContentType/", false);
@@ -82,7 +82,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/demoHi", false);
@@ -97,7 +97,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "POST";
+            request.Method = "post";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/literal", false);
@@ -114,7 +114,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/helloLiteral/", false);
@@ -132,7 +132,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/top/", false);
@@ -148,7 +148,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/top2", false);
@@ -163,7 +163,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "PATCH";
+            request.Method = "patch";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/patch", false);
@@ -180,7 +180,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "POST";
+            request.Method = "post";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/anonymousBody", false);
@@ -197,7 +197,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "POST";
+            request.Method = "post";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/friendlyName", false);
@@ -214,7 +214,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier204;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/", false);
@@ -229,7 +229,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "POST";
+            request.Method = "post";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/projectedName", false);
@@ -246,7 +246,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "POST";
+            request.Method = "post";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/returnsAnonymousModel", false);
@@ -261,7 +261,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/unknown-value", false);
@@ -276,7 +276,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier200;
             PipelineRequest request = message.Request;
-            request.Method = "POST";
+            request.Method = "post";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/internalProtocol", false);
@@ -293,7 +293,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier204;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/stillConvenient", false);
@@ -307,7 +307,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier204;
             PipelineRequest request = message.Request;
-            request.Method = "HEAD";
+            request.Method = "head";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/headAsBoolean/", false);
@@ -322,7 +322,7 @@ namespace UnbrandedTypeSpec
             PipelineMessage message = Pipeline.CreateMessage();
             message.ResponseClassifier = PipelineMessageClassifier204;
             PipelineRequest request = message.Request;
-            request.Method = "GET";
+            request.Method = "get";
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/WithApiVersion", false);

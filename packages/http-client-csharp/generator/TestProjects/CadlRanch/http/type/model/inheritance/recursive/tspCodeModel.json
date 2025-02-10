@@ -157,7 +157,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/recursive",
@@ -221,7 +221,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/recursive",
@@ -232,17 +232,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "24"
-   },
    "Parameters": [
     {
-     "$id": "25",
+     "$id": "24",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "26",
+      "$id": "25",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -257,9 +254,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "27",
+      "$id": "26",
       "Type": {
-       "$id": "28",
+       "$id": "27",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

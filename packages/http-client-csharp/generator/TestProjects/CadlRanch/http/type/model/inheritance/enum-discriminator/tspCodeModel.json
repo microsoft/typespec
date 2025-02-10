@@ -383,7 +383,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/extensible-enum",
@@ -458,7 +458,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/extensible-enum",
@@ -523,7 +523,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator",
@@ -585,7 +585,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator",
@@ -647,7 +647,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/fixed-enum",
@@ -722,7 +722,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/fixed-enum",
@@ -787,7 +787,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator",
@@ -849,7 +849,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator",
@@ -860,17 +860,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "83"
-   },
    "Parameters": [
     {
-     "$id": "84",
+     "$id": "83",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "85",
+      "$id": "84",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -885,9 +882,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "86",
+      "$id": "85",
       "Type": {
-       "$id": "87",
+       "$id": "86",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

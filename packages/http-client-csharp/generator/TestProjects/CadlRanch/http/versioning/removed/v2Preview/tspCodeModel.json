@@ -540,7 +540,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/v1",
@@ -670,7 +670,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/v2",
@@ -780,7 +780,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/v3",
@@ -794,17 +794,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "87"
-   },
    "Parameters": [
     {
-     "$id": "88",
+     "$id": "87",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "89",
+      "$id": "88",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -820,7 +817,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "90",
+     "$id": "89",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",
@@ -841,27 +838,27 @@
    "Decorators": []
   },
   {
-   "$id": "91",
+   "$id": "90",
    "Name": "InterfaceV1",
    "ClientNamespace": "Versioning.Removed",
    "Doc": "This operation group should not be generated with latest version.",
    "Operations": [
     {
-     "$id": "92",
+     "$id": "91",
      "Name": "v1InInterface",
      "ResourceName": "InterfaceV1",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "93",
+       "$id": "92",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "94",
+        "$id": "93",
         "kind": "constant",
         "valueType": {
-         "$id": "95",
+         "$id": "94",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -881,14 +878,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "96",
+       "$id": "95",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "97",
+        "$id": "96",
         "kind": "constant",
         "valueType": {
-         "$id": "98",
+         "$id": "97",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -908,7 +905,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "99",
+       "$id": "98",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -927,7 +924,7 @@
      ],
      "Responses": [
       {
-       "$id": "100",
+       "$id": "99",
        "StatusCodes": [
         200
        ],
@@ -942,7 +939,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/removed/api-version:{version}",
      "Path": "/interface-v1/v1",
@@ -956,18 +953,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "101"
-   },
    "Parent": "RemovedClient",
    "Parameters": [
     {
-     "$id": "102",
+     "$id": "100",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "103",
+      "$id": "101",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -983,7 +977,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "104",
+     "$id": "102",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1', 'v2preview' or 'v2' in client.",

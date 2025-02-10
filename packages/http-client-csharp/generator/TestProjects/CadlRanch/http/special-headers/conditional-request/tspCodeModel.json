@@ -52,7 +52,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/special-headers/conditional-request/if-match",
@@ -103,7 +103,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/special-headers/conditional-request/if-none-match",
@@ -162,7 +162,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/special-headers/conditional-request/if-modified-since",
@@ -221,7 +221,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/special-headers/conditional-request/if-unmodified-since",
@@ -232,17 +232,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "21"
-   },
    "Parameters": [
     {
-     "$id": "22",
+     "$id": "21",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "23",
+      "$id": "22",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -257,9 +254,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "24",
+      "$id": "23",
       "Type": {
-       "$id": "25",
+       "$id": "24",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

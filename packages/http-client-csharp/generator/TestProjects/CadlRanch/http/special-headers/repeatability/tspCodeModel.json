@@ -145,7 +145,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/special-headers/repeatability/immediateSuccess",
@@ -156,17 +156,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "17"
-   },
    "Parameters": [
     {
-     "$id": "18",
+     "$id": "17",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "19",
+      "$id": "18",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -181,9 +178,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "20",
+      "$id": "19",
       "Type": {
-       "$id": "21",
+       "$id": "20",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

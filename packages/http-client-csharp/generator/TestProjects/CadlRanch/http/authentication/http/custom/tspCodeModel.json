@@ -67,7 +67,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/authentication/http/custom/valid",
@@ -123,7 +123,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/authentication/http/custom/invalid",
@@ -134,17 +134,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "15"
-   },
    "Parameters": [
     {
-     "$id": "16",
+     "$id": "15",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "17",
+      "$id": "16",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -159,9 +156,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "18",
+      "$id": "17",
       "Type": {
-       "$id": "19",
+       "$id": "18",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -174,9 +171,9 @@
   }
  ],
  "Auth": {
-  "$id": "20",
+  "$id": "19",
   "ApiKey": {
-   "$id": "21",
+   "$id": "20",
    "Name": "Authorization",
    "In": "header",
    "Prefix": "SharedAccessKey"

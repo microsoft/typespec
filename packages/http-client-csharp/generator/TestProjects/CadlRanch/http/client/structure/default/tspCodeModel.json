@@ -134,7 +134,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/one",
@@ -161,7 +161,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/two",
@@ -172,17 +172,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "19"
-   },
    "Parameters": [
     {
-     "$id": "20",
+     "$id": "19",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "21",
+      "$id": "20",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -198,7 +195,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "22",
+     "$id": "21",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -219,22 +216,19 @@
    "Decorators": []
   },
   {
-   "$id": "23",
+   "$id": "22",
    "Name": "Baz",
    "ClientNamespace": "Client.Structure.Service.Baz",
    "Operations": [],
-   "Protocol": {
-    "$id": "24"
-   },
    "Parent": "ServiceClient",
    "Parameters": [
     {
-     "$id": "25",
+     "$id": "23",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "26",
+      "$id": "24",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -250,7 +244,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "27",
+     "$id": "25",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -271,19 +265,19 @@
    "Decorators": []
   },
   {
-   "$id": "28",
+   "$id": "26",
    "Name": "BazFoo",
    "ClientNamespace": "Client.Structure.Service.Baz",
    "Operations": [
     {
-     "$id": "29",
+     "$id": "27",
      "Name": "seven",
      "ResourceName": "Foo",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "30",
+       "$id": "28",
        "StatusCodes": [
         204
        ],
@@ -292,7 +286,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/seven",
@@ -303,18 +297,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "31"
-   },
    "Parent": "Baz",
    "Parameters": [
     {
-     "$id": "32",
+     "$id": "29",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "33",
+      "$id": "30",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -330,7 +321,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "34",
+     "$id": "31",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -351,19 +342,19 @@
    "Decorators": []
   },
   {
-   "$id": "35",
+   "$id": "32",
    "Name": "Qux",
    "ClientNamespace": "Client.Structure.Service.Qux",
    "Operations": [
     {
-     "$id": "36",
+     "$id": "33",
      "Name": "eight",
      "ResourceName": "Qux",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "37",
+       "$id": "34",
        "StatusCodes": [
         204
        ],
@@ -372,7 +363,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/eight",
@@ -383,18 +374,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "38"
-   },
    "Parent": "ServiceClient",
    "Parameters": [
     {
-     "$id": "39",
+     "$id": "35",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "40",
+      "$id": "36",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -410,7 +398,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "41",
+     "$id": "37",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -431,19 +419,19 @@
    "Decorators": []
   },
   {
-   "$id": "42",
+   "$id": "38",
    "Name": "QuxBar",
    "ClientNamespace": "Client.Structure.Service.Qux",
    "Operations": [
     {
-     "$id": "43",
+     "$id": "39",
      "Name": "nine",
      "ResourceName": "Bar",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "44",
+       "$id": "40",
        "StatusCodes": [
         204
        ],
@@ -452,7 +440,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/nine",
@@ -463,18 +451,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "45"
-   },
    "Parent": "Qux",
    "Parameters": [
     {
-     "$id": "46",
+     "$id": "41",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "47",
+      "$id": "42",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -490,7 +475,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "48",
+     "$id": "43",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -511,19 +496,19 @@
    "Decorators": []
   },
   {
-   "$id": "49",
+   "$id": "44",
    "Name": "Foo",
    "ClientNamespace": "Client.Structure.Service",
    "Operations": [
     {
-     "$id": "50",
+     "$id": "45",
      "Name": "three",
      "ResourceName": "Foo",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "51",
+       "$id": "46",
        "StatusCodes": [
         204
        ],
@@ -532,7 +517,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/three",
@@ -543,14 +528,14 @@
      "Decorators": []
     },
     {
-     "$id": "52",
+     "$id": "47",
      "Name": "four",
      "ResourceName": "Foo",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "53",
+       "$id": "48",
        "StatusCodes": [
         204
        ],
@@ -559,7 +544,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/four",
@@ -570,18 +555,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "54"
-   },
    "Parent": "ServiceClient",
    "Parameters": [
     {
-     "$id": "55",
+     "$id": "49",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "56",
+      "$id": "50",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -597,7 +579,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "57",
+     "$id": "51",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",
@@ -618,19 +600,19 @@
    "Decorators": []
   },
   {
-   "$id": "58",
+   "$id": "52",
    "Name": "Bar",
    "ClientNamespace": "Client.Structure.Service",
    "Operations": [
     {
-     "$id": "59",
+     "$id": "53",
      "Name": "five",
      "ResourceName": "Bar",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "60",
+       "$id": "54",
        "StatusCodes": [
         204
        ],
@@ -639,7 +621,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/five",
@@ -650,14 +632,14 @@
      "Decorators": []
     },
     {
-     "$id": "61",
+     "$id": "55",
      "Name": "six",
      "ResourceName": "Bar",
      "Accessibility": "public",
      "Parameters": [],
      "Responses": [
       {
-       "$id": "62",
+       "$id": "56",
        "StatusCodes": [
         204
        ],
@@ -666,7 +648,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/client/structure/{client}",
      "Path": "/six",
@@ -677,18 +659,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "63"
-   },
    "Parent": "ServiceClient",
    "Parameters": [
     {
-     "$id": "64",
+     "$id": "57",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "65",
+      "$id": "58",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -704,7 +683,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "66",
+     "$id": "59",
      "Name": "client",
      "NameInRequest": "client",
      "Doc": "Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client.",

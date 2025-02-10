@@ -2291,7 +2291,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/hello",
@@ -2439,7 +2439,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "Json",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/againHi/{p2}",
@@ -2591,7 +2591,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "Json",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/noContentType/{p2}",
@@ -2656,7 +2656,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/demoHi",
@@ -2763,7 +2763,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/literal",
@@ -2909,7 +2909,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/helloLiteral/{p2}",
@@ -3000,7 +3000,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/top/{action}",
@@ -3062,7 +3062,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/top2",
@@ -3169,7 +3169,7 @@
        ]
       }
      ],
-     "HttpMethod": "PATCH",
+     "HttpMethod": "patch",
      "RequestBodyMediaType": "Json",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/patch",
@@ -3279,7 +3279,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/anonymousBody",
@@ -3389,7 +3389,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/friendlyName",
@@ -3449,7 +3449,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/",
@@ -3556,7 +3556,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/projectedName",
@@ -3621,7 +3621,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/returnsAnonymousModel",
@@ -3694,7 +3694,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/unknown-value",
@@ -3801,7 +3801,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/internalProtocol",
@@ -3832,7 +3832,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/stillConvenient",
@@ -3882,7 +3882,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/headAsBoolean/{id}",
@@ -3963,7 +3963,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{unbrandedTypeSpecUrl}",
      "Path": "/WithApiVersion",
@@ -3974,16 +3974,13 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "429"
-   },
    "Parameters": [
     {
-     "$id": "430",
+     "$id": "429",
      "Name": "unbrandedTypeSpecUrl",
      "NameInRequest": "unbrandedTypeSpecUrl",
      "Type": {
-      "$id": "431",
+      "$id": "430",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -4003,9 +4000,9 @@
   }
  ],
  "Auth": {
-  "$id": "432",
+  "$id": "431",
   "ApiKey": {
-   "$id": "433",
+   "$id": "432",
    "Name": "my-api-key",
    "In": "header"
   }

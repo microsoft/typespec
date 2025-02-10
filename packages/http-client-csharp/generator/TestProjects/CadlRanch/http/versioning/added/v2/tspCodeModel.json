@@ -490,7 +490,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/added/api-version:{version}",
      "Path": "/v1",
@@ -599,7 +599,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/added/api-version:{version}",
      "Path": "/v2",
@@ -613,17 +613,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "68"
-   },
    "Parameters": [
     {
-     "$id": "69",
+     "$id": "68",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "70",
+      "$id": "69",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -639,7 +636,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "71",
+     "$id": "70",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1' or 'v2' in client.",
@@ -660,26 +657,26 @@
    "Decorators": []
   },
   {
-   "$id": "72",
+   "$id": "71",
    "Name": "InterfaceV2",
    "ClientNamespace": "Versioning.Added",
    "Operations": [
     {
-     "$id": "73",
+     "$id": "72",
      "Name": "v2InInterface",
      "ResourceName": "InterfaceV2",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "74",
+       "$id": "73",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "75",
+        "$id": "74",
         "kind": "constant",
         "valueType": {
-         "$id": "76",
+         "$id": "75",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -699,14 +696,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "77",
+       "$id": "76",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "78",
+        "$id": "77",
         "kind": "constant",
         "valueType": {
-         "$id": "79",
+         "$id": "78",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -726,7 +723,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "80",
+       "$id": "79",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -745,7 +742,7 @@
      ],
      "Responses": [
       {
-       "$id": "81",
+       "$id": "80",
        "StatusCodes": [
         200
        ],
@@ -760,7 +757,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/added/api-version:{version}",
      "Path": "/interface-v2/v2",
@@ -774,18 +771,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "82"
-   },
    "Parent": "AddedClient",
    "Parameters": [
     {
-     "$id": "83",
+     "$id": "81",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "84",
+      "$id": "82",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -801,7 +795,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "85",
+     "$id": "83",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1' or 'v2' in client.",

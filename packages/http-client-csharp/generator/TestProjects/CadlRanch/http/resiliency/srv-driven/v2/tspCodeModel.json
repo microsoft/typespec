@@ -90,7 +90,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "DELETE",
+     "HttpMethod": "delete",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-operation",
@@ -141,7 +141,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-none",
@@ -214,7 +214,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-one-required",
@@ -287,7 +287,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}/resiliency/service-driven/client:v2/service:{serviceDeploymentVersion}/api-version:{apiVersion}",
      "Path": "/add-optional-param/from-one-optional",
@@ -298,17 +298,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "27"
-   },
    "Parameters": [
     {
-     "$id": "28",
+     "$id": "27",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "29",
+      "$id": "28",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -324,12 +321,12 @@
      "Kind": "Client"
     },
     {
-     "$id": "30",
+     "$id": "29",
      "Name": "serviceDeploymentVersion",
      "NameInRequest": "serviceDeploymentVersion",
      "Doc": "Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'.",
      "Type": {
-      "$id": "31",
+      "$id": "30",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -346,12 +343,12 @@
      "Kind": "Client"
     },
     {
-     "$id": "32",
+     "$id": "31",
      "Name": "apiVersion",
      "NameInRequest": "apiVersion",
      "Doc": "Pass in either 'v1' or 'v2'. This represents the API version of a service.",
      "Type": {
-      "$id": "33",
+      "$id": "32",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -367,9 +364,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "34",
+      "$id": "33",
       "Type": {
-       "$id": "35",
+       "$id": "34",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

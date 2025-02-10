@@ -304,17 +304,14 @@
    "ClientNamespace": "Encode.Duration",
    "Doc": "Test for encode decorator on duration.",
    "Operations": [],
-   "Protocol": {
-    "$id": "42"
-   },
    "Parameters": [
     {
-     "$id": "43",
+     "$id": "42",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "44",
+      "$id": "43",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -329,9 +326,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "45",
+      "$id": "44",
       "Type": {
-       "$id": "46",
+       "$id": "45",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -343,27 +340,27 @@
    "Decorators": []
   },
   {
-   "$id": "47",
+   "$id": "46",
    "Name": "Query",
    "ClientNamespace": "Encode.Duration.Query",
    "Operations": [
     {
-     "$id": "48",
+     "$id": "47",
      "Name": "default",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "49",
+       "$id": "48",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
-        "$id": "50",
+        "$id": "49",
         "kind": "duration",
         "name": "duration",
         "encode": "ISO8601",
         "wireType": {
-         "$id": "51",
+         "$id": "50",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -385,7 +382,7 @@
      ],
      "Responses": [
       {
-       "$id": "52",
+       "$id": "51",
        "StatusCodes": [
         204
        ],
@@ -394,7 +391,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/default",
@@ -405,22 +402,22 @@
      "Decorators": []
     },
     {
-     "$id": "53",
+     "$id": "52",
      "Name": "iso8601",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "54",
+       "$id": "53",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
-        "$id": "55",
+        "$id": "54",
         "kind": "duration",
         "name": "duration",
         "encode": "ISO8601",
         "wireType": {
-         "$id": "56",
+         "$id": "55",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -442,7 +439,7 @@
      ],
      "Responses": [
       {
-       "$id": "57",
+       "$id": "56",
        "StatusCodes": [
         204
        ],
@@ -451,7 +448,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/iso8601",
@@ -462,22 +459,22 @@
      "Decorators": []
     },
     {
-     "$id": "58",
+     "$id": "57",
      "Name": "int32Seconds",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "59",
+       "$id": "58",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
-        "$id": "60",
+        "$id": "59",
         "kind": "duration",
         "name": "duration",
         "encode": "seconds",
         "wireType": {
-         "$id": "61",
+         "$id": "60",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -499,7 +496,7 @@
      ],
      "Responses": [
       {
-       "$id": "62",
+       "$id": "61",
        "StatusCodes": [
         204
        ],
@@ -508,7 +505,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/int32-seconds",
@@ -519,22 +516,22 @@
      "Decorators": []
     },
     {
-     "$id": "63",
+     "$id": "62",
      "Name": "floatSeconds",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "64",
+       "$id": "63",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
-        "$id": "65",
+        "$id": "64",
         "kind": "duration",
         "name": "duration",
         "encode": "seconds",
         "wireType": {
-         "$id": "66",
+         "$id": "65",
          "kind": "float",
          "name": "float",
          "crossLanguageDefinitionId": "TypeSpec.float",
@@ -556,7 +553,7 @@
      ],
      "Responses": [
       {
-       "$id": "67",
+       "$id": "66",
        "StatusCodes": [
         204
        ],
@@ -565,7 +562,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/float-seconds",
@@ -576,22 +573,22 @@
      "Decorators": []
     },
     {
-     "$id": "68",
+     "$id": "67",
      "Name": "float64Seconds",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "69",
+       "$id": "68",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
-        "$id": "70",
+        "$id": "69",
         "kind": "duration",
         "name": "duration",
         "encode": "seconds",
         "wireType": {
-         "$id": "71",
+         "$id": "70",
          "kind": "float64",
          "name": "float64",
          "crossLanguageDefinitionId": "TypeSpec.float64",
@@ -613,7 +610,7 @@
      ],
      "Responses": [
       {
-       "$id": "72",
+       "$id": "71",
        "StatusCodes": [
         204
        ],
@@ -622,7 +619,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/float64-seconds",
@@ -633,26 +630,26 @@
      "Decorators": []
     },
     {
-     "$id": "73",
+     "$id": "72",
      "Name": "int32SecondsArray",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "74",
+       "$id": "73",
        "Name": "input",
        "NameInRequest": "input",
        "Type": {
-        "$id": "75",
+        "$id": "74",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "76",
+         "$id": "75",
          "kind": "duration",
          "name": "Int32Duration",
          "encode": "seconds",
          "wireType": {
-          "$id": "77",
+          "$id": "76",
           "kind": "int32",
           "name": "int32",
           "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -660,12 +657,12 @@
          },
          "crossLanguageDefinitionId": "Encode.Duration.Query.Int32Duration",
          "baseType": {
-          "$id": "78",
+          "$id": "77",
           "kind": "duration",
           "name": "duration",
           "encode": "ISO8601",
           "wireType": {
-           "$id": "79",
+           "$id": "78",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -693,7 +690,7 @@
      ],
      "Responses": [
       {
-       "$id": "80",
+       "$id": "79",
        "StatusCodes": [
         204
        ],
@@ -702,7 +699,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/query/int32-seconds-array",
@@ -713,18 +710,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "81"
-   },
    "Parent": "DurationClient",
    "Parameters": [
     {
-     "$id": "82",
+     "$id": "80",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "83",
+      "$id": "81",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -739,9 +733,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "84",
+      "$id": "82",
       "Type": {
-       "$id": "85",
+       "$id": "83",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -753,26 +747,26 @@
    "Decorators": []
   },
   {
-   "$id": "86",
+   "$id": "84",
    "Name": "Property",
    "ClientNamespace": "Encode.Duration.Property",
    "Operations": [
     {
-     "$id": "87",
+     "$id": "85",
      "Name": "default",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "88",
+       "$id": "86",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "89",
+        "$id": "87",
         "kind": "constant",
         "valueType": {
-         "$id": "90",
+         "$id": "88",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -792,14 +786,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "91",
+       "$id": "89",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "92",
+        "$id": "90",
         "kind": "constant",
         "valueType": {
-         "$id": "93",
+         "$id": "91",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -819,7 +813,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "94",
+       "$id": "92",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -838,7 +832,7 @@
      ],
      "Responses": [
       {
-       "$id": "95",
+       "$id": "93",
        "StatusCodes": [
         200
        ],
@@ -853,7 +847,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/default",
@@ -867,21 +861,21 @@
      "Decorators": []
     },
     {
-     "$id": "96",
+     "$id": "94",
      "Name": "iso8601",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "97",
+       "$id": "95",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "98",
+        "$id": "96",
         "kind": "constant",
         "valueType": {
-         "$id": "99",
+         "$id": "97",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -901,14 +895,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "100",
+       "$id": "98",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "101",
+        "$id": "99",
         "kind": "constant",
         "valueType": {
-         "$id": "102",
+         "$id": "100",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -928,7 +922,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "103",
+       "$id": "101",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -947,7 +941,7 @@
      ],
      "Responses": [
       {
-       "$id": "104",
+       "$id": "102",
        "StatusCodes": [
         200
        ],
@@ -962,7 +956,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/iso8601",
@@ -976,21 +970,21 @@
      "Decorators": []
     },
     {
-     "$id": "105",
+     "$id": "103",
      "Name": "int32Seconds",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "106",
+       "$id": "104",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "107",
+        "$id": "105",
         "kind": "constant",
         "valueType": {
-         "$id": "108",
+         "$id": "106",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1010,14 +1004,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "109",
+       "$id": "107",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "110",
+        "$id": "108",
         "kind": "constant",
         "valueType": {
-         "$id": "111",
+         "$id": "109",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1037,7 +1031,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "112",
+       "$id": "110",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1056,7 +1050,7 @@
      ],
      "Responses": [
       {
-       "$id": "113",
+       "$id": "111",
        "StatusCodes": [
         200
        ],
@@ -1071,7 +1065,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/int32-seconds",
@@ -1085,21 +1079,21 @@
      "Decorators": []
     },
     {
-     "$id": "114",
+     "$id": "112",
      "Name": "floatSeconds",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "115",
+       "$id": "113",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "116",
+        "$id": "114",
         "kind": "constant",
         "valueType": {
-         "$id": "117",
+         "$id": "115",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1119,14 +1113,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "118",
+       "$id": "116",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "119",
+        "$id": "117",
         "kind": "constant",
         "valueType": {
-         "$id": "120",
+         "$id": "118",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1146,7 +1140,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "121",
+       "$id": "119",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1165,7 +1159,7 @@
      ],
      "Responses": [
       {
-       "$id": "122",
+       "$id": "120",
        "StatusCodes": [
         200
        ],
@@ -1180,7 +1174,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/float-seconds",
@@ -1194,21 +1188,21 @@
      "Decorators": []
     },
     {
-     "$id": "123",
+     "$id": "121",
      "Name": "float64Seconds",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "124",
+       "$id": "122",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "125",
+        "$id": "123",
         "kind": "constant",
         "valueType": {
-         "$id": "126",
+         "$id": "124",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1228,14 +1222,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "127",
+       "$id": "125",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "128",
+        "$id": "126",
         "kind": "constant",
         "valueType": {
-         "$id": "129",
+         "$id": "127",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1255,7 +1249,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "130",
+       "$id": "128",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1274,7 +1268,7 @@
      ],
      "Responses": [
       {
-       "$id": "131",
+       "$id": "129",
        "StatusCodes": [
         200
        ],
@@ -1289,7 +1283,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/float64-seconds",
@@ -1303,21 +1297,21 @@
      "Decorators": []
     },
     {
-     "$id": "132",
+     "$id": "130",
      "Name": "floatSecondsArray",
      "ResourceName": "Property",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "133",
+       "$id": "131",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "134",
+        "$id": "132",
         "kind": "constant",
         "valueType": {
-         "$id": "135",
+         "$id": "133",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1337,14 +1331,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "136",
+       "$id": "134",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "137",
+        "$id": "135",
         "kind": "constant",
         "valueType": {
-         "$id": "138",
+         "$id": "136",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1364,7 +1358,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "139",
+       "$id": "137",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -1383,7 +1377,7 @@
      ],
      "Responses": [
       {
-       "$id": "140",
+       "$id": "138",
        "StatusCodes": [
         200
        ],
@@ -1398,7 +1392,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/property/float-seconds-array",
@@ -1412,18 +1406,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "141"
-   },
    "Parent": "DurationClient",
    "Parameters": [
     {
-     "$id": "142",
+     "$id": "139",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "143",
+      "$id": "140",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1438,9 +1429,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "144",
+      "$id": "141",
       "Type": {
-       "$id": "145",
+       "$id": "142",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1452,27 +1443,27 @@
    "Decorators": []
   },
   {
-   "$id": "146",
+   "$id": "143",
    "Name": "Header",
    "ClientNamespace": "Encode.Duration.Header",
    "Operations": [
     {
-     "$id": "147",
+     "$id": "144",
      "Name": "default",
      "ResourceName": "Header",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "148",
+       "$id": "145",
        "Name": "duration",
        "NameInRequest": "duration",
        "Type": {
-        "$id": "149",
+        "$id": "146",
         "kind": "duration",
         "name": "duration",
         "encode": "ISO8601",
         "wireType": {
-         "$id": "150",
+         "$id": "147",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1494,7 +1485,7 @@
      ],
      "Responses": [
       {
-       "$id": "151",
+       "$id": "148",
        "StatusCodes": [
         204
        ],
@@ -1503,7 +1494,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/default",
@@ -1514,22 +1505,22 @@
      "Decorators": []
     },
     {
-     "$id": "152",
+     "$id": "149",
      "Name": "iso8601",
      "ResourceName": "Header",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "153",
+       "$id": "150",
        "Name": "duration",
        "NameInRequest": "duration",
        "Type": {
-        "$id": "154",
+        "$id": "151",
         "kind": "duration",
         "name": "duration",
         "encode": "ISO8601",
         "wireType": {
-         "$id": "155",
+         "$id": "152",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1551,7 +1542,7 @@
      ],
      "Responses": [
       {
-       "$id": "156",
+       "$id": "153",
        "StatusCodes": [
         204
        ],
@@ -1560,7 +1551,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/iso8601",
@@ -1571,26 +1562,26 @@
      "Decorators": []
     },
     {
-     "$id": "157",
+     "$id": "154",
      "Name": "iso8601Array",
      "ResourceName": "Header",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "158",
+       "$id": "155",
        "Name": "duration",
        "NameInRequest": "duration",
        "Type": {
-        "$id": "159",
+        "$id": "156",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "160",
+         "$id": "157",
          "kind": "duration",
          "name": "Iso8601Duration",
          "encode": "ISO8601",
          "wireType": {
-          "$id": "161",
+          "$id": "158",
           "kind": "string",
           "name": "string",
           "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1598,12 +1589,12 @@
          },
          "crossLanguageDefinitionId": "Encode.Duration.Header.Iso8601Duration",
          "baseType": {
-          "$id": "162",
+          "$id": "159",
           "kind": "duration",
           "name": "duration",
           "encode": "ISO8601",
           "wireType": {
-           "$id": "163",
+           "$id": "160",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1631,7 +1622,7 @@
      ],
      "Responses": [
       {
-       "$id": "164",
+       "$id": "161",
        "StatusCodes": [
         204
        ],
@@ -1640,7 +1631,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/iso8601-array",
@@ -1651,22 +1642,22 @@
      "Decorators": []
     },
     {
-     "$id": "165",
+     "$id": "162",
      "Name": "int32Seconds",
      "ResourceName": "Header",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "166",
+       "$id": "163",
        "Name": "duration",
        "NameInRequest": "duration",
        "Type": {
-        "$id": "167",
+        "$id": "164",
         "kind": "duration",
         "name": "duration",
         "encode": "seconds",
         "wireType": {
-         "$id": "168",
+         "$id": "165",
          "kind": "int32",
          "name": "int32",
          "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -1688,7 +1679,7 @@
      ],
      "Responses": [
       {
-       "$id": "169",
+       "$id": "166",
        "StatusCodes": [
         204
        ],
@@ -1697,7 +1688,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/int32-seconds",
@@ -1708,22 +1699,22 @@
      "Decorators": []
     },
     {
-     "$id": "170",
+     "$id": "167",
      "Name": "floatSeconds",
      "ResourceName": "Header",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "171",
+       "$id": "168",
        "Name": "duration",
        "NameInRequest": "duration",
        "Type": {
-        "$id": "172",
+        "$id": "169",
         "kind": "duration",
         "name": "duration",
         "encode": "seconds",
         "wireType": {
-         "$id": "173",
+         "$id": "170",
          "kind": "float",
          "name": "float",
          "crossLanguageDefinitionId": "TypeSpec.float",
@@ -1745,7 +1736,7 @@
      ],
      "Responses": [
       {
-       "$id": "174",
+       "$id": "171",
        "StatusCodes": [
         204
        ],
@@ -1754,7 +1745,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/float-seconds",
@@ -1765,22 +1756,22 @@
      "Decorators": []
     },
     {
-     "$id": "175",
+     "$id": "172",
      "Name": "float64Seconds",
      "ResourceName": "Header",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "176",
+       "$id": "173",
        "Name": "duration",
        "NameInRequest": "duration",
        "Type": {
-        "$id": "177",
+        "$id": "174",
         "kind": "duration",
         "name": "duration",
         "encode": "seconds",
         "wireType": {
-         "$id": "178",
+         "$id": "175",
          "kind": "float64",
          "name": "float64",
          "crossLanguageDefinitionId": "TypeSpec.float64",
@@ -1802,7 +1793,7 @@
      ],
      "Responses": [
       {
-       "$id": "179",
+       "$id": "176",
        "StatusCodes": [
         204
        ],
@@ -1811,7 +1802,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/encode/duration/header/float64-seconds",
@@ -1822,18 +1813,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "180"
-   },
    "Parent": "DurationClient",
    "Parameters": [
     {
-     "$id": "181",
+     "$id": "177",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "182",
+      "$id": "178",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1848,9 +1836,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "183",
+      "$id": "179",
       "Type": {
-       "$id": "184",
+       "$id": "180",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

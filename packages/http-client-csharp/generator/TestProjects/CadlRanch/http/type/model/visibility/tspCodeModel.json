@@ -359,7 +359,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/visibility",
@@ -435,7 +435,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/visibility",
@@ -511,7 +511,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/visibility",
@@ -587,7 +587,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PATCH",
+     "HttpMethod": "patch",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/visibility",
@@ -663,7 +663,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/visibility",
@@ -739,7 +739,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "DELETE",
+     "HttpMethod": "delete",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/visibility",
@@ -848,7 +848,7 @@
        ]
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/visibility/readonlyroundtrip",
@@ -862,17 +862,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "87"
-   },
    "Parameters": [
     {
-     "$id": "88",
+     "$id": "87",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "89",
+      "$id": "88",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -887,9 +884,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "90",
+      "$id": "89",
       "Type": {
-       "$id": "91",
+       "$id": "90",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

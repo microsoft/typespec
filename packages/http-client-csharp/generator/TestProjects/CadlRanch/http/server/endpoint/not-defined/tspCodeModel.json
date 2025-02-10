@@ -28,7 +28,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/endpoint/not-defined/valid",
@@ -39,17 +39,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "5"
-   },
    "Parameters": [
     {
-     "$id": "6",
+     "$id": "5",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "7",
+      "$id": "6",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"

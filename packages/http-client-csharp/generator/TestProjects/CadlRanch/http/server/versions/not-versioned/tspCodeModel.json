@@ -28,7 +28,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/versions/not-versioned/without-api-version",
@@ -77,7 +77,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/versions/not-versioned/with-query-api-version",
@@ -126,7 +126,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "HEAD",
+     "HttpMethod": "head",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/server/versions/not-versioned/with-path-api-version/{apiVersion}",
@@ -137,17 +137,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "13"
-   },
    "Parameters": [
     {
-     "$id": "14",
+     "$id": "13",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "15",
+      "$id": "14",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"

@@ -11,17 +11,14 @@
    "ClientNamespace": "Payload.MediaType",
    "Doc": "Test the payload with different media types and different types of the payload itself.",
    "Operations": [],
-   "Protocol": {
-    "$id": "3"
-   },
    "Parameters": [
     {
-     "$id": "4",
+     "$id": "3",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "5",
+      "$id": "4",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -36,9 +33,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "6",
+      "$id": "5",
       "Type": {
-       "$id": "7",
+       "$id": "6",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -50,25 +47,25 @@
    "Decorators": []
   },
   {
-   "$id": "8",
+   "$id": "7",
    "Name": "StringBody",
    "ClientNamespace": "Payload.MediaType.StringBody",
    "Operations": [
     {
-     "$id": "9",
+     "$id": "8",
      "Name": "sendAsText",
      "ResourceName": "StringBody",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "10",
+       "$id": "9",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "11",
+        "$id": "10",
         "kind": "constant",
         "valueType": {
-         "$id": "12",
+         "$id": "11",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -88,11 +85,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "13",
+       "$id": "12",
        "Name": "text",
        "NameInRequest": "text",
        "Type": {
-        "$id": "14",
+        "$id": "13",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -111,7 +108,7 @@
      ],
      "Responses": [
       {
-       "$id": "15",
+       "$id": "14",
        "StatusCodes": [
         200
        ],
@@ -120,7 +117,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Text",
      "Uri": "{endpoint}",
      "Path": "/payload/media-type/string-body/sendAsText",
@@ -134,20 +131,20 @@
      "Decorators": []
     },
     {
-     "$id": "16",
+     "$id": "15",
      "Name": "getAsText",
      "ResourceName": "StringBody",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "17",
+       "$id": "16",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "18",
+        "$id": "17",
         "kind": "constant",
         "valueType": {
-         "$id": "19",
+         "$id": "18",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -169,12 +166,12 @@
      ],
      "Responses": [
       {
-       "$id": "20",
+       "$id": "19",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "21",
+        "$id": "20",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -183,14 +180,14 @@
        "BodyMediaType": "Json",
        "Headers": [
         {
-         "$id": "22",
+         "$id": "21",
          "Name": "contentType",
          "NameInResponse": "content-type",
          "Type": {
-          "$id": "23",
+          "$id": "22",
           "kind": "constant",
           "valueType": {
-           "$id": "24",
+           "$id": "23",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -207,7 +204,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/payload/media-type/string-body/getAsText",
@@ -218,20 +215,20 @@
      "Decorators": []
     },
     {
-     "$id": "25",
+     "$id": "24",
      "Name": "sendAsJson",
      "ResourceName": "StringBody",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "26",
+       "$id": "25",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Type": {
-        "$id": "27",
+        "$id": "26",
         "kind": "constant",
         "valueType": {
-         "$id": "28",
+         "$id": "27",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -251,11 +248,11 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "29",
+       "$id": "28",
        "Name": "text",
        "NameInRequest": "text",
        "Type": {
-        "$id": "30",
+        "$id": "29",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -274,7 +271,7 @@
      ],
      "Responses": [
       {
-       "$id": "31",
+       "$id": "30",
        "StatusCodes": [
         200
        ],
@@ -283,7 +280,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Text",
      "Uri": "{endpoint}",
      "Path": "/payload/media-type/string-body/sendAsJson",
@@ -297,20 +294,20 @@
      "Decorators": []
     },
     {
-     "$id": "32",
+     "$id": "31",
      "Name": "getAsJson",
      "ResourceName": "StringBody",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "33",
+       "$id": "32",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "34",
+        "$id": "33",
         "kind": "constant",
         "valueType": {
-         "$id": "35",
+         "$id": "34",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -332,12 +329,12 @@
      ],
      "Responses": [
       {
-       "$id": "36",
+       "$id": "35",
        "StatusCodes": [
         200
        ],
        "BodyType": {
-        "$id": "37",
+        "$id": "36",
         "kind": "string",
         "name": "string",
         "crossLanguageDefinitionId": "TypeSpec.string",
@@ -346,14 +343,14 @@
        "BodyMediaType": "Json",
        "Headers": [
         {
-         "$id": "38",
+         "$id": "37",
          "Name": "contentType",
          "NameInResponse": "content-type",
          "Type": {
-          "$id": "39",
+          "$id": "38",
           "kind": "constant",
           "valueType": {
-           "$id": "40",
+           "$id": "39",
            "kind": "string",
            "name": "string",
            "crossLanguageDefinitionId": "TypeSpec.string",
@@ -370,7 +367,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/payload/media-type/string-body/getAsJson",
@@ -381,18 +378,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "41"
-   },
    "Parent": "MediaTypeClient",
    "Parameters": [
     {
-     "$id": "42",
+     "$id": "40",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "43",
+      "$id": "41",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -407,9 +401,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "44",
+      "$id": "42",
       "Type": {
-       "$id": "45",
+       "$id": "43",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

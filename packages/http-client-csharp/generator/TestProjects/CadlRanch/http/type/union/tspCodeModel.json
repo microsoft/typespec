@@ -1720,17 +1720,14 @@
    "ClientNamespace": "Type.Union",
    "Doc": "Describe scenarios for various combinations of unions.",
    "Operations": [],
-   "Protocol": {
-    "$id": "212"
-   },
    "Parameters": [
     {
-     "$id": "213",
+     "$id": "212",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "214",
+      "$id": "213",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1745,9 +1742,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "215",
+      "$id": "214",
       "Type": {
-       "$id": "216",
+       "$id": "215",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1759,26 +1756,26 @@
    "Decorators": []
   },
   {
-   "$id": "217",
+   "$id": "216",
    "Name": "StringsOnly",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string \"a\" | \"b\" | \"c\"",
    "Operations": [
     {
-     "$id": "218",
+     "$id": "217",
      "Name": "get",
      "ResourceName": "StringsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "219",
+       "$id": "218",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "220",
+        "$id": "219",
         "kind": "constant",
         "valueType": {
-         "$id": "221",
+         "$id": "220",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1800,7 +1797,7 @@
      ],
      "Responses": [
       {
-       "$id": "222",
+       "$id": "221",
        "StatusCodes": [
         200
        ],
@@ -1815,7 +1812,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/strings-only",
@@ -1826,21 +1823,21 @@
      "Decorators": []
     },
     {
-     "$id": "223",
+     "$id": "222",
      "Name": "send",
      "ResourceName": "StringsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "224",
+       "$id": "223",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "225",
+        "$id": "224",
         "kind": "constant",
         "valueType": {
-         "$id": "226",
+         "$id": "225",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1860,7 +1857,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "227",
+       "$id": "226",
        "Name": "sendRequest9",
        "NameInRequest": "sendRequest9",
        "Type": {
@@ -1879,7 +1876,7 @@
      ],
      "Responses": [
       {
-       "$id": "228",
+       "$id": "227",
        "StatusCodes": [
         204
        ],
@@ -1888,7 +1885,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/strings-only",
@@ -1902,18 +1899,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "229"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "230",
+     "$id": "228",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "231",
+      "$id": "229",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -1928,9 +1922,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "232",
+      "$id": "230",
       "Type": {
-       "$id": "233",
+       "$id": "231",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -1942,26 +1936,26 @@
    "Decorators": []
   },
   {
-   "$id": "234",
+   "$id": "232",
    "Name": "StringExtensible",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string string | \"b\" | \"c\"",
    "Operations": [
     {
-     "$id": "235",
+     "$id": "233",
      "Name": "get",
      "ResourceName": "StringExtensible",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "236",
+       "$id": "234",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "237",
+        "$id": "235",
         "kind": "constant",
         "valueType": {
-         "$id": "238",
+         "$id": "236",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -1983,7 +1977,7 @@
      ],
      "Responses": [
       {
-       "$id": "239",
+       "$id": "237",
        "StatusCodes": [
         200
        ],
@@ -1998,7 +1992,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-extensible",
@@ -2009,21 +2003,21 @@
      "Decorators": []
     },
     {
-     "$id": "240",
+     "$id": "238",
      "Name": "send",
      "ResourceName": "StringExtensible",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "241",
+       "$id": "239",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "242",
+        "$id": "240",
         "kind": "constant",
         "valueType": {
-         "$id": "243",
+         "$id": "241",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2043,7 +2037,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "244",
+       "$id": "242",
        "Name": "sendRequest8",
        "NameInRequest": "sendRequest8",
        "Type": {
@@ -2062,7 +2056,7 @@
      ],
      "Responses": [
       {
-       "$id": "245",
+       "$id": "243",
        "StatusCodes": [
         204
        ],
@@ -2071,7 +2065,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-extensible",
@@ -2085,18 +2079,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "246"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "247",
+     "$id": "244",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "248",
+      "$id": "245",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2111,9 +2102,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "249",
+      "$id": "246",
       "Type": {
-       "$id": "250",
+       "$id": "247",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2125,26 +2116,26 @@
    "Decorators": []
   },
   {
-   "$id": "251",
+   "$id": "248",
    "Name": "StringExtensibleNamed",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of string string | \"b\" | \"c\" but where the union is named and some of the variants are named",
    "Operations": [
     {
-     "$id": "252",
+     "$id": "249",
      "Name": "get",
      "ResourceName": "StringExtensibleNamed",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "253",
+       "$id": "250",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "254",
+        "$id": "251",
         "kind": "constant",
         "valueType": {
-         "$id": "255",
+         "$id": "252",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2166,7 +2157,7 @@
      ],
      "Responses": [
       {
-       "$id": "256",
+       "$id": "253",
        "StatusCodes": [
         200
        ],
@@ -2181,7 +2172,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-extensible-named",
@@ -2192,21 +2183,21 @@
      "Decorators": []
     },
     {
-     "$id": "257",
+     "$id": "254",
      "Name": "send",
      "ResourceName": "StringExtensibleNamed",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "258",
+       "$id": "255",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "259",
+        "$id": "256",
         "kind": "constant",
         "valueType": {
-         "$id": "260",
+         "$id": "257",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2226,7 +2217,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "261",
+       "$id": "258",
        "Name": "sendRequest7",
        "NameInRequest": "sendRequest7",
        "Type": {
@@ -2245,7 +2236,7 @@
      ],
      "Responses": [
       {
-       "$id": "262",
+       "$id": "259",
        "StatusCodes": [
         204
        ],
@@ -2254,7 +2245,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-extensible-named",
@@ -2268,18 +2259,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "263"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "264",
+     "$id": "260",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "265",
+      "$id": "261",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2294,9 +2282,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "266",
+      "$id": "262",
       "Type": {
-       "$id": "267",
+       "$id": "263",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2308,26 +2296,26 @@
    "Decorators": []
   },
   {
-   "$id": "268",
+   "$id": "264",
    "Name": "IntsOnly",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of integer 1 | 2 | 3",
    "Operations": [
     {
-     "$id": "269",
+     "$id": "265",
      "Name": "get",
      "ResourceName": "IntsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "270",
+       "$id": "266",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "271",
+        "$id": "267",
         "kind": "constant",
         "valueType": {
-         "$id": "272",
+         "$id": "268",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2349,7 +2337,7 @@
      ],
      "Responses": [
       {
-       "$id": "273",
+       "$id": "269",
        "StatusCodes": [
         200
        ],
@@ -2364,7 +2352,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/ints-only",
@@ -2375,21 +2363,21 @@
      "Decorators": []
     },
     {
-     "$id": "274",
+     "$id": "270",
      "Name": "send",
      "ResourceName": "IntsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "275",
+       "$id": "271",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "276",
+        "$id": "272",
         "kind": "constant",
         "valueType": {
-         "$id": "277",
+         "$id": "273",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2409,7 +2397,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "278",
+       "$id": "274",
        "Name": "sendRequest6",
        "NameInRequest": "sendRequest6",
        "Type": {
@@ -2428,7 +2416,7 @@
      ],
      "Responses": [
       {
-       "$id": "279",
+       "$id": "275",
        "StatusCodes": [
         204
        ],
@@ -2437,7 +2425,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/ints-only",
@@ -2451,18 +2439,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "280"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "281",
+     "$id": "276",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "282",
+      "$id": "277",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2477,9 +2462,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "283",
+      "$id": "278",
       "Type": {
-       "$id": "284",
+       "$id": "279",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2491,26 +2476,26 @@
    "Decorators": []
   },
   {
-   "$id": "285",
+   "$id": "280",
    "Name": "FloatsOnly",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats 1.1 | 2.2 | 3.3",
    "Operations": [
     {
-     "$id": "286",
+     "$id": "281",
      "Name": "get",
      "ResourceName": "FloatsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "287",
+       "$id": "282",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "288",
+        "$id": "283",
         "kind": "constant",
         "valueType": {
-         "$id": "289",
+         "$id": "284",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2532,7 +2517,7 @@
      ],
      "Responses": [
       {
-       "$id": "290",
+       "$id": "285",
        "StatusCodes": [
         200
        ],
@@ -2547,7 +2532,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/floats-only",
@@ -2558,21 +2543,21 @@
      "Decorators": []
     },
     {
-     "$id": "291",
+     "$id": "286",
      "Name": "send",
      "ResourceName": "FloatsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "292",
+       "$id": "287",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "293",
+        "$id": "288",
         "kind": "constant",
         "valueType": {
-         "$id": "294",
+         "$id": "289",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2592,7 +2577,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "295",
+       "$id": "290",
        "Name": "sendRequest5",
        "NameInRequest": "sendRequest5",
        "Type": {
@@ -2611,7 +2596,7 @@
      ],
      "Responses": [
       {
-       "$id": "296",
+       "$id": "291",
        "StatusCodes": [
         204
        ],
@@ -2620,7 +2605,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/floats-only",
@@ -2634,18 +2619,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "297"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "298",
+     "$id": "292",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "299",
+      "$id": "293",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2660,9 +2642,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "300",
+      "$id": "294",
       "Type": {
-       "$id": "301",
+       "$id": "295",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2674,26 +2656,26 @@
    "Decorators": []
   },
   {
-   "$id": "302",
+   "$id": "296",
    "Name": "ModelsOnly",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of models",
    "Operations": [
     {
-     "$id": "303",
+     "$id": "297",
      "Name": "get",
      "ResourceName": "ModelsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "304",
+       "$id": "298",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "305",
+        "$id": "299",
         "kind": "constant",
         "valueType": {
-         "$id": "306",
+         "$id": "300",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2715,7 +2697,7 @@
      ],
      "Responses": [
       {
-       "$id": "307",
+       "$id": "301",
        "StatusCodes": [
         200
        ],
@@ -2730,7 +2712,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/models-only",
@@ -2741,21 +2723,21 @@
      "Decorators": []
     },
     {
-     "$id": "308",
+     "$id": "302",
      "Name": "send",
      "ResourceName": "ModelsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "309",
+       "$id": "303",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "310",
+        "$id": "304",
         "kind": "constant",
         "valueType": {
-         "$id": "311",
+         "$id": "305",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2775,7 +2757,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "312",
+       "$id": "306",
        "Name": "sendRequest4",
        "NameInRequest": "sendRequest4",
        "Type": {
@@ -2794,7 +2776,7 @@
      ],
      "Responses": [
       {
-       "$id": "313",
+       "$id": "307",
        "StatusCodes": [
         204
        ],
@@ -2803,7 +2785,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/models-only",
@@ -2817,18 +2799,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "314"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "315",
+     "$id": "308",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "316",
+      "$id": "309",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -2843,9 +2822,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "317",
+      "$id": "310",
       "Type": {
-       "$id": "318",
+       "$id": "311",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -2857,26 +2836,26 @@
    "Decorators": []
   },
   {
-   "$id": "319",
+   "$id": "312",
    "Name": "EnumsOnly",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of 2 different enums",
    "Operations": [
     {
-     "$id": "320",
+     "$id": "313",
      "Name": "get",
      "ResourceName": "EnumsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "321",
+       "$id": "314",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "322",
+        "$id": "315",
         "kind": "constant",
         "valueType": {
-         "$id": "323",
+         "$id": "316",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2898,7 +2877,7 @@
      ],
      "Responses": [
       {
-       "$id": "324",
+       "$id": "317",
        "StatusCodes": [
         200
        ],
@@ -2913,7 +2892,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/enums-only",
@@ -2924,21 +2903,21 @@
      "Decorators": []
     },
     {
-     "$id": "325",
+     "$id": "318",
      "Name": "send",
      "ResourceName": "EnumsOnly",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "326",
+       "$id": "319",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "327",
+        "$id": "320",
         "kind": "constant",
         "valueType": {
-         "$id": "328",
+         "$id": "321",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -2958,7 +2937,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "329",
+       "$id": "322",
        "Name": "sendRequest3",
        "NameInRequest": "sendRequest3",
        "Type": {
@@ -2977,7 +2956,7 @@
      ],
      "Responses": [
       {
-       "$id": "330",
+       "$id": "323",
        "StatusCodes": [
         204
        ],
@@ -2986,7 +2965,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/enums-only",
@@ -3000,18 +2979,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "331"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "332",
+     "$id": "324",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "333",
+      "$id": "325",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3026,9 +3002,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "334",
+      "$id": "326",
       "Type": {
-       "$id": "335",
+       "$id": "327",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3040,26 +3016,26 @@
    "Decorators": []
   },
   {
-   "$id": "336",
+   "$id": "328",
    "Name": "StringAndArray",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of a string and an array of strings",
    "Operations": [
     {
-     "$id": "337",
+     "$id": "329",
      "Name": "get",
      "ResourceName": "StringAndArray",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "338",
+       "$id": "330",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "339",
+        "$id": "331",
         "kind": "constant",
         "valueType": {
-         "$id": "340",
+         "$id": "332",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3081,7 +3057,7 @@
      ],
      "Responses": [
       {
-       "$id": "341",
+       "$id": "333",
        "StatusCodes": [
         200
        ],
@@ -3096,7 +3072,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-and-array",
@@ -3107,21 +3083,21 @@
      "Decorators": []
     },
     {
-     "$id": "342",
+     "$id": "334",
      "Name": "send",
      "ResourceName": "StringAndArray",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "343",
+       "$id": "335",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "344",
+        "$id": "336",
         "kind": "constant",
         "valueType": {
-         "$id": "345",
+         "$id": "337",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3141,7 +3117,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "346",
+       "$id": "338",
        "Name": "sendRequest2",
        "NameInRequest": "sendRequest2",
        "Type": {
@@ -3160,7 +3136,7 @@
      ],
      "Responses": [
       {
-       "$id": "347",
+       "$id": "339",
        "StatusCodes": [
         204
        ],
@@ -3169,7 +3145,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/string-and-array",
@@ -3183,18 +3159,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "348"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "349",
+     "$id": "340",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "350",
+      "$id": "341",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3209,9 +3182,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "351",
+      "$id": "342",
       "Type": {
-       "$id": "352",
+       "$id": "343",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3223,26 +3196,26 @@
    "Decorators": []
   },
   {
-   "$id": "353",
+   "$id": "344",
    "Name": "MixedLiterals",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {
-     "$id": "354",
+     "$id": "345",
      "Name": "get",
      "ResourceName": "MixedLiterals",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "355",
+       "$id": "346",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "356",
+        "$id": "347",
         "kind": "constant",
         "valueType": {
-         "$id": "357",
+         "$id": "348",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3264,7 +3237,7 @@
      ],
      "Responses": [
       {
-       "$id": "358",
+       "$id": "349",
        "StatusCodes": [
         200
        ],
@@ -3279,7 +3252,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/mixed-literals",
@@ -3290,21 +3263,21 @@
      "Decorators": []
     },
     {
-     "$id": "359",
+     "$id": "350",
      "Name": "send",
      "ResourceName": "MixedLiterals",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "360",
+       "$id": "351",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "361",
+        "$id": "352",
         "kind": "constant",
         "valueType": {
-         "$id": "362",
+         "$id": "353",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3324,7 +3297,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "363",
+       "$id": "354",
        "Name": "sendRequest1",
        "NameInRequest": "sendRequest1",
        "Type": {
@@ -3343,7 +3316,7 @@
      ],
      "Responses": [
       {
-       "$id": "364",
+       "$id": "355",
        "StatusCodes": [
         204
        ],
@@ -3352,7 +3325,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/mixed-literals",
@@ -3366,18 +3339,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "365"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "366",
+     "$id": "356",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "367",
+      "$id": "357",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3392,9 +3362,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "368",
+      "$id": "358",
       "Type": {
-       "$id": "369",
+       "$id": "359",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -3406,26 +3376,26 @@
    "Decorators": []
   },
   {
-   "$id": "370",
+   "$id": "360",
    "Name": "MixedTypes",
    "ClientNamespace": "Type.Union",
    "Doc": "Describe union of floats \"a\" | 2 | 3.3",
    "Operations": [
     {
-     "$id": "371",
+     "$id": "361",
      "Name": "get",
      "ResourceName": "MixedTypes",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "372",
+       "$id": "362",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "373",
+        "$id": "363",
         "kind": "constant",
         "valueType": {
-         "$id": "374",
+         "$id": "364",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3447,7 +3417,7 @@
      ],
      "Responses": [
       {
-       "$id": "375",
+       "$id": "365",
        "StatusCodes": [
         200
        ],
@@ -3462,7 +3432,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/union/mixed-types",
@@ -3473,21 +3443,21 @@
      "Decorators": []
     },
     {
-     "$id": "376",
+     "$id": "366",
      "Name": "send",
      "ResourceName": "MixedTypes",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "377",
+       "$id": "367",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "378",
+        "$id": "368",
         "kind": "constant",
         "valueType": {
-         "$id": "379",
+         "$id": "369",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -3507,7 +3477,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "380",
+       "$id": "370",
        "Name": "sendRequest",
        "NameInRequest": "sendRequest",
        "Type": {
@@ -3526,7 +3496,7 @@
      ],
      "Responses": [
       {
-       "$id": "381",
+       "$id": "371",
        "StatusCodes": [
         204
        ],
@@ -3535,7 +3505,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/union/mixed-types",
@@ -3549,18 +3519,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "382"
-   },
    "Parent": "UnionClient",
    "Parameters": [
     {
-     "$id": "383",
+     "$id": "372",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "384",
+      "$id": "373",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -3575,9 +3542,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "385",
+      "$id": "374",
       "Type": {
-       "$id": "386",
+       "$id": "375",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

@@ -108,7 +108,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/empty/alone",
@@ -172,7 +172,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/empty/alone",
@@ -278,7 +278,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/empty/round-trip",
@@ -292,17 +292,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "26"
-   },
    "Parameters": [
     {
-     "$id": "27",
+     "$id": "26",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "28",
+      "$id": "27",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -317,9 +314,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "29",
+      "$id": "28",
       "Type": {
-       "$id": "30",
+       "$id": "29",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

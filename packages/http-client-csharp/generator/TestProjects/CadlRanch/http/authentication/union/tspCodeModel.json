@@ -29,7 +29,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/authentication/union/validkey",
@@ -57,7 +57,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/authentication/union/validtoken",
@@ -68,17 +68,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "7"
-   },
    "Parameters": [
     {
-     "$id": "8",
+     "$id": "7",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "9",
+      "$id": "8",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -93,9 +90,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "10",
+      "$id": "9",
       "Type": {
-       "$id": "11",
+       "$id": "10",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -108,14 +105,14 @@
   }
  ],
  "Auth": {
-  "$id": "12",
+  "$id": "11",
   "ApiKey": {
-   "$id": "13",
+   "$id": "12",
    "Name": "x-ms-api-key",
    "In": "header"
   },
   "OAuth2": {
-   "$id": "14",
+   "$id": "13",
    "Scopes": [
     "https://security.microsoft.com/.default"
    ]

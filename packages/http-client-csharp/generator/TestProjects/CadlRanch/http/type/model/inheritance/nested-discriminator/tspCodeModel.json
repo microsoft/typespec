@@ -455,7 +455,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/nested-discriminator/model",
@@ -528,7 +528,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/nested-discriminator/model",
@@ -592,7 +592,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/nested-discriminator/recursivemodel",
@@ -665,7 +665,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/nested-discriminator/recursivemodel",
@@ -729,7 +729,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/nested-discriminator/missingdiscriminator",
@@ -790,7 +790,7 @@
        ]
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/type/model/inheritance/nested-discriminator/wrongdiscriminator",
@@ -801,17 +801,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "86"
-   },
    "Parameters": [
     {
-     "$id": "87",
+     "$id": "86",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "88",
+      "$id": "87",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -826,9 +823,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "89",
+      "$id": "88",
       "Type": {
-       "$id": "90",
+       "$id": "89",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

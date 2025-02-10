@@ -11,17 +11,14 @@
    "ClientNamespace": "Parameters.CollectionFormat",
    "Doc": "Test for collectionFormat.",
    "Operations": [],
-   "Protocol": {
-    "$id": "3"
-   },
    "Parameters": [
     {
-     "$id": "4",
+     "$id": "3",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "5",
+      "$id": "4",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -36,9 +33,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "6",
+      "$id": "5",
       "Type": {
-       "$id": "7",
+       "$id": "6",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -50,27 +47,27 @@
    "Decorators": []
   },
   {
-   "$id": "8",
+   "$id": "7",
    "Name": "Query",
    "ClientNamespace": "Parameters.CollectionFormat.Query",
    "Operations": [
     {
-     "$id": "9",
+     "$id": "8",
      "Name": "multi",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "10",
+       "$id": "9",
        "Name": "colors",
        "NameInRequest": "colors",
        "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
-        "$id": "11",
+        "$id": "10",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "12",
+         "$id": "11",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -92,7 +89,7 @@
      ],
      "Responses": [
       {
-       "$id": "13",
+       "$id": "12",
        "StatusCodes": [
         204
        ],
@@ -101,7 +98,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/multi",
@@ -112,22 +109,22 @@
      "Decorators": []
     },
     {
-     "$id": "14",
+     "$id": "13",
      "Name": "ssv",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "15",
+       "$id": "14",
        "Name": "colors",
        "NameInRequest": "colors",
        "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
-        "$id": "16",
+        "$id": "15",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "17",
+         "$id": "16",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -150,7 +147,7 @@
      ],
      "Responses": [
       {
-       "$id": "18",
+       "$id": "17",
        "StatusCodes": [
         204
        ],
@@ -159,7 +156,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/ssv",
@@ -170,22 +167,22 @@
      "Decorators": []
     },
     {
-     "$id": "19",
+     "$id": "18",
      "Name": "tsv",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "20",
+       "$id": "19",
        "Name": "colors",
        "NameInRequest": "colors",
        "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
-        "$id": "21",
+        "$id": "20",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "22",
+         "$id": "21",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -208,7 +205,7 @@
      ],
      "Responses": [
       {
-       "$id": "23",
+       "$id": "22",
        "StatusCodes": [
         204
        ],
@@ -217,7 +214,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/tsv",
@@ -228,22 +225,22 @@
      "Decorators": []
     },
     {
-     "$id": "24",
+     "$id": "23",
      "Name": "pipes",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "25",
+       "$id": "24",
        "Name": "colors",
        "NameInRequest": "colors",
        "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
-        "$id": "26",
+        "$id": "25",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "27",
+         "$id": "26",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -266,7 +263,7 @@
      ],
      "Responses": [
       {
-       "$id": "28",
+       "$id": "27",
        "StatusCodes": [
         204
        ],
@@ -275,7 +272,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/pipes",
@@ -286,22 +283,22 @@
      "Decorators": []
     },
     {
-     "$id": "29",
+     "$id": "28",
      "Name": "csv",
      "ResourceName": "Query",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "30",
+       "$id": "29",
        "Name": "colors",
        "NameInRequest": "colors",
        "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
-        "$id": "31",
+        "$id": "30",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "32",
+         "$id": "31",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -324,7 +321,7 @@
      ],
      "Responses": [
       {
-       "$id": "33",
+       "$id": "32",
        "StatusCodes": [
         204
        ],
@@ -333,7 +330,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/query/csv",
@@ -344,18 +341,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "34"
-   },
    "Parent": "CollectionFormatClient",
    "Parameters": [
     {
-     "$id": "35",
+     "$id": "33",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "36",
+      "$id": "34",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -370,9 +364,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "37",
+      "$id": "35",
       "Type": {
-       "$id": "38",
+       "$id": "36",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -384,27 +378,27 @@
    "Decorators": []
   },
   {
-   "$id": "39",
+   "$id": "37",
    "Name": "Header",
    "ClientNamespace": "Parameters.CollectionFormat.Header",
    "Operations": [
     {
-     "$id": "40",
+     "$id": "38",
      "Name": "csv",
      "ResourceName": "Header",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "41",
+       "$id": "39",
        "Name": "colors",
        "NameInRequest": "colors",
        "Doc": "Possible values for colors are [blue,red,green]",
        "Type": {
-        "$id": "42",
+        "$id": "40",
         "kind": "array",
         "name": "Array",
         "valueType": {
-         "$id": "43",
+         "$id": "41",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -427,7 +421,7 @@
      ],
      "Responses": [
       {
-       "$id": "44",
+       "$id": "42",
        "StatusCodes": [
         204
        ],
@@ -436,7 +430,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "GET",
+     "HttpMethod": "get",
      "RequestBodyMediaType": "None",
      "Uri": "{endpoint}",
      "Path": "/parameters/collection-format/header/csv",
@@ -447,18 +441,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "45"
-   },
    "Parent": "CollectionFormatClient",
    "Parameters": [
     {
-     "$id": "46",
+     "$id": "43",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "47",
+      "$id": "44",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -473,9 +464,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "48",
+      "$id": "45",
       "Type": {
-       "$id": "49",
+       "$id": "46",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

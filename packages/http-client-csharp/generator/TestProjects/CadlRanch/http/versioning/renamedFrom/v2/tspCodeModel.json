@@ -335,7 +335,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/renamed-from/api-version:{version}",
      "Path": "/test",
@@ -349,17 +349,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "39"
-   },
    "Parameters": [
     {
-     "$id": "40",
+     "$id": "39",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "41",
+      "$id": "40",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -375,7 +372,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "42",
+     "$id": "41",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1' or 'v2' in client.",
@@ -396,26 +393,26 @@
    "Decorators": []
   },
   {
-   "$id": "43",
+   "$id": "42",
    "Name": "NewInterface",
    "ClientNamespace": "Versioning.RenamedFrom",
    "Operations": [
     {
-     "$id": "44",
+     "$id": "43",
      "Name": "newOpInNewInterface",
      "ResourceName": "NewInterface",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "45",
+       "$id": "44",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "46",
+        "$id": "45",
         "kind": "constant",
         "valueType": {
-         "$id": "47",
+         "$id": "46",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -435,14 +432,14 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "48",
+       "$id": "47",
        "Name": "accept",
        "NameInRequest": "Accept",
        "Type": {
-        "$id": "49",
+        "$id": "48",
         "kind": "constant",
         "valueType": {
-         "$id": "50",
+         "$id": "49",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -462,7 +459,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "51",
+       "$id": "50",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -481,7 +478,7 @@
      ],
      "Responses": [
       {
-       "$id": "52",
+       "$id": "51",
        "StatusCodes": [
         200
        ],
@@ -496,7 +493,7 @@
        ]
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}/versioning/renamed-from/api-version:{version}",
      "Path": "/interface/test",
@@ -510,18 +507,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "53"
-   },
    "Parent": "RenamedFromClient",
    "Parameters": [
     {
-     "$id": "54",
+     "$id": "52",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Need to be set as 'http://localhost:3000' in client.",
      "Type": {
-      "$id": "55",
+      "$id": "53",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -537,7 +531,7 @@
      "Kind": "Client"
     },
     {
-     "$id": "56",
+     "$id": "54",
      "Name": "version",
      "NameInRequest": "version",
      "Doc": "Need to be set as 'v1' or 'v2' in client.",

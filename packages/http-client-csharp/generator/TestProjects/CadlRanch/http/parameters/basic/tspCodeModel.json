@@ -87,17 +87,14 @@
    "ClientNamespace": "Parameters.Basic",
    "Doc": "Test for basic parameters cases.",
    "Operations": [],
-   "Protocol": {
-    "$id": "13"
-   },
    "Parameters": [
     {
-     "$id": "14",
+     "$id": "13",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "15",
+      "$id": "14",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -112,9 +109,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "16",
+      "$id": "15",
       "Type": {
-       "$id": "17",
+       "$id": "16",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -126,26 +123,26 @@
    "Decorators": []
   },
   {
-   "$id": "18",
+   "$id": "17",
    "Name": "ExplicitBody",
    "ClientNamespace": "Parameters.Basic.ExplicitBody",
    "Operations": [
     {
-     "$id": "19",
+     "$id": "18",
      "Name": "simple",
      "ResourceName": "ExplicitBody",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "20",
+       "$id": "19",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "21",
+        "$id": "20",
         "kind": "constant",
         "valueType": {
-         "$id": "22",
+         "$id": "21",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -165,7 +162,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "23",
+       "$id": "22",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -184,7 +181,7 @@
      ],
      "Responses": [
       {
-       "$id": "24",
+       "$id": "23",
        "StatusCodes": [
         204
        ],
@@ -193,7 +190,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/basic/explicit-body/simple",
@@ -207,18 +204,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "25"
-   },
    "Parent": "BasicClient",
    "Parameters": [
     {
-     "$id": "26",
+     "$id": "24",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "27",
+      "$id": "25",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -233,9 +227,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "28",
+      "$id": "26",
       "Type": {
-       "$id": "29",
+       "$id": "27",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -247,26 +241,26 @@
    "Decorators": []
   },
   {
-   "$id": "30",
+   "$id": "28",
    "Name": "ImplicitBody",
    "ClientNamespace": "Parameters.Basic.ImplicitBody",
    "Operations": [
     {
-     "$id": "31",
+     "$id": "29",
      "Name": "simple",
      "ResourceName": "ImplicitBody",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "32",
+       "$id": "30",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "33",
+        "$id": "31",
         "kind": "constant",
         "valueType": {
-         "$id": "34",
+         "$id": "32",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -286,7 +280,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "35",
+       "$id": "33",
        "Name": "simpleRequest",
        "NameInRequest": "simpleRequest",
        "Type": {
@@ -305,7 +299,7 @@
      ],
      "Responses": [
       {
-       "$id": "36",
+       "$id": "34",
        "StatusCodes": [
         204
        ],
@@ -314,7 +308,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "PUT",
+     "HttpMethod": "put",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/basic/implicit-body/simple",
@@ -328,18 +322,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "37"
-   },
    "Parent": "BasicClient",
    "Parameters": [
     {
-     "$id": "38",
+     "$id": "35",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "39",
+      "$id": "36",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -354,9 +345,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "40",
+      "$id": "37",
       "Type": {
-       "$id": "41",
+       "$id": "38",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"

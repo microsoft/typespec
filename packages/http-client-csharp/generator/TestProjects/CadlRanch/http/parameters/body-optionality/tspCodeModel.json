@@ -112,7 +112,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/body-optionality/required-explicit",
@@ -188,7 +188,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/body-optionality/required-implicit",
@@ -202,17 +202,14 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "20"
-   },
    "Parameters": [
     {
-     "$id": "21",
+     "$id": "20",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "22",
+      "$id": "21",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -227,9 +224,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "23",
+      "$id": "22",
       "Type": {
-       "$id": "24",
+       "$id": "23",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
@@ -241,26 +238,26 @@
    "Decorators": []
   },
   {
-   "$id": "25",
+   "$id": "24",
    "Name": "OptionalExplicit",
    "ClientNamespace": "Parameters.BodyOptionality.OptionalExplicit",
    "Operations": [
     {
-     "$id": "26",
+     "$id": "25",
      "Name": "set",
      "ResourceName": "OptionalExplicit",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "27",
+       "$id": "26",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "28",
+        "$id": "27",
         "kind": "constant",
         "valueType": {
-         "$id": "29",
+         "$id": "28",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -280,7 +277,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "30",
+       "$id": "29",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -299,7 +296,7 @@
      ],
      "Responses": [
       {
-       "$id": "31",
+       "$id": "30",
        "StatusCodes": [
         204
        ],
@@ -308,7 +305,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/body-optionality/optional-explicit/set",
@@ -322,21 +319,21 @@
      "Decorators": []
     },
     {
-     "$id": "32",
+     "$id": "31",
      "Name": "omit",
      "ResourceName": "OptionalExplicit",
      "Accessibility": "public",
      "Parameters": [
       {
-       "$id": "33",
+       "$id": "32",
        "Name": "contentType",
        "NameInRequest": "Content-Type",
        "Doc": "Body parameter's content type. Known values are application/json",
        "Type": {
-        "$id": "34",
+        "$id": "33",
         "kind": "constant",
         "valueType": {
-         "$id": "35",
+         "$id": "34",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -356,7 +353,7 @@
        "SkipUrlEncoding": false
       },
       {
-       "$id": "36",
+       "$id": "35",
        "Name": "body",
        "NameInRequest": "body",
        "Type": {
@@ -375,7 +372,7 @@
      ],
      "Responses": [
       {
-       "$id": "37",
+       "$id": "36",
        "StatusCodes": [
         204
        ],
@@ -384,7 +381,7 @@
        "IsErrorResponse": false
       }
      ],
-     "HttpMethod": "POST",
+     "HttpMethod": "post",
      "RequestBodyMediaType": "Json",
      "Uri": "{endpoint}",
      "Path": "/parameters/body-optionality/optional-explicit/omit",
@@ -398,18 +395,15 @@
      "Decorators": []
     }
    ],
-   "Protocol": {
-    "$id": "38"
-   },
    "Parent": "BodyOptionalityClient",
    "Parameters": [
     {
-     "$id": "39",
+     "$id": "37",
      "Name": "endpoint",
      "NameInRequest": "endpoint",
      "Doc": "Service host",
      "Type": {
-      "$id": "40",
+      "$id": "38",
       "kind": "url",
       "name": "url",
       "crossLanguageDefinitionId": "TypeSpec.url"
@@ -424,9 +418,9 @@
      "Explode": false,
      "Kind": "Client",
      "DefaultValue": {
-      "$id": "41",
+      "$id": "39",
       "Type": {
-       "$id": "42",
+       "$id": "40",
        "kind": "string",
        "name": "string",
        "crossLanguageDefinitionId": "TypeSpec.string"
