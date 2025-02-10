@@ -935,15 +935,16 @@ export class CodeModelBuilder {
     }
 
     // body
+    let bodyParameterFlattened = false;
     if (httpOperation.bodyParam && httpOperation.__raw && httpOperation.bodyParam.type.__raw) {
-      this.processParameterBody(codeModelOperation, sdkMethod, httpOperation.bodyParam);
+      bodyParameterFlattened = this.processParameterBody(
+        codeModelOperation,
+        sdkMethod,
+        httpOperation.bodyParam,
+      );
     }
 
     if (generateConvenienceApi) {
-      const bodyParameterFlattened = Boolean(
-        codeModelOperation.convenienceApi?.requests &&
-          codeModelOperation.convenienceApi?.requests.length > 0,
-      );
       this.processParameterGrouping(codeModelOperation, sdkMethod, bodyParameterFlattened);
     }
 
@@ -1693,7 +1694,9 @@ export class CodeModelBuilder {
     op: CodeModelOperation,
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     sdkBody: SdkBodyParameter,
-  ) {
+  ): boolean {
+    let bodyParameterFlattened = false;
+
     const sdkHttpOperation = sdkMethod.operation;
     // set contentTypes to mediaTypes
     op.requests![0].protocol.http!.mediaTypes = sdkBody.contentTypes;
@@ -1777,8 +1780,11 @@ export class CodeModelBuilder {
           if (sdkType.isGeneratedName) {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }
-          return;
+          return bodyParameterFlattened;
         }
+
+        // flatten body parameter
+        bodyParameterFlattened = true;
 
         const schemaUsage = (schema as SchemaUsage).usage;
         if (!schemaIsPublicBeforeProcess && schemaUsage?.includes(SchemaContext.Public)) {
@@ -1824,6 +1830,7 @@ export class CodeModelBuilder {
         request.signatureParameters = request.parameters;
       }
     }
+    return bodyParameterFlattened;
   }
 
   private addParameterOrBodyPropertyToCodeModelRequest(
