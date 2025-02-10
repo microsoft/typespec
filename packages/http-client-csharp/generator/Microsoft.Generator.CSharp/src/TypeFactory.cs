@@ -53,6 +53,12 @@ namespace Microsoft.Generator.CSharp
         public virtual string GetEnumNamespace(InputEnumType inputEnum)
             => string.IsNullOrEmpty(inputEnum.Namespace) ? RootNamespace : GetCleanNameSpace(inputEnum.Namespace); // we default to this model namespace when the namespace is empty
 
+        /// <summary>
+        /// Get namespace for the model factory.
+        /// </summary>
+        /// <returns>Output namespace for the model factory.</returns>
+        public virtual string GetModelFactoryNamespace() => GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
+
         protected internal TypeFactory()
         {
         }
