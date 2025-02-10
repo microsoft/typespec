@@ -7,11 +7,12 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { Enum, EnumMember, Model, ModelProperty, Operation, Scalar } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
-import { InputConstant } from "../type/input-constant.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
-import { InputParameter } from "../type/input-parameter.js";
-import { InputPrimitiveType } from "../type/input-type.js";
-import { RequestLocation } from "../type/request-location.js";
+import {
+  InputOperationParameterKind,
+  InputParameter,
+  RequestLocation,
+} from "../type/operation-interfaces.js";
+import { InputConstant, InputPrimitiveType } from "../type/type-interfaces.js";
 
 export function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);

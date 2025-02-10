@@ -1,17 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { getDoc, getSummary } from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
-import { CSharpEmitterOptions } from "../options.js";
-import { InputConstant } from "../type/input-constant.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
-import { InputParameter } from "../type/input-parameter.js";
-import { InputType } from "../type/input-type.js";
-import { RequestLocation } from "../type/request-location.js";
-import { SdkTypeMap } from "../type/sdk-type-map.js";
+import { CSharpEmitterContext } from "../emitter-context.js";
+import {
+  InputOperationParameterKind,
+  InputParameter,
+  RequestLocation,
+} from "../type/operation-interfaces.js";
+import { InputConstant, InputType } from "../type/type-interfaces.js";
 import { getDefaultValue, getInputType } from "./model.js";
 
 export interface TypeSpecServer {
@@ -21,9 +20,8 @@ export interface TypeSpecServer {
 }
 
 export function resolveServers(
-  context: SdkContext<CSharpEmitterOptions>,
+  context: CSharpEmitterContext,
   servers: HttpServer[],
-  typeMap: SdkTypeMap,
 ): TypeSpecServer[] {
   return servers.map((server) => {
     const parameters: InputParameter[] = [];
@@ -39,7 +37,7 @@ export function resolveServers(
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : getInputType(context, prop, typeMap);
+        : getInputType(context, prop);
 
       if (value) {
         defaultValue = {
@@ -96,7 +94,7 @@ export function resolveServers(
             crossLanguageDefinitionId: "TypeSpec.string",
           },
           Value: server.url,
-        } as InputConstant,
+        },
       };
       url = `{host}`;
       parameters.push(variable);

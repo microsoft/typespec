@@ -11,7 +11,7 @@ import {
 import { NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
 import { CSharpEmitterOptions } from "../options.js";
-import { InputAuth } from "../type/input-auth.js";
+import { InputAuth } from "../type/client-interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 
 export function processServiceAuthentication(

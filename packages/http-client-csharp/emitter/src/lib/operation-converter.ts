@@ -19,35 +19,33 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
+import { getExternalDocs, getOperationId } from "@typespec/openapi";
 import { getResourceOperation } from "@typespec/rest";
-import { CSharpEmitterOptions } from "../options.js";
-import { BodyMediaType } from "../type/body-media-type.js";
-import { collectionFormatToDelimMap } from "../type/collection-format.js";
-import { HttpResponseHeader } from "../type/http-response-header.js";
-import { InputConstant } from "../type/input-constant.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
-import { InputOperation } from "../type/input-operation.js";
-import { InputParameter } from "../type/input-parameter.js";
-import { InputType } from "../type/input-type.js";
-import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
-import { OperationLongRunning } from "../type/operation-long-running.js";
-import { OperationPaging } from "../type/operation-paging.js";
-import { OperationResponse } from "../type/operation-response.js";
-import { RequestLocation } from "../type/request-location.js";
-import { parseHttpRequestMethod } from "../type/request-method.js";
-import { SdkTypeMap } from "../type/sdk-type-map.js";
+import { CSharpEmitterContext } from "../emitter-context.js";
+import {
+  BodyMediaType,
+  collectionFormatToDelimMap,
+  convertLroFinalStateVia,
+  HttpResponseHeader,
+  InputOperation,
+  InputOperationParameterKind,
+  InputParameter,
+  OperationLongRunning,
+  OperationPaging,
+  OperationResponse,
+  RequestLocation,
+} from "../type/operation-interfaces.js";
+import { InputConstant, InputType } from "../type/type-interfaces.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { isSdkPathParameter } from "./utils.js";
-import { getExternalDocs, getOperationId } from "@typespec/openapi";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
-  sdkContext: SdkContext<CSharpEmitterOptions>,
-  typeMap: SdkTypeMap,
+  sdkContext: CSharpEmitterContext,
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
@@ -57,17 +55,8 @@ export function fromSdkServiceMethod(
     generateConvenience = false;
   }
 
-  const parameterMap = fromSdkOperationParameters(
-    method.operation,
-    rootApiVersions,
-    sdkContext,
-    typeMap,
-  );
-  const responseMap = fromSdkHttpOperationResponses(
-    method.operation.responses,
-    sdkContext,
-    typeMap,
-  );
+  const parameterMap = fromSdkOperationParameters(method.operation, rootApiVersions, sdkContext);
+  const responseMap = fromSdkHttpOperationResponses(method.operation.responses, sdkContext);
   return {
     Name: method.name,
     ResourceName:
@@ -80,27 +69,21 @@ export function fromSdkServiceMethod(
     Accessibility: method.access,
     Parameters: [...parameterMap.values()],
     Responses: [...responseMap.values()],
-    HttpMethod: parseHttpRequestMethod(method.operation.verb),
+    HttpMethod: method.operation.verb,
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
     Path: method.operation.path,
     ExternalDocsUrl: getExternalDocs(sdkContext.program, method.operation.__raw.operation)?.url,
     RequestMediaTypes: getRequestMediaTypes(method.operation),
     BufferResponse: true,
-    LongRunning: loadLongRunningOperation(method, sdkContext, typeMap),
+    LongRunning: loadLongRunningOperation(method, sdkContext),
     Paging: loadOperationPaging(method),
     GenerateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     GenerateConvenienceMethod: generateConvenience,
     CrossLanguageDefinitionId: method.crossLanguageDefinitionId,
     Decorators: method.decorators,
     Examples: method.operation.examples
-      ? fromSdkHttpExamples(
-          sdkContext,
-          method.operation.examples,
-          parameterMap,
-          responseMap,
-          typeMap,
-        )
+      ? fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, responseMap)
       : undefined,
   };
 }
@@ -146,8 +129,7 @@ function getValueType(value: any): SdkBuiltInKinds {
 function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
-  sdkContext: SdkContext<CSharpEmitterOptions>,
-  typeMap: SdkTypeMap,
+  sdkContext: CSharpEmitterContext,
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
@@ -159,7 +141,7 @@ function fromSdkOperationParameters(
         `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
       );
     }
-    const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext, typeMap);
+    const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext);
     parameters.set(p, param);
   }
 
@@ -168,7 +150,6 @@ function fromSdkOperationParameters(
       operation.bodyParam,
       rootApiVersions,
       sdkContext,
-      typeMap,
     );
     parameters.set(operation.bodyParam, bodyParam);
   }
@@ -178,12 +159,11 @@ function fromSdkOperationParameters(
 function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
-  sdkContext: SdkContext<CSharpEmitterOptions>,
-  typeMap: SdkTypeMap,
+  sdkContext: CSharpEmitterContext,
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
-  const parameterType = fromSdkType(p.type, sdkContext, typeMap);
+  const parameterType = fromSdkType(p.type, sdkContext);
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
@@ -215,8 +195,7 @@ function fromSdkHttpOperationParameter(
 
 function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
-  sdkContext: SdkContext<CSharpEmitterOptions>,
-  typeMap: SdkTypeMap,
+  sdkContext: CSharpEmitterContext,
 ): OperationLongRunning | undefined {
   if (method.kind !== "lro") {
     return undefined;
@@ -229,7 +208,7 @@ function loadLongRunningOperation(
       StatusCodes: method.operation.verb === "delete" ? [204] : [200],
       BodyType:
         method.lroMetadata.finalResponse?.envelopeResult !== undefined
-          ? fromSdkModelType(method.lroMetadata.finalResponse.envelopeResult, sdkContext, typeMap)
+          ? fromSdkModelType(method.lroMetadata.finalResponse.envelopeResult, sdkContext)
           : undefined,
       BodyMediaType: BodyMediaType.Json,
     } as OperationResponse,
@@ -239,17 +218,16 @@ function loadLongRunningOperation(
 
 function fromSdkHttpOperationResponses(
   operationResponses: SdkHttpResponse[],
-  sdkContext: SdkContext<CSharpEmitterOptions>,
-  typeMap: SdkTypeMap,
+  sdkContext: CSharpEmitterContext,
 ): Map<SdkHttpResponse, OperationResponse> {
   const responses = new Map<SdkHttpResponse, OperationResponse>();
   for (const r of operationResponses) {
     const range = r.statusCodes;
     responses.set(r, {
       StatusCodes: toStatusCodesArray(range),
-      BodyType: r.type ? fromSdkType(r.type, sdkContext, typeMap) : undefined,
+      BodyType: r.type ? fromSdkType(r.type, sdkContext) : undefined,
       BodyMediaType: BodyMediaType.Json,
-      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext, typeMap),
+      Headers: fromSdkServiceResponseHeaders(r.headers, sdkContext),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
       ContentTypes: r.contentTypes,
     });
@@ -259,8 +237,7 @@ function fromSdkHttpOperationResponses(
 
 function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
-  sdkContext: SdkContext<CSharpEmitterOptions>,
-  typeMap: SdkTypeMap,
+  sdkContext: CSharpEmitterContext,
 ): HttpResponseHeader[] {
   return headers.map(
     (h) =>
@@ -269,7 +246,7 @@ function fromSdkServiceResponseHeaders(
         NameInResponse: h.serializedName,
         Summary: h.summary,
         Doc: h.doc,
-        Type: fromSdkType(h.type, sdkContext, typeMap),
+        Type: fromSdkType(h.type, sdkContext),
       }) as HttpResponseHeader,
   );
 }

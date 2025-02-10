@@ -3,39 +3,32 @@
 
 import {
   SdkClientType,
-  SdkContext,
   SdkEndpointParameter,
   SdkEndpointType,
   SdkHttpOperation,
   SdkServiceMethod,
-  SdkType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
-import { CSharpEmitterOptions } from "../options.js";
+import { CSharpEmitterContext } from "../emitter-context.js";
+import { InputClient } from "../type/client-interfaces.js";
 import { CodeModel } from "../type/code-model.js";
-import { InputClient } from "../type/input-client.js";
-import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
-import { InputParameter } from "../type/input-parameter.js";
-import { InputEnumType, InputModelType, InputType } from "../type/input-type.js";
-import { RequestLocation } from "../type/request-location.js";
-import { SdkTypeMap } from "../type/sdk-type-map.js";
+import {
+  InputOperationParameterKind,
+  InputParameter,
+  RequestLocation,
+} from "../type/operation-interfaces.js";
+import { InputType } from "../type/type-interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
-export function createModel(sdkContext: SdkContext<CSharpEmitterOptions>): CodeModel {
+export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
-  const sdkTypeMap: SdkTypeMap = {
-    types: new Map<SdkType, InputType>(),
-    models: new Map<string, InputModelType>(),
-    enums: new Map<string, InputEnumType>(),
-  };
-
-  navigateModels(sdkContext, sdkTypeMap);
+  navigateModels(sdkContext);
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
 
@@ -52,13 +45,13 @@ export function createModel(sdkContext: SdkContext<CSharpEmitterOptions>): CodeM
 
   // this is a set tracking the bad namespace segments
   const inputClients: InputClient[] = [];
-  fromSdkClients(sdkContext, rootClients, inputClients, []);
+  fromSdkClients(rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
     Name: sdkPackage.rootNamespace,
     ApiVersions: rootApiVersions,
-    Enums: Array.from(sdkTypeMap.enums.values()),
-    Models: Array.from(sdkTypeMap.models.values()),
+    Enums: Array.from(sdkContext.__typeCache.enums.values()),
+    Models: Array.from(sdkContext.__typeCache.models.values()),
     Clients: inputClients,
     Auth: processServiceAuthentication(sdkContext, sdkPackage),
   };
@@ -66,25 +59,23 @@ export function createModel(sdkContext: SdkContext<CSharpEmitterOptions>): CodeM
   return clientModel;
 
   function fromSdkClients(
-    sdkContext: SdkContext<CSharpEmitterOptions>,
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
   ) {
     for (const client of clients) {
-      const inputClient = fromSdkClient(sdkContext, client, parentClientNames);
+      const inputClient = fromSdkClient(client, parentClientNames);
       inputClients.push(inputClient);
       const subClients = client.methods
         .filter((m) => m.kind === "clientaccessor")
         .map((m) => m.response as SdkClientType<SdkHttpOperation>);
       parentClientNames.push(inputClient.Name);
-      fromSdkClients(sdkContext, subClients, inputClients, parentClientNames);
+      fromSdkClients(subClients, inputClients, parentClientNames);
       parentClientNames.pop();
     }
   }
 
   function fromSdkClient(
-    sdkContext: SdkContext<CSharpEmitterOptions>,
     client: SdkClientType<SdkHttpOperation>,
     parentNames: string[],
   ): InputClient {
@@ -121,10 +112,8 @@ export function createModel(sdkContext: SdkContext<CSharpEmitterOptions>): CodeM
             uri,
             rootApiVersions,
             sdkContext,
-            sdkTypeMap,
           ),
         ),
-      Protocol: {},
       Parent: parentNames.length > 0 ? parentNames[parentNames.length - 1] : undefined,
       Parameters: clientParameters,
       Decorators: client.decorators,
@@ -171,7 +160,7 @@ export function createModel(sdkContext: SdkContext<CSharpEmitterOptions>): CodeM
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(parameter.type, sdkContext, sdkTypeMap); // TODO: consolidate with converter.fromSdkEndpointType
+        : fromSdkType(parameter.type, sdkContext); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,

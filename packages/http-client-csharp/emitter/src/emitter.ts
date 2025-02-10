@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, SdkType, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -29,6 +29,7 @@ import { execAsync } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
+import { InputEnumType, InputModelType, InputType } from "./type/type-interfaces.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -70,7 +71,14 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       "@typespec/http-client-csharp",
       defaultSDKContextOptions,
     );
-    const root = createModel(sdkContext);
+    const root = createModel({
+      ...sdkContext,
+      __typeCache: {
+        types: new Map<SdkType, InputType>(),
+        models: new Map<string, InputModelType>(),
+        enums: new Map<string, InputEnumType>(),
+      },
+    });
     if (
       context.program.diagnostics.length > 0 &&
       context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0

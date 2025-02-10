@@ -170,3 +170,8 @@ export interface InputDictionaryType extends InputTypeBase {
 export function isInputDictionaryType(type: InputType): type is InputDictionaryType {
   return type.kind === "dict";
 }
+
+export interface InputConstant {
+  Value?: any;
+  Type: InputType;
+}

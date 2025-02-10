@@ -14,10 +14,9 @@ import {
   getQueryParamName,
   isStatusCode,
 } from "@typespec/http";
-import { CSharpEmitterOptions } from "../options.js";
-import { InputType } from "../type/input-type.js";
+import { CSharpEmitterContext } from "../emitter-context.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
-import { SdkTypeMap } from "../type/sdk-type-map.js";
+import { InputType } from "../type/type-interfaces.js";
 import { Logger } from "./logger.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./type-converter.js";
 
@@ -72,27 +71,26 @@ export function getDefaultValue(type: Type): any {
 }
 
 export function getInputType(
-  context: SdkContext<CSharpEmitterOptions>,
+  context: CSharpEmitterContext,
   type: Type,
-  typeCache: SdkTypeMap,
   operation?: Operation,
   literalTypeContext?: LiteralTypeContext,
 ): InputType {
   Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
 
   const sdkType = getClientType(context, type, operation);
-  return fromSdkType(sdkType, context, typeCache, literalTypeContext);
+  return fromSdkType(sdkType, context, literalTypeContext);
 }
 
-export function navigateModels(context: SdkContext<CSharpEmitterOptions>, typeCache: SdkTypeMap) {
+export function navigateModels(context: CSharpEmitterContext) {
   for (const type of getAllModels(context)) {
     if (type.name === "" || isAzureCoreModel(type)) {
       continue;
     }
     if (type.kind === "model") {
-      fromSdkModelType(type, context, typeCache);
+      fromSdkModelType(type, context);
     } else {
-      fromSdkEnumType(type, context, typeCache);
+      fromSdkEnumType(type, context);
     }
   }
 }
