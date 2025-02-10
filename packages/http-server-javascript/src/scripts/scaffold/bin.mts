@@ -470,10 +470,10 @@ function* emitControllerOperationHandlers(
       const paramsFragment = params.length > 0 ? `${paramsDeclarationLine}, ` : "";
 
       // prettier-ignore
-      yield `${opName}(ctx: HttpContext, ${paramsFragment}options?: ${optionsTypeName}): ${returnType} {`;
+      yield `async ${opName}(ctx: HttpContext, ${paramsFragment}options?: ${optionsTypeName}): ${returnType} {`;
     } else {
       // prettier-ignore
-      yield `${opName}(ctx: HttpContext, ${paramsDeclarationLine}): ${returnType} {`;
+      yield `async ${opName}(ctx: HttpContext, ${paramsDeclarationLine}): ${returnType} {`;
     }
 
     yield "  throw new NotImplementedError();";
