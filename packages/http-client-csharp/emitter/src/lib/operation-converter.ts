@@ -43,10 +43,10 @@ import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { isSdkPathParameter } from "./utils.js";
 
 export function fromSdkServiceMethod(
+  sdkContext: SdkContext<NetEmitterOptions>,
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
-  sdkContext: SdkContext<NetEmitterOptions>,
   typeMap: SdkTypeMap,
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);

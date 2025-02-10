@@ -43,7 +43,7 @@ namespace Microsoft.Generator.CSharp.Providers
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
 
-            Emitter.Instance.Info($"dealing with {inputModel.Name}");
+            Emitter.Instance.ReportDiagnostic("general-warning", $"dealing with {inputModel.Name}");
         }
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;

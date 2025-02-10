@@ -155,7 +155,7 @@ function processJsonRpc(message: string) {
       Logger.getInstance().info(params.message);
       break;
     case "diagnostic":
-      Logger.getInstance().info(params.message);
+      Logger.getInstance().reportDiagnostic(params.code, params.message); // TODO -- add target
       break;
   }
 }

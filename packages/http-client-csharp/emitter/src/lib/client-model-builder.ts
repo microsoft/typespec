@@ -117,10 +117,10 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         .filter((m) => m.kind !== "clientaccessor")
         .map((m) =>
           fromSdkServiceMethod(
+            sdkContext,
             m as SdkServiceMethod<SdkHttpOperation>,
             uri,
             rootApiVersions,
-            sdkContext,
             sdkTypeMap,
           ),
         ),
