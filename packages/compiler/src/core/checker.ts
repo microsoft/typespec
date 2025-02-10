@@ -368,6 +368,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
   const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
   const nullType = createType({ kind: "Intrinsic", name: "null" } as const);
+  const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
@@ -399,7 +400,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   let evalContext: EvalContext | undefined = undefined;
-  const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
 
   const checker: Checker = {
     getTypeForNode,
