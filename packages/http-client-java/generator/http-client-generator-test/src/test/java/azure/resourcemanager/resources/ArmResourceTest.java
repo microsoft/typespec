@@ -4,6 +4,8 @@
 package azure.resourcemanager.resources;
 
 import azure.resourcemanager.resources.fluent.models.SingletonTrackedResourceInner;
+import azure.resourcemanager.resources.models.ExtensionsResource;
+import azure.resourcemanager.resources.models.ExtensionsResourceProperties;
 import azure.resourcemanager.resources.models.NestedProxyResource;
 import azure.resourcemanager.resources.models.NestedProxyResourceProperties;
 import azure.resourcemanager.resources.models.NotificationDetails;
@@ -37,8 +39,218 @@ public class ArmResourceTest {
     private static final ProvisioningState RESOURCE_PROVISIONING_STATE = ProvisioningState.SUCCEEDED;
     private static final String RESOURCE_GROUP_NAME = "test-rg";
     private static final String NOTIFICATION_DETAILS_MESSAGE = "Resource action at top level.";
+    private static final String EXTENSION_RESOURCE_NAME = "extension";
+    private static final String EXTENSION_RESOURCE_SUBSCRIPTION_URL
+        = "subscriptions/00000000-0000-0000-0000-000000000000";
+    private static final String EXTENSION_RESOURCE_RESOURCE_GROUP_URL
+        = "subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg";
+    private static final String EXTENSION_RESOURCE_PROVIDER_URL
+        = "subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top";
+    private static final String EXTENSION_RESOURCE_TYPE = "Azure.ResourceManager.Resources/extensionsResources";
+    private static final String EXTENSION_BASE_RESOURCE_ID
+        = "/providers/Azure.ResourceManager.Resources/extensionsResources/extension";
     private final ResourcesManager manager
         = ResourcesManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
+
+    @Test
+    public void testExtensionsResources() {
+        ExtensionsResourceProperties properties
+            = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID);
+        ExtensionsResourceProperties updateProperties
+            = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2);
+
+        // Tenant Resource
+        ExtensionsResource resource = manager.extensionsResources()
+            .define(EXTENSION_RESOURCE_NAME)
+            .withExistingResourceUri("")
+            .withProperties(properties)
+            .create();
+        Assertions.assertEquals(EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        List<ExtensionsResource> extensionsResources
+            = manager.extensionsResources().listByScope("").stream().collect(Collectors.toList());
+        Assertions.assertEquals(1, extensionsResources.size());
+        resource = extensionsResources.get(0);
+        Assertions.assertEquals(EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        resource = manager.extensionsResources().get("", EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        resource = resource.update().withProperties(updateProperties).apply();
+        Assertions.assertEquals(EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        manager.extensionsResources().deleteByResourceGroup("", EXTENSION_RESOURCE_NAME);
+
+        // Subscription Resource
+        resource = manager.extensionsResources()
+            .define(EXTENSION_RESOURCE_NAME)
+            .withExistingResourceUri(EXTENSION_RESOURCE_SUBSCRIPTION_URL)
+            .withProperties(properties)
+            .create();
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        extensionsResources = manager.extensionsResources()
+            .listByScope(EXTENSION_RESOURCE_SUBSCRIPTION_URL)
+            .stream()
+            .collect(Collectors.toList());
+        Assertions.assertEquals(1, extensionsResources.size());
+        resource = extensionsResources.get(0);
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        resource = manager.extensionsResources().get(EXTENSION_RESOURCE_SUBSCRIPTION_URL, EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        resource = resource.update().withProperties(updateProperties).apply();
+        Assertions.assertEquals(EXTENSION_RESOURCE_SUBSCRIPTION_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_SUBSCRIPTION_URL, EXTENSION_RESOURCE_NAME);
+
+        // ResourceGroup Resource
+        resource = manager.extensionsResources()
+            .define(EXTENSION_RESOURCE_NAME)
+            .withExistingResourceUri(EXTENSION_RESOURCE_RESOURCE_GROUP_URL)
+            .withProperties(properties)
+            .create();
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        extensionsResources = manager.extensionsResources()
+            .listByScope(EXTENSION_RESOURCE_RESOURCE_GROUP_URL)
+            .stream()
+            .collect(Collectors.toList());
+        Assertions.assertEquals(1, extensionsResources.size());
+        resource = extensionsResources.get(0);
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        resource = manager.extensionsResources().get(EXTENSION_RESOURCE_RESOURCE_GROUP_URL, EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        resource = resource.update().withProperties(updateProperties).apply();
+        Assertions.assertEquals(EXTENSION_RESOURCE_RESOURCE_GROUP_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        manager.extensionsResources()
+            .deleteByResourceGroup(EXTENSION_RESOURCE_RESOURCE_GROUP_URL, EXTENSION_RESOURCE_NAME);
+
+        // Provider Resource
+        resource = manager.extensionsResources()
+            .define(EXTENSION_RESOURCE_NAME)
+            .withExistingResourceUri(EXTENSION_RESOURCE_PROVIDER_URL)
+            .withProperties(properties)
+            .create();
+        Assertions.assertEquals(EXTENSION_RESOURCE_PROVIDER_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        extensionsResources = manager.extensionsResources()
+            .listByScope(EXTENSION_RESOURCE_PROVIDER_URL)
+            .stream()
+            .collect(Collectors.toList());
+        Assertions.assertEquals(1, extensionsResources.size());
+        resource = extensionsResources.get(0);
+        Assertions.assertEquals(EXTENSION_RESOURCE_PROVIDER_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        resource = manager.extensionsResources().get(EXTENSION_RESOURCE_PROVIDER_URL, EXTENSION_RESOURCE_NAME);
+        Assertions.assertEquals(EXTENSION_RESOURCE_PROVIDER_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        resource = resource.update().withProperties(updateProperties).apply();
+        Assertions.assertEquals(EXTENSION_RESOURCE_PROVIDER_URL + EXTENSION_BASE_RESOURCE_ID, resource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, resource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, resource.type());
+        properties = resource.properties();
+        Assertions.assertNotNull(properties);
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, properties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
+
+        manager.extensionsResources().deleteByResourceGroup(EXTENSION_RESOURCE_PROVIDER_URL, EXTENSION_RESOURCE_NAME);
+    }
 
     @Test
     public void testTopLevelTrackedResource() {
