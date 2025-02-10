@@ -261,13 +261,22 @@ def test_singleton_list_by_resource_group(client):
         assert result.system_data.created_by == "AzureSDK"
 
 
-def test_extensions_resources_begin_create_or_update(client):
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+def test_extensions_resources_begin_create_or_update(client, scope):
     result = client.extensions_resources.begin_create_or_update(
-        resource_uri="",
+        resource_uri=scope,
         extensions_resource_name="extension",
         resource=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid")),
     ).result()
-    assert result.id == "/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
+    assert result.id == f"{scope}/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
     assert result.name == "extension"
     assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
     assert result.properties.description == "valid"
@@ -275,64 +284,22 @@ def test_extensions_resources_begin_create_or_update(client):
     assert result.system_data.created_by == "AzureSDK"
 
 
-def test_extensions_resources_begin_create_or_update_by_subscription(client):
-    result = client.extensions_resources.begin_create_or_update(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000",
-        extensions_resource_name="extension",
-        resource=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid")),
-    ).result()
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_begin_create_or_update_by_resource_group(client):
-    result = client.extensions_resources.begin_create_or_update(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
-        extensions_resource_name="extension",
-        resource=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid")),
-    ).result()
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_begin_create_or_update_by_resource(client):
-    result = client.extensions_resources.begin_create_or_update(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
-        extensions_resource_name="extension",
-        resource=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid")),
-    ).result()
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_update(client):
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+def test_extensions_resources_update(client, scope):
     result = client.extensions_resources.update(
-        resource_uri="",
+        resource_uri=scope,
         extensions_resource_name="extension",
         properties=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid2")),
     )
-    assert result.id == "/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
+    assert result.id == f"{scope}/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
     assert result.name == "extension"
     assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
     assert result.properties.description == "valid2"
@@ -340,60 +307,18 @@ def test_extensions_resources_update(client):
     assert result.system_data.created_by == "AzureSDK"
 
 
-def test_extensions_resources_update_by_subscription(client):
-    result = client.extensions_resources.update(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000",
-        extensions_resource_name="extension",
-        properties=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid2")),
-    )
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid2"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_update_by_resource_group(client):
-    result = client.extensions_resources.update(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
-        extensions_resource_name="extension",
-        properties=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid2")),
-    )
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid2"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_update_by_resource(client):
-    result = client.extensions_resources.update(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
-        extensions_resource_name="extension",
-        properties=models.ExtensionsResource(properties=models.ExtensionsResourceProperties(description="valid2")),
-    )
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid2"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_get(client):
-    result = client.extensions_resources.get(resource_uri="", extensions_resource_name="extension")
-    assert result.id == "/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+def test_extensions_resources_get(client, scope):
+    result = client.extensions_resources.get(resource_uri=scope, extensions_resource_name="extension")
+    assert result.id == f"{scope}/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
     assert result.name == "extension"
     assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
     assert result.properties.description == "valid"
@@ -401,61 +326,22 @@ def test_extensions_resources_get(client):
     assert result.system_data.created_by == "AzureSDK"
 
 
-def test_extensions_resources_get_by_subscription(client):
-    result = client.extensions_resources.get(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000",
-        extensions_resource_name="extension",
-    )
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_get_by_resource_group(client):
-    result = client.extensions_resources.get(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
-        extensions_resource_name="extension",
-    )
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_get_by_resource(client):
-    result = client.extensions_resources.get(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
-        extensions_resource_name="extension",
-    )
-    assert (
-        result.id
-        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-    )
-    assert result.name == "extension"
-    assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-    assert result.properties.description == "valid"
-    assert result.properties.provisioning_state == "Succeeded"
-    assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_list(client):
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+def test_extensions_resources_list(client, scope):
     response = client.extensions_resources.list_by_scope(
-        resource_uri="",
+        resource_uri=scope,
     )
     result = [r for r in response]
     for result in result:
-        assert result.id == "/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
+        assert result.id == f"{scope}/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
         assert result.name == "extension"
         assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
         assert result.properties.description == "valid"
@@ -463,80 +349,17 @@ def test_extensions_resources_list(client):
         assert result.system_data.created_by == "AzureSDK"
 
 
-def test_extensions_resources_list_by_subscription(client):
-    response = client.extensions_resources.list_by_scope(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000",
-    )
-    result = [r for r in response]
-    for result in result:
-        assert (
-            result.id
-            == "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-        )
-        assert result.name == "extension"
-        assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-        assert result.properties.description == "valid"
-        assert result.properties.provisioning_state == "Succeeded"
-        assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_list_by_resource_group(client):
-    response = client.extensions_resources.list_by_scope(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
-    )
-    result = [r for r in response]
-    for result in result:
-        assert (
-            result.id
-            == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-        )
-        assert result.name == "extension"
-        assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-        assert result.properties.description == "valid"
-        assert result.properties.provisioning_state == "Succeeded"
-        assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_list_by_resource(client):
-    response = client.extensions_resources.list_by_scope(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
-    )
-    result = [r for r in response]
-    for result in result:
-        assert (
-            result.id
-            == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top/providers/Azure.ResourceManager.Resources/extensionsResources/extension"
-        )
-        assert result.name == "extension"
-        assert result.type == "Azure.ResourceManager.Resources/extensionsResources"
-        assert result.properties.description == "valid"
-        assert result.properties.provisioning_state == "Succeeded"
-        assert result.system_data.created_by == "AzureSDK"
-
-
-def test_extensions_resources_delete(client):
-    client.extensions_resources.delete(resource_uri="", extensions_resource_name="extension")
-
-
-def test_extensions_resources_delete_by_subscription(client):
-    client.extensions_resources.delete(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000",
-        extensions_resource_name="extension",
-    )
-
-
-def test_extensions_resources_delete_by_resource_group(client):
-    client.extensions_resources.delete(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
-        extensions_resource_name="extension",
-    )
-
-
-def test_extensions_resources_delete_by_resource(client):
-    client.extensions_resources.delete(
-        resource_uri="/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
-        extensions_resource_name="extension",
-    )
+@pytest.mark.parametrize(
+    "scope",
+    [
+        "",
+        "/subscriptions/00000000-0000-0000-0000-000000000000",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg",
+        "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top",
+    ],
+)
+def test_extensions_resources_delete(client, scope):
+    client.extensions_resources.delete(resource_uri=scope, extensions_resource_name="extension")
 
 
 def test_location_resources_create_or_update(client):
