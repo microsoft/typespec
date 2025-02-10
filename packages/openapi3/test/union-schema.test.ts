@@ -619,8 +619,7 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
         x: {
           anyOf: [
             {
-              type: "object",
-              allOf: [{ $ref: "#/components/schemas/MyStr" }],
+              type: "string",
               nullable: true,
             },
             {
@@ -680,6 +679,67 @@ worksFor(["3.0.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/openapi3/union-null",
         message: "Cannot have a union containing only null types.",
+      });
+    });
+
+    it("should keep original type with null", async () => {
+      const openApi = await openApiFor(`
+        scalar Str extends string;
+        model Mol {x: string}
+        scalar Num extends int32;
+        scalar More extends Num;
+        scalar Int16 extends int16;
+        scalar NoExtends;
+        model Test {
+          a: NoExtends| Str | Int16 | Num | Mol | More | null | int32 | string;
+        }
+      `);
+
+      expect(openApi.components.schemas.Test).toMatchObject({
+        type: "object",
+        required: ["a"],
+        properties: {
+          a: {
+            anyOf: [
+              {
+                type: "object",
+                nullable: true,
+              },
+              {
+                $ref: "#/components/schemas/Str",
+              },
+              {
+                type: "integer",
+                format: "int16",
+                nullable: true,
+              },
+              {
+                $ref: "#/components/schemas/Num",
+              },
+              {
+                type: "object",
+                allOf: [
+                  {
+                    $ref: "#/components/schemas/Mol",
+                  },
+                ],
+                nullable: true,
+              },
+              {
+                $ref: "#/components/schemas/More",
+              },
+              {
+                type: "integer",
+                format: "int32",
+                nullable: true,
+              },
+              {
+                type: "string",
+                nullable: true,
+              },
+            ],
+          },
+        },
       });
     });
   });

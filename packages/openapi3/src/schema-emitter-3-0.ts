@@ -5,6 +5,7 @@ import {
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
+  IntrinsicScalarName,
   IntrinsicType,
   isNullType,
   Model,
@@ -22,6 +23,7 @@ import {
   Placeholder,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo } from "@typespec/http";
 import { shouldInline } from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
@@ -149,7 +151,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const variants = Array.from(union.variants.values());
     const literalVariantEnumByType: Record<string, any[]> = {};
     const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
-    const schemaMembers: { schema: any; type: Type | null }[] = [];
+    const schemaMembers: ScalarMember[] = [];
     let nullable = false;
     const isMultipart = this.getContentType().startsWith("multipart/");
 
@@ -185,12 +187,13 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     }
 
     const wrapWithObjectBuilder = (
-      schemaMember: { schema: any; type: Type | null },
+      schemaMember: ScalarMember,
       { mergeUnionWideConstraints }: { mergeUnionWideConstraints: boolean },
     ): ObjectBuilder<OpenAPI3Schema> => {
       // we can just return the single schema member after applying nullable
       const schema = schemaMember.schema;
       const type = schemaMember.type;
+
       const additionalProps: Partial<OpenAPI3Schema> = mergeUnionWideConstraints
         ? this.applyConstraints(union, {})
         : {};
@@ -206,12 +209,38 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
           (schema instanceof Placeholder || "$ref" in schema) &&
           !(type && shouldInline(program, type))
         ) {
-          if (type && (type.kind === "Model" || type.kind === "Scalar")) {
+          if (type && type.kind === "Model") {
             return new ObjectBuilder({
               type: "object",
               allOf: Builders.array([schema]),
               ...additionalProps,
             });
+          } else if (type && type.kind === "Scalar") {
+            let objectInitializer: Record<string, unknown> = {};
+
+            const stdScalar = $.scalar.getStdBase(type);
+            if (stdScalar?.name) {
+              // already has same std scalar member, use $ref
+              if (stdScalars.has(stdScalar.name) && "$ref" in schema) {
+                objectInitializer = { $ref: schema.$ref };
+              } else {
+                const stdSchema = this.getSchemaForStdScalars(
+                  stdScalar as Scalar & { name: IntrinsicScalarName },
+                );
+                objectInitializer = {
+                  ...stdSchema,
+                  ...additionalProps,
+                };
+              }
+            } else {
+              // scalar without extends
+              objectInitializer = {
+                type: "object",
+                ...additionalProps,
+              };
+            }
+
+            return new ObjectBuilder<OpenAPI3Schema>(objectInitializer);
           } else {
             return new ObjectBuilder({ allOf: Builders.array([schema]), ...additionalProps });
           }
@@ -253,6 +282,8 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     }
 
     const isMerge = checkMerge(schemaMembers);
+    const stdScalars = collectScalarInfo(schemaMembers);
+
     const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) =>
         wrapWithObjectBuilder(m, { mergeUnionWideConstraints: isMerge }),
@@ -266,6 +297,27 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     this.applyDiscriminator(union, schema);
 
     return this.applyConstraints(union, schema);
+
+    interface ScalarMember {
+      schema: any;
+      type: Type | null;
+    }
+
+    function collectScalarInfo(scalarMembers: ScalarMember[]): Set<string> {
+      const stdScalars = new Set<string>();
+      const stdScalarMap = new Map<string, ScalarMember[]>();
+      for (const member of scalarMembers) {
+        if (member.type?.kind === "Scalar") {
+          const stdScalarName = $.scalar.getStdBase(member.type)?.name;
+          if (member.type.name === stdScalarName) stdScalars.add(stdScalarName);
+          if (stdScalarName) {
+            if (!stdScalarMap.has(stdScalarName)) stdScalarMap.set(stdScalarName, [member]);
+            else stdScalarMap.get(stdScalarName)!.push(member);
+          }
+        }
+      }
+      return stdScalars;
+    }
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
