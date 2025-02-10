@@ -1334,6 +1334,8 @@ export class CodeModelBuilder {
     );
 
     if (methodSignatureOverridden) {
+      // limit the effect of "SdkServiceMethod"
+      // only process it and its parameters, when the "@override" is defined on the operation
       this.processSdkMethodOverride(op, sdkMethod);
     } else if (bodyParameterFlattened) {
       // only do this, if no explicit method override via "@override"
@@ -1506,7 +1508,7 @@ export class CodeModelBuilder {
   }
 
   private checkGroupingAfterBodyParameterFlatten(op: CodeModelOperation) {
-    // method be called, only if "op.convenienceApi"
+    // method be called, only if "op.convenienceApi" is defined
     // method signature of the convenience API after body parameter flatten
     const request = op.convenienceApi?.requests?.[0];
 
