@@ -87,7 +87,6 @@ export async function execAsync(
   args: string[] = [],
   options: SpawnOptions = {},
 ): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
-  console.log("execAsync was called");
   const child = spawn(command, args, options);
 
   return new Promise((resolve, reject) => {
