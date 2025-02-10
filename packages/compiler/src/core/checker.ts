@@ -399,6 +399,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   let evalContext: EvalContext | undefined = undefined;
+  const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
 
   const checker: Checker = {
     getTypeForNode,
@@ -3390,10 +3391,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function createIndeterminateEntity(type: IndeterminateEntity["type"]): IndeterminateEntity {
-    return {
+    const existing = indeterminateEntities.get(type);
+    if (existing) {
+      return existing;
+    }
+    const entity: IndeterminateEntity = {
       entityKind: "Indeterminate",
       type,
     };
+
+    indeterminateEntities.set(type, entity);
+    return entity;
   }
   function stringifyTypeForTemplate(type: Type): string | undefined {
     switch (type.kind) {
@@ -3448,24 +3456,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkStringLiteral(str: StringLiteralNode): IndeterminateEntity {
-    return {
-      entityKind: "Indeterminate",
-      type: getLiteralType(str),
-    };
+    return createIndeterminateEntity(getLiteralType(str));
   }
 
   function checkNumericLiteral(num: NumericLiteralNode): IndeterminateEntity {
-    return {
-      entityKind: "Indeterminate",
-      type: getLiteralType(num),
-    };
+    return createIndeterminateEntity(getLiteralType(num));
   }
 
   function checkBooleanLiteral(bool: BooleanLiteralNode): IndeterminateEntity {
-    return {
-      entityKind: "Indeterminate",
-      type: getLiteralType(bool),
-    };
+    return createIndeterminateEntity(getLiteralType(bool));
   }
 
   function checkProgram() {
