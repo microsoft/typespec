@@ -106,6 +106,7 @@ export interface OperationLongRunning {
   FinalResponse: OperationResponse;
   ResultPath?: string;
 }
+
 export enum OperationFinalStateVia {
   AzureAsyncOperation,
   Location,

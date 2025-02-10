@@ -2,13 +2,13 @@ import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
   createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
+import { RequestLocation } from "../../src/type/operation-interfaces.js";
 
 describe("Test Parameter Explode", () => {
   let runner: TestHost;

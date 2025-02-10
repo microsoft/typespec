@@ -23,7 +23,8 @@ import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
 import { CSharpEmitterOptions } from "../../../src/options.js";
-import { InputEnumType, InputModelType } from "../../../src/type/input-type.js";
+import { InputEnumType, InputModelType } from "../../../src/type/type-interfaces.js";
+import { CSharpEmitterContext } from "../../../src/emitter-context.js";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
   return createTestHost({
@@ -115,32 +116,19 @@ export function createEmitterContext(program: Program): EmitContext<CSharpEmitte
   } as EmitContext<CSharpEmitterOptions>;
 }
 
-/* Navigate all the models in the whole namespace. */
-export function navigateModels(
-  context: SdkContext<CSharpEmitterOptions>,
-  namespace: Namespace,
-  models: Map<string, InputModelType>,
-  enums: Map<string, InputEnumType>,
-) {
-  const computeModel = (x: Type) => getInputType(context, x, models, enums) as any;
-  const skipSubNamespaces = isGlobalNamespace(context.program, namespace);
-  navigateTypesInNamespace(
-    namespace,
-    {
-      model: (x) => x.name !== "" && x.kind === "Model" && computeModel(x),
-      scalar: computeModel,
-      enum: computeModel,
-      union: (x) => x.name !== undefined && computeModel(x),
-    },
-    { skipSubNamespaces },
-  );
-}
-
 /* We always need to pass in the emitter name now that it is required so making a helper to do this. */
 export async function createNetSdkContext(
-  program: EmitContext<CSharpEmitterOptions>,
+  context: EmitContext<CSharpEmitterOptions>,
   sdkContextOptions: CreateSdkContextOptions = {},
-): Promise<SdkContext<CSharpEmitterOptions>> {
-  Logger.initialize(program.program, LoggerLevel.INFO);
-  return await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);
+): Promise<CSharpEmitterContext> {
+  Logger.initialize(context.program, LoggerLevel.INFO);
+  const sdkContext = await createSdkContext(context, "@typespec/http-client-csharp", sdkContextOptions);
+  return {
+    ...sdkContext,
+    __typeCache: {
+      types: new Map(),
+      models: new Map(),
+      enums: new Map(),
+    },
+  }
 }
