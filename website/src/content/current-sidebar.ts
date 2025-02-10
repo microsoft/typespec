@@ -143,7 +143,6 @@ const sidebar: SidebarItem[] = [
         label: "SDK Clients",
         items: ["emitters/sdk-clients/introduction"],
       },
-      
     ],
   },
   {
