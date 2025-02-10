@@ -18,12 +18,12 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
+import { CSharpEmitterContext } from "../../../src/emitter.js";
 import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
 import { NetEmitterOptions } from "../../../src/options.js";
 import { InputEnumType, InputModelType } from "../../../src/type/input-type.js";
-import { CSharpEmitterContext } from "../../../src/emitter.js";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
   return createTestHost({

@@ -20,6 +20,7 @@ import {
 import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
+import { CSharpEmitterContext } from "../emitter.js";
 import { NetEmitterOptions } from "../options.js";
 import { BodyMediaType } from "../type/body-media-type.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -41,14 +42,14 @@ import { fromSdkHttpExamples } from "./example-converter.js";
 import { reportDiagnostic } from "./lib.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { isSdkPathParameter } from "./utils.js";
-import { CSharpEmitterContext } from "../emitter.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
   sdkContext: CSharpEmitterContext,
-  typeMap: SdkTypeMap): InputOperation {
+  typeMap: SdkTypeMap,
+): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
     sdkContext.logger.warn(

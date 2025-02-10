@@ -8,10 +8,13 @@ import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { _validateDotNetSdk } from "../../src/emitter.js";
-import { LoggerLevel } from "../../src/lib/log-level.js";
-import { Logger } from "../../src/lib/logger.js";
 import { execAsync } from "../../src/lib/utils.js";
-import { createEmitterContext, createEmitterTestHost, createNetSdkContext, typeSpecCompile } from "./utils/test-util.js";
+import {
+  createEmitterContext,
+  createEmitterTestHost,
+  createNetSdkContext,
+  typeSpecCompile,
+} from "./utils/test-util.js";
 
 describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;

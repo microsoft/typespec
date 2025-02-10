@@ -68,7 +68,8 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
     sdkContext: CSharpEmitterContext,
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
-    parentClientNames: string[]) {
+    parentClientNames: string[],
+  ) {
     for (const client of clients) {
       const inputClient = fromSdkClient(sdkContext, client, parentClientNames);
       inputClients.push(inputClient);
@@ -131,7 +132,8 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   function getClientName(
     client: SdkClientType<SdkHttpOperation>,
-    parentClientNames: string[]): string {
+    parentClientNames: string[],
+  ): string {
     const clientName = client.name;
 
     if (parentClientNames.length === 0) return clientName;
