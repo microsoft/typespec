@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Microsoft.Generator.CSharp.Tests.Common</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.TypeSpec.Generator.csproj" />
+    <PackageReference Include="System.ClientModel" />
+  </ItemGroup>
+
+</Project>

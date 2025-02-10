@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Microsoft.Generator.CSharp.Input.Tests.Perf</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Microsoft.TypeSpec.Generator.Input.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestData\StringEnum\tspCodeModel.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

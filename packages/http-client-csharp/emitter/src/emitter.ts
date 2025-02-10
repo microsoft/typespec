@@ -121,7 +121,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
         const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
         const generatorPath = resolvePath(
-          projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll",
+          projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
         );
 
         const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
