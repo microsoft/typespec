@@ -1336,11 +1336,13 @@ export class CodeModelBuilder {
     if (methodSignatureOverridden) {
       this.processSdkMethodOverride(op, sdkMethod);
     } else if (bodyParameterFlattened) {
+      // only do this, if no explicit method override via "@override"
       this.checkGroupingAfterBodyParameterFlatten(op);
     }
 
     // group ETag header parameters, if exists
     if (this.options["group-etag-headers"]) {
+      // TODO: unsure what happens, if the etag headers is already processed by override
       this.processEtagHeaderParameters(op, httpOperation);
     }
   }
@@ -1349,6 +1351,7 @@ export class CodeModelBuilder {
     op: CodeModelOperation,
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   ) {
+    // method be called, only if "op.convenienceApi"
     let request = op.convenienceApi?.requests?.[0];
     let requestParameters: Parameter[];
     if (request) {
@@ -1369,17 +1372,21 @@ export class CodeModelBuilder {
       parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkBodyModelPropertyType,
     ): Parameter | undefined {
       let opParameter;
-      // ignore constant parameter
+      // ignore constant parameter, usually the "accept" and "content-type" header
       if (parameter.type.kind !== "constant") {
         if (parameter.kind === "body") {
+          // there should be only 1 body parameter
           opParameter = requestParameters.find((it) => it.protocol.http?.in === "body");
         } else if (parameter.kind === "property") {
+          // body property
+          // if body property appears on method signature, it should already be flattened, hence the check on VirtualParameter
           opParameter = requestParameters.find(
             (it) =>
               it instanceof VirtualParameter &&
-              it.language.default.serializedName === parameter.serializedName,
+              it.language.default.serializedName === getPropertySerializedName(parameter),
           );
         } else {
+          // query, path, header
           opParameter = requestParameters.find(
             (it) =>
               it.protocol.http?.in === parameter.kind &&
@@ -1458,6 +1465,8 @@ export class CodeModelBuilder {
     name: string,
     description: string | undefined = undefined,
   ): GroupSchema {
+    // the "GroupSchema" is simliar to "ObjectSchema", but the process is different
+
     if (type && this.schemaCache.has(type)) {
       return this.schemaCache.get(type) as GroupSchema;
     }
@@ -1490,12 +1499,14 @@ export class CodeModelBuilder {
     });
 
     if (type) {
+      // on cache: the GroupPrpoerty actually has a reference to "originalParameter" (though on same type, the parameter should be identical)
       this.schemaCache.set(type, optionBagSchema);
     }
     return optionBagSchema;
   }
 
   private checkGroupingAfterBodyParameterFlatten(op: CodeModelOperation) {
+    // method be called, only if "op.convenienceApi"
     // method signature of the convenience API after body parameter flatten
     const request = op.convenienceApi?.requests?.[0];
 
