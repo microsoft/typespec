@@ -59,7 +59,7 @@ public class FluentMethodMockTestTemplate
             = new HashSet<>(Arrays.asList(AccessToken.class.getName(), ClassType.HTTP_CLIENT.getFullName(),
                 ClassType.HTTP_HEADERS.getFullName(), ClassType.HTTP_REQUEST.getFullName(),
                 HttpResponse.class.getName(), "com.azure.core.test.http.MockHttpResponse",
-                ClassType.AZURE_ENVIRONMENT.getFullName(), AzureProfile.class.getName(), "org.junit.jupiter.api.Test",
+                ClassType.AZURE_CLOUD.getFullName(), AzureProfile.class.getName(), "org.junit.jupiter.api.Test",
                 ByteBuffer.class.getName(), Mono.class.getName(), Flux.class.getName(),
                 StandardCharsets.class.getName(), OffsetDateTime.class.getName()));
 
@@ -141,7 +141,7 @@ public class FluentMethodMockTestTemplate
                     methodBlock.line(exampleMethodName + " manager = " + exampleMethodName + ".configure()"
                         + ".withHttpClient(httpClient).authenticate(tokenRequestContext -> "
                         + "Mono.just(new AccessToken(\"this_is_a_token\", OffsetDateTime.MAX)), "
-                        + "new AzureProfile(\"\", \"\", AzureEnvironment.AZURE));");
+                        + "new AzureProfile(\"\", \"\", AzureCloud.AZURE_PUBLIC_CLOUD));");
                     methodBlock.line();
                     // method invocation
                     methodBlock.line(clientMethodInvocationWithResponse);
