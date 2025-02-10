@@ -9,6 +9,7 @@ import { writeModuleTree } from "./write.js";
 
 // #region features
 
+import path from "node:path";
 import { emitSerialization } from "./common/serialization/index.js";
 import { emitHttp } from "./http/index.js";
 
@@ -33,11 +34,13 @@ export async function $onEmit(context: EmitContext<JsEmitterOptions>) {
   // Emit serialization code for all required types.
   emitSerialization(jsCtx);
 
+  const srcGeneratedPath = path.join(context.emitterOutputDir, "src", "generated");
+
   if (!context.program.compilerOptions.noEmit) {
     try {
-      const stat = await context.program.host.stat(context.emitterOutputDir);
+      const stat = await context.program.host.stat(srcGeneratedPath);
       if (stat.isDirectory()) {
-        await context.program.host.rm(context.emitterOutputDir, {
+        await context.program.host.rm(srcGeneratedPath, {
           recursive: true,
         });
       }

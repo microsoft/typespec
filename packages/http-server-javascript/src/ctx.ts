@@ -101,6 +101,16 @@ export interface JsContext {
   rootModule: Module;
 
   /**
+   * The parent of the generated module.
+   */
+  srcModule: Module;
+
+  /**
+   * The module that contains all generated code.
+   */
+  generatedModule: Module;
+
+  /**
    * A map relating each namespace to the module that contains its declarations.
    *
    * @see createOrGetModuleForNamespace
@@ -161,12 +171,16 @@ export async function createInitialContext(
     declarations: [],
   };
 
+  const srcModule = createModule("src", rootModule);
+
+  const generatedModule = createModule("generated", srcModule);
+
   // This has the side effect of setting the `module` property of all helpers.
   // Don't do anything with the emitter code before this is called.
-  await initializeHelperModule(rootModule);
+  await initializeHelperModule(generatedModule);
 
   // Module for all models, including synthetic and all.
-  const modelsModule: Module = createModule("models", rootModule);
+  const modelsModule: Module = createModule("models", generatedModule);
 
   // Module for all types in all namespaces.
   const allModule: Module = createModule("all", modelsModule, globalNamespace);
@@ -185,6 +199,8 @@ export async function createInitialContext(
     syntheticNames: new Map(),
 
     rootModule,
+    srcModule,
+    generatedModule,
     namespaceModules: new Map([[globalNamespace, allModule]]),
     syntheticModule,
     modelsModule,

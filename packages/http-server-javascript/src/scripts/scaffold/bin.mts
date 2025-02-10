@@ -11,15 +11,9 @@ import { getHttpService, HttpOperation, HttpService } from "@typespec/http";
 import { spawn as _spawn, SpawnOptions } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import readline from "node:readline/promises";
 import { createOrGetModuleForNamespace } from "../../common/namespace.js";
-import {
-  createInitialContext,
-  createModule,
-  createPathCursor,
-  isModule,
-  JsContext,
-  Module,
-} from "../../ctx.js";
+import { createInitialContext, createModule, isModule, JsContext, Module } from "../../ctx.js";
 import { parseCase } from "../../util/case.js";
 
 import { module as httpHelperModule } from "../../../generated-defs/helpers/http.js";
@@ -51,21 +45,26 @@ const COMMON_PATHS = {
   vsCodeTasksJson: "./.vscode/tasks.json",
 } as const;
 
-const DEFAULT_TSCONFIG = {
-  compilerOptions: {
-    target: "es2020",
-    module: "Node16",
-    moduleResolution: "node16",
-    outDir: "./dist/",
-    esModuleInterop: true,
-    forceConsistentCasingInFileNames: true,
-    strict: true,
-    skipLibCheck: true,
-    declaration: true,
-    sourceMap: true,
-  },
-  include: ["src/**/*.ts", "tsp-output/@typespec/http-server-javascript/**/*.ts"],
-};
+function getDefaultTsConfig(standalone: boolean) {
+  return {
+    compilerOptions: {
+      target: "es2020",
+      module: "Node16",
+      moduleResolution: "node16",
+      rootDir: "./",
+      outDir: "./dist/",
+      esModuleInterop: true,
+      forceConsistentCasingInFileNames: true,
+      strict: true,
+      skipLibCheck: true,
+      declaration: true,
+      sourceMap: true,
+    },
+    include: standalone
+      ? ["src/**/*.ts"]
+      : ["src/**/*.ts", "tsp-output/@typespec/http-server-javascript/**/*.ts"],
+  } as const;
+}
 
 const VSCODE_LAUNCH_JSON = {
   configurations: [
@@ -96,22 +95,83 @@ const VSCODE_TASKS_JSON = {
   ],
 };
 
-export async function scaffold() {
-  const paths = Object.fromEntries(
-    Object.entries(COMMON_PATHS).map(([key, value]) => [key, path.resolve(value)]),
-  ) as typeof COMMON_PATHS;
+interface ScaffoldingOptions {
+  /**
+   * If true, the project will be generated in the current directory instead of the output directory.
+   */
+  "no-standalone": boolean;
+  /**
+   * If true, writes will be forced even if the file or setting already exists. Use with caution.
+   */
+  force: boolean;
+}
+
+const DEFAULT_SCAFFOLDING_OPTIONS: ScaffoldingOptions = {
+  "no-standalone": false,
+  force: false,
+};
+
+function parseScaffoldArguments(args: string[]): ScaffoldingOptions {
+  let cursor = 2;
+  const options: Partial<ScaffoldingOptions> = {};
+
+  while (cursor < args.length) {
+    const arg = args[cursor];
+
+    if (arg === "--no-standalone") {
+      options["no-standalone"] = true;
+    } else if (arg === "--force") {
+      options.force = true;
+    } else {
+      console.error(`[hsj] Unrecognized scaffolding argument: '${arg}'`);
+      process.exit(1);
+    }
+
+    cursor++;
+  }
+
+  return { ...DEFAULT_SCAFFOLDING_OPTIONS, ...options };
+}
+
+async function confirmYesNo(message: string): Promise<void> {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  try {
+    const response = await rl.question(`${message} [y/N] `);
+
+    if (response.trim().toLowerCase() !== "y") {
+      console.error("[hsj] Operation cancelled.");
+      process.exit(0);
+    }
+  } finally {
+    rl.close();
+  }
+}
+
+export async function scaffold(options: ScaffoldingOptions) {
+  if (options.force) {
+    await confirmYesNo(
+      "[hsj] The `--force` flag is set and will overwrite existing files and settings that may have been modified. Continue?",
+    );
+  }
 
   const cwd = process.cwd();
 
+  const projectYamlPath = path.resolve(cwd, COMMON_PATHS.projectYaml);
+  const mainTspPath = path.resolve(cwd, COMMON_PATHS.mainTsp);
+
   console.info("[hsj] Scaffolding TypeScript project...");
   console.info(
-    `[hsj] Using project file '${path.relative(cwd, paths.projectYaml)}' and main file '${path.relative(cwd, paths.mainTsp)}'`,
+    `[hsj] Using project file '${path.relative(cwd, projectYamlPath)}' and main file '${path.relative(cwd, mainTspPath)}'`,
   );
 
   let config: any;
 
   try {
-    const configText = await fs.readFile(paths.projectYaml);
+    const configText = await fs.readFile(projectYamlPath);
 
     config = YAML.parse(configText.toString("utf-8"));
   } catch {
@@ -121,16 +181,34 @@ export async function scaffold() {
     process.exit(1);
   }
 
+  // TODO: all of this path handling is awful. We need a good API from the compiler to interpolate the paths for us and
+  // resolve the options from the config using the schema.
+
+  const emitterOutputDirTemplate =
+    config.options?.["@typespec/http-server-javascript"]?.["emitter-output-dir"];
+  const defaultOutputDir = path.resolve(path.dirname(projectYamlPath), "tsp-output");
+
+  const emitterOutputDir = emitterOutputDirTemplate.replace("{output-dir}", defaultOutputDir);
+
+  const baseOutputDir = options["no-standalone"] ? cwd : path.resolve(cwd, emitterOutputDir);
+  const tsConfigOutputPath = path.resolve(baseOutputDir, COMMON_PATHS.tsConfigJson);
+
   const isExpress = !!config.options?.["@typespec/http-server-javascript"]?.express;
   console.info(
     `[hsj] Emitter options have 'express: ${isExpress}'. Generating server model: '${isExpress ? "Express" : "Node"}'.`,
   );
 
+  if (options["no-standalone"]) {
+    console.info("[hsj] Standalone mode disabled, generating project in current directory.");
+  } else {
+    console.info("[hsj] Generating standalone project in output directory.");
+  }
+
   console.info("[hsj] Compiling TypeSpec project...");
 
-  const program = await compile(NodeHost, COMMON_PATHS.mainTsp, {
+  const program = await compile(NodeHost, mainTspPath, {
     noEmit: true,
-    config: paths.projectYaml,
+    config: projectYamlPath,
     emit: [],
   });
 
@@ -161,14 +239,9 @@ export async function scaffold() {
 
   console.info("[hsj] TypeSpec compiled successfully. Scaffolding implementation...");
 
-  const srcModule: Module = {
-    name: "src",
-    cursor: createPathCursor("src"),
-    declarations: [],
-    imports: [],
-  };
+  const indexModule = jsCtx.srcModule;
 
-  const routeControllers = await createRouteControllers(jsCtx, httpService, srcModule);
+  const routeControllers = await createRouteControllers(jsCtx, httpService, indexModule);
 
   console.info("[hsj] Generating server entry point...");
 
@@ -176,17 +249,19 @@ export async function scaffold() {
 
   for (const { name, module } of routeControllers) {
     controllerModules.add(module);
-    srcModule.imports.push({ binder: [name], from: module });
+    indexModule.imports.push({ binder: [name], from: module });
   }
 
   const routerName = parseCase(httpService.namespace.name).pascalCase + "Router";
 
-  srcModule.imports.push({
+  indexModule.imports.push({
     binder: ["create" + routerName],
-    from: "../tsp-output/@typespec/http-server-javascript/http/router.js",
+    from: options["no-standalone"]
+      ? "../tsp-output/@typespec/http-server-javascript/src/generated/http/router.js"
+      : "./generated/http/router.js",
   });
 
-  srcModule.declarations.push([
+  indexModule.declarations.push([
     `const router = create${routerName}(`,
     ...routeControllers.map((controller) => `  new ${controller.name}(),`),
     `);`,
@@ -195,12 +270,12 @@ export async function scaffold() {
   ]);
 
   if (isExpress) {
-    srcModule.imports.push({
+    indexModule.imports.push({
       binder: "express",
       from: "express",
     });
 
-    srcModule.declarations.push([
+    indexModule.declarations.push([
       "const app = express();",
       "",
       "app.use(router.expressMiddleware);",
@@ -210,12 +285,12 @@ export async function scaffold() {
       "});",
     ]);
   } else {
-    srcModule.imports.push({
+    indexModule.imports.push({
       binder: ["createServer"],
       from: "node:http",
     });
 
-    srcModule.declarations.push([
+    indexModule.declarations.push([
       "const server = createServer(router.dispatch);",
       "",
       "server.listen(PORT, () => {",
@@ -228,12 +303,16 @@ export async function scaffold() {
 
   const queue = createOnceQueue<Module>();
 
-  await writeModuleFile(jsCtx, cwd, srcModule, queue, /* format */ true, tryWrite);
+  await writeModuleFile(jsCtx, baseOutputDir, indexModule, queue, /* format */ true, tryWrite);
 
   for (const module of controllerModules) {
     module.imports = module.imports.map((_import) => {
-      if (typeof _import.from !== "string" && !controllerModules.has(_import.from)) {
-        const backout = module.cursor.path.map(() => "..").slice(1);
+      if (
+        options["no-standalone"] &&
+        typeof _import.from !== "string" &&
+        !controllerModules.has(_import.from)
+      ) {
+        const backout = module.cursor.path.map(() => "..");
 
         const [declaredModules] = bifilter(_import.from.declarations, isModule);
 
@@ -242,7 +321,7 @@ export async function scaffold() {
         const modulePrincipalName = _import.from.cursor.path.slice(-1)[0];
 
         const targetPath = [
-          ...backout,
+          ...backout.slice(1),
           "tsp-output",
           "@typespec",
           "http-server-javascript",
@@ -256,67 +335,104 @@ export async function scaffold() {
       return _import;
     });
 
-    await writeModuleFile(jsCtx, cwd, module, queue, /* format */ true, tryWrite);
+    await writeModuleFile(jsCtx, baseOutputDir, module, queue, /* format */ true, tryWrite);
   }
 
   // Force writing of http helper module
-  await writeModuleFile(
-    jsCtx,
-    path.join(cwd, "tsp-output", "@typespec", "http-server-javascript"),
-    httpHelperModule,
-    queue,
-    /* format */ true,
-    tryWrite,
+  await writeModuleFile(jsCtx, baseOutputDir, httpHelperModule, queue, /* format */ true, tryWrite);
+
+  await tryWrite(
+    tsConfigOutputPath,
+    JSON.stringify(getDefaultTsConfig(!options["no-standalone"]), null, 2) + "\n",
   );
 
-  await tryWrite(paths.tsConfigJson, JSON.stringify(DEFAULT_TSCONFIG, null, 2) + "\n");
-  await tryWrite(paths.vsCodeLaunchJson, JSON.stringify(VSCODE_LAUNCH_JSON, null, 2) + "\n");
-  await tryWrite(paths.vsCodeTasksJson, JSON.stringify(VSCODE_TASKS_JSON, null, 2) + "\n");
+  const vsCodeLaunchJsonPath = path.resolve(baseOutputDir, COMMON_PATHS.vsCodeLaunchJson);
+  const vsCodeTasksJsonPath = path.resolve(baseOutputDir, COMMON_PATHS.vsCodeTasksJson);
 
-  console.info("[hsj] Checking package.json for changes...");
+  await tryWrite(vsCodeLaunchJsonPath, JSON.stringify(VSCODE_LAUNCH_JSON, null, 2) + "\n");
+  await tryWrite(vsCodeTasksJsonPath, JSON.stringify(VSCODE_TASKS_JSON, null, 2) + "\n");
 
-  const packageJson = JSON.parse((await fs.readFile(paths.packageJson)).toString("utf-8"));
+  const ownPackageJsonPath = path.resolve(cwd, COMMON_PATHS.packageJson);
 
-  const packageJsonChanged = updatePackageJson(packageJson, isExpress);
+  let ownPackageJson;
+
+  try {
+    ownPackageJson = JSON.parse((await fs.readFile(ownPackageJsonPath)).toString("utf-8"));
+  } catch {
+    console.error("[hsj] Failed to read package.json of TypeSpec project. Exiting.");
+    process.exit(1);
+  }
+
+  let packageJsonChanged = true;
+
+  if (options["no-standalone"]) {
+    console.info("[hsj] Checking package.json for changes...");
+
+    packageJsonChanged = updatePackageJson(ownPackageJson, isExpress, options.force);
+
+    if (packageJsonChanged) {
+      console.info("[hsj] Writing updated package.json...");
+
+      try {
+        await fs.writeFile(ownPackageJsonPath, JSON.stringify(ownPackageJson, null, 2) + "\n");
+      } catch {
+        console.error("[hsj] Failed to write package.json.");
+        process.exit(1);
+      }
+    } else {
+      console.info("[hsj] No changes to package.json suggested.");
+    }
+  } else {
+    // Standalone mode, need to generate package.json from scratch
+    const relativePathToSpec = path.relative(baseOutputDir, cwd);
+    const packageJson = getPackageJsonForStandaloneProject(
+      ownPackageJson,
+      isExpress,
+      relativePathToSpec,
+    );
+
+    const packageJsonPath = path.resolve(baseOutputDir, COMMON_PATHS.packageJson);
+
+    await tryWrite(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
+  }
 
   if (packageJsonChanged) {
-    console.info("[hsj] Writing updated package.json...");
-
-    try {
-      await fs.writeFile(paths.packageJson, JSON.stringify(packageJson, null, 2) + "\n");
-    } catch {
-      console.error("[hsj] Failed to write package.json.");
-      process.exit(1);
-    }
-
     // Run npm install to ensure dependencies are installed.
     console.info("[hsj] Running npm install...");
 
     try {
-      await spawn("npm", ["install"], { stdio: "inherit" });
+      await spawn("npm", ["install"], {
+        stdio: "inherit",
+        cwd: options["no-standalone"] ? cwd : baseOutputDir,
+      });
     } catch {
       console.warn(
         "[hsj] Failed to run npm install. Check the output above for errors and install dependencies manually.",
       );
     }
-  } else {
-    console.info("[hsj] No changes to package.json suggested.");
   }
 
   console.info("[hsj] Project scaffolding complete. Building project...");
 
   try {
-    await spawn("npm", ["run", "build"], { stdio: "inherit" });
+    await spawn("npm", ["run", "build"], {
+      stdio: "inherit",
+      cwd: options["no-standalone"] ? cwd : baseOutputDir,
+    });
   } catch {
     console.error("[hsj] Failed to build project. Check the output above for errors.");
     process.exit(1);
   }
 
+  const codeDirectory = path.relative(cwd, options["no-standalone"] ? cwd : baseOutputDir);
+
   console.info("[hsj] Project is ready to run. Use `npm start` to launch the server.");
   console.info("[hsj] A debug configuration has been created for Visual Studio Code.");
-  console.info("[hsj] Try `code .` to open the project and press F5 to start debugging.");
   console.info(
-    "[hsj] The newly-generated route controllers in 'src/controllers' are ready to be implemented.",
+    `[hsj] Try \`code ${codeDirectory}\` to open the project and press F5 to start debugging.`,
+  );
+  console.info(
+    `[hsj] The newly-generated route controllers in '${path.join(codeDirectory, "src", "controllers")}' are ready to be implemented.`,
   );
   console.info("[hsj] Done.");
 
@@ -329,14 +445,16 @@ export async function scaffold() {
         .then(() => true)
         .catch(() => false);
 
-      if (exists) {
+      if (exists && !options.force) {
         console.warn(`[hsj] File '${relative}' already exists and will not be overwritten.`);
         console.warn(`[hsj] Manually update the file or delete it and run scaffolding again.`);
 
         return;
+      } else if (exists) {
+        console.warn(`[hsj] Overwriting file '${relative}'...`);
+      } else {
+        console.info(`[hsj] Writing file '${relative}'...`);
       }
-
-      console.info(`[hsj] Writing file '${relative}'...`);
 
       await fs.mkdir(path.dirname(file), { recursive: true });
       await fs.writeFile(file, contents);
@@ -482,9 +600,38 @@ function* emitControllerOperationHandlers(
   }
 }
 
+function getPackageJsonForStandaloneProject(
+  ownPackageJson: any,
+  isExpress: boolean,
+  relativePathToSpec: string,
+): any {
+  const packageJson = {
+    name: (ownPackageJson.name ?? path.basename(process.cwd())) + "-server",
+    version: ownPackageJson.version ?? "0.1.0",
+    type: "module",
+    description: "Generated TypeSpec server project.",
+  } as any;
+
+  if (ownPackageJson.private) {
+    packageJson.private = true;
+  }
+
+  updatePackageJson(packageJson, isExpress, true, () => {});
+
+  delete packageJson.scripts["build:scaffold"];
+  packageJson.scripts["build:typespec"] = 'tsp compile --output-dir=".." ' + relativePathToSpec;
+
+  return packageJson;
+}
+
 const JS_IDENTIFIER_RE = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 
-function updatePackageJson(packageJson: any, isExpress: boolean): boolean {
+function updatePackageJson(
+  packageJson: any,
+  isExpress: boolean,
+  force: boolean,
+  info: (...args: any[]) => void = console.info,
+): boolean {
   let changed = false;
 
   updateObjectPath(["scripts", "start"], "node dist/src/index.js");
@@ -502,7 +649,7 @@ function updatePackageJson(packageJson: any, isExpress: boolean): boolean {
 
   return changed;
 
-  function updateObjectPath(path: string[], value: string): boolean {
+  function updateObjectPath(path: string[], value: string) {
     let current = packageJson;
 
     for (const fragment of path.slice(0, -1)) {
@@ -521,31 +668,31 @@ function updatePackageJson(packageJson: any, isExpress: boolean): boolean {
       }
     }
 
-    if (!existingValue) {
-      console.info(`[hsj] - Setting package.json property '${property}' to "${value}".`);
+    if (!existingValue || force) {
+      if (!existingValue) {
+        info(`[hsj] - Setting package.json property '${property}' to "${value}".`);
+      } else if (force) {
+        info(`[hsj] - Overwriting package.json property '${property}' to "${value}".`);
+      }
 
       current[path[path.length - 1]] = value;
 
       changed ||= true;
 
-      return true;
+      return;
     }
 
     if (current[path[path.length - 1]] !== value) {
-      console.info(`[hsj] - Skipping package.json property '${property}'.`);
-      console.info(
-        `[hsj]   Scaffolding prefers "${value}", but it is already set to "${existingValue}".`,
-      );
-      console.info(
+      info(`[hsj] - Skipping package.json property '${property}'.`);
+      info(`[hsj]   Scaffolding prefers "${value}", but it is already set to "${existingValue}".`);
+      info(
         "[hsj]   Manually update the property or remove it and run scaffolding again if needed.",
       );
     }
-
-    return false;
   }
 }
 
-scaffold().catch((error) => {
+scaffold(parseScaffoldArguments(process.argv)).catch((error) => {
   console.error(error);
   process.exit(1);
 });
