@@ -45,7 +45,6 @@ import {
 } from "@typespec/compiler";
 
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
-import {} from "@typespec/compiler/utils";
 import {
   AuthenticationOptionReference,
   AuthenticationReference,
@@ -116,6 +115,7 @@ import {
 import {
   deepEquals,
   getDefaultValue,
+  invalidComponentFixedFieldKey,
   isBytesKeptRaw,
   isSharedHttpOperation,
   SharedHttpOperation,
@@ -273,6 +273,10 @@ function createOAPIEmitter(
       return name !== serviceNamespaceName;
     },
   };
+
+  program
+    .stateMap(invalidComponentFixedFieldKey)
+    .set(program.getGlobalNamespaceType(), new Map<string, string>());
 
   return { emitOpenAPI, getOpenAPI };
 
@@ -676,6 +680,13 @@ function createOAPIEmitter(
         }
       }
 
+      // Use valid keys in components/schemas and components/parameters
+      const invalidKeys = program
+        .stateMap(invalidComponentFixedFieldKey)
+        .get(program.getGlobalNamespaceType()) as Set<string>;
+      useValidKeysInComponentFixedFields(invalidKeys, root.components?.schemas);
+      useValidKeysInComponentFixedFields(invalidKeys, root.components?.parameters);
+
       return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -684,6 +695,58 @@ function createOAPIEmitter(
         return;
       } else {
         throw err;
+      }
+    }
+
+    // TODO: discuss: should we update something x-ref: $ref: ignore it? what about x-ms-*
+    function updateRefs(root: SupportedOpenAPIDocuments, oldKey: string, newKey: string) {
+      
+    }
+
+    function useValidKeysInComponentFixedFields(invalidKeys: Set<string>, pairs?: Record<string, unknown>): Map<string, string> | undefined {
+      if (!pairs) return;
+
+      const newPairs: typeof pairs = {};
+      const originalKeys = Object.keys(pairs);
+      const validKeys = new Set<string>(originalKeys.filter((key) => !invalidKeys.has(key)));
+      const replaceMap = new Map<string, string>();
+
+      for (const [_, key] of originalKeys.entries()) {
+        if (validKeys.has(key)) {
+          newPairs[key] = pairs[key];
+          continue;
+        }
+
+        const newKey = createValidKey(key, validKeys, newPairs);
+        newPairs[newKey] = pairs[key];
+        pairs = newPairs;
+        replaceMap.set(key, newKey);
+      }
+
+      return replaceMap;
+
+      function createValidKey(
+        invalidKey: string,
+        originalValidKeys: Set<string>,
+        newPairs: Record<string, unknown>,
+      ): string {
+        let baseKey = invalidKey.replace(/[^a-zA-Z0-9.\-_]/g, "");
+        let index = 1;
+        let validKey = baseKey;
+
+        // TODO: discuss: limit maximum retry? 
+        const maxRetry = 1000000;
+        for (
+          let validKey = baseKey;
+          index <= maxRetry && (validKey in originalValidKeys || validKey in newPairs);
+          index++
+        ) {
+          validKey = baseKey + index;
+        }
+        if (index > maxRetry) {
+          // TODO: report diagnostic
+        }
+        return validKey;
       }
     }
   }
@@ -814,6 +877,7 @@ function createOAPIEmitter(
       parameters: getEndpointParameters(parameters.parameters, visibility),
       responses: getResponses(operation, operation.responses, examples),
     };
+
     const currentTags = getAllTags(program, op);
     if (currentTags) {
       oai3Operation.tags = currentTags;
