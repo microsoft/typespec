@@ -21,7 +21,6 @@ import java.lang.reflect.Constructor;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
@@ -31,20 +30,20 @@ public class OperationTests {
 
     @Test
     public void testCheckNameAvailability() {
-        CheckNameAvailabilityRequest request = new CheckNameAvailabilityRequest()
-          .withName("checkName").withType("Microsoft.Web/site");
-      
+        CheckNameAvailabilityRequest request
+            = new CheckNameAvailabilityRequest().withName("checkName").withType("Microsoft.Web/site");
+
         CheckNameAvailabilityResponse response = manager.checkNameAvailabilities().checkGlobal(request);
         Assertions.assertFalse(response.nameAvailable());
         Assertions.assertEquals("AlreadyExists", response.reason());
         Assertions.assertEquals("Hostname 'checkName' already exists. Please select a different name.",
-          response.message());
+            response.message());
 
         response = manager.checkNameAvailabilities().checkLocal("westus", request);
         Assertions.assertFalse(response.nameAvailable());
         Assertions.assertEquals("AlreadyExists", response.reason());
         Assertions.assertEquals("Hostname 'checkName' already exists. Please select a different name.",
-          response.message());
+            response.message());
     }
 
     @Test
