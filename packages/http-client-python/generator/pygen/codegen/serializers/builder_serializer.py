@@ -1005,9 +1005,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.extend(deserialize_code)
         return retval
 
-    def handle_error_response(
+    def handle_error_response(  # pylint: disable=too-many-statements, too-many-branches
         self, builder: OperationType
-    ) -> List[str]:  # pylint: disable=too-many-statements, too-many-branches
+    ) -> List[str]:
         async_await = "await " if self.async_mode else ""
         retval = [f"if response.status_code not in {str(builder.success_status_codes)}:"]
         response_read = [

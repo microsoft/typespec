@@ -54,7 +54,7 @@ class _ClientConfigBase(Generic[ParameterListType], BaseModel):
         return self.yaml_data["name"]
 
 
-class Client(_ClientConfigBase[ClientGlobalParameterList]):
+class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=too-many-public-methods
     """Model representing our service client"""
 
     def __init__(
@@ -89,7 +89,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
 
     @property
     def need_cloud_setting(self) -> bool:
-        return self.code_model.options["azure_arm"] and self.credential_scopes
+        return bool(self.code_model.options["azure_arm"] and self.credential_scopes)
 
     def _build_request_builders(
         self,
@@ -367,7 +367,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
     def credential_scopes(self) -> List[str]:
         """Credential scopes for this client"""
 
-        cred_scopes = []
+        cred_scopes: List[str] = []
         if self.credential:
             policy = getattr(self.credential.type, "policy", None)
             if policy:
