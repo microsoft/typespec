@@ -15,7 +15,7 @@ from .request_builder import (
     OverloadedRequestBuilder,
     get_request_builder,
 )
-from .parameter import Parameter, ParameterMethodLocation
+from .parameter import Parameter, ParameterMethodLocation, ParameterLocation
 from .lro_operation import LROOperation
 from .lro_paging_operation import LROPagingOperation
 from ...utils import extract_original_name, NAME_LENGTH_LIMIT
@@ -79,10 +79,11 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         self.request_id_header_name = self.yaml_data.get("requestIdHeaderName", None)
         self.has_etag: bool = yaml_data.get("hasEtag", False)
 
-        # update the host parameter value. In later logic, SDK will overwrite it with value from cloud_setting
+        # update the host parameter value. In later logic, SDK will overwrite it
+        # with value from cloud_setting if users don't provide it.
         if self.need_cloud_setting:
             for p in self.parameters.parameters:
-                if p.is_host:
+                if p.location == ParameterLocation.ENDPOINT_PATH:
                     p.client_default_value = ""
                     break
 
