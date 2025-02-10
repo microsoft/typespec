@@ -3,7 +3,6 @@
   <PropertyGroup>
     <PackageId>StubPlugin</PackageId>
     <Version>1.0.0-beta.1</Version>
-    <RootNamespace>Microsoft.Generator.CSharp.ClientModel.StubLibrary</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
