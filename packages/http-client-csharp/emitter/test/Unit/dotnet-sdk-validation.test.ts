@@ -1,9 +1,14 @@
+vi.mock("../../src/lib/utils.js", () => ({
+  execAsync: vi.fn(),
+}));
+
+
 import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { _validateDotNetSdk } from "../../src/emitter.js";
 import { execAsync } from "../../src/lib/utils.js";
+import { _validateDotNetSdk } from "../../src/emitter.js";
 import { Logger } from "../../src/lib/logger.js";
 import { LoggerLevel } from "../../src/lib/log-level.js";
 import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
@@ -12,10 +17,6 @@ describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
   const minVersion = 8;
-
-  vi.mock("../../src/lib/utils.js", () => ({
-    execAsync: vi.fn(),
-  }));
 
   beforeEach(async () => {
     runner = await createEmitterTestHost();
