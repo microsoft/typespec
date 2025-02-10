@@ -196,7 +196,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return null;
         }
 
-        internal RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
+        /// <summary>
+        /// Gets the corresponding <see cref="RestClientProvider"/> for this client.
+        /// </summary>
+        public RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
         internal Lazy<ClientOptionsProvider?> ClientOptions { get; }
 
         public PropertyProvider PipelineProperty { get; }
