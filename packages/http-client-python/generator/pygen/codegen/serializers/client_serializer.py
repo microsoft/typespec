@@ -88,7 +88,7 @@ class ClientSerializer:
                     "_endpoints = get_arm_endpoints(_cloud)",
                     "if not base_url:",
                     '    base_url = _endpoints["resource_manager"]',
-                    'credential_scopes = kwargs.pop("credential_scopes", endpoints["credential_scopes"])',
+                    'credential_scopes = kwargs.pop("credential_scopes", _endpoints["credential_scopes"])',
                 ]
             )
         config_name = f"{self.client.name}Configuration"
