@@ -732,7 +732,6 @@ export class OpenAPI3SchemaEmitterBase<
       name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
     const decl = this.emitter.result.declaration(fullName, schema);
-
     checkDuplicateTypeName(
       this.emitter.getProgram(),
       type,

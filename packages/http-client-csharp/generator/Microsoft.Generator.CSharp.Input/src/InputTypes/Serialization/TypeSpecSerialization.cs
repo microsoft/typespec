@@ -9,6 +9,7 @@ namespace Microsoft.Generator.CSharp.Input
 {
     public static class TypeSpecSerialization
     {
+        internal const string InvalidNamespaceSegmentsKey = "InvalidNamespaceSegments";
         public static InputNamespace? Deserialize(string json)
         {
             var referenceHandler = new TypeSpecReferenceHandler();
@@ -41,6 +42,10 @@ namespace Microsoft.Generator.CSharp.Input
                     new TypeSpecInputDurationTypeConverter(referenceHandler),
                     new TypeSpecInputAuthConverter(referenceHandler),
                     new TypeSpecInputDecoratorInfoConverter(referenceHandler),
+                    new TypeSpecInputSerializationOptionsConverter(referenceHandler),
+                    new TypeSpecInputJsonSerializationOptionsConverter(referenceHandler),
+                    new TypeSpecInputXmlSerializationOptionsConverter(referenceHandler),
+                    new TypeSpecInputXmlNamespaceOptionsConverter(referenceHandler),
                 }
             };
 

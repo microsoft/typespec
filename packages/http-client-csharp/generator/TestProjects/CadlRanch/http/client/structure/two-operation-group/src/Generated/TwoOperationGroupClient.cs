@@ -4,9 +4,9 @@
 
 using System;
 using System.ClientModel.Primitives;
-using Client.Structure.Service.TwoOperationGroup.Models;
+using Client.Structure.Service;
 
-namespace Client.Structure.Service.TwoOperationGroup
+namespace Client.Structure.TwoOperationGroup
 {
     public partial class TwoOperationGroupClient
     {

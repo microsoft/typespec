@@ -146,7 +146,7 @@ namespace Microsoft.Generator.CSharp.Tests.Providers.ModelFactories
             var derivedModel = InputFactory.Model("DerivedModel", properties: inheritanceProperties, discriminatedKind: "foo");
             return
             [
-                InputFactory.Model("InternalModel", "internal", properties: properties),
+                InputFactory.Model("InternalModel", access: "internal", properties: properties),
                 InputFactory.Model("PublicModel1", properties: properties),
                 InputFactory.Model("PublicModel2", properties: properties),
                 derivedModel,

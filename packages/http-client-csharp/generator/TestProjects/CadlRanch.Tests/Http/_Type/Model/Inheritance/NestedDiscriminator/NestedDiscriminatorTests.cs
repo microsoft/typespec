@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.NestedDiscriminator;
-using _Type.Model.Inheritance.NestedDiscriminator.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.NestedDiscriminator

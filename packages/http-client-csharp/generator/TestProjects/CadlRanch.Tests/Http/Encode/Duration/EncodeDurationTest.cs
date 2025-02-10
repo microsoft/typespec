@@ -6,7 +6,7 @@ using System.ClientModel;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Encode.Duration;
-using Encode.Duration.Models;
+using Encode.Duration._Property;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http.Encode.Duration

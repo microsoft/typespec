@@ -3,10 +3,8 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using _Type.Model.Inheritance.EnumDiscriminator;
-using _Type.Model.Inheritance.EnumDiscriminator.Models;
 using NUnit.Framework;
 
 namespace TestProjects.CadlRanch.Tests.Http._Type.Model.Inheritance.EnumDiscriminator

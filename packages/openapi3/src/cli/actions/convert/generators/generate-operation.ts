@@ -7,6 +7,7 @@ import {
 import { Context } from "../utils/context.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateDecorators } from "./generate-decorators.js";
+import { generateOperationReturnType } from "./generate-response-expressions.js";
 
 export function generateOperation(operation: TypeSpecOperation, context: Context): string {
   const definitions: string[] = [];
@@ -25,11 +26,9 @@ export function generateOperation(operation: TypeSpecOperation, context: Context
     ...generateRequestBodyParameters(operation.requestBodies, context),
   ];
 
-  const responseTypes = operation.responseTypes.length
-    ? operation.responseTypes.join(" | ")
-    : "void";
+  const responses = generateOperationReturnType(operation, context);
 
-  definitions.push(`op ${operation.name}(${parameters.join(", ")}): ${responseTypes};`);
+  definitions.push(`op ${operation.name}(${parameters.join(", ")}): ${responses};`);
 
   return definitions.join(" ");
 }
@@ -84,7 +83,11 @@ function generateRequestBodyParameters(
   ).join(" | ");
 
   if (body) {
-    definitions.push(`@bodyRoot body: ${body}`);
+    let doc = "";
+    if (requestBodies[0].doc) {
+      doc = generateDocs(requestBodies[0].doc);
+    }
+    definitions.push(`${doc}@body body: ${body}`);
   }
 
   return definitions;

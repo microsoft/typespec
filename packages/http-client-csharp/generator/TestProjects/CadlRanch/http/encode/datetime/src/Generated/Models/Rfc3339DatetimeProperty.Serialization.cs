@@ -7,7 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 
-namespace Encode.Datetime.Models
+namespace Encode.Datetime
 {
     public partial class Rfc3339DatetimeProperty : IJsonModel<Rfc3339DatetimeProperty>
     {

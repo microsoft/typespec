@@ -93,7 +93,7 @@ namespace Microsoft.Generator.CSharp.Tests
 
             Mock<InputLibrary> mockInputLibrary = new Mock<InputLibrary>() { CallBase = true };
             mockInputLibrary.Setup(l => l.InputNamespace).Returns(InputFactory.Namespace(
-                "TestLibrary",
+                "Sample",
                 models: inputModelTypes,
                 enums: inputEnumTypes));
 
