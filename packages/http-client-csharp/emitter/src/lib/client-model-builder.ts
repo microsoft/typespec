@@ -12,6 +12,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
+import { CSharpEmitterContext } from "../emitter.js";
 import { NetEmitterOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
@@ -26,10 +27,6 @@ import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
-
-export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions> {
-  logger: Logger;
-}
 
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;

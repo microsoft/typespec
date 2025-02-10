@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
+import {
+  createSdkContext,
+  SdkContext,
+  UsageFlags,
+} from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -29,6 +33,10 @@ import { execAsync } from "./lib/utils.js";
 import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
+
+export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions> {
+  logger: Logger;
+}
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -70,7 +78,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       "@typespec/http-client-csharp",
       defaultSDKContextOptions,
     );
-    const root = createModel({ ...sdkContext, logger: logger });
+    const csharpEmitterContext = { ...sdkContext, logger: logger };
+    const root = createModel(csharpEmitterContext);
     if (
       context.program.diagnostics.length > 0 &&
       context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
@@ -144,9 +153,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           );
           if (result.exitCode !== 0) {
             const isValid = await _validateDotNetSdk(
-              sdkContext.program,
+              csharpEmitterContext,
               _minSupportedDotNetSdkVersion,
-              logger,
             );
             // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
             if (isValid) {
@@ -157,9 +165,8 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           }
         } catch (error: any) {
           const isValid = await _validateDotNetSdk(
-            sdkContext.program,
+            csharpEmitterContext,
             _minSupportedDotNetSdkVersion,
-            logger,
           );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) throw new Error(error);
@@ -176,22 +183,26 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
 /** check the dotnet sdk installation.
  * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
- * @param program - The typespec compiler program
+ * @param sdkContext - The SDK context
  * @param minVersionRequisite - The minimum required major version
  * @param logger - The logger
  * @internal
  */
 export async function _validateDotNetSdk(
-  program: Program,
+  sdkContext: CSharpEmitterContext,
   minMajorVersion: number,
-  logger: Logger,
 ): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    return validateDotNetSdkVersion(program, result.stdout, minMajorVersion, logger);
+    return validateDotNetSdkVersion(
+      sdkContext.program,
+      result.stdout,
+      minMajorVersion,
+      sdkContext.logger,
+    );
   } catch (error: any) {
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
-      reportDiagnostic(program, {
+      reportDiagnostic(sdkContext.program, {
         code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
         format: {
