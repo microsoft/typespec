@@ -86,9 +86,7 @@ namespace Microsoft.Generator.CSharp.Providers
         internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
-        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
-            CodeModelPlugin.Instance.TypeFactory.RootNamespace :
-            CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
+        protected override string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.GetModelNamespace(_inputModel);
 
         protected override CSharpType? GetBaseType()
         {
