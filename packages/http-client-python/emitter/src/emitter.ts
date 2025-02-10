@@ -65,11 +65,12 @@ function addDefaultOptions(sdkContext: SdkContext) {
 async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
   context: EmitContext<PythonEmitterOptions>,
 ): Promise<PythonSdkContext<TServiceOperation>> {
+  const sdkContext = await createSdkContext<PythonEmitterOptions, TServiceOperation>(context,
+    "@azure-tools/typespec-python",
+  );
+  context.program.reportDiagnostics(sdkContext.diagnostics);
   return {
-    ...(await createSdkContext<PythonEmitterOptions, TServiceOperation>(
-      context,
-      "@azure-tools/typespec-python",
-    )),
+    ...sdkContext,
     __endpointPathParameters: [],
   };
 }
