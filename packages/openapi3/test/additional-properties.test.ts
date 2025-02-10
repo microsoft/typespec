@@ -2,16 +2,16 @@ import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
 import { worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
+worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, objectSchemaIndexer }) => {
   describe("extends Record<T>", () => {
-    it("doesn't set additionalProperties on model itself", async () => {
+    it(`doesn't set ${objectSchemaIndexer} on model itself`, async () => {
       const res = await oapiForModel("Pet", `model Pet extends Record<unknown> {};`);
-      deepStrictEqual(res.schemas.Pet.additionalProperties, undefined);
+      deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], undefined);
     });
 
     it("links to an allOf of the Record<unknown> schema", async () => {
       const res = await oapiForModel("Pet", `model Pet extends Record<unknown> {};`);
-      deepStrictEqual(res.schemas.Pet.allOf, [{ type: "object", additionalProperties: {} }]);
+      deepStrictEqual(res.schemas.Pet.allOf, [{ type: "object", [objectSchemaIndexer]: {} }]);
     });
 
     it("include model properties", async () => {
@@ -23,14 +23,14 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
   });
 
   describe("is Record<T>", () => {
-    it("set additionalProperties on model itself", async () => {
+    it(`set ${objectSchemaIndexer} on model itself`, async () => {
       const res = await oapiForModel("Pet", `model Pet is Record<unknown> {};`);
-      deepStrictEqual(res.schemas.Pet.additionalProperties, {});
+      deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], {});
     });
 
     it("set additional properties type", async () => {
       const res = await oapiForModel("Pet", `model Pet is Record<string> {};`);
-      deepStrictEqual(res.schemas.Pet.additionalProperties, {
+      deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], {
         type: "string",
       });
     });
@@ -44,7 +44,7 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
   });
 
   describe("referencing Record<T>", () => {
-    it("add additionalProperties inline for property of type Record<unknown>", async () => {
+    it(`add ${objectSchemaIndexer} inline for property of type Record<unknown>`, async () => {
       const res = await oapiForModel(
         "Pet",
         `
@@ -56,12 +56,12 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
       ok(res.schemas.Pet, "expected definition named Pet");
       deepStrictEqual(res.schemas.Pet.properties.details, {
         type: "object",
-        additionalProperties: {},
+        [objectSchemaIndexer]: {},
       });
     });
   });
 
-  it("set additionalProperties if model extends Record with leaf type", async () => {
+  it(`set ${objectSchemaIndexer} if model extends Record with leaf type`, async () => {
     const res = await oapiForModel(
       "Pet",
       `
@@ -73,7 +73,7 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
 
     ok(res.isRef);
     ok(res.schemas.Pet, "expected definition named Pet");
-    deepStrictEqual(res.schemas.Pet.additionalProperties, {
+    deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], {
       $ref: "#/components/schemas/Value",
     });
   });

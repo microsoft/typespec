@@ -155,6 +155,12 @@ export class OpenAPI3SchemaEmitterBase<
     }
   }
 
+  applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
+    if (model.indexer) {
+      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+    }
+  }
+
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const visibility = this.#getVisibilityContext();
@@ -164,9 +170,7 @@ export class OpenAPI3SchemaEmitterBase<
       properties: this.emitter.emitModelProperties(model),
     });
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.applyModelIndexer(schema, model);
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
@@ -224,9 +228,7 @@ export class OpenAPI3SchemaEmitterBase<
       required: this.#requiredModelProperties(model, this.#getVisibilityContext()),
     });
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.applyModelIndexer(schema, model);
 
     return schema;
   }

@@ -147,6 +147,12 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     return applyEncoding(this.emitter.getProgram(), typespecType, target as any, this._options);
   }
 
+  applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
+    if (model.indexer) {
+      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
+    }
+  }
+
   getRawBinarySchema(): OpenAPISchema3_1 {
     return getRawBinarySchema();
   }
