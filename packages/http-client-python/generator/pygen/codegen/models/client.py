@@ -78,18 +78,17 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
             self.link_lro_initial_operations()
         self.request_id_header_name = self.yaml_data.get("requestIdHeaderName", None)
         self.has_etag: bool = yaml_data.get("hasEtag", False)
-        
+
         # update the host parameter value. In later logic, SDK will overwrite it with value from cloud_setting
         if self.need_cloud_setting:
-          for p in self.parameters.parameters:
-            if p.is_host:
-              p.client_default_value = ""
-              break
-        
+            for p in self.parameters.parameters:
+                if p.is_host:
+                    p.client_default_value = ""
+                    break
 
     @property
     def need_cloud_setting(self) -> bool:
-      return self.code_model.options["azure_arm"] and self.credential_scopes
+        return self.code_model.options["azure_arm"] and self.credential_scopes
 
     def _build_request_builders(
         self,
@@ -246,7 +245,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
                 f"{async_prefix}ARMAutoResourceProviderRegistrationPolicy",
                 ImportType.SDKCORE,
             )
-  
+
         # import for "Self"
         file_import.add_submodule_import(
             "typing_extensions",
@@ -255,14 +254,14 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
         )
         if self.need_cloud_setting:
             file_import.add_submodule_import(
-              "azure.core.settings",
-              "settings",
-              ImportType.SDKCORE,
+                "azure.core.settings",
+                "settings",
+                ImportType.SDKCORE,
             )
             file_import.add_submodule_import(
-              "azure.mgmt.core.tools",
-              "get_arm_endpoints",
-              ImportType.SDKCORE,
+                "azure.mgmt.core.tools",
+                "get_arm_endpoints",
+                ImportType.SDKCORE,
             )
         return file_import
 
@@ -366,15 +365,17 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):
     @property
     def credential_scopes(self) -> List[str]:
         """Credential scopes for this client"""
-        
+
         cred_scopes = []
         if self.credential:
-          policy = getattr(self.credential.type, "policy", None)
-          if policy:
-            cred_scopes = getattr(policy, "credential_scopes", [])
-            if not cred_scopes:
-              types = getattr(self.credential.type, "types", [])
-              cred_scopes = next((t.policy.credential_scopes for t in types if hasattr(t.policy, "credential_scopes")), [])
+            policy = getattr(self.credential.type, "policy", None)
+            if policy:
+                cred_scopes = getattr(policy, "credential_scopes", [])
+                if not cred_scopes:
+                    types = getattr(self.credential.type, "types", [])
+                    cred_scopes = next(
+                        (t.policy.credential_scopes for t in types if hasattr(t.policy, "credential_scopes")), []
+                    )
         return cred_scopes
 
     @classmethod
