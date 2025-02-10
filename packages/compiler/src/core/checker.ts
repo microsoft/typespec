@@ -338,6 +338,7 @@ const TypeInstantiationMap = class
 
 export function createChecker(program: Program, resolver: NameResolver): Checker {
   const stdTypes: Partial<StdTypes> = {};
+  const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
   const docFromCommentForSym = new Map<Sym, string>();
   const referenceSymCache = new WeakMap<
     TypeReferenceNode | MemberExpressionNode | IdentifierNode,
@@ -368,7 +369,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const neverType = createType({ kind: "Intrinsic", name: "never" } as const);
   const unknownType = createType({ kind: "Intrinsic", name: "unknown" } as const);
   const nullType = createType({ kind: "Intrinsic", name: "null" } as const);
-  const indeterminateEntities = new WeakMap<Type, IndeterminateEntity>();
 
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
