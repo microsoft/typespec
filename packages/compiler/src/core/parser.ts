@@ -1,6 +1,5 @@
 import { isArray, mutate } from "../utils/misc.js";
 import { codePointBefore, isIdentifierContinue, trim } from "./charcode.js";
-import { createTripleQuoteIndentCodeFix } from "./compiler-code-fixes/triple-quote-indent.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
@@ -70,7 +69,6 @@ import {
   NeverKeywordNode,
   Node,
   NodeFlags,
-  NoTarget,
   NumericLiteralNode,
   ObjectLiteralNode,
   ObjectLiteralPropertyNode,
@@ -3429,16 +3427,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (diagnostic.severity === "error") {
       parseErrorInNextFinishedNode = true;
       treePrintable = false;
-
-      const tripleQuoteWarningCode: string[] = [
-        "triple-quote-indent",
-        "no-new-line-end-triple-quote",
-        "no-new-line-start-triple-quote",
-      ];
-      if (diagnostic.target !== NoTarget && tripleQuoteWarningCode.includes(diagnostic.code)) {
-        mutate(diagnostic).codefixes ??= [];
-        mutate(diagnostic.codefixes).push(createTripleQuoteIndentCodeFix(diagnostic.target));
-      }
     }
 
     parseDiagnostics.push(diagnostic);
