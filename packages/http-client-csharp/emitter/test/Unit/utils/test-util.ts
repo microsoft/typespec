@@ -2,7 +2,6 @@ import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
 import {
   createSdkContext,
   CreateSdkContextOptions,
-  SdkContext,
 } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
@@ -19,12 +18,12 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
-import { CSharpEmitterContext } from "../../../src/lib/client-model-builder.js";
 import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
 import { NetEmitterOptions } from "../../../src/options.js";
 import { InputEnumType, InputModelType } from "../../../src/type/input-type.js";
+import { CSharpEmitterContext } from "../../../src/emitter.js";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
   return createTestHost({
@@ -118,13 +117,12 @@ export function createEmitterContext(program: Program): EmitContext<NetEmitterOp
 
 /* Navigate all the models in the whole namespace. */
 export function navigateModels(
-  context: SdkContext<NetEmitterOptions>,
+  context: CSharpEmitterContext,
   namespace: Namespace,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>,
-  logger: Logger,
 ) {
-  const computeModel = (x: Type) => getInputType(context, x, models, enums, logger) as any;
+  const computeModel = (x: Type) => getInputType(context, x, models, enums) as any;
   const skipSubNamespaces = isGlobalNamespace(context.program, namespace);
   navigateTypesInNamespace(
     namespace,

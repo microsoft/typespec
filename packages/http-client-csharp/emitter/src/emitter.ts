@@ -194,12 +194,7 @@ export async function _validateDotNetSdk(
 ): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    return validateDotNetSdkVersion(
-      sdkContext.program,
-      result.stdout,
-      minMajorVersion,
-      sdkContext.logger,
-    );
+    return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
       reportDiagnostic(sdkContext.program, {
@@ -216,11 +211,10 @@ export async function _validateDotNetSdk(
   }
 }
 
-function validateDotNetSdkVersion(
-  program: Program,
+function validateDotNetSdkVersionCore(
+  sdkContext: CSharpEmitterContext,
   version: string,
   minMajorVersion: number,
-  logger: Logger,
 ): boolean {
   if (version) {
     const dotIndex = version.indexOf(".");
@@ -228,11 +222,11 @@ function validateDotNetSdkVersion(
     const major = Number(firstPart);
 
     if (isNaN(major)) {
-      logger.error("Invalid .NET SDK version.");
+      sdkContext.logger.error("Invalid .NET SDK version.");
       return false;
     }
     if (major < minMajorVersion) {
-      reportDiagnostic(program, {
+      reportDiagnostic(sdkContext.program, {
         code: "invalid-dotnet-sdk-dependency",
         messageId: "invalidVersion",
         format: {
@@ -246,7 +240,7 @@ function validateDotNetSdkVersion(
     }
     return true;
   } else {
-    logger.error("Cannot get the installed .NET SDK version.");
+    sdkContext.logger.error("Cannot get the installed .NET SDK version.");
     return false;
   }
 }

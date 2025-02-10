@@ -39,21 +39,19 @@ import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { reportDiagnostic } from "./lib.js";
-import { Logger } from "./logger.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { isSdkPathParameter } from "./utils.js";
+import { CSharpEmitterContext } from "../emitter.js";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
-  sdkContext: SdkContext<NetEmitterOptions>,
-  typeMap: SdkTypeMap,
-  logger: Logger,
-): InputOperation {
+  sdkContext: CSharpEmitterContext,
+  typeMap: SdkTypeMap): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
-    logger.warn(
+    sdkContext.logger.warn(
       `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`,
     );
     generateConvenience = false;

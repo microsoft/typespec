@@ -43,6 +43,7 @@
     "dist/**"
   ],
   "dependencies": {
+    "@typespec/http-client-csharp": "file:",
     "json-serialize-refs": "0.1.0-0"
   },
   "peerDependencies": {

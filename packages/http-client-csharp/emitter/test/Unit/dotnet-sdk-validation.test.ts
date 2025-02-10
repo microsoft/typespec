@@ -11,7 +11,7 @@ import { _validateDotNetSdk } from "../../src/emitter.js";
 import { LoggerLevel } from "../../src/lib/log-level.js";
 import { Logger } from "../../src/lib/logger.js";
 import { execAsync } from "../../src/lib/utils.js";
-import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
+import { createEmitterContext, createEmitterTestHost, createNetSdkContext, typeSpecCompile } from "./utils/test-util.js";
 
 describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
@@ -39,8 +39,9 @@ describe("Test _validateDotNetSdk", () => {
     const error: any = new Error("ENOENT: no such file or directory");
     error.code = "ENOENT";
     (execAsync as Mock).mockRejectedValueOnce(error);
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const result = await _validateDotNetSdk(program, minVersion, logger);
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
@@ -62,8 +63,9 @@ describe("Test _validateDotNetSdk", () => {
       stderr: "",
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const result = await _validateDotNetSdk(program, minVersion, logger);
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
     strictEqual(program.diagnostics.length, 0);
@@ -78,8 +80,9 @@ describe("Test _validateDotNetSdk", () => {
       stderr: "",
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const result = await _validateDotNetSdk(program, minVersion, logger);
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
     strictEqual(program.diagnostics.length, 0);
@@ -94,8 +97,9 @@ describe("Test _validateDotNetSdk", () => {
       stderr: "",
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
-    const logger = new Logger(program, LoggerLevel.INFO);
-    const result = await _validateDotNetSdk(program, minVersion, logger);
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
