@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <IsTestProject>true</IsTestProject>
-    <RootNamespace>Microsoft.Generator.CSharp.Tests.Common</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

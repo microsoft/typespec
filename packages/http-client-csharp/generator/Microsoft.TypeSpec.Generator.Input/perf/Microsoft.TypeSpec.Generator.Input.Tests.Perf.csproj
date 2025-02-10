@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Microsoft.Generator.CSharp.Input.Tests.Perf</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.TypeSpec.Generator.Input.csproj" />
   </ItemGroup>

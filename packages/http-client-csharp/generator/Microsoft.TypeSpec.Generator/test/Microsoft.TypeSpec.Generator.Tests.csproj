@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <RootNamespace>Microsoft.Generator.CSharp.Tests</RootNamespace>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\src\Microsoft.TypeSpec.Generator.csproj" />
     <ProjectReference Include="common\Microsoft.TypeSpec.Generator.Tests.Common.csproj" />
