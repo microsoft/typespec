@@ -134,17 +134,13 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
     return;
   }
 
+  if (emitters.length === 0) {
+    logger.info("No emitter. Generating skipped.");
+  }
   const baseDir = getDirectoryPath(mainTspFile);
 
   const npmUtil = new NpmUtil(baseDir);
   const packagesToInstall: { name: string; version?: string }[] = [];
-
-  /* install emitter package. */
-  // logger.info(`select ${emitter.package}`);
-  // const { action, version } = await npmUtil.calculateNpmPackageInstallAction(
-  //   emitter.package,
-  //   emitter.version,
-  // );
 
   const installPackageQuickPickItems = await vscode.window.withProgress(
     {
@@ -153,10 +149,10 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
       cancellable: false,
     },
     async () => {
-      const packageQuickPickItems = [];
-      for (const emitter of emitters) {
+      const installCalculationPromises = emitters.map(async (emitter) => {
+        const packageQuickPickItems: any[] = [];
         /* install emitter package. */
-        logger.info(`select ${emitter.package}`);
+        logger.debug(`Start to calculate packages for ${emitter.package}`);
         const { action, version } = await npmUtil.calculateNpmPackageInstallAction(
           emitter.package,
           emitter.version,
@@ -188,34 +184,47 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
           });
           packagesToInstall.push({ name: emitter.package, version: version });
         }
-      }
-
-      for (const p of packagesToInstall) {
-        /* verify dependency packages. */
-        try {
-          const dependenciesToInstall = await npmUtil.calculateNpmPackageDependencyToUpgrade(
-            p.name,
-            p.version,
-            [npmDependencyType.dependencies, npmDependencyType.peerDependencies],
-          );
-          if (dependenciesToInstall.length > 0) {
-            // packagesToInstall.push(...dependenciesToInstall.map((d) => `${d.name}@${d.version}`));
-            packagesToInstall.push(...dependenciesToInstall);
-            for (const dep of dependenciesToInstall) {
-              const packageFullName = `${dep.name}@${dep.version ?? "latest"}`;
-              packageQuickPickItems.push({
-                label: `${dep.name}`,
-                description: "Required for enabling the emitter library.",
-                packageFullName: packageFullName,
-                picked: true,
-              });
+        for (const p of packagesToInstall) {
+          /* verify dependency packages. */
+          try {
+            const dependenciesToInstall = (
+              await npmUtil.calculateNpmPackageDependencyToUpgrade(p.name, p.version, [
+                npmDependencyType.dependencies,
+                npmDependencyType.peerDependencies,
+              ])
+            ).filter((d) => !packagesToInstall.includes(d));
+            if (dependenciesToInstall.length > 0) {
+              packagesToInstall.push(...dependenciesToInstall);
+              for (const dep of dependenciesToInstall) {
+                const packageFullName = `${dep.name}@${dep.version ?? "latest"}`;
+                packageQuickPickItems.push({
+                  label: `${dep.name}`,
+                  description: "Required for enabling the emitter library.",
+                  packageFullName: packageFullName,
+                  picked: true,
+                });
+              }
             }
+          } catch (err) {
+            logger.error(`Exception occurred when check dependency packages for ${p}.`);
           }
-        } catch (err) {
-          logger.error(`Exception occurred when check dependency packages for ${p}.`);
+          logger.debug(`completed calculate libraries for ${emitter.package}`);
         }
+        return packageQuickPickItems;
+      });
+
+      try {
+        const results = await Promise.all(installCalculationPromises);
+        return results
+          .flat()
+          .filter(
+            (item, index, self) =>
+              index === self.findIndex((i) => i.packageFullName === item.packageFullName),
+          );
+      } catch (error: any) {
+        logger.error("Failed to calculate packages to install:", [error]);
+        return [];
       }
-      return packageQuickPickItems;
     },
   );
 
@@ -346,6 +355,10 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
       if (emitter.language) {
         codeInfoStr += ` for ${emitter.language}`;
       }
+      outputDir = outputDir
+        .replace("{project-root}", baseDir)
+        .replace("{output-dir}", `${baseDir}/tsp-output`)
+        .replace("{emitter-name}", emitter.package);
       generations.push({ emitter: emitter, outputDir: outputDir, codeInfo: codeInfoStr });
     }
     const newYamlContent = configYaml.toString();
@@ -353,66 +366,12 @@ async function doEmit(mainTspFile: string, emitters: Emitter[]) {
   } catch (error: any) {
     logger.error(error);
   }
-  // let outputDir = defaultEmitOutputDirInConfig;
-  // try {
-  //   /*update emitter in config.yaml. */
-  //   const emitNode = configYaml.get("emit");
-  //   if (emitNode) {
-  //     if (isSeq(emitNode)) {
-  //       if (Array.isArray(emitNode.items)) {
-  //         const index = emitNode.items.findIndex((item) => {
-  //           if (isScalar(item)) {
-  //             return item.value === emitter.package;
-  //           }
-  //           return false;
-  //         });
-  //         if (index === -1) {
-  //           emitNode.items.push(emitter.package);
-  //         }
-  //       }
-  //     }
-  //   } else {
-  //     configYaml.set("emit", [emitter.package]);
-  //   }
-  //   const emitOutputDir = configYaml.getIn(["options", emitter.package, "emitter-output-dir"]);
-  //   if (!emitOutputDir) {
-  //     configYaml.setIn(
-  //       ["options", emitter.package, "emitter-output-dir"],
-  //       defaultEmitOutputDirInConfig,
-  //     );
-  //   } else {
-  //     outputDir = emitOutputDir as string;
-  //   }
-  //   const newYamlContent = configYaml.toString();
-  //   await writeFile(tspConfigFile, newYamlContent);
-  // } catch (error: any) {
-  //   logger.error(error);
-  // }
-  for (const generation of generations) {
-    const emitter = generation.emitter; //workaround for now, only support one emitter.
-    let outputDir = generation.outputDir.replace("{project-root}", baseDir);
-    outputDir = outputDir
-      .replace("{output-dir}", `${baseDir}/tsp-output`)
-      .replace("{emitter-name}", emitter.package);
-    let codeInfoStr: string = "code";
-    if (emitter.kind !== EmitterKind.Unknown) {
-      codeInfoStr = `${emitter.kind} code`;
-    }
-    if (emitter.language) {
-      codeInfoStr += ` for ${emitter.language}`;
-    }
-    logger.info(`Start to generate ${codeInfoStr} under directory ${outputDir}`);
-  }
-  // const emitter = emitters[0]; //workaround for now, only support one emitter.
-  // outputDir = outputDir.replace("{project-root}", baseDir);
-  // outputDir = outputDir
-  //   .replace("{output-dir}", `${baseDir}/tsp-output`)
-  //   .replace("{emitter-name}", emitter.package);
-  // const options: Record<string, string> = {};
-  // logger.info(
-  //   `Start to generate ${emitter.language} ${emitter.kind} code under directory ${outputDir}`,
-  // );
-  const codeInfoStr = generations[0].codeInfo;
+
+  const allCodesToGenerate = generations
+    .map((g) => `${g.codeInfo} under directory ${g.outputDir}`)
+    .join(", ");
+  logger.info(`Start to generate ${allCodesToGenerate}...`);
+  const codeInfoStr = generations.map((g) => g.codeInfo).join(", ");
   await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -596,8 +555,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     const separatorItem = {
       kind: vscode.QuickPickItemKind.Separator,
       info: undefined,
-      label: "Choose another emitter",
-      description: "Choose another emitter for code generation",
+      label: "New configured emitter",
+      description: "Configure another emitter for code generation",
       package: "",
       fromConfig: false,
       picked: false,
@@ -640,7 +599,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
 
     const configureEmitterButton = {
       iconPath: new vscode.ThemeIcon("settings-gear"),
-      tooltip: "Choose another emitter for code generation",
+      tooltip: "Add an new emitter for code generation",
       label: "Configure emitter",
     };
     existingEmittersSelector.buttons = [configureEmitterButton];
@@ -653,9 +612,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       // vscode.window.showInformationMessage(
       //   `You selected: ${validSelections.map((item) => item.label).join(", ")}`,
       // );
-      vscode.window.showInformationMessage(
-        `You selected: ${selectedItems.map((item) => item.label).join(", ")}`,
-      );
+      logger.debug(`You selected: ${selectedItems.map((item) => item.label).join(", ")}`);
     });
     existingEmittersSelector.onDidTriggerButton(async (button) => {
       if (button === configureEmitterButton) {
@@ -729,7 +686,8 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
       logger.info("No emitter selected. Generating Cancelled.");
       return;
     }
-    /* TODO: change doEmit to support multiple emitters. */
+    logger.info(`Selected emitters: ${selectedExistingEmitters.map((e) => e.package).join(", ")}`);
+
     await doEmit(
       tspProjectFile,
       selectedExistingEmitters.map(
@@ -743,6 +701,7 @@ export async function emitCode(context: vscode.ExtensionContext, uri: vscode.Uri
     );
   } else {
     const selectedEmitter = await configureEmitter(context);
+    logger.info(`Selected emitter: ${selectedEmitter?.package}`);
     if (selectedEmitter) {
       await doEmit(tspProjectFile, [selectedEmitter]);
     } else {
@@ -775,10 +734,6 @@ async function compile(
     args.push("--pretty");
     args.push(logPretty ? "true" : "false");
   }
-
-  // for (const [key, value] of Object.entries(options)) {
-  //   args.push("--option", `${emitter}.${key}=${value}`);
-  // }
 
   return await spawnExecutionAndLogToOutput(cli.command, args, getDirectoryPath(startFile), {
     NO_COLOR: "true",
