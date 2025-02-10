@@ -36,11 +36,11 @@ import { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { Logger } from "./logger.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { isSdkPathParameter } from "./utils.js";
+import { getExternalDocs, getOperationId } from "@typespec/openapi";
 
 export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
@@ -84,7 +84,7 @@ export function fromSdkServiceMethod(
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
     Path: method.operation.path,
-    ExternalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
+    ExternalDocsUrl: getExternalDocs(sdkContext.program, method.operation.__raw.operation)?.url,
     RequestMediaTypes: getRequestMediaTypes(method.operation),
     BufferResponse: true,
     LongRunning: loadLongRunningOperation(method, sdkContext, typeMap),
@@ -398,7 +398,7 @@ function getOperationGroupName(
   operation: SdkHttpOperation,
   namespace: string,
 ): string {
-  const explicitOperationId = getOperationId(context, operation.__raw.operation);
+  const explicitOperationId = getOperationId(context.program, operation.__raw.operation);
   if (explicitOperationId) {
     const ids: string[] = explicitOperationId.split("_");
     if (ids.length > 1) {
