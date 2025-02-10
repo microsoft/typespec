@@ -122,9 +122,11 @@ public class FluentGen extends Javagen {
             }
 
             // properties file
-            String artifactId = FluentUtils.getArtifactId();
-            if (!CoreUtils.isNullOrEmpty(artifactId)) {
-                writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n", null);
+            if (JavaSettings.getInstance().isFluentLite()) {
+                String artifactId = FluentUtils.getArtifactId();
+                if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                    writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n", null);
+                }
             }
             return true;
         } catch (Exception e) {

@@ -115,12 +115,16 @@ public class Main {
         // XML include POM
         javaPackage.getXmlFiles()
             .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
+
         // properties file
-        String artifactId = FluentUtils.getArtifactId();
-        if (!CoreUtils.isNullOrEmpty(artifactId)) {
-            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
-                null);
+        if (JavaSettings.getInstance().isFluentLite()) {
+            String artifactId = FluentUtils.getArtifactId();
+            if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
+                    null);
+            }
         }
+
         // Others
         javaPackage.getTextFiles()
             .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));

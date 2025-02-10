@@ -111,7 +111,7 @@ public static final class Configurable {
         Objects.requireNonNull(credential, "'credential' cannot be null.");
         Objects.requireNonNull(profile, "'profile' cannot be null.");
 
-        String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "{{artifact-version}}");
+        String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "UnknownVersion");
 
         StringBuilder userAgentBuilder = new StringBuilder();
         userAgentBuilder.append("azsdk-java")
