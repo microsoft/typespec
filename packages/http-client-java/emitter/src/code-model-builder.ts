@@ -1499,7 +1499,7 @@ export class CodeModelBuilder {
     });
 
     if (type) {
-      // on cache: the GroupPrpoerty actually has a reference to "originalParameter" (though on same type, the parameter should be identical)
+      // on cache: the GroupProperty actually has a reference to "originalParameter" (though on same type, the parameter should be identical)
       this.schemaCache.set(type, optionBagSchema);
     }
     return optionBagSchema;

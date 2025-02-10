@@ -12,11 +12,13 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import methodoverride.implementation.MethodOverrideClientImpl;
 import methodoverride.implementation.models.GroupAllRequest;
+import methodoverride.implementation.models.GroupNoneRequest;
 import methodoverride.implementation.models.GroupPartRequest;
 import methodoverride.models.GroupAllOptions;
 import methodoverride.models.GroupExcludeBodyModel;
@@ -168,6 +170,51 @@ public final class MethodOverrideClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> groupExcludeBodyWithResponse(BinaryData body, RequestOptions requestOptions) {
         return this.serviceClient.groupExcludeBodyWithResponse(body, requestOptions);
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * <p><strong>Query Parameters</strong></p>
+     * <table border="1">
+     * <caption>Query Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addQueryParam}
+     * <p><strong>Header Parameters</strong></p>
+     * <table border="1">
+     * <caption>Header Parameters</caption>
+     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     * </table>
+     * You can add these to a request with {@link RequestOptions#addHeader}
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     prop1: String (Required)
+     *     prop2: String (Optional)
+     *     prop3: String (Optional)
+     *     prop4: String (Optional)
+     *     prop5: String (Optional)
+     *     prop6: String (Optional)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param groupNoneRequest The groupNoneRequest parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> groupNoneWithResponse(BinaryData groupNoneRequest, RequestOptions requestOptions) {
+        return this.serviceClient.groupNoneWithResponse(groupNoneRequest, requestOptions);
     }
 
     /**
@@ -339,5 +386,65 @@ public final class MethodOverrideClient {
         // Generated convenience method for groupExcludeBodyWithResponse
         RequestOptions requestOptions = new RequestOptions();
         groupExcludeBodyWithResponse(BinaryData.fromObject(body), requestOptions).getValue();
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * 
+     * @param prop1 The prop1 parameter.
+     * @param foo The foo parameter.
+     * @param bar The bar parameter.
+     * @param prop2 The prop2 parameter.
+     * @param prop3 The prop3 parameter.
+     * @param prop4 The prop4 parameter.
+     * @param prop5 The prop5 parameter.
+     * @param prop6 The prop6 parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void groupNone(String prop1, String foo, String bar, String prop2, String prop3, String prop4, String prop5,
+        String prop6) {
+        // Generated convenience method for groupNoneWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        GroupNoneRequest groupNoneRequestObj = new GroupNoneRequest(prop1).setProp2(prop2)
+            .setProp3(prop3)
+            .setProp4(prop4)
+            .setProp5(prop5)
+            .setProp6(prop6);
+        BinaryData groupNoneRequest = BinaryData.fromObject(groupNoneRequestObj);
+        if (foo != null) {
+            requestOptions.addQueryParam("foo", foo, false);
+        }
+        if (bar != null) {
+            requestOptions.setHeader(HttpHeaderName.fromString("bar"), bar);
+        }
+        groupNoneWithResponse(groupNoneRequest, requestOptions).getValue();
+    }
+
+    /**
+     * A remote procedure call (RPC) operation.
+     * 
+     * @param prop1 The prop1 parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void groupNone(String prop1) {
+        // Generated convenience method for groupNoneWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        GroupNoneRequest groupNoneRequestObj = new GroupNoneRequest(prop1);
+        BinaryData groupNoneRequest = BinaryData.fromObject(groupNoneRequestObj);
+        groupNoneWithResponse(groupNoneRequest, requestOptions).getValue();
     }
 }

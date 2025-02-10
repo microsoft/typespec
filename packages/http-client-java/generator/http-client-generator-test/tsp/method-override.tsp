@@ -75,6 +75,21 @@ namespace MethodOverride {
   @post
   @route("/group-exclude-body")
   op groupExcludeBody is global.Azure.Core.RpcOperation<GroupExcludeBody & GroupQueryOptions, {}>;
+
+  alias GroupNoneNotGrouped = {
+    @query foo?: string;
+    @header bar?: string;
+    prop1: string;
+    prop2?: string;
+    prop3?: string;
+    prop4?: string;
+    prop5?: string;
+    prop6?: string;
+  };
+
+  @post
+  @route("/group-none")
+  op groupNone is global.Azure.Core.RpcOperation<GroupNoneNotGrouped, {}>;
 }
 
 // customization in client.tsp
@@ -94,9 +109,11 @@ namespace Customization {
     options?: MethodOverride.GroupQueryOptions,
     ...ApiVersionParameter,
   ): void;
+  op groupNoneCustomization(...MethodOverride.GroupNoneNotGrouped, ...ApiVersionParameter): void;
 
   @@override(MethodOverride.groupQuery, Customization.groupQueryCustomization);
   @@override(MethodOverride.groupAll, Customization.groupAllCustomization);
   @@override(MethodOverride.groupPart, Customization.groupPartCustomization);
   @@override(MethodOverride.groupExcludeBody, Customization.groupExcludeBodyCustomization);
+  @@override(MethodOverride.groupNone, Customization.groupNoneCustomization);
 }
