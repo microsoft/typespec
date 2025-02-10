@@ -7,10 +7,10 @@ import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { execAsync } from "../../src/lib/utils.js";
 import { _validateDotNetSdk } from "../../src/emitter.js";
-import { Logger } from "../../src/lib/logger.js";
 import { LoggerLevel } from "../../src/lib/log-level.js";
+import { Logger } from "../../src/lib/logger.js";
+import { execAsync } from "../../src/lib/utils.js";
 import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
 
 describe("Test _validateDotNetSdk", () => {
@@ -56,11 +56,11 @@ describe("Test _validateDotNetSdk", () => {
   it("should return true for installed SDK version whose major equals min supported version", async () => {
     /* mock the scenario that the installed SDK version whose major equals min supported version */
     (execAsync as Mock).mockResolvedValueOnce({
-        exitCode: 0,
-        stdio: "",
-        stdout: "8.0.204",
-        stderr: "",
-        proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
+      exitCode: 0,
+      stdio: "",
+      stdout: "8.0.204",
+      stderr: "",
+      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
     const logger = new Logger(program, LoggerLevel.INFO);
     const result = await _validateDotNetSdk(program, minVersion, logger);
@@ -72,11 +72,11 @@ describe("Test _validateDotNetSdk", () => {
   it("should return true for installed SDK version whose major greaters than min supported version", async () => {
     /* mock the scenario that the installed SDK version whose major greater than min supported version */
     (execAsync as Mock).mockResolvedValueOnce({
-        exitCode: 0,
-        stdio: "",
-        stdout: "9.0.102",
-        stderr: "",
-        proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
+      exitCode: 0,
+      stdio: "",
+      stdout: "9.0.102",
+      stderr: "",
+      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
     const logger = new Logger(program, LoggerLevel.INFO);
     const result = await _validateDotNetSdk(program, minVersion, logger);
@@ -88,11 +88,11 @@ describe("Test _validateDotNetSdk", () => {
   it("should return false and report diagnostic for invalid .NET SDK version", async () => {
     /* mock the scenario that the installed SDK version whose major less than min supported version */
     (execAsync as Mock).mockResolvedValueOnce({
-        exitCode: 0,
-        stdio: "",
-        stdout: "5.0.408",
-        stderr: "",
-        proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
+      exitCode: 0,
+      stdio: "",
+      stdout: "5.0.408",
+      stderr: "",
+      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
     const logger = new Logger(program, LoggerLevel.INFO);
     const result = await _validateDotNetSdk(program, minVersion, logger);

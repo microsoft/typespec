@@ -12,7 +12,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
-import { NetEmitterOptions, resolveOptions } from "../options.js";
+import { NetEmitterOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
@@ -21,11 +21,11 @@ import { InputEnumType, InputModelType, InputType } from "../type/input-type.js"
 import { RequestLocation } from "../type/request-location.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { reportDiagnostic } from "./lib.js";
+import { Logger } from "./logger.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
-import { Logger } from "./logger.js";
 
 export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions> {
   logger: Logger;
