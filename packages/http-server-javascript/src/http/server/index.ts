@@ -386,6 +386,30 @@ function* emitResultProcessingForType(
   target: Type,
   module: Module,
 ): Iterable<string> {
+  if (target.kind === "Intrinsic") {
+    switch (target.name) {
+      case "void":
+        yield `${names.ctx}.response.statusCode = 204;`;
+        yield `${names.ctx}.response.end();`;
+        return;
+      case "null":
+        yield `${names.ctx}.response.statusCode = 200;`;
+        yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+        yield `${names.ctx}.response.end("null");`;
+        return;
+      case "unknown":
+        yield `${names.ctx}.response.statusCode = 200;`;
+        yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+        yield `${names.ctx}.response.end(JSON.stringify(${names.result}));`;
+        return;
+      case "never":
+        yield `return ${names.ctx}.errorHandlers.onInternalError(${names.ctx}, "Internal server error.");`;
+        return;
+      default:
+        throw new UnimplementedError(`result processing for intrinsic type '${target.name}'`);
+    }
+  }
+
   if (target.kind !== "Model") {
     throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
   }
@@ -517,7 +541,7 @@ function* emitQueryParamBinding(
 
   if (!parameter.param.optional) {
     yield `if (!${nameCase.camelCase}) {`;
-    yield `  ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}');`;
+    yield `  ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}'");`;
     yield "}";
     yield "";
   }
