@@ -44,7 +44,7 @@ This part provides an overview of the common and language-specific settings for 
 
 ### Common Configuration Options
 
-These options apply to all client emitters.
+The below option applies to all client emitters.
 
 - `emitter-output-dir`: Defines where the generated SDK files will be stored.
 
@@ -70,10 +70,6 @@ packageDetails:
   version: 1.0.0
 ```
 
-### Python Client Emitter Settings
-
-No additional setting needed for Python.
-
 ### Java Client Emitter Settings
 
 #### Prerequisites
@@ -84,10 +80,6 @@ Before using the Java client emitter, ensure the following dependencies are inst
   _(Verify installation with `java --version`)_
 - **Maven** - [Download here](https://maven.apache.org/download.cgi)  
   _(Verify installation with `mvn --version`)_
-
-#### Configuration Options
-
-No additional setting needed for Java.
 
 ### .NET Client Emitter Settings
 
@@ -136,6 +128,10 @@ tsp compile {path to main.tsp}/main.tsp
 <Aside>
 
 **All client emitters are in preview**. These emitters are actively being developed and may experience changes or updates that could affect their functionality. Please follow the official documentation for the latest updates.
-_(Details to be added by each language contributors)_
+
+- [TypeSpec CSharp emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md)
+- [TypeSpec Python emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-python/README.md)
+- [TypeSpec Java emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-java/README.md)
+- [TypeSpec JS emitter library](https://github.com/Azure/autorest.typescript/blob/main/packages/typespec-ts/README.md)
 
 </Aside>
