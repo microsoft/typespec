@@ -29,8 +29,7 @@ export interface CSharpEmitterOptions extends SdkEmitterOptions {
  * The JSON schema for the CSharp emitter options.
  * @beta
  */
-//TODO: should this be renamed to CSharpEmitterOptionsSchema? https://github.com/microsoft/typespec/issues/5845
-export const NetEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = {
+export const CSharpEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {

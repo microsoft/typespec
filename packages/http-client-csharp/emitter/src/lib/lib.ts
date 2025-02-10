@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
-import { NetEmitterOptionsSchema } from "../options.js";
+import { CSharpEmitterOptionsSchema } from "../options.js";
 
 const $lib = createTypeSpecLibrary({
   name: "@typespec/http-client-csharp",
@@ -60,7 +60,7 @@ const $lib = createTypeSpecLibrary({
     },
   },
   emitter: {
-    options: NetEmitterOptionsSchema,
+    options: CSharpEmitterOptionsSchema,
   },
 });
 
