@@ -120,8 +120,8 @@ public class Main {
         if (JavaSettings.getInstance().isFluentLite()) {
             String artifactId = FluentUtils.getArtifactId();
             if (!CoreUtils.isNullOrEmpty(artifactId)) {
-                fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
-                    null);
+                fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties",
+                    "version=${project.version}\n", null);
             }
         }
 

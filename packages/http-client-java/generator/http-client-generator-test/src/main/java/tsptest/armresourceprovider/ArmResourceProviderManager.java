@@ -221,7 +221,7 @@ public final class ArmResourceProviderManager {
             Objects.requireNonNull(credential, "'credential' cannot be null.");
             Objects.requireNonNull(profile, "'profile' cannot be null.");
 
-            String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "1.0.0-beta.1");
+            String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, "UnknownVersion");
 
             StringBuilder userAgentBuilder = new StringBuilder();
             userAgentBuilder.append("azsdk-java")
