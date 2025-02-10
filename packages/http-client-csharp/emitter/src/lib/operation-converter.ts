@@ -20,7 +20,7 @@ import {
 import { getDeprecated, isErrorModel } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterOptions } from "../options.js";
 import { BodyMediaType } from "../type/body-media-type.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
@@ -46,7 +46,7 @@ export function fromSdkServiceMethod(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   typeMap: SdkTypeMap,
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
@@ -146,7 +146,7 @@ function getValueType(value: any): SdkBuiltInKinds {
 function fromSdkOperationParameters(
   operation: SdkHttpOperation,
   rootApiVersions: string[],
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   typeMap: SdkTypeMap,
 ): Map<SdkHttpParameter, InputParameter> {
   const parameters = new Map<SdkHttpParameter, InputParameter>();
@@ -178,7 +178,7 @@ function fromSdkOperationParameters(
 function fromSdkHttpOperationParameter(
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   typeMap: SdkTypeMap,
 ): InputParameter {
   const isContentType =
@@ -215,7 +215,7 @@ function fromSdkHttpOperationParameter(
 
 function loadLongRunningOperation(
   method: SdkServiceMethod<SdkHttpOperation>,
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   typeMap: SdkTypeMap,
 ): OperationLongRunning | undefined {
   if (method.kind !== "lro") {
@@ -239,7 +239,7 @@ function loadLongRunningOperation(
 
 function fromSdkHttpOperationResponses(
   operationResponses: SdkHttpResponse[],
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   typeMap: SdkTypeMap,
 ): Map<SdkHttpResponse, OperationResponse> {
   const responses = new Map<SdkHttpResponse, OperationResponse>();
@@ -259,7 +259,7 @@ function fromSdkHttpOperationResponses(
 
 function fromSdkServiceResponseHeaders(
   headers: SdkServiceResponseHeader[],
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   typeMap: SdkTypeMap,
 ): HttpResponseHeader[] {
   return headers.map(

@@ -10,12 +10,12 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterOptions } from "../options.js";
 import { InputAuth } from "../type/input-auth.js";
 import { reportDiagnostic } from "./lib.js";
 
 export function processServiceAuthentication(
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   sdkPackage: SdkPackage<SdkHttpOperation>,
 ): InputAuth | undefined {
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
@@ -48,7 +48,7 @@ export function processServiceAuthentication(
 }
 
 function processAuthType(
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   credentialType: SdkCredentialType,
 ): InputAuth | undefined {
   const scheme = credentialType.scheme;

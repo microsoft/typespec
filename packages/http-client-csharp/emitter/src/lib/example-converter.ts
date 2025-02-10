@@ -19,7 +19,7 @@ import {
   SdkUnionExampleValue,
   SdkUnknownExampleValue,
 } from "@azure-tools/typespec-client-generator-core";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterOptions } from "../options.js";
 import {
   InputArrayExampleValue,
   InputBooleanExampleValue,
@@ -49,7 +49,7 @@ import { SdkTypeMap } from "../type/sdk-type-map.js";
 import { fromSdkType } from "./type-converter.js";
 
 export function fromSdkHttpExamples(
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: SdkContext<CSharpEmitterOptions>,
   examples: SdkHttpOperationExample[],
   parameterMap: Map<SdkHttpParameter, InputParameter>,
   responseMap: Map<SdkHttpResponse, OperationResponse>,

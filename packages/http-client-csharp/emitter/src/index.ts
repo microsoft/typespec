@@ -7,7 +7,7 @@ export { createDiagnostic, getTracer, reportDiagnostic } from "./lib/lib.js";
 export { LoggerLevel } from "./lib/log-level.js";
 export { Logger } from "./lib/logger.js";
 export {
-  NetEmitterOptions,
+  CSharpEmitterOptions as NetEmitterOptions,
   NetEmitterOptionsSchema,
   defaultOptions,
   resolveOptions,

@@ -22,7 +22,7 @@ import { XmlTestLibrary } from "@typespec/xml/testing";
 import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
-import { NetEmitterOptions } from "../../../src/options.js";
+import { CSharpEmitterOptions } from "../../../src/options.js";
 import { InputEnumType, InputModelType } from "../../../src/type/input-type.js";
 
 export async function createEmitterTestHost(): Promise<TestHost> {
@@ -97,7 +97,7 @@ export async function typeSpecCompile(
   return host.program;
 }
 
-export function createEmitterContext(program: Program): EmitContext<NetEmitterOptions> {
+export function createEmitterContext(program: Program): EmitContext<CSharpEmitterOptions> {
   return {
     program: program,
     emitterOutputDir: "./",
@@ -112,12 +112,12 @@ export function createEmitterContext(program: Program): EmitContext<NetEmitterOp
       "generate-convenience-methods": true,
       "package-name": undefined,
     },
-  } as EmitContext<NetEmitterOptions>;
+  } as EmitContext<CSharpEmitterOptions>;
 }
 
 /* Navigate all the models in the whole namespace. */
 export function navigateModels(
-  context: SdkContext<NetEmitterOptions>,
+  context: SdkContext<CSharpEmitterOptions>,
   namespace: Namespace,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>,
@@ -138,9 +138,9 @@ export function navigateModels(
 
 /* We always need to pass in the emitter name now that it is required so making a helper to do this. */
 export async function createNetSdkContext(
-  program: EmitContext<NetEmitterOptions>,
+  program: EmitContext<CSharpEmitterOptions>,
   sdkContextOptions: CreateSdkContextOptions = {},
-): Promise<SdkContext<NetEmitterOptions>> {
+): Promise<SdkContext<CSharpEmitterOptions>> {
   Logger.initialize(program.program, LoggerLevel.INFO);
   return await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);
 }

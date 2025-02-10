@@ -12,7 +12,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterOptions } from "../options.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
@@ -26,7 +26,7 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+export function createModel(sdkContext: SdkContext<CSharpEmitterOptions>): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -66,7 +66,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   return clientModel;
 
   function fromSdkClients(
-    sdkContext: SdkContext<NetEmitterOptions>,
+    sdkContext: SdkContext<CSharpEmitterOptions>,
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
@@ -84,7 +84,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   }
 
   function fromSdkClient(
-    sdkContext: SdkContext<NetEmitterOptions>,
+    sdkContext: SdkContext<CSharpEmitterOptions>,
     client: SdkClientType<SdkHttpOperation>,
     parentNames: string[],
   ): InputClient {

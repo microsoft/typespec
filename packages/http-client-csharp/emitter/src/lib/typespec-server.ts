@@ -5,7 +5,7 @@ import { SdkContext } from "@azure-tools/typespec-client-generator-core";
 import { getDoc, getSummary } from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterOptions } from "../options.js";
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
@@ -21,7 +21,7 @@ export interface TypeSpecServer {
 }
 
 export function resolveServers(
-  context: SdkContext<NetEmitterOptions>,
+  context: SdkContext<CSharpEmitterOptions>,
   servers: HttpServer[],
   typeMap: SdkTypeMap,
 ): TypeSpecServer[] {

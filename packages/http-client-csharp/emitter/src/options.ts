@@ -7,8 +7,7 @@ import { LoggerLevel } from "./lib/log-level.js";
  * The emitter options for the CSharp emitter.
  * @beta
  */
-//TODO: should this be renamed to CSharpEmitterOptions? https://github.com/microsoft/typespec/issues/5845
-export interface NetEmitterOptions extends SdkEmitterOptions {
+export interface CSharpEmitterOptions extends SdkEmitterOptions {
   "api-version"?: string;
   outputFile?: string;
   logFile?: string;
@@ -31,7 +30,7 @@ export interface NetEmitterOptions extends SdkEmitterOptions {
  * @beta
  */
 //TODO: should this be renamed to CSharpEmitterOptionsSchema? https://github.com/microsoft/typespec/issues/5845
-export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
+export const NetEmitterOptionsSchema: JSONSchemaType<CSharpEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
@@ -96,7 +95,7 @@ export const defaultOptions = {
  * @returns The resolved options.
  * @beta
  */
-export function resolveOptions(context: EmitContext<NetEmitterOptions>) {
+export function resolveOptions(context: EmitContext<CSharpEmitterOptions>) {
   const emitterOptions = context.options;
   const emitterOutputDir = context.emitterOutputDir;
   const resolvedOptions = { ...defaultOptions, ...emitterOptions };
@@ -115,6 +114,6 @@ export function resolveOptions(context: EmitContext<NetEmitterOptions>) {
  * @returns The resolved output folder path.
  * @internal
  */
-export function _resolveOutputFolder(context: EmitContext<NetEmitterOptions>): string {
+export function _resolveOutputFolder(context: EmitContext<CSharpEmitterOptions>): string {
   return resolvePath(context.emitterOutputDir ?? "./tsp-output");
 }

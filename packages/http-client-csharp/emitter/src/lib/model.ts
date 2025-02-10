@@ -14,7 +14,7 @@ import {
   getQueryParamName,
   isStatusCode,
 } from "@typespec/http";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterOptions } from "../options.js";
 import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
@@ -72,7 +72,7 @@ export function getDefaultValue(type: Type): any {
 }
 
 export function getInputType(
-  context: SdkContext<NetEmitterOptions>,
+  context: SdkContext<CSharpEmitterOptions>,
   type: Type,
   typeCache: SdkTypeMap,
   operation?: Operation,
@@ -84,7 +84,7 @@ export function getInputType(
   return fromSdkType(sdkType, context, typeCache, literalTypeContext);
 }
 
-export function navigateModels(context: SdkContext<NetEmitterOptions>, typeCache: SdkTypeMap) {
+export function navigateModels(context: SdkContext<CSharpEmitterOptions>, typeCache: SdkTypeMap) {
   for (const type of getAllModels(context)) {
     if (type.name === "" || isAzureCoreModel(type)) {
       continue;
