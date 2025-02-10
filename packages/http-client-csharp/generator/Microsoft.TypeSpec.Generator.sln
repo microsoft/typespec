@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjects.Local.Tests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProjects.CadlRanch.Tests", "TestProjects\CadlRanch.Tests\TestProjects.CadlRanch.Tests.csproj", "{EF7F6486-1DA6-4D46-9621-852AFCF381A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.TypeSpec.Generator.Tests.Perf", "Microsoft.TypeSpec.Generator\perf\Microsoft.TypeSpec.Generator.Tests.Perf.csproj", "{501A628F-A571-40F5-818B-2CCE81610A0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.TypeSpec.Generator.Tests.Common", "Microsoft.TypeSpec.Generator\test\common\Microsoft.TypeSpec.Generator.Tests.Common.csproj", "{97241DB7-7D0B-451C-BC57-3549897ECF0C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,14 @@ Global
 		{EF7F6486-1DA6-4D46-9621-852AFCF381A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF7F6486-1DA6-4D46-9621-852AFCF381A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF7F6486-1DA6-4D46-9621-852AFCF381A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{501A628F-A571-40F5-818B-2CCE81610A0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{501A628F-A571-40F5-818B-2CCE81610A0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{501A628F-A571-40F5-818B-2CCE81610A0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{501A628F-A571-40F5-818B-2CCE81610A0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97241DB7-7D0B-451C-BC57-3549897ECF0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97241DB7-7D0B-451C-BC57-3549897ECF0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97241DB7-7D0B-451C-BC57-3549897ECF0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97241DB7-7D0B-451C-BC57-3549897ECF0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
