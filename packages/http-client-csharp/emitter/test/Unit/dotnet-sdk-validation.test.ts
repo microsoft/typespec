@@ -2,11 +2,10 @@ vi.mock("../../src/lib/utils.js", () => ({
   execAsync: vi.fn(),
 }));
 
-
 import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { execAsync } from "../../src/lib/utils.js";
 import { _validateDotNetSdk } from "../../src/emitter.js";
 import { Logger } from "../../src/lib/logger.js";

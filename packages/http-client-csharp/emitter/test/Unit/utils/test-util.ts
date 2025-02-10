@@ -19,7 +19,7 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
-import { LoggerLevel } from "../../../src/index.js";
+import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { CSharpEmitterContext } from "../../../src/lib/client-model-builder.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
