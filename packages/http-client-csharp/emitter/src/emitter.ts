@@ -26,7 +26,6 @@ import { reportDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
-console.log("Inside _validateDotNetSdk, execAsync reference:", execAsync);
 import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
@@ -189,10 +188,8 @@ export async function _validateDotNetSdk(
 ): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    console.log(result.stdout);
     return validateDotNetSdkVersion(program, result.stdout, minMajorVersion, logger);
   } catch (error: any) {
-    console.log(error);
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
       reportDiagnostic(program, {
         code: "invalid-dotnet-sdk-dependency",
