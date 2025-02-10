@@ -21,7 +21,7 @@
     <module>http-client-generator</module>
     <module>http-client-generator-mgmt</module>
     <module>http-client-generator-core</module>
-      <module>http-client-generator-provisioning</module>
+    <module>http-client-generator-provisioning</module>
   </modules>
 
   <profiles>

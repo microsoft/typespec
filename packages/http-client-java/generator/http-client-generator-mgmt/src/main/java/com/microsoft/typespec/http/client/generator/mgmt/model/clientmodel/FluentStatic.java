@@ -40,6 +40,10 @@ public class FluentStatic {
         return fluentClient.getManager();
     }
 
+    public static FluentClient getFluentClient() {
+        return fluentClient;
+    }
+
     public static void setFluentClient(FluentClient fluentClient) {
         FluentStatic.fluentClient = fluentClient;
     }

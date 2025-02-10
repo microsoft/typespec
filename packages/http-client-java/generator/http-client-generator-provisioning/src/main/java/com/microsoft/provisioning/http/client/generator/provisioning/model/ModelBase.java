@@ -1,9 +1,11 @@
 package com.microsoft.provisioning.http.client.generator.provisioning.model;
 
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+
 import java.lang.reflect.Type;
 
 public abstract class ModelBase {
-    private Type armType;
+    private ClientModel armType;
     private String provisioningPackage;
     private String name;
     private String description;
@@ -20,7 +22,7 @@ public abstract class ModelBase {
         this.provisioningPackage = provisioningPackage;
     }
 
-    public ModelBase(String name, String provisioningPackage, Type armType, String description) {
+    public ModelBase(String name, String provisioningPackage, ClientModel armType, String description) {
         this.name = name;
         this.provisioningPackage = provisioningPackage;
         this.armType = armType;
@@ -29,11 +31,11 @@ public abstract class ModelBase {
         this.isExternal = false;
     }
 
-    public Type getArmType() {
+    public ClientModel getArmType() {
         return armType;
     }
 
-    public void setArmType(Type armType) {
+    public void setArmType(ClientModel armType) {
         this.armType = armType;
     }
 

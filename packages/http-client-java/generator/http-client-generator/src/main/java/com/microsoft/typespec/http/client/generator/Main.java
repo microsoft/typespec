@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import java.io.IOException;
@@ -104,7 +105,7 @@ public class Main {
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
         // write
-        Specification specification = new Specification(JavaSettings.getInstance().getPackage(), JavaSettings.getInstance().getPackage(), emitterOptions.getOutputDir()) {
+        Specification specification = new Specification(JavaSettings.getInstance().getPackage(), JavaSettings.getInstance().getPackage(), emitterOptions.getOutputDir(), FluentStatic.getFluentClient().getResourceModels()) {
             @Override
             protected void customize() {
 

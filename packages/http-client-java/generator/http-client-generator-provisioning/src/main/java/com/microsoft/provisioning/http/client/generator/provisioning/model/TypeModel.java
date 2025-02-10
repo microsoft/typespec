@@ -3,6 +3,8 @@
 
 package com.microsoft.provisioning.http.client.generator.provisioning.model;
 
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +17,7 @@ public abstract class TypeModel extends ModelBase {
     private boolean fromExpression;
     private Specification spec;
 
-    protected TypeModel(Specification spec, Type armType, String name, String ns, String description) {
+    protected TypeModel(Specification spec, ClientModel armType, String name, String ns, String description) {
         super(name, ns, armType, description);
         this.spec = spec;
         this.properties = new HashSet<>();

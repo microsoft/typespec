@@ -7,6 +7,7 @@ import com.azure.core.management.Region;
 import com.azure.core.models.ResponseError;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.ETag;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 
 import java.lang.reflect.Type;
 import java.net.InetAddress;
@@ -26,7 +27,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TypeRegistry {
-    private static final Map<Type, ModelBase> _mapping = new HashMap<>();
+    private static final Map<ClientModel, ModelBase> _mapping = new HashMap<>();
     private static final List<ModelBase> _types = new ArrayList<>();
 
     public static List<ModelBase> getTypes() {
@@ -76,7 +77,7 @@ public class TypeRegistry {
         }
     }
 
-    public static ModelBase get(Type armType) {
+    public static ModelBase get(ClientModel armType) {
         Objects.requireNonNull(armType, "armType");
         return _mapping.get(armType);
     }

@@ -3,6 +3,8 @@ package com.microsoft.provisioning.http.client.generator.provisioning.model;
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.IndentWriter;
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.NameUtils;
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.ReflectionUtils;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -26,9 +28,16 @@ public class Resource extends TypeModel {
     private Resource parentResource;
     private SimpleModel getKeysType;
     private boolean getKeysIsList;
+    private FluentResourceModel resourceModel;
 
-    public Resource(Specification spec, Type armType) {
-        super(spec, armType, ((Class<?>) armType).getSimpleName(), ((Class<?>) armType).getPackageName(), "");
+    public Resource(Specification spec, FluentResourceModel armType) {
+        super(spec, armType.getInnerModel(), armType.getInnerModel().getName(), armType.getInnerModel().getPackage(), "");
+        this.resourceModel = armType;
+        this.resourceNamespace = armType.getResourceCreate().getUrlPathSegments().getPath();
+    }
+
+    public FluentResourceModel getResourceModel() {
+        return resourceModel;
     }
 
     public String getResourceType() {

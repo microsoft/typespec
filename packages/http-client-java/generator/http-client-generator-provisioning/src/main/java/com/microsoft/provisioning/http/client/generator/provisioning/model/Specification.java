@@ -1,45 +1,25 @@
 package com.microsoft.provisioning.http.client.generator.provisioning.model;
 
-import com.azure.core.annotation.ServiceMethod;
-import com.azure.core.http.rest.Response;
 import com.azure.core.management.AzureEnvironment;
-import com.azure.core.management.ProxyResource;
 import com.azure.core.management.profile.AzureProfile;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.provisioning.generator.Main;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.resources.fluentcore.arm.ResourceId;
-import com.microsoft.provisioning.http.client.generator.provisioning.utils.ReflectionUtils;
-import com.microsoft.provisioning.http.client.generator.provisioning.utils.ResourceNamespaceMapper;
-import org.reflections.Reflections;
-import org.reflections.scanners.Scanners;
-import org.reflections.util.ConfigurationBuilder;
-import reactor.core.publisher.Mono;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
 public abstract class Specification extends ModelBase {
-    public static final File BASE_DIR = new File(System.getProperty("user.dir"));
     /**
      * ArmClient used for talking to the service so it can fetch lists of
      * supported versions for resources.
@@ -74,7 +54,11 @@ public abstract class Specification extends ModelBase {
 
     private Map<String, ModelBase> modelNameMapping = new HashMap<>();
 
-    private Map<Type, ModelBase> modelArmTypeMapping = new HashMap<>();
+    private final Map<FluentResourceModel, ModelBase> modelArmTypeMapping = new HashMap<>();
+
+    private final List<FluentResourceModel> resourceModels;
+
+    private final Map<String, Resource> resourcePathModelMap = new HashMap<>();
 
     public boolean isSkipCleaning() {
         return skipCleaning;
@@ -100,14 +84,15 @@ public abstract class Specification extends ModelBase {
         return modelNameMapping;
     }
 
-    public Map<Type, ModelBase> getModelArmTypeMapping() {
+    public Map<FluentResourceModel, ModelBase> getModelArmTypeMapping() {
         return modelArmTypeMapping;
     }
 
-    public Specification(String name, String provisioningPackage, String baseDir) {
+    public Specification(String name, String provisioningPackage, String baseDir, List<FluentResourceModel> resourceModels) {
         super(name, provisioningPackage, null, null);
         this.baseDir = baseDir + "/sdk/" + getProvisioningPackage().replace("com.", "").replace(".", "-");
         TypeRegistry.register(this);
+        this.resourceModels = resourceModels;
     }
 
     @Override
@@ -153,40 +138,22 @@ public abstract class Specification extends ModelBase {
 
     // Placeholder methods for analyze, customize, lint, and getGenerationPath
     public void analyze() {
-        Map<Type, Method> resources = findConstructibleResources();
-        this.resources = resources.keySet().stream().map(type -> {
-            Resource resource = new Resource(this, type);
+        this.resources = resourceModels.stream().map(resourceModel -> {
+            Resource resource = new Resource(this, resourceModel);
             this.modelNameMapping.put(resource.getName(), resource);
-            this.modelArmTypeMapping.put(resource.getArmType(), resource);
+            this.modelArmTypeMapping.put(resourceModel, resource);
+            this.resourcePathModelMap.put(resourceModel.getResourceCreate().getUrlPathSegments().getPath(), resource);
             return resource;
         }).toList();
         this.resources.forEach(resource -> {
             resource.setProvisioningPackage(this.getProvisioningPackage() + ".generated");
-
-            Method creatorMethod = resources.get(resource.getArmType());
-            Field type = null;
-            try {
-                type = getType(resource);
-                if (type != null) {
-                    resource.setResourceType(type.getName());
-                    String namespace = ResourceNamespaceMapper.getNamespace(resource.getArmType());
-                    if (namespace == null) {
-                        System.out.println("Cannot find namespace for " + resource.getArmType());
-                        return;
-                    }
-                    resource.setResourceNamespace(namespace);
-                    ResourceId resourceIdTemplate = ResourceNamespaceMapper.getResourceIdTemplate(resource.getArmType());
-                    if (resourceIdTemplate.parent() != null) {
-                        Type parentType = ResourceNamespaceMapper.getResourceType(resourceIdTemplate.parent());
-                        if (parentType != null) {
-                            resource.setParentResource((Resource) this.modelArmTypeMapping.get(parentType));
-                        }
-                    }
+            ResourceId resourceId = ResourceId.fromString(resource.getResourceModel().getResourceCreate().getUrlPathSegments().getPath());
+            if (resourceId.parent() != null) {
+                Resource parent = this.resourcePathModelMap.get(resourceId.parent().toString());
+                if (parent != null) {
+                    resource.setParentResource(parent);
                 }
-            } catch (NoSuchFieldException e) {
-                // do nothing - the field doesn't exist
             }
-            resource.setProperties(findProperties(resource, creatorMethod, type));
         });
 
         AZURE_RESOURCE_MANAGER.providers()
@@ -205,190 +172,10 @@ public abstract class Specification extends ModelBase {
                                     if (stableVersions.isEmpty()) {
                                         resource.setResourceVersions(resourceType.apiVersions().stream().sorted().collect(Collectors.toList()));
                                     }
-                                    resource.setDefaultResourceVersion(resource.getResourceVersions().getLast());
+                                    resource.setDefaultResourceVersion(resource.getResourceVersions().get(resource.getResourceVersions().size() - 1));
                                 }
                             });
                 });
-    }
-
-    private static Field getType(Resource resource) throws NoSuchFieldException {
-        Class<?> currentClass = ((Class<?>) resource.getArmType());
-        while (currentClass != null) {
-            try {
-                Field type = currentClass.getDeclaredField("type");
-                if (type != null) {
-                    return type;
-                }
-            } catch (NoSuchFieldException e) {
-                // Do nothing
-            }
-            currentClass = currentClass.getSuperclass();
-        }
-        return null;
-    }
-
-    private Set<Property> findProperties(Resource resource, Method creatorMethod, Field field) {
-        Set<Property> properties = new HashSet<>();
-        properties.addAll(getPropertiesFromResource(resource, resource.getArmType()));
-
-        return properties;
-    }
-
-    private Set<Property> getPropertiesFromResource(Resource resource, Parameter param) {
-        Set<Property> properties = new HashSet<>();
-        Class<?> currentType = param.getType();
-
-        while (currentType != ProxyResource.class && currentType != null) {
-            Arrays.stream(currentType.getDeclaredFields())
-                    .filter(field -> field.getType() != ClientLogger.class)
-                    .forEach(field -> {
-                        if (ReflectionUtils.isSimpleType(field.getType())) {
-                            Property property = new Property(resource, getOrCreateModelType(field.getType(), resource), field, null);
-//                            property.setRequired(true);
-                            properties.add(property);
-                        } else if (ReflectionUtils.isPropertiesTypes(field)) {
-                            properties.add(new Property(resource, getOrCreateModelType(field.getType(), resource), field, null));
-                        }
-                    });
-            currentType = currentType.getSuperclass();
-        }
-        return properties;
-    }
-
-    private Set<Property> getPropertiesFromResource(Resource resource, Type type) {
-        Set<Property> properties = new HashSet<>();
-        Class<?> currentType = (Class<?>) type;
-
-        while (currentType != ProxyResource.class && currentType != null) {
-            Arrays.stream(currentType.getDeclaredFields())
-                .filter(field -> field.getType() != ClientLogger.class && !field.getName().equals("id") && !field.getName().equals("type"))
-                .forEach(field -> {
-                    if (ReflectionUtils.isSimpleType(field.getType())) {
-                        Property property = new Property(resource, getOrCreateModelType(field.getType(), resource), field, null);
-//                            property.setRequired(true);
-                        properties.add(property);
-                    } else if (ReflectionUtils.isPropertiesTypes(field)) {
-                        properties.add(new Property(resource, getOrCreateModelType(field.getType(), resource), field, null));
-                    }
-                });
-            currentType = currentType.getSuperclass();
-        }
-        return properties;
-    }
-
-    private Set<Property> getPropertiesFromModel(Resource resource, Field field) {
-        Set<Property> properties = new HashSet<>();
-
-        Arrays.stream(field.getType().getDeclaredFields())
-                .filter(f -> f.getType() != ClientLogger.class)
-                .forEach(f -> {
-                    handleField(resource, f, properties);
-                });
-        return properties;
-    }
-
-    private void handleField(Resource resource, Field f, Set<Property> properties) {
-        if (ReflectionUtils.isSimpleType(f.getType())) {
-            Property property = new Property(resource, getOrCreateModelType(f.getType(), resource), f, null);
-//                        property.setRequired(true);
-            properties.add(property);
-        } else if (ReflectionUtils.isPropertiesTypes(f)) {
-            properties.addAll(getPropertiesFromModel(resource, f));
-        } else {
-            ModelBase model;
-            if (f.getType() == Map.class || f.getType() == List.class) {
-                model = getOrCreateModelType(f.getGenericType(), resource);
-            } else {
-                model = getOrCreateModelType(f.getType(), resource);
-            }
-
-            Property property = new Property(resource, model, f, null);
-            properties.add(property);
-        }
-    }
-
-    private ModelBase getOrCreateModelType(Type type, Resource resource) {
-        if (TypeRegistry.get(type) != null) {
-            return TypeRegistry.get(type);
-        }
-
-        if (type instanceof ParameterizedType parameterizedType) {
-            if (parameterizedType.getRawType() == List.class) {
-                parameterizedType.getActualTypeArguments();
-                ListModel listModel = new ListModel(getOrCreateModelType(parameterizedType.getActualTypeArguments()[0], resource));
-                listModel.setProvisioningPackage(List.class.getPackageName());
-                return listModel;
-            }
-
-            if (parameterizedType.getRawType() == Map.class) {
-                DictionaryModel dictionaryModel = new DictionaryModel(getOrCreateModelType(parameterizedType.getActualTypeArguments()[1], resource));
-                dictionaryModel.setProvisioningPackage(Map.class.getPackageName());
-                return dictionaryModel;
-            }
-        }
-
-        Class<?> classType = ((Class<?>) type);
-        if (classType.getPackageName().startsWith("com.azure.resourcemanager")) {
-            if (ReflectionUtils.isEnumType(classType)) {
-                List<String> enumValues = ReflectionUtils.getEnumValues(classType);
-                EnumModel enumModel = new EnumModel(classType.getSimpleName(), this.getProvisioningPackage() + ".generated.models", enumValues);
-                enumModel.setSpec(this);
-                modelNameMapping.putIfAbsent(classType.getName(), enumModel);
-                return enumModel;
-            }
-
-            SimpleModel simpleModel = new SimpleModel(this, classType, classType.getSimpleName(), this.getProvisioningPackage() + ".generated.models", null);
-            simpleModel.setProperties(getPropertiesFromModel(resource, classType));
-            modelNameMapping.putIfAbsent(classType.getName(), simpleModel);
-            return simpleModel;
-        }
-        ExternalModel externalModel = new ExternalModel(type);
-        externalModel.setExternal(true);
-        TypeRegistry.register(externalModel);
-        return externalModel;
-    }
-
-    private Set<Property> getPropertiesFromModel(Resource resource, Class<?> type) {
-        Set<Property> properties = new HashSet<>();
-        Arrays.stream(type.getDeclaredFields())
-                .forEach(f -> {
-                    handleField(resource, f, properties);
-                });
-        return properties;
-    }
-
-    private Map<Type, Method> findConstructibleResources() {
-        Map<Type, Method> resources = new HashMap<>();
-        Reflections reflections = getReflections();
-        ResourceNamespaceMapper.initializeNamespace(reflections);
-        Set<Method> methodsAnnotatedWith = reflections.getMethodsAnnotatedWith(ServiceMethod.class);
-        methodsAnnotatedWith.stream()
-                .filter(method -> method.getName().startsWith("create"))
-                .filter(method -> method.getReturnType() != Mono.class)
-                .forEach(method -> {
-                    if (method.getReturnType() == Response.class) {
-                        // with response method overwrites the convenience overloads
-                        Class<?> resource = (Class<?>)((ParameterizedType) method.getGenericReturnType()).getActualTypeArguments()[0];
-                        if (ProxyResource.class.isAssignableFrom(resource)) {
-                            resources.put(resource, method);
-                        }
-                    } else {
-                        // add this only if the resource doesn't already exist
-                        Class<?> resource = method.getReturnType();
-                        if (ProxyResource.class.isAssignableFrom(resource)) {
-                            resources.putIfAbsent(resource, method);
-                        }
-                    }
-                });
-
-        resources.keySet()
-                .forEach(type -> {
-                    Class<?> superType = ((Class<?>) type).getSuperclass();
-                    if (resources.containsKey(superType)) {
-                        throw new IllegalStateException("Unexpected derived type " + type + " of " + superType);
-                    }
-                });
-        return resources;
     }
 
     protected abstract void customize();
