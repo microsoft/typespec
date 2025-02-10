@@ -32,7 +32,6 @@ public class ReadmeTemplate extends com.microsoft.typespec.http.client.generator
             TemplateUtil.SERVICE_DESCRIPTION, project.getServiceDescriptionForMarkdown(), TemplateUtil.GROUP_ID,
             project.getGroupId(), TemplateUtil.ARTIFACT_ID, project.getArtifactId(), TemplateUtil.ARTIFACT_VERSION,
             project.getVersion(), TemplateUtil.MANAGER_CLASS, FluentStatic.getFluentManager().getType().getName(),
-            TemplateUtil.SAMPLE_CODES, sampleCodesBuilder.toString(), TemplateUtil.IMPRESSION_PIXEL,
-            getImpression(project));
+            TemplateUtil.SAMPLE_CODES, sampleCodesBuilder.toString());
     }
 }
