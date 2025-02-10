@@ -13,6 +13,10 @@ describe("Test _validateDotNetSdk", () => {
   let program: Program;
   const minVersion = 8;
 
+  vi.mock("../../src/lib/utils.js", () => ({
+    execAsync: vi.fn(),
+  }));
+
   beforeEach(async () => {
     runner = await createEmitterTestHost();
     program = await typeSpecCompile(
@@ -25,11 +29,7 @@ describe("Test _validateDotNetSdk", () => {
       `,
       runner,
     );
-    vi.resetModules();
-    vi.mock("../../src/lib/utils.js", () => ({
-      execAsync: vi.fn(),
-    }));
-    // vi.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should return false and report diagnostic when dotnet SDK is not installed.", async () => {
