@@ -89,7 +89,7 @@ export function fromSdkServiceMethod(
 }
 
 export function getParameterDefaultValue(
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: CSharpEmitterContext,
   clientDefaultValue: any,
   parameterType: InputType,
 ): InputConstant | undefined {
@@ -112,7 +112,7 @@ export function getParameterDefaultValue(
   };
 }
 
-function getValueType(sdkContext: SdkContext<NetEmitterOptions>, value: any): SdkBuiltInKinds {
+function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInKinds {
   switch (typeof value) {
     case "string":
       return "string";

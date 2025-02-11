@@ -19,7 +19,7 @@ import {
   getAccessOverride,
   isReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
-import { Model } from "@typespec/compiler";
+import { Model, NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../emitter-context.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import {
@@ -36,6 +36,7 @@ import {
   InputType,
   InputUnionType,
 } from "../type/type-interfaces.js";
+import { reportDiagnostic } from "./lib.js";
 
 export function fromSdkType(
   sdkType: SdkType,

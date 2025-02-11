@@ -23,8 +23,6 @@ export function resolveServers(
   context: CSharpEmitterContext,
   servers: HttpServer[],
 ): TypeSpecServer[] {
-  const logger = new Logger(context.program, LoggerLevel.INFO);
-  const csharpEmitterContext = { ...context, logger };
   return servers.map((server) => {
     const parameters: InputParameter[] = [];
     let url: string = server.url;
@@ -39,11 +37,7 @@ export function resolveServers(
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-<<<<<<< HEAD
         : getInputType(context, prop);
-=======
-        : getInputType(csharpEmitterContext, prop, typeMap);
->>>>>>> origin/main
 
       if (value) {
         defaultValue = {

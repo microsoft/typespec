@@ -30,6 +30,7 @@ import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./op
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
 import { InputEnumType, InputModelType, InputType } from "./type/type-interfaces.js";
+import { CSharpEmitterContext } from "./emitter-context.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -71,7 +72,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       "@typespec/http-client-csharp",
       defaultSDKContextOptions,
     );
-    const root = createModel({
+    const csharpEmitterContext = {
       ...sdkContext,
       logger: logger,
       __typeCache: {
@@ -79,7 +80,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         models: new Map<string, InputModelType>(),
         enums: new Map<string, InputEnumType>(),
       },
-    });
+    };
+    const root = createModel(csharpEmitterContext);
     if (
       context.program.diagnostics.length > 0 &&
       context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
