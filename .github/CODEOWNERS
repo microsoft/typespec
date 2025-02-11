@@ -1,10 +1,13 @@
 # Catch all
-*                                            @bterlson @markcowl @allenjzhang @timotheeguerin @witemple-msft
+*                                            @bterlson @markcowl @allenjzhang @timotheeguerin @witemple-msft @chrisradek @AlitzelMendez
+
+# This folder is not important and can be modified by anyone
+.chronus/changes/
 
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft
 
 ######################
 # Java
