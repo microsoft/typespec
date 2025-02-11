@@ -42,13 +42,6 @@ namespace MethodOverride {
   @route("/group-all")
   op groupAll is global.Azure.Core.RpcOperation<GroupAllOptions, {}>;
 
-  model AllGroupOptions {
-    @query foo?: string;
-    @query bar?: string;
-    prop1: string;
-    prop2?: string;
-  }
-
   alias GroupPartNotGrouped = {
     @query foo?: string;
     prop1: string;
