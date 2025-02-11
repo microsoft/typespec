@@ -2,7 +2,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { NoTarget, Program, Tracer } from "@typespec/compiler";
-import { getTracer, reportDiagnostic } from "./lib.js";
+import { getTracer, reportDiagnostic as libReportDiagnostic } from "./lib.js";
+
+type SecondParameter<T extends (...args: any) => any> = T extends (arg1: any, arg2: infer P, ...args: any) => any ? P : never;
 
 /**
  * The Logger class for the emitter.
@@ -13,16 +15,14 @@ export class Logger {
   private level: LoggerLevel;
   private program: Program;
 
-  public constructor(program: Program, level: LoggerLevel) {
+  public constructor(program: Program, level?: LoggerLevel) {
     this.tracer = getTracer(program);
-    this.level = level;
+    this.level = level ?? LoggerLevel.INFO;
     this.program = program;
   }
 
-  reportDiagnostic(
-    ...args: Parameters<typeof reportDiagnostic> extends [Program, ...infer P] ? P : never
-  ): void {
-    reportDiagnostic(this.program, ...args);
+  reportDiagnostic(diag: SecondParameter<typeof libReportDiagnostic>): void {
+    libReportDiagnostic(this.program, diag);
   }
 
   info(message: string): void {
@@ -48,7 +48,7 @@ export class Logger {
   }
 
   warn(message: string): void {
-    reportDiagnostic(this.program, {
+    this.reportDiagnostic({
       code: "general-warning",
       format: { message: message },
       target: NoTarget,
@@ -56,7 +56,7 @@ export class Logger {
   }
 
   error(message: string): void {
-    reportDiagnostic(this.program, {
+    this.reportDiagnostic({
       code: "general-error",
       format: { message: message },
       target: NoTarget,

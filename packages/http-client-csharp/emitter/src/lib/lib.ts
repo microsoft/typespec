@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
-import { NetEmitterOptionsSchema } from "../options.js";
+import { CSharpEmitterOptionsSchema } from "../options.js";
 
 const $lib = createTypeSpecLibrary({
   name: "@typespec/http-client-csharp",
@@ -82,9 +82,15 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`Cookie parameter is not supported: ${"parameterName"}, found in operation ${"path"}`,
       },
     },
+    "unsupported-patch-convenience-method": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"operationCrossLanguageDefinitionId"}.`,
+      }
+    }
   },
   emitter: {
-    options: NetEmitterOptionsSchema,
+    options: CSharpEmitterOptionsSchema,
   },
 });
 

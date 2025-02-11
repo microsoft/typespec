@@ -3,10 +3,10 @@
 
 import { SdkContext, SdkType } from "@azure-tools/typespec-client-generator-core";
 import { Logger } from "./lib/logger.js";
-import { NetEmitterOptions } from "./options.js";
+import { CSharpEmitterOptions } from "./options.js";
 import { InputEnumType, InputModelType, InputType } from "./type/input-type.js";
 
-export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions> {
+export interface CSharpEmitterContext extends SdkContext<CSharpEmitterOptions> {
   logger: Logger;
   __typeCache: SdkTypeMap;
 }

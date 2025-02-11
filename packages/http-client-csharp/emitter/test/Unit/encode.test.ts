@@ -5,7 +5,7 @@ import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
+  createCSharpSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -28,7 +28,7 @@ describe("Test encode duration", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "input",
@@ -57,7 +57,7 @@ describe("Test encode duration", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "input",
@@ -86,7 +86,7 @@ describe("Test encode duration", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "input",
@@ -117,7 +117,7 @@ describe("Test encode duration", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const durationModel = models.find((m) => m.name === "ISO8601DurationProperty");
@@ -146,7 +146,7 @@ describe("Test encode duration", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const durationModel = models.find((m) => m.name === "Int32SecondsDurationProperty");
@@ -175,7 +175,7 @@ describe("Test encode duration", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const codeModel = createModel(sdkContext);
     const models = codeModel.Models;
     const durationModel = models.find((m) => m.name === "FloatSecondsDurationProperty");

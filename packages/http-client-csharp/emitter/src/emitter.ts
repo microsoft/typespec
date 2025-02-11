@@ -22,10 +22,9 @@ import {
 } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
 import { reportDiagnostic } from "./lib/lib.js";
-import { LoggerLevel } from "./lib/log-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
-import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
+import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
@@ -55,13 +54,13 @@ function findProjectRoot(path: string): string | undefined {
  * @param context - The emit context
  * @beta
  */
-export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
+export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
   const outputFolder = _resolveOutputFolder(context);
 
   /* set the loglevel. */
-  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
+  const logger = new Logger(program, options.logLevel);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path

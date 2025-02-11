@@ -20,7 +20,6 @@ import {
 import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
-import { NetEmitterOptions } from "../options.js";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { BodyMediaType } from "../type/body-media-type.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -38,7 +37,6 @@ import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
-import { reportDiagnostic } from "./lib.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 
 export function fromSdkServiceMethod(
@@ -49,9 +47,13 @@ export function fromSdkServiceMethod(
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
-    sdkContext.logger.warn(
-      `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`,
-    );
+    sdkContext.logger.reportDiagnostic({
+      code: "unsupported-patch-convenience-method",
+      format: {
+        methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
+      },
+      target: method.__raw ?? NoTarget
+    })
     generateConvenience = false;
   }
 
@@ -89,7 +91,7 @@ export function fromSdkServiceMethod(
 }
 
 export function getParameterDefaultValue(
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: CSharpEmitterContext,
   clientDefaultValue: any,
   parameterType: InputType,
 ): InputConstant | undefined {
@@ -112,7 +114,7 @@ export function getParameterDefaultValue(
   };
 }
 
-function getValueType(sdkContext: SdkContext<NetEmitterOptions>, value: any): SdkBuiltInKinds {
+function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInKinds {
   switch (typeof value) {
     case "string":
       return "string";
@@ -123,7 +125,7 @@ function getValueType(sdkContext: SdkContext<NetEmitterOptions>, value: any): Sd
     case "bigint":
       return "int64";
     default:
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "unsupported-default-value-type",
         format: { valueType: typeof value },
         target: NoTarget,
@@ -140,7 +142,7 @@ function fromSdkOperationParameters(
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
     if (p.kind === "cookie") {
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "unsupported-cookie-parameter",
         format: { parameterName: p.name, path: operation.path },
         target: NoTarget,

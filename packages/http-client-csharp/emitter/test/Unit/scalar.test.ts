@@ -5,7 +5,7 @@ import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
+  createCSharpSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -25,7 +25,7 @@ describe("Test GetInputType for scalar", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
       (p) => p.Name === "location",

@@ -6,7 +6,7 @@ import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
+  createCSharpSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -32,7 +32,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -63,7 +63,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -94,7 +94,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -127,7 +127,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -158,7 +158,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -189,7 +189,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -222,7 +222,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -253,7 +253,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -284,7 +284,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -317,7 +317,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -348,7 +348,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -379,7 +379,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -414,7 +414,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -445,7 +445,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -476,7 +476,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -509,7 +509,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -540,7 +540,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -571,7 +571,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const root = createModel(sdkContext);
         const inputParamArray = root.Clients[0].Operations[0].Parameters.filter(
           (p) => p.Name === "param",
@@ -606,7 +606,7 @@ describe("Test Parameter Explode", () => {
           runner,
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const diagnostics = context.program.diagnostics;
         createModel(sdkContext);
 
@@ -647,7 +647,7 @@ describe("Test Parameter Explode", () => {
           { IsNamespaceNeeded: false },
         );
         const context = createEmitterContext(program);
-        const sdkContext = await createNetSdkContext(context);
+        const sdkContext = await createCSharpSdkContext(context);
         const diagnostics = context.program.diagnostics;
         createModel(sdkContext);
 
