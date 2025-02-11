@@ -55,9 +55,15 @@ export function emitSerialization(ctx: JsContext): void {
     const serializations = _SERIALIZATIONS_MAP.get(type)!;
 
     const requiredSerializations = new Set<SerializationContentType>(
-      [...serializations].filter((serialization) =>
-        isSerializationRequired(ctx, type, serialization),
-      ),
+      [...serializations].filter((serialization) => {
+        const isSynthetic = ctx.syntheticNames.has(type) || !type.namespace;
+
+        const module = isSynthetic
+          ? ctx.syntheticModule
+          : createOrGetModuleForNamespace(ctx, type.namespace!);
+
+        return isSerializationRequired(ctx, module, type, serialization);
+      }),
     );
 
     if (requiredSerializations.size > 0) {
@@ -68,12 +74,13 @@ export function emitSerialization(ctx: JsContext): void {
 
 export function isSerializationRequired(
   ctx: JsContext,
+  module: Module,
   type: Type,
   serialization: SerializationContentType,
 ): boolean {
   switch (serialization) {
     case "application/json": {
-      return requiresJsonSerialization(ctx, type);
+      return requiresJsonSerialization(ctx, module, type);
     }
     default:
       throw new Error(`Unreachable: serialization content type ${serialization satisfies never}`);

@@ -113,6 +113,12 @@ export const $lib = createTypeSpecLibrary({
         default: "Operation has multiple possible content-type values and cannot be emitted.",
       },
     },
+    "unknown-encoding": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unknown encoding '${"encoding"}' to type '${"target"}' for type '${"type"}'.`,
+      },
+    },
   },
 });
 
