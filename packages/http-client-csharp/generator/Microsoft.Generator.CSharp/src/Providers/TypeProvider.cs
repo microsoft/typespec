@@ -90,7 +90,17 @@ namespace Microsoft.Generator.CSharp.Providers
 
         private string? _name;
 
-        public string Namespace => _namespace ??= BuildNamespace();
+        public string Namespace
+        {
+            get
+            {
+                return _namespace ??= BuildNamespace();
+            }
+            set
+            {
+                _namespace = value;
+            }
+        }
         private string? _namespace;
 
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;

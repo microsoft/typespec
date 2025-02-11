@@ -37,28 +37,6 @@ namespace Microsoft.Generator.CSharp
         private HashSet<string>? _unionTypes;
         internal HashSet<string> UnionTypes => _unionTypes ??= [];
 
-        /// <summary>
-        /// Get namespace for the input model.
-        /// </summary>
-        /// <param name="inputModel">The input model</param>
-        /// <returns>Output namespace of the input model.</returns>
-        public virtual string GetModelNamespace(InputModelType inputModel)
-            => string.IsNullOrEmpty(inputModel.Namespace) ? RootNamespace : GetCleanNameSpace(inputModel.Namespace);
-
-        /// <summary>
-        /// Get namespace for the input enum.
-        /// </summary>
-        /// <param name="inputEnum">The input enum.</param>
-        /// <returns>Output namespace of the input enum.</returns>
-        public virtual string GetEnumNamespace(InputEnumType inputEnum)
-            => string.IsNullOrEmpty(inputEnum.Namespace) ? RootNamespace : GetCleanNameSpace(inputEnum.Namespace); // we default to this model namespace when the namespace is empty
-
-        /// <summary>
-        /// Get namespace for the model factory.
-        /// </summary>
-        /// <returns>Output namespace for the model factory.</returns>
-        public virtual string GetModelFactoryNamespace() => GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
-
         protected internal TypeFactory()
         {
         }
