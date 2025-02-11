@@ -8,8 +8,6 @@ import com.azure.core.models.ResponseError;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.ETag;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
-
-import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.URI;
 import java.time.Duration;
@@ -64,11 +62,8 @@ public class TypeRegistry {
 
     public static void register(ModelBase type) {
         Objects.requireNonNull(type, "type");
-        if (_types.contains(type)) {
-            throw new IllegalArgumentException("Type " + type.getName() + " has already been registered!");
-        }
-        if (type.getArmType() != null && _mapping.containsKey(type.getArmType())) {
-            throw new IllegalArgumentException(type.getName() + "'s ArmType has already been registered!");
+        if (_types.contains(type) || (type.getArmType() != null && _mapping.containsKey(type.getArmType()))) {
+            return;
         }
 
         _types.add(type);
@@ -86,7 +81,8 @@ public class TypeRegistry {
         return collectNamespaces(types, new HashSet<>(), new HashSet<>());
     }
 
-    public static Set<String> collectNamespaces(Collection<ModelBase> types, Set<String> namespaces, Set<ModelBase> visited) {
+    public static Set<String> collectNamespaces(Collection<ModelBase> types, Set<String> namespaces,
+        Set<ModelBase> visited) {
         if (namespaces == null) {
             namespaces = new HashSet<>();
         }
@@ -111,13 +107,19 @@ public class TypeRegistry {
 
     private static void recurse(ModelBase type, Set<String> namespaces, Set<ModelBase> visited) {
         if (type instanceof SimpleModel) {
-            collectNamespaces(((SimpleModel) type).getProperties().stream().map(Property::getPropertyType).collect(Collectors.toList()), namespaces, visited);
+            collectNamespaces(((SimpleModel) type).getProperties()
+                .stream()
+                .map(Property::getPropertyType)
+                .collect(Collectors.toList()), namespaces, visited);
         } else if (type instanceof Resource) {
-            collectNamespaces(((Resource) type).getProperties().stream().map(Property::getPropertyType).collect(Collectors.toList()), namespaces, visited);
+            collectNamespaces(
+                ((Resource) type).getProperties().stream().map(Property::getPropertyType).collect(Collectors.toList()),
+                namespaces, visited);
         } else if (type instanceof ListModel) {
             collectNamespaces(Collections.singletonList(((ListModel) type).getElementType()), namespaces, visited);
         } else if (type instanceof DictionaryModel) {
-            collectNamespaces(Collections.singletonList(((DictionaryModel) type).getElementType()), namespaces, visited);
+            collectNamespaces(Collections.singletonList(((DictionaryModel) type).getElementType()), namespaces,
+                visited);
         }
     }
 

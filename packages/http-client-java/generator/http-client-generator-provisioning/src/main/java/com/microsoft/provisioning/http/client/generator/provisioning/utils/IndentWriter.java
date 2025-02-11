@@ -88,7 +88,7 @@ public class IndentWriter {
      * as appropriate.
      *
      * @param format Format string.
-     * @param args   Optional arguments to the format string.
+     * @param args Optional arguments to the format string.
      */
     public void write(String format, Object... args) {
         writeIndentIfNeeded();
@@ -108,7 +108,7 @@ public class IndentWriter {
      * write call to indent before anything else is written.
      *
      * @param format Format string.
-     * @param args   Optional arguments to the format string.
+     * @param args Optional arguments to the format string.
      */
     public void writeLine(String format, Object... args) {
         if (format != null) {
@@ -129,7 +129,6 @@ public class IndentWriter {
         writeLine(null);
     }
 
-
     public void writeWrapped(String text) {
         writeWrapped(text, "/*", 80, true);
     }
@@ -137,9 +136,9 @@ public class IndentWriter {
     /**
      * Write one or more lines of text with word wrapping.
      *
-     * @param text      The text to wrap.
-     * @param prefix    A prefix to use for each line.
-     * @param width     The maximum width available.
+     * @param text The text to wrap.
+     * @param prefix A prefix to use for each line.
+     * @param width The maximum width available.
      * @param escapeXml Whether to escape any XML in the text.
      */
     public void writeWrapped(String text, String prefix, int width, boolean escapeXml) {
@@ -162,7 +161,7 @@ public class IndentWriter {
      * myIndentWriter.popScope("}");
      *
      * @param format Format string.
-     * @param args   Optional arguments to the format string.
+     * @param args Optional arguments to the format string.
      */
     public void pushScope(String format, Object... args) {
         writeLine(format, args);
@@ -177,7 +176,7 @@ public class IndentWriter {
      * myIndentWriter.popScope("}");
      *
      * @param format Format string.
-     * @param args   Optional arguments to the format string.
+     * @param args Optional arguments to the format string.
      */
     public void popScope(String format, Object... args) {
         popScope();
@@ -214,7 +213,7 @@ public class IndentWriter {
      * // Back to normal here
      *
      * @param start Text starting the scope.
-     * @param end   Text ending the scope.
+     * @param end Text ending the scope.
      * @return A new WriterScope.
      */
     public WriterScope scope(String start, String end) {
@@ -264,9 +263,9 @@ public class IndentWriter {
         /**
          * Initializes a new instance of the WriterScope class.
          *
-         * @param writer     The IndentWriter containing the scope.
+         * @param writer The IndentWriter containing the scope.
          * @param scopeStart Text starting the scope.
-         * @param scopeEnd   Text ending the scope.
+         * @param scopeEnd Text ending the scope.
          */
         public WriterScope(IndentWriter writer, String scopeStart, String scopeEnd) {
             this.writer = writer;

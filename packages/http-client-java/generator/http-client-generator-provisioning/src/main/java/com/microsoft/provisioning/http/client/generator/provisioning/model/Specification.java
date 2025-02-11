@@ -5,8 +5,8 @@ import com.azure.core.management.profile.AzureProfile;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.resources.fluentcore.arm.ResourceId;
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,10 +14,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-
 
 public abstract class Specification extends ModelBase {
     /**
@@ -25,10 +26,9 @@ public abstract class Specification extends ModelBase {
      * supported versions for resources.
      */
     private static final AzureResourceManager AZURE_RESOURCE_MANAGER = AzureResourceManager
-            .authenticate(new DefaultAzureCredentialBuilder().build(), new AzureProfile(AzureEnvironment.AZURE))
-            .withSubscription("faa080af-c1d8-40ad-9cce-e1a450ca5b57");
+        .authenticate(new DefaultAzureCredentialBuilder().build(), new AzureProfile(AzureEnvironment.AZURE))
+        .withSubscription("faa080af-c1d8-40ad-9cce-e1a450ca5b57");
     private final String baseDir;
-
 
 //    static final AzureResourceManager arm = AzureResourceManager.authenticate(
 //                    HttpPipelineProvider.buildHttpPipeline(new DefaultAzureCredentialBuilder().build(),
@@ -43,7 +43,7 @@ public abstract class Specification extends ModelBase {
     // Flag indicating we don't need to clean the output directory
     // because it's merged with another spec that'll handle that for us
 
-    private String providerName;
+    private Set<String> providerNames = new HashSet<>();
 
     private boolean skipCleaning = false;
     private List<Resource> resources = new ArrayList<>();
@@ -88,7 +88,8 @@ public abstract class Specification extends ModelBase {
         return modelArmTypeMapping;
     }
 
-    public Specification(String name, String provisioningPackage, String baseDir, List<FluentResourceModel> resourceModels) {
+    public Specification(String name, String provisioningPackage, String baseDir,
+        List<FluentResourceModel> resourceModels) {
         super(name, provisioningPackage, null, null);
         this.baseDir = baseDir + "/sdk/" + getProvisioningPackage().replace("com.", "").replace(".", "-");
         TypeRegistry.register(this);
@@ -120,8 +121,10 @@ public abstract class Specification extends ModelBase {
 
     private void generatePom() {
         try {
-            String pomTemplate = new String(this.getClass().getClassLoader().getResourceAsStream("pom-template.xml").readAllBytes());
-            pomTemplate = pomTemplate.replace("{artifact-name}", getProvisioningPackage().replace("com.", "").replace(".", "-"));
+            String pomTemplate
+                = new String(this.getClass().getClassLoader().getResourceAsStream("pom-template.xml").readAllBytes());
+            pomTemplate = pomTemplate.replace("{artifact-name}",
+                getProvisioningPackage().replace("com.", "").replace(".", "-"));
 
             Path path = Paths.get(getBaseDir(), "pom.xml");
             if (!path.toFile().exists()) {
@@ -138,44 +141,59 @@ public abstract class Specification extends ModelBase {
 
     // Placeholder methods for analyze, customize, lint, and getGenerationPath
     public void analyze() {
-        this.resources = resourceModels.stream().map(resourceModel -> {
-            Resource resource = new Resource(this, resourceModel);
-            this.modelNameMapping.put(resource.getName(), resource);
-            this.modelArmTypeMapping.put(resourceModel, resource);
-            this.resourcePathModelMap.put(resourceModel.getResourceCreate().getUrlPathSegments().getPath(), resource);
-            return resource;
-        }).toList();
+        this.resources = resourceModels.stream()
+            .filter(resourceModel -> resourceModel.getResourceCreate() != null)
+            // FIXME
+            .filter(resourceModel -> resourceModel.getCategory() != ModelCategory.SCOPE_AS_PARENT
+                || resourceModel.getCategory() != ModelCategory.SCOPE_NESTED_CHILD)
+            .map(resourceModel -> {
+                Resource resource = new Resource(this, resourceModel);
+                this.modelNameMapping.put(resource.getName(), resource);
+                this.modelArmTypeMapping.put(resourceModel, resource);
+                this.resourcePathModelMap.put(resourceModel.getResourceCreate().getUrlPathSegments().getPath(),
+                    resource);
+                if (!resourceModel.getResourceCreate().getUrlPathSegments().hasScope()) {
+                    this.providerNames.add(resourceModel.getResourceCreate().getUrlPathSegments().getPath());
+                }
+                return resource;
+            })
+            .toList();
         this.resources.forEach(resource -> {
             resource.setProvisioningPackage(this.getProvisioningPackage() + ".generated");
-            ResourceId resourceId = ResourceId.fromString(resource.getResourceModel().getResourceCreate().getUrlPathSegments().getPath());
-            if (resourceId.parent() != null) {
-                Resource parent = this.resourcePathModelMap.get(resourceId.parent().toString());
-                if (parent != null) {
-                    resource.setParentResource(parent);
+            if (!resource.getResourceModel().getResourceCreate().getUrlPathSegments().hasScope()) {
+                ResourceId resourceId = ResourceId
+                    .fromString(resource.getResourceModel().getResourceCreate().getUrlPathSegments().getPath());
+                if (resourceId.parent() != null) {
+                    Resource parent = this.resourcePathModelMap.get(resourceId.parent().toString());
+                    if (parent != null) {
+                        resource.setParentResource(parent);
+                    }
                 }
             }
         });
 
-        AZURE_RESOURCE_MANAGER.providers()
-                .getByName(this.providerName)
-                .resourceTypes()
-                .forEach(resourceType -> {
-                    this.resources.stream()
-                            .filter(resource -> resource.getResourceNamespace() != null)
-                            .forEach(resource -> {
-                                if (resource.getResourceNamespace().equals(providerName + "/" + resourceType.resourceType())) {
-                                    List<String> stableVersions = resourceType.apiVersions()
-                                            .stream()
-                                            .filter(apiVersion -> !apiVersion.contains("preview"))
-                                            .collect(Collectors.toUnmodifiableList());
-                                    resource.setResourceVersions(stableVersions);
-                                    if (stableVersions.isEmpty()) {
-                                        resource.setResourceVersions(resourceType.apiVersions().stream().sorted().collect(Collectors.toList()));
-                                    }
-                                    resource.setDefaultResourceVersion(resource.getResourceVersions().get(resource.getResourceVersions().size() - 1));
-                                }
-                            });
-                });
+        this.providerNames.forEach(providerName -> AZURE_RESOURCE_MANAGER.providers()
+            .getByName(providerName)
+            .resourceTypes()
+            .forEach(resourceType -> {
+                this.resources.stream()
+                    .filter(resource -> resource.getResourceNamespace() != null)
+                    .forEach(resource -> {
+                        if (resource.getResourceNamespace().equals(providerName + "/" + resourceType.resourceType())) {
+                            List<String> stableVersions = resourceType.apiVersions()
+                                .stream()
+                                .filter(apiVersion -> !apiVersion.contains("preview"))
+                                .collect(Collectors.toUnmodifiableList());
+                            resource.setResourceVersions(stableVersions);
+                            if (stableVersions.isEmpty()) {
+                                resource.setResourceVersions(
+                                    resourceType.apiVersions().stream().sorted().collect(Collectors.toList()));
+                            }
+                            resource.setDefaultResourceVersion(
+                                resource.getResourceVersions().get(resource.getResourceVersions().size() - 1));
+                        }
+                    });
+            }));
     }
 
     protected abstract void customize();

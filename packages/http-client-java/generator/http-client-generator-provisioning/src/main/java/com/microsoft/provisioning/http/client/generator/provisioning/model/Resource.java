@@ -3,11 +3,8 @@ package com.microsoft.provisioning.http.client.generator.provisioning.model;
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.IndentWriter;
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.NameUtils;
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.ReflectionUtils;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,7 +28,8 @@ public class Resource extends TypeModel {
     private FluentResourceModel resourceModel;
 
     public Resource(Specification spec, FluentResourceModel armType) {
-        super(spec, armType.getInnerModel(), armType.getInnerModel().getName(), armType.getInnerModel().getPackage(), "");
+        super(spec, armType.getInnerModel(), armType.getInnerModel().getName(), armType.getInnerModel().getPackage(),
+            "");
         this.resourceModel = armType;
         this.resourceNamespace = armType.getResourceCreate().getUrlPathSegments().getPath();
     }
@@ -144,10 +142,9 @@ public class Resource extends TypeModel {
 
         writer.writeLine();
 
-        ReflectionUtils.getImportPackages(this.getProperties())
-                .forEach(packageImport -> {
-                    writer.writeLine("import " + packageImport + ";");
-                });
+        ReflectionUtils.getImportPackages(this.getProperties()).forEach(packageImport -> {
+            writer.writeLine("import " + packageImport + ";");
+        });
         writer.writeLine("import com.azure.provisioning.BicepValue;");
 
         writer.writeLine("import com.azure.provisioning.primitives.Resource;");
@@ -168,7 +165,9 @@ public class Resource extends TypeModel {
 
     private void saveFile(String className, String content) {
 
-        Path path = Paths.get(this.getSpec().getBaseDir() + "/src/main/java/" + getProvisioningPackage().replace(".", "/") + "/", className + ".java");
+        Path path = Paths.get(
+            this.getSpec().getBaseDir() + "/src/main/java/" + getProvisioningPackage().replace(".", "/") + "/",
+            className + ".java");
         try {
             System.out.println("Writing to " + path);
             Files.createDirectories(path.getParent());
@@ -190,7 +189,8 @@ public class Resource extends TypeModel {
         writer.indent();
 
         this.resourceVersions.forEach(version -> {
-            writer.writeLine("public static final String " + NameUtils.getVersionIdentifier(version) + " = \"" + version + "\";");
+            writer.writeLine(
+                "public static final String " + NameUtils.getVersionIdentifier(version) + " = \"" + version + "\";");
             writer.writeLine();
         });
         writer.unindent();
@@ -212,7 +212,8 @@ public class Resource extends TypeModel {
 
     private void writeSetter(IndentWriter writer, Property property, String className) {
         // set*(BicepValue)
-        writer.writeLine("public " + className + " set" + NameUtils.toPascalCase(property.getName()) + "(BicepValue<" + property.getPropertyType().getName() + "> " + property.getName() + ") {");
+        writer.writeLine("public " + className + " set" + NameUtils.toPascalCase(property.getName()) + "(BicepValue<"
+            + property.getPropertyType().getName() + "> " + property.getName() + ") {");
         writer.indent();
         writer.writeLine("this." + property.getName() + ".assign(" + property.getName() + ");");
         writer.writeLine("return this;");
@@ -221,16 +222,19 @@ public class Resource extends TypeModel {
         writer.writeLine();
 
         // set*(String)
-        writer.writeLine("public " + className + " set" + NameUtils.toPascalCase(property.getName()) + "(" + property.getPropertyType().getName() + " " + property.getName() + ") {");
+        writer.writeLine("public " + className + " set" + NameUtils.toPascalCase(property.getName()) + "("
+            + property.getPropertyType().getName() + " " + property.getName() + ") {");
         writer.indent();
-        writer.writeLine("return this.set" + NameUtils.toPascalCase(property.getName()) + "(BicepValue.from(" + property.getName() +"));");
+        writer.writeLine("return this.set" + NameUtils.toPascalCase(property.getName()) + "(BicepValue.from("
+            + property.getName() + "));");
         writer.unindent();
         writer.writeLine("}");
         writer.writeLine();
     }
 
     private static void writeGetter(IndentWriter writer, Property property) {
-        writer.writeLine("public " + property.getBicepTypeReference() + " get" + NameUtils.toPascalCase(property.getName()) + "() {");
+        writer.writeLine("public " + property.getBicepTypeReference() + " get"
+            + NameUtils.toPascalCase(property.getName()) + "() {");
         writer.indent();
         writer.writeLine("return this." + property.getName() + ";");
         writer.unindent();

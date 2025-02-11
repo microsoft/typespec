@@ -1,7 +1,6 @@
 package com.microsoft.provisioning.http.client.generator.provisioning.model;
 
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.ReflectionUtils;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ public class Property {
     private boolean isSecure;
     private boolean generateDefaultValue;
     private boolean hideAccessors;
-
 
     public Property(TypeModel parent, ModelBase propertyType) {
         this(parent, propertyType, null, null);
@@ -168,16 +166,18 @@ public class Property {
     // FIXME shouldn't need this param!
     public String getBicepDefinition(boolean withBooleans) {
         StringBuilder sb = new StringBuilder();
-        final String bicepPath = "\"" + name  + "\""; // getPath().stream().collect(Collectors.joining(", "));
+        final String bicepPath = "\"" + name + "\""; // getPath().stream().collect(Collectors.joining(", "));
 
         if (propertyType instanceof DictionaryModel) {
-            return "BicepDictionary.defineProperty(this, \"" + name + "\", new String[] { " + bicepPath + " }, " + isReadOnly + ", " + isRequired + ")";
+            return "BicepDictionary.defineProperty(this, \"" + name + "\", new String[] { " + bicepPath + " }, "
+                + isReadOnly + ", " + isRequired + ")";
         } else if (propertyType instanceof ListModel) {
-            return "BicepList.defineProperty(this, \"" + name + "\", new String[] { " + bicepPath + " }, false, " + isReadOnly + ")";
+            return "BicepList.defineProperty(this, \"" + name + "\", new String[] { " + bicepPath + " }, false, "
+                + isReadOnly + ")";
         } else {
-            sb.append("BicepValue.defineProperty(this, \"" + name + "\", new String[] { " + bicepPath +" }");
+            sb.append("BicepValue.defineProperty(this, \"" + name + "\", new String[] { " + bicepPath + " }");
             if (withBooleans) {
-                sb.append(", " + isReadOnly + ", " + isRequired  + ", " + isSecure);
+                sb.append(", " + isReadOnly + ", " + isRequired + ", " + isSecure);
             }
             sb.append(", null)");    // defaultValue
         }
@@ -205,7 +205,9 @@ public class Property {
 
     @Override
     public String toString() {
-        return "<Property " + (parent != null ? parent.getSpec().getName() : "") + "::" + (parent != null ? parent.getName() : "") + "." + name + " : " + (propertyType != null ? propertyType.getName() : "") + ">";
+        return "<Property " + (parent != null ? parent.getSpec().getName() : "") + "::"
+            + (parent != null ? parent.getName() : "") + "." + name + " : "
+            + (propertyType != null ? propertyType.getName() : "") + ">";
     }
 
     @Override
@@ -220,7 +222,8 @@ public class Property {
         }
         if (obj instanceof Property) {
             Property that = (Property) obj;
-            return Objects.equals(this.name, that.getName()) && Objects.equals(this.propertyType, that.getPropertyType());
+            return Objects.equals(this.name, that.getName())
+                && Objects.equals(this.propertyType, that.getPropertyType());
         }
         return false;
     }

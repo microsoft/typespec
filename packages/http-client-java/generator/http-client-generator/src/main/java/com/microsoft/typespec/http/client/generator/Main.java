@@ -20,6 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -105,33 +106,35 @@ public class Main {
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
         // write
-        Specification specification = new Specification(JavaSettings.getInstance().getPackage(), JavaSettings.getInstance().getPackage(), emitterOptions.getOutputDir(), FluentStatic.getFluentClient().getResourceModels()) {
-            @Override
-            protected void customize() {
+        Specification specification
+            = new Specification(JavaSettings.getInstance().getPackage(), JavaSettings.getInstance().getPackage(),
+                emitterOptions.getOutputDir(), FluentStatic.getFluentClient().getResourceModels()) {
+                @Override
+                protected void customize() {
 
-            }
-        };
+                }
+            };
         specification.build();
 
         // java files
-//        Postprocessor.writeToFiles(
-//            javaPackage.getJavaFiles()
-//                .stream()
-//                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
-//            fluentPlugin, fluentPlugin.getLogger());
-//
-//        // XML include POM
-//        javaPackage.getXmlFiles()
-//            .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
-//        // properties file
-//        String artifactId = FluentUtils.getArtifactId();
-//        if (!CoreUtils.isNullOrEmpty(artifactId)) {
-//            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
-//                null);
-//        }
-//        // Others
-//        javaPackage.getTextFiles()
-//            .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
+        Postprocessor.writeToFiles(
+            javaPackage.getJavaFiles()
+                .stream()
+                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
+            fluentPlugin, fluentPlugin.getLogger());
+
+        // XML include POM
+        javaPackage.getXmlFiles()
+            .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
+        // properties file
+        String artifactId = FluentUtils.getArtifactId();
+        if (!CoreUtils.isNullOrEmpty(artifactId)) {
+            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
+                null);
+        }
+        // Others
+        javaPackage.getTextFiles()
+            .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
     }
 
     private static void handleDPG(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration,

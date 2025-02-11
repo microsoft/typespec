@@ -70,9 +70,9 @@ public final class NameUtils {
         }
 
         return CASE_SPLIT.splitAsStream(name)
-                .filter(s -> s != null && !s.isEmpty())
-                .map(s -> formatCase(s, false))
-                .collect(Collectors.joining());
+            .filter(s -> s != null && !s.isEmpty())
+            .map(s -> formatCase(s, false))
+            .collect(Collectors.joining());
     }
 
     public static String getVersionIdentifier(String version) {
@@ -112,8 +112,7 @@ public final class NameUtils {
 
         int length = name.length();
         char c0 = name.charAt(0);
-        if ((length < 2)
-                || ((length == 2) && Character.isUpperCase(c0) && Character.isUpperCase(name.charAt(1)))) {
+        if ((length < 2) || ((length == 2) && Character.isUpperCase(c0) && Character.isUpperCase(name.charAt(1)))) {
             return toLower ? name.toLowerCase() : name.toUpperCase();
         } else {
             return (toLower ? Character.toLowerCase(c0) : Character.toUpperCase(c0)) + name.substring(1);
@@ -210,7 +209,7 @@ public final class NameUtils {
         // if it is still empty String, throw
         if (correctName == null || correctName.isEmpty()) {
             throw new IllegalArgumentException(
-                    "Property name " + name + " cannot be used as an Identifier, as it contains only invalid characters.");
+                "Property name " + name + " cannot be used as an Identifier, as it contains only invalid characters.");
         }
 
         return correctName;
@@ -249,11 +248,8 @@ public final class NameUtils {
         return sb.toString();
     }
 
-
-
     private NameUtils() {
 
     }
-
 
 }

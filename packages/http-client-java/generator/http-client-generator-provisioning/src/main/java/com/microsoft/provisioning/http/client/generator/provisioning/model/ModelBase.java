@@ -2,8 +2,6 @@ package com.microsoft.provisioning.http.client.generator.provisioning.model;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 
-import java.lang.reflect.Type;
-
 public abstract class ModelBase {
     private ClientModel armType;
     private String provisioningPackage;

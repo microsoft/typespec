@@ -18,7 +18,7 @@ public class ExternalModel extends ModelBase {
     }
 
     public ExternalModel(Type modelType) {
-        super(((Class<?>) modelType).getSimpleName(),((Class<?>) modelType).getPackageName(), null, null);
+        super(((Class<?>) modelType).getSimpleName(), ((Class<?>) modelType).getPackageName(), null, null);
         setExternal(true);
     }
 }

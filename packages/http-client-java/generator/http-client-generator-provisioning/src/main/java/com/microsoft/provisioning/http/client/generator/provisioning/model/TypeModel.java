@@ -4,8 +4,6 @@
 package com.microsoft.provisioning.http.client.generator.provisioning.model;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
-
-import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +27,8 @@ public abstract class TypeModel extends ModelBase {
     }
 
     protected Set<String> collectNamespaces() {
-        Set<String> namespaces = TypeRegistry.collectNamespaces(properties.stream().map(p -> p.getPropertyType()).toList());
+        Set<String> namespaces
+            = TypeRegistry.collectNamespaces(properties.stream().map(p -> p.getPropertyType()).toList());
         namespaces.add("com.azure.provisioning.primitives");
         namespaces.remove(getProvisioningPackage());
         return namespaces;

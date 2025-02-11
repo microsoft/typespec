@@ -1,9 +1,7 @@
 package com.microsoft.provisioning.http.client.generator.provisioning.model;
 
-
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.IndentWriter;
 import com.microsoft.provisioning.http.client.generator.provisioning.utils.NameUtils;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,7 +40,6 @@ public class EnumModel extends ModelBase {
         return getName();
     }
 
-
     @Override
     public void generate() {
         try {
@@ -58,7 +55,8 @@ public class EnumModel extends ModelBase {
 
             for (int i = 0; i < values.size(); i++) {
                 writer.writeLine();
-                String enumMember = String.format("%s(\"%s\")", NameUtils.getEnumMemberName(values.get(i)), values.get(i));
+                String enumMember
+                    = String.format("%s(\"%s\")", NameUtils.getEnumMemberName(values.get(i)), values.get(i));
                 if (i == values.size() - 1) {
                     writer.writeLine(enumMember + ";");
                 } else {
@@ -66,7 +64,7 @@ public class EnumModel extends ModelBase {
                 }
             }
 
-            //FIXME non-string value
+            // FIXME non-string value
             writer.writeLine("private final String value;");
             writer.writeLine(String.format("%s(String value) {", getName()));
 
@@ -91,7 +89,9 @@ public class EnumModel extends ModelBase {
     }
 
     private void saveFile(String content) {
-        Path path = Paths.get(this.getSpec().getBaseDir() + "/src/main/java/" + getProvisioningPackage().replace(".", "/") + "/", getName() + ".java");
+        Path path = Paths.get(
+            this.getSpec().getBaseDir() + "/src/main/java/" + getProvisioningPackage().replace(".", "/") + "/",
+            getName() + ".java");
         try {
             System.out.println("Writing to " + path);
             Files.createDirectories(path.getParent());
