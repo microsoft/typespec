@@ -541,7 +541,7 @@ function* emitQueryParamBinding(
 
   if (!parameter.param.optional) {
     yield `if (!${nameCase.camelCase}) {`;
-    yield `  ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}'");`;
+    yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}'");`;
     yield "}";
     yield "";
   }
