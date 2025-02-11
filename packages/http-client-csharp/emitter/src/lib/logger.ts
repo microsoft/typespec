@@ -20,6 +20,12 @@ export class Logger {
     this.program = program;
   }
 
+  reportDiagnostic(
+    ...args: Parameters<typeof reportDiagnostic> extends [Program, ...infer P] ? P : never
+  ): void {
+    reportDiagnostic(this.program, ...args);
+  }
+
   info(message: string): void {
     if (
       this.level === LoggerLevel.INFO ||

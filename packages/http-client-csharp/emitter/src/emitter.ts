@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createSdkContext,
-  SdkContext,
-  UsageFlags,
-} from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -15,7 +11,6 @@ import {
   Program,
   resolvePath,
 } from "@typespec/compiler";
-
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
@@ -32,11 +27,8 @@ import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
 import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
+import { CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
-
-export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions> {
-  logger: Logger;
-}
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -73,13 +65,20 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
-    const sdkContext = await createSdkContext(
-      context,
-      "@typespec/http-client-csharp",
-      defaultSDKContextOptions,
-    );
-    const csharpEmitterContext = { ...sdkContext, logger: logger };
-    const root = createModel(csharpEmitterContext);
+    const sdkContext = {
+      ...(await createSdkContext(
+        context,
+        "@typespec/http-client-csharp",
+        defaultSDKContextOptions,
+      )),
+      logger: logger,
+      __typeCache: {
+        types: new Map(),
+        models: new Map(),
+        enums: new Map(),
+      },
+    };
+    const root = createModel(sdkContext);
     if (
       context.program.diagnostics.length > 0 &&
       context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
@@ -152,10 +151,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             { stdio: "inherit" },
           );
           if (result.exitCode !== 0) {
-            const isValid = await _validateDotNetSdk(
-              csharpEmitterContext,
-              _minSupportedDotNetSdkVersion,
-            );
+            const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
             // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
             if (isValid) {
               if (result.stderr) logger.error(result.stderr);
@@ -164,10 +160,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
             }
           }
         } catch (error: any) {
-          const isValid = await _validateDotNetSdk(
-            csharpEmitterContext,
-            _minSupportedDotNetSdkVersion,
-          );
+          const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) throw new Error(error);
         }
