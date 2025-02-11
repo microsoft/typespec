@@ -369,14 +369,12 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
 
         cred_scopes: List[str] = []
         if self.credential:
-            policy = getattr(self.credential.type, "policy", None)
-            if policy:
-                cred_scopes = getattr(policy, "credential_scopes", [])
-                if not cred_scopes:
-                    types = getattr(self.credential.type, "types", [])
-                    cred_scopes = next(
-                        (t.policy.credential_scopes for t in types if hasattr(t.policy, "credential_scopes")), []
-                    )
+            cred_scopes = getattr(getattr(self.credential.type, "policy", None), "credential_scopes", [])
+            if not cred_scopes:
+                types = getattr(self.credential.type, "types", [])
+                cred_scopes = next(
+                    (t.policy.credential_scopes for t in types if hasattr(t.policy, "credential_scopes")), []
+                )
         return cred_scopes
 
     @classmethod
