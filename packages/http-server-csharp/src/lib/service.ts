@@ -43,11 +43,7 @@ import {
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import {
   HttpOperation,
-  HttpOperationParameter,
   HttpOperationResponse,
-  MetadataInfo,
-  Visibility,
-  createMetadataInfo,
   getHttpOperation,
   getHttpPart,
   isStatusCode,
@@ -85,19 +81,20 @@ import {
   ensureCSharpIdentifier,
   ensureCleanDirectory,
   formatComment,
+  getBusinessLogicCallParameters,
+  getBusinessLogicDeclParameters,
   getCSharpIdentifier,
+  getCSharpOperationParameters,
   getCSharpStatusCode,
   getCSharpType,
   getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
+  getHttpDeclParameters,
   getModelAttributes,
   getModelInstantiationName,
   getOperationVerbDecorator,
   getTypeInfoForTsType,
-  isContentTypeHeader,
   isEmptyResponseModel,
-  isHttpMetadata,
-  isValidParameter,
   isValueType,
 } from "./utils.js";
 
@@ -124,11 +121,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         ? getScaffoldingHelpers(this.emitter, this.#useSwagger, this.#openapiPath)
         : [];
     #mockFiles: LibrarySourceFile[] = [];
-
-    #metaInfo: MetadataInfo = createMetadataInfo(this.emitter.getProgram(), {
-      canonicalVisibility: Visibility.Read,
-      canShareProperty: (p) => true,
-    });
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
       return this.emitter.result.declaration(
@@ -192,7 +184,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             ${attributes.map((attribute) => attribute.getApplicationString(this.emitter.getContext().scope)).join("\n")}
             public enum ${enumName}
             {
-              ${this.emitter.emitEnumMembers(en)};
+              ${this.emitter.emitEnumMembers(en)}
             }
         } `,
       );
@@ -203,11 +195,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const enumFile = this.emitter.createSourceFile(`models/${enumName}.cs`);
       enumFile.meta[this.#sourceTypeKey] = CSharpSourceType.Model;
       const enumNamespace = `${this.#getOrSetBaseNamespace(en)}.Models`;
-      return {
-        namespace: enumNamespace,
-        file: enumFile,
-        scope: enumFile.globalScope,
-      };
+      return this.#createEnumContext(enumNamespace, enumFile, enumName);
     }
 
     enumMembers(en: Enum): EmitterOutput<string> {
@@ -220,7 +208,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         result.push(
           code`
           [JsonStringEnumMemberName("${member.value ? (member.value as string) : name}")]
-          ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)}"`,
+          ${ensureCSharpIdentifier(this.emitter.getProgram(), member, name)}`,
         );
         if (i < en.members.size) result.pushLiteralSegment(",\n");
       }
@@ -538,38 +526,26 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           name,
           NameCasingType.Method,
         );
-        let opDecl: Declaration<string>;
-        let opImpl: BusinessLogicMethod;
-        if (this.#isMultipartRequest(httpOp)) {
-          const parameters = getOp;
-          opImpl = {
-            methodName: `${opName}Async`,
-            methodParams: `${this.#emitInterfaceOperationParameters(operation, "MultipartReader reader")}`,
-            returnType: `${returnType.name === "void" ? "Task" : `Task<${returnType.getTypeReference(context.scope)}>`}`,
-            instantiatedReturnType:
-              returnType.name === "void"
-                ? undefined
-                : `${returnType.getTypeReference(context.scope)}`,
-          };
-          opDecl = this.emitter.result.declaration(
-            opName,
-            code`${doc ? `${formatComment(doc)}\n` : ""}${opImpl.returnType} ${opImpl.methodName}( ${opImpl.methodParams});`,
-          );
-        } else {
-          opImpl = {
-            methodName: `${opName}Async`,
-            methodParams: `${this.#emitInterfaceOperationParameters(operation)}`,
-            returnType: `${returnType.name === "void" ? "Task" : `Task<${returnType.getTypeReference(context.scope)}>`}`,
-            instantiatedReturnType:
-              returnType.name === "void"
-                ? undefined
-                : `${returnType.getTypeReference(context.scope)}`,
-          };
-          opDecl = this.emitter.result.declaration(
-            opName,
-            code`${doc ? `${formatComment(doc)}\n` : ""}${opImpl.returnType} ${opImpl.methodName}( ${opImpl.methodParams});`,
-          );
-        }
+        const parameters = getCSharpOperationParameters(
+          this.emitter.getProgram(),
+          httpOp,
+          this.emitter,
+        );
+
+        const opImpl: BusinessLogicMethod = {
+          methodName: `${opName}Async`,
+          methodParams: `${getBusinessLogicDeclParameters(parameters)}`,
+          returnType: `${returnType.name === "void" ? "Task" : `Task<${returnType.getTypeReference(context.scope)}>`}`,
+          instantiatedReturnType:
+            returnType.name === "void"
+              ? undefined
+              : `${returnType.getTypeReference(context.scope)}`,
+        };
+        const opDecl: Declaration<string> = this.emitter.result.declaration(
+          opName,
+          code`${doc ? `${formatComment(doc)}\n` : ""}${opImpl.returnType} ${opImpl.methodName}( ${opImpl.methodParams});`,
+        );
+
         mock.methods.push(opImpl);
         builder.push(code`${opDecl.value}\n`);
         this.emitter.emitInterfaceOperation(operation);
@@ -600,9 +576,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
       const multipart: boolean = this.#isMultipartRequest(httpOperation);
-      const declParams = !multipart
-        ? this.#emitHttpOperationParameters(httpOperation)
-        : this.#emitHttpOperationParameters(httpOperation, true);
+      const parameters = getCSharpOperationParameters(
+        this.emitter.getProgram(),
+        httpOperation,
+        this.emitter,
+      );
+      const declParams = getHttpDeclParameters(parameters);
 
       if (multipart) {
         const context = this.emitter.getContext();
@@ -638,13 +617,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         {
           ${
             hasResponseValue
-              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
-                  httpOperation,
-                )});
+              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}(result);`
-              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
-                  httpOperation,
-                )});
+              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}();`
           }
         }`,
@@ -670,9 +645,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           var reader = new MultipartReader(boundary, Request.Body);
           ${
             hasResponseValue
-              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(httpOperation, "reader")});
+              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}(result);`
-              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(httpOperation, "reader")});
+              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}();`
           }
         }`,
@@ -698,7 +673,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       );
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
-      const declParams = this.#emitHttpOperationParameters(httpOperation);
+      const parameters = getCSharpOperationParameters(
+        this.emitter.getProgram(),
+        httpOperation,
+        this.emitter,
+      );
+      const declParams = getHttpDeclParameters(parameters);
       const responseInfo = this.#getOperationResponse(httpOperation);
       const status = responseInfo?.statusCode ?? 200;
       const response: CSharpType =
@@ -723,13 +703,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         {
           ${
             hasResponseValue
-              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
-                  httpOperation,
-                )});
+              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}(result);`
-              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
-                  httpOperation,
-                )});
+              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${getBusinessLogicCallParameters(parameters)});
           return ${resultString}();`
           }
         }`,
@@ -808,129 +784,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const result = getCSharpType(this.emitter.getProgram(), type, context.namespace);
       const resultType = result?.type || UnknownType;
       return resultType.getTypeReference(context.scope);
-    }
-
-    #emitInterfaceOperationParameters(
-      operation: Operation,
-      bodyParam?: string,
-    ): EmitterOutput<string> {
-      const signature = new StringBuilder();
-      const requiredParams: ModelProperty[] = [];
-      const optionalParams: ModelProperty[] = [];
-      let totalParams = 0;
-      if (bodyParam !== undefined) totalParams++;
-      const validParams = [...operation.parameters.properties.entries()].filter(([_, p]) =>
-        isValidParameter(this.emitter.getProgram(), p),
-      );
-      for (const [_, parameter] of validParams) {
-        if (
-          !isContentTypeHeader(this.emitter.getProgram(), parameter) &&
-          (bodyParam === undefined || isHttpMetadata(this.emitter.getProgram(), parameter))
-        ) {
-          if (parameter.optional || parameter.defaultValue) optionalParams.push(parameter);
-          else requiredParams.push(parameter);
-          totalParams++;
-        }
-      }
-      let i = 1;
-      for (const requiredParam of requiredParams) {
-        const [paramType, _, __] = this.#findPropertyType(requiredParam);
-        signature.push(
-          code`${paramType} ${ensureCSharpIdentifier(this.emitter.getProgram(), requiredParam, requiredParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
-        );
-      }
-      if (bodyParam) {
-        signature.push(bodyParam);
-        if (i++ < totalParams) signature.push(", ");
-      }
-      for (const optionalParam of optionalParams) {
-        const [paramType, _, __] = this.#findPropertyType(optionalParam);
-        signature.push(
-          code`${paramType}? ${ensureCSharpIdentifier(this.emitter.getProgram(), optionalParam, optionalParam.name, NameCasingType.Parameter)}${i++ < totalParams ? ", " : ""}`,
-        );
-      }
-
-      return signature.reduce();
-    }
-
-    #emitHttpOperationParameters(
-      operation: HttpOperation,
-      bodyParameter?: boolean,
-    ): EmitterOutput<string> {
-      const signature = new StringBuilder();
-      const bodyParam = operation.parameters.body;
-      const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
-
-      let i = 0;
-      //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
-      const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
-        isValidParameter(this.emitter.getProgram(), p.param),
-      );
-      const requiredParams: HttpOperationParameter[] = validParams.filter(
-        (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
-      );
-      const optionalParams: HttpOperationParameter[] = validParams.filter(
-        (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
-      );
-      for (const parameter of requiredParams) {
-        signature.push(
-          code`${this.#emitOperationSignatureParameter(operation, parameter)}${
-            ++i < requiredParams.length ? ", " : ""
-          }`,
-        );
-      }
-      if (
-        requiredParams.length > 0 &&
-        (optionalParams.length > 0 ||
-          (bodyParameter === undefined && bodyParam !== undefined && isExplicitBodyParam))
-      ) {
-        signature.push(code`, `);
-      }
-      if (bodyParameter === undefined) {
-        if (bodyParam !== undefined && isExplicitBodyParam) {
-          signature.push(
-            code`${this.emitter.emitTypeReference(
-              this.#metaInfo.getEffectivePayloadType(
-                bodyParam.type,
-                Visibility.Create || Visibility.Update,
-              ),
-            )} body${requiredParams.length > 0 && optionalParams.length > 0 ? ", " : ""}`,
-          );
-        } else if (bodyParam !== undefined) {
-          switch (bodyParam.type.kind) {
-            case "Model":
-              let bCount = 0;
-              for (const [propName, propDef] of bodyParam.type.properties) {
-                const csType = getCSharpType(this.emitter.getProgram(), propDef.type)!;
-                signature.push(
-                  code`${csType?.type.getTypeReference()} ${ensureCSharpIdentifier(this.emitter.getProgram(), propDef, propName, NameCasingType.Parameter)}${++bCount < bodyParam.type.properties.size || optionalParams.length > 0 ? ", " : ""}`,
-                );
-              }
-              break;
-            case "ModelProperty":
-              const csType = getCSharpType(this.emitter.getProgram(), bodyParam.type.type)!;
-              signature.push(
-                code`${csType?.type.getTypeReference()} ${ensureCSharpIdentifier(this.emitter.getProgram(), bodyParam.type.type, bodyParam.type.name, NameCasingType.Parameter)}${optionalParams.length > 0 ? ", " : ""}`,
-              );
-              break;
-            default:
-              const defType = getCSharpType(this.emitter.getProgram(), bodyParam.type)!;
-              signature.push(
-                code`${defType?.type.getTypeReference()} body${optionalParams.length > 0 ? ", " : ""}`,
-              );
-          }
-        }
-      }
-      i = 0;
-      for (const parameter of optionalParams) {
-        signature.push(
-          code`${this.#emitOperationSignatureParameter(operation, parameter)}${
-            ++i < optionalParams.length ? ", " : ""
-          }`,
-        );
-      }
-
-      return signature.reduce();
     }
 
     unionDeclaration(union: Union, name: string): EmitterOutput<string> {
@@ -1020,148 +873,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       return super.unionVariantContext(union);
     }
 
-    #emitOperationSignatureParameter(
-      operation: HttpOperation,
-      httpParam: HttpOperationParameter,
-    ): EmitterOutput<string> {
-      const name = httpParam.param.name;
-      const parameter = httpParam.param;
-      const emittedName = ensureCSharpIdentifier(
-        this.emitter.getProgram(),
-        parameter,
-        name,
-        NameCasingType.Parameter,
-      );
-      let [emittedType, emittedDefault, _] = this.#findPropertyType(parameter);
-      if (emittedType.toString().endsWith("[]")) emittedDefault = undefined;
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      const defaultValue = parameter.default
-        ? // eslint-disable-next-line @typescript-eslint/no-deprecated
-          code`${this.emitter.emitType(parameter.default)}`
-        : emittedDefault;
-      return this.emitter.result.rawCode(
-        code`${httpParam.type !== "path" ? this.#emitParameterAttribute(httpParam) : ""}${emittedType} ${emittedName}${defaultValue === undefined ? "" : ` = ${defaultValue}`}`,
-      );
-    }
-    #getBodyParameters(operation: HttpOperation): ModelProperty[] | undefined {
-      const bodyParam = operation.parameters.body;
-      if (bodyParam === undefined) return undefined;
-      if (bodyParam.property !== undefined) return [bodyParam.property];
-      if (bodyParam.type.kind !== "Model" || bodyParam.type.properties.size < 1) return undefined;
-      return [...bodyParam.type.properties.values()];
-    }
-
-    #emitOperationCallParameters(
-      operation: HttpOperation,
-      explicitBodyParam?: string,
-    ): EmitterOutput<string> {
-      const signature = new StringBuilder();
-      const isExplicitBodyParam: boolean = operation.parameters.body?.property !== undefined;
-      const bodyParameter: string = explicitBodyParam || "body";
-      let i = 0;
-      const bodyParameters = this.#getBodyParameters(operation);
-      //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
-      const valid = operation.parameters.parameters.filter((p) =>
-        isValidParameter(this.emitter.getProgram(), p.param),
-      );
-      const required: HttpOperationParameter[] = valid.filter(
-        (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
-      );
-      const optional: HttpOperationParameter[] = valid.filter(
-        (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
-      );
-      for (const parameter of required) {
-        const contentType: boolean = isContentTypeHeader(
-          this.emitter.getProgram(),
-          parameter.param,
-        );
-        i++;
-        if (
-          !isNeverType(parameter.param.type) &&
-          !isNullType(parameter.param.type) &&
-          !isVoidType(parameter.param.type) &&
-          !contentType
-        ) {
-          signature.push(
-            code`${this.#emitOperationCallParameter(operation, parameter)}${
-              i < valid.length || bodyParameters !== undefined ? ", " : ""
-            }`,
-          );
-        }
-      }
-      if (bodyParameters !== undefined) {
-        if (isExplicitBodyParam) {
-          signature.push(code`${bodyParameter}${i < valid.length ? ", " : ""}`);
-        } else {
-          let j = 0;
-          for (const parameter of bodyParameters) {
-            j++;
-            const propertyName = ensureCSharpIdentifier(
-              this.emitter.getProgram(),
-              parameter,
-              parameter.name,
-              NameCasingType.Parameter,
-            );
-            if (isExplicitBodyParam) {
-              signature.push(
-                code`${bodyParameter}?.${propertyName}${j < bodyParameters.length || i < valid.length ? ", " : ""}`,
-              );
-            } else {
-              signature.push(
-                code`${propertyName}${j < bodyParameters.length || i < valid.length ? ", " : ""}`,
-              );
-            }
-          }
-        }
-      }
-
-      for (const parameter of optional) {
-        const contentType: boolean = isContentTypeHeader(
-          this.emitter.getProgram(),
-          parameter.param,
-        );
-        i++;
-        if (
-          !isNeverType(parameter.param.type) &&
-          !isNullType(parameter.param.type) &&
-          !isVoidType(parameter.param.type) &&
-          !contentType
-        ) {
-          signature.push(
-            code`${this.#emitOperationCallParameter(operation, parameter)}${
-              i < valid.length ? ", " : ""
-            }`,
-          );
-        }
-      }
-      return signature.reduce();
-    }
-    #emitOperationCallParameter(
-      operation: HttpOperation,
-      httpParam: HttpOperationParameter,
-    ): EmitterOutput<string> {
-      const name = httpParam.param.name;
-      const parameter = httpParam.param;
-      const emittedName = ensureCSharpIdentifier(
-        this.emitter.getProgram(),
-        parameter,
-        name,
-        NameCasingType.Parameter,
-      );
-      return this.emitter.result.rawCode(code`${emittedName}`);
-    }
-
-    #emitParameterAttribute(parameter: HttpOperationParameter): EmitterOutput<string> {
-      switch (parameter.type) {
-        case "header":
-          return code`[FromHeader(Name="${parameter.name}")] `;
-        case "query":
-          return code`[FromQuery(Name="${parameter.name}")] `;
-        default:
-          return "";
-      }
-    }
-
     #createModelContext(namespace: string, file: SourceFile<string>, name: string): Context {
       const context = {
         namespace: namespace,
@@ -1170,6 +881,20 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         scope: file.globalScope,
       };
       context.file.imports.set("System", ["System"]);
+      context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
+      context.file.imports.set("System.Text.Json.Serialization", [
+        "System.Text.Json.Serialization",
+      ]);
+      return context;
+    }
+
+    #createEnumContext(namespace: string, file: SourceFile<string>, name: string): Context {
+      const context = {
+        namespace: namespace,
+        name: name,
+        file: file,
+        scope: file.globalScope,
+      };
       context.file.imports.set("System.Text.Json", ["System.Text.Json"]);
       context.file.imports.set("System.Text.Json.Serialization", [
         "System.Text.Json.Serialization",

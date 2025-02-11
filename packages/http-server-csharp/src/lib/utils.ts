@@ -5,7 +5,6 @@ import {
   ModelProperty,
   NoTarget,
   NumericLiteral,
-  Operation,
   Program,
   Scalar,
   StringTemplateSpan,
@@ -33,7 +32,6 @@ import {
   Visibility,
   createMetadataInfo,
   getHeaderFieldName,
-  getHttpOperation,
   isBody,
   isBodyRoot,
   isHeader,
@@ -800,27 +798,74 @@ export function isHttpMetadata(program: Program, property: ModelProperty) {
   );
 }
 
-export function getOperationCallParameter(param: CSharpOperationParameter): EmitterOutput<string> {
+export function getBusinessLogicCallParameters(
+  parameters: CSharpOperationParameter[],
+): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  const blParameters = parameters.filter(
+    (p) => p.operationKind === "BusinessLogic" || p.operationKind === "All",
+  );
+  let i = 0;
+  for (const param of blParameters) {
+    builder.push(
+      code`${getBusinessLogicCallParameter(param)}${++i < blParameters.length ? ", " : ""}`,
+    );
+  }
+  return builder.reduce();
+}
+
+export function getBusinessLogicDeclParameters(
+  parameters: CSharpOperationParameter[],
+): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  const blParameters = parameters.filter(
+    (p) => p.operationKind === "BusinessLogic" || p.operationKind === "All",
+  );
+  let i = 0;
+  for (const param of blParameters) {
+    builder.push(
+      code`${getBusinessLogicSignatureParameter(param)}${++i < blParameters.length ? ", " : ""}`,
+    );
+  }
+  return builder.reduce();
+}
+
+export function getHttpDeclParameters(
+  parameters: CSharpOperationParameter[],
+): EmitterOutput<string> {
+  const builder: StringBuilder = new StringBuilder();
+  const blParameters = parameters.filter(
+    (p) => p.operationKind === "Http" || p.operationKind === "All",
+  );
+  let i = 0;
+  for (const param of blParameters) {
+    builder.push(code`${getHttpSignatureParameter(param)}${++i < blParameters.length ? ", " : ""}`);
+  }
+  return builder.reduce();
+}
+export function getBusinessLogicCallParameter(
+  param: CSharpOperationParameter,
+): EmitterOutput<string> {
   const builder: StringBuilder = new StringBuilder();
   builder.push(code`${param.name}`);
   return builder.reduce();
 }
 
-export function getOperationSignatureParameter(
+export function getBusinessLogicSignatureParameter(
   param: CSharpOperationParameter,
 ): EmitterOutput<string> {
   const builder: StringBuilder = new StringBuilder();
   builder.push(
-    code`${param.typeName}${param.nullable ? "? " : " "}${param.name}${param.defaultValue === undefined ? "" : code` = ${typeof param.defaultValue === "boolean" ? code`${param.defaultValue.toString()}` : code`"${param.defaultValue}"`}`}`,
+    code`${param.typeName}${param.optional || param.nullable ? "? " : " "}${param.name}`,
   );
   return builder.reduce();
 }
 
-export function GetHttpOperationSignatureParameter(
-  param: CSharpOperationParameter,
-): EmitterOutput<string> {
+export function getHttpSignatureParameter(param: CSharpOperationParameter): EmitterOutput<string> {
   const builder: StringBuilder = new StringBuilder();
-  builder.push(code`${getHttpParameterDecorator(param)}${getOperationSignatureParameter(param)}`);
+  builder.push(
+    code`${getHttpParameterDecorator(param)}${getBusinessLogicSignatureParameter(param)}${param.defaultValue === undefined ? "" : code` = ${typeof param.defaultValue === "boolean" ? code`${param.defaultValue.toString()}` : code`${param.defaultValue}`}`}`,
+  );
   return builder.reduce();
 }
 
@@ -829,9 +874,9 @@ export function getHttpParameterDecorator(
 ): EmitterOutput<string> {
   switch (parameter.httpParameterKind) {
     case "query":
-      return code`[FromQuery(name="${parameter.name}")]`;
+      return code`[FromQuery${parameter.httpParameterName ? code`(Name="${parameter.httpParameterName}")` : ""}] `;
     case "header":
-      return code`[FromHeader(name="${parameter.name}")]`;
+      return code`[FromHeader${parameter.httpParameterName ? code`(Name="${parameter.httpParameterName}")` : ""}] `;
     default:
       return "";
   }
@@ -848,14 +893,28 @@ export function getParameterKind(parameter: HttpOperationParameter): HttpRequest
       return "query";
   }
 }
+
+export function canHaveDefault(program: Program, type: Type): boolean {
+  switch (type.kind) {
+    case "Boolean":
+    case "EnumMember":
+    case "Enum":
+    case "Number":
+    case "String":
+    case "Scalar":
+    case "StringTemplate":
+      return true;
+    case "ModelProperty":
+      return canHaveDefault(program, type.type);
+    default:
+      return false;
+  }
+}
 export function getCSharpOperationParameters(
   program: Program,
-  inOperation: Operation | HttpOperation,
+  operation: HttpOperation,
   emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
-  bodyParameter?: boolean,
-  explicitParameters?: CSharpOperationParameter[],
 ): CSharpOperationParameter[] {
-  const [operation, _] = inOperation instanceof HttpOperation? getHttpOperation(program, tsOperation);
   const bodyParam = operation.parameters.body;
   const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
   const result: CSharpOperationParameter[] = [];
@@ -869,7 +928,11 @@ export function getCSharpOperationParameters(
     (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
   );
   for (const parameter of requiredParams) {
-    const [paramType, paramValue, _] = getTypeInfoForTsType(program, parameter.param.type, emitter);
+    let [paramType, paramValue, _] = getTypeInfoForTsType(program, parameter.param.type, emitter);
+    // cSharp does not allow array defaults in operation parameters
+    if (!canHaveDefault(program, parameter.param)) {
+      paramValue = undefined;
+    }
     result.push({
       isExplicitBody: false,
       name: ensureCSharpIdentifier(
@@ -882,97 +945,99 @@ export function getCSharpOperationParameters(
       typeName: paramType,
       defaultValue: paramValue,
       httpParameterKind: getParameterKind(parameter),
+      httpParameterName: parameter.name,
       nullable: false,
       operationKind: "All",
     });
   }
 
-  if (bodyParameter === undefined) {
-    if (bodyParam !== undefined && isExplicitBodyParam) {
-      const [bodyType, bodyValue, isNullable] = getTypeInfoForTsType(
-        program,
-        bodyParam.type,
-        emitter,
-      );
-      result.push({
-        isExplicitBody: true,
-        httpParameterKind: "body",
-        name: "body",
-        typeName: bodyType,
-        nullable: isNullable,
-        defaultValue: bodyValue,
-        optional: bodyParam.property?.optional ?? false,
-        operationKind: "All",
-      });
-    } else if (bodyParam !== undefined) {
-      switch (bodyParam.type.kind) {
-        case "Model":
-          for (const [propName, propDef] of bodyParam.type.properties) {
-            const [csType, csValue, isNullable] = getTypeInfoForTsType(
-              program,
-              propDef.type,
-              emitter,
-            );
-            result.push({
-              isExplicitBody: false,
-              httpParameterKind: "body",
-              name: ensureCSharpIdentifier(program, propDef, propName, NameCasingType.Parameter),
-              typeName: csType,
-              nullable: isNullable,
-              defaultValue: csValue,
-              optional: propDef.optional,
-              operationKind: "All",
-            });
+  const overrideParameters = getExplicitBodyParameters(program, operation);
+  if (overrideParameters !== undefined) {
+    for (const overrideParam of overrideParameters) {
+      result.push(overrideParam);
+    }
+  } else if (bodyParam !== undefined && isExplicitBodyParam) {
+    let [bodyType, bodyValue, isNullable] = getTypeInfoForTsType(program, bodyParam.type, emitter);
+    if (!canHaveDefault(program, bodyParam.type)) {
+      bodyValue = undefined;
+    }
+    result.push({
+      isExplicitBody: true,
+      httpParameterKind: "body",
+      name: "body",
+      typeName: bodyType,
+      nullable: isNullable,
+      defaultValue: bodyValue,
+      optional: bodyParam.property?.optional ?? false,
+      operationKind: "All",
+    });
+  } else if (bodyParam !== undefined) {
+    switch (bodyParam.type.kind) {
+      case "Model":
+        for (const [propName, propDef] of bodyParam.type.properties) {
+          let [csType, csValue, isNullable] = getTypeInfoForTsType(program, propDef.type, emitter);
+          // cSharp does not allow array defaults in operation parameters
+          if (!canHaveDefault(program, propDef)) {
+            csValue = undefined;
           }
-          break;
-        case "ModelProperty":
-          {
-            const [csType, csValue, isNullable] = getTypeInfoForTsType(
-              program,
-              bodyParam.type.type,
-              emitter,
-            );
-            result.push({
-              isExplicitBody: true,
-              httpParameterKind: "body",
-              name: ensureCSharpIdentifier(
-                program,
-                bodyParam.type.type,
-                bodyParam.type.name,
-                NameCasingType.Parameter,
-              ),
-              typeName: csType,
-              nullable: isNullable,
-              defaultValue: csValue,
-              optional: bodyParam.type.optional,
-              operationKind: "All",
-            });
-          }
-          break;
-        default: {
-          const [csType, csValue, isNullable] = getTypeInfoForTsType(
-            program,
-            bodyParam.type,
-            emitter,
-          );
           result.push({
-            isExplicitBody: true,
+            isExplicitBody: false,
             httpParameterKind: "body",
-            name: "body",
+            name: ensureCSharpIdentifier(program, propDef, propName, NameCasingType.Parameter),
             typeName: csType,
             nullable: isNullable,
             defaultValue: csValue,
-            optional: false,
+            optional: propDef.optional,
             operationKind: "All",
           });
         }
+        break;
+      case "ModelProperty":
+        {
+          let [csType, csValue, isNullable] = getTypeInfoForTsType(
+            program,
+            bodyParam.type.type,
+            emitter,
+          );
+          if (!canHaveDefault(program, bodyParam.type)) {
+            csValue = undefined;
+          }
+          result.push({
+            isExplicitBody: true,
+            httpParameterKind: "body",
+            name: ensureCSharpIdentifier(
+              program,
+              bodyParam.type.type,
+              bodyParam.type.name,
+              NameCasingType.Parameter,
+            ),
+            typeName: csType,
+            nullable: isNullable,
+            defaultValue: csValue,
+            optional: bodyParam.type.optional,
+            operationKind: "All",
+          });
+        }
+        break;
+      default: {
+        let [csType, csValue, isNullable] = getTypeInfoForTsType(program, bodyParam.type, emitter);
+        if (!canHaveDefault(program, bodyParam.type)) {
+          csValue = undefined;
+        }
+        result.push({
+          isExplicitBody: true,
+          httpParameterKind: "body",
+          name: "body",
+          typeName: csType,
+          nullable: isNullable,
+          defaultValue: csValue,
+          optional: false,
+          operationKind: "All",
+        });
       }
     }
-  } else if (explicitParameters !== undefined) {
-    for (const exParam of explicitParameters) {
-      result.push(exParam);
-    }
   }
+
   for (const parameter of optionalParams) {
     const [paramType, paramValue, isNullable] = getTypeInfoForTsType(
       program,
@@ -987,10 +1052,11 @@ export function getCSharpOperationParameters(
         parameter.param.name,
         NameCasingType.Parameter,
       ),
-      optional: false,
+      optional: true,
       typeName: paramType,
       defaultValue: paramValue,
       httpParameterKind: getParameterKind(parameter),
+      httpParameterName: parameter.name,
       nullable: isNullable,
       operationKind: "All",
     });
@@ -1095,9 +1161,8 @@ export function getTypeInfoForTsType(
 
 export function getExplicitBodyParameters(
   program: Program,
-  operation: Operation,
+  httpOperation: HttpOperation,
 ): CSharpOperationParameter[] | undefined {
-  const [httpOperation, _] = getHttpOperation(program, operation);
   if (httpOperation.parameters.body && httpOperation.parameters.body.bodyKind === "multipart") {
     return [
       {

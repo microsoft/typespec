@@ -563,7 +563,7 @@ it("handles enum, complex type properties, and circular references", async () =>
           "public enum EscapedBar",
           `[JsonStringEnumMemberName("2023-02-01-preview")]`,
           `[JsonStringEnumMemberName("2024-02-01-preview")]`,
-          `[JsonStringEnumMemberName("2025-02-01-preview")]`,
+          `[JsonStringEnumMemberName("2025-02-01")]`,
         ],
       ],
       [
@@ -1125,7 +1125,7 @@ it("handles implicit request body models correctly", async () => {
       [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Foo(int intProp, string[] arrayProp)`,
+          `public virtual async Task<IActionResult> Foo(int? intProp, string[]? arrayProp)`,
           ".FooAsync(intProp, arrayProp)",
         ],
       ],
@@ -1367,7 +1367,7 @@ it("Handles spread parameters", async () => {
       [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Create(string id, string color, [FromQuery(Name="kind")] string kind)`,
+          `public virtual async Task<IActionResult> Create(string id, string color, [FromQuery(Name="kind")] string? kind)`,
           ".CreateAsync(id, color, kind)",
         ],
       ],

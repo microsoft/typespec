@@ -305,6 +305,7 @@ export interface CSharpOperationParameter {
   typeName: EmitterOutput<string>;
   optional: boolean;
   httpParameterKind: HttpRequestParameterKind;
+  httpParameterName?: string;
   isExplicitBody: boolean;
   nullable: boolean;
   operationKind: "Http" | "BusinessLogic" | "All";
