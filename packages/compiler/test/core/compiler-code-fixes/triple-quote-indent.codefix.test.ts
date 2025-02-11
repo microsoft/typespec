@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import { it } from "vitest";
 import { createTripleQuoteIndentCodeFix } from "../../../src/core/compiler-code-fixes/triple-quote-indent.codefix.js";
-import { SyntaxKind } from "../../../src/index.js";
+import { getSourceLocation, SyntaxKind } from "../../../src/index.js";
 import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
 it("each triple-quote is on a new line", async () => {
@@ -14,7 +14,8 @@ it("each triple-quote is on a new line", async () => {
     `,
     (node) => {
       strictEqual(node.kind, SyntaxKind.StringLiteral);
-      return createTripleQuoteIndentCodeFix(node);
+      const target = getSourceLocation(node);
+      return createTripleQuoteIndentCodeFix(target);
     },
   ).toChangeTo(`
     const a = """
@@ -32,7 +33,8 @@ it("all triple-quote is on one line", async () => {
     `,
     (node) => {
       strictEqual(node.kind, SyntaxKind.StringLiteral);
-      return createTripleQuoteIndentCodeFix(node);
+      const target = getSourceLocation(node);
+      return createTripleQuoteIndentCodeFix(target);
     },
   ).toChangeTo(`
       const a = """
@@ -49,7 +51,8 @@ it("all triple-quote is on one line and is no carriage return in line", async ()
     `,
     (node) => {
       strictEqual(node.kind, SyntaxKind.StringLiteral);
-      return createTripleQuoteIndentCodeFix(node);
+      const target = getSourceLocation(node);
+      return createTripleQuoteIndentCodeFix(target);
     },
   ).toChangeTo(`
       const a = """
@@ -67,7 +70,8 @@ it("start triple-quote is not on a new line but end one is", async () => {
     `,
     (node) => {
       strictEqual(node.kind, SyntaxKind.StringLiteral);
-      return createTripleQuoteIndentCodeFix(node);
+      const target = getSourceLocation(node);
+      return createTripleQuoteIndentCodeFix(target);
     },
   ).toChangeTo(`
       const a = """
@@ -86,7 +90,8 @@ it("end triple-quote is not on a new line but start one is", async () => {
     `,
     (node) => {
       strictEqual(node.kind, SyntaxKind.StringLiteral);
-      return createTripleQuoteIndentCodeFix(node);
+      const target = getSourceLocation(node);
+      return createTripleQuoteIndentCodeFix(target);
     },
   ).toChangeTo(`
       const a = """

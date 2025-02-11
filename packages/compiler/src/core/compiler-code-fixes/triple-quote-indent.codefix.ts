@@ -1,14 +1,13 @@
 import { isWhiteSpaceSingleLine } from "../charcode.js";
-import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
+import { defineCodeFix } from "../diagnostics.js";
 import { splitLines } from "../helpers/syntax-utils.js";
-import type { DiagnosticTarget } from "../types.js";
+import type { SourceLocation } from "../types.js";
 
-export function createTripleQuoteIndentCodeFix(diagnosticTarget: DiagnosticTarget) {
+export function createTripleQuoteIndentCodeFix(location: SourceLocation) {
   return defineCodeFix({
     id: "triple-quote-indent",
     label: "Format triple-quote-indent",
     fix: (context) => {
-      const location = getSourceLocation(diagnosticTarget);
       const splitStr = "\n";
       const tripleQuote = '"""';
       const tripleQuoteLen = tripleQuote.length;
