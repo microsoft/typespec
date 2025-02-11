@@ -41,7 +41,6 @@ import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { reportDiagnostic } from "./lib.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
-import { isSdkPathParameter } from "./utils.js";
 
 export function fromSdkServiceMethod(
   sdkContext: CSharpEmitterContext,
@@ -216,7 +215,7 @@ function fromSdkHttpOperationParameter(
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
     DefaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
     Decorators: p.decorators,
-    SkipUrlEncoding: isSdkPathParameter(p) ? p.allowReserved : false,
+    SkipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
   } as InputParameter;
 }
 
