@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
-using Microsoft.Generator.CSharp.Tests.Common;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 
 namespace TestProjects.CadlRanch.Tests.Infrastructure
 {
