@@ -7,7 +7,7 @@
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft
 
 ######################
 # Java
