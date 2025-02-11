@@ -44,7 +44,7 @@ namespace Payload.MultiPart.Models
         {
             MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
 
-            content.Add(Temperature.Temperature, "temperature", Temperature.ContentType);
+            content.Add("temperature", Temperature.Temperature, Temperature.ContentType);
             return content;
         }
         private BinaryData SerializeMultipart()

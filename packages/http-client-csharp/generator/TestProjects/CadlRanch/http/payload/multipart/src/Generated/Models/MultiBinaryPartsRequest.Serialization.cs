@@ -41,11 +41,11 @@ namespace Payload.MultiPart.Models
         internal MultiPartFormDataBinaryContent ToMultipartContent()
         {
             MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add(ProfileImage, "profileImage");
+            content.Add("profileImage", ProfileImage);
 
             if (Optional.IsDefined(Picture))
             {
-                content.Add(Picture, "picture");
+                content.Add("picture", Picture);
             }
             return content;
         }

@@ -1,19 +1,41 @@
+#nullable disable
+
 using System;
 using System.ClientModel.Primitives;
 using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    public partial class ComplexPartsRequest : IPersistableModel<ComplexPartsRequest>
+    public partial class ComplexPartsRequest : IPersistableModelWithStream<ComplexPartsRequest>
     {
+        private string _boundary;
+
+        private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
+
         BinaryData IPersistableModel<ComplexPartsRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<ComplexPartsRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
+                case "MPFD-ContentType":
+                    return SerializeMultipartContentType();
                 case "MPFD":
                     return SerializeMultipart();
+                default:
+                    throw new FormatException($"The model {nameof(ComplexPartsRequest)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        void IPersistableModelWithStream<ComplexPartsRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
+        protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ComplexPartsRequest>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "MPFD":
+                    SerializeMultipart(stream);
+                    return;
                 default:
                     throw new FormatException($"The model {nameof(ComplexPartsRequest)} does not support writing '{options.Format}' format.");
             }
@@ -36,18 +58,23 @@ namespace Payload.MultiPart.Models
         string IPersistableModel<ComplexPartsRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
         internal MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-
-            content.Add(Id, "id");
-            content.Add(Address, "address");
-            content.Add(ProfileImage, "profileImage");
+            MultiPartFormDataBinaryContent content = new(Boundary);
+            content.Add("id", Id);
+            content.Add("address", Address);
+            content.Add("profileImage", ProfileImage);
 
             foreach (var picture in Pictures)
             {
-                content.Add(picture, "pictures");
+                content.Add("pictures", picture);
             }
 
             return content;
+        }
+
+        private BinaryData SerializeMultipartContentType()
+        {
+            using MultiPartFormDataBinaryContent content = new(Boundary);
+            return BinaryData.FromString(content.ContentType);
         }
 
         private BinaryData SerializeMultipart()
@@ -56,8 +83,22 @@ namespace Payload.MultiPart.Models
             using MemoryStream stream = new MemoryStream();
 
             content.WriteTo(stream);
-            stream.Position = 0; // Reset the stream position to the beginning
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
             return BinaryData.FromStream(stream);
+        }
+
+        private void SerializeMultipart(Stream stream)
+        {
+            using MultiPartFormDataBinaryContent content = ToMultipartContent();
+
+            content.WriteTo(stream);
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
         }
     }
 }

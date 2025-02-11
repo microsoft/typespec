@@ -39,7 +39,7 @@ namespace Payload.MultiPart.Models
         {
             MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
 
-            content.Add(ProfileImage, "profileImage");
+            content.Add("profileImage", ProfileImage);
 
             return content;
         }

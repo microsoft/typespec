@@ -8,16 +8,35 @@ using System.IO;
 
 namespace Payload.MultiPart.Models
 {
-    internal partial class AnonymousModelRequest : IPersistableModel<AnonymousModelRequest>
+    internal partial class AnonymousModelRequest : IPersistableModelWithStream<AnonymousModelRequest>
     {
+        private string _boundary;
+        private string Boundary => _boundary ??= MultiPartFormDataBinaryContent.CreateBoundary();
+
         BinaryData IPersistableModel<AnonymousModelRequest>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<AnonymousModelRequest>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
+                case "MPFD-ContentType":
+                    return SerializeMultipartContentType();
                 case "MPFD":
                     return SerializeMultipart();
+                default:
+                    throw new FormatException($"The model {nameof(AnonymousModelRequest)} does not support writing '{options.Format}' format.");
+            }
+        }
+
+        void IPersistableModelWithStream<AnonymousModelRequest>.Write(Stream stream, ModelReaderWriterOptions options) => PersistableModelWithStreamWriteCore(stream, options);
+        protected virtual void PersistableModelWithStreamWriteCore(Stream stream, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<AnonymousModelRequest>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "MPFD":
+                    SerializeMultipart(stream);
+                    return;
                 default:
                     throw new FormatException($"The model {nameof(AnonymousModelRequest)} does not support writing '{options.Format}' format.");
             }
@@ -40,10 +59,17 @@ namespace Payload.MultiPart.Models
         string IPersistableModel<AnonymousModelRequest>.GetFormatFromOptions(ModelReaderWriterOptions options) => "MPFD";
         internal MultiPartFormDataBinaryContent ToMultipartContent()
         {
-            MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
+            MultiPartFormDataBinaryContent content = new(Boundary);
 
-            content.Add(ProfileImage, "profileImage");
+            content.Add("profileImage", ProfileImage);
+
             return content;
+        }
+
+        private BinaryData SerializeMultipartContentType()
+        {
+            using MultiPartFormDataBinaryContent content = new(Boundary);
+            return BinaryData.FromString(content.ContentType);
         }
 
         private BinaryData SerializeMultipart()
@@ -52,8 +78,22 @@ namespace Payload.MultiPart.Models
             using MemoryStream stream = new MemoryStream();
 
             content.WriteTo(stream);
-            stream.Position = 0; // Reset the stream position to the beginning
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
             return BinaryData.FromStream(stream);
+        }
+
+        private void SerializeMultipart(Stream stream)
+        {
+            using MultiPartFormDataBinaryContent content = ToMultipartContent();
+
+            content.WriteTo(stream);
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+            }
         }
     }
 }

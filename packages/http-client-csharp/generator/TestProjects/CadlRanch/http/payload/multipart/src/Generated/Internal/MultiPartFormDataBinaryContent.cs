@@ -20,12 +20,15 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     private const int BoundaryLength = 70;
     private const string BoundaryValues = "0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
-    public MultiPartFormDataBinaryContent()
+    public MultiPartFormDataBinaryContent() : this(CreateBoundary()) { }
+
+    // CUSTOM: Internal ctor to use in serialization
+    internal MultiPartFormDataBinaryContent(string boundary)
     {
-        _multipartContent = new MultipartFormDataContent(CreateBoundary());
+        _multipartContent = new MultipartFormDataContent(boundary);
     }
 
-    public string ContentType
+    internal string ContentType
     {
         get
         {
@@ -38,50 +41,36 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     internal HttpContent HttpContent => _multipartContent;
 
     // CUSTOM: Add filepart to the multipart content.
-    public void Add(MultiPartFile file, string name)
+    public void Add(string name, MultiPartFile file)
     {
+        Argument.AssertNotNullOrEmpty(name, nameof(name));
         Argument.AssertNotNull(file, nameof(file));
 
         if (file.File != null)
         {
-            Add(file.File, name, file.Filename, file.ContentType);
+            Add(name, file.File, file.Filename, file.ContentType);
             return;
         }
         else if (file.Contents != null)
         {
-            Add(file.Contents, name, file.Filename, file.ContentType);
+            Add(name, file.Contents, file.Filename, file.ContentType);
             return;
         }
 
         throw new InvalidOperationException("File contents are not set.");
     }
 
-    // CUSTOM: Add IJsonModel part to the multipart content.
-    public void Add<T>(IJsonModel<T> content, string name, string contentType = default)
+    // CUSTOM: Add IPersistableModel part to the multipart content.
+    public void Add<T>(string name, IPersistableModel<T> content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-        Add(ModelReaderWriter.Write(content, ModelSerializationExtensions.WireOptions), name, contentType: contentType);
+        Add(name, ModelReaderWriter.Write(content, ModelSerializationExtensions.WireOptions), contentType: contentType);
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-
-    public void Add(Stream stream, string name, string fileName = default, string contentType = default)
-    {
-        Argument.AssertNotNull(stream, nameof(stream));
-        Argument.AssertNotNullOrEmpty(name, nameof(name));
-
-        StreamContent content = new(stream);
-        if (contentType is not null)
-        {
-            content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
-        }
-        Add(content, name, fileName);
-    }
-
-    // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(string content, string name, string contentType = default)
+    public void Add(string name, string content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -96,7 +85,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(int content, string name, string contentType = default)
+    public void Add(string name, int content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -111,7 +100,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(long content, string name, string contentType = default)
+    public void Add(string name, long content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -126,7 +115,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(float content, string name, string contentType = default)
+    public void Add(string name, float content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -141,7 +130,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(double content, string name, string contentType = default)
+    public void Add(string name, double content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -156,7 +145,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(decimal content, string name, string contentType = default)
+    public void Add(string name, decimal content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -171,7 +160,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(bool content, string name, string contentType = default)
+    public void Add(string name, bool content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -186,7 +175,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(byte[] content, string name, string contentType = default)
+    public void Add(string name, byte[] content, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -200,7 +189,7 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
     }
 
     // CUSTOM: Add optional content type parameter to the Add method.
-    public void Add(BinaryData content, string name, string fileName = default, string contentType = default)
+    public void Add(string name, BinaryData content, string fileName = default, string contentType = default)
     {
         Argument.AssertNotNull(content, nameof(content));
         Argument.AssertNotNullOrEmpty(name, nameof(name));
@@ -211,6 +200,20 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
             byteArrayContent.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
         Add(byteArrayContent, name, fileName);
+    }
+
+    // CUSTOM: Make private
+    private void Add(string name, Stream stream, string fileName = default, string contentType = default)
+    {
+        Argument.AssertNotNull(stream, nameof(stream));
+        Argument.AssertNotNullOrEmpty(name, nameof(name));
+
+        StreamContent content = new(stream);
+        if (contentType is not null)
+        {
+            content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+        }
+        Add(content, name, fileName);
     }
 
     private void Add(HttpContent content, string name, string fileName = default)
@@ -228,8 +231,9 @@ internal partial class MultiPartFormDataBinaryContent : BinaryContent
         }
     }
 
+    // CUSTOM: Make static & internalize to use in serialization
 #if NET6_0_OR_GREATER
-    private static string CreateBoundary() =>
+    internal static string CreateBoundary() =>
         string.Create(BoundaryLength, 0, (chars, _) =>
         {
             Span<byte> random = stackalloc byte[BoundaryLength];

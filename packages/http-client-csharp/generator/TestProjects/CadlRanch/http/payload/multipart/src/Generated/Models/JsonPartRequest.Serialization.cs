@@ -41,11 +41,11 @@ namespace Payload.MultiPart.Models
         {
             MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
 
-            content.Add(Address, "address");
+            content.Add("address", Address);
             // TO-DO: How do we know which model is a file?
             // Possible solution: When creating the file model in the emitter, the emitter can add a new nullable property
             // 'isFile' to the model. If the property is not null or true, then the model is a file.
-            content.Add(ProfileImage, "profileImage");
+            content.Add("profileImage", ProfileImage);
 
             return content;
         }

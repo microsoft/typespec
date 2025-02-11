@@ -42,11 +42,11 @@ namespace Payload.MultiPart.Models
         internal virtual MultiPartFormDataBinaryContent ToMultipartContent()
         {
             MultiPartFormDataBinaryContent content = new MultiPartFormDataBinaryContent();
-            content.Add(Id, "id");
+            content.Add("id", Id);
 
             foreach (var picture in Pictures)
             {
-                content.Add(picture, "pictures");
+                content.Add("pictures", picture);
             }
             return content;
         }
