@@ -84,7 +84,7 @@ class ClientSerializer:
             additional_signatures.append("credential_scopes=credential_scopes")
             retval.extend(
                 [
-                    '_cloud = kwargs.pop("cloud_setting", None) or settings.current.azure_cloud',
+                    '_cloud = kwargs.pop("cloud_setting", None) or settings.current.azure_cloud  # type: ignore',
                     "_endpoints = get_arm_endpoints(_cloud)",
                     "if not base_url:",
                     '    base_url = _endpoints["resource_manager"]',
