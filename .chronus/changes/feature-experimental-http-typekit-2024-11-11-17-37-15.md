@@ -5,4 +5,4 @@ packages:
   - "@typespec/http"
 ---
 
-Add Experimental Typekit helpers for @typespec/http
+Add Experimental Typekit helpers for `@typespec/http`
