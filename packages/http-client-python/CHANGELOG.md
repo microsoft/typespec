@@ -2,10 +2,6 @@
 
 ## 0.6.10
 
-No changes, version bump only.
-
-## 0.6.10
-
 ### Bug Fixes
 
 - [#5739](https://github.com/microsoft/typespec/pull/5739) Fix output folder of models when output folder is different with namespace in configuration
