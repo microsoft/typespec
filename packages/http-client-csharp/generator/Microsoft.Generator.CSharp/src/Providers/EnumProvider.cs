@@ -9,7 +9,7 @@ using Microsoft.Generator.CSharp.Utilities;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal abstract class EnumProvider : TypeProvider
+    public abstract class EnumProvider : TypeProvider
     {
         private readonly InputEnumType _inputType;
 
