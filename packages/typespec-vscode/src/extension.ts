@@ -237,5 +237,5 @@ async function showOpenApi3(docUri: vscode.Uri, context: vscode.ExtensionContext
     return;
   }
 
-  loadOpenApi3PreviewPanel(mainTspFile, context.extensionUri, client!);
+  await loadOpenApi3PreviewPanel(mainTspFile, context, client!);
 }

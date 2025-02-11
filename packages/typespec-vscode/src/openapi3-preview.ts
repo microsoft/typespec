@@ -32,7 +32,7 @@ const selectedOpenApi3OutputFile = new Map<string, string>();
 
 export async function loadOpenApi3PreviewPanel(
   mainTspFile: string,
-  extensionUri: vscode.Uri,
+  context: vscode.ExtensionContext,
   client: TspLanguageClient,
 ) {
   if (openApi3PreviewPanels.has(mainTspFile)) {
@@ -68,19 +68,27 @@ export async function loadOpenApi3PreviewPanel(
                 return parseOpenApi3File(selectedOpenApi3OutputFile.get(mainTspFile)!);
               }
 
-              const files = outputs.map<vscode.QuickPickItem & { path: string }>((file) => ({
-                label: basename(file),
-                path: file,
-              }));
+              const files = outputs.map<vscode.QuickPickItem & { path: string }>((file) => {
+                const filePath = join(outputFolder, file);
+                return {
+                  label: basename(file),
+                  detail: filePath,
+                  path: filePath,
+                  iconPath: {
+                    light: vscode.Uri.file(context.asAbsolutePath(`./icons/openapi3.light.svg`)),
+                    dark: vscode.Uri.file(context.asAbsolutePath(`./icons/openapi3.dark.svg`)),
+                  },
+                };
+              });
               const selected = await vscode.window.showQuickPick(files, {
-                title: "Select the OpenAPI3 file",
+                title: "Multiple OpenAPI3 files found. Select one to preview",
+                placeHolder: "Select an OpenAPI3 file",
               });
               if (selected) {
-                const selectedFilePath = join(outputFolder, selected.path);
-                selectedOpenApi3OutputFile.set(mainTspFile, selectedFilePath);
-                return parseOpenApi3File(selectedFilePath);
+                selectedOpenApi3OutputFile.set(mainTspFile, selected.path);
+                return parseOpenApi3File(selected.path);
               } else {
-                const msg = "No OpenAPI3 file selected.";
+                const msg = "No OpenAPI3 file selected";
                 logger.info(msg);
                 vscode.window.showInformationMessage(msg);
                 return;
@@ -103,13 +111,13 @@ export async function loadOpenApi3PreviewPanel(
       {
         retainContextWhenHidden: true,
         enableScripts: true,
-        localResourceRoots: [extensionUri],
+        localResourceRoots: [context.extensionUri],
       },
     );
     openApi3PreviewPanels.set(mainTspFile, panel);
 
     const watch = vscode.workspace.createFileSystemWatcher("**/*.{tsp}");
-    const throttledChangeHandler = throttle(async ()=>{
+    const throttledChangeHandler = throttle(async () => {
       const content = await getOpenApi3Output();
       void panel.webview.postMessage({ command: "load", param: content });
     }, 1000);
@@ -134,7 +142,7 @@ export async function loadOpenApi3PreviewPanel(
       }
     });
 
-    loadHtml(extensionUri, panel);
+    loadHtml(context.extensionUri, panel);
   }
 }
 
@@ -175,18 +183,6 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
   panel.webview.html = html;
 }
 
-function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: number): T {
-  let timer: NodeJS.Timeout | undefined;
-  return function (this: any, ...args: Parameters<T>) {
-    if (timer) {
-      clearTimeout(timer);
-    }
-    timer = setTimeout(() => {
-      fn.apply(this, args);
-    }, delayInMs);
-  } as T;
-}
-
 /**
  * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
  * is useful when your event handler will trigger the same event multiple times in a short period.
@@ -204,33 +200,6 @@ function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: number): 
       fn.apply(this, args);
     }
   } as T;
-}
-
-function debounceAsync<T extends (...args: any[]) => Promise<any>>(
-  func: T,
-  wait: number,
-): (...args: Parameters<T>) => Promise<ReturnType<T>> {
-  let timeout: NodeJS.Timeout | undefined;
-  return function (this: any, ...args: Parameters<T>): Promise<ReturnType<T>> {
-    return new Promise((resolve, reject) => {
-      if (timeout) {
-        console.log(`Clearing timeout: ${timeout}`);
-        clearTimeout(timeout);
-      }
-      console.log("Setting timeout");
-      timeout = setTimeout(async () => {
-        try {
-          console.log(`Running timeout: ${timeout}`);
-          const result = await func.apply(this, args);
-          resolve(result);
-          console.log(`Finish timeout: ${timeout}`);
-        } catch (error) {
-          reject(error);
-        }
-      }, wait);
-      console.log(`Timeout set: ${timeout});`);
-    });
-  };
 }
 
 async function parseOpenApi3File(filePath: string): Promise<string | undefined> {
