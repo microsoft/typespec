@@ -65,7 +65,7 @@ A few exceptions are API of JSON Merge Patch, and API of long-running operation 
 
 You can configure whether generate convenience API or not via `convenienceAPI` decorator.
 
-## CadlRanch Tests
+## Spector Tests
 
-We run the generator against the common set of test defined in https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs.
-For details on how to run and debug these tests see [CadlRanch Testing](generator/docs/cadl-ranch.md)
+We run the generator against the common set of test defined in https://github.com/microsoft/typespec/tree/main/packages/http-specs.
+For details on how to run and debug these tests see [Spector Testing](generator/docs/spector.md)
