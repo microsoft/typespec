@@ -2131,6 +2131,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return flags;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   function parseProjectionStatement(pos: number): ProjectionStatementNode {
     parseExpected(Token.ProjectionKeyword);
     const selector = parseProjectionSelector();

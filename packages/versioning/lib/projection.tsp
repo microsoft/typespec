@@ -35,7 +35,7 @@ extern fn madeOptionalAfter(target: unknown, version: EnumMember): boolean;
  */
 extern fn madeRequiredAfter(target: unknown, version: EnumMember): boolean;
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection op#v {
   pre to(version) {
     if !existsAtVersion(self, version) {
@@ -62,7 +62,7 @@ projection op#v {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection interface#v {
   pre to(version) {
     if !existsAtVersion(self, version) {
@@ -100,7 +100,7 @@ projection interface#v {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection union#v {
   pre to(version) {
     if !existsAtVersion(self, version) {
@@ -133,7 +133,7 @@ projection union#v {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection unionvariant#v {
   pre to(version) {
     if !existsAtVersion(self, version) {
@@ -147,7 +147,7 @@ projection unionvariant#v {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection model#v {
   pre to(version) {
     if !existsAtVersion(self, version) {
@@ -210,7 +210,7 @@ projection model#v {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection modelproperty#v {
   pre to(version) {
     if !existsAtVersion(self, version) {
@@ -224,7 +224,7 @@ projection modelproperty#v {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection enum#v {
   pre to(version) {
     if !existsAtVersion(self, version) {
@@ -264,7 +264,7 @@ projection enum#v {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection enummember#v {
   pre to(version) {
     if !existsAtVersion(self, version) {
@@ -278,7 +278,7 @@ projection enummember#v {
   }
 }
 
-#suppress "projections-are-experimental"
+#suppress "deprecated"
 projection scalar#v {
   pre to(version) {
     if !existsAtVersion(self, version) {

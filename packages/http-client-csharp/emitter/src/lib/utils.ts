@@ -7,6 +7,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { Enum, EnumMember, Model, ModelProperty, Operation, Scalar } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
+import { CSharpEmitterContext } from "../emitter.js";
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
@@ -83,13 +84,16 @@ export function isSdkPathParameter(
   return (parameter as SdkPathParameter).kind === "path";
 }
 
-export async function execCSharpGenerator(options: {
-  generatorPath: string;
-  outputFolder: string;
-  pluginName: string;
-  newProject: boolean;
-  debug: boolean;
-}): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
+export async function execCSharpGenerator(
+  context: CSharpEmitterContext,
+  options: {
+    generatorPath: string;
+    outputFolder: string;
+    pluginName: string;
+    newProject: boolean;
+    debug: boolean;
+  },
+): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
   const command = "dotnet";
   const args = [
     "--roll-forward",
@@ -105,7 +109,7 @@ export async function execCSharpGenerator(options: {
   if (options.debug) {
     args.push("--debug");
   }
-  Logger.getInstance().info(`${command} ${args.join(" ")}`);
+  context.logger.info(`${command} ${args.join(" ")}`);
 
   const child = spawn(command, args, { stdio: "pipe" });
 
@@ -118,8 +122,8 @@ export async function execCSharpGenerator(options: {
       while ((index = buffer.indexOf("\n")) !== -1) {
         const message = buffer.slice(0, index);
         buffer = buffer.slice(index + 1);
-        Logger.getInstance().info(`Received from C#: ${message}`);
-        processJsonRpc(message);
+        context.logger.info(`Received from C#: ${message}`);
+        processJsonRpc(context, message);
       }
     });
 
@@ -139,16 +143,16 @@ export async function execCSharpGenerator(options: {
   });
 }
 
-function processJsonRpc(message: string) {
+function processJsonRpc(context: CSharpEmitterContext, message: string) {
   const response = JSON.parse(message);
   const method = response.method;
   const params = response.params;
   switch (method) {
     case "info":
-      Logger.getInstance().info(params.message);
+      context.logger.info(params.message);
       break;
     case "diagnostic":
-      Logger.getInstance().reportDiagnostic(params.code, params.message); // TODO -- add target
+      context.logger.reportDiagnostic(params.code, params.message); // TODO -- add target
       break;
   }
 }

@@ -56,12 +56,12 @@ public class Project {
     public enum Dependency {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
-        AZURE_CORE("com.azure", "azure-core", "1.54.1"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.15.6"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.7"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.4"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.15.0"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.56"),
+        AZURE_CORE("com.azure", "azure-core", "1.55.0"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.16.0"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.15.8"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.5"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.15.1"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.57"),
 
         CLIENTCORE("io.clientcore", "core", "1.0.0-beta.2");
 

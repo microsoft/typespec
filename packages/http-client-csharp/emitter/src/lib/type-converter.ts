@@ -20,7 +20,7 @@ import {
   getAccessOverride,
   isReadOnly,
 } from "@azure-tools/typespec-client-generator-core";
-import { Model } from "@typespec/compiler";
+import { Model, NoTarget } from "@typespec/compiler";
 import {
   InputArrayType,
   InputDateTimeType,
@@ -37,6 +37,7 @@ import {
 } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
+import { reportDiagnostic } from "./lib.js";
 
 export function fromSdkType(
   sdkType: SdkType,
@@ -95,7 +96,12 @@ export function fromSdkType(
       retVar = fromSdkEndpointType();
       break;
     case "credential":
-      throw new Error("Credential type is not supported yet.");
+      reportDiagnostic(context.program, {
+        code: "unsupported-sdk-type",
+        format: { sdkType: "Credential" },
+        target: NoTarget,
+      });
+      return { kind: "unknown", name: "credential", crossLanguageDefinitionId: "" };
     default:
       retVar = fromSdkBuiltInType(sdkType);
       break;
