@@ -58,15 +58,11 @@ Building emitter and generator
 MSBuild version 17.9.8+610b4d3b5 for .NET
   Determining projects to restore...
   All projects are up-to-date for restore.
-  Microsoft.TypeSpec.Generator.Input -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.Input\Debug\net8.0\Microsoft.Type
-  Spec.Generator.Input.dll
-  Microsoft.TypeSpec.Generator -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator\Debug\net8.0\Microsoft.TypeSpec.Generat
-  or.dll
-  Microsoft.TypeSpec.Generator.ClientModel -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.ClientModel\Debug\net8.0\Mi
-  crosoft.TypeSpec.Generator.ClientModel.dll
+  Microsoft.TypeSpec.Generator.Input -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.Input\Debug\net8.0\Microsoft.TypeSpec.Generator.Input.dll
+  Microsoft.TypeSpec.Generator -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator\Debug\net8.0\Microsoft.TypeSpec.Generator.dll
+  Microsoft.TypeSpec.Generator.ClientModel -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.ClientModel\Debug\net8.0\Microsoft.TypeSpec.Generator.ClientModel.dll
   Copying output to dist path
-  Microsoft.TypeSpec.Generator.ClientModel.StubLibrary -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.ClientModel.Stu
-  bLibrary\Debug\net8.0\Microsoft.TypeSpec.Generator.ClientModel.StubLibrary.dll
+  Microsoft.TypeSpec.Generator.ClientModel.StubLibrary -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.ClientModel.StubLibrary\Debug\net8.0\Microsoft.TypeSpec.Generator.ClientModel.StubLibrary.dll
   Copying output to dist path
 
 Build succeeded.
@@ -99,10 +95,8 @@ Testing authentication\api-key
   Determining projects to restore...
   All projects are up-to-date for restore.
   Encode.Duration -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Encode.Duration\Debug\netstandard2.0\Encode.Duration.dll
-  Client.Structure.Service.Default -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.Default\Debug\netstandard2.0\Client.Str
-  ucture.Service.Default.dll
-  Parameters.CollectionFormat -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.CollectionFormat\Debug\netstandard2.0\Parameters.Collectio
-  nFormat.dll
+  Client.Structure.Service.Default -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.Default\Debug\netstandard2.0\Client.Structure.Service.Default.dll
+  Parameters.CollectionFormat -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.CollectionFormat\Debug\netstandard2.0\Parameters.CollectionFormat.dll
   Payload.MediaType -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Payload.MediaType\Debug\netstandard2.0\Payload.MediaType.dll
   Parameters.Basic -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.Basic\Debug\netstandard2.0\Parameters.Basic.dll
   Client.Structure.Service.Multi.Client -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.Multi.Client\Debug\netstandard2.0\
@@ -111,20 +105,16 @@ Testing authentication\api-key
   Encode.Datetime -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Encode.Datetime\Debug\netstandard2.0\Encode.Datetime.dll
   Payload.JsonMergePatch -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Payload.JsonMergePatch\Debug\netstandard2.0\Payload.JsonMergePatch.dll
   Authentication.OAuth2 -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Authentication.OAuth2\Debug\netstandard2.0\Authentication.OAuth2.dll
-  Client.Structure.Service -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service\Debug\netstandard2.0\Client.Structure.Service.d
-  ll
+  Client.Structure.Service -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service\Debug\netstandard2.0\Client.Structure.Service.dll
   Parameters.Spread -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.Spread\Debug\netstandard2.0\Parameters.Spread.dll
   Type.Array -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Array\Debug\netstandard2.0\Type.Array.dll
-  Payload.ContentNegotiation -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Payload.ContentNegotiation\Debug\netstandard2.0\Payload.ContentNegotia
-  tion.dll
+  Payload.ContentNegotiation -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Payload.ContentNegotiation\Debug\netstandard2.0\Payload.ContentNegotiation.dll
   Encode.Numeric -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Encode.Numeric\Debug\netstandard2.0\Encode.Numeric.dll
-  Authentication.Http.Custom -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Authentication.Http.Custom\Debug\netstandard2.0\Authentication.Http.Cu
-  stom.dll
+  Authentication.Http.Custom -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Authentication.Http.Custom\Debug\netstandard2.0\Authentication.Http.Custom.dll
   Type.Enum.Fixed -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Enum.Fixed\Debug\netstandard2.0\Type.Enum.Fixed.dll
   Client.Structure.Service.TwoOperationGroup -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.TwoOperationGroup\Debug\netstandard2.0\Client.Structure.Service.TwoOperationGroup.dll
   Type.Enum.Extensible -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Enum.Extensible\Debug\netstandard2.0\Type.Enum.Extensible.dll
-  Parameters.BodyOptionality -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.BodyOptionality\Debug\netstandard2.0\Parameters.BodyOptiona
-  lity.dll
+  Parameters.BodyOptionality -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.BodyOptionality\Debug\netstandard2.0\Parameters.BodyOptionality.dll
   Authentication.Union -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Authentication.Union\Debug\netstandard2.0\Authentication.Union.dll
   Client.Structure.Service.Renamed.Operation -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.Renamed.Operation\Debug\netstandard2.0\Client.Structure.Service.Renamed.Operation.dll
   Resiliency.SrvDriven.V2 -> C:\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Resiliency.SrvDriven.V2\Debug\netstandard2.0\Resiliency.SrvDriven.V2.dll
