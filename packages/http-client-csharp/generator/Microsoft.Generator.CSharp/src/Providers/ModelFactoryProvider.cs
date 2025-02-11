@@ -14,7 +14,7 @@ using static Microsoft.Generator.CSharp.Snippets.Snippet;
 
 namespace Microsoft.Generator.CSharp.Providers
 {
-    internal class ModelFactoryProvider : TypeProvider
+    public class ModelFactoryProvider : TypeProvider
     {
         private const string ModelFactorySuffix = "ModelFactory";
         private const string AdditionalBinaryDataParameterName = "additionalBinaryDataProperties";
