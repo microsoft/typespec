@@ -650,6 +650,9 @@ importers:
       prettier:
         specifier: ~3.4.2
         version: 3.4.2
+      yaml:
+        specifier: ~2.7.0
+        version: 2.7.0
     devDependencies:
       '@types/node':
         specifier: ~22.10.10
@@ -11039,7 +11042,7 @@ packages:
     engines: {node: '>= 14.16.0'}
 
   readline-sync@1.4.9:
-    resolution: {integrity: sha512-mp5h1N39kuKbCRGebLPIKTBOhuDw55GaNg5S+K9TW9uDAS1wIHpGUc2YokdUMZJb8GqS49sWmWEDijaESYh0Hg==}
+    resolution: {integrity: sha1-PtqOZfI80qF+YTAbHwADOWr17No=}
     engines: {node: '>= 0.8.0'}
 
   realpath-missing@1.1.0:

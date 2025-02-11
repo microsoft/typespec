@@ -26,6 +26,9 @@
     ".": "./dist/src/index.js",
     "./testing": "./dist/src/testing/index.js"
   },
+  "bin": {
+    "hsj-scaffold": "./dist/src/scripts/scaffold/bin.mjs"
+  },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "npm run build:helpers && npm run build:src",
@@ -45,7 +48,8 @@
     "@typespec/http": "workspace:~"
   },
   "dependencies": {
-    "prettier": "~3.4.2"
+    "prettier": "~3.4.2",
+    "yaml": "~2.7.0"
   },
   "devDependencies": {
     "@types/node": "~22.10.10",
