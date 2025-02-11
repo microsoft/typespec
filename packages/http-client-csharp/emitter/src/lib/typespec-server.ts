@@ -12,6 +12,8 @@ import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
+import { LoggerLevel } from "./log-level.js";
+import { Logger } from "./logger.js";
 import { getDefaultValue, getInputType } from "./model.js";
 
 export interface TypeSpecServer {
@@ -25,6 +27,8 @@ export function resolveServers(
   servers: HttpServer[],
   typeMap: SdkTypeMap,
 ): TypeSpecServer[] {
+  const logger = new Logger(context.program, LoggerLevel.INFO);
+  const csharpEmitterContext = { ...context, logger };
   return servers.map((server) => {
     const parameters: InputParameter[] = [];
     let url: string = server.url;
@@ -39,7 +43,7 @@ export function resolveServers(
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : getInputType(context, prop, typeMap);
+        : getInputType(csharpEmitterContext, prop, typeMap);
 
       if (value) {
         defaultValue = {
