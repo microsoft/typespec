@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-server-javascript
 
+## 0.58.0-alpha.8
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
 ## 0.58.0-alpha.7
 
 ### Features
