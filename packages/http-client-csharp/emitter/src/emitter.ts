@@ -105,7 +105,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       const configurations: Configuration = {
         "output-folder": ".",
         namespace: namespace,
-        "library-name": options["library-name"] ?? namespace,
+        "package-name": options["package-name"] ?? namespace,
         "unreferenced-types-handling": options["unreferenced-types-handling"],
         "disable-xml-docs":
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
@@ -120,7 +120,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         const csProjFile = resolvePath(
           outputFolder,
           "src",
-          `${configurations["library-name"]}.csproj`,
+          `${configurations["package-name"]}.csproj`,
         );
         logger.info(`Checking if ${csProjFile} exists`);
         const newProjectOption =

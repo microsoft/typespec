@@ -4,7 +4,7 @@
 export interface Configuration {
   "output-folder": string;
   namespace: string;
-  "library-name": string | null;
+  "package-name": string | null;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
   "disable-xml-docs"?: boolean;
 }
