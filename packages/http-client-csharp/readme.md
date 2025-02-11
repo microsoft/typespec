@@ -49,14 +49,13 @@ options:
 
 **Supported Emitter options**:
 
-- `namespace` define the client library namespace. e.g. MyService.Namespace.
-- `emitter-output-dir` define the output dire path which will store the generated code.
+- `emitter-output-dir` define the output directory path which will store the generated code.
 - `generate-protocol-methods` indicate if you want to generate **protocol method** for every operation or not. The default value is true.
 - `generate-convenience-methods` indicate if you want to generate **convenience method** for every operation or not. The default value is true.
-- `unreferenced-types-handling` define the strategy how to handle the unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`
-- `model-namespace` indicate if we want to put the models in their own namespace which is a sub namespace of the client library namespace plus ".Models". if it is set `false`, the models will be put in the same namespace of the client. The default value is `true`.
+- `unreferenced-types-handling` define the strategy how to handle unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`.
 - `clear-output-folder` indicate if you want to clear up the output folder.
-- `package-name` define the package name.
+- `library-name` define the library name.
+- `new-project` whether or not to overwrite the csproj if it already exists.
 
 ## Convenience API
 

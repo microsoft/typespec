@@ -101,7 +101,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       );
 
       //emit configuration.json
-      const namespace = options.namespace ?? root.Name;
+      const namespace = root.Name;
       const configurations: Configuration = {
         "output-folder": ".",
         namespace: namespace,

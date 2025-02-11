@@ -12,7 +12,6 @@ export interface NetEmitterOptions extends SdkEmitterOptions {
   "api-version"?: string;
   outputFile?: string;
   logFile?: string;
-  namespace: string;
   "library-name": string;
   skipSDKGeneration?: boolean;
   "unreferenced-types-handling"?: "removeOrInternalize" | "internalize" | "keepAll";
