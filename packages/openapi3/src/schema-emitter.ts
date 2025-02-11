@@ -156,9 +156,37 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+    if (!model.indexer) return;
+    const indexerType = model.indexer.value;
+    const isSealed = isNeverType(indexerType);
+
+    // if the indexer type is 'never' and the model extends another model,
+    // then we need redefine any baseModel properties
+    if (isSealed) {
+      const props = new ObjectBuilder(schema.properties ?? {});
+      let baseModel = model.baseModel;
+      while (baseModel) {
+        const result = this.emitter.emitModelProperties(baseModel);
+        baseModel = baseModel.baseModel;
+        if (result.kind !== "code" || !(result.value instanceof ObjectBuilder)) continue;
+        const baseProperties = result.value;
+        for (const key of Object.keys(baseProperties)) {
+          if (key in props) continue;
+          // Here we are saying that this property will always validate as true for this schema.
+          // This is because the `allOf` subSchema will contain the more specific validation
+          // for this property.
+          props.set(key, {});
+        }
+      }
+      if (Object.keys(props).length > 0) {
+        schema.set("properties", props);
+      }
     }
+
+    const additionalPropertiesSchema = isSealed
+      ? { not: {} }
+      : this.emitter.emitTypeReference(indexerType);
+    schema.set("additionalProperties", additionalPropertiesSchema);
   }
 
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
