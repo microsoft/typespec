@@ -21,7 +21,7 @@ class {{ client.name }}Configuration:  {{ client.config.pylint_disable() }}
 {% if serializer.set_constants() %}
         {{ op_tools.serialize(serializer.set_constants()) | indent(8) -}}
 {% endif %}
-{% if client.credential_scopes %}
+{% if client.credential_scopes is not none %}
         self.credential_scopes = kwargs.pop('credential_scopes', {{ client.credential_scopes }})
 {% endif %}
         kwargs.setdefault('sdk_moniker', '{{ client.config.sdk_moniker }}/{}'.format(VERSION))

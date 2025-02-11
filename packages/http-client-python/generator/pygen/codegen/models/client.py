@@ -89,7 +89,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
 
     @property
     def need_cloud_setting(self) -> bool:
-        return bool(self.code_model.options["azure_arm"] and self.credential_scopes)
+        return bool(self.code_model.options["azure_arm"] and self.credential_scopes is not None)
 
     def _build_request_builders(
         self,
@@ -364,7 +364,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
         return file_import
 
     @property
-    def credential_scopes(self) -> List[str]:
+    def credential_scopes(self) -> Optional[List[str]]:
         """Credential scopes for this client"""
 
         if self.credential:
@@ -373,7 +373,7 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
             for t in getattr(self.credential.type, "types", []):
                 if hasattr(getattr(t, "policy", None), "credential_scopes"):
                     return t.policy.credential_scopes
-        return []
+        return None
 
     @classmethod
     def from_yaml(
