@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
-  SdkContext,
   SdkCredentialParameter,
   SdkCredentialType,
   SdkHttpOperation,
@@ -10,12 +9,12 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
-import { CSharpEmitterOptions } from "../options.js";
 import { InputAuth } from "../type/client-interfaces.js";
 import { reportDiagnostic } from "./lib.js";
+import { CSharpEmitterContext } from "../emitter-context.js";
 
 export function processServiceAuthentication(
-  sdkContext: SdkContext<CSharpEmitterOptions>,
+  sdkContext: CSharpEmitterContext,
   sdkPackage: SdkPackage<SdkHttpOperation>,
 ): InputAuth | undefined {
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
@@ -48,7 +47,7 @@ export function processServiceAuthentication(
 }
 
 function processAuthType(
-  sdkContext: SdkContext<CSharpEmitterOptions>,
+  sdkContext: CSharpEmitterContext,
   credentialType: SdkCredentialType,
 ): InputAuth | undefined {
   const scheme = credentialType.scheme;

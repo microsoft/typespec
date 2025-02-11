@@ -5,7 +5,7 @@ import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
+  createCSharpEmitterContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -27,7 +27,7 @@ describe("Test auth", () => {
       },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpEmitterContext(context);
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
@@ -53,7 +53,7 @@ describe("Test auth", () => {
       },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpEmitterContext(context);
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 

@@ -5,7 +5,7 @@ import { createModel } from "../../src/lib/client-model-builder.js";
 import {
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
+  createCSharpEmitterContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -28,7 +28,7 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpEmitterContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
@@ -57,7 +57,7 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpEmitterContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
@@ -87,7 +87,7 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpEmitterContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
@@ -117,7 +117,7 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpEmitterContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
@@ -143,7 +143,7 @@ describe("Test emitting decorator list", () => {
       { IsTCGCNeeded: true, IsXmlNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context, {
+    const sdkContext = await createCSharpEmitterContext(context, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@clientName"],
     });
     const root = createModel(sdkContext);
