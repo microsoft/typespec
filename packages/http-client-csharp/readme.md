@@ -54,7 +54,7 @@ options:
 - `generate-convenience-methods` indicate if you want to generate **convenience method** for every operation or not. The default value is true.
 - `unreferenced-types-handling` define the strategy how to handle unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`.
 - `clear-output-folder` indicate if you want to clear up the output folder.
-- `library-name` define the library name.
+- `package-name` define the package name.
 - `new-project` whether or not to overwrite the csproj if it already exists.
 
 ## Convenience API
