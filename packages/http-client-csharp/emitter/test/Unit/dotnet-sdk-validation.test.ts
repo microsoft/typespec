@@ -10,9 +10,9 @@ import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { _validateDotNetSdk } from "../../src/emitter.js";
 import { execAsync } from "../../src/lib/utils.js";
 import {
+  createCSharpEmitterContext,
   createEmitterContext,
   createEmitterTestHost,
-  createCSharpEmitterContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 

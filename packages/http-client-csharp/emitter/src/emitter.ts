@@ -21,6 +21,7 @@ import {
   configurationFileName,
   tspOutputFileName,
 } from "./constants.js";
+import { CSharpEmitterContext } from "./emitter-context.js";
 import { createModel } from "./lib/client-model-builder.js";
 import { reportDiagnostic } from "./lib/lib.js";
 import { LoggerLevel } from "./lib/log-level.js";
@@ -30,7 +31,6 @@ import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./op
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
 import { InputEnumType, InputModelType, InputType } from "./type/type-interfaces.js";
-import { CSharpEmitterContext } from "./emitter-context.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.

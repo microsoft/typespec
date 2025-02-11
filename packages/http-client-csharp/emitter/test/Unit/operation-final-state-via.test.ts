@@ -3,7 +3,10 @@
 import { FinalStateValue } from "@azure-tools/typespec-azure-core";
 import assert from "assert";
 import { describe, it } from "vitest";
-import { OperationFinalStateVia, convertLroFinalStateVia } from "../../src/type/operation-interfaces.js";
+import {
+  OperationFinalStateVia,
+  convertLroFinalStateVia,
+} from "../../src/type/operation-interfaces.js";
 
 describe("convertLroFinalStateVia()", () => {
   describe("normal inputs", () => {

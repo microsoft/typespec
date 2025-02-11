@@ -4,9 +4,9 @@ import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpEmitterContext,
   createEmitterContext,
   createEmitterTestHost,
-  createCSharpEmitterContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 

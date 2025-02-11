@@ -9,9 +9,9 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
+import { CSharpEmitterContext } from "../emitter-context.js";
 import { InputAuth } from "../type/client-interfaces.js";
 import { reportDiagnostic } from "./lib.js";
-import { CSharpEmitterContext } from "../emitter-context.js";
 
 export function processServiceAuthentication(
   sdkContext: CSharpEmitterContext,
