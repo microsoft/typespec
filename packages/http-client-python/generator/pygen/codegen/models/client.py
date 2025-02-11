@@ -367,15 +367,13 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
     def credential_scopes(self) -> List[str]:
         """Credential scopes for this client"""
 
-        cred_scopes: List[str] = []
         if self.credential:
-            cred_scopes = getattr(getattr(self.credential.type, "policy", None), "credential_scopes", [])
-            if not cred_scopes:
-                types = getattr(self.credential.type, "types", [])
-                cred_scopes = next(
-                    (t.policy.credential_scopes for t in types if hasattr(t.policy, "credential_scopes")), []
-                )
-        return cred_scopes
+            if hasattr(getattr(self.credential.type, "policy", None), "credential_scopes"):
+                return self.credential.type.policy.credential_scopes  # type: ignore
+            for t in getattr(self.credential.type, "types", []):
+                if hasattr(getattr(t, "policy", None), "credential_scopes"):
+                    return t.policy.credential_scopes
+        return []
 
     @classmethod
     def from_yaml(
