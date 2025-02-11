@@ -404,6 +404,7 @@ export async function scaffold(options: ScaffoldingOptions) {
       await spawn("npm", ["install"], {
         stdio: "inherit",
         cwd: options["no-standalone"] ? cwd : baseOutputDir,
+        shell: process.platform === "win32",
       });
     } catch {
       console.warn(
@@ -418,6 +419,7 @@ export async function scaffold(options: ScaffoldingOptions) {
     await spawn("npm", ["run", "build"], {
       stdio: "inherit",
       cwd: options["no-standalone"] ? cwd : baseOutputDir,
+      shell: process.platform === "win32",
     });
   } catch {
     console.error("[hsj] Failed to build project. Check the output above for errors.");
