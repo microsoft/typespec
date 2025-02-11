@@ -22,12 +22,7 @@
 ######################
 # Emiter Shared
 ######################
-/eng/emitters/                               @m-nash
-
-######################
-# JS - Server
-######################
-/packages/http-server-javascript             @witemple-msft
+/eng/emitters/                               @m-nash @iscai-msft
 
 ######################
 # IDE
