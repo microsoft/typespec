@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => _inputClient.Name.ToCleanName();
 
-        protected override string BuildNamespace() => ClientProvider.Namespace;
+        protected override string BuildNamespace() => ClientProvider.Type.Namespace;
 
         protected override PropertyProvider[] BuildProperties()
         {
