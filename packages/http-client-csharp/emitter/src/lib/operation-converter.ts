@@ -33,6 +33,7 @@ import {
   OperationLongRunning,
   OperationPaging,
   OperationResponse,
+  parseHttpRequestMethod,
   RequestLocation,
 } from "../type/operation-interfaces.js";
 import { InputConstant, InputType } from "../type/type-interfaces.js";
@@ -69,7 +70,7 @@ export function fromSdkServiceMethod(
     Accessibility: method.access,
     Parameters: [...parameterMap.values()],
     Responses: [...responseMap.values()],
-    HttpMethod: method.operation.verb,
+    HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
     Path: method.operation.path,
