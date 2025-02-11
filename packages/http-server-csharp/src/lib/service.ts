@@ -541,6 +541,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         let opDecl: Declaration<string>;
         let opImpl: BusinessLogicMethod;
         if (this.#isMultipartRequest(httpOp)) {
+          const parameters = getOp;
           opImpl = {
             methodName: `${opName}Async`,
             methodParams: `${this.#emitInterfaceOperationParameters(operation, "MultipartReader reader")}`,
@@ -863,7 +864,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       let i = 0;
       //const pathParameters = operation.parameters.parameters.filter((p) => p.type === "path");
       const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
-        isValidParameter(this.emitter.getProgram(), p.param, isExplicitBodyParam && !bodyParameter),
+        isValidParameter(this.emitter.getProgram(), p.param),
       );
       const requiredParams: HttpOperationParameter[] = validParams.filter(
         (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),

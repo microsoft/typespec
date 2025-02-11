@@ -850,12 +850,12 @@ export function getParameterKind(parameter: HttpOperationParameter): HttpRequest
 }
 export function getCSharpOperationParameters(
   program: Program,
-  tsOperation: Operation,
+  inOperation: Operation | HttpOperation,
   emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
   bodyParameter?: boolean,
   explicitParameters?: CSharpOperationParameter[],
 ): CSharpOperationParameter[] {
-  const [operation, _] = getHttpOperation(program, tsOperation);
+  const [operation, _] = inOperation instanceof HttpOperation? getHttpOperation(program, tsOperation);
   const bodyParam = operation.parameters.body;
   const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
   const result: CSharpOperationParameter[] = [];
@@ -883,6 +883,7 @@ export function getCSharpOperationParameters(
       defaultValue: paramValue,
       httpParameterKind: getParameterKind(parameter),
       nullable: false,
+      operationKind: "All",
     });
   }
 
@@ -901,6 +902,7 @@ export function getCSharpOperationParameters(
         nullable: isNullable,
         defaultValue: bodyValue,
         optional: bodyParam.property?.optional ?? false,
+        operationKind: "All",
       });
     } else if (bodyParam !== undefined) {
       switch (bodyParam.type.kind) {
@@ -919,6 +921,7 @@ export function getCSharpOperationParameters(
               nullable: isNullable,
               defaultValue: csValue,
               optional: propDef.optional,
+              operationKind: "All",
             });
           }
           break;
@@ -942,6 +945,7 @@ export function getCSharpOperationParameters(
               nullable: isNullable,
               defaultValue: csValue,
               optional: bodyParam.type.optional,
+              operationKind: "All",
             });
           }
           break;
@@ -959,6 +963,7 @@ export function getCSharpOperationParameters(
             nullable: isNullable,
             defaultValue: csValue,
             optional: false,
+            operationKind: "All",
           });
         }
       }
@@ -987,6 +992,7 @@ export function getCSharpOperationParameters(
       defaultValue: paramValue,
       httpParameterKind: getParameterKind(parameter),
       nullable: isNullable,
+      operationKind: "All",
     });
   }
 
@@ -1090,11 +1096,23 @@ export function getTypeInfoForTsType(
 export function getExplicitBodyParameters(
   program: Program,
   operation: Operation,
-  operationKind: "BussinessLogic" | "Http",
-) {
+): CSharpOperationParameter[] | undefined {
   const [httpOperation, _] = getHttpOperation(program, operation);
   if (httpOperation.parameters.body && httpOperation.parameters.body.bodyKind === "multipart") {
+    return [
+      {
+        name: "reader",
+        nullable: false,
+        optional: false,
+        typeName: "MultipartReader",
+        isExplicitBody: false,
+        httpParameterKind: "body",
+        operationKind: "BusinessLogic",
+      },
+    ];
   }
+
+  return undefined;
 }
 export function getTypeInfoForUnion(
   program: Program,
