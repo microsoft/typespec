@@ -2,57 +2,15 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
-  SdkContext,
   getAllModels,
   getClientType,
   isAzureCoreModel,
 } from "@azure-tools/typespec-client-generator-core";
-import { ModelProperty, Operation, Type, getEffectiveModelType } from "@typespec/compiler";
-import {
-  getHeaderFieldName,
-  getPathParamName,
-  getQueryParamName,
-  isStatusCode,
-} from "@typespec/http";
+import { Operation, Type } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./type-converter.js";
-
-/**
- * If type is an anonymous model, tries to find a named model that has the same
- * set of properties when non-schema properties are excluded.
- */
-export function getEffectiveSchemaType(context: SdkContext, type: Type): Type {
-  let target = type;
-  if (type.kind === "Model" && !type.name) {
-    const effective = getEffectiveModelType(context.program, type, isSchemaPropertyInternal);
-    if (effective.name) {
-      target = effective;
-    }
-  }
-
-  return target;
-
-  function isSchemaPropertyInternal(property: ModelProperty) {
-    return isSchemaProperty(context, property);
-  }
-}
-
-/**
- * A "schema property" here is a property that is emitted to OpenAPI schema.
- *
- * Headers, parameters, status codes are not schema properties even they are
- * represented as properties in TypeSpec.
- */
-function isSchemaProperty(context: SdkContext, property: ModelProperty) {
-  const program = context.program;
-  const headerInfo = getHeaderFieldName(program, property);
-  const queryInfo = getQueryParamName(program, property);
-  const pathInfo = getPathParamName(program, property);
-  const statusCodeInfo = isStatusCode(program, property);
-  return !(headerInfo || queryInfo || pathInfo || statusCodeInfo);
-}
 
 export function getDefaultValue(type: Type): any {
   switch (type.kind) {
@@ -78,18 +36,18 @@ export function getInputType(
   context.logger.debug(`getInputType for kind: ${type.kind}`);
 
   const sdkType = getClientType(context, type, operation);
-  return fromSdkType(sdkType, context, literalTypeContext);
+  return fromSdkType(context, sdkType, literalTypeContext);
 }
 
-export function navigateModels(context: CSharpEmitterContext) {
-  for (const type of getAllModels(context)) {
+export function navigateModels(sdkContext: CSharpEmitterContext) {
+  for (const type of getAllModels(sdkContext)) {
     if (type.name === "" || isAzureCoreModel(type)) {
       continue;
     }
     if (type.kind === "model") {
-      fromSdkModelType(type, context);
+      fromSdkModelType(sdkContext, type);
     } else {
-      fromSdkEnumType(type, context);
+      fromSdkEnumType(sdkContext, type);
     }
   }
 }

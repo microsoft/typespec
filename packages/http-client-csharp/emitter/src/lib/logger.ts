@@ -3,7 +3,6 @@
 
 import { NoTarget, Program, Tracer } from "@typespec/compiler";
 import { getTracer, reportDiagnostic } from "./lib.js";
-import { LoggerLevel } from "./log-level.js";
 
 /**
  * The Logger class for the emitter.
@@ -63,4 +62,14 @@ export class Logger {
       target: NoTarget,
     });
   }
+}
+
+/**
+ * The Logger level to use for logging. The default is `info`.
+ * @beta
+ */
+export enum LoggerLevel {
+  INFO = "info",
+  DEBUG = "debug",
+  VERBOSE = "verbose",
 }

@@ -169,7 +169,7 @@ function fromSdkHttpOperationParameter(
 ): InputParameter {
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
-  const parameterType = fromSdkType(p.type, sdkContext);
+  const parameterType = fromSdkType(sdkContext, p.type);
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
@@ -214,7 +214,7 @@ function loadLongRunningOperation(
       StatusCodes: method.operation.verb === "delete" ? [204] : [200],
       BodyType:
         method.lroMetadata.finalResponse?.envelopeResult !== undefined
-          ? fromSdkModelType(method.lroMetadata.finalResponse.envelopeResult, sdkContext)
+          ? fromSdkModelType(sdkContext, method.lroMetadata.finalResponse.envelopeResult)
           : undefined,
       BodyMediaType: BodyMediaType.Json,
     } as OperationResponse,
@@ -231,7 +231,7 @@ function fromSdkHttpOperationResponses(
     const range = r.statusCodes;
     responses.set(r, {
       StatusCodes: toStatusCodesArray(range),
-      BodyType: r.type ? fromSdkType(r.type, sdkContext) : undefined,
+      BodyType: r.type ? fromSdkType(sdkContext, r.type) : undefined,
       BodyMediaType: BodyMediaType.Json,
       Headers: fromSdkServiceResponseHeaders(sdkContext, r.headers),
       IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
@@ -252,7 +252,7 @@ function fromSdkServiceResponseHeaders(
         NameInResponse: h.serializedName,
         Summary: h.summary,
         Doc: h.doc,
-        Type: fromSdkType(h.type, sdkContext),
+        Type: fromSdkType(sdkContext, h.type),
       }) as HttpResponseHeader,
   );
 }

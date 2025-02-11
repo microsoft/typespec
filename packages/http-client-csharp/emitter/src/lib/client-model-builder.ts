@@ -168,7 +168,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
             name: "url",
             crossLanguageDefinitionId: "TypeSpec.url",
           }
-        : fromSdkType(parameter.type, sdkContext); // TODO: consolidate with converter.fromSdkEndpointType
+        : fromSdkType(sdkContext, parameter.type); // TODO: consolidate with converter.fromSdkEndpointType
       parameters.push({
         Name: parameter.name,
         NameInRequest: parameter.serializedName,

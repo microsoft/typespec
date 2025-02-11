@@ -4,13 +4,13 @@
 import { getDoc, getSummary } from "@typespec/compiler";
 import { HttpServer } from "@typespec/http";
 import { getExtensions } from "@typespec/openapi";
+import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
 import { getDefaultValue, getInputType } from "./model.js";
-import { CSharpEmitterContext } from "../sdk-context.js";
 
 export interface TypeSpecServer {
   url: string;

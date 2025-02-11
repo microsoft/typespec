@@ -39,18 +39,18 @@ import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { reportDiagnostic } from "./lib.js";
 
 export function fromSdkType(
+  sdkContext: CSharpEmitterContext,
   sdkType: SdkType,
-  context: CSharpEmitterContext,
   literalTypeContext?: LiteralTypeContext,
 ): InputType {
-  if (context.__typeCache.types.has(sdkType)) {
-    return context.__typeCache.types.get(sdkType)!;
+  if (sdkContext.__typeCache.types.has(sdkType)) {
+    return sdkContext.__typeCache.types.get(sdkType)!;
   }
 
   let retVar: InputType;
   switch (sdkType.kind) {
     case "nullable":
-      const inputType = fromSdkType(sdkType.type, context);
+      const inputType = fromSdkType(sdkContext, sdkType.type);
       retVar = {
         kind: "nullable",
         type: inputType,
@@ -58,35 +58,35 @@ export function fromSdkType(
       };
       break;
     case "model":
-      retVar = fromSdkModelType(sdkType, context);
+      retVar = fromSdkModelType(sdkContext, sdkType);
       break;
     case "enum":
-      retVar = fromSdkEnumType(sdkType, context);
+      retVar = fromSdkEnumType(sdkContext, sdkType);
       break;
     case "enumvalue":
-      retVar = fromSdkEnumValueTypeToConstantType(sdkType, context, literalTypeContext);
+      retVar = fromSdkEnumValueTypeToConstantType(sdkContext, sdkType, literalTypeContext);
       break;
     case "dict":
-      retVar = fromSdkDictionaryType(sdkType, context);
+      retVar = fromSdkDictionaryType(sdkContext, sdkType);
       break;
     case "array":
-      retVar = fromSdkArrayType(sdkType, context);
+      retVar = fromSdkArrayType(sdkContext, sdkType);
       break;
     case "constant":
-      retVar = fromSdkConstantType(sdkType, context, literalTypeContext);
+      retVar = fromSdkConstantType(sdkContext, sdkType, literalTypeContext);
       break;
     case "union":
-      retVar = fromUnionType(sdkType, context);
+      retVar = fromUnionType(sdkContext, sdkType);
       break;
     case "utcDateTime":
     case "offsetDateTime":
-      retVar = fromSdkDateTimeType(sdkType);
+      retVar = fromSdkDateTimeType(sdkContext, sdkType);
       break;
     case "duration":
-      retVar = fromSdkDurationType(sdkType);
+      retVar = fromSdkDurationType(sdkContext, sdkType);
       break;
     case "tuple":
-      retVar = fromTupleType(sdkType);
+      retVar = fromTupleType(sdkContext, sdkType);
       break;
     // TODO -- endpoint and credential are handled separately in emitter, since we have specific locations for them in input model.
     // We can handle unify the way we handle them in the future, probably by chaning the input model schema and do the conversion in generator.
@@ -94,53 +94,50 @@ export function fromSdkType(
       retVar = fromSdkEndpointType();
       break;
     case "credential":
-      reportDiagnostic(context.program, {
+      reportDiagnostic(sdkContext.program, {
         code: "unsupported-sdk-type",
         format: { sdkType: "Credential" },
         target: NoTarget,
       });
       return { kind: "unknown", name: "credential", crossLanguageDefinitionId: "" };
     default:
-      retVar = fromSdkBuiltInType(sdkType);
+      retVar = fromSdkBuiltInType(sdkContext, sdkType);
       break;
   }
 
-  updateSdkTypeReferences(context, sdkType, retVar);
+  updateSdkTypeReferences(sdkContext, sdkType, retVar);
   return retVar;
 }
 
-function updateTypeCache(context: CSharpEmitterContext, typeName: string, type: InputType) {
+function updateTypeCache(sdkContext: CSharpEmitterContext, typeName: string, type: InputType) {
   if (type.kind === "model") {
-    context.__typeCache.models.set(typeName, type);
+    sdkContext.__typeCache.models.set(typeName, type);
   } else if (type.kind === "enum") {
-    context.__typeCache.enums.set(typeName, type);
+    sdkContext.__typeCache.enums.set(typeName, type);
   }
 }
 
 function updateSdkTypeReferences(
-  context: CSharpEmitterContext,
+  sdkContext: CSharpEmitterContext,
   sdkType: SdkType,
   inputType: InputType,
 ) {
-  context.__typeCache.types.set(sdkType, inputType);
+  sdkContext.__typeCache.types.set(sdkType, inputType);
 }
 
 export function fromSdkModelType(
+  sdkContext: CSharpEmitterContext,
   modelType: SdkModelType,
-  context: CSharpEmitterContext,
 ): InputModelType {
   const modelTypeName = modelType.name;
-  let inputModelType = context.__typeCache.models.get(modelTypeName);
+  let inputModelType = sdkContext.__typeCache.models.get(modelTypeName);
   if (!inputModelType) {
     inputModelType = {
       kind: "model",
       name: modelTypeName,
       clientNamespace: modelType.clientNamespace,
       crossLanguageDefinitionId: modelType.crossLanguageDefinitionId,
-      access: getAccessOverride(
-        context,
-        modelType.__raw as Model,
-      ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the modelType.access */,
+      access: getAccessOverride(sdkContext, modelType.__raw as Model),
       usage: modelType.usage,
       deprecation: modelType.deprecation,
       doc: modelType.doc,
@@ -149,10 +146,10 @@ export function fromSdkModelType(
       decorators: modelType.decorators,
     } as InputModelType;
 
-    updateTypeCache(context, modelTypeName, inputModelType);
+    updateTypeCache(sdkContext, modelTypeName, inputModelType);
 
     inputModelType.additionalProperties = modelType.additionalProperties
-      ? fromSdkType(modelType.additionalProperties, context)
+      ? fromSdkType(sdkContext, modelType.additionalProperties)
       : undefined;
 
     const propertiesDict = new Map<SdkModelPropertyType, InputModelProperty>();
@@ -160,7 +157,7 @@ export function fromSdkModelType(
       if (property.kind !== "property") {
         continue;
       }
-      const ourProperty = fromSdkModelProperty(property, {
+      const ourProperty = fromSdkModelProperty(sdkContext, property, {
         ModelName: modelTypeName,
         Usage: modelType.usage,
         ClientNamespace: modelType.clientNamespace,
@@ -173,7 +170,7 @@ export function fromSdkModelType(
       : undefined;
 
     inputModelType.baseModel = modelType.baseModel
-      ? fromSdkModelType(modelType.baseModel, context)
+      ? fromSdkModelType(sdkContext, modelType.baseModel)
       : undefined;
 
     inputModelType.properties = Array.from(propertiesDict.values()).flat();
@@ -182,7 +179,7 @@ export function fromSdkModelType(
       const discriminatedSubtypes: Record<string, InputModelType> = {};
       for (const key in modelType.discriminatedSubtypes) {
         const subtype = modelType.discriminatedSubtypes[key];
-        discriminatedSubtypes[key] = fromSdkModelType(subtype, context);
+        discriminatedSubtypes[key] = fromSdkModelType(sdkContext, subtype);
       }
       inputModelType.discriminatedSubtypes = discriminatedSubtypes;
     }
@@ -191,10 +188,10 @@ export function fromSdkModelType(
   return inputModelType;
 
   function fromSdkModelProperty(
+    sdkContext: CSharpEmitterContext,
     property: SdkBodyModelPropertyType,
     literalTypeContext: LiteralTypeContext,
   ): InputModelProperty {
-    /* remove this when https://github.com/Azure/typespec-azure/issues/1483 and https://github.com/Azure/typespec-azure/issues/1488 are resolved. */
     let targetType = property.type;
     if (targetType.kind === "model") {
       const body = targetType.properties.find((x) => x.kind === "body");
@@ -211,12 +208,12 @@ export function fromSdkModelType(
       summary: property.summary,
       doc: property.doc,
       type: fromSdkType(
+        sdkContext,
         targetType,
-        context,
-        property.discriminator ? undefined : literalTypeContext, // this is a workaround because the type of discriminator property in derived models is always literal and we wrap literal into enums, which leads to a lot of extra enum types, adding this check to avoid them
+        property.discriminator ? undefined : literalTypeContext,
       ),
       optional: property.optional,
-      readOnly: isReadOnly(property), // TODO -- we might pass the visibility through and then check if there is only read to know if this is readonly
+      readOnly: isReadOnly(property),
       discriminator: property.discriminator,
       flatten: property.flatten,
       decorators: property.decorators,
@@ -229,24 +226,21 @@ export function fromSdkModelType(
 }
 
 export function fromSdkEnumType(
+  sdkContext: CSharpEmitterContext,
   enumType: SdkEnumType,
-  context: CSharpEmitterContext,
   addToCollection: boolean = true,
 ): InputEnumType {
   const enumName = enumType.name;
-  let inputEnumType = context.__typeCache.enums.get(enumName);
+  let inputEnumType = sdkContext.__typeCache.enums.get(enumName);
   if (!inputEnumType) {
     const values: InputEnumTypeValue[] = [];
     inputEnumType = {
       kind: "enum",
       name: enumName,
       crossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
-      valueType: fromSdkBuiltInType(enumType.valueType),
+      valueType: fromSdkBuiltInType(sdkContext, enumType.valueType),
       values: values,
-      access: getAccessOverride(
-        context,
-        enumType.__raw as any,
-      ) /* when tcgc provide a way to identify if the access is override or not, we can get the accessibility from the enumType.access,*/,
+      access: getAccessOverride(sdkContext, enumType.__raw as any),
       clientNamespace: enumType.clientNamespace,
       deprecation: enumType.deprecation,
       summary: enumType.summary,
@@ -257,42 +251,51 @@ export function fromSdkEnumType(
       decorators: enumType.decorators,
     };
     if (addToCollection) {
-      updateTypeCache(context, enumName, inputEnumType);
+      updateTypeCache(sdkContext, enumName, inputEnumType);
     }
     for (const v of enumType.values) {
-      values.push(fromSdkEnumValueType(v, context));
+      values.push(fromSdkEnumValueType(sdkContext, v));
     }
   }
 
   return inputEnumType;
 }
 
-function fromSdkDateTimeType(dateTimeType: SdkDateTimeType): InputDateTimeType {
+function fromSdkDateTimeType(
+  sdkContext: CSharpEmitterContext,
+  dateTimeType: SdkDateTimeType,
+): InputDateTimeType {
   return {
     kind: dateTimeType.kind,
     name: dateTimeType.name,
     encode: dateTimeType.encode,
-    wireType: fromSdkBuiltInType(dateTimeType.wireType),
+    wireType: fromSdkBuiltInType(sdkContext, dateTimeType.wireType),
     crossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
-    baseType: dateTimeType.baseType ? fromSdkDateTimeType(dateTimeType.baseType) : undefined,
+    baseType: dateTimeType.baseType
+      ? fromSdkDateTimeType(sdkContext, dateTimeType.baseType)
+      : undefined,
     decorators: dateTimeType.decorators,
   };
 }
 
-function fromSdkDurationType(durationType: SdkDurationType): InputDurationType {
+function fromSdkDurationType(
+  sdkContext: CSharpEmitterContext,
+  durationType: SdkDurationType,
+): InputDurationType {
   return {
     kind: durationType.kind,
     name: durationType.name,
     encode: durationType.encode,
-    wireType: fromSdkBuiltInType(durationType.wireType),
+    wireType: fromSdkBuiltInType(sdkContext, durationType.wireType),
     crossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
-    baseType: durationType.baseType ? fromSdkDurationType(durationType.baseType) : undefined,
+    baseType: durationType.baseType
+      ? fromSdkDurationType(sdkContext, durationType.baseType)
+      : undefined,
     decorators: durationType.decorators,
   };
 }
 
-// TODO: tuple is not officially supported
-function fromTupleType(tupleType: SdkTupleType): InputType {
+function fromTupleType(sdkContext: CSharpEmitterContext, tupleType: SdkTupleType): InputType {
   return {
     kind: "unknown",
     name: "tuple",
@@ -301,21 +304,26 @@ function fromTupleType(tupleType: SdkTupleType): InputType {
   };
 }
 
-function fromSdkBuiltInType(builtInType: SdkBuiltInType): InputPrimitiveType {
+function fromSdkBuiltInType(
+  sdkContext: CSharpEmitterContext,
+  builtInType: SdkBuiltInType,
+): InputPrimitiveType {
   return {
     kind: builtInType.kind,
     name: builtInType.name,
-    encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined, // In TCGC this is required, and when there is no encoding, it just has the same value as kind, we could remove this when TCGC decides to simplify
+    encode: builtInType.encode !== builtInType.kind ? builtInType.encode : undefined,
     crossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
-    baseType: builtInType.baseType ? fromSdkBuiltInType(builtInType.baseType) : undefined,
+    baseType: builtInType.baseType
+      ? fromSdkBuiltInType(sdkContext, builtInType.baseType)
+      : undefined,
     decorators: builtInType.decorators,
   };
 }
 
-function fromUnionType(union: SdkUnionType, context: CSharpEmitterContext): InputUnionType {
+function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): InputUnionType {
   const variantTypes: InputType[] = [];
   for (const value of union.variantTypes) {
-    const variantType = fromSdkType(value, context);
+    const variantType = fromSdkType(sdkContext, value);
     variantTypes.push(variantType);
   }
 
@@ -329,47 +337,44 @@ function fromUnionType(union: SdkUnionType, context: CSharpEmitterContext): Inpu
 }
 
 function fromSdkConstantType(
+  sdkContext: CSharpEmitterContext,
   constantType: SdkConstantType,
-  context: CSharpEmitterContext,
   literalTypeContext?: LiteralTypeContext,
 ): InputLiteralType {
   return {
     kind: constantType.kind,
     valueType:
       constantType.valueType.kind === "boolean" || literalTypeContext === undefined
-        ? fromSdkBuiltInType(constantType.valueType)
-        : // TODO: this might change in the near future
-          // we might keep constant as-is, instead of creating an enum for it.
-          convertConstantToEnum(constantType, literalTypeContext),
+        ? fromSdkBuiltInType(sdkContext, constantType.valueType)
+        : convertConstantToEnum(sdkContext, constantType, literalTypeContext),
     value: constantType.value,
     decorators: constantType.decorators,
   };
 
   function convertConstantToEnum(
+    sdkContext: CSharpEmitterContext,
     constantType: SdkConstantType,
     literalTypeContext: LiteralTypeContext,
   ) {
-    // otherwise we need to wrap this into an extensible enum
-    // we use the model name followed by the property name as the enum name to ensure it is unique
     const enumName = `${literalTypeContext.ModelName}_${literalTypeContext.PropertyName}`;
     const enumValueName = constantType.value === null ? "Null" : constantType.value.toString();
     const values: InputEnumTypeValue[] = [];
     const enumType: InputEnumType = {
       kind: "enum",
       name: enumName,
-      valueType: fromSdkBuiltInType(constantType.valueType),
+      valueType: fromSdkBuiltInType(sdkContext, constantType.valueType),
       values: values,
       crossLanguageDefinitionId: "",
       access: undefined,
       clientNamespace: literalTypeContext.ClientNamespace,
-      doc: `The ${enumName}`, // TODO -- what should we put here?
+      doc: `The ${enumName}`,
       isFixed: false,
       isFlags: false,
       usage: literalTypeContext.Usage,
       decorators: constantType.decorators,
     };
 
-    updateTypeCache(context, enumName, enumType);
+    updateTypeCache(sdkContext, enumName, enumType);
 
     values.push({
       kind: "enumvalue",
@@ -384,31 +389,31 @@ function fromSdkConstantType(
 }
 
 function fromSdkEnumValueTypeToConstantType(
+  sdkContext: CSharpEmitterContext,
   enumValueType: SdkEnumValueType,
-  context: CSharpEmitterContext,
   literalTypeContext?: LiteralTypeContext,
 ): InputLiteralType {
   return {
     kind: "constant",
     valueType:
       enumValueType.valueType.kind === "boolean" || literalTypeContext === undefined
-        ? fromSdkBuiltInType(enumValueType.valueType)
-        : fromSdkEnumType(enumValueType.enumType, context),
+        ? fromSdkBuiltInType(sdkContext, enumValueType.valueType)
+        : fromSdkEnumType(sdkContext, enumValueType.enumType),
     value: enumValueType.value,
     decorators: enumValueType.decorators,
   };
 }
 
 function fromSdkEnumValueType(
+  sdkContext: CSharpEmitterContext,
   enumValueType: SdkEnumValueType,
-  context: CSharpEmitterContext,
 ): InputEnumTypeValue {
   return {
     kind: "enumvalue",
     name: enumValueType.name,
     value: enumValueType.value,
-    valueType: fromSdkBuiltInType(enumValueType.valueType),
-    enumType: fromSdkEnumType(enumValueType.enumType, context),
+    valueType: fromSdkBuiltInType(sdkContext, enumValueType.valueType),
+    enumType: fromSdkEnumType(sdkContext, enumValueType.enumType),
     summary: enumValueType.summary,
     doc: enumValueType.doc,
     decorators: enumValueType.decorators,
@@ -416,22 +421,25 @@ function fromSdkEnumValueType(
 }
 
 function fromSdkDictionaryType(
+  sdkContext: CSharpEmitterContext,
   dictionaryType: SdkDictionaryType,
-  context: CSharpEmitterContext,
 ): InputDictionaryType {
   return {
     kind: "dict",
-    keyType: fromSdkType(dictionaryType.keyType, context),
-    valueType: fromSdkType(dictionaryType.valueType, context),
+    keyType: fromSdkType(sdkContext, dictionaryType.keyType),
+    valueType: fromSdkType(sdkContext, dictionaryType.valueType),
     decorators: dictionaryType.decorators,
   };
 }
 
-function fromSdkArrayType(arrayType: SdkArrayType, context: CSharpEmitterContext): InputArrayType {
+function fromSdkArrayType(
+  sdkContext: CSharpEmitterContext,
+  arrayType: SdkArrayType,
+): InputArrayType {
   return {
     kind: "array",
     name: arrayType.name,
-    valueType: fromSdkType(arrayType.valueType, context),
+    valueType: fromSdkType(sdkContext, arrayType.valueType),
     crossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
     decorators: arrayType.decorators,
   };

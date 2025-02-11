@@ -120,7 +120,7 @@ export function fromSdkHttpExamples(
   function fromSdkStringExample(example: SdkStringExampleValue): InputStringExampleValue {
     return {
       kind: "string",
-      type: fromSdkType(example.type, sdkContext),
+      type: fromSdkType(sdkContext, example.type),
       value: example.value,
     };
   }
@@ -128,7 +128,7 @@ export function fromSdkHttpExamples(
   function fromSdkNumberExample(example: SdkNumberExampleValue): InputNumberExampleValue {
     return {
       kind: "number",
-      type: fromSdkType(example.type, sdkContext),
+      type: fromSdkType(sdkContext, example.type),
       value: example.value,
     };
   }
@@ -136,7 +136,7 @@ export function fromSdkHttpExamples(
   function fromSdkBooleanExample(example: SdkBooleanExampleValue): InputBooleanExampleValue {
     return {
       kind: example.kind,
-      type: fromSdkType(example.type, sdkContext) as InputPrimitiveType,
+      type: fromSdkType(sdkContext, example.type) as InputPrimitiveType,
       value: example.value,
     };
   }
@@ -144,7 +144,7 @@ export function fromSdkHttpExamples(
   function fromSdkUnionExample(example: SdkUnionExampleValue): InputUnionExampleValue {
     return {
       kind: example.kind,
-      type: fromSdkType(example.type, sdkContext) as InputUnionType,
+      type: fromSdkType(sdkContext, example.type) as InputUnionType,
       value: example.value,
     };
   }
@@ -152,7 +152,7 @@ export function fromSdkHttpExamples(
   function fromSdkArrayExample(example: SdkArrayExampleValue): InputArrayExampleValue {
     return {
       kind: example.kind,
-      type: fromSdkType(example.type, sdkContext) as InputArrayType,
+      type: fromSdkType(sdkContext, example.type) as InputArrayType,
       value: example.value.map((v) => fromSdkExample(v)),
     };
   }
@@ -162,7 +162,7 @@ export function fromSdkHttpExamples(
   ): InputDictionaryExampleValue {
     return {
       kind: example.kind,
-      type: fromSdkType(example.type, sdkContext) as InputDictionaryType,
+      type: fromSdkType(sdkContext, example.type) as InputDictionaryType,
       value: fromExampleRecord(example.value),
     };
   }
@@ -170,7 +170,7 @@ export function fromSdkHttpExamples(
   function fromSdkModelExample(example: SdkModelExampleValue): InputModelExampleValue {
     return {
       kind: example.kind,
-      type: fromSdkType(example.type, sdkContext) as InputModelType,
+      type: fromSdkType(sdkContext, example.type) as InputModelType,
       value: fromExampleRecord(example.value),
       additionalPropertiesValue: example.additionalPropertiesValue
         ? fromExampleRecord(example.additionalPropertiesValue)
@@ -181,7 +181,7 @@ export function fromSdkHttpExamples(
   function fromSdkAnyExample(example: SdkUnknownExampleValue): InputUnknownExampleValue {
     return {
       kind: example.kind,
-      type: fromSdkType(example.type, sdkContext) as InputPrimitiveType,
+      type: fromSdkType(sdkContext, example.type) as InputPrimitiveType,
       value: example.value,
     };
   }
@@ -189,7 +189,7 @@ export function fromSdkHttpExamples(
   function fromSdkNullExample(example: SdkNullExampleValue): InputNullExampleValue {
     return {
       kind: example.kind,
-      type: fromSdkType(example.type, sdkContext) as InputNullableType,
+      type: fromSdkType(sdkContext, example.type) as InputNullableType,
       value: example.value,
     };
   }
