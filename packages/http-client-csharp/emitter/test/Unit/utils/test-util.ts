@@ -2,7 +2,6 @@ import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
 import {
   createSdkContext,
   CreateSdkContextOptions,
-  SdkContext,
 } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
@@ -19,6 +18,7 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
+import { CSharpEmitterContext } from "../../../src/emitter.js";
 import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
@@ -117,7 +117,7 @@ export function createEmitterContext(program: Program): EmitContext<NetEmitterOp
 
 /* Navigate all the models in the whole namespace. */
 export function navigateModels(
-  context: SdkContext<NetEmitterOptions>,
+  context: CSharpEmitterContext,
   namespace: Namespace,
   models: Map<string, InputModelType>,
   enums: Map<string, InputEnumType>,
@@ -140,7 +140,11 @@ export function navigateModels(
 export async function createNetSdkContext(
   program: EmitContext<NetEmitterOptions>,
   sdkContextOptions: CreateSdkContextOptions = {},
-): Promise<SdkContext<NetEmitterOptions>> {
-  Logger.initialize(program.program, LoggerLevel.INFO);
-  return await createSdkContext(program, "@typespec/http-client-csharp", sdkContextOptions);
+): Promise<CSharpEmitterContext> {
+  const context = await createSdkContext(
+    program,
+    "@typespec/http-client-csharp",
+    sdkContextOptions,
+  );
+  return { ...context, logger: new Logger(program.program, LoggerLevel.INFO) };
 }
