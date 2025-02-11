@@ -61,6 +61,8 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 
 #### Step 3. Select a folder as the root folder for the new TypeSpec project.
 
+![alt text](./images/CreateTypeSpecProject_SelectFolder.png)
+
 - Select a non-empty folder. _(Single choice)_ `Y/N`
 
   **Validate:** Will it appear: `The folder to create project is not empty. Do you want to continue?`
@@ -92,9 +94,9 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 
    ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
 
-3. Choose whether to generate a .ignore file. _(Single choice)_ `Y/N`
+3. Choose whether to generate a .gitignore file. _(Single choice)_ `Y/N`
 
-   ![alt text](./images/CreateTypeSpecProject_Generate_ignoreFile.png)
+   ![alt text](./images/CreateTypeSpecProject_Generate_gitignoreFile.png)
 
 4. Select libraries to update. _(Multiple choice)_
 
@@ -177,9 +179,9 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
    ![alt text](./images/CreateTypeSpecProject_InputProjectName.png)
 
-3. Choose whether to generate a .ignore file. _(Single choice)_ `Y/N`
+3. Choose whether to generate a .gitignore file. _(Single choice)_ `Y/N`
 
-   ![alt text](./images/CreateTypeSpecProject_Generate_ignoreFile.png)
+   ![alt text](./images/CreateTypeSpecProject_Generate_gitignoreFile.png)
 
 4. Install the libraries. _(optional)_
 
