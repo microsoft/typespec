@@ -1,5 +1,5 @@
 ---
-changeKind: deprecation
+changeKind: feature
 packages:
   - "@typespec/compiler"
   - "@typespec/events"
@@ -9,4 +9,4 @@ packages:
   - "@typespec/streams"
 ---
 
-Deprecate `unsafe_useStateMap` and `unsafe_useStateSet`, export `useStateMap` and `useStateSet`
+Promote `unsafe_useStateMap` and `unsafe_useStateSet` experimental APIs to stable version `useStateMap` and `useStateSet`. Old ones are deprecated
