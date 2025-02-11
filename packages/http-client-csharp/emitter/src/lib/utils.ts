@@ -120,13 +120,6 @@ export async function execCSharpGenerator(options: {
         buffer = buffer.slice(index + 1);
         Logger.getInstance().info(`Received from C#: ${message}`);
         processJsonRpc(message);
-        // Process the JSON-RPC response
-        // const response = JSON.parse(message);
-        // if (response.result) {
-        //     console.log('Result:', response.result);
-        // } else if (response.error) {
-        //     console.error('Error:', response.error);
-        // }
       }
     });
 

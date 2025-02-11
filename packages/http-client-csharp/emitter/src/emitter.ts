@@ -114,18 +114,12 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           `${configurations["library-name"]}.csproj`,
         );
         Logger.getInstance().info(`Checking if ${csProjFile} exists`);
-        const newProjectOption =
-          options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
-        const debugFlag = (options.debug ?? false) ? "--debug" : "";
 
         const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
         const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
         const generatorPath = resolvePath(
           projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll",
         );
-
-        // const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
-        // Logger.getInstance().info(command);
 
         try {
           const result = await execCSharpGenerator({
@@ -226,10 +220,6 @@ function validateDotNetSdkVersion(
     Logger.getInstance().error("Cannot get the installed .NET SDK version.");
     return false;
   }
-}
-
-function constructCommandArg(arg: string): string {
-  return arg !== "" ? ` ${arg}` : "";
 }
 
 function transformJSONProperties(this: any, key: string, value: any): any {
