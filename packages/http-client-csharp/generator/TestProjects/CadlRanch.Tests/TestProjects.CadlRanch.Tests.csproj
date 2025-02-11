@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Microsoft.Generator.CSharp\test\common\Microsoft.Generator.CSharp.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\Microsoft.TypeSpec.Generator\test\common\Microsoft.TypeSpec.Generator.Tests.Common.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\array\src\Type.Array.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\enum\extensible\src\Type.Enum.Extensible.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\CadlRanch\http\type\enum\fixed\src\Type.Enum.Fixed.csproj" />
