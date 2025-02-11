@@ -5,5 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix bug in tspconfig.yaml
-- Fix the issue that extra " will be added when auto completing emitter options inside ""
+Fix issue that extra " will be added when auto completing emitter options inside ""
