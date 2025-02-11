@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "UnbrandedTypeSpec",
-  "library-name": "UnbrandedTypeSpec"
+  "package-name": "UnbrandedTypeSpec"
 }

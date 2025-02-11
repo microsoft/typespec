@@ -30,9 +30,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName()
         {
-            var span = CodeModelPlugin.Instance.Configuration.LibraryName.AsSpan();
+            var span = CodeModelPlugin.Instance.Configuration.PackageName.AsSpan();
             if (span.IndexOf('.') == -1)
-                return string.Concat(CodeModelPlugin.Instance.Configuration.LibraryName, ModelFactorySuffix);
+                return string.Concat(CodeModelPlugin.Instance.Configuration.PackageName, ModelFactorySuffix);
 
             Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
             int j = 0;

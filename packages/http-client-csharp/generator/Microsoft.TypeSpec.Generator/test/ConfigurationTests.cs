@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 return;
             }
 
-            var library = CodeModelPlugin.Instance.Configuration.LibraryName;
+            var library = CodeModelPlugin.Instance.Configuration.PackageName;
             var expected = "libraryName";
 
             Assert.AreEqual(expected, library);
