@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Report TCGC diagnotics after create SDK context.
+Report TCGC diagnostics after create SDK context.
