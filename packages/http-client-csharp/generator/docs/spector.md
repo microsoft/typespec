@@ -35,60 +35,187 @@ public Task Valid() => Test(async (host) =>
 });
 ```
 
-This test validates that we can successfully call the mock cadl ranch service and verifies that we receive a successful response with code 204. Notice that we are using `SpectorTest` attribute instead of the standard NUnit `Test` attribute. This is because the test will not complete successfully against the stub and we must generate the full library before running the test.
+This test validates that we can successfully call the mock Spector service and verifies that we receive a successful response with code 204. Notice that we are using `SpectorTest` attribute instead of the standard NUnit `Test` attribute. This is because the test will not complete successfully against the stub and we must generate the full library before running the test.
 
 The `SpectorTest` attribute will dynamically determine if the library is stubbed and mark the step as `Ignore` if it is. If it is not stubbed it will run the full test.
 
 ## Testing Spector scenarios
 
-All of this is automated into a script called `./eng/scripts/Test-Spector.ps1`. This script will find all generated cadl ranch projects and regenerate each of them without using the `StubLibraryPlugin`. It will then run dotnet test which will cause tests using the `SpectorTest` attribute to no longer be skipped. Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
+All of this is automated into a script called `./eng/scripts/Test-Spector.ps1`. This script will find all generated Spector projects and regenerate each of them without using the `StubLibraryPlugin`. It will then run dotnet test which will cause tests using the `SpectorTest` attribute to no longer be skipped. Finally it will restore the files back to the stubs if everything was successful and if not it will leave the files in place so you can investigate.
 
 <details>
 <Summary>Here is an example output for one library</Summary>
 
 ```
-Regenerating http\authentication\api-key
-> npx tsp compile C:\git\typespec\packages\http-client-csharp\node_modules\@azure-tools\cadl-ranch-specs\http\authentication\api-key\main.tsp --trace @typespec/http-client-csharp --emit @typespec/http-client-csharp --option @typespec/http-client-csharp.emitter-output-dir=C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key --option @typespec/http-client-csharp.save-inputs=true
-TypeSpec compiler v0.58.0
+C:\Users\jolov\repos\typespec\packages\http-client-csharp\eng\scripts [spector-rename +0 ~1 -0 !]> .\Test-Spector.ps1 authentication/api-key
+Building emitter and generator
+> npm run build:emitter
 
-trace @typespec/http-client-csharp.info: routes:2
-trace @typespec/http-client-csharp.info: load operation: valid, path:/authentication/api-key/valid
-trace @typespec/http-client-csharp.info: load operation: invalid, path:/authentication/api-key/invalid
-trace @typespec/http-client-csharp.info: Checking if C:/git/m-nash/typespec/packages/http-client-csharp/generator/TestProjects/CadlRanch/http/authentication/api-key/src/Authentication.ApiKey.csproj exists
-trace @typespec/http-client-csharp.info: dotnet --roll-forward Major C:/git/m-nash/typespec/packages/http-client-csharp/dist/generator/Microsoft.Generator.CSharp.dll C:/git/m-nash/typespec/packages/http-client-csharp/generator/TestProjects/CadlRanch/http/authentication/api-key -p ClientModelPlugin
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Models\InvalidAuth.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Models\InvalidAuth.Serialization.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\ChangeTrackingList.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\ChangeTrackingDictionary.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\Argument.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\Optional.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\ApiKeyClientOptions.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\ApiKeyClient.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\ApiKeyClient.RestClient.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\ModelSerializationExtensions.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\TypeFormatters.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\ClientPipelineExtensions.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\ErrorResult.cs
-Writing C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key\src\Generated\Internal\ClientUriBuilder.cs
-Compilation completed successfully.
+> @typespec/http-client-csharp@0.1.9 build:emitter
+> tsc -p ./emitter/tsconfig.build.json
 
-Testing http\authentication\api-key
-> dotnet test C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch.Tests\TestProjects.CadlRanch.Tests.csproj --filter "FullyQualifiedName~TestProjects.CadlRanch.Tests.Http.Authentication.ApiKey" --settings C:\git\typespec\packages\http-client-csharp\eng\test-configurations\cadlranch.runsettings
+> dotnet build C:\Users\jolov\repos\typespec\packages\http-client-csharp\eng/../generator/Microsoft.TypeSpec.Generator.ClientModel.StubLibrary/src
+MSBuild version 17.9.8+610b4d3b5 for .NET
   Determining projects to restore...
   All projects are up-to-date for restore.
-  TestProjects.CadlRanch.Tests -> C:\git\typespec\packages\http-client-csharp\generator\artifacts\bin\TestProjects.CadlRanch.Tests\Debug\net8.0\TestProjects.CadlRanch.Tests.dll
-Test run for C:\git\typespec\packages\http-client-csharp\generator\artifacts\bin\TestProjects.CadlRanch.Tests\Debug\net8.0\TestProjects.CadlRanch.Tests.dll (.NETCoreApp,Version=v8.0)
-Microsoft (R) Test Execution Command Line Tool Version 17.10.0 (x64)
+  Microsoft.TypeSpec.Generator.Input -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.Input\Debug\net8.0\Microsoft.Type
+  Spec.Generator.Input.dll
+  Microsoft.TypeSpec.Generator -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator\Debug\net8.0\Microsoft.TypeSpec.Generat
+  or.dll
+  Microsoft.TypeSpec.Generator.ClientModel -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.ClientModel\Debug\net8.0\Mi
+  crosoft.TypeSpec.Generator.ClientModel.dll
+  Copying output to dist path
+  Microsoft.TypeSpec.Generator.ClientModel.StubLibrary -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.ClientModel.Stu
+  bLibrary\Debug\net8.0\Microsoft.TypeSpec.Generator.ClientModel.StubLibrary.dll
+  Copying output to dist path
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.90
+Regenerating authentication\api-key
+> npx tsp compile C:\Users\jolov\repos\typespec\packages\http-client-csharp\node_modules\@typespec\http-specs\specs\authentication\api-key\main.tsp --trace @typespec/http-client-csharp --emit @typespec/http-client-csharp --option @typespec/http-client-csharp.emitter-output-dir=C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key --option @typespec/http-client-csharp.save-inputs=true
+TypeSpec compiler v0.64.0
+
+trace @typespec/http-client-csharp.info: Checking if C:/Users/jolov/repos/typespec/packages/http-client-csharp/generator/TestProjects/Spector/http/authentication/api-key/src/Authentication.ApiKey.csproj exists
+trace @typespec/http-client-csharp.info: dotnet --roll-forward Major C:/Users/jolov/repos/typespec/packages/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll C:/Users/jolov/repos/typespec/packages/http-client-csharp/generator/TestProjects/Spector/http/authentication/api-key -p ClientModelPlugin
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenTypeAttribute.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenMemberAttribute.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenSuppressAttribute.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenSerializationAttribute.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\Argument.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\ApiKeyClient.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\ApiKeyClient.RestClient.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\ApiKeyClientOptions.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\TypeFormatters.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\ClientPipelineExtensions.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\ErrorResult.cs
+Writing C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\ClientUriBuilder.cs
+Compilation completed successfully.
+
+Testing authentication\api-key
+> dotnet test C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector.Tests\TestProjects.Spector.Tests.csproj --filter "FullyQualifiedName~TestProjects.Spector.Tests.Http.Authentication.ApiKey"
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Encode.Duration -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Encode.Duration\Debug\netstandard2.0\Encode.Duration.dll
+  Client.Structure.Service.Default -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.Default\Debug\netstandard2.0\Client.Str
+  ucture.Service.Default.dll
+  Parameters.CollectionFormat -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.CollectionFormat\Debug\netstandard2.0\Parameters.Collectio
+  nFormat.dll
+  Payload.MediaType -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Payload.MediaType\Debug\netstandard2.0\Payload.MediaType.dll
+  Parameters.Basic -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.Basic\Debug\netstandard2.0\Parameters.Basic.dll
+  Client.Structure.Service.Multi.Client -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.Multi.Client\Debug\netstandard2.0\
+  Client.Structure.Service.Multi.Client.dll
+  Encode.Bytes -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Encode.Bytes\Debug\netstandard2.0\Encode.Bytes.dll
+  Encode.Datetime -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Encode.Datetime\Debug\netstandard2.0\Encode.Datetime.dll
+  Payload.JsonMergePatch -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Payload.JsonMergePatch\Debug\netstandard2.0\Payload.JsonMergePatch.dll
+  Authentication.OAuth2 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Authentication.OAuth2\Debug\netstandard2.0\Authentication.OAuth2.dll
+  Client.Structure.Service -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service\Debug\netstandard2.0\Client.Structure.Service.d
+  ll
+  Parameters.Spread -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.Spread\Debug\netstandard2.0\Parameters.Spread.dll
+  Type.Array -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Array\Debug\netstandard2.0\Type.Array.dll
+  Payload.ContentNegotiation -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Payload.ContentNegotiation\Debug\netstandard2.0\Payload.ContentNegotia
+  tion.dll
+  Encode.Numeric -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Encode.Numeric\Debug\netstandard2.0\Encode.Numeric.dll
+  Authentication.Http.Custom -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Authentication.Http.Custom\Debug\netstandard2.0\Authentication.Http.Cu
+  stom.dll
+  Type.Enum.Fixed -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Enum.Fixed\Debug\netstandard2.0\Type.Enum.Fixed.dll
+  Client.Structure.Service.TwoOperationGroup -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.TwoOperationGroup\Debug\netst
+  andard2.0\Client.Structure.Service.TwoOperationGroup.dll
+  Type.Enum.Extensible -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Enum.Extensible\Debug\netstandard2.0\Type.Enum.Extensible.dll
+  Parameters.BodyOptionality -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Parameters.BodyOptionality\Debug\netstandard2.0\Parameters.BodyOptiona
+  lity.dll
+  Authentication.Union -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Authentication.Union\Debug\netstandard2.0\Authentication.Union.dll
+  Client.Structure.Service.Renamed.Operation -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Client.Structure.Service.Renamed.Operation\Debug\netst
+  andard2.0\Client.Structure.Service.Renamed.Operation.dll
+  Resiliency.SrvDriven.V2 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Resiliency.SrvDriven.V2\Debug\netstandard2.0\Resiliency.SrvDriven.V2.dll
+  Type.Model.Inheritance.EnumDiscriminator -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Model.Inheritance.EnumDiscriminator\Debug\netstanda
+  rd2.0\Type.Model.Inheritance.EnumDiscriminator.dll
+  Serialization.EncodedName.Json -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Serialization.EncodedName.Json\Debug\netstandard2.0\Serialization.
+  EncodedName.Json.dll
+  SpecialHeaders.Repeatability -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\SpecialHeaders.Repeatability\Debug\netstandard2.0\SpecialHeaders.Rep
+  eatability.dll
+  Server.Endpoint.NotDefined -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Server.Endpoint.NotDefined\Debug\netstandard2.0\Server.Endpoint.NotDef
+  ined.dll
+  Type.Property.Nullable -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Property.Nullable\Debug\netstandard2.0\Type.Property.Nullable.dll
+  Type.Model.Inheritance.SingleDiscriminator -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Model.Inheritance.SingleDiscriminator\Debug\netst
+  andard2.0\Type.Model.Inheritance.SingleDiscriminator.dll
+  Server.Path.Single -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Server.Path.Single\Debug\netstandard2.0\Server.Path.Single.dll
+  Server.Path.Multiple -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Server.Path.Multiple\Debug\netstandard2.0\Server.Path.Multiple.dll
+  Type.Model.Usage -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Model.Usage\Debug\netstandard2.0\Type.Model.Usage.dll
+  Payload.MultiPart -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Payload.MultiPart\Debug\netstandard2.0\Payload.MultiPart.dll
+  Authentication.ApiKey -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Authentication.ApiKey\Debug\netstandard2.0\Authentication.ApiKey.dll
+  Type.Model.Inheritance.NestedDiscriminator -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Model.Inheritance.NestedDiscriminator\Debug\netst
+  andard2.0\Type.Model.Inheritance.NestedDiscriminator.dll
+  Server.Versions.NotVersioned -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Server.Versions.NotVersioned\Debug\netstandard2.0\Server.Versions.No
+  tVersioned.dll
+  Routes -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Routes\Debug\netstandard2.0\Routes.dll
+  SpecialHeaders.ConditionalRequest -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\SpecialHeaders.ConditionalRequest\Debug\netstandard2.0\SpecialH
+  eaders.ConditionalRequest.dll
+  Versioning.MadeOptional.V2 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.MadeOptional.V2\Debug\netstandard2.0\Versioning.MadeOptiona
+  l.V2.dll
+  SpecialWords -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\SpecialWords\Debug\netstandard2.0\SpecialWords.dll
+  Type.Model.Empty -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Model.Empty\Debug\netstandard2.0\Type.Model.Empty.dll
+  Type.Model.Inheritance.NotDiscriminated -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Model.Inheritance.NotDiscriminated\Debug\netstandard
+  2.0\Type.Model.Inheritance.NotDiscriminated.dll
+  Server.Versions.Versioned -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Server.Versions.Versioned\Debug\netstandard2.0\Server.Versions.Versione
+  d.dll
+  Type.Dictionary -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Dictionary\Debug\netstandard2.0\Type.Dictionary.dll
+  Versioning.MadeOptional.V1 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.MadeOptional.V1\Debug\netstandard2.0\Versioning.MadeOptiona
+  l.V1.dll
+  Type.Scalar -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Scalar\Debug\netstandard2.0\Type.Scalar.dll
+  Versioning.Added.V2 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.Added.V2\Debug\netstandard2.0\Versioning.Added.V2.dll
+  Versioning.Added.V1 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.Added.V1\Debug\netstandard2.0\Versioning.Added.V1.dll
+  Type.Property.Optional -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Property.Optional\Debug\netstandard2.0\Type.Property.Optional.dll
+  Resiliency.SrvDriven.V1 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Resiliency.SrvDriven.V1\Debug\netstandard2.0\Resiliency.SrvDriven.V1.dll
+  Type.Property.ValueTypes -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Property.ValueTypes\Debug\netstandard2.0\Type.Property.ValueTypes.d
+  ll
+  Versioning.RenamedFrom.V2 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.RenamedFrom.V2\Debug\netstandard2.0\Versioning.RenamedFrom.V
+  2.dll
+  Versioning.ReturnTypeChangedFrom.V1 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.ReturnTypeChangedFrom.V1\Debug\netstandard2.0\Vers
+  ioning.ReturnTypeChangedFrom.V1.dll
+  Type.Union -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Union\Debug\netstandard2.0\Type.Union.dll
+  Versioning.TypeChangedFrom.V2 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.TypeChangedFrom.V2\Debug\netstandard2.0\Versioning.TypeC
+  hangedFrom.V2.dll
+  Microsoft.TypeSpec.Generator.Input -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.Input\Debug\net8.0\Microsoft.Type
+  Spec.Generator.Input.dll
+  Versioning.RenamedFrom.V1 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.RenamedFrom.V1\Debug\netstandard2.0\Versioning.RenamedFrom.V
+  1.dll
+  Versioning.Removed.V2 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.Removed.V2\Debug\netstandard2.0\Versioning.Removed.V2.dll
+  Versioning.Removed.V2Preview -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.Removed.V2Preview\Debug\netstandard2.0\Versioning.Removed
+  .V2Preview.dll
+  Versioning.Removed.V1 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.Removed.V1\Debug\netstandard2.0\Versioning.Removed.V1.dll
+  Versioning.TypeChangedFrom.V1 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.TypeChangedFrom.V1\Debug\netstandard2.0\Versioning.TypeC
+  hangedFrom.V1.dll
+  Versioning.ReturnTypeChangedFrom.V2 -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Versioning.ReturnTypeChangedFrom.V2\Debug\netstandard2.0\Vers
+  ioning.ReturnTypeChangedFrom.V2.dll
+  Type.Model.Visibility -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Model.Visibility\Debug\netstandard2.0\Type.Model.Visibility.dll
+  Type.Property.AdditionalProperties -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Property.AdditionalProperties\Debug\netstandard2.0\Type.P
+  roperty.AdditionalProperties.dll
+  Type.Model.Inheritance.Recursive -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Type.Model.Inheritance.Recursive\Debug\netstandard2.0\Type.Model
+  .Inheritance.Recursive.dll
+  Microsoft.TypeSpec.Generator -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator\Debug\net8.0\Microsoft.TypeSpec.Generat
+  or.dll
+  Microsoft.TypeSpec.Generator.Tests.Common -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\Microsoft.TypeSpec.Generator.Tests.Common\Debug\net8.0\
+  Microsoft.TypeSpec.Generator.Tests.Common.dll
+  TestProjects.Spector.Tests -> C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\TestProjects.Spector.Tests\Debug\net8.0\TestProjects.Spector.Tests.dll Test run for C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\artifacts\bin\TestProjects.Spector.Tests\Debug\net8.0\TestProjects.Spector.Tests.dll (.NETCoreApp,Version=v8.0)
+Microsoft (R) Test Execution Command Line Tool Version 17.9.0 (x64)
 Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
 A total of 1 test files matched the specified pattern.
 
-Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 s - TestProjects.CadlRanch.Tests.dll (net8.0)
-Restoring http\authentication\api-key
-> git clean -xfd C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key
-Removing ../generator/TestProjects/CadlRanch/http/authentication/api-key/src/Generated/Internal/
-> git restore C:\git\typespec\packages\http-client-csharp\generator\TestProjects\CadlRanch\http\authentication\api-key
+Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 2 s - TestProjects.Spector.Tests.dll (net8.0)
+Restoring authentication\api-key
+> git clean -xfd C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key
+Removing ../generator/TestProjects/Spector/http/authentication/api-key/src/Generated/ApiKeyClient.RestClient.cs
+Removing ../generator/TestProjects/Spector/http/authentication/api-key/src/Generated/Internal/Argument.cs
+Removing ../generator/TestProjects/Spector/http/authentication/api-key/src/Generated/Internal/ClientPipelineExtensions.cs
+Removing ../generator/TestProjects/Spector/http/authentication/api-key/src/Generated/Internal/ClientUriBuilder.cs
+Removing ../generator/TestProjects/Spector/http/authentication/api-key/src/Generated/Internal/ErrorResult.cs
+Removing ../generator/TestProjects/Spector/http/authentication/api-key/src/Generated/Internal/TypeFormatters.cs
+> git restore C:\Users\jolov\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key
 ```
 
 </details>

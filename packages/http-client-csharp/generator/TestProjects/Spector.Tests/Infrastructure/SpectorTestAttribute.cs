@@ -26,7 +26,7 @@ namespace TestProjects.Spector.Tests
 
             if (!Directory.Exists(clientCodeDirectory))
             {
-                // Not all cadl-ranch scenarios use kebab-case directories, so try again without kebab-case.
+                // Not all spector scenarios use kebab-case directories, so try again without kebab-case.
                 clientCodeDirectory = GetGeneratedDirectory(test, false);
             }
 
@@ -79,7 +79,7 @@ namespace TestProjects.Spector.Tests
         {
             var namespaceParts = test.FullName.Split('.').Skip(3);
             namespaceParts = namespaceParts.Take(namespaceParts.Count() - 2);
-            var clientCodeDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "..", "..", "..", "TestProjects", "CadlRanch");
+            var clientCodeDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "..", "..", "..", "TestProjects", "Spector");
             foreach (var part in namespaceParts)
             {
                 clientCodeDirectory = Path.Combine(clientCodeDirectory, FixName(part, kebabCaseDirectories));
