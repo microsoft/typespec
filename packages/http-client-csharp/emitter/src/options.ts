@@ -1,7 +1,7 @@
 import { SdkEmitterOptions } from "@azure-tools/typespec-client-generator-core";
 import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { tspOutputFileName } from "./constants.js";
-import { LoggerLevel } from "./lib/logger.js";
+import { LoggerLevel } from "./lib/logger-level.js";
 
 /**
  * The emitter options for the CSharp emitter.

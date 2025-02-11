@@ -4,9 +4,9 @@ import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createCSharpSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 

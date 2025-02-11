@@ -3,8 +3,7 @@
 
 import { NoTarget, Program, Tracer } from "@typespec/compiler";
 import { getTracer, reportDiagnostic as libReportDiagnostic } from "./lib.js";
-
-type SecondParameter<T extends (...args: any) => any> = T extends (arg1: any, arg2: infer P, ...args: any) => any ? P : never;
+import { LoggerLevel } from "./logger-level.js";
 
 /**
  * The Logger class for the emitter.
@@ -64,12 +63,10 @@ export class Logger {
   }
 }
 
-/**
- * The Logger level to use for logging. The default is `info`.
- * @beta
- */
-export enum LoggerLevel {
-  INFO = "info",
-  DEBUG = "debug",
-  VERBOSE = "verbose",
-}
+type SecondParameter<T extends (...args: any) => any> = T extends (
+  arg1: any,
+  arg2: infer P,
+  ...args: any
+) => any
+  ? P
+  : never;

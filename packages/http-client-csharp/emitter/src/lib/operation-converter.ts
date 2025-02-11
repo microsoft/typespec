@@ -52,8 +52,8 @@ export function fromSdkServiceMethod(
       format: {
         methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
       },
-      target: method.__raw ?? NoTarget
-    })
+      target: method.__raw ?? NoTarget,
+    });
     generateConvenience = false;
   }
 

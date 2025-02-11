@@ -4,7 +4,8 @@
 export { configurationFileName, tspOutputFileName } from "./constants.js";
 export { $onEmit } from "./emitter.js";
 export { createDiagnostic, getTracer, reportDiagnostic } from "./lib/lib.js";
-export { Logger, LoggerLevel } from "./lib/logger.js";
+export { LoggerLevel } from "./lib/logger-level.js";
+export { Logger } from "./lib/logger.js";
 export {
   CSharpEmitterOptions,
   CSharpEmitterOptionsSchema,
