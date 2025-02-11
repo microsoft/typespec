@@ -62,7 +62,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const outputFolder = _resolveOutputFolder(context);
 
   /* set the loglevel. */
-  Logger.initialize(program, options.logLevel ?? LoggerLevel.INFO);
+  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
@@ -73,6 +73,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
     );
     const root = createModel({
       ...sdkContext,
+      logger: logger,
       __typeCache: {
         types: new Map<SdkType, InputType>(),
         models: new Map<string, InputModelType>(),
@@ -121,7 +122,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
           "src",
           `${configurations["library-name"]}.csproj`,
         );
-        Logger.getInstance().info(`Checking if ${csProjFile} exists`);
+        logger.info(`Checking if ${csProjFile} exists`);
         const newProjectOption =
           options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
         const debugFlag = (options.debug ?? false) ? "--debug" : "";
@@ -129,11 +130,11 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
         const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
         const generatorPath = resolvePath(
-          projectRoot + "/dist/generator/Microsoft.Generator.CSharp.dll",
+          projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
         );
 
         const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
-        Logger.getInstance().info(command);
+        logger.info(command);
 
         try {
           const result = await execAsync(
@@ -152,19 +153,19 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
           );
           if (result.exitCode !== 0) {
             const isValid = await _validateDotNetSdk(
-              sdkContext.program,
+              csharpEmitterContext,
               _minSupportedDotNetSdkVersion,
             );
             // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
             if (isValid) {
-              if (result.stderr) Logger.getInstance().error(result.stderr);
-              if (result.stdout) Logger.getInstance().verbose(result.stdout);
+              if (result.stderr) logger.error(result.stderr);
+              if (result.stdout) logger.verbose(result.stdout);
               throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
             }
           }
         } catch (error: any) {
           const isValid = await _validateDotNetSdk(
-            sdkContext.program,
+            csharpEmitterContext,
             _minSupportedDotNetSdkVersion,
           );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
@@ -172,8 +173,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         }
         if (!options["save-inputs"]) {
           // delete
-          deleteFile(resolvePath(outputFolder, tspOutputFileName));
-          deleteFile(resolvePath(outputFolder, configurationFileName));
+          deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
+          deleteFile(resolvePath(outputFolder, configurationFileName), logger);
         }
       }
     }
@@ -182,20 +183,21 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
 
 /** check the dotnet sdk installation.
  * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
- * @param program - The typespec compiler program
+ * @param sdkContext - The SDK context
  * @param minVersionRequisite - The minimum required major version
+ * @param logger - The logger
  * @internal
  */
 export async function _validateDotNetSdk(
-  program: Program,
+  sdkContext: CSharpEmitterContext,
   minMajorVersion: number,
 ): Promise<boolean> {
   try {
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
-    return validateDotNetSdkVersion(program, result.stdout, minMajorVersion);
+    return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
-      reportDiagnostic(program, {
+      reportDiagnostic(sdkContext.program, {
         code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
         format: {
@@ -209,8 +211,8 @@ export async function _validateDotNetSdk(
   }
 }
 
-function validateDotNetSdkVersion(
-  program: Program,
+function validateDotNetSdkVersionCore(
+  sdkContext: CSharpEmitterContext,
   version: string,
   minMajorVersion: number,
 ): boolean {
@@ -220,11 +222,11 @@ function validateDotNetSdkVersion(
     const major = Number(firstPart);
 
     if (isNaN(major)) {
-      Logger.getInstance().error("Invalid .NET SDK version.");
+      sdkContext.logger.error("Invalid .NET SDK version.");
       return false;
     }
     if (major < minMajorVersion) {
-      reportDiagnostic(program, {
+      reportDiagnostic(sdkContext.program, {
         code: "invalid-dotnet-sdk-dependency",
         messageId: "invalidVersion",
         format: {
@@ -238,7 +240,7 @@ function validateDotNetSdkVersion(
     }
     return true;
   } else {
-    Logger.getInstance().error("Cannot get the installed .NET SDK version.");
+    sdkContext.logger.error("Cannot get the installed .NET SDK version.");
     return false;
   }
 }
@@ -274,12 +276,12 @@ function transformJSONProperties(this: any, key: string, value: any): any {
   return value;
 }
 
-function deleteFile(filePath: string) {
+function deleteFile(filePath: string, logger: Logger) {
   fs.unlink(filePath, (err) => {
     if (err) {
-      //logger.error(`stderr: ${err}`);
+      logger.error(`Failed to delete files: ${err}`);
     } else {
-      Logger.getInstance().info(`File ${filePath} is deleted.`);
+      logger.info(`File ${filePath} is deleted.`);
     }
   });
 }

@@ -17,7 +17,7 @@ import {
   shouldGenerateConvenient,
   shouldGenerateProtocol,
 } from "@azure-tools/typespec-client-generator-core";
-import { getDeprecated, isErrorModel } from "@typespec/compiler";
+import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
 import { getExternalDocs, getOperationId } from "@typespec/openapi";
 import { getResourceOperation } from "@typespec/rest";
@@ -37,7 +37,7 @@ import {
 } from "../type/operation-interfaces.js";
 import { InputConstant, InputType } from "../type/type-interfaces.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
-import { Logger } from "./logger.js";
+import { reportDiagnostic } from "./lib.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 import { isSdkPathParameter } from "./utils.js";
 
@@ -49,7 +49,7 @@ export function fromSdkServiceMethod(
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
-    Logger.getInstance().warn(
+    sdkContext.logger.warn(
       `Convenience method is not supported for PATCH method, it will be automatically turned off. Please set the '@convenientAPI' to false for operation ${method.operation.__raw.operation.name}.`,
     );
     generateConvenience = false;
@@ -89,6 +89,7 @@ export function fromSdkServiceMethod(
 }
 
 export function getParameterDefaultValue(
+  sdkContext: SdkContext<NetEmitterOptions>,
   clientDefaultValue: any,
   parameterType: InputType,
 ): InputConstant | undefined {
@@ -100,7 +101,7 @@ export function getParameterDefaultValue(
     return undefined;
   }
 
-  const kind = getValueType(clientDefaultValue);
+  const kind = getValueType(sdkContext, clientDefaultValue);
   return {
     Type: {
       kind: kind,
@@ -111,7 +112,7 @@ export function getParameterDefaultValue(
   };
 }
 
-function getValueType(value: any): SdkBuiltInKinds {
+function getValueType(sdkContext: SdkContext<NetEmitterOptions>, value: any): SdkBuiltInKinds {
   switch (typeof value) {
     case "string":
       return "string";
@@ -122,7 +123,12 @@ function getValueType(value: any): SdkBuiltInKinds {
     case "bigint":
       return "int64";
     default:
-      throw new Error(`Unsupported default value type: ${typeof value}`);
+      reportDiagnostic(sdkContext.program, {
+        code: "unsupported-default-value-type",
+        format: { valueType: typeof value },
+        target: NoTarget,
+      });
+      return "unknown";
   }
 }
 
@@ -134,12 +140,12 @@ function fromSdkOperationParameters(
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
     if (p.kind === "cookie") {
-      Logger.getInstance().error(
-        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
-      );
-      throw new Error(
-        `Cookie parameter is not supported: ${p.name}, found in operation ${operation.path}`,
-      );
+      reportDiagnostic(sdkContext.program, {
+        code: "unsupported-cookie-parameter",
+        format: { parameterName: p.name, path: operation.path },
+        target: NoTarget,
+      });
+      return parameters;
     }
     const param = fromSdkHttpOperationParameter(p, rootApiVersions, sdkContext);
     parameters.set(p, param);
@@ -187,7 +193,7 @@ function fromSdkHttpOperationParameter(
     ArraySerializationDelimiter: format ? collectionFormatToDelimMap[format] : undefined,
     IsRequired: !p.optional,
     Kind: getParameterKind(p, parameterType, rootApiVersions.length > 0),
-    DefaultValue: getParameterDefaultValue(p.clientDefaultValue, parameterType),
+    DefaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
     Decorators: p.decorators,
     SkipUrlEncoding: isSdkPathParameter(p) ? p.allowReserved : false,
   } as InputParameter;

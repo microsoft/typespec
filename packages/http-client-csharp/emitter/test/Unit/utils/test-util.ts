@@ -2,7 +2,6 @@ import { AzureCoreTestLibrary } from "@azure-tools/typespec-azure-core/testing";
 import {
   createSdkContext,
   CreateSdkContextOptions,
-  SdkContext,
 } from "@azure-tools/typespec-client-generator-core";
 import { SdkTestLibrary } from "@azure-tools/typespec-client-generator-core/testing";
 import {
@@ -19,6 +18,7 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
 import { XmlTestLibrary } from "@typespec/xml/testing";
+import { CSharpEmitterContext } from "../../../src/emitter.js";
 import { LoggerLevel } from "../../../src/lib/log-level.js";
 import { Logger } from "../../../src/lib/logger.js";
 import { getInputType } from "../../../src/lib/model.js";
@@ -121,14 +121,10 @@ export async function createNetSdkContext(
   context: EmitContext<CSharpEmitterOptions>,
   sdkContextOptions: CreateSdkContextOptions = {},
 ): Promise<CSharpEmitterContext> {
-  Logger.initialize(context.program, LoggerLevel.INFO);
-  const sdkContext = await createSdkContext(context, "@typespec/http-client-csharp", sdkContextOptions);
-  return {
-    ...sdkContext,
-    __typeCache: {
-      types: new Map(),
-      models: new Map(),
-      enums: new Map(),
-    },
-  }
+  const sdkContext = await createSdkContext(
+    context,
+    "@typespec/http-client-csharp",
+    sdkContextOptions,
+  );
+  return { ...context, logger: new Logger(context.program, LoggerLevel.INFO) };
 }

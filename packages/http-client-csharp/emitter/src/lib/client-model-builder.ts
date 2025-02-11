@@ -147,8 +147,14 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       .replace("https://", "")
       .replace("http://", "")
       .split("/")[0];
-    if (!/^\{\w+\}$/.test(endpointExpr))
-      throw new Error(`Unsupported server url "${type.serverUrl}"`);
+    if (!/^\{\w+\}$/.test(endpointExpr)) {
+      reportDiagnostic(sdkContext.program, {
+        code: "unsupported-endpoint-url",
+        format: { endpoint: type.serverUrl },
+        target: NoTarget,
+      });
+      return [];
+    }
     const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
 
     const parameters: InputParameter[] = [];
@@ -177,7 +183,11 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
         SkipUrlEncoding: false,
         Explode: false,
         Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(parameter.clientDefaultValue, parameterType),
+        DefaultValue: getParameterDefaultValue(
+          sdkContext,
+          parameter.clientDefaultValue,
+          parameterType,
+        ),
       });
     }
     return parameters;

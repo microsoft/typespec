@@ -17,7 +17,6 @@ import {
 import { CSharpEmitterContext } from "../emitter-context.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { InputType } from "../type/type-interfaces.js";
-import { Logger } from "./logger.js";
 import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./type-converter.js";
 
 /**
@@ -76,7 +75,7 @@ export function getInputType(
   operation?: Operation,
   literalTypeContext?: LiteralTypeContext,
 ): InputType {
-  Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
+  context.logger.debug(`getInputType for kind: ${type.kind}`);
 
   const sdkType = getClientType(context, type, operation);
   return fromSdkType(sdkType, context, literalTypeContext);

@@ -144,8 +144,8 @@ foreach ($directory in $directories) {
 # only write new launch settings if no filter was passed in
 if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
-    $mgcExe = "`$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
-    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
+    $mtgExe = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.TypeSpec.Generator.exe"
     $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
     $unbrandedPluginSpec = "TestProjects/Plugin/Unbranded-TypeSpec"
 
@@ -154,7 +154,7 @@ if ($null -eq $filter) {
     $launchSettings["profiles"].Add("Unbranded-TypeSpec", @{})
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p ClientModelPlugin")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
-    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mgcExe)
+    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mtgExe)
     $launchSettings["profiles"].Add("Debug-Plugin-Test-TypeSpec", @{})
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedPluginSpec -p SampleCodeModelPlugin")
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandName", "Executable")
@@ -164,7 +164,7 @@ if ($null -eq $filter) {
         $launchSettings["profiles"].Add($kvp.Key, @{})
         $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -p StubLibraryPlugin")
         $launchSettings["profiles"][$kvp.Key].Add("commandName", "Executable")
-        $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mgcExe)
+        $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mtgExe)
     }
 
     $sortedLaunchSettings = @{}
@@ -184,7 +184,7 @@ if ($null -eq $filter) {
     }
 
     # Write the launch settings to the launchSettings.json file
-    $launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"
+    $launchSettingsPath = Join-Path $solutionDir "Microsoft.TypeSpec.Generator" "src" "Properties" "launchSettings.json"
     # Write the settings to JSON and normalize line endings to Unix style (LF)
     $sortedLaunchSettings | ConvertTo-Json | ForEach-Object { ($_ -replace "`r`n", "`n") + "`n" } | Set-Content -NoNewLine $launchSettingsPath
 }

@@ -93,7 +93,12 @@ export function fromSdkType(
       retVar = fromSdkEndpointType();
       break;
     case "credential":
-      throw new Error("Credential type is not supported yet.");
+      reportDiagnostic(context.program, {
+        code: "unsupported-sdk-type",
+        format: { sdkType: "Credential" },
+        target: NoTarget,
+      });
+      return { kind: "unknown", name: "credential", crossLanguageDefinitionId: "" };
     default:
       retVar = fromSdkBuiltInType(sdkType);
       break;
