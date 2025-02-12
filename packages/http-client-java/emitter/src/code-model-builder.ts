@@ -1099,24 +1099,12 @@ export class CodeModelBuilder {
           useNewPollStrategy &&
           lroMetadata.finalStep &&
           lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
-          lroMetadata.finalResponse.resultPath
+          lroMetadata.finalResponse.resultSegments &&
+          lroMetadata.finalResponse.resultSegments[0].kind === "property"
         ) {
-          const finalResultPropertyClientName = lroMetadata.finalResponse.resultPath;
-
-          // find serializedName for lro result
-          if (finalResultPropertyClientName) {
-            lroMetadata.finalResponse.envelopeResult.properties?.forEach((p) => {
-              // TODO: "p.__raw?.name" should be "p.name", after TCGC fix https://github.com/Azure/typespec-azure/issues/2072
-              if (
-                !finalResultPropertySerializedName &&
-                p.kind === "property" &&
-                p.serializationOptions.json?.name &&
-                p.__raw?.name === finalResultPropertyClientName
-              ) {
-                finalResultPropertySerializedName = p.serializationOptions.json?.name;
-              }
-            });
-          }
+          finalResultPropertySerializedName = getPropertySerializedName(
+            lroMetadata.finalResponse.resultSegments[0],
+          );
         }
       }
 
