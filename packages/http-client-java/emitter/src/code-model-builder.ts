@@ -68,6 +68,7 @@ import {
   SdkUnionType,
   createSdkContext,
   getAllModels,
+  getHttpOperationParameter,
   isApiVersion,
   isSdkBuiltInKind,
   isSdkIntKind,
@@ -92,7 +93,6 @@ import {
 } from "@typespec/compiler";
 import {
   Authentication,
-  HttpOperation,
   HttpStatusCodeRange,
   HttpStatusCodesEntry,
   Visibility,
@@ -227,6 +227,7 @@ export class CodeModelBuilder {
     }
 
     this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
+      additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
 
@@ -934,18 +935,17 @@ export class CodeModelBuilder {
     }
 
     // body
+    let bodyParameterFlattened = false;
     if (httpOperation.bodyParam && httpOperation.__raw && httpOperation.bodyParam.type.__raw) {
-      this.processParameterBody(
+      bodyParameterFlattened = this.processParameterBody(
         codeModelOperation,
-        httpOperation.__raw,
-        httpOperation,
+        sdkMethod,
         httpOperation.bodyParam,
       );
     }
 
-    // group ETag header parameters, if exists
-    if (this.options["group-etag-headers"]) {
-      this.processEtagHeaderParameters(codeModelOperation, sdkMethod.operation);
+    if (generateConvenienceApi) {
+      this.processParameterGrouping(codeModelOperation, sdkMethod, bodyParameterFlattened);
     }
 
     // lro metadata
@@ -1324,6 +1324,234 @@ export class CodeModelBuilder {
     }
   }
 
+  private processParameterGrouping(
+    op: CodeModelOperation,
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
+    bodyParameterFlattened: boolean,
+  ) {
+    const httpOperation = sdkMethod.operation;
+    const methodSignatureOverridden = sdkMethod.decorators.some(
+      (it) => it.name === "Azure.ClientGenerator.Core.@override",
+    );
+
+    if (methodSignatureOverridden) {
+      // limit the effect of "SdkServiceMethod"
+      // only process it and its parameters, when the "@override" is defined on the operation
+      this.processSdkMethodOverride(op, sdkMethod);
+    } else if (bodyParameterFlattened) {
+      // only do this, if no explicit method override via "@override"
+      this.checkGroupingAfterBodyParameterFlatten(op);
+    }
+
+    // group ETag header parameters, if exists
+    if (this.options["group-etag-headers"]) {
+      // TODO: unsure what happens, if the etag headers is already processed by override
+      this.processEtagHeaderParameters(op, httpOperation);
+    }
+  }
+
+  private processSdkMethodOverride(
+    op: CodeModelOperation,
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
+  ) {
+    // method be called, only if "op.convenienceApi"
+    let request = op.convenienceApi?.requests?.[0];
+    let requestParameters: Parameter[];
+    if (request) {
+      requestParameters = request.parameters!;
+    } else {
+      op.convenienceApi!.requests = [];
+      request = new Request({
+        protocol: op.requests![0].protocol,
+      });
+      op.convenienceApi!.requests.push(request);
+
+      requestParameters = op.parameters!;
+    }
+    request.parameters = [];
+    request.signatureParameters = [];
+
+    function findOperationParameter(
+      parameter: SdkHttpOperationParameterType | SdkBodyParameter | SdkBodyModelPropertyType,
+    ): Parameter | undefined {
+      let opParameter;
+      // ignore constant parameter, usually the "accept" and "content-type" header
+      if (parameter.type.kind !== "constant") {
+        if (parameter.kind === "body") {
+          // there should be only 1 body parameter
+          opParameter = requestParameters.find((it) => it.protocol.http?.in === "body");
+        } else if (parameter.kind === "property") {
+          // body property
+          // if body property appears on method signature, it should already be flattened, hence the check on VirtualParameter
+          opParameter = requestParameters.find(
+            (it) =>
+              it instanceof VirtualParameter &&
+              it.language.default.serializedName === getPropertySerializedName(parameter),
+          );
+        } else {
+          // query, path, header
+          opParameter = requestParameters.find(
+            (it) =>
+              it.protocol.http?.in === parameter.kind &&
+              it.language.default.serializedName === parameter.serializedName,
+          );
+        }
+      }
+      return opParameter;
+    }
+
+    for (const sdkMethodParameter of sdkMethod.parameters) {
+      let httpOperationParameter = getHttpOperationParameter(sdkMethod, sdkMethodParameter);
+      if (httpOperationParameter) {
+        const opParameter = findOperationParameter(httpOperationParameter);
+        if (opParameter) {
+          request.signatureParameters.push(opParameter);
+          request.parameters.push(opParameter);
+        }
+      } else {
+        // sdkMethodParameter is a grouping parameter
+        if (sdkMethodParameter.type.kind === "model") {
+          const opParameters = [];
+          for (const property of sdkMethodParameter.type.properties) {
+            httpOperationParameter = getHttpOperationParameter(sdkMethod, property);
+            if (httpOperationParameter) {
+              const opParameter = findOperationParameter(httpOperationParameter);
+              if (opParameter) {
+                if (opParameter instanceof VirtualParameter) {
+                  opParameters.push(opParameter);
+                } else {
+                  opParameters.push(opParameter);
+                }
+              }
+            }
+          }
+          // group schema
+          const groupSchema = this.processGroupSchema(
+            sdkMethodParameter.type,
+            opParameters,
+            sdkMethodParameter.type.name,
+          );
+          this.trackSchemaUsage(groupSchema, { usage: [SchemaContext.Input] });
+          if (op.convenienceApi) {
+            this.trackSchemaUsage(groupSchema, {
+              usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+            });
+          }
+
+          // group parameter
+          const groupParameter = new Parameter(
+            sdkMethodParameter.name,
+            sdkMethodParameter.doc ?? "",
+            groupSchema,
+            {
+              summary: sdkMethodParameter.summary,
+              implementation: ImplementationLocation.Method,
+              required: !sdkMethodParameter.optional,
+              nullable: false,
+            },
+          );
+          request.signatureParameters.push(groupParameter);
+          request.parameters.push(...opParameters);
+          request.parameters.push(groupParameter);
+
+          opParameters.forEach((it) => {
+            it.groupedBy = groupParameter;
+          });
+        }
+      }
+    }
+  }
+
+  private processGroupSchema(
+    type: SdkModelType | undefined,
+    parameters: Parameter[],
+    name: string,
+    description: string | undefined = undefined,
+  ): GroupSchema {
+    // the "GroupSchema" is simliar to "ObjectSchema", but the process is different
+
+    if (type && this.schemaCache.has(type)) {
+      return this.schemaCache.get(type) as GroupSchema;
+    }
+
+    // option bag schema
+    const optionBagSchema = this.codeModel.schemas.add(
+      new GroupSchema(name, type?.doc ?? description ?? "", {
+        summary: type?.summary,
+        language: {
+          default: {
+            namespace: type ? getNamespace(type.__raw) : this.namespace,
+          },
+          java: {
+            namespace: this.getJavaNamespace(type),
+          },
+        },
+      }),
+    );
+    parameters.forEach((it) => {
+      optionBagSchema.add(
+        new GroupProperty(it.language.default.name, it.language.default.description, it.schema, {
+          originalParameter: [it],
+          summary: it.summary,
+          required: it.required,
+          nullable: it.nullable,
+          readOnly: false,
+          serializedName: it.language.default.serializedName,
+        }),
+      );
+    });
+
+    if (type) {
+      // on cache: the GroupProperty actually has a reference to "originalParameter" (though on same type, the parameter should be identical)
+      this.schemaCache.set(type, optionBagSchema);
+    }
+    return optionBagSchema;
+  }
+
+  private checkGroupingAfterBodyParameterFlatten(op: CodeModelOperation) {
+    // method be called, only if "op.convenienceApi" is defined
+    // method signature of the convenience API after body parameter flatten
+    const request = op.convenienceApi?.requests?.[0];
+
+    if (
+      request &&
+      request.signatureParameters &&
+      request.parameters &&
+      request.signatureParameters.length > 6
+    ) {
+      // create an option bag
+      const name = op.language.default.name + "Options";
+      const optionBagSchema = this.processGroupSchema(
+        undefined,
+        request.parameters,
+        name,
+        `Options for ${op.language.default.name} API`,
+      );
+      this.trackSchemaUsage(optionBagSchema, { usage: [SchemaContext.Input] });
+      if (op.convenienceApi) {
+        this.trackSchemaUsage(optionBagSchema, {
+          usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
+        });
+      }
+
+      // option bag parameter
+      const optionBagParameter = new Parameter(
+        "options",
+        optionBagSchema.language.default.description,
+        optionBagSchema,
+        {
+          implementation: ImplementationLocation.Method,
+          required: true,
+          nullable: false,
+        },
+      );
+
+      request.signatureParameters = [optionBagParameter];
+      request.parameters.forEach((it) => (it.groupedBy = optionBagParameter));
+      request.parameters.push(optionBagParameter);
+    }
+  }
+
   private processEtagHeaderParameters(op: CodeModelOperation, httpOperation: SdkHttpOperation) {
     if (op.convenienceApi && op.parameters && op.signatureParameters) {
       const etagHeadersNames = new Set<string>([
@@ -1464,10 +1692,12 @@ export class CodeModelBuilder {
 
   private processParameterBody(
     op: CodeModelOperation,
-    rawHttpOperation: HttpOperation,
-    sdkHttpOperation: SdkHttpOperation,
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     sdkBody: SdkBodyParameter,
-  ) {
+  ): boolean {
+    let bodyParameterFlattened = false;
+
+    const sdkHttpOperation = sdkMethod.operation;
     // set contentTypes to mediaTypes
     op.requests![0].protocol.http!.mediaTypes = sdkBody.contentTypes;
 
@@ -1520,14 +1750,20 @@ export class CodeModelBuilder {
     }
 
     if (op.convenienceApi) {
-      // Explicit body parameter @body or @bodyRoot would result to the existence of rawHttpOperation.parameters.body.property
-      // Implicit body parameter would result to rawHttpOperation.parameters.body.property be undefined
-      // see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
+      /**
+       * Explicit body parameter @body or @bodyRoot would result to the existence of rawHttpOperation.parameters.body.property
+       * Implicit body parameter would result to rawHttpOperation.parameters.body.property be undefined
+       * see https://typespec.io/docs/libraries/http/cheat-sheet#data-types
+       */
+      /**
+       * In TCGC, the condition is 'sdkType.kind === "model" && sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type'.
+       * Basically, it means that the model of the SDK method parameters (typically, more than 1) be different from the model of this single HTTP body parameter.
+       */
       const bodyParameterFlatten =
+        !this.isArm() &&
         schema instanceof ObjectSchema &&
         sdkType.kind === "model" &&
-        !rawHttpOperation.parameters.body?.property &&
-        !this.isArm();
+        sdkBody.type !== sdkBody.correspondingMethodParams[0]?.type;
 
       if (schema instanceof ObjectSchema && bodyParameterFlatten) {
         // flatten body parameter
@@ -1544,8 +1780,11 @@ export class CodeModelBuilder {
           if (sdkType.isGeneratedName) {
             schema.language.default.name = pascalCase(op.language.default.name) + "PatchRequest";
           }
-          return;
+          return bodyParameterFlattened;
         }
+
+        // flatten body parameter
+        bodyParameterFlattened = true;
 
         const schemaUsage = (schema as SchemaUsage).usage;
         if (!schemaIsPublicBeforeProcess && schemaUsage?.includes(SchemaContext.Public)) {
@@ -1555,103 +1794,43 @@ export class CodeModelBuilder {
           this.trackSchemaUsage(schema, { usage: [SchemaContext.PublicSpread] });
         }
 
-        if (op.convenienceApi && op.parameters) {
-          op.convenienceApi.requests = [];
-          const request = new Request({
-            protocol: op.requests![0].protocol,
-          });
-          request.parameters = [];
-          op.convenienceApi.requests.push(request);
+        op.convenienceApi.requests = [];
+        const request = new Request({
+          protocol: op.requests![0].protocol,
+        });
+        request.parameters = [];
+        op.convenienceApi.requests.push(request);
 
-          // header/query/path params
-          for (const opParameter of parameters) {
-            this.addParameterOrBodyPropertyToCodeModelRequest(
-              opParameter,
-              op,
-              request,
-              schema,
-              parameter,
-            );
-          }
-          // body param
-          if (bodyParameter) {
-            if (bodyParameter.type.kind === "model") {
-              for (const bodyProperty of bodyParameter.type.properties) {
-                if (bodyProperty.kind === "property") {
-                  this.addParameterOrBodyPropertyToCodeModelRequest(
-                    bodyProperty,
-                    op,
-                    request,
-                    schema,
-                    parameter,
-                  );
-                }
+        // header/query/path params
+        for (const opParameter of parameters) {
+          this.addParameterOrBodyPropertyToCodeModelRequest(
+            opParameter,
+            op,
+            request,
+            schema,
+            parameter,
+          );
+        }
+        // body param
+        if (bodyParameter) {
+          if (bodyParameter.type.kind === "model") {
+            for (const bodyProperty of bodyParameter.type.properties) {
+              if (bodyProperty.kind === "property") {
+                this.addParameterOrBodyPropertyToCodeModelRequest(
+                  bodyProperty,
+                  op,
+                  request,
+                  schema,
+                  parameter,
+                );
               }
             }
           }
-          request.signatureParameters = request.parameters;
-
-          if (request.signatureParameters.length > 6) {
-            // create an option bag
-            const name = op.language.default.name + "Options";
-            const namespace = getNamespace(rawHttpOperation.operation);
-            // option bag schema
-            const optionBagSchema = this.codeModel.schemas.add(
-              new GroupSchema(name, `Options for ${op.language.default.name} API`, {
-                language: {
-                  default: {
-                    namespace: namespace,
-                  },
-                  java: {
-                    namespace: this.getJavaNamespace(),
-                  },
-                },
-              }),
-            );
-            request.parameters.forEach((it) => {
-              optionBagSchema.add(
-                new GroupProperty(
-                  it.language.default.name,
-                  it.language.default.description,
-                  it.schema,
-                  {
-                    originalParameter: [it],
-                    summary: it.summary,
-                    required: it.required,
-                    nullable: it.nullable,
-                    readOnly: false,
-                    serializedName: it.language.default.serializedName,
-                  },
-                ),
-              );
-            });
-
-            this.trackSchemaUsage(optionBagSchema, { usage: [SchemaContext.Input] });
-            if (op.convenienceApi) {
-              this.trackSchemaUsage(optionBagSchema, {
-                usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
-              });
-            }
-
-            // option bag parameter
-            const optionBagParameter = new Parameter(
-              "options",
-              optionBagSchema.language.default.description,
-              optionBagSchema,
-              {
-                implementation: ImplementationLocation.Method,
-                required: true,
-                nullable: false,
-              },
-            );
-
-            request.signatureParameters = [optionBagParameter];
-            request.parameters.forEach((it) => (it.groupedBy = optionBagParameter));
-            request.parameters.push(optionBagParameter);
-          }
         }
+        request.signatureParameters = request.parameters;
       }
     }
+    return bodyParameterFlattened;
   }
 
   private addParameterOrBodyPropertyToCodeModelRequest(
