@@ -42,7 +42,7 @@ public class OperationTests {
 
         response = manager.checkNameAvailabilities().checkLocal("westus", request);
         Assertions.assertFalse(response.nameAvailable());
-        Assertions.assertEquals(CheckNameAvailabilityReason.ALREADY_EXISTS, response.reason());
+        Assertions.assertEquals("AlreadyExists", response.reason());
         Assertions.assertEquals("Hostname 'checkName' already exists. Please select a different name.",
             response.message());
     }
