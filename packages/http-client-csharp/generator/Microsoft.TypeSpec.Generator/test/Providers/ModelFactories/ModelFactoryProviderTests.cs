@@ -15,23 +15,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
     public class ModelFactoryProviderTests
     {
         private static readonly InputModelType[] ModelList = GetTestModels();
+        private CodeModelPlugin _instance;
 
         public ModelFactoryProviderTests()
         {
-            MockHelpers.LoadMockPlugin(inputModelTypes: ModelList);
+            _instance = MockHelpers.LoadMockPlugin(inputModelTypes: ModelList).Object;
         }
 
         [Test]
         public void SkipInternalModels()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             Assert.AreEqual(ModelList.Length - ModelList.Where(m => m.Access == "internal").Count(), modelFactory.Methods.Count);
         }
 
         [Test]
         public void ListParamShape()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
@@ -54,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [Test]
         public void DictionaryParamShape()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
@@ -77,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [Test]
         public void DiscriminatorEnumParamShape()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
@@ -99,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [Test]
         public void AdditionalPropertiesParamShape()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             var models = ModelList.Select(CodeModelPlugin.Instance.TypeFactory.CreateModel);
             foreach (var model in models)
             {
@@ -123,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [Test]
         public void ModelFactoryName()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
             Assert.AreEqual("SampleNamespaceModelFactory", modelFactory.Name);
         }
 
