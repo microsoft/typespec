@@ -86,7 +86,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
+                ""package-name"": ""libraryName"",
                 ""unknown-string-property"": ""unknownPropertyValue"",
                 ""unknown-bool-property"": true
                 }";
@@ -110,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
+                ""package-name"": ""libraryName"",
                 ""disable-xml-docs"": true
                 }";
 
@@ -132,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
+                ""package-name"": ""libraryName"",
                 ""unreferenced-types-handling"": ""keepAll""
                 }";
 
@@ -153,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
+                ""package-name"": ""libraryName"",
                 ""disable-xml-docs"": true
                 }";
 
@@ -180,7 +180,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
+                ""package-name"": ""libraryName"",
                 ""disable-xml-docs"": true
                 }";
 
@@ -197,7 +197,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         {
             var mockJson = @"{
                 ""output-folder"": ""outputFolder"",
-                ""library-name"": ""libraryName"",
+                ""package-name"": ""libraryName"",
                 ""disable-xml-docs"": true
                 }";
 
@@ -216,10 +216,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""library-name"": ""libraryName""
+                    ""package-name"": ""libraryName""
                 }", false);
                 yield return new TestCaseData(@"{
-                    ""library-name"": ""libraryName""
+                    ""package-name"": ""libraryName""
                 }", true);
             }
         }
@@ -230,7 +230,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""library-name"": ""libraryName"",
+                    ""package-name"": ""libraryName"",
                 }", false);
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder""
@@ -244,11 +244,11 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""library-name"": ""libraryName"",
+                    ""package-name"": ""libraryName"",
                 }", false);
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""library-name"": ""libraryName""
+                    ""package-name"": ""libraryName""
                 }", true);
             }
         }
@@ -259,12 +259,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""library-name"": ""libraryName"",
+                    ""package-name"": ""libraryName"",
                 ""use-model-namespace"": true
                 }", true);
                 yield return new TestCaseData(@"{
                     ""output-folder"": ""outputFolder"",
-                    ""library-name"": ""libraryName"",
+                    ""package-name"": ""libraryName"",
                 }", true);
             }
         }
