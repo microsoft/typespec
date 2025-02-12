@@ -4,7 +4,7 @@
 
 using System.ClientModel.Primitives;
 
-namespace Client.Structure.Service.Default
+namespace Client.Structure.Service
 {
     public partial class ServiceClientOptions : ClientPipelineOptions
     {
