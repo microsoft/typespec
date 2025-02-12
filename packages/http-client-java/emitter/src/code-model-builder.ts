@@ -113,7 +113,7 @@ import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
-import { EmitterOptions, createDiagnostic, reportDiagnostic } from "./lib.js";
+import { EmitterOptions, LIB_NAME, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
   CONTENT_TYPE_KEY,
@@ -227,7 +227,7 @@ export class CodeModelBuilder {
       return this.codeModel;
     }
 
-    this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
+    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
