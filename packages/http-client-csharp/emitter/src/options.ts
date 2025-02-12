@@ -40,7 +40,6 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     outputFile: { type: "string", nullable: true },
     logFile: { type: "string", nullable: true },
     namespace: { type: "string" },
-    "library-name": { type: "string" },
     skipSDKGeneration: { type: "boolean", default: false, nullable: true },
     "unreferenced-types-handling": {
       type: "string",

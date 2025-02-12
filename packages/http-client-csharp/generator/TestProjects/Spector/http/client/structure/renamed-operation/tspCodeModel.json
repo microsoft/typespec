@@ -1,6 +1,6 @@
 {
  "$id": "1",
- "Name": "Client.Structure.Service",
+ "Name": "Client.Structure.Service.Renamed.Operation",
  "ApiVersions": [],
  "Enums": [
   {

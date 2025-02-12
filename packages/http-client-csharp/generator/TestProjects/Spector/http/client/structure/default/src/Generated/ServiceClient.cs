@@ -7,6 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Client.Structure.Service.Default;
 using Client.Structure.Service._Baz;
 using Client.Structure.Service._Qux;
 

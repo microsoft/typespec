@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>This is the Client.Structure.Service client library for developing .NET applications with rich experience.</Description>
-    <AssemblyTitle>SDK Code Generation Client.Structure.Service</AssemblyTitle>
+    <Description>This is the Client.Structure.Service.TwoOperationGroup client library for developing .NET applications with rich experience.</Description>
+    <AssemblyTitle>SDK Code Generation Client.Structure.Service.TwoOperationGroup</AssemblyTitle>
     <Version>1.0.0-beta.1</Version>
-    <PackageTags>Client.Structure.Service</PackageTags>
+    <PackageTags>Client.Structure.Service.TwoOperationGroup</PackageTags>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

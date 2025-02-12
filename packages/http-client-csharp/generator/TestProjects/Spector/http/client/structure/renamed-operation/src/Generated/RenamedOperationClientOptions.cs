@@ -4,7 +4,7 @@
 
 using System.ClientModel.Primitives;
 
-namespace Client.Structure.Service
+namespace Client.Structure.Service.Renamed.Operation
 {
     public partial class RenamedOperationClientOptions : ClientPipelineOptions
     {
