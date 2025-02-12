@@ -90,12 +90,6 @@ namespace Microsoft.TypeSpec.Generator
         internal bool ClearOutputFolder { get; private set; }
 
         /// <summary>
-        /// Whether we will generate model factory for this library.
-        /// If true (default), the model factory will be generated. If false, the model factory will not be generated.
-        /// </summary>
-        internal bool GenerateModelFactory { get; private set; }
-
-        /// <summary>
         /// True if a sample project should be generated.
         /// </summary>
         internal bool GenerateSampleProject { get; private set; }

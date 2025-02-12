@@ -4,6 +4,7 @@
 package azure.resourcemanager.operationtemplates;
 
 import azure.resourcemanager.operationtemplates.models.ActionType;
+import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityReason;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityRequest;
 import azure.resourcemanager.operationtemplates.models.CheckNameAvailabilityResponse;
 import azure.resourcemanager.operationtemplates.models.ExportRequest;
@@ -35,13 +36,13 @@ public class OperationTests {
 
         CheckNameAvailabilityResponse response = manager.checkNameAvailabilities().checkGlobal(request);
         Assertions.assertFalse(response.nameAvailable());
-        Assertions.assertEquals("AlreadyExists", response.reason());
+        Assertions.assertEquals(CheckNameAvailabilityReason.ALREADY_EXISTS, response.reason());
         Assertions.assertEquals("Hostname 'checkName' already exists. Please select a different name.",
             response.message());
 
         response = manager.checkNameAvailabilities().checkLocal("westus", request);
         Assertions.assertFalse(response.nameAvailable());
-        Assertions.assertEquals("AlreadyExists", response.reason());
+        Assertions.assertEquals(CheckNameAvailabilityReason.ALREADY_EXISTS, response.reason());
         Assertions.assertEquals("Hostname 'checkName' already exists. Please select a different name.",
             response.message());
     }
