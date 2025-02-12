@@ -105,26 +105,30 @@ public class FluentGen extends Javagen {
             this.handleFluentLite(codeModel, client, javaPackage);
 
             // Print to files
-            logger.info("Write Java");
-            Postprocessor.writeToFiles(
-                javaPackage.getJavaFiles()
-                    .stream()
-                    .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
-                this, logger);
-
-            logger.info("Write Xml");
-            for (XmlFile xmlFile : javaPackage.getXmlFiles()) {
-                writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null);
-            }
-            logger.info("Write Text");
-            for (TextFile textFile : javaPackage.getTextFiles()) {
-                writeFile(textFile.getFilePath(), textFile.getContents(), null);
-            }
+            writeFiles(javaPackage);
             return true;
         } catch (Exception e) {
             logger.error("Failed to successfully run fluentgen plugin " + e, e);
             // connection.sendError(1, 500, "Error occurred while running fluentgen plugin: " + e.getMessage());
             return false;
+        }
+    }
+
+    protected void writeFiles(FluentJavaPackage javaPackage) {
+        logger.info("Write Java");
+        Postprocessor.writeToFiles(
+            javaPackage.getJavaFiles()
+                .stream()
+                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
+            this, logger);
+
+        logger.info("Write Xml");
+        for (XmlFile xmlFile : javaPackage.getXmlFiles()) {
+            writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null);
+        }
+        logger.info("Write Text");
+        for (TextFile textFile : javaPackage.getTextFiles()) {
+            writeFile(textFile.getFilePath(), textFile.getContents(), null);
         }
     }
 
