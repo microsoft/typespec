@@ -50,7 +50,9 @@
     "lint:fix": "eslint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/emitters/openapi3/reference",
     "regen-specs": "cross-env RECORD=true vitest run",
-    "gen-version": "node scripts/generate-version.js"
+    "gen-version": "node scripts/generate-version.js",
+    "spector-serve": "tsp-spector serve ./node_modules/@typespec/http-specs/specs --coverageFile ./tsp-spector-coverage-oas-standard.json",
+    "spector-stop": "tsp-spector server stop"
   },
   "files": [
     "lib/*.tsp",
@@ -90,6 +92,7 @@
     "@typespec/versioning": "workspace:~",
     "@typespec/xml": "workspace:~",
     "@typespec/http-specs": "0.1.0-alpha.7",
+    "@typespec/spector": "0.1.0-alpha.6",
     "@vitest/coverage-v8": "^3.0.4",
     "@vitest/ui": "^3.0.3",
     "c8": "^10.1.3",
