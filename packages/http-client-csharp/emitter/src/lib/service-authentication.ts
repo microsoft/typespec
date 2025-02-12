@@ -11,6 +11,7 @@ import { NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputAuth } from "../type/input-auth.js";
+import { reportDiagnostic } from "./lib.js";
 
 export function processServiceAuthentication(
   sdkContext: CSharpEmitterContext,
@@ -53,7 +54,7 @@ function processAuthType(
   switch (scheme.type) {
     case "apiKey":
       if (scheme.in !== "header") {
-        sdkContext.logger.reportDiagnostic({
+        reportDiagnostic(sdkContext.program, {
           code: "unsupported-auth",
           format: {
             message: `Only header is supported for ApiKey authentication. ${scheme.in} is not supported.`,
@@ -69,7 +70,7 @@ function processAuthType(
       const schemeOrApiKeyPrefix = scheme.scheme;
       switch (schemeOrApiKeyPrefix) {
         case "basic":
-          sdkContext.logger.reportDiagnostic({
+          reportDiagnostic(sdkContext.program, {
             code: "unsupported-auth",
             format: { message: `${schemeOrApiKeyPrefix} auth method is currently not supported.` },
             target: credentialType.__raw ?? NoTarget,
@@ -94,7 +95,7 @@ function processAuthType(
       }
     }
     default:
-      sdkContext.logger.reportDiagnostic({
+      reportDiagnostic(sdkContext.program, {
         code: "unsupported-auth",
         format: { message: `un-supported authentication scheme ${scheme.type}` },
         target: credentialType.__raw ?? NoTarget,

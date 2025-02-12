@@ -37,6 +37,7 @@ import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
+import { reportDiagnostic } from "./lib.js";
 import { fromSdkModelType, fromSdkType } from "./type-converter.js";
 
 export function fromSdkServiceMethod(
@@ -47,7 +48,7 @@ export function fromSdkServiceMethod(
 ): InputOperation {
   let generateConvenience = shouldGenerateConvenient(sdkContext, method.operation.__raw.operation);
   if (method.operation.verb === "patch" && generateConvenience) {
-    sdkContext.logger.reportDiagnostic({
+    reportDiagnostic(sdkContext.program, {
       code: "unsupported-patch-convenience-method",
       format: {
         methodCrossLanguageDefinitionId: method.crossLanguageDefinitionId,
@@ -125,7 +126,7 @@ function getValueType(sdkContext: CSharpEmitterContext, value: any): SdkBuiltInK
     case "bigint":
       return "int64";
     default:
-      sdkContext.logger.reportDiagnostic({
+      reportDiagnostic(sdkContext.program, {
         code: "unsupported-default-value-type",
         format: { valueType: typeof value },
         target: NoTarget,
@@ -142,7 +143,7 @@ function fromSdkOperationParameters(
   const parameters = new Map<SdkHttpParameter, InputParameter>();
   for (const p of operation.parameters) {
     if (p.kind === "cookie") {
-      sdkContext.logger.reportDiagnostic({
+      reportDiagnostic(sdkContext.program, {
         code: "unsupported-cookie-parameter",
         format: { parameterName: p.name, path: operation.path },
         target: NoTarget,

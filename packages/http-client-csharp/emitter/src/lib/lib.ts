@@ -85,7 +85,7 @@ const $lib = createTypeSpecLibrary({
     "unsupported-patch-convenience-method": {
       severity: "warning",
       messages: {
-        default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"operationCrossLanguageDefinitionId"}.`,
+        default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
       },
     },
   },
