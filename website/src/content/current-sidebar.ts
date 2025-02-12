@@ -139,6 +139,10 @@ const sidebar: SidebarItem[] = [
       createLibraryReferenceStructure("emitters/protobuf", "Protobuf", false, [
         "emitters/protobuf/guide",
       ]),
+      {
+        label: "Clients",
+        items: ["emitters/clients/introduction"],
+      },
     ],
   },
   {
