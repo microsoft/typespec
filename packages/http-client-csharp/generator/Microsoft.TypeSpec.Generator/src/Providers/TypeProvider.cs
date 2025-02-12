@@ -119,7 +119,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected virtual bool GetIsEnum() => false;
         public bool IsEnum => GetIsEnum();
 
-        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.RootNamespace;
+        protected virtual string BuildNamespace() => CodeModelPlugin.Instance.TypeFactory.PackageName;
 
         private TypeSignatureModifiers? _declarationModifiers;
 
