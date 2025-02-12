@@ -14,6 +14,8 @@ export const OpenAPISpecHelpers: Record<OpenAPIVersion, SpecHelper> = {
   "3.1.0": createSpecHelpers("3.1.0"),
 };
 
+export type ObjectSchemaIndexer = "additionalProperties" | "unevaluatedProperties";
+
 export type SpecHelper = {
   version: OpenAPIVersion;
   oapiForModel: typeof oapiForModel;
@@ -22,6 +24,7 @@ export type SpecHelper = {
   checkFor: typeof checkFor;
   diagnoseOpenApiFor: typeof diagnoseOpenApiFor;
   emitOpenApiWithDiagnostics: typeof emitOpenApiWithDiagnostics;
+  objectSchemaIndexer: ObjectSchemaIndexer;
 };
 
 export type WorksForCb = (specHelpers: SpecHelper) => void;
@@ -42,6 +45,7 @@ function createSpecHelpers(version: OpenAPIVersion): SpecHelper {
     emitOpenApiWithDiagnostics: (
       ...[code, options]: Parameters<typeof emitOpenApiWithDiagnostics>
     ) => emitOpenApiWithDiagnostics(code, { ...options, "openapi-versions": [version] }),
+    objectSchemaIndexer: version === "3.0.0" ? "additionalProperties" : "unevaluatedProperties",
   };
 }
 
