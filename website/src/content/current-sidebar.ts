@@ -140,8 +140,8 @@ const sidebar: SidebarItem[] = [
         "emitters/protobuf/guide",
       ]),
       {
-        label: "SDK Clients",
-        items: ["emitters/sdk-clients/introduction"],
+        label: "Clients",
+        items: ["emitters/clients/introduction"],
       },
     ],
   },
