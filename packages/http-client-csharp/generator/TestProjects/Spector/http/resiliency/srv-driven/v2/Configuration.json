@@ -1,5 +1,4 @@
 {
   "output-folder": ".",
-  "namespace": "Resiliency.ServiceDriven",
-  "package-name": "Resiliency.ServiceDriven"
+  "package-name": "Resiliency.SrvDriven.V2"
 }

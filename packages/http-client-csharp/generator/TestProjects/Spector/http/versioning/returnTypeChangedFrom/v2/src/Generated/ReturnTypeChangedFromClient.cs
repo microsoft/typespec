@@ -7,6 +7,7 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Versioning.ReturnTypeChangedFrom.V2;
 
 namespace Versioning.ReturnTypeChangedFrom
 {

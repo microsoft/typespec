@@ -4,7 +4,7 @@
 
 using System.ClientModel.Primitives;
 
-namespace Versioning.Added
+namespace Versioning.Added.V1
 {
     public partial class AddedClientOptions : ClientPipelineOptions
     {
