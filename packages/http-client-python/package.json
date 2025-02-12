@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.6.10",
+  "version": "0.6.11",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -42,7 +42,8 @@
     "ci:generator": "tsx ./eng/scripts/ci/run-ci.ts",
     "test:generator": "tsx ./eng/scripts/ci/run-ci.ts --command=test",
     "test:emitter": "vitest run -c ./emitter/vitest.config.ts",
-    "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python"
+    "change:version": "pnpm chronus version --ignore-policies --only @typespec/http-client-python",
+    "change:add": "pnpm chronus add"
   },
   "files": [
     "dist/**",
