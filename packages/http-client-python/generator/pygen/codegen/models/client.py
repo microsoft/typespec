@@ -89,7 +89,15 @@ class Client(_ClientConfigBase[ClientGlobalParameterList]):  # pylint: disable=t
 
     @property
     def need_cloud_setting(self) -> bool:
-        return bool(self.code_model.options["azure_arm"] and self.credential_scopes is not None)
+        return bool(
+            self.code_model.options["azure_arm"]
+            and self.credential_scopes is not None
+            and self.endpoint_parameter is not None
+        )
+
+    @property
+    def endpoint_parameter(self) -> Optional[Parameter]:
+        return next((p for p in self.parameters.parameters if p.location == ParameterLocation.ENDPOINT_PATH), None)
 
     def _build_request_builders(
         self,
