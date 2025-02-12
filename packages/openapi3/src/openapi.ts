@@ -685,8 +685,14 @@ function createOAPIEmitter(
         .stateMap(invalidComponentFixedFieldKey)
         .get(program.getGlobalNamespaceType()) as Set<string>;
       useValidKeysInComponentFixedFields(invalidKeys, root.components?.schemas);
-      useValidKeysInComponentFixedFields(invalidKeys, root.components?.parameters);
-
+      const invalidToValidKeyMap = useValidKeysInComponentFixedFields(
+        invalidKeys,
+        root.components?.parameters,
+      );
+      for (const invalidKey in invalidToValidKeyMap) {
+        const validKey = invalidToValidKeyMap.get(invalidKey);
+        updateRefs(root, invalidKey, validKey!);
+      }
       return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -698,18 +704,37 @@ function createOAPIEmitter(
       }
     }
 
-    // TODO: discuss: should we update something x-ref: $ref: ignore it? what about x-ms-*
-    function updateRefs(root: SupportedOpenAPIDocuments, oldKey: string, newKey: string) {
+
+    // find anything uses references
+
+    // TODO: OpenAPI3SchemaProperty
+    // TODO: OpenAPI3Link
+
+    // TODO: OpenAPI3Responses.status
+    // TODO: OpenAPI3Response.headers
+    // TODO: OpenAPI3Response.links
+    // TODO: OpenAPI3MediaType.schema
+    // TODO: OpenAPI3Encoding.headers
+    // TODO: OpenAPI3Schema.allof/oneof/anyof/not/items/additionalProperties/
+    // TODO: OpenAPI3Operation.requestBody
+    // TODO: OpenAPI3Operation.parameters
+
+    // TODO: JsonSchema.contentSchema/allof/anyof/oneof/not/items/prefixItems/contains/properties/additionalProperties
+    // TODO:OpenAPIComponents3_1.responses/parameters/examples/requestBodies/headers/securitySchemes/links
+    function updateRefs(root: SupportedOpenAPIDocuments, oldModelName: string, newModelName: string) {
       
     }
 
-    function useValidKeysInComponentFixedFields(invalidKeys: Set<string>, pairs?: Record<string, unknown>): Map<string, string> | undefined {
+    function useValidKeysInComponentFixedFields(
+      invalidKeys: Set<string>,
+      pairs?: Record<string, unknown>,
+    ): Map<string, string> | undefined {
       if (!pairs) return;
 
       const newPairs: typeof pairs = {};
       const originalKeys = Object.keys(pairs);
       const validKeys = new Set<string>(originalKeys.filter((key) => !invalidKeys.has(key)));
-      const replaceMap = new Map<string, string>();
+      const invalidToValidKeyMap = new Map<string, string>();
 
       for (const [_, key] of originalKeys.entries()) {
         if (validKeys.has(key)) {
@@ -720,31 +745,26 @@ function createOAPIEmitter(
         const newKey = createValidKey(key, validKeys, newPairs);
         newPairs[newKey] = pairs[key];
         pairs = newPairs;
-        replaceMap.set(key, newKey);
+        invalidToValidKeyMap.set(key, newKey);
       }
 
-      return replaceMap;
+      return invalidToValidKeyMap;
 
       function createValidKey(
         invalidKey: string,
         originalValidKeys: Set<string>,
         newPairs: Record<string, unknown>,
       ): string {
-        let baseKey = invalidKey.replace(/[^a-zA-Z0-9.\-_]/g, "");
+        let baseKey = invalidKey.replace(/[^a-zA-Z0-9.\-_]/g, "_");
         let index = 1;
         let validKey = baseKey;
 
-        // TODO: discuss: limit maximum retry? 
-        const maxRetry = 1000000;
         for (
           let validKey = baseKey;
-          index <= maxRetry && (validKey in originalValidKeys || validKey in newPairs);
+          validKey in originalValidKeys || validKey in newPairs;
           index++
         ) {
           validKey = baseKey + index;
-        }
-        if (index > maxRetry) {
-          // TODO: report diagnostic
         }
         return validKey;
       }
