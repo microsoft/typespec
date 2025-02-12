@@ -131,7 +131,7 @@ export function getEncodingAttributes(program: Program, type: ModelProperty): At
         if (propertyType.encoding !== undefined) {
           switch (propertyType.encoding.name.toLowerCase()) {
             case "base64url":
-              result.push(getJsonConverterAttribute("Base64UrlConverter"));
+              result.push(getJsonConverterAttribute("Base64UrlJsonConverter"));
               break;
             case "unixtimestamp":
               result.push(getJsonConverterAttribute("UnixEpochDateTimeOffsetConverter"));

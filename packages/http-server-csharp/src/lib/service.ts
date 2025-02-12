@@ -50,6 +50,7 @@ import {
 } from "@typespec/http";
 import { getResourceOperation } from "@typespec/rest";
 import { execFile } from "child_process";
+import { getEncodedNameAttribute } from "./attributes.js";
 import {
   GeneratedFileHeader,
   GeneratedFileHeaderWithNullable,
@@ -70,7 +71,6 @@ import {
   BusinessLogicMethod,
   BusinessLogicRegistrations,
   getBusinessLogicImplementations,
-  getScaffoldingHelpers,
 } from "./scaffolding.js";
 import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
@@ -116,10 +116,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #useSwagger: boolean = context.options["use-swaggerui"] || false;
     #openapiPath: string = context.options["openapi-path"] || "openapi/openapi.yaml";
     #mockRegistrations: BusinessLogicRegistrations = new Map<string, BusinessLogicImplementation>();
-    #mockHelpers: LibrarySourceFile[] =
-      this.#emitMocks === "all"
-        ? getScaffoldingHelpers(this.emitter, this.#useSwagger, this.#openapiPath)
-        : [];
     #mockFiles: LibrarySourceFile[] = [];
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
@@ -379,15 +375,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
 
     modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
       if (isStatusCode(this.emitter.getProgram(), property)) return "";
-      const propertyName = ensureCSharpIdentifier(
-        this.emitter.getProgram(),
-        property,
-        property.name,
-      );
+      let propertyName = ensureCSharpIdentifier(this.emitter.getProgram(), property, property.name);
 
       const [typeName, typeDefault, nullable] = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
+      const modelName: string | undefined = this.emitter.getContext()["name"];
+      if (modelName === propertyName) {
+        propertyName = `${propertyName}Prop`;
+        attributes.push(
+          getEncodedNameAttribute(this.emitter.getProgram(), property, propertyName)!,
+        );
+      }
       // eslint-disable-next-line @typescript-eslint/no-deprecated
       const defaultValue = property.default
         ? // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -535,7 +534,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         const opImpl: BusinessLogicMethod = {
           methodName: `${opName}Async`,
           methodParams: `${getBusinessLogicDeclParameters(parameters)}`,
-          returnType: `${returnType.name === "void" ? "Task" : `Task<${returnType.getTypeReference(context.scope)}>`}`,
+          returnType: returnType,
+          returnTypeName: `${returnType.name === "void" ? "Task" : `Task<${returnType.getTypeReference(context.scope)}>`}`,
           instantiatedReturnType:
             returnType.name === "void"
               ? undefined
@@ -543,7 +543,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         };
         const opDecl: Declaration<string> = this.emitter.result.declaration(
           opName,
-          code`${doc ? `${formatComment(doc)}\n` : ""}${opImpl.returnType} ${opImpl.methodName}( ${opImpl.methodParams});`,
+          code`${doc ? `${formatComment(doc)}\n` : ""}${opImpl.returnTypeName} ${opImpl.methodName}( ${opImpl.methodParams});`,
         );
 
         mock.methods.push(opImpl);
@@ -885,6 +885,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       context.file.imports.set("System.Text.Json.Serialization", [
         "System.Text.Json.Serialization",
       ]);
+      context.file.imports.set("TypeSpec.Helpers.JsonConverters", [
+        "TypeSpec.Helpers.JsonConverters",
+      ]);
       return context;
     }
 
@@ -907,11 +910,18 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       operation: Operation,
       resource?: Model,
     ): ControllerContext {
+      name = ensureCSharpIdentifier(
+        this.emitter.getProgram(),
+        operation,
+        name,
+        NameCasingType.Class,
+      );
       let context: ControllerContext | undefined = controllers.get(name);
       if (context !== undefined) return context;
       const sourceFile: SourceFile<string> = this.emitter.createSourceFile(
         `controllers/${name}Controller.cs`,
       );
+
       const namespace = this.#getOrSetBaseNamespace(operation);
       const modelNamespace = `${namespace}.Models`;
       sourceFile.meta[this.#sourceTypeKey] = CSharpSourceType.Controller;
@@ -973,11 +983,6 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       for (const libFile of this.#libraryFiles) {
         if (sourceFile === libFile.source) return libFile.emitted;
       }
-      if (this.#emitMocks === "all") {
-        for (const helper of this.#mockHelpers) {
-          if (sourceFile === helper.source) return helper.emitted;
-        }
-      }
       if (this.#mockFiles.length > 0) {
         for (const mock of this.#mockFiles) {
           if (sourceFile === mock.source) return mock.emitted;
@@ -1013,7 +1018,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #emitControllerContents(file: SourceFile<string>): string {
       const namespace = file.meta.namespace;
       const contents: StringBuilder = new StringBuilder();
-      contents.push(`${this.#generatedFileHeader}\n\n`);
+      contents.push(`${this.#generatedFileHeaderWithNullable}\n\n`);
       contents.push(code`${this.#emitUsings(file)}\n`);
       contents.push("\n");
       contents.push(`namespace ${namespace}.Controllers\n`);
@@ -1091,12 +1096,13 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       }
 
       if (this.#emitMocks === "all") {
-        for (const helper of this.#mockHelpers) {
-          sourceFiles.push(helper.source);
-        }
-
         if (this.#mockRegistrations.size > 0) {
-          const mocks = getBusinessLogicImplementations(this.emitter, this.#mockRegistrations);
+          const mocks = getBusinessLogicImplementations(
+            this.emitter,
+            this.#mockRegistrations,
+            this.#useSwagger,
+            this.#openapiPath,
+          );
           this.#mockFiles.push(...mocks);
           sourceFiles.push(...mocks.flatMap((l) => l.source));
         }

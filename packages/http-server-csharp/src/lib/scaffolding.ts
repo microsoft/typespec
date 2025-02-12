@@ -1,6 +1,6 @@
 import { AssetEmitter, code } from "@typespec/compiler/emitter-framework";
 import { GeneratedFileHeaderWithNullable } from "./boilerplate.js";
-import { LibrarySourceFile } from "./interfaces.js";
+import { CSharpType, LibrarySourceFile } from "./interfaces.js";
 
 export interface BusinessLogicImplementation {
   namespace: string;
@@ -13,7 +13,8 @@ export interface BusinessLogicImplementation {
 export interface BusinessLogicMethod {
   methodName: string;
   methodParams: string;
-  returnType: string;
+  returnTypeName: string;
+  returnType: CSharpType;
   instantiatedReturnType?: string;
 }
 
@@ -24,32 +25,41 @@ export function getScaffoldingHelpers(
   emitter: AssetEmitter<string, Record<string, never>>,
   useSwagger: boolean,
   openApiPath: string,
+  hasMockRegistration: boolean,
 ): LibrarySourceFile[] {
-  const sourceFiles: LibrarySourceFile[] = [];
-  sourceFiles.push(
-    new LibrarySourceFile({
-      filename: "IInitializer.cs",
-      emitter: emitter,
-      getContents: getInitializerInterface,
-    }),
-    new LibrarySourceFile({
-      filename: "Initializer.cs",
-      emitter: emitter,
-      getContents: getInitializerImplementation,
-    }),
+  const sourceFiles: LibrarySourceFile[] = [
     new LibrarySourceFile({
       filename: "Program.cs",
       emitter: emitter,
-      getContents: () => getProjectStartup(useSwagger, openApiPath),
+      getContents: () => getProjectStartup(useSwagger, openApiPath, hasMockRegistration),
       path: "../",
     }),
-  );
+  ];
+  if (hasMockRegistration) {
+    sourceFiles.push(
+      new LibrarySourceFile({
+        filename: "IInitializer.cs",
+        emitter: emitter,
+        getContents: getInitializerInterface,
+        path: "../mocks/",
+      }),
+      new LibrarySourceFile({
+        filename: "Initializer.cs",
+        emitter: emitter,
+        getContents: getInitializerImplementation,
+        path: "../mocks/",
+      }),
+    );
+  }
+
   return sourceFiles;
 }
 
 export function getBusinessLogicImplementations(
   emitter: AssetEmitter<string, Record<string, never>>,
   registrations: BusinessLogicRegistrations,
+  useSwagger: boolean,
+  openApiPath: string,
 ): LibrarySourceFile[] {
   const sourceFiles: LibrarySourceFile[] = [];
   const mocks: BusinessLogicImplementation[] = [];
@@ -74,17 +84,35 @@ export function getBusinessLogicImplementations(
       }),
     );
   }
+  sourceFiles.push(...getScaffoldingHelpers(emitter, useSwagger, openApiPath, mocks.length > 0));
   return sourceFiles;
 }
 
+function getReturnStatement(returnType: CSharpType): string {
+  if (returnType.isValueType && returnType.isNullable) {
+    return `return Task.FromResult(_initializer.Initialize(typeof(${returnType.getTypeReference()})) as ${returnType.getTypeReference()} ?? default);`;
+  }
+  if (returnType.isValueType) {
+    return `return Task.FromResult(default);`;
+  }
+  if (returnType.name.endsWith("[]")) {
+    return `return Task.FromResult([]);`;
+  }
+  if (returnType.name === "string") {
+    return `return Task.FromResult("");`;
+  } else {
+    return `return Task.FromResult(_initializer.Initialize<${returnType.getTypeReference()}>());`;
+  }
+}
 function getBusinessLogicImplementation(iface: string, mock: BusinessLogicImplementation): string {
   const methods: string[] = [];
   for (const method of mock.methods) {
     const methodCode: string =
       method.instantiatedReturnType !== undefined
-        ? `return Task.FromResult(_initializer.Initialize<${method.instantiatedReturnType}>());`
-        : "return Task.CompletedTask;";
-    methods.push(`        public ${method.returnType} ${method.methodName}( ${method.methodParams})
+        ? getReturnStatement(method.returnType)
+        : //`return Task.FromResult(_initializer.Initialize<${method.instantiatedReturnType}>());`
+          "return Task.CompletedTask;";
+    methods.push(`        public ${method.returnTypeName} ${method.methodName}( ${method.methodParams})
         {
             ${methodCode}
         }`);
@@ -167,7 +195,7 @@ ${mocks.flatMap((m) => `            builder.Services.AddScoped<${m.interfaceName
 }`;
 }
 
-function getProjectStartup(useSwagger: boolean, openApiPath: string): string {
+function getProjectStartup(useSwagger: boolean, openApiPath: string, hasMocks: boolean): string {
   return `${GeneratedFileHeaderWithNullable}
 
 using TypeSpec.Helpers;
@@ -178,7 +206,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 ${useSwagger ? "builder.Services.AddSwaggerGen();" : ""}
-MockRegistration.Register(builder);
+${hasMocks ? "MockRegistration.Register(builder);" : ""}
 
 var app = builder.Build();
 

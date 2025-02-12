@@ -74,7 +74,7 @@ export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharp
   });
 
   const result = new CSharpType({
-    name: "Object",
+    name: "object",
     namespace: "System",
     isBuiltIn: true,
     isValueType: false,
@@ -575,6 +575,13 @@ export function getModelAttributes(
   return getAttributes(program, entity, cSharpName);
 }
 
+export function getModelDeclarationName(program: Program, model: Model, name: string) {
+  if (name !== null && name.length > 0) {
+    return ensureCSharpIdentifier(program, model, name, NameCasingType.Class);
+  }
+  return ensureCSharpIdentifier(program, model, "", NameCasingType.Class);
+}
+
 export function getModelInstantiationName(program: Program, model: Model, name: string): string {
   const friendlyName = getFriendlyName(program, model);
   if (friendlyName && friendlyName.length > 0) return friendlyName;
@@ -847,7 +854,7 @@ export function getBusinessLogicCallParameter(
   param: CSharpOperationParameter,
 ): EmitterOutput<string> {
   const builder: StringBuilder = new StringBuilder();
-  builder.push(code`${param.name}`);
+  builder.push(code`${param.callName}`);
   return builder.reduce();
 }
 
@@ -933,14 +940,16 @@ export function getCSharpOperationParameters(
     if (!canHaveDefault(program, parameter.param)) {
       paramValue = undefined;
     }
+    const paramName = ensureCSharpIdentifier(
+      program,
+      parameter.param,
+      parameter.param.name,
+      NameCasingType.Parameter,
+    );
     result.push({
       isExplicitBody: false,
-      name: ensureCSharpIdentifier(
-        program,
-        parameter.param,
-        parameter.param.name,
-        NameCasingType.Parameter,
-      ),
+      name: paramName,
+      callName: paramName,
       optional: false,
       typeName: paramType,
       defaultValue: paramValue,
@@ -965,6 +974,7 @@ export function getCSharpOperationParameters(
       isExplicitBody: true,
       httpParameterKind: "body",
       name: "body",
+      callName: "body",
       typeName: bodyType,
       nullable: isNullable,
       defaultValue: bodyValue,
@@ -974,21 +984,52 @@ export function getCSharpOperationParameters(
   } else if (bodyParam !== undefined) {
     switch (bodyParam.type.kind) {
       case "Model":
+        const [bodyType, _, __] = getTypeInfoForTsType(program, bodyParam.type, emitter);
+        const bodyName = ensureCSharpIdentifier(
+          program,
+          bodyParam.type,
+          "body",
+          NameCasingType.Parameter,
+        );
+        result.push({
+          isExplicitBody: false,
+          httpParameterKind: "body",
+          name: bodyName,
+          callName: bodyName,
+          typeName: bodyType,
+          nullable: false,
+          defaultValue: undefined,
+          optional: false,
+          operationKind: "Http",
+        });
         for (const [propName, propDef] of bodyParam.type.properties) {
           let [csType, csValue, isNullable] = getTypeInfoForTsType(program, propDef.type, emitter);
           // cSharp does not allow array defaults in operation parameters
           if (!canHaveDefault(program, propDef)) {
             csValue = undefined;
           }
+          const paramName = ensureCSharpIdentifier(
+            program,
+            propDef,
+            propName,
+            NameCasingType.Parameter,
+          );
+          const refName = ensureCSharpIdentifier(
+            program,
+            propDef,
+            propName,
+            NameCasingType.Property,
+          );
           result.push({
             isExplicitBody: false,
             httpParameterKind: "body",
-            name: ensureCSharpIdentifier(program, propDef, propName, NameCasingType.Parameter),
+            name: paramName,
+            callName: `body.${refName}`,
             typeName: csType,
             nullable: isNullable,
             defaultValue: csValue,
             optional: propDef.optional,
-            operationKind: "All",
+            operationKind: "BusinessLogic",
           });
         }
         break;
@@ -1002,15 +1043,17 @@ export function getCSharpOperationParameters(
           if (!canHaveDefault(program, bodyParam.type)) {
             csValue = undefined;
           }
+          const optName = ensureCSharpIdentifier(
+            program,
+            bodyParam.type.type,
+            bodyParam.type.name,
+            NameCasingType.Parameter,
+          );
           result.push({
             isExplicitBody: true,
             httpParameterKind: "body",
-            name: ensureCSharpIdentifier(
-              program,
-              bodyParam.type.type,
-              bodyParam.type.name,
-              NameCasingType.Parameter,
-            ),
+            name: optName,
+            callName: optName,
             typeName: csType,
             nullable: isNullable,
             defaultValue: csValue,
@@ -1028,6 +1071,7 @@ export function getCSharpOperationParameters(
           isExplicitBody: true,
           httpParameterKind: "body",
           name: "body",
+          callName: "body",
           typeName: csType,
           nullable: isNullable,
           defaultValue: csValue,
@@ -1044,14 +1088,16 @@ export function getCSharpOperationParameters(
       parameter.param.type,
       emitter,
     );
+    const optName = ensureCSharpIdentifier(
+      program,
+      parameter.param,
+      parameter.param.name,
+      NameCasingType.Parameter,
+    );
     result.push({
       isExplicitBody: false,
-      name: ensureCSharpIdentifier(
-        program,
-        parameter.param,
-        parameter.param.name,
-        NameCasingType.Parameter,
-      ),
+      name: optName,
+      callName: optName,
       optional: true,
       typeName: paramType,
       defaultValue: paramValue,
@@ -1167,6 +1213,7 @@ export function getExplicitBodyParameters(
     return [
       {
         name: "reader",
+        callName: "reader",
         nullable: false,
         optional: false,
         typeName: "MultipartReader",
@@ -1223,6 +1270,7 @@ export function coalesceTsTypes(program: Program, types: Type[]): [CSharpType, b
     new CSharpType({
       name: "object",
       namespace: "System",
+      isBuiltIn: true,
       isValueType: false,
     }),
     true,
