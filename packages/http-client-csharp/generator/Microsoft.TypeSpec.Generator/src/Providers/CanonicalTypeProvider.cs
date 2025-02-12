@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => _generatedTypeProvider.Name;
 
-        protected override string BuildNamespace() => _generatedTypeProvider.Namespace;
+        protected override string BuildNamespace() => _generatedTypeProvider.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 

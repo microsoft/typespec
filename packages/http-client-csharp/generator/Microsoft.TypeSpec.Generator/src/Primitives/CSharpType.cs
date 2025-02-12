@@ -180,7 +180,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             _underlyingType = underlyingEnumType;
         }
 
-        public string Namespace { get; private init; }
+        public string Namespace { get; set; }
         public string Name { get; private init; }
         public CSharpType? DeclaringType { get; private init; }
         public bool IsValueType { get; private init; }
