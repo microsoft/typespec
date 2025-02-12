@@ -37,6 +37,8 @@ namespace Microsoft.TypeSpec.Generator
         private HashSet<string>? _unionTypes;
         internal HashSet<string> UnionTypes => _unionTypes ??= [];
 
+        internal Lazy<ModelFactoryProvider> ModelFactory { get; } = new(() => new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models));
+
         protected internal TypeFactory()
         {
         }

@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator
 
         private static TypeProvider[] BuildModelFactory()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var modelFactory = CodeModelPlugin.Instance.TypeFactory.ModelFactory.Value;
             return modelFactory.Methods.Count > 0 ? [modelFactory] : [];
         }
     }

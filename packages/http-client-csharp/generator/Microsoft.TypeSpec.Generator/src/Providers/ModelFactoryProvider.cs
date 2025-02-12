@@ -21,10 +21,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly IEnumerable<InputModelType> _models;
 
-        private static ModelFactoryProvider? _modelFactoryProvider;
-        public static ModelFactoryProvider FromInputLibrary() => _modelFactoryProvider ??= new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
+        //private static ModelFactoryProvider? _modelFactoryProvider;
+        //public static ModelFactoryProvider FromInputLibrary() => _modelFactoryProvider ??= new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
 
-        private ModelFactoryProvider(IEnumerable<InputModelType> models)
+        internal ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
         }
