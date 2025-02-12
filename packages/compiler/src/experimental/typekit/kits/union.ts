@@ -4,7 +4,11 @@ import { createRekeyableMap } from "../../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
-interface UnionDescriptor {
+/**
+ * A descriptor for a union type.
+ * @experimental
+ */
+export interface UnionDescriptor {
   /**
    * The name of the union. If name is provided, it is a union declaration.
    * Otherwise, it is a union expression.
@@ -28,36 +32,47 @@ interface UnionDescriptor {
  * @experimental
  */
 export interface UnionKit {
-  /**
-   * Create a union type.
-   *
-   * @param desc The descriptor of the union.
-   */
-  create(desc: UnionDescriptor): Union;
+    /**
+     * Creates a union type with filtered variants.
+     * @param filterFn Function to filter the union variants
+     */
+    filter(union: Union, filterFn: (variant: UnionVariant) => boolean): Union;
+    /**
+     * Create a union type.
+     *
+     * @param desc The descriptor of the union.
+     */
+    create(desc: UnionDescriptor): Union;
 
-  /**
-   * Check if the given `type` is a union.
-   *
-   * @param type The type to check.
-   */
-  is(type: Type): type is Union;
+    /**
+     * Check if the given `type` is a union.
+     *
+     * @param type The type to check.
+     */
+    is(type: Type): type is Union;
 
-  /**
-   * Check if the union is a valid enum. Specifically, this checks if the
-   * union has a name (since there are no enum expressions), and whether each
-   * of the variant types is a valid enum member value.
-   *
-   * @param type The union to check.
-   */
-  isValidEnum(type: Union): boolean;
+    /**
+     * Check if the union is a valid enum. Specifically, this checks if the
+     * union has a name (since there are no enum expressions), and whether each
+     * of the variant types is a valid enum member value.
+     *
+     * @param type The union to check.
+     */
+    isValidEnum(type: Union): boolean;
 
-  /**
-   * Check if a union is extensible. Extensible unions are unions which contain a variant
-   * that is a supertype of all the other types. This means that the subtypes of the common
-   * supertype are known example values, but others may be present.
-   * @param type The union to check.
-   */
-  isExtensible(type: Union): boolean;
+    /**
+     * Check if a union is extensible. Extensible unions are unions which contain a variant
+     * that is a supertype of all the other types. This means that the subtypes of the common
+     * supertype are known example values, but others may be present.
+     * @param type The union to check.
+     */
+    isExtensible(type: Union): boolean;
+
+    /**
+     * Checks if an union is an expression (anonymous) or declared.
+     * @param type Uniton to check if it is an expression
+     */
+    isExpression(type: Union): boolean;
 }
 
 interface TypekitExtension {
@@ -74,6 +89,10 @@ declare module "../define-kit.js" {
 
 export const UnionKit = defineKit<TypekitExtension>({
   union: {
+    filter(union, filterFn) {
+      const variants = Array.from(union.variants.values()).filter(filterFn);
+      return this.union.create({ variants });
+    },
     create(desc) {
       const union: Union = this.program.checker.createType({
         kind: "Union",
@@ -148,6 +167,10 @@ export const UnionKit = defineKit<TypekitExtension>({
       }
 
       return false;
+    },
+
+    isExpression(type) {
+      return type.name === undefined || type.name === "";
     },
   },
 });
