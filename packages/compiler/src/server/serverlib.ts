@@ -522,7 +522,7 @@ export function createServer(host: ServerHost): Server {
 
     const markdown: MarkupContent = {
       kind: MarkupKind.Markdown,
-      value: sym ? getSymbolDetails(program, sym) : "",
+      value: sym ? getSymbolDetails(program, sym[0]) : "",
     };
     return {
       contents: markdown,
@@ -562,7 +562,10 @@ export function createServer(host: ServerHost): Server {
     const sym = program.checker.resolveIdentifier(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
-    const templateDeclNode = sym?.declarations[0];
+    if (!sym) {
+      return undefined;
+    }
+    const templateDeclNode = sym[0].declarations[0];
     if (
       !templateDeclNode ||
       !("templateParameters" in templateDeclNode) ||
@@ -584,7 +587,7 @@ export function createServer(host: ServerHost): Server {
     const help: SignatureHelp = {
       signatures: [
         {
-          label: `${sym.name}<${parameters.map((x) => x.label).join(", ")}>`,
+          label: `${sym[0].name}<${parameters.map((x) => x.label).join(", ")}>`,
           parameters,
           activeParameter: Math.min(parameters.length - 1, argumentIndex),
         },
@@ -593,7 +596,7 @@ export function createServer(host: ServerHost): Server {
       activeParameter: 0,
     };
 
-    const doc = getSymbolDetails(program, sym, {
+    const doc = getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
     });
@@ -616,7 +619,7 @@ export function createServer(host: ServerHost): Server {
       return undefined;
     }
 
-    const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined = sym.declarations.find(
+    const decoratorDeclNode: DecoratorDeclarationStatementNode | undefined = sym[0].declarations.find(
       (x): x is DecoratorDeclarationStatementNode =>
         x.kind === SyntaxKind.DecoratorDeclarationStatement,
     );
@@ -670,7 +673,7 @@ export function createServer(host: ServerHost): Server {
       activeParameter: 0,
     };
 
-    const doc = getSymbolDetails(program, sym, {
+    const doc = getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
     });
@@ -746,7 +749,7 @@ export function createServer(host: ServerHost): Server {
     switch (node?.kind) {
       case SyntaxKind.Identifier:
         const sym = result.program.checker.resolveIdentifier(node);
-        return getLocations(sym?.declarations);
+        return getLocations(sym?sym[0].declarations:undefined);
       case SyntaxKind.StringLiteral:
         if (node.parent?.kind === SyntaxKind.ImportStatement) {
           return [await getImportLocation(node.value, result.script)];
@@ -894,7 +897,7 @@ export function createServer(host: ServerHost): Server {
       visitChildren(searchFile, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
           const s = program.checker.resolveIdentifier(node);
-          if (s === sym || (sym.type && s?.type === sym.type)) {
+          if ( s === sym || (sym[0].type && s && s[0].type === sym[0].type)) {
             references.push(node);
           }
         }

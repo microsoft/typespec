@@ -222,7 +222,7 @@ export interface Checker {
     projection: ProjectionNode,
     args?: (Type | string | number | boolean)[],
   ): Type;
-  resolveIdentifier(node: IdentifierNode): Sym | undefined;
+  resolveIdentifier(node: IdentifierNode): Sym[] | undefined;
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
   createType<T extends Type extends any ? CreateTypeProps : never>(
     typeDef: T,
@@ -2541,7 +2541,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return resolver.getSymbolLinks(s);
   }
 
-  function resolveIdentifier(id: IdentifierNode, mapper?: TypeMapper): Sym | undefined {
+  function resolveIdentifier(id: IdentifierNode, mapper?: TypeMapper): Sym[] | undefined {
     let sym: Sym | undefined;
     const { node, kind } = getIdentifierContext(id);
 
@@ -2558,7 +2558,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case IdentifierKind.ModelStatementProperty:
       case IdentifierKind.Declaration:
         const links = resolver.getNodeLinks(id);
-        return links.resolvedSymbol;
+        return links.resolvedSymbol === undefined ? undefined : [links.resolvedSymbol];
       case IdentifierKind.Other:
         return undefined;
 
@@ -2597,7 +2597,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         compilerAssert(false, "Unreachable");
     }
 
-    return sym?.symbolSource ?? sym;
+    if (sym) {
+      if (sym.symbolSource) {
+        return [sym.symbolSource];
+      } else {
+        return [sym];
+      }
+    }
+    return undefined; //sym?.symbolSource ?? sym;
   }
 
   function getTemplateDeclarationsForArgument(
@@ -2852,7 +2859,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return undefined;
       }
 
-      const decDecl: DecoratorDeclarationStatementNode | undefined = decSym.declarations.find(
+      const decDecl: DecoratorDeclarationStatementNode | undefined = decSym[0].declarations.find(
         (x): x is DecoratorDeclarationStatementNode =>
           x.kind === SyntaxKind.DecoratorDeclarationStatement,
       );
