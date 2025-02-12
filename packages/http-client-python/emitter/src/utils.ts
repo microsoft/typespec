@@ -10,6 +10,7 @@ import {
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName } from "@typespec/compiler";
+import { marked, Token } from "marked";
 import { PythonSdkContext } from "./lib.js";
 import { getSimpleTypeResult, getType } from "./types.js";
 
@@ -231,4 +232,55 @@ export function getClientNamespace<TServiceOperation extends SdkServiceOperation
   return clientNamespace === ""
     ? rootNamespace
     : removeUnderscoresFromNamespace(clientNamespace).toLowerCase();
+}
+
+function parseToken(token: Token): string {
+  let parsed = "";
+  switch (token.type) {
+    case "heading":
+      parsed += `${"=".repeat(token.text.length)}\n${token.text}\n${"=".repeat(
+        token.text.length,
+      )}\n\n`;
+      break;
+    case "paragraph":
+      parsed += `${token.text}\n\n`;
+      break;
+    case "strong":
+      parsed += `**${token.text}**`;
+      break;
+    case "em":
+      parsed += `*${token.text}*`;
+      break;
+    case "codespan":
+      parsed += `\`\`${token.text}\`\``;
+      break;
+    case "code":
+      parsed += `\n.. code-block::\n\n  ${token.text.split("\n").join("\n  ")}\n\n`;
+      break;
+    default:
+      parsed += token.raw;
+  }
+  return parsed;
+}
+
+export function md2Rst(text: string): string {
+  const tokens = marked.lexer(text);
+  let rst = "";
+
+  tokens.forEach((token: Token) => {
+    if (token.type === "heading") {
+      const parsedHeadingText = md2Rst(token.text);
+      rst += `${"=".repeat(
+        parsedHeadingText.length,
+      )}\n${parsedHeadingText}\n${"=".repeat(parsedHeadingText.length)}\n\n`;
+    } else if ("tokens" in token && token.tokens !== undefined && token.tokens.length > 0) {
+      token.tokens.forEach((element) => {
+        rst += parseToken(element);
+      });
+    } else {
+      rst += parseToken(token);
+    }
+  });
+
+  return rst;
 }

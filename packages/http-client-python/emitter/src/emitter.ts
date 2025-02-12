@@ -14,8 +14,7 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
-import { removeUnderscoresFromNamespace } from "./utils.js";
-
+import { md2Rst, removeUnderscoresFromNamespace } from "./utils.js";
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
   if (specifiedModelsMode) {
@@ -72,6 +71,17 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
     )),
     __endpointPathParameters: [],
   };
+}
+
+function walkThroughNodes(yamlMap: Record<string, any>) {
+  for (const key in yamlMap) {
+    if (key === "description" || key === "summary") {
+      yamlMap[key] = md2Rst(yamlMap[key]);
+    } else if (yamlMap[key] !== undefined && typeof yamlMap[key] === "object") {
+      yamlMap[key] = walkThroughNodes(yamlMap[key]);
+    }
+  }
+  return yamlMap;
 }
 
 export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
@@ -154,9 +164,7 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
         async def main():
           import warnings
           with warnings.catch_warnings():
-            warnings.simplefilter("ignore", SyntaxWarning) # bc of m2r2 dep issues
-            from pygen import m2r, preprocess, codegen, black
-          m2r.M2R(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
+            from pygen import preprocess, codegen, black
           preprocess.PreProcessPlugin(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
           codegen.CodeGenerator(output_folder=outputFolder, cadl_file=yamlFile, **commandArgs).process()
           black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
