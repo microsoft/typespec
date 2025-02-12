@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -15,6 +16,8 @@ namespace Microsoft.TypeSpec.Generator
             get => _typeProviders ??= BuildTypeProviders();
             internal set => _typeProviders = value;
         }
+
+        internal Lazy<ModelFactoryProvider> ModelFactory { get; } = new(() => new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models));
 
         private static TypeProvider[] BuildEnums()
         {
@@ -79,9 +82,9 @@ namespace Microsoft.TypeSpec.Generator
             ];
         }
 
-        private static TypeProvider[] BuildModelFactory()
+        private TypeProvider[] BuildModelFactory()
         {
-            var modelFactory = CodeModelPlugin.Instance.TypeFactory.ModelFactory.Value;
+            var modelFactory = ModelFactory.Value;
             return modelFactory.Methods.Count > 0 ? [modelFactory] : [];
         }
     }
