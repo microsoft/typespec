@@ -107,7 +107,7 @@ venv.bak/
 .mypy_cache/
 node_modules/
 package-lock.json
-report.xml 
+report.xml
 *.tgz
 
 # Logs
@@ -200,7 +200,6 @@ developer/
 *.vsix
 *.zip
 vite.config.ts.timestamp-*
-
 
 # Astro
 .astro/

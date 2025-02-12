@@ -1,20 +1,25 @@
+// Ensure that the mock is applied before the import of the module containing the execAsync function.
+vi.mock("../../src/lib/utils.js", () => ({
+  execAsync: vi.fn(),
+}));
+
 import { Program } from "@typespec/compiler";
 import { TestHost } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
-import { SpawnOptions } from "child_process";
-import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
-import { validateDotNetSdk } from "../../src/emitter.js";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { _validateDotNetSdk } from "../../src/emitter.js";
 import { execAsync } from "../../src/lib/utils.js";
-import { createEmitterTestHost, typeSpecCompile } from "./utils/test-util.js";
+import {
+  createEmitterContext,
+  createEmitterTestHost,
+  createNetSdkContext,
+  typeSpecCompile,
+} from "./utils/test-util.js";
 
-describe("Test validateDotNetSdk", () => {
+describe("Test _validateDotNetSdk", () => {
   let runner: TestHost;
   let program: Program;
   const minVersion = 8;
-
-  vi.mock("../../src/lib/utils.js", () => ({
-    execAsync: vi.fn(),
-  }));
 
   beforeEach(async () => {
     runner = await createEmitterTestHost();
@@ -28,10 +33,7 @@ describe("Test validateDotNetSdk", () => {
       `,
       runner,
     );
-  });
-
-  afterEach(() => {
-    // Restore all mocks after each test
+    // Restore all mocks before each test
     vi.restoreAllMocks();
   });
 
@@ -39,8 +41,10 @@ describe("Test validateDotNetSdk", () => {
     /* mock the scenario that dotnet SDK is not installed, so execAsync will throw exception with error ENOENT */
     const error: any = new Error("ENOENT: no such file or directory");
     error.code = "ENOENT";
-    (execAsync as Mock).mockRejectedValue(error);
-    const result = await validateDotNetSdk(program, minVersion);
+    (execAsync as Mock).mockRejectedValueOnce(error);
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(
@@ -55,14 +59,16 @@ describe("Test validateDotNetSdk", () => {
 
   it("should return true for installed SDK version whose major equals min supported version", async () => {
     /* mock the scenario that the installed SDK version whose major equals min supported version */
-    (execAsync as Mock).mockResolvedValue({
+    (execAsync as Mock).mockResolvedValueOnce({
       exitCode: 0,
       stdio: "",
       stdout: "8.0.204",
       stderr: "",
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
-    const result = await validateDotNetSdk(program, minVersion);
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
     strictEqual(program.diagnostics.length, 0);
@@ -70,18 +76,16 @@ describe("Test validateDotNetSdk", () => {
 
   it("should return true for installed SDK version whose major greaters than min supported version", async () => {
     /* mock the scenario that the installed SDK version whose major greater than min supported version */
-    (execAsync as Mock).mockImplementation(
-      (command: string, args: string[] = [], options: SpawnOptions = {}) => {
-        return {
-          exitCode: 0,
-          stdio: "",
-          stdout: "9.0.102",
-          stderr: "",
-          proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
-        };
-      },
-    );
-    const result = await validateDotNetSdk(program, minVersion);
+    (execAsync as Mock).mockResolvedValueOnce({
+      exitCode: 0,
+      stdio: "",
+      stdout: "9.0.102",
+      stderr: "",
+      proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
+    });
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(true);
     /* no diagnostics */
     strictEqual(program.diagnostics.length, 0);
@@ -89,14 +93,16 @@ describe("Test validateDotNetSdk", () => {
 
   it("should return false and report diagnostic for invalid .NET SDK version", async () => {
     /* mock the scenario that the installed SDK version whose major less than min supported version */
-    (execAsync as Mock).mockResolvedValue({
+    (execAsync as Mock).mockResolvedValueOnce({
       exitCode: 0,
       stdio: "",
       stdout: "5.0.408",
       stderr: "",
       proc: { pid: 0, output: "", stdout: "", stderr: "", stdin: "" },
     });
-    const result = await validateDotNetSdk(program, minVersion);
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const result = await _validateDotNetSdk(sdkContext, minVersion);
     expect(result).toBe(false);
     strictEqual(program.diagnostics.length, 1);
     strictEqual(

@@ -1,5 +1,6 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
+  SdkBodyModelPropertyType,
   SdkDurationType,
   SdkModelType,
   SdkType,
@@ -46,6 +47,9 @@ export class ProcessingCache<In, Out> {
     this.results.set(original, result);
     return result;
   }
+  get(original: In) {
+    return this.results.get(original);
+  }
   process(original: In | undefined, ...args: Array<any>): Out | undefined {
     if (original) {
       const result: Out = this.results.get(original) || this.transform(original, ...args);
@@ -54,10 +58,6 @@ export class ProcessingCache<In, Out> {
     }
     return undefined;
   }
-}
-
-export function isStable(version: string): boolean {
-  return !version.toLowerCase().includes("preview");
 }
 
 /** adds only if the item is not in the collection already
@@ -339,6 +339,15 @@ export function isArmCommonType(entity: Type): boolean {
     );
   }
   return false;
+}
+
+export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
+  // TODO: remove the "property.serializedName" after bug https://github.com/microsoft/typespec/pull/5702 is fixed
+  return (
+    property.serializationOptions.json?.name ??
+    property.serializationOptions.multipart?.name ??
+    property.serializedName
+  );
 }
 
 function getDecoratorScopedValue<T>(

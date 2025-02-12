@@ -19,12 +19,6 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`No Route for service for service ${"service"}`,
       },
     },
-    "invalid-name": {
-      severity: "warning",
-      messages: {
-        default: paramMessage`Invalid interface or operation group name ${"name"} when configuration "model-namespace" is on`,
-      },
-    },
     "general-warning": {
       severity: "warning",
       messages: {
@@ -58,10 +52,56 @@ const $lib = createTypeSpecLibrary({
         default: paramMessage`${"message"}`,
       },
     },
+    "client-namespace-conflict": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`namespace ${"clientNamespace"} conflicts with client ${"clientName"}, please use @clientName to specify a different name for the client.`,
+      },
+    },
+    "unsupported-endpoint-url": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unsupported server endpoint URL: ${"endpoint"}`,
+      },
+    },
+    "unsupported-sdk-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unsupported SDK type: ${"sdkType"}.`,
+      },
+    },
+    "unsupported-default-value-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Unsupported default value type: ${"valueType"}.`,
+      },
+    },
+    "unsupported-cookie-parameter": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Cookie parameter is not supported: ${"parameterName"}, found in operation ${"path"}`,
+      },
+    },
   },
   emitter: {
     options: NetEmitterOptionsSchema,
   },
 });
 
-export const { reportDiagnostic, createDiagnostic, getTracer } = $lib;
+/**
+ * Reports a diagnostic. Defined in the core compiler.
+ * @beta
+ */
+export const reportDiagnostic = $lib.reportDiagnostic;
+
+/**
+ * Creates a diagnostic. Defined in the core compiler.
+ * @beta
+ */
+export const createDiagnostic = $lib.createDiagnostic;
+
+/**
+ * Gets a tracer. Defined in the core compiler.
+ * @beta
+ */
+export const getTracer = $lib.getTracer;

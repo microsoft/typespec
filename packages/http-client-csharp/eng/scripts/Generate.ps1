@@ -39,7 +39,7 @@ if (-not $LaunchOnly) {
 
 $specsDirectory = "$packageRoot/node_modules/@typespec/http-specs"
 $azureSpecsDirectory = "$packageRoot/node_modules/@azure-tools/azure-http-specs"
-$cadlRanchRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'CadlRanch'
+$spectorRoot = Join-Path $packageRoot 'generator' 'TestProjects' 'Spector'
 
 function IsSpecDir {
     param (
@@ -54,10 +54,10 @@ $failingSpecs = @(
     Join-Path 'http' 'payload' 'xml'
     Join-Path 'http' 'type' 'model' 'flatten'
     Join-Path 'http' 'type' 'model' 'templated'
+    Join-Path 'http' 'client' 'naming' # pending until https://github.com/microsoft/typespec/issues/5653 is resolved
 )
 
 $azureAllowSpecs = @(
-    Join-Path 'http' 'client' 'naming'
     Join-Path 'http' 'client' 'structure' 'client-operation-group'
     Join-Path 'http' 'client' 'structure' 'default'
     Join-Path 'http' 'client' 'structure' 'multi-client'
@@ -66,9 +66,9 @@ $azureAllowSpecs = @(
     Join-Path 'http' 'resiliency' 'srv-driven'
 )
 
-$cadlRanchLaunchProjects = @{}
+$spectorLaunchProjects = @{}
 
-# Loop through all directories and subdirectories of the cadl ranch specs
+# Loop through all directories and subdirectories of the Spector specs
 $directories = @(Get-ChildItem -Path "$specsDirectory/specs" -Directory -Recurse)
 $directories += @(Get-ChildItem -Path "$azureSpecsDirectory/specs" -Directory -Recurse)
 foreach ($directory in $directories) {
@@ -99,7 +99,7 @@ foreach ($directory in $directories) {
         continue
     }
 
-    $generationDir = $cadlRanchRoot
+    $generationDir = $spectorRoot
     foreach ($folder in $folders) {
         $generationDir = Join-Path $generationDir $folder
     }
@@ -110,21 +110,22 @@ foreach ($directory in $directories) {
     }
     
     if ($folders.Contains("versioning")) {
+        Write-Host "Generating versioning for $subPath" -ForegroundColor Cyan
         Generate-Versioning $directory.FullName $generationDir -generateStub $stubbed
-        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
-        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
+        $spectorLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
+        $spectorLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
         continue
     }
 
     # srv-driven contains two separate specs, for two separate clients. We need to generate both.
     if ($folders.Contains("srv-driven")) {
         Generate-Srv-Driven $directory.FullName $generationDir -generateStub $stubbed
-        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
-        $cadlRanchLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
+        $spectorLaunchProjects.Add($($folders -join "-") + "-v1", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v1")
+        $spectorLaunchProjects.Add($($folders -join "-") + "-v2", $("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))") + "/v2")
         continue
     }
 
-    $cadlRanchLaunchProjects.Add(($folders -join "-"), ("TestProjects/CadlRanch/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
+    $spectorLaunchProjects.Add(($folders -join "-"), ("TestProjects/Spector/$($subPath.Replace([System.IO.Path]::DirectorySeparatorChar, '/'))"))
     if ($LaunchOnly) {
         continue
     }
@@ -143,8 +144,8 @@ foreach ($directory in $directories) {
 # only write new launch settings if no filter was passed in
 if ($null -eq $filter) {
     Write-Host "Writing new launch settings" -ForegroundColor Cyan
-    $mgcExe = "`$(SolutionDir)/../dist/generator/Microsoft.Generator.CSharp.exe"
-    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.Generator.CSharp.exe"
+    $mtgExe = "`$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    $sampleExe = "`$(SolutionDir)/../generator/artifacts/bin/SamplePlugin/Debug/net8.0/Microsoft.TypeSpec.Generator.exe"
     $unbrandedSpec = "TestProjects/Local/Unbranded-TypeSpec"
     $unbrandedPluginSpec = "TestProjects/Plugin/Unbranded-TypeSpec"
 
@@ -153,17 +154,17 @@ if ($null -eq $filter) {
     $launchSettings["profiles"].Add("Unbranded-TypeSpec", @{})
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedSpec -p ClientModelPlugin")
     $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("commandName", "Executable")
-    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mgcExe)
+    $launchSettings["profiles"]["Unbranded-TypeSpec"].Add("executablePath", $mtgExe)
     $launchSettings["profiles"].Add("Debug-Plugin-Test-TypeSpec", @{})
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandLineArgs", "`$(SolutionDir)/$unbrandedPluginSpec -p SampleCodeModelPlugin")
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("commandName", "Executable")
     $launchSettings["profiles"]["Debug-Plugin-Test-TypeSpec"].Add("executablePath", $sampleExe)
 
-    foreach ($kvp in $cadlRanchLaunchProjects.GetEnumerator()) {
+    foreach ($kvp in $spectorLaunchProjects.GetEnumerator()) {
         $launchSettings["profiles"].Add($kvp.Key, @{})
         $launchSettings["profiles"][$kvp.Key].Add("commandLineArgs", "`$(SolutionDir)/$($kvp.Value) -p StubLibraryPlugin")
         $launchSettings["profiles"][$kvp.Key].Add("commandName", "Executable")
-        $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mgcExe)
+        $launchSettings["profiles"][$kvp.Key].Add("executablePath", $mtgExe)
     }
 
     $sortedLaunchSettings = @{}
@@ -183,7 +184,7 @@ if ($null -eq $filter) {
     }
 
     # Write the launch settings to the launchSettings.json file
-    $launchSettingsPath = Join-Path $solutionDir "Microsoft.Generator.CSharp" "src" "Properties" "launchSettings.json"
+    $launchSettingsPath = Join-Path $solutionDir "Microsoft.TypeSpec.Generator" "src" "Properties" "launchSettings.json"
     # Write the settings to JSON and normalize line endings to Unix style (LF)
-    $sortedLaunchSettings | ConvertTo-Json | ForEach-Object { $_ -replace "`r`n", "`n" } | Set-Content $launchSettingsPath
+    $sortedLaunchSettings | ConvertTo-Json | ForEach-Object { ($_ -replace "`r`n", "`n") + "`n" } | Set-Content -NoNewLine $launchSettingsPath
 }

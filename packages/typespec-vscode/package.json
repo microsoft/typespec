@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.64.0",
+  "version": "0.65.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -77,7 +77,7 @@
           "typespec.initTemplatesUrls": {
             "type": "array",
             "default": [],
-            "description": "List of URLs to fetch templates from when creating a new project.",
+            "description": "List of URLs to fetch templates from when creating a new project.\n\nExample:\n\"typespec.initTemplatesUrls\": [{\n\"name\": \"displayName\",\n\"url\": \"https://urlToTheFileContainsTemplates\"\n}],",
             "scope": "machine-overridable",
             "items": {
               "type": "object",
@@ -115,8 +115,16 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "typespec.importFromOpenApi3",
-          "group": "typespec@1"
+          "command": "typespec.generateCode",
+          "when": "explorerResourceIsFolder || resourceLangId == typespec",
+          "group": "code_generation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "typespec.generateCode",
+          "when": "resourceLangId == typespec",
+          "group": "code_generation"
         }
       ]
     },
@@ -170,22 +178,6 @@
         "category": "TypeSpec"
       }
     ],
-    "menus": {
-      "explorer/context": [
-        {
-          "command": "typespec.generateCode",
-          "when": "explorerResourceIsFolder || resourceLangId == typespec",
-          "group": "code_generation"
-        }
-      ],
-      "editor/context": [
-        {
-          "command": "typespec.generateCode",
-          "when": "resourceLangId == typespec",
-          "group": "code_generation"
-        }
-      ]
-    },
     "semanticTokenScopes": [
       {
         "scopes": {
@@ -247,14 +239,14 @@
     "@rollup/plugin-node-resolve": "~16.0.0",
     "@rollup/plugin-typescript": "~12.1.0",
     "@types/mocha": "^10.0.9",
-    "@types/node": "~22.10.7",
+    "@types/node": "~22.10.10",
     "@types/vscode": "~1.96.0",
     "@types/semver": "^7.5.8",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^3.0.3",
+    "@vitest/coverage-v8": "^3.0.4",
     "@vitest/ui": "^3.0.3",
-    "@vscode/test-web": "^0.0.62",
+    "@vscode/test-web": "^0.0.65",
     "@vscode/vsce": "~3.2.1",
     "c8": "^10.1.3",
     "mocha": "^11.1.0",
@@ -262,7 +254,7 @@
     "rollup": "~4.31.0",
     "semver": "^7.6.3",
     "typescript": "~5.7.3",
-    "vitest": "^3.0.3",
+    "vitest": "^3.0.5",
     "vscode-languageclient": "~9.0.1",
     "yaml": "~2.7.0"
   }

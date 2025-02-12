@@ -14,12 +14,12 @@ import {
   getQueryParamName,
   isStatusCode,
 } from "@typespec/http";
+import { CSharpEmitterContext } from "../emitter.js";
 import { NetEmitterOptions } from "../options.js";
 import { InputType } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
 import { SdkTypeMap } from "../type/sdk-type-map.js";
-import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./converter.js";
-import { Logger } from "./logger.js";
+import { fromSdkEnumType, fromSdkModelType, fromSdkType } from "./type-converter.js";
 
 /**
  * If type is an anonymous model, tries to find a named model that has the same
@@ -72,13 +72,13 @@ export function getDefaultValue(type: Type): any {
 }
 
 export function getInputType(
-  context: SdkContext<NetEmitterOptions>,
+  context: CSharpEmitterContext,
   type: Type,
   typeCache: SdkTypeMap,
   operation?: Operation,
   literalTypeContext?: LiteralTypeContext,
 ): InputType {
-  Logger.getInstance().debug(`getInputType for kind: ${type.kind}`);
+  context.logger.debug(`getInputType for kind: ${type.kind}`);
 
   const sdkType = getClientType(context, type, operation);
   return fromSdkType(sdkType, context, typeCache, literalTypeContext);

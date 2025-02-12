@@ -1,0 +1,40 @@
+parameters:
+  path: ""
+  pattern: "**/*.zip"
+  BundleId: "com.microsoft.typespec"
+
+steps:
+  - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
+    parameters:
+      displayName: Sign
+      path: ${{ parameters.path }}
+      pattern: ${{ parameters.pattern }}
+      inlineOperation: |
+        [
+          {
+            "KeyCode": "CP-401337-Apple",
+            "OperationCode": "MacAppDeveloperSign",
+            "Parameters": {
+              "Hardening": "--options=runtime"
+            },
+            "ToolName": "sign",
+            "ToolVersion": "1.0"
+          }
+        ]
+  - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
+    parameters:
+      displayName: Notarize
+      path: ${{ parameters.path }}
+      pattern: ${{ parameters.pattern }}
+      inlineOperation: |
+        [
+          {
+            "KeyCode": "CP-401337-Apple",
+            "OperationCode": "MacAppNotarize",
+            "Parameters": {
+              "BundleId": "${{ parameters.BundleId }}"
+            },
+            "ToolName": "sign",
+            "ToolVersion": "1.0"
+          }
+        ]

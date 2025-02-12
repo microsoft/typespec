@@ -27,7 +27,7 @@ const EmitterOptionsSchema: JSONSchemaType<JsEmitterOptions> = {
 };
 
 export const $lib = createTypeSpecLibrary({
-  name: "tsp-js",
+  name: "@typespec/http-server-javascript",
   requireImports: [],
   emitter: {
     options: EmitterOptionsSchema,
