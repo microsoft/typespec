@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.64.0",
+  "version": "0.65.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -254,7 +254,7 @@
     "rollup": "~4.31.0",
     "semver": "^7.6.3",
     "typescript": "~5.7.3",
-    "vitest": "^3.0.4",
+    "vitest": "^3.0.5",
     "vscode-languageclient": "~9.0.1",
     "yaml": "~2.7.0"
   }

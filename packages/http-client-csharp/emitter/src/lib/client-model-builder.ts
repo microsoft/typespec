@@ -3,7 +3,6 @@
 
 import {
   SdkClientType,
-  SdkContext,
   SdkEndpointParameter,
   SdkEndpointType,
   SdkHttpOperation,
@@ -12,7 +11,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterContext } from "../emitter.js";
 import { CodeModel } from "../type/code-model.js";
 import { InputClient } from "../type/input-client.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
@@ -26,7 +25,7 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
-export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeModel {
+export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
   const sdkTypeMap: SdkTypeMap = {
@@ -66,7 +65,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   return clientModel;
 
   function fromSdkClients(
-    sdkContext: SdkContext<NetEmitterOptions>,
+    sdkContext: CSharpEmitterContext,
     clients: SdkClientType<SdkHttpOperation>[],
     inputClients: InputClient[],
     parentClientNames: string[],
@@ -84,7 +83,7 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
   }
 
   function fromSdkClient(
-    sdkContext: SdkContext<NetEmitterOptions>,
+    sdkContext: CSharpEmitterContext,
     client: SdkClientType<SdkHttpOperation>,
     parentNames: string[],
   ): InputClient {
@@ -158,8 +157,14 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
       .replace("https://", "")
       .replace("http://", "")
       .split("/")[0];
-    if (!/^\{\w+\}$/.test(endpointExpr))
-      throw new Error(`Unsupported server url "${type.serverUrl}"`);
+    if (!/^\{\w+\}$/.test(endpointExpr)) {
+      reportDiagnostic(sdkContext.program, {
+        code: "unsupported-endpoint-url",
+        format: { endpoint: type.serverUrl },
+        target: NoTarget,
+      });
+      return [];
+    }
     const endpointVariableName = endpointExpr.substring(1, endpointExpr.length - 1);
 
     const parameters: InputParameter[] = [];
@@ -188,7 +193,11 @@ export function createModel(sdkContext: SdkContext<NetEmitterOptions>): CodeMode
         SkipUrlEncoding: false,
         Explode: false,
         Kind: InputOperationParameterKind.Client,
-        DefaultValue: getParameterDefaultValue(parameter.clientDefaultValue, parameterType),
+        DefaultValue: getParameterDefaultValue(
+          sdkContext,
+          parameter.clientDefaultValue,
+          parameterType,
+        ),
       });
     }
     return parameters;

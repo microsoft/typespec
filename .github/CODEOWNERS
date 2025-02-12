@@ -7,7 +7,7 @@
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft
 
 ######################
 # Java
@@ -22,18 +22,13 @@
 ######################
 # Emiter Shared
 ######################
-/eng/emitters/                               @m-nash
-
-######################
-# JS - Server
-######################
-/packages/http-server-javascript             @witemple-msft
+/eng/emitters/                               @m-nash @iscai-msft
 
 ######################
 # IDE
 ######################
-/packages/typespec-vs/                       @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
-/packages/typespec-vscode/                   @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
-/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin
+/packages/typespec-vs/                       @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
+/packages/typespec-vscode/                   @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
+/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
 
 
