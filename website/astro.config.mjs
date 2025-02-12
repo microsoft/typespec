@@ -76,7 +76,7 @@ export default defineConfig({
       nodePolyfills({
         include: ["buffer"],
         globals: {
-          process: "dev"
+          process: "dev",
         },
       }),
     ],
