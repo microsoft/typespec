@@ -56,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. CodeModelPlugin.Instance.TypeFactory.CreateSerializations(_inputType, this)];
         }
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputType.Namespace) ?
-            // TODO - this should not be necessary as every enum should have a namespace
+            // TODO - this should not be necessary as every enum should have a namespace https://github.com/Azure/typespec-azure/issues/2210
             CodeModelPlugin.Instance.TypeFactory.PackageName : // we default to this model namespace when the namespace is empty
             CodeModelPlugin.Instance.TypeFactory.GetCleanNameSpace(_inputType.Namespace);
 
