@@ -6,14 +6,19 @@ import {
   EnumMember,
   Model,
   ModelProperty,
+  NullType,
   NumericLiteral,
   Scalar,
   StringLiteral,
   Type,
   Union,
+  UnknownType,
+  VoidType,
   getDiscriminator,
   getMaxValue,
   getMinValue,
+  isNeverType,
+  isUnknownType,
 } from "@typespec/compiler";
 import { getJsScalar } from "../common/scalar.js";
 import { JsContext } from "../ctx.js";
@@ -33,7 +38,7 @@ export type JsLiteralType = StringLiteral | BooleanLiteral | NumericLiteral | En
 /**
  * A TypeSpec type that is precise, i.e. the type of a single value.
  */
-export type PreciseType = Scalar | Model | JsLiteralType;
+export type PreciseType = Scalar | Model | JsLiteralType | VoidType | NullType;
 
 /**
  * Determines if `t` is a precise type.
@@ -46,7 +51,8 @@ export function isPreciseType(t: Type): t is PreciseType {
     t.kind === "Model" ||
     t.kind === "Boolean" ||
     t.kind === "Number" ||
-    t.kind === "String"
+    t.kind === "String" ||
+    (t.kind === "Intrinsic" && (t.name === "void" || t.name === "null"))
   );
 }
 
@@ -79,7 +85,7 @@ export interface IfBranch {
  */
 export interface Result {
   kind: "result";
-  type: PreciseType;
+  type: PreciseType | UnknownType;
 }
 
 /**
@@ -285,7 +291,13 @@ export function differentiateUnion(
   renderPropertyName: (prop: ModelProperty) => string = PROPERTY_ID,
 ): CodeTree {
   const discriminator = getDiscriminator(ctx.program, union)?.propertyName;
-  const variants = [...union.variants.values()];
+  // Exclude `never` from the union variants.
+  const variants = [...union.variants.values()].filter((v) => !isNeverType(v.type));
+
+  if (variants.some((v) => isUnknownType(v.type))) {
+    // Collapse the whole union to `unknown`.
+    return { kind: "result", type: ctx.program.checker.anyType };
+  }
 
   if (!discriminator) {
     const cases = new Set<PreciseType>();
@@ -363,10 +375,32 @@ export function differentiateTypes(
   const models = (categories.Model as Model[]) ?? [];
   const scalars = (categories.Scalar as Scalar[]) ?? [];
 
-  if (literals.length + scalars.length === 0) {
+  const intrinsics = (categories.Intrinsic as (VoidType | NullType)[]) ?? [];
+
+  if (literals.length + scalars.length + intrinsics.length === 0) {
     return differentiateModelTypes(ctx, select(models, cases), renderPropertyName);
   } else {
     const branches: IfBranch[] = [];
+
+    for (const intrinsic of intrinsics) {
+      const intrinsicValue = intrinsic.name === "void" ? "undefined" : "null";
+      branches.push({
+        condition: {
+          kind: "binary-op",
+          operator: "===",
+          left: SUBJECT,
+          right: {
+            kind: "verbatim",
+            text: intrinsicValue,
+          },
+        },
+        body: {
+          kind: "result",
+          type: intrinsic,
+        },
+      });
+    }
+
     for (const literal of literals) {
       branches.push({
         condition: {
@@ -808,7 +842,7 @@ export interface CodeTreeOptions {
   /**
    * Renders a result when encountered in the code tree.
    */
-  renderResult: (type: Type) => Iterable<string>;
+  renderResult: (type: PreciseType | UnknownType) => Iterable<string>;
 }
 
 /**
