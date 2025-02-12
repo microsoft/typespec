@@ -31,7 +31,6 @@ public class Resource extends TypeModel {
         super(spec, armType.getInnerModel(), armType.getInnerModel().getName(), armType.getInnerModel().getPackage(),
             "");
         this.resourceModel = armType;
-        this.resourceNamespace = armType.getResourceCreate().getUrlPathSegments().getPath();
     }
 
     public FluentResourceModel getResourceModel() {

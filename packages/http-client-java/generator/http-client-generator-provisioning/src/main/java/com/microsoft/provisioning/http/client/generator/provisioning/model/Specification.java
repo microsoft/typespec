@@ -5,7 +5,15 @@ import com.azure.core.management.profile.AzureProfile;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.resources.fluentcore.arm.ResourceId;
-import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -143,23 +151,23 @@ public abstract class Specification extends ModelBase {
     public void analyze() {
         this.resources = resourceModels.stream()
             .filter(resourceModel -> resourceModel.getResourceCreate() != null)
-            // FIXME
-            .filter(resourceModel -> resourceModel.getCategory() != ModelCategory.SCOPE_AS_PARENT
-                || resourceModel.getCategory() != ModelCategory.SCOPE_NESTED_CHILD)
             .map(resourceModel -> {
                 Resource resource = new Resource(this, resourceModel);
                 this.modelNameMapping.put(resource.getName(), resource);
                 this.modelArmTypeMapping.put(resourceModel, resource);
                 this.resourcePathModelMap.put(resourceModel.getResourceCreate().getUrlPathSegments().getPath(),
                     resource);
+                // FIXME parse provider namespace from scope resource url
                 if (!resourceModel.getResourceCreate().getUrlPathSegments().hasScope()) {
-                    this.providerNames.add(resourceModel.getResourceCreate().getUrlPathSegments().getPath());
+                    ResourceId resourceId = ResourceId.fromString(resourceModel.getResourceCreate().getUrlPathSegments().getPath());
+                    this.providerNames.add(resourceId.providerNamespace());
+                    resource.setResourceNamespace(resourceId.fullResourceType());
                 }
                 return resource;
             })
             .toList();
         this.resources.forEach(resource -> {
-            resource.setProvisioningPackage(this.getProvisioningPackage() + ".generated");
+            resource.setProvisioningPackage(this.getProvisioningPackage());
             if (!resource.getResourceModel().getResourceCreate().getUrlPathSegments().hasScope()) {
                 ResourceId resourceId = ResourceId
                     .fromString(resource.getResourceModel().getResourceCreate().getUrlPathSegments().getPath());
@@ -169,31 +177,96 @@ public abstract class Specification extends ModelBase {
                         resource.setParentResource(parent);
                     }
                 }
+                resource.setResourceType(resourceId.fullResourceType());
             }
+            resource.setProperties(parseProperties(resource));
         });
 
-        this.providerNames.forEach(providerName -> AZURE_RESOURCE_MANAGER.providers()
-            .getByName(providerName)
-            .resourceTypes()
-            .forEach(resourceType -> {
-                this.resources.stream()
-                    .filter(resource -> resource.getResourceNamespace() != null)
-                    .forEach(resource -> {
-                        if (resource.getResourceNamespace().equals(providerName + "/" + resourceType.resourceType())) {
-                            List<String> stableVersions = resourceType.apiVersions()
-                                .stream()
-                                .filter(apiVersion -> !apiVersion.contains("preview"))
-                                .collect(Collectors.toUnmodifiableList());
-                            resource.setResourceVersions(stableVersions);
-                            if (stableVersions.isEmpty()) {
-                                resource.setResourceVersions(
-                                    resourceType.apiVersions().stream().sorted().collect(Collectors.toList()));
+        try {
+            this.providerNames.forEach(providerName -> AZURE_RESOURCE_MANAGER.providers()
+                .getByName(providerName)
+                .resourceTypes()
+                .forEach(resourceType -> {
+                    this.resources.stream()
+                        .filter(resource -> resource.getResourceNamespace() != null)
+                        .forEach(resource -> {
+                            if (resource.getResourceNamespace()
+                                .equals(providerName + "/" + resourceType.resourceType())) {
+                                List<String> stableVersions = resourceType.apiVersions()
+                                    .stream()
+                                    .filter(apiVersion -> !apiVersion.contains("preview"))
+                                    .collect(Collectors.toUnmodifiableList());
+                                resource.setResourceVersions(stableVersions);
+                                if (stableVersions.isEmpty()) {
+                                    resource.setResourceVersions(
+                                        resourceType.apiVersions().stream().sorted().collect(Collectors.toList()));
+                                }
+                                resource.setDefaultResourceVersion(
+                                    resource.getResourceVersions().get(resource.getResourceVersions().size() - 1));
                             }
-                            resource.setDefaultResourceVersion(
-                                resource.getResourceVersions().get(resource.getResourceVersions().size() - 1));
-                        }
-                    });
-            }));
+                        });
+                }));
+        } catch (Exception e) {
+            // FIXME what we do in case of invalid provider namespace
+            e.printStackTrace();
+        }
+    }
+
+    private Set<Property> parseProperties(Resource resource) {
+        FluentResourceModel resourceModel = resource.getResourceModel();
+        ClientModel clientModel = resourceModel.getInnerModel();
+        return parseProperties(clientModel, resource);
+    }
+
+    private ModelBase getPropertyType(IType wireType, Resource resource) {
+        if (wireType instanceof ListType) {
+            ListModel listModel = new ListModel(getPropertyType(((ListType) wireType).getElementType(), resource));
+            listModel.setProvisioningPackage(List.class.getPackageName());
+            return listModel;
+        } else if (wireType instanceof MapType) {
+            DictionaryModel dictionaryModel
+                = new DictionaryModel(getPropertyType(((MapType) wireType).getValueType(), resource));
+            dictionaryModel.setProvisioningPackage(Map.class.getPackageName());
+            return dictionaryModel;
+        } else if (wireType instanceof EnumType) {
+            EnumModel enumModel = new EnumModel(((EnumType) wireType).getName(), this.getProvisioningPackage(),
+                ((EnumType) wireType).getValues().stream().map(ClientEnumValue::getValue).collect(Collectors.toList()));
+            modelNameMapping.put(((EnumType) wireType).getName(), enumModel);
+            return enumModel;
+        } else if (ClientModelUtil.isClientModel(wireType)) {
+            ModelBase model;
+            if ((model = TypeRegistry.get(ClientModelUtil.getClientModel(((ClassType) wireType).getName()))) != null) {
+                return model;
+            }
+            ClassType classType = (ClassType) wireType;
+            SimpleModel simpleModel
+                = new SimpleModel(this, resource.getArmType(), classType.getName(), this.getProvisioningPackage(), null);
+            simpleModel.setProperties(
+                parseProperties(ClientModelUtil.getClientModel(((ClassType) wireType).getName()), resource));
+            modelNameMapping.put(classType.getName(), simpleModel);
+            return simpleModel;
+        } else if (wireType instanceof PrimitiveType) {
+            ExternalModel externalModel = new ExternalModel(((PrimitiveType) wireType).getName(), "java.lang");
+            externalModel.setExternal(true);
+            TypeRegistry.register(externalModel);
+            return externalModel;
+        } else if (wireType instanceof ClassType) {
+            ExternalModel externalModel
+                = new ExternalModel(((ClassType) wireType).getName(), this.getProvisioningPackage() + ".models");
+            externalModel.setExternal(true);
+            TypeRegistry.register(externalModel);
+            return externalModel;
+        } else {
+            throw new IllegalArgumentException("Unsupported wireType: " + wireType);
+        }
+    }
+
+    private Set<Property> parseProperties(ClientModel clientModel, Resource resource) {
+        return clientModel.getProperties()
+            .stream()
+            .map(clientModelProperty -> new Property(resource,
+                getPropertyType(clientModelProperty.getWireType(), resource), clientModelProperty.getSerializedName()))
+            .collect(Collectors.toSet());
     }
 
     protected abstract void customize();

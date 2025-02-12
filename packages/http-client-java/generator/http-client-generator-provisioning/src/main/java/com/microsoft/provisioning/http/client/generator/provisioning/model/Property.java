@@ -9,8 +9,6 @@ import java.util.Objects;
 
 public class Property {
     private final TypeModel parent;
-    private Field armMember;
-    private final Parameter armParameter;
     private String name;
     private ModelBase propertyType;
     private String description;
@@ -21,15 +19,9 @@ public class Property {
     private boolean generateDefaultValue;
     private boolean hideAccessors;
 
-    public Property(TypeModel parent, ModelBase propertyType) {
-        this(parent, propertyType, null, null);
-    }
-
-    public Property(TypeModel parent, ModelBase propertyType, Field armMember, Parameter armParameter) {
+    public Property(TypeModel parent, ModelBase propertyType, String name) {
         this.parent = parent;
-        this.armMember = armMember;
-        this.armParameter = armParameter;
-        this.name = parseName(armParameter, armMember);
+        this.name = name;
         this.propertyType = propertyType;
         this.description = parent.getSpec().getDocComments();
         this.isReadOnly = false;
@@ -52,18 +44,6 @@ public class Property {
 
     public TypeModel getParent() {
         return parent;
-    }
-
-    public Field getArmMember() {
-        return armMember;
-    }
-
-    public void setArmMember(Field armMember) {
-        this.armMember = armMember;
-    }
-
-    public Parameter getArmParameter() {
-        return armParameter;
     }
 
     public String getName() {

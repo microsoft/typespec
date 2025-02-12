@@ -106,35 +106,37 @@ public class Main {
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
         // write
-        Specification specification
-            = new Specification(JavaSettings.getInstance().getPackage(), JavaSettings.getInstance().getPackage(),
+        if (JavaSettings.getInstance().isProvisioning()) {
+            Specification specification
+                = new Specification(JavaSettings.getInstance().getPackage(), JavaSettings.getInstance().getPackage(),
                 emitterOptions.getOutputDir(), FluentStatic.getFluentClient().getResourceModels()) {
                 @Override
                 protected void customize() {
 
                 }
             };
-        specification.build();
+            specification.build();
+        } else {
+            // java files
+            Postprocessor.writeToFiles(
+                javaPackage.getJavaFiles()
+                    .stream()
+                    .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
+                fluentPlugin, fluentPlugin.getLogger());
 
-        // java files
-        Postprocessor.writeToFiles(
-            javaPackage.getJavaFiles()
-                .stream()
-                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
-            fluentPlugin, fluentPlugin.getLogger());
-
-        // XML include POM
-        javaPackage.getXmlFiles()
-            .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
-        // properties file
-        String artifactId = FluentUtils.getArtifactId();
-        if (!CoreUtils.isNullOrEmpty(artifactId)) {
-            fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
-                null);
+            // XML include POM
+            javaPackage.getXmlFiles()
+                .forEach(xmlFile -> fluentPlugin.writeFile(xmlFile.getFilePath(), xmlFile.getContents().toString(), null));
+            // properties file
+            String artifactId = FluentUtils.getArtifactId();
+            if (!CoreUtils.isNullOrEmpty(artifactId)) {
+                fluentPlugin.writeFile("src/main/resources/" + artifactId + ".properties", "version=${project.version}\n",
+                    null);
+            }
+            // Others
+            javaPackage.getTextFiles()
+                .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
         }
-        // Others
-        javaPackage.getTextFiles()
-            .forEach(textFile -> fluentPlugin.writeFile(textFile.getFilePath(), textFile.getContents(), null));
     }
 
     private static void handleDPG(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration,

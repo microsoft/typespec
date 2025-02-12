@@ -7,7 +7,8 @@ options:
     generate-samples: true
     generate-tests: true
     examples-directory: "{project-root}/tsp/examples"
-    flavor: "Azure"
+    flavor: "provisioning"
+    namespace: com.azure.provisioning.appconfiguration.generated
     dev-options:
       generate-code-model: true
       loglevel: info

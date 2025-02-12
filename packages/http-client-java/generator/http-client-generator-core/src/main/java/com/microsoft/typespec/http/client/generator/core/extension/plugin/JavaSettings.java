@@ -400,6 +400,14 @@ public class JavaSettings {
         return "azure".equalsIgnoreCase(flavor);
     }
 
+    /**
+     * Whether to generate with Provisioning flavor.
+     * @return whether to generate with Provisioning flavor
+     */
+    public boolean isProvisioning() {
+        return "provisioning".equalsIgnoreCase(flavor);
+    }
+
     private final String keyCredentialHeaderName;
 
     /**
