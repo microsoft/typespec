@@ -191,24 +191,6 @@ public final class QueryClientBuilder implements HttpTrait<QueryClientBuilder>, 
     }
 
     /*
-     * 
-     */
-    @Generated
-    private String version;
-
-    /**
-     * Sets.
-     * 
-     * @param version the version value.
-     * @return the QueryClientBuilder.
-     */
-    @Generated
-    public QueryClientBuilder version(String version) {
-        this.version = version;
-        return this;
-    }
-
-    /*
      * Service version
      */
     @Generated
@@ -257,7 +239,7 @@ public final class QueryClientBuilder implements HttpTrait<QueryClientBuilder>, 
         QueryServiceVersion localServiceVersion
             = (serviceVersion != null) ? serviceVersion : QueryServiceVersion.getLatest();
         QueryClientImpl client = new QueryClientImpl(localPipeline, JacksonAdapter.createDefaultSerializerAdapter(),
-            localEndpoint, this.version, localServiceVersion);
+            localEndpoint, localServiceVersion);
         return client;
     }
 
@@ -265,7 +247,6 @@ public final class QueryClientBuilder implements HttpTrait<QueryClientBuilder>, 
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
-        Objects.requireNonNull(version, "'version' cannot be null.");
     }
 
     @Generated

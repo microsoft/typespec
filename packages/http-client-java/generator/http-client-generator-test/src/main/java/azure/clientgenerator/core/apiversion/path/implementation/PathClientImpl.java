@@ -55,19 +55,6 @@ public final class PathClientImpl {
     }
 
     /**
-     */
-    private final String version;
-
-    /**
-     * Gets.
-     * 
-     * @return the version value.
-     */
-    public String getVersion() {
-        return this.version;
-    }
-
-    /**
      * Service version.
      */
     private final PathServiceVersion serviceVersion;
@@ -113,12 +100,11 @@ public final class PathClientImpl {
      * Initializes an instance of PathClient client.
      * 
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
-    public PathClientImpl(String endpoint, String version, PathServiceVersion serviceVersion) {
+    public PathClientImpl(String endpoint, PathServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -126,12 +112,10 @@ public final class PathClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
-    public PathClientImpl(HttpPipeline httpPipeline, String endpoint, String version,
-        PathServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+    public PathClientImpl(HttpPipeline httpPipeline, String endpoint, PathServiceVersion serviceVersion) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -140,15 +124,13 @@ public final class PathClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
     public PathClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String version, PathServiceVersion serviceVersion) {
+        PathServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(PathClientService.class, this.httpPipeline, this.getSerializerAdapter());
     }
@@ -190,8 +172,8 @@ public final class PathClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> pathApiVersionWithResponseAsync(RequestOptions requestOptions) {
-        return FluxUtil.withContext(
-            context -> service.pathApiVersion(this.getEndpoint(), this.getVersion(), requestOptions, context));
+        return FluxUtil.withContext(context -> service.pathApiVersion(this.getEndpoint(),
+            this.getServiceVersion().getVersion(), requestOptions, context));
     }
 
     /**
@@ -206,6 +188,7 @@ public final class PathClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> pathApiVersionWithResponse(RequestOptions requestOptions) {
-        return service.pathApiVersionSync(this.getEndpoint(), this.getVersion(), requestOptions, Context.NONE);
+        return service.pathApiVersionSync(this.getEndpoint(), this.getServiceVersion().getVersion(), requestOptions,
+            Context.NONE);
     }
 }

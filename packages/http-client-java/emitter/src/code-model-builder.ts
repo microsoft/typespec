@@ -54,6 +54,7 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
+  SdkHeaderParameter,
   SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpResponse,
@@ -63,13 +64,13 @@ import {
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
+  SdkQueryParameter,
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
   createSdkContext,
   getAllModels,
   getHttpOperationParameter,
-  isApiVersion,
   isSdkBuiltInKind,
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
@@ -1158,14 +1159,12 @@ export class CodeModelBuilder {
     }
   }
 
-  private _armApiVersionParameter?: Parameter;
-
   private processParameter(
     op: CodeModelOperation,
     param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
-    if (clientContext.apiVersions && isApiVersion(this.sdkContext, param)) {
+    if (clientContext.apiVersions && param.isApiVersionParam && param.kind !== "cookie") {
       // pre-condition for "isApiVersion": the client supports ApiVersions
       if (this.isArm()) {
         // Currently we assume ARM tsp only have one client and one api-version.
@@ -1181,8 +1180,7 @@ export class CodeModelBuilder {
         }
         op.addParameter(this._armApiVersionParameter);
       } else {
-        const parameter =
-          param.kind === "query" ? this.apiVersionParameter : this.apiVersionParameterInPath;
+        const parameter = this.getApiVersionParameter(param);
         op.addParameter(parameter);
         clientContext.addGlobalParameter(parameter);
       }
@@ -2901,26 +2899,41 @@ export class CodeModelBuilder {
   }
 
   private _apiVersionParameter?: Parameter;
-  get apiVersionParameter(): Parameter {
-    return (
-      this._apiVersionParameter ||
-      (this._apiVersionParameter = this.createApiVersionParameter(
-        "api-version",
-        ParameterLocation.Query,
-      ))
-    );
-  }
-
   private _apiVersionParameterInPath?: Parameter;
-  get apiVersionParameterInPath(): Parameter {
-    return (
-      this._apiVersionParameterInPath ||
-      // TODO: hardcode as "apiVersion", as it is what we get from compiler
-      (this._apiVersionParameterInPath = this.createApiVersionParameter(
-        "apiVersion",
-        ParameterLocation.Path,
-      ))
-    );
+  private _apiVersionParameterInHeader?: Parameter;
+  private _armApiVersionParameter?: Parameter;
+
+  private getApiVersionParameter(
+    param: SdkQueryParameter | SdkPathParameter | SdkHeaderParameter,
+  ): Parameter {
+    // apiVersionParameter is cached by param.kind
+    // we didn't expect Azure service have more than 1 type of api-version, and certainly not more than 1 of each kind.
+    if (param.kind === "query") {
+      return (
+        this._apiVersionParameter ||
+        (this._apiVersionParameter = this.createApiVersionParameter(
+          param.serializedName,
+          ParameterLocation.Query,
+        ))
+      );
+    } else if (param.kind === "path") {
+      return (
+        this._apiVersionParameterInPath ||
+        (this._apiVersionParameterInPath = this.createApiVersionParameter(
+          param.serializedName,
+          ParameterLocation.Path,
+        ))
+      );
+    } else {
+      // param.kind === "header"
+      return (
+        this._apiVersionParameterInHeader ||
+        (this._apiVersionParameterInHeader = this.createApiVersionParameter(
+          param.serializedName,
+          ParameterLocation.Header,
+        ))
+      );
+    }
   }
 
   private isSubscriptionId(param: SdkPathParameter): boolean {

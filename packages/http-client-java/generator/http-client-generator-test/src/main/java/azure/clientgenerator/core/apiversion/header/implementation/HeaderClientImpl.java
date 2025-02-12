@@ -55,19 +55,6 @@ public final class HeaderClientImpl {
     }
 
     /**
-     */
-    private final String version;
-
-    /**
-     * Gets.
-     * 
-     * @return the version value.
-     */
-    public String getVersion() {
-        return this.version;
-    }
-
-    /**
      * Service version.
      */
     private final HeaderServiceVersion serviceVersion;
@@ -113,12 +100,11 @@ public final class HeaderClientImpl {
      * Initializes an instance of HeaderClient client.
      * 
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
-    public HeaderClientImpl(String endpoint, String version, HeaderServiceVersion serviceVersion) {
+    public HeaderClientImpl(String endpoint, HeaderServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -126,12 +112,10 @@ public final class HeaderClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
-    public HeaderClientImpl(HttpPipeline httpPipeline, String endpoint, String version,
-        HeaderServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+    public HeaderClientImpl(HttpPipeline httpPipeline, String endpoint, HeaderServiceVersion serviceVersion) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -140,15 +124,13 @@ public final class HeaderClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
     public HeaderClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String version, HeaderServiceVersion serviceVersion) {
+        HeaderServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(HeaderClientService.class, this.httpPipeline, this.getSerializerAdapter());
     }
@@ -166,7 +148,7 @@ public final class HeaderClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<Void>> headerApiVersion(@HostParam("endpoint") String endpoint,
-            @HeaderParam("x-ms-version") String version, RequestOptions requestOptions, Context context);
+            @HeaderParam("x-ms-version") String xMsVersion, RequestOptions requestOptions, Context context);
 
         @Post("/azure/client-generator-core/api-version/header")
         @ExpectedResponses({ 200 })
@@ -175,7 +157,7 @@ public final class HeaderClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> headerApiVersionSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("x-ms-version") String version, RequestOptions requestOptions, Context context);
+            @HeaderParam("x-ms-version") String xMsVersion, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -190,8 +172,8 @@ public final class HeaderClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> headerApiVersionWithResponseAsync(RequestOptions requestOptions) {
-        return FluxUtil.withContext(
-            context -> service.headerApiVersion(this.getEndpoint(), this.getVersion(), requestOptions, context));
+        return FluxUtil.withContext(context -> service.headerApiVersion(this.getEndpoint(),
+            this.getServiceVersion().getVersion(), requestOptions, context));
     }
 
     /**
@@ -206,6 +188,7 @@ public final class HeaderClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> headerApiVersionWithResponse(RequestOptions requestOptions) {
-        return service.headerApiVersionSync(this.getEndpoint(), this.getVersion(), requestOptions, Context.NONE);
+        return service.headerApiVersionSync(this.getEndpoint(), this.getServiceVersion().getVersion(), requestOptions,
+            Context.NONE);
     }
 }

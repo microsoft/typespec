@@ -14,7 +14,6 @@ import azure.clientgenerator.core.apiversion.query.QueryClientBuilder;
 import azure.clientgenerator.core.apiversion.query.QueryServiceVersion;
 import org.junit.jupiter.api.Test;
 
-// TODO: there is an extra "version()" API in Builder
 public class ApiVersionTests {
 
     @Test

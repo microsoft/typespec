@@ -23,7 +23,6 @@ class PathClientTestBase extends TestProxyTestBase {
     protected void beforeTest() {
         PathClientBuilder pathClientbuilder = new PathClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
-            .version(Configuration.getGlobalConfiguration().get("VERSION", "version"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

@@ -55,19 +55,6 @@ public final class QueryClientImpl {
     }
 
     /**
-     */
-    private final String version;
-
-    /**
-     * Gets.
-     * 
-     * @return the version value.
-     */
-    public String getVersion() {
-        return this.version;
-    }
-
-    /**
      * Service version.
      */
     private final QueryServiceVersion serviceVersion;
@@ -113,12 +100,11 @@ public final class QueryClientImpl {
      * Initializes an instance of QueryClient client.
      * 
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
-    public QueryClientImpl(String endpoint, String version, QueryServiceVersion serviceVersion) {
+    public QueryClientImpl(String endpoint, QueryServiceVersion serviceVersion) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -126,12 +112,10 @@ public final class QueryClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
-    public QueryClientImpl(HttpPipeline httpPipeline, String endpoint, String version,
-        QueryServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, version, serviceVersion);
+    public QueryClientImpl(HttpPipeline httpPipeline, String endpoint, QueryServiceVersion serviceVersion) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
     }
 
     /**
@@ -140,15 +124,13 @@ public final class QueryClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
-     * @param version
      * @param serviceVersion Service version.
      */
     public QueryClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        String version, QueryServiceVersion serviceVersion) {
+        QueryServiceVersion serviceVersion) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.version = version;
         this.serviceVersion = serviceVersion;
         this.service = RestProxy.create(QueryClientService.class, this.httpPipeline, this.getSerializerAdapter());
     }
@@ -190,8 +172,8 @@ public final class QueryClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> queryApiVersionWithResponseAsync(RequestOptions requestOptions) {
-        return FluxUtil.withContext(
-            context -> service.queryApiVersion(this.getEndpoint(), this.getVersion(), requestOptions, context));
+        return FluxUtil.withContext(context -> service.queryApiVersion(this.getEndpoint(),
+            this.getServiceVersion().getVersion(), requestOptions, context));
     }
 
     /**
@@ -206,6 +188,7 @@ public final class QueryClientImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> queryApiVersionWithResponse(RequestOptions requestOptions) {
-        return service.queryApiVersionSync(this.getEndpoint(), this.getVersion(), requestOptions, Context.NONE);
+        return service.queryApiVersionSync(this.getEndpoint(), this.getServiceVersion().getVersion(), requestOptions,
+            Context.NONE);
     }
 }
