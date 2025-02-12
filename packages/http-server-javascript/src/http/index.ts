@@ -45,7 +45,7 @@ export async function emitHttp(ctx: JsContext) {
 
   const servers = getServers(ctx.program, ctx.service.type) ?? [];
 
-  const httpModule = createModule("http", ctx.rootModule);
+  const httpModule = createModule("http", ctx.generatedModule);
 
   const httpContext: HttpContext = {
     ...ctx,
