@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Server.Path.Multiple",
-  "library-name": "Server.Path.Multiple"
+  "package-name": "Server.Path.Multiple"
 }

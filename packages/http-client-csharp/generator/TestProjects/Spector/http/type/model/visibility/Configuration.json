@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Type.Model.Visibility",
-  "library-name": "Type.Model.Visibility"
+  "package-name": "Type.Model.Visibility"
 }

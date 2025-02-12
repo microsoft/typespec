@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Payload.ContentNegotiation",
-  "library-name": "Payload.ContentNegotiation"
+  "package-name": "Payload.ContentNegotiation"
 }

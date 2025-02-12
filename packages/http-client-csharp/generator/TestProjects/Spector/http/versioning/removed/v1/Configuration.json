@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Versioning.Removed",
-  "library-name": "Versioning.Removed.V1"
+  "package-name": "Versioning.Removed"
 }

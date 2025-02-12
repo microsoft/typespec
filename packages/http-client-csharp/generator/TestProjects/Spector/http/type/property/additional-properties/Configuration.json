@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Type.Property.AdditionalProperties",
-  "library-name": "Type.Property.AdditionalProperties"
+  "package-name": "Type.Property.AdditionalProperties"
 }

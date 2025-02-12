@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "SpecialHeaders.ConditionalRequest",
-  "library-name": "SpecialHeaders.ConditionalRequest"
+  "package-name": "SpecialHeaders.ConditionalRequest"
 }

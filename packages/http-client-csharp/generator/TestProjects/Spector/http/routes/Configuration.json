@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Routes",
-  "library-name": "Routes"
+  "package-name": "Routes"
 }

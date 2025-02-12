@@ -104,7 +104,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       const namespace = root.Name;
       const configurations: Configuration = {
         "output-folder": ".",
-        namespace: namespace,
         "package-name": options["package-name"] ?? namespace,
         "unreferenced-types-handling": options["unreferenced-types-handling"],
         "disable-xml-docs":

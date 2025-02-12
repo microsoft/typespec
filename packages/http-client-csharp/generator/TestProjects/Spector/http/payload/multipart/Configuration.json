@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Payload.MultiPart",
-  "library-name": "Payload.MultiPart"
+  "package-name": "Payload.MultiPart"
 }

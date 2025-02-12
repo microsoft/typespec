@@ -1,5 +1,5 @@
 {
   "output-folder": ".",
   "namespace": "Type.Array",
-  "library-name": "Type.Array"
+  "package-name": "Type.Array"
 }
