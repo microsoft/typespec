@@ -72,6 +72,7 @@
     "typescript": "~5.7.3",
     "typescript-eslint": "^8.21.0",
     "vitest": "^3.0.5",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "yaml": "~2.7.0"
   },
   "syncpack": {
