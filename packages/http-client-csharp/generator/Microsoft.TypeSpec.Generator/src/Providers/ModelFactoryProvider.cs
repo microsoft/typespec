@@ -21,9 +21,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly IEnumerable<InputModelType> _models;
 
-        //private static ModelFactoryProvider? _modelFactoryProvider;
-        //public static ModelFactoryProvider FromInputLibrary() => _modelFactoryProvider ??= new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
-
         internal ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
