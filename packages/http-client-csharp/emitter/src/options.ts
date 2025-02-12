@@ -39,7 +39,6 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     "api-version": { type: "string", nullable: true },
     outputFile: { type: "string", nullable: true },
     logFile: { type: "string", nullable: true },
-    namespace: { type: "string" },
     skipSDKGeneration: { type: "boolean", default: false, nullable: true },
     "unreferenced-types-handling": {
       type: "string",
