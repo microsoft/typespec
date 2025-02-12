@@ -32,7 +32,7 @@ _Option 2_. Install typespec with vscode extension marketplace:
 
 ### Step 2: Trigger "Import TypeSpec from OpenAPI 3.0", and confirm the project folder where you will place the TypeSpec file converted from the specified OpenAPI3 specification.
 
-_Option 1_. From the right-click context menu of a file.
+Typing `> TypeSpec: Import TypeSpec from OpenApi3` in the Command Palette.
 
 ![alt text](./images/TriggerImportTypeSpecfromOpenAPI3.png)
 
@@ -49,14 +49,6 @@ _Option 1_. From the right-click context menu of a file.
 - Select a empty folder:
 
   If the folder is empty, skip the query and go to the next step.
-
-_Option 2_. From the right-click context menu of a folder.
-
-![alt text](./images/TriggerImportTypeSpecfromOpenAPI3_option2.png)
-
-**Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
-
-![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
 
 ### Step 3: Specify the OpenAPI3 specification to convert.
 
