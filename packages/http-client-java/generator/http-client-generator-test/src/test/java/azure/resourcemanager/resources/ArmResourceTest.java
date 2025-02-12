@@ -41,11 +41,11 @@ public class ArmResourceTest {
     private static final String NOTIFICATION_DETAILS_MESSAGE = "Resource action at top level.";
     private static final String EXTENSION_RESOURCE_NAME = "extension";
     private static final String EXTENSION_RESOURCE_SUBSCRIPTION_URL
-        = "subscriptions/00000000-0000-0000-0000-000000000000";
+        = "/subscriptions/00000000-0000-0000-0000-000000000000";
     private static final String EXTENSION_RESOURCE_RESOURCE_GROUP_URL
-        = "subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg";
+        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg";
     private static final String EXTENSION_RESOURCE_PROVIDER_URL
-        = "subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top";
+        = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/top";
     private static final String EXTENSION_RESOURCE_TYPE = "Azure.ResourceManager.Resources/extensionsResources";
     private static final String EXTENSION_BASE_RESOURCE_ID
         = "/providers/Azure.ResourceManager.Resources/extensionsResources/extension";
