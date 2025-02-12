@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package _specs_.azure.core.model;
+package azure.core.model;
 
-import _specs_.azure.core.model.models.AzureEmbeddingModel;
+import azure.core.model.models.AzureEmbeddingModel;
 import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

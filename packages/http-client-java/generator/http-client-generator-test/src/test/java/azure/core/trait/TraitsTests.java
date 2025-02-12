@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package _specs_.azure.core.traits;
+package azure.core.trait;
 
-import _specs_.azure.core.traits.models.UserActionParam;
+import azure.core.trait.models.UserActionParam;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.RequestConditions;
 import com.azure.core.http.rest.Response;

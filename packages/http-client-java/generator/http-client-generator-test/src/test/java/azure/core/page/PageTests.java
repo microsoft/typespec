@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package _specs_.azure.core.page;
+package azure.core.page;
 
-import _specs_.azure.core.page.models.ListItemInputBody;
-import _specs_.azure.core.page.models.ListItemInputExtensibleEnum;
+import azure.core.page.models.ListItemInputBody;
+import azure.core.page.models.ListItemInputExtensibleEnum;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.netty.NettyAsyncHttpClientProvider;
 import com.azure.core.test.http.AssertingHttpClientBuilder;

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package _specs_.azure.clientgenerator.core.access;
+package azure.clientgenerator.core.access;
 
-import _specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.AbstractModel;
-import _specs_.azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.RealModel;
-import _specs_.azure.clientgenerator.core.access.sharedmodelinoperation.models.SharedModel;
+import azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.AbstractModel;
+import azure.clientgenerator.core.access.relativemodelinoperation.implementation.models.RealModel;
+import azure.clientgenerator.core.access.sharedmodelinoperation.models.SharedModel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

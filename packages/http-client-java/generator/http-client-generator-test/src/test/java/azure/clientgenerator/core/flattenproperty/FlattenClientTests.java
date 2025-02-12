@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package _specs_.azure.clientgenerator.core.flattenproperty;
+package azure.clientgenerator.core.flattenproperty;
 
-import _specs_.azure.clientgenerator.core.flattenproperty.models.ChildFlattenModel;
-import _specs_.azure.clientgenerator.core.flattenproperty.models.ChildModel;
-import _specs_.azure.clientgenerator.core.flattenproperty.models.FlattenModel;
-import _specs_.azure.clientgenerator.core.flattenproperty.models.NestedFlattenModel;
+import azure.clientgenerator.core.flattenproperty.models.ChildFlattenModel;
+import azure.clientgenerator.core.flattenproperty.models.ChildModel;
+import azure.clientgenerator.core.flattenproperty.models.FlattenModel;
+import azure.clientgenerator.core.flattenproperty.models.NestedFlattenModel;
 import org.junit.jupiter.api.Test;
 
 public class FlattenClientTests {

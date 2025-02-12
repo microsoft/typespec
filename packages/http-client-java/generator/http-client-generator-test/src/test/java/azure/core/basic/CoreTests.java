@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package _specs_.azure.core.basic;
+package azure.core.basic;
 
-import _specs_.azure.core.basic.models.User;
-import _specs_.azure.core.basic.models.UserList;
+import azure.core.basic.models.User;
+import azure.core.basic.models.UserList;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;

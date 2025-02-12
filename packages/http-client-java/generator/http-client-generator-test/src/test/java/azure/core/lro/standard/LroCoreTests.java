@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package _specs_.azure.core.lro.standard;
+package azure.core.lro.standard;
 
-import _specs_.azure.core.lro.standard.models.ExportedUser;
-import _specs_.azure.core.lro.standard.models.User;
+import azure.core.lro.standard.models.ExportedUser;
+import azure.core.lro.standard.models.User;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.util.BinaryData;

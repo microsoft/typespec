@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package _specs_.azure.core.lro.rpc;
+package azure.core.lro.rpc;
 
-import _specs_.azure.core.lro.rpc.models.GenerationOptions;
-import _specs_.azure.core.lro.rpc.models.GenerationResult;
+import azure.core.lro.rpc.models.GenerationOptions;
+import azure.core.lro.rpc.models.GenerationResult;
 import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollOperationDetails;
 import com.azure.core.util.polling.PollResponse;
