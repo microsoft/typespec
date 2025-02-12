@@ -57,7 +57,9 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
 
   const opName = opNameCase.camelCase;
 
-  const hasOptions = getAllProperties(op.parameters).some((p) => p.optional);
+  const allParameters = getAllProperties(op.parameters);
+
+  const hasOptions = allParameters.some((p) => p.optional);
 
   const returnTypeReference = emitTypeReference(ctx, op.returnType, op, module, {
     altName: opNameCase.pascalCase + "Result",
@@ -67,7 +69,7 @@ export function* emitOperation(ctx: JsContext, op: Operation, module: Module): I
 
   const params: string[] = [];
 
-  for (const param of getAllProperties(op.parameters)) {
+  for (const param of allParameters) {
     // If the type is a value literal, then we consider it a _setting_ and not a parameter.
     // This allows us to exclude metadata parameters (such as contentType) from the generated interface.
     if (param.optional || isValueLiteralType(param.type)) continue;
