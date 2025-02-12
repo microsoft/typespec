@@ -393,7 +393,7 @@ public class JavaSettings {
      * @return Whether to generate with Azure branding.
      */
     public boolean isBranded() {
-        return isBranded(this.flavor) && isProvisioning();
+        return isBranded(this.flavor) || isProvisioning();
     }
 
     private static boolean isBranded(String flavor) {
