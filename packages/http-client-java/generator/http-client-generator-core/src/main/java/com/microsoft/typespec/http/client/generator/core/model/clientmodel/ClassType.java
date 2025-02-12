@@ -113,7 +113,7 @@ public class ClassType implements IType {
             put(Context.class, new ClassDetails(Context.class, "io.clientcore.core.util.Context"));
             put(HttpClient.class, new ClassDetails(HttpClient.class, "io.clientcore.core.http.client.HttpClient"));
             put(HttpLogOptions.class,
-                new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.models.HttpLogOptions"));
+                new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.models.HttpInstrumentationOptions"));
             put(HttpPipelinePolicy.class,
                 new ClassDetails(HttpPipelinePolicy.class, "io.clientcore.core.http.pipeline.HttpPipelinePolicy"));
             put(KeyCredentialPolicy.class,
