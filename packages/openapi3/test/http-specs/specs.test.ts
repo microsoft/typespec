@@ -4,7 +4,6 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { worksFor } from "./../works-for.js";
 import { defineSpecTests, markCoverage } from "./utils/spec-snapshot-testing.js";
-global.fetch = fetch;
 
 const pkgRoot = await findTestPackageRoot(import.meta.url);
 const specsRoot = resolvePath(pkgRoot, "node_modules", "@typespec", "http-specs", "specs");
@@ -31,7 +30,10 @@ describe("http-specs cases", () => {
         const getThing = res.paths["/authentication/api-key/valid"].get;
         ok(getThing.responses["204"]);
         await markCoverage(`/authentication/api-key/valid`, {
-          "x-ms-api-key": "valid-key",
+          method: "GET",
+          headers: {
+            "x-ms-api-key": "valid-key",
+          }
         });
       });
 
@@ -47,7 +49,10 @@ describe("http-specs cases", () => {
           $ref: "#/components/schemas/InvalidAuth",
         });
         await markCoverage(`/authentication/api-key/invalid`, {
-          "x-ms-api-key": "invalid-key",
+          method: "GET",
+          headers: {
+            "x-ms-api-key": "invalid-key",
+          },
         });
       });
     });
@@ -60,9 +65,32 @@ describe("http-specs cases", () => {
       const results = await openApiForFile(curr);
       const v1 = Object.values(results)[0] as any;
       strictEqual(v1.info.version, "v1");
+      await markCoverage(`/versioning/added/api-version:v1/v1`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          "header-v2": "bar"
+        },
+        body: JSON.stringify({
+          prop: "foo",
+          enumProp: "enumMemberV2",
+          unionProp: 10
+        })
+      });
 
       const v2 = Object.values(results)[1] as any;
       strictEqual(v2.info.version, "v2");
+      await markCoverage(`/versioning/added/api-version:v2/v2`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prop: "foo",
+          enumProp: "enumMember",
+          unionProp: "bar"
+        })
+      });
     });
   });
 });

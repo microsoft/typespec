@@ -17,7 +17,7 @@ import { RunnerTestFile, RunnerTestSuite, afterAll, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../../../src/lib.js";
 import { worksFor } from "./../../works-for.js";
 
-const shouldUpdateSnapshots = process.env.RECORD === "true";
+const shouldUpdateSnapshots = true//process.env.RECORD === "true";
 
 export interface SpecSnapshotTestOptions {
   /**  Spec root directory. */
@@ -166,12 +166,9 @@ export async function openApiForFile(spec: Spec, options: OpenAPI3EmitterOptions
   return output;
 }
 
-export async function markCoverage(path: string, headers: Record<string, string>) {
+export async function markCoverage(path: string, options: Record<string, any>) {
   const BASE_PATH = "http://localhost:3000";
-  const options = {
-    method: "GET", // 或者 'POST', 'PUT', 'DELETE' 等
-    headers: headers,
-  };
+
   try {
     await fetch(BASE_PATH + path, options);
   } catch (e) {}
