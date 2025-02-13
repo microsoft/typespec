@@ -497,17 +497,17 @@ export function createServer(host: ServerHost): Server {
             href: each.url,
           };
         }
+        const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
-        } else if (each.code === `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`) {
+        } else if (each.code === unusedUsingRule) {
           // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
           // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
           // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022
           diagnostic.tags = [DiagnosticTag.Unnecessary];
           if (
-            optionsFromConfig.linterRuleSet?.enable?.[
-              `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`
-            ] === undefined
+            optionsFromConfig.linterRuleSet?.enable?.[unusedUsingRule] === undefined &&
+            optionsFromConfig.linterRuleSet?.disable?.[unusedUsingRule] === undefined
           ) {
             // if the unused using is not configured by user explicitly, report it as hint by default
             diagnostic.severity = DiagnosticSeverity.Hint;

@@ -269,7 +269,7 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
 
 export const builtInLinterLibraryName = `@typespec/compiler`;
 export const builtInLinterRule_UnusedUsing = `unused-using`;
-export function createDefaultLinter(nameResolver: NameResolver): LinterDefinition {
+function createDefaultLinter(nameResolver: NameResolver): LinterDefinition {
   const unusedUsingLinterRule = createUnusedUsingLinterRule();
 
   return defineLinter({

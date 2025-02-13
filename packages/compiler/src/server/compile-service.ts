@@ -109,15 +109,14 @@ export function createCompileService({
       ...serverOptions,
     };
     // add linter rule for unused using if user didn't configure it explicitly
+    const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
     if (
-      options.linterRuleSet?.enable?.[
-        `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`
-      ] === undefined
+      options.linterRuleSet?.enable?.[unusedUsingRule] === undefined &&
+      options.linterRuleSet?.disable?.[unusedUsingRule] === undefined
     ) {
       options.linterRuleSet ??= {};
       options.linterRuleSet.enable ??= {};
-      options.linterRuleSet.enable[`${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`] =
-        true;
+      options.linterRuleSet.enable[unusedUsingRule] = true;
     }
 
     log({ level: "debug", message: `compiler options resolved`, detail: options });
