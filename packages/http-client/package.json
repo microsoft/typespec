@@ -1,0 +1,53 @@
+{
+  "name": "@typespec/http-client",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "tspMain": "lib/main.tsp",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    },
+    "./typekit": {
+      "types": "./dist/src/typekit/index.d.ts",
+      "default": "./dist/src/typekit/index.js"
+    },
+    "./components": {
+      "types": "./dist/src/components/index.d.ts",
+      "default": "./dist/src/components/index.js"
+    }
+  },
+  "dependencies": {
+    "@alloy-js/core": "^0.4.0",
+    "@typespec/compiler": "workspace:*",
+    "@typespec/http": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.26.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@alloy-js/babel-preset": "^0.1.1",
+    "@types/node": "~22.10.10",
+    "eslint": "^9.18.0",
+    "prettier": "~3.4.2",
+    "typescript": "~5.7.3",
+    "vitest": "^3.0.4"
+  },
+  "scripts": {
+    "build-src": "babel src -d dist/src --extensions .ts,.tsx",
+    "build": "tsc -p . && npm run build-src",
+    "watch": "tsc --watch",
+    "build:tsp": "tsp compile . --no-emit",
+    "test": "vitest run",
+    "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
+    "lint:fix": "eslint . --report-unused-disable-directives --fix",
+    "format": "prettier .  --write",
+    "format:check": "prettier --check ."
+  },
+  "private": true
+}
