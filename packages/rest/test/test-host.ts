@@ -19,7 +19,6 @@ import { RestTestLibrary } from "../src/testing/index.js";
 export async function createRestTestHost(): Promise<TestHost> {
   return createTestHost({
     libraries: [HttpTestLibrary, RestTestLibrary],
-    diagnosticFilter: (diag) => diag.severity !== "hint",
   });
 }
 export async function createRestTestRunner(): Promise<BasicTestRunner> {
@@ -96,7 +95,7 @@ export async function getOperationsWithServiceNamespace(
     },
   );
   const [services] = getAllHttpServices(runner.program, routeOptions);
-  return [services[0].operations, runner.program.diagnostics.filter((d) => d.severity !== "hint")];
+  return [services[0].operations, runner.program.diagnostics];
 }
 
 export async function getOperations(code: string): Promise<HttpOperation[]> {

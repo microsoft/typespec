@@ -1,6 +1,7 @@
 import "@typespec/rest";
 
 using TypeSpec.Http;
+using TypeSpec.Rest;
 
 @service({
   title: "Polymorphism sample",

@@ -13,7 +13,6 @@ export async function createCSharpServiceEmitterTestHost() {
       VersioningTestLibrary,
       CSharpServiceEmitterTestLibrary,
     ],
-    diagnosticFilter: (diag) => diag.severity !== "hint",
   });
 
   return result;

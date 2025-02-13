@@ -6,6 +6,7 @@ import "@typespec/openapi3";
   title: "Widget Service",
 })
 namespace DemoService;
+using TypeSpec.Rest;
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;
 

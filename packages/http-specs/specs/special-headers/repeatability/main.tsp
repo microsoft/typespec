@@ -4,6 +4,7 @@ import "@typespec/spector";
 
 using Http;
 using Spector;
+using TypeSpec.Versioning;
 
 @doc("Illustrates OASIS repeatability headers")
 @scenarioService("/special-headers/repeatability")

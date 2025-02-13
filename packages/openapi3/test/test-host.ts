@@ -28,7 +28,6 @@ export async function createOpenAPITestHost() {
       OpenAPITestLibrary,
       OpenAPI3TestLibrary,
     ],
-    diagnosticFilter: (diag) => diag.severity !== "hint",
   });
 }
 
