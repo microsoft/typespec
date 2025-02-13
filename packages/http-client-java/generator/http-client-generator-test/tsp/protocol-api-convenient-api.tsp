@@ -22,56 +22,56 @@ enum ApiVersions {
 }
 
 model ResourceA {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceB {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceC {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceD {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceE {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceF {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceG {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
 }
 
 model ResourceH {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   name: string;
@@ -79,10 +79,10 @@ model ResourceH {
 
 @resource("resources")
 model ResourceI {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @key
   name: string;
 
@@ -91,10 +91,10 @@ model ResourceI {
 
 @resource("resources")
 model ResourceJ {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   @key
   name: string;
 

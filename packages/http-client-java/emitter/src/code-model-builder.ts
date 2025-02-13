@@ -54,6 +54,7 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
+  SdkHeaderParameter,
   SdkHttpErrorResponse,
   SdkHttpOperation,
   SdkHttpResponse,
@@ -63,13 +64,13 @@ import {
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
+  SdkQueryParameter,
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
   createSdkContext,
   getAllModels,
   getHttpOperationParameter,
-  isApiVersion,
   isSdkBuiltInKind,
   isSdkIntKind,
 } from "@azure-tools/typespec-client-generator-core";
@@ -112,7 +113,7 @@ import { OrSchema } from "./common/schemas/relationship.js";
 import { DurationSchema } from "./common/schemas/time.js";
 import { SchemaContext, SchemaUsage } from "./common/schemas/usage.js";
 import { createPollOperationDetailsSchema, getFileDetailsSchema } from "./external-schemas.js";
-import { EmitterOptions, createDiagnostic, reportDiagnostic } from "./lib.js";
+import { EmitterOptions, LIB_NAME, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ClientContext } from "./models.js";
 import {
   CONTENT_TYPE_KEY,
@@ -226,7 +227,7 @@ export class CodeModelBuilder {
       return this.codeModel;
     }
 
-    this.sdkContext = await createSdkContext(this.emitterContext, "@typespec/http-client-java", {
+    this.sdkContext = await createSdkContext(this.emitterContext, LIB_NAME, {
       additionalDecorators: ["Azure\\.ClientGenerator\\.Core\\.@override"],
       versioning: { previewStringRegex: /$/ },
     }); // include all versions and do the filter by ourselves
@@ -1098,24 +1099,12 @@ export class CodeModelBuilder {
           useNewPollStrategy &&
           lroMetadata.finalStep &&
           lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
-          lroMetadata.finalResponse.resultPath
+          lroMetadata.finalResponse.resultSegments &&
+          lroMetadata.finalResponse.resultSegments[0].kind === "property"
         ) {
-          const finalResultPropertyClientName = lroMetadata.finalResponse.resultPath;
-
-          // find serializedName for lro result
-          if (finalResultPropertyClientName) {
-            lroMetadata.finalResponse.envelopeResult.properties?.forEach((p) => {
-              // TODO: "p.__raw?.name" should be "p.name", after TCGC fix https://github.com/Azure/typespec-azure/issues/2072
-              if (
-                !finalResultPropertySerializedName &&
-                p.kind === "property" &&
-                p.serializationOptions.json?.name &&
-                p.__raw?.name === finalResultPropertyClientName
-              ) {
-                finalResultPropertySerializedName = p.serializationOptions.json?.name;
-              }
-            });
-          }
+          finalResultPropertySerializedName = getPropertySerializedName(
+            lroMetadata.finalResponse.resultSegments[0],
+          );
         }
       }
 
@@ -1158,14 +1147,12 @@ export class CodeModelBuilder {
     }
   }
 
-  private _armApiVersionParameter?: Parameter;
-
   private processParameter(
     op: CodeModelOperation,
     param: SdkHttpOperationParameterType,
     clientContext: ClientContext,
   ) {
-    if (clientContext.apiVersions && isApiVersion(this.sdkContext, param)) {
+    if (clientContext.apiVersions && param.isApiVersionParam && param.kind !== "cookie") {
       // pre-condition for "isApiVersion": the client supports ApiVersions
       if (this.isArm()) {
         // Currently we assume ARM tsp only have one client and one api-version.
@@ -1181,8 +1168,7 @@ export class CodeModelBuilder {
         }
         op.addParameter(this._armApiVersionParameter);
       } else {
-        const parameter =
-          param.kind === "query" ? this.apiVersionParameter : this.apiVersionParameterInPath;
+        const parameter = this.getApiVersionParameter(param);
         op.addParameter(parameter);
         clientContext.addGlobalParameter(parameter);
       }
@@ -2901,26 +2887,41 @@ export class CodeModelBuilder {
   }
 
   private _apiVersionParameter?: Parameter;
-  get apiVersionParameter(): Parameter {
-    return (
-      this._apiVersionParameter ||
-      (this._apiVersionParameter = this.createApiVersionParameter(
-        "api-version",
-        ParameterLocation.Query,
-      ))
-    );
-  }
-
   private _apiVersionParameterInPath?: Parameter;
-  get apiVersionParameterInPath(): Parameter {
-    return (
-      this._apiVersionParameterInPath ||
-      // TODO: hardcode as "apiVersion", as it is what we get from compiler
-      (this._apiVersionParameterInPath = this.createApiVersionParameter(
-        "apiVersion",
-        ParameterLocation.Path,
-      ))
-    );
+  private _apiVersionParameterInHeader?: Parameter;
+  private _armApiVersionParameter?: Parameter;
+
+  private getApiVersionParameter(
+    param: SdkQueryParameter | SdkPathParameter | SdkHeaderParameter,
+  ): Parameter {
+    // apiVersionParameter is cached by param.kind
+    // we didn't expect Azure service have more than 1 type of api-version, and certainly not more than 1 of each kind.
+    if (param.kind === "query") {
+      return (
+        this._apiVersionParameter ||
+        (this._apiVersionParameter = this.createApiVersionParameter(
+          param.serializedName,
+          ParameterLocation.Query,
+        ))
+      );
+    } else if (param.kind === "path") {
+      return (
+        this._apiVersionParameterInPath ||
+        (this._apiVersionParameterInPath = this.createApiVersionParameter(
+          param.serializedName,
+          ParameterLocation.Path,
+        ))
+      );
+    } else {
+      // param.kind === "header"
+      return (
+        this._apiVersionParameterInHeader ||
+        (this._apiVersionParameterInHeader = this.createApiVersionParameter(
+          param.serializedName,
+          ParameterLocation.Header,
+        ))
+      );
+    }
   }
 
   private isSubscriptionId(param: SdkPathParameter): boolean {
