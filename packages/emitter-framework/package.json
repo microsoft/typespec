@@ -2,7 +2,6 @@
   "name": "@typespec/emitter-framework",
   "version": "0.1.0",
   "type": "module",
-  "private": true,
   "main": "dist/index.js",
   "scripts": {
     "build-src": "babel src -d dist/src --extensions .ts,.tsx",
@@ -16,21 +15,18 @@
   },
   "exports": {
     ".": {
-      "node": "./dist/src/core/index.js",
-      "types": "./dist/src/core/index.d.ts"
+      "import": "./dist/src/core/index.js"
     },
     "./typescript": {
-      "node": "./dist/src/typescript/index.js",
-      "types": "./dist/src/typescript/index.d.ts"
+      "import": "./dist/src/typescript/index.js"
     },
     "./testing": {
-      "node": "./dist/src/testing/index.js",
-      "types": "./dist/src/testing/index.d.ts"
+      "import": "./dist/src/testing/index.js"
     }
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "peerDependencies": {
     "@typespec/compiler": "workspace:~",

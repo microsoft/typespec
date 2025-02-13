@@ -127,7 +127,6 @@
     "typescript": "~5.7.3",
     "vitest": "^3.0.5",
     "vscode-oniguruma": "~2.0.1",
-    "vscode-textmate": "~9.2.0",
-    "cross-env": "~7.0.3"
+    "vscode-textmate": "~9.2.0"
   }
 }

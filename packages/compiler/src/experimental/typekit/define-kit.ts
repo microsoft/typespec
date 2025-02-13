@@ -32,7 +32,7 @@ export type StripGuards<T> = {
     : StripGuards<T[K]>;
 };
 
-export const TypekitNamespaceSymbol = Symbol("TypekitNamespace");
+export const TypekitNamespaceSymbol = Symbol.for("TypekitNamespace");
 
 /**
  * Defines an extension to the Typekit interface.
