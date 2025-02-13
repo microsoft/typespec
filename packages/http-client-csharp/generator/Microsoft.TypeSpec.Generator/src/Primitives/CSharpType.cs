@@ -131,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        internal CSharpType(
+        public CSharpType(
             TypeProvider implementation,
             string providerNamespace,
             IReadOnlyList<CSharpType> arguments,
