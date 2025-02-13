@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { NoTarget, Program, Tracer } from "@typespec/compiler";
-import { getTracer, reportDiagnostic } from "./lib.js";
+import { getTracer, reportDiagnostic as libReportDiagnostic } from "./lib.js";
 import { LoggerLevel } from "./logger-level.js";
 
 /**
@@ -42,8 +42,12 @@ export class Logger {
     }
   }
 
+  reportDiagnostic(diagnostic: Parameters<typeof libReportDiagnostic>[1]): void {
+    libReportDiagnostic(this.program, diagnostic);
+  }
+
   warn(message: string): void {
-    reportDiagnostic(this.program, {
+    this.reportDiagnostic({
       code: "general-warning",
       format: { message: message },
       target: NoTarget,
@@ -51,7 +55,7 @@ export class Logger {
   }
 
   error(message: string): void {
-    reportDiagnostic(this.program, {
+    this.reportDiagnostic({
       code: "general-error",
       format: { message: message },
       target: NoTarget,

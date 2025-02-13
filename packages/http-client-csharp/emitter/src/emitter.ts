@@ -190,7 +190,7 @@ export async function _validateDotNetSdk(
     return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
         format: {
