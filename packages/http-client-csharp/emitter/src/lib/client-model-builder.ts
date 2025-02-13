@@ -54,8 +54,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   fromSdkClients(sdkContext, rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
-    // TODO - this rootNamespace is really coalescing the `package-name` option and the first namespace found.
-    // Ideally, this would be a required option now.
+    // rootNamespace is really coalescing the `package-name` option and the first namespace found.
     Name: sdkPackage.rootNamespace,
     ApiVersions: rootApiVersions,
     Enums: Array.from(sdkTypeMap.enums.values()),
