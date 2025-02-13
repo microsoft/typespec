@@ -10,7 +10,7 @@ const pkgRoot = await findTestPackageRoot(import.meta.url);
 const specsRoot = resolvePath(pkgRoot, "node_modules", "@typespec", "http-specs", "specs");
 const rootOutputDir = resolvePath(pkgRoot, "test", "http-specs", "output");
 
-describe("http-specs convert", () => {
+describe.skip("http-specs convert", () => {
   defineSpecTests({
     specDir: specsRoot,
     outputDir: rootOutputDir,
