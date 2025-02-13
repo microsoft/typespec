@@ -34,7 +34,8 @@ describe("httpOperation:getResponses", () => {
       @test op getFoo(): Foo | Error;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
-    const responses = $.httpOperation.getResponses(getFoo);
+    const httpOperation = $.httpOperation.get(getFoo);
+    const responses = $.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -56,7 +57,8 @@ describe("httpOperation:getResponses", () => {
       @test op getFoo(): Foo | void;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
-    const responses = $.httpOperation.getResponses(getFoo);
+    const httpOperation = $.httpOperation.get(getFoo);
+    const responses = $.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(2);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
@@ -84,7 +86,8 @@ describe("httpOperation:getResponses", () => {
       @test op getFoo(): Foo | {...Foo, @header contentType: "text/plain"} | Error;
     `)) as { getFoo: Operation; Foo: Model; Error: Model };
 
-    const responses = $.httpOperation.getResponses(getFoo);
+    const httpOperation = $.httpOperation.get(getFoo);
+    const responses = $.httpOperation.flattenResponses(httpOperation);
     expect(responses).toHaveLength(3);
     expect(responses[0].statusCode).toBe(200);
     expect(responses[0].contentType).toBe("application/json");
