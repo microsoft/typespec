@@ -14,9 +14,9 @@ export class Logger {
   private level: LoggerLevel;
   private program: Program;
 
-  public constructor(program: Program, level?: LoggerLevel) {
+  public constructor(program: Program, level: LoggerLevel) {
     this.tracer = getTracer(program);
-    this.level = level ?? LoggerLevel.INFO;
+    this.level = level;
     this.program = program;
   }
 

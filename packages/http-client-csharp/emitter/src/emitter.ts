@@ -28,6 +28,7 @@ import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./op
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
+import { LoggerLevel } from "./lib/logger-level.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -60,7 +61,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const outputFolder = _resolveOutputFolder(context);
 
   /* set the loglevel. */
-  const logger = new Logger(program, options.logLevel);
+  const logger = new Logger(program, options.logLevel ?? LoggerLevel.INFO);
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
