@@ -3,9 +3,6 @@ import { codePointBefore, isIdentifierContinue, trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import {
-  Token,
-  TokenDisplay,
-  TokenFlags,
   createScanner,
   isComment,
   isKeyword,
@@ -15,6 +12,9 @@ import {
   skipContinuousIdentifier,
   skipTrivia,
   skipTriviaBackward,
+  Token,
+  TokenDisplay,
+  TokenFlags,
 } from "./scanner.js";
 import {
   AliasStatementNode,
@@ -3429,6 +3429,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseErrorInNextFinishedNode = true;
       treePrintable = false;
     }
+
     parseDiagnostics.push(diagnostic);
   }
 
