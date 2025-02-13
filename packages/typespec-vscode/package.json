@@ -245,8 +245,8 @@
     "@rollup/plugin-typescript": "~12.1.0",
     "@types/mocha": "^10.0.9",
     "@types/node": "~22.10.10",
-    "@types/vscode": "~1.96.0",
     "@types/semver": "^7.5.8",
+    "@types/vscode": "~1.96.0",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "@vitest/coverage-v8": "^3.0.4",
@@ -262,8 +262,5 @@
     "vitest": "^3.0.5",
     "vscode-languageclient": "~9.0.1",
     "yaml": "~2.7.0"
-  },
-  "dependencies": {
-    "swagger-ui-dist": "^5.17.14"
   }
 }

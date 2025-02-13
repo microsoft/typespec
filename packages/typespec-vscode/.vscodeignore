@@ -18,3 +18,4 @@ dist/test/
 !LICENSE
 !icons/
 !snippets.json
+!swagger-ui/

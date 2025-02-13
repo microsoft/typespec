@@ -152,7 +152,7 @@ let html: string | undefined;
 
 function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
   if (html === undefined) {
-    const swaggerUiRoot = vscode.Uri.joinPath(extensionUri, "node_modules", "swagger-ui-dist");
+    const swaggerUiRoot = vscode.Uri.joinPath(extensionUri, "swagger-ui");
     const css = panel.webview.asWebviewUri(vscode.Uri.joinPath(swaggerUiRoot, "swagger-ui.css"));
     const bundleJs = panel.webview.asWebviewUri(
       vscode.Uri.joinPath(swaggerUiRoot, "swagger-ui-bundle.js"),
@@ -163,7 +163,7 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
     );
     // initialization script is customized to load openapi3 spec from openapi emitter output
     const initJs = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(extensionUri, "openapi3_view", "swagger-initializer.js"),
+      vscode.Uri.joinPath(swaggerUiRoot, "swagger-initializer.js"),
     );
 
     html = `<!doctype html>
