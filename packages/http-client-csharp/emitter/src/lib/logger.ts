@@ -2,7 +2,11 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import { DiagnosticReport, NoTarget, Program, Tracer } from "@typespec/compiler";
-import { diagMessages, getTracer, reportDiagnostic as libReportDiagnostic } from "./lib.js";
+import {
+  DiagnosticMessagesMap,
+  getTracer,
+  reportDiagnostic as libReportDiagnostic,
+} from "./lib.js";
 import { LoggerLevel } from "./logger-level.js";
 
 /**
@@ -42,7 +46,9 @@ export class Logger {
     }
   }
 
-  reportDiagnostic<C extends keyof typeof diagMessages, M extends keyof typeof diagMessages[C]>(diagnostic: DiagnosticReport<typeof diagMessages, C, M>): void {
+  reportDiagnostic<C extends keyof DiagnosticMessagesMap, M extends keyof DiagnosticMessagesMap[C]>(
+    diagnostic: DiagnosticReport<DiagnosticMessagesMap, C, M>,
+  ): void {
     libReportDiagnostic(this.program, diagnostic);
   }
 
