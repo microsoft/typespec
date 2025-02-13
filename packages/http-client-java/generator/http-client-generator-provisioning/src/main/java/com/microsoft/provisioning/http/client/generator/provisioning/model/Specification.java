@@ -250,7 +250,7 @@ public abstract class Specification extends ModelBase {
             ClassType classType = (ClassType) wireType;
             String packageName = this.getProvisioningPackage();
             if (!this.resourceModelMap.containsKey(clientModel)) {
-                packageName += "models";
+                packageName += ".models";
             }
             SimpleModel simpleModel
                 = new SimpleModel(this, resource.getArmType(), classType.getName(), packageName, null);
@@ -266,7 +266,7 @@ public abstract class Specification extends ModelBase {
             return externalModel;
         } else if (wireType instanceof ClassType) {
             ExternalModel externalModel
-                = new ExternalModel(((ClassType) wireType).getName(), this.getProvisioningPackage() + ".models");
+                = new ExternalModel(((ClassType) wireType).getName(), ((ClassType) wireType).getPackage());
             externalModel.setExternal(true);
             externalModel.setSpec(this);
             TypeRegistry.register(externalModel);
