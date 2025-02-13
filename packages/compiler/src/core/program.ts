@@ -1,4 +1,4 @@
-import {render, OutputDirectory} from "@alloy-js/core"
+import { type OutputDirectory } from "@alloy-js/core"; 
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/index.js";
@@ -580,6 +580,8 @@ export async function compile(
     try {
       const result = (await emitter.emitFunction(context)) as any;
       if (typeof result === "function") {
+        // import {render, OutputDirectory} from "@alloy-js/core"
+        const {render} = await import("@alloy-js/core");
         // assume this is an alloy component
         const tree = render(result);
         await writeOutputDirectory(tree, context.emitterOutputDir);

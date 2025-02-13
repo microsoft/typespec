@@ -56,7 +56,7 @@ describe("Typescript Type Alias Declaration", () => {
         const testFile = res.contents.find((file) => file.path === "test.ts");
         assert(testFile, "test.ts file not rendered");
         const actualContent = await format(testFile.contents as string, { parser: "typescript" });
-        const expectedContent = await format(`type MyDate = number;`, {
+        const expectedContent = await format(`type MyDate = Date;`, {
           parser: "typescript",
         });
         expect(actualContent).toBe(expectedContent);

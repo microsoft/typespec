@@ -38,8 +38,9 @@ describe("Typescript Interface", () => {
           const actualContent = await format(testFile.contents as string, { parser: "typescript" });
           const expectedContent = await format(
             `
-            export interface DifferentSpreadModelRecord extends Record<string, unknown> {
+            export interface DifferentSpreadModelRecord {
               knownProp: string;
+              additionalProperties?: Record<string, unknown>;
             }
             `,
             {
@@ -110,7 +111,9 @@ describe("Typescript Interface", () => {
           assert(testFile, "test.ts file not rendered");
           const actualContent = await format(testFile.contents as string, { parser: "typescript" });
           const expectedContent = await format(
-            `export interface Foo extends Record<string, unknown> { }
+            `export interface Foo {
+              additionalProperties?: Record<string, string>;
+            }
             `,
             {
               parser: "typescript",
@@ -148,7 +151,9 @@ describe("Typescript Interface", () => {
           const actualContent = await format(testFile.contents as string, { parser: "typescript" });
           const expectedContent = await format(
             `
-            export interface Foo extends Record<string, unknown> { }
+            export interface Foo {
+              additionalProperties?: Record<string, string>;
+            }
             `,
             {
               parser: "typescript",
@@ -197,8 +202,9 @@ describe("Typescript Interface", () => {
             `export interface ModelForRecord {
               state: string;
             }
-            export interface DifferentSpreadModelRecord extends Record<string, unknown> {
+            export interface DifferentSpreadModelRecord {
               knownProp: string;
+              additionalProperties?: Record<string, ModelForRecord>;
             }
             export interface DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
               derivedProp: ModelForRecord;
