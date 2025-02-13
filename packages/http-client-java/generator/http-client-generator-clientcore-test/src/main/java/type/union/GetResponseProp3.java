@@ -3,7 +3,11 @@
 package type.union;
 
 import io.clientcore.core.annotation.Metadata;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonWriter;
 import io.clientcore.core.util.ExpandableEnum;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -14,7 +18,7 @@ import java.util.function.Function;
 /**
  * Defines values for GetResponseProp3.
  */
-public final class GetResponseProp3 implements ExpandableEnum<String> {
+public final class GetResponseProp3 implements ExpandableEnum<String>, JsonSerializable<GetResponseProp3> {
     private static final Map<String, GetResponseProp3> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, GetResponseProp3> NEW_INSTANCE = GetResponseProp3::new;
@@ -73,16 +77,33 @@ public final class GetResponseProp3 implements ExpandableEnum<String> {
         return this.value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Metadata(generated = true)
     @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        return jsonWriter.writeString(getValue());
+    }
+
+    /**
+     * Reads an instance of GetResponseProp3 from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of GetResponseProp3 if the JsonReader was pointing to an instance of it.
+     * @throws IOException If an error occurs while reading the GetResponseProp3.
+     * @throws IllegalArgumentException if the JsonReader was pointing to JSON null.
+     */
+    @Metadata(generated = true)
+    public static GetResponseProp3 fromJson(JsonReader jsonReader) throws IOException {
+        jsonReader.nextToken();
+        return GetResponseProp3.fromValue(jsonReader.getString());
     }
 
     @Metadata(generated = true)
     @Override
-    public boolean equals(Object obj) {
-        return this == obj;
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     @Metadata(generated = true)

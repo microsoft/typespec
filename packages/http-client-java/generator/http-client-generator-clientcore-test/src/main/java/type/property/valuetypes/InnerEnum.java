@@ -3,7 +3,11 @@
 package type.property.valuetypes;
 
 import io.clientcore.core.annotation.Metadata;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonWriter;
 import io.clientcore.core.util.ExpandableEnum;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -14,7 +18,7 @@ import java.util.function.Function;
 /**
  * Enum that will be used as a property for model EnumProperty. Extensible.
  */
-public final class InnerEnum implements ExpandableEnum<String> {
+public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable<InnerEnum> {
     private static final Map<String, InnerEnum> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, InnerEnum> NEW_INSTANCE = InnerEnum::new;
@@ -73,16 +77,33 @@ public final class InnerEnum implements ExpandableEnum<String> {
         return this.value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Metadata(generated = true)
     @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        return jsonWriter.writeString(getValue());
+    }
+
+    /**
+     * Reads an instance of InnerEnum from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of InnerEnum if the JsonReader was pointing to an instance of it.
+     * @throws IOException If an error occurs while reading the InnerEnum.
+     * @throws IllegalArgumentException if the JsonReader was pointing to JSON null.
+     */
+    @Metadata(generated = true)
+    public static InnerEnum fromJson(JsonReader jsonReader) throws IOException {
+        jsonReader.nextToken();
+        return InnerEnum.fromValue(jsonReader.getString());
     }
 
     @Metadata(generated = true)
     @Override
-    public boolean equals(Object obj) {
-        return this == obj;
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     @Metadata(generated = true)

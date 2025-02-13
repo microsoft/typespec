@@ -3,7 +3,11 @@
 package type.union;
 
 import io.clientcore.core.annotation.Metadata;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonWriter;
 import io.clientcore.core.util.ExpandableEnum;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -14,7 +18,8 @@ import java.util.function.Function;
 /**
  * Defines values for StringExtensibleNamedUnion.
  */
-public final class StringExtensibleNamedUnion implements ExpandableEnum<String> {
+public final class StringExtensibleNamedUnion
+    implements ExpandableEnum<String>, JsonSerializable<StringExtensibleNamedUnion> {
     private static final Map<String, StringExtensibleNamedUnion> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, StringExtensibleNamedUnion> NEW_INSTANCE = StringExtensibleNamedUnion::new;
@@ -73,16 +78,33 @@ public final class StringExtensibleNamedUnion implements ExpandableEnum<String> 
         return this.value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Metadata(generated = true)
     @Override
-    public String toString() {
-        return Objects.toString(this.value);
+    public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
+        return jsonWriter.writeString(getValue());
+    }
+
+    /**
+     * Reads an instance of StringExtensibleNamedUnion from the JsonReader.
+     * 
+     * @param jsonReader The JsonReader being read.
+     * @return An instance of StringExtensibleNamedUnion if the JsonReader was pointing to an instance of it.
+     * @throws IOException If an error occurs while reading the StringExtensibleNamedUnion.
+     * @throws IllegalArgumentException if the JsonReader was pointing to JSON null.
+     */
+    @Metadata(generated = true)
+    public static StringExtensibleNamedUnion fromJson(JsonReader jsonReader) throws IOException {
+        jsonReader.nextToken();
+        return StringExtensibleNamedUnion.fromValue(jsonReader.getString());
     }
 
     @Metadata(generated = true)
     @Override
-    public boolean equals(Object obj) {
-        return this == obj;
+    public String toString() {
+        return Objects.toString(this.value);
     }
 
     @Metadata(generated = true)
