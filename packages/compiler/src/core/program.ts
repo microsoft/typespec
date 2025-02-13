@@ -580,13 +580,10 @@ export async function compile(
     try {
       const result = (await emitter.emitFunction(context)) as any;
       if (typeof result === "function") {
-        // import {render, OutputDirectory} from "@alloy-js/core"
         const { render } = await import("@alloy-js/core");
         // assume this is an alloy component
         const tree = render(result);
         await writeOutputDirectory(tree, context.emitterOutputDir);
-      } else {
-        await emitter.emitFunction(context);
       }
     } catch (error: unknown) {
       throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
