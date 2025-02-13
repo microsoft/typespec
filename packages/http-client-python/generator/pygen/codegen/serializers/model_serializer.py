@@ -326,11 +326,12 @@ class DpgModelSerializer(_ModelSerializer):
         type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
         generated_code = f'{prop.client_name}: {type_annotation} = {field}({", ".join(args)})'
         # there is 4 spaces indentation so original line length limit 120 - 4 = 116
-        pylint_disable = (
-            " # pylint: disable=line-too-long"
-            if (len(generated_code) <= 116 < (len(generated_code) + len(type_ignore))) or (len(generated_code) > 116)
-            else ""
-        )
+        if len(generated_code) > 116:
+            pylint_disable = " # pylint: disable=line-too-long"
+        elif len(generated_code) + len(type_ignore) > 116:
+            pylint_disable = " # pylint: disable=line-too-long,useless-suppression"
+        else:
+            pylint_disable = ""
         return f"{generated_code}{type_ignore}{pylint_disable}"
 
     def initialize_properties(self, model: ModelType) -> List[str]:
