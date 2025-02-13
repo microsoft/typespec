@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.65.1
+
+### Bug Fixes
+
+- [#5975](https://github.com/microsoft/typespec/pull/5975) Downgrade arborist dependency which added node20+ requirement
+
+
 ## 0.65.0
 
 ### Bug Fixes

@@ -16,6 +16,7 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
+import { createTripleQuoteIndentCodeFix } from "./compiler-code-fixes/triple-quote-indent.codefix.js";
 import { DiagnosticHandler, compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
 import { getCommentAtPosition } from "./parser-utils.js";
@@ -1101,8 +1102,6 @@ export function createScanner(
         end--;
       }
       end--;
-    } else {
-      error({ code: "no-new-line-end-triple-quote" });
     }
 
     return [indentationStart, indentationEnd];
@@ -1133,7 +1132,10 @@ export function createScanner(
         }
         start++;
       } else {
-        error({ code: "no-new-line-start-triple-quote" });
+        error({
+          code: "no-new-line-start-triple-quote",
+          codefixes: [createTripleQuoteIndentCodeFix({ file, pos: tokenPosition, end: position })],
+        });
       }
     }
 
@@ -1149,7 +1151,10 @@ export function createScanner(
         }
         end--;
       } else {
-        error({ code: "no-new-line-end-triple-quote" });
+        error({
+          code: "no-new-line-end-triple-quote",
+          codefixes: [createTripleQuoteIndentCodeFix({ file, pos: tokenPosition, end: position })],
+        });
       }
     }
 
@@ -1229,7 +1234,10 @@ export function createScanner(
         break;
       }
       if (ch !== input.charCodeAt(indentationPos)) {
-        error({ code: "triple-quote-indent" });
+        error({
+          code: "triple-quote-indent",
+          codefixes: [createTripleQuoteIndentCodeFix({ file, pos: tokenPosition, end: position })],
+        });
         break;
       }
       indentationPos++;

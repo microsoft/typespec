@@ -12,11 +12,11 @@ importers:
   .:
     devDependencies:
       '@chronus/chronus':
-        specifier: ^0.14.0
-        version: 0.14.0
+        specifier: ^0.14.1
+        version: 0.14.1
       '@chronus/github':
-        specifier: ^0.4.5
-        version: 0.4.5
+        specifier: ^0.4.7
+        version: 0.4.7
       '@eslint/js':
         specifier: ^9.18.0
         version: 9.18.0
@@ -43,7 +43,7 @@ importers:
         version: 22.10.10
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       c8:
         specifier: ^10.1.3
         version: 10.1.3
@@ -104,6 +104,9 @@ importers:
       typescript-eslint:
         specifier: ^8.21.0
         version: 8.21.0(eslint@9.18.0(jiti@1.21.6))(typescript@5.7.3)
+      vite-plugin-node-polyfills:
+        specifier: ^0.23.0
+        version: 0.23.0(rollup@4.34.6)(vite@6.1.0(@types/node@22.10.10)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0))
       vitest:
         specifier: ^3.0.5
         version: 3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0)
@@ -154,7 +157,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -203,7 +206,7 @@ importers:
         version: 7.5.8
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -267,7 +270,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -293,8 +296,8 @@ importers:
         specifier: ~7.26.2
         version: 7.26.2
       '@npmcli/arborist':
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^8.0.0
+        version: 8.0.0
       ajv:
         specifier: ~8.17.1
         version: 8.17.1
@@ -361,7 +364,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -413,7 +416,7 @@ importers:
         version: 8.21.0
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -449,7 +452,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -519,7 +522,7 @@ importers:
         version: 4.3.4(vite@6.0.11(@types/node@22.10.10)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -564,7 +567,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -628,7 +631,7 @@ importers:
         version: link:../versioning
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -665,7 +668,7 @@ importers:
         version: link:../http
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -754,7 +757,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -797,7 +800,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -830,7 +833,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -858,7 +861,7 @@ importers:
         version: 22.10.10
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -900,7 +903,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -970,7 +973,7 @@ importers:
         version: link:../xml
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1212,7 +1215,7 @@ importers:
         version: 4.3.4(vite@6.0.11(@types/node@22.10.10)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1291,7 +1294,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1352,7 +1355,7 @@ importers:
         version: 4.3.4(vite@6.0.11(@types/node@22.10.10)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1397,7 +1400,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1470,7 +1473,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1564,7 +1567,7 @@ importers:
         version: 17.0.33
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1792,7 +1795,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1832,7 +1835,7 @@ importers:
         version: 22.10.10
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1880,7 +1883,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -1948,7 +1951,7 @@ importers:
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -2014,7 +2017,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -2068,7 +2071,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -2101,7 +2104,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+        version: 3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
       '@vitest/ui':
         specifier: ^3.0.3
         version: 3.0.4(vitest@3.0.5)
@@ -2262,6 +2265,9 @@ importers:
       rimraf:
         specifier: ~6.0.1
         version: 6.0.1
+      vite-plugin-node-polyfills:
+        specifier: ^0.23.0
+        version: 0.23.0(rollup@4.34.6)(vite@6.0.11(@types/node@22.10.10)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0))
 
 packages:
 
@@ -3167,13 +3173,18 @@ packages:
   '@chevrotain/utils@11.0.3':
     resolution: {integrity: sha512-YslZMgtJUyuMbZ+aKvfF3x1f5liK4mWNxghFRv7jqRR9C3R3fAOGTTKvxXDa2Y1s9zSbcpuO0cAxDYsc9SrXoQ==}
 
-  '@chronus/chronus@0.14.0':
-    resolution: {integrity: sha512-1HfTFaUJ89S8yzpvxVHaP8rOWXwKnBhxFGnv+jNtJx0vEBL7yN44ytfx/bqJGejLSTfgB7SIHSed4uFCRmF3Rw==}
+  '@chronus/chronus@0.14.1':
+    resolution: {integrity: sha512-rJtN18zFipONmzPTpApzri9TWibLTyK7oMpn6jaSBpZ0b1A/DhdZ8DsiiTvs+wHkAXdnMTqcOna15QLdOndfHQ==}
     engines: {node: '>=16.0.0'}
     hasBin: true
 
-  '@chronus/github@0.4.5':
-    resolution: {integrity: sha512-FH0evQAu1sn3XTH3Gav9o1AcIOTkEH+ysqYjedRRdCZ92LtKuIXV6+X1HF0Jm+ULmUdxIeWcSV6fSZ4UfEsi4Q==}
+  '@chronus/chronus@0.15.0':
+    resolution: {integrity: sha512-KUU14Ti75+H6XOeltDO7jrlxwiEhb0T18YZp8O8V/yJ7AkOR+R/XKSN70xLIJTNJAWpk1WEkGYCOgad883n6sw==}
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+
+  '@chronus/github@0.4.7':
+    resolution: {integrity: sha512-cvk7JOBP3N9hByJrWDSxwZvtHqpoFS62nBuO2oTuuczqwklIUPHzuPZnu9EeSotcy8YUOPs1acEg7oxBeAciQg==}
     engines: {node: '>=16.0.0'}
     hasBin: true
 
@@ -4629,9 +4640,9 @@ packages:
     resolution: {integrity: sha512-S79NdEgDQd/NGCay6TCoVzXSj74skRZIKJcpJjC5lOq34SZzyI6MqtiiWoiVWoVrTcGjNeC4ipbh1VIHlpfF5Q==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
-  '@npmcli/arborist@9.0.0':
-    resolution: {integrity: sha512-ZFsI/VJ7wJ2rTksLNJ9xqr75Ste/wiKvW+7w12ZGbcT67xWii97yS+aDlh3edNhqlqoXvdzYG4hTNui81VxJCA==}
-    engines: {node: ^20.17.0 || >=22.9.0}
+  '@npmcli/arborist@8.0.0':
+    resolution: {integrity: sha512-APDXxtXGSftyXibl0dZ3CuZYmmVnkiN3+gkqwXshY4GKC2rof2+Lg0sGuj6H1p2YfBAKd7PRwuMVhu6Pf/nQ/A==}
+    engines: {node: ^18.17.0 || >=20.5.0}
     hasBin: true
 
   '@npmcli/fs@4.0.0':
@@ -4651,9 +4662,9 @@ packages:
     resolution: {integrity: sha512-mnuMuibEbkaBTYj9HQ3dMe6L0ylYW+s/gfz7tBDMFY/la0w9Kf44P9aLn4/+/t3aTR3YUHKoT6XQL9rlicIe3Q==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
-  '@npmcli/metavuln-calculator@9.0.0':
-    resolution: {integrity: sha512-znLKqdy1ZEGNK3VB9j/RzGyb/P0BJb3fGpvEbHIAyBAXsps2l1ce8SVHfsGAFLl9s8072PxafqTn7RC8wSnQPg==}
-    engines: {node: ^20.17.0 || >=22.9.0}
+  '@npmcli/metavuln-calculator@8.0.1':
+    resolution: {integrity: sha512-WXlJx9cz3CfHSt9W9Opi1PTFc4WZLFomm5O8wekxQZmkyljrBRwATwDxfC9iOXJwYVmfiW1C1dUe0W2aN0UrSg==}
+    engines: {node: ^18.17.0 || >=20.5.0}
 
   '@npmcli/name-from-folder@3.0.0':
     resolution: {integrity: sha512-61cDL8LUc9y80fXn+lir+iVt8IS0xHqEKwPu/5jCjxQTVoSCmkXvw4vbMrzAMtmghz3/AkiBjhHkDKUH+kf7kA==}
@@ -4721,6 +4732,10 @@ packages:
 
   '@octokit/graphql@8.1.2':
     resolution: {integrity: sha512-bdlj/CJVjpaz06NBpfHhp4kGJaRZfz7AzC+6EwUImRtrwIw8dIgJ63Xg0OzV9pRn3rIzrt5c2sa++BL0JJ8GLw==}
+    engines: {node: '>= 18'}
+
+  '@octokit/graphql@8.2.0':
+    resolution: {integrity: sha512-gejfDywEml/45SqbWTWrhfwvLBrcGYhOn50sPOjIeVvH6i7D16/9xcFA8dAJNp2HMcd+g4vru41g4E2RBiZvfQ==}
     engines: {node: '>= 18'}
 
   '@octokit/oauth-app@7.1.5':
@@ -4791,6 +4806,9 @@ packages:
 
   '@octokit/types@13.7.0':
     resolution: {integrity: sha512-BXfRP+3P3IN6fd4uF3SniaHKOO4UXWBfkdR3vA8mIvaoO/wLjGN5qivUtW0QRitBHHMcfC41SLhNVYIZZE+wkA==}
+
+  '@octokit/types@13.8.0':
+    resolution: {integrity: sha512-x7DjTIbEpEWXK99DMd01QfWy0hd5h4EN+Q7shkdKds3otGQP+oWE/y0A76i1OvH9fygo4ddvNf7ZvF0t78P98A==}
 
   '@octokit/webhooks-methods@5.1.0':
     resolution: {integrity: sha512-yFZa3UH11VIxYnnoOYCVoJ3q4ChuSOk2IVBBQ0O3xtKX4x9bmKb/1t+Mxixv2iUhzMdOl1qeWJqEhouXXzB3rQ==}
@@ -8646,6 +8664,10 @@ packages:
     resolution: {integrity: sha512-s3Fq41ZVh7vbbe2PN3nrW7yC7U7MFVc5c98/iTl9c2GawNMKx/J648KQRW6WKkuU8GIbbh2IXfIRQjOZnXcTnw==}
     engines: {node: '>=18'}
 
+  globby@14.1.0:
+    resolution: {integrity: sha512-0Ia46fDOaT7k4og1PDW4YbodWWr3scS2vAr2lTbsplOt2WkKp0vQbkI9wKis/T5LV/dqPjO3bpS/z6GTJB82LA==}
+    engines: {node: '>=18'}
+
   globrex@0.1.2:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
 
@@ -8945,6 +8967,10 @@ packages:
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
+    engines: {node: '>= 4'}
+
+  ignore@7.0.3:
+    resolution: {integrity: sha512-bAH5jbK/F3T3Jls4I0SO1hmPR0dKU0a7+SY6n1yzRtG54FLO8d6w/nxLFX2Nb7dBu6cCWXPaAME6cYqFUMmuCA==}
     engines: {node: '>= 4'}
 
   import-fresh@3.3.0:
@@ -10274,10 +10300,6 @@ packages:
     resolution: {integrity: sha512-aDxjFfPV3Liw0WOBWlyZLMBqtbgbg03rmGvHDJa2Ttv7tIz+1oB5qWec4psCDFZcZi9b5XdGkPdQiJxOPzvQRQ==}
     engines: {node: ^18.17.0 || >=20.5.0}
 
-  npm-packlist@10.0.0:
-    resolution: {integrity: sha512-rht9U6nS8WOBDc53eipZNPo5qkAV4X2rhKE2Oj1DYUQ3DieXfj0mKkVmjnf3iuNdtMd8WfLdi2L6ASkD/8a+Kg==}
-    engines: {node: ^20.17.0 || >=22.9.0}
-
   npm-packlist@9.0.0:
     resolution: {integrity: sha512-8qSayfmHJQTx3nJWYbbUmflpyarbLMBc6LCAjYsiGtXxDB68HaZpb8re6zeaLGxZzDuMdhsg70jryJe+RrItVQ==}
     engines: {node: ^18.17.0 || >=20.5.0}
@@ -10494,14 +10516,14 @@ packages:
   package-manager-detector@0.2.4:
     resolution: {integrity: sha512-H/OUu9/zUfP89z1APcBf2X8Us0tt8dUK4lUmKqz12QNXif3DxAs1/YqjGtcutZi1zQqeNQRWr9C+EbQnnvSSFA==}
 
-  pacote@20.0.0:
-    resolution: {integrity: sha512-pRjC5UFwZCgx9kUFDVM9YEahv4guZ1nSLqwmWiLUnDbGsjs+U5w7z6Uc8HNR1a6x8qnu5y9xtGE6D1uAuYz+0A==}
+  pacote@19.0.1:
+    resolution: {integrity: sha512-zIpxWAsr/BvhrkSruspG8aqCQUUrWtpwx0GjiRZQhEM/pZXrigA32ElN3vTcCPUDOFmHr6SFxwYrvVUs5NTEUg==}
     engines: {node: ^18.17.0 || >=20.5.0}
     hasBin: true
 
-  pacote@21.0.0:
-    resolution: {integrity: sha512-lcqexq73AMv6QNLo7SOpz0JJoaGdS3rBFgF122NZVl1bApo2mfu+XzUBU/X/XsiJu+iUmKpekRayqQYAs+PhkA==}
-    engines: {node: ^20.17.0 || >=22.9.0}
+  pacote@20.0.0:
+    resolution: {integrity: sha512-pRjC5UFwZCgx9kUFDVM9YEahv4guZ1nSLqwmWiLUnDbGsjs+U5w7z6Uc8HNR1a6x8qnu5y9xtGE6D1uAuYz+0A==}
+    engines: {node: ^18.17.0 || >=20.5.0}
     hasBin: true
 
   pagefind@1.3.0:
@@ -10638,6 +10660,10 @@ packages:
   path-type@5.0.0:
     resolution: {integrity: sha512-5HviZNaZcfqP95rwpv+1HDgUamezbqdSYTyzjTvwtJSnIH+3vnbmWsItli8OFEndS984VT55M3jduxZbX351gg==}
     engines: {node: '>=12'}
+
+  path-type@6.0.0:
+    resolution: {integrity: sha512-Vj7sf++t5pBD637NSfkxpHSMfWaeig5+DKWLhcqIYx6mWQz5hdJTGDVMQiJcw1ZYkhs7AazKDGpRVji1LJCZUQ==}
+    engines: {node: '>=18'}
 
   pathe@1.1.2:
     resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
@@ -12810,10 +12836,6 @@ packages:
   walk-up-path@3.0.1:
     resolution: {integrity: sha512-9YlCL/ynK3CTlrSRrDxZvUauLzAswPCrsaCgilqFevUYpeEW0/3ScEjaa3kbW/T0ghhkEr7mv+fpjqn1Y1YuTA==}
 
-  walk-up-path@4.0.0:
-    resolution: {integrity: sha512-3hu+tD8YzSLGuFYtPRb48vdhKMi0KQV5sn+uWr8+7dMEq/2G/dtLrdDinkLjqq5TIbIBjYJ4Ax/n3YiaW7QM8A==}
-    engines: {node: 20 || >=22}
-
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
 
@@ -13119,6 +13141,9 @@ packages:
 
   zod@3.24.1:
     resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
+
+  zod@3.24.2:
+    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -14448,7 +14473,7 @@ snapshots:
 
   '@chevrotain/utils@11.0.3': {}
 
-  '@chronus/chronus@0.14.0':
+  '@chronus/chronus@0.14.1':
     dependencies:
       cross-spawn: 7.0.6
       globby: 14.0.2
@@ -14468,10 +14493,30 @@ snapshots:
       - bluebird
       - supports-color
 
-  '@chronus/github@0.4.5':
+  '@chronus/chronus@0.15.0':
     dependencies:
-      '@chronus/chronus': 0.14.0
-      '@octokit/graphql': 8.1.2
+      cross-spawn: 7.0.6
+      globby: 14.1.0
+      is-unicode-supported: 2.1.0
+      micromatch: 4.0.8
+      pacote: 20.0.0
+      picocolors: 1.1.1
+      pluralize: 8.0.0
+      prompts: 2.4.2
+      semver: 7.7.1
+      source-map-support: 0.5.21
+      std-env: 3.8.0
+      yaml: 2.7.0
+      yargs: 17.7.2
+      zod: 3.24.2
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
+
+  '@chronus/github@0.4.7':
+    dependencies:
+      '@chronus/chronus': 0.15.0
+      '@octokit/graphql': 8.2.0
       '@octokit/rest': 21.1.0
       cross-spawn: 7.0.6
       octokit: 4.1.0
@@ -16481,13 +16526,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@npmcli/arborist@9.0.0':
+  '@npmcli/arborist@8.0.0':
     dependencies:
       '@isaacs/string-locale-compare': 1.1.0
       '@npmcli/fs': 4.0.0
       '@npmcli/installed-package-contents': 3.0.0
       '@npmcli/map-workspaces': 4.0.2
-      '@npmcli/metavuln-calculator': 9.0.0
+      '@npmcli/metavuln-calculator': 8.0.1
       '@npmcli/name-from-folder': 3.0.0
       '@npmcli/node-gyp': 4.0.0
       '@npmcli/package-json': 6.1.1
@@ -16498,6 +16543,7 @@ snapshots:
       cacache: 19.0.1
       common-ancestor-path: 1.0.1
       hosted-git-info: 8.0.2
+      json-parse-even-better-errors: 4.0.0
       json-stringify-nice: 1.1.4
       lru-cache: 10.4.3
       minimatch: 9.0.5
@@ -16506,24 +16552,24 @@ snapshots:
       npm-package-arg: 12.0.1
       npm-pick-manifest: 10.0.0
       npm-registry-fetch: 18.0.2
-      pacote: 21.0.0
+      pacote: 19.0.1
       parse-conflict-json: 4.0.0
       proc-log: 5.0.0
       proggy: 3.0.0
       promise-all-reject-late: 1.0.1
       promise-call-limit: 3.0.2
       read-package-json-fast: 4.0.0
-      semver: 7.6.3
+      semver: 7.7.1
       ssri: 12.0.0
       treeverse: 3.0.0
-      walk-up-path: 4.0.0
+      walk-up-path: 3.0.1
     transitivePeerDependencies:
       - bluebird
       - supports-color
 
   '@npmcli/fs@4.0.0':
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   '@npmcli/git@6.0.1':
     dependencies:
@@ -16534,7 +16580,7 @@ snapshots:
       proc-log: 5.0.0
       promise-inflight: 1.0.1
       promise-retry: 2.0.1
-      semver: 7.6.3
+      semver: 7.7.1
       which: 5.0.0
     transitivePeerDependencies:
       - bluebird
@@ -16553,13 +16599,13 @@ snapshots:
     transitivePeerDependencies:
       - bluebird
 
-  '@npmcli/metavuln-calculator@9.0.0':
+  '@npmcli/metavuln-calculator@8.0.1':
     dependencies:
       cacache: 19.0.1
       json-parse-even-better-errors: 4.0.0
-      pacote: 21.0.0
+      pacote: 20.0.0
       proc-log: 5.0.0
-      semver: 7.6.3
+      semver: 7.7.1
     transitivePeerDependencies:
       - bluebird
       - supports-color
@@ -16575,7 +16621,7 @@ snapshots:
       hosted-git-info: 8.0.2
       json-parse-even-better-errors: 4.0.0
       proc-log: 5.0.0
-      semver: 7.6.3
+      semver: 7.7.1
       validate-npm-package-license: 3.0.4
     transitivePeerDependencies:
       - bluebird
@@ -16674,6 +16720,12 @@ snapshots:
       '@octokit/types': 13.7.0
       universal-user-agent: 7.0.2
 
+  '@octokit/graphql@8.2.0':
+    dependencies:
+      '@octokit/request': 9.2.0
+      '@octokit/types': 13.8.0
+      universal-user-agent: 7.0.2
+
   '@octokit/oauth-app@7.1.5':
     dependencies:
       '@octokit/auth-oauth-app': 8.1.2
@@ -16749,6 +16801,10 @@ snapshots:
       '@octokit/plugin-rest-endpoint-methods': 13.3.0(@octokit/core@6.1.3)
 
   '@octokit/types@13.7.0':
+    dependencies:
+      '@octokit/openapi-types': 23.0.1
+
+  '@octokit/types@13.8.0':
     dependencies:
       '@octokit/openapi-types': 23.0.1
 
@@ -16872,7 +16928,7 @@ snapshots:
       ramda: '@pnpm/ramda@0.28.1'
       right-pad: 1.0.1
       rxjs: 7.8.1
-      semver: 7.6.3
+      semver: 7.7.1
       stacktracey: 2.1.8
       string-length: 4.0.2
       strip-ansi: 6.0.1
@@ -16959,7 +17015,7 @@ snapshots:
       detect-libc: 2.0.3
       execa: safe-execa@0.1.2
       mem: 8.1.1
-      semver: 7.6.3
+      semver: 7.7.1
 
   '@pnpm/pnpmfile@5.0.7(@pnpm/logger@5.2.0)':
     dependencies:
@@ -18071,7 +18127,7 @@ snapshots:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.5
-      semver: 7.6.3
+      semver: 7.7.1
       ts-api-utils: 1.4.3(typescript@5.7.3)
     optionalDependencies:
       typescript: 5.7.3
@@ -18241,7 +18297,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))':
+  '@vitest/coverage-v8@3.0.4(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(@vitest/ui@3.0.4)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 1.0.2
@@ -21722,6 +21778,15 @@ snapshots:
       slash: 5.1.0
       unicorn-magic: 0.1.0
 
+  globby@14.1.0:
+    dependencies:
+      '@sindresorhus/merge-streams': 2.3.0
+      fast-glob: 3.3.3
+      ignore: 7.0.3
+      path-type: 6.0.0
+      slash: 5.1.0
+      unicorn-magic: 0.3.0
+
   globrex@0.1.2: {}
 
   gopd@1.0.1:
@@ -22187,6 +22252,8 @@ snapshots:
       minimatch: 9.0.5
 
   ignore@5.3.2: {}
+
+  ignore@7.0.3: {}
 
   import-fresh@3.3.0:
     dependencies:
@@ -22717,7 +22784,7 @@ snapshots:
       lodash.isstring: 4.0.1
       lodash.once: 4.1.1
       ms: 2.1.3
-      semver: 7.6.3
+      semver: 7.7.1
 
   just-diff-apply@5.5.0: {}
 
@@ -22999,7 +23066,7 @@ snapshots:
 
   make-dir@4.0.0:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   make-fetch-happen@14.0.3:
     dependencies:
@@ -23877,7 +23944,7 @@ snapshots:
 
   npm-install-checks@7.1.1:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   npm-normalize-package-bin@4.0.0: {}
 
@@ -23885,19 +23952,15 @@ snapshots:
     dependencies:
       hosted-git-info: 7.0.2
       proc-log: 4.2.0
-      semver: 7.6.3
+      semver: 7.7.1
       validate-npm-package-name: 5.0.1
 
   npm-package-arg@12.0.1:
     dependencies:
       hosted-git-info: 8.0.2
       proc-log: 5.0.0
-      semver: 7.6.3
+      semver: 7.7.1
       validate-npm-package-name: 6.0.0
-
-  npm-packlist@10.0.0:
-    dependencies:
-      ignore-walk: 7.0.0
 
   npm-packlist@9.0.0:
     dependencies:
@@ -23908,7 +23971,7 @@ snapshots:
       npm-install-checks: 7.1.1
       npm-normalize-package-bin: 4.0.0
       npm-package-arg: 12.0.1
-      semver: 7.6.3
+      semver: 7.7.1
 
   npm-registry-fetch@18.0.2:
     dependencies:
@@ -24173,7 +24236,7 @@ snapshots:
 
   package-manager-detector@0.2.4: {}
 
-  pacote@20.0.0:
+  pacote@19.0.1:
     dependencies:
       '@npmcli/git': 6.0.1
       '@npmcli/installed-package-contents': 3.0.0
@@ -24196,7 +24259,7 @@ snapshots:
       - bluebird
       - supports-color
 
-  pacote@21.0.0:
+  pacote@20.0.0:
     dependencies:
       '@npmcli/git': 6.0.1
       '@npmcli/installed-package-contents': 3.0.0
@@ -24207,7 +24270,7 @@ snapshots:
       fs-minipass: 3.0.3
       minipass: 7.1.2
       npm-package-arg: 12.0.1
-      npm-packlist: 10.0.0
+      npm-packlist: 9.0.0
       npm-pick-manifest: 10.0.0
       npm-registry-fetch: 18.0.2
       proc-log: 5.0.0
@@ -24357,6 +24420,8 @@ snapshots:
   path-type@4.0.0: {}
 
   path-type@5.0.0: {}
+
+  path-type@6.0.0: {}
 
   pathe@1.1.2: {}
 
@@ -26210,7 +26275,7 @@ snapshots:
 
   typescript-auto-import-cache@0.3.5:
     dependencies:
-      semver: 7.6.3
+      semver: 7.7.1
 
   typescript-eslint@8.21.0(eslint@9.18.0(jiti@1.21.6))(typescript@5.7.3):
     dependencies:
@@ -26542,6 +26607,14 @@ snapshots:
     transitivePeerDependencies:
       - rollup
 
+  vite-plugin-node-polyfills@0.23.0(rollup@4.34.6)(vite@6.1.0(@types/node@22.10.10)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)):
+    dependencies:
+      '@rollup/plugin-inject': 5.0.5(rollup@4.34.6)
+      node-stdlib-browser: 1.3.1
+      vite: 6.1.0(@types/node@22.10.10)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0)
+    transitivePeerDependencies:
+      - rollup
+
   vite@6.0.11(@types/node@22.10.10)(jiti@1.21.6)(tsx@4.19.2)(yaml@2.7.0):
     dependencies:
       esbuild: 0.24.2
@@ -26655,7 +26728,7 @@ snapshots:
   volar-service-typescript@0.0.62(@volar/language-service@2.4.10):
     dependencies:
       path-browserify: 1.0.1
-      semver: 7.6.3
+      semver: 7.7.1
       typescript-auto-import-cache: 0.3.5
       vscode-languageserver-textdocument: 1.0.12
       vscode-nls: 5.2.0
@@ -26749,8 +26822,6 @@ snapshots:
       xml-name-validator: 4.0.0
 
   walk-up-path@3.0.1: {}
-
-  walk-up-path@4.0.0: {}
 
   wcwidth@1.0.1:
     dependencies:
@@ -27064,5 +27135,7 @@ snapshots:
   zod@3.23.8: {}
 
   zod@3.24.1: {}
+
+  zod@3.24.2: {}
 
   zwitch@2.0.4: {}
