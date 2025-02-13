@@ -25,6 +25,14 @@ import { bifilter, indent } from "../../util/iter.js";
 import { createOnceQueue } from "../../util/once-queue.js";
 import { writeModuleFile } from "../../write.js";
 
+function tryGetOpenApi3(): Promise<typeof import("@typespec/openapi3") | undefined> {
+  try {
+    return import("@typespec/openapi3");
+  } catch {
+    return Promise.resolve(undefined);
+  }
+}
+
 function spawn(command: string, args: string[], options: SpawnOptions): Promise<void> {
   return new Promise((resolve, reject) => {
     const proc = _spawn(command, args, options);
@@ -152,6 +160,8 @@ async function confirmYesNo(message: string): Promise<void> {
 }
 
 export async function scaffold(options: ScaffoldingOptions) {
+  const openapi3 = await tryGetOpenApi3();
+
   if (options.force) {
     await confirmYesNo(
       "[hsj] The `--force` flag is set and will overwrite existing files and settings that may have been modified. Continue?",
@@ -193,9 +203,13 @@ export async function scaffold(options: ScaffoldingOptions) {
   const baseOutputDir = options["no-standalone"] ? cwd : path.resolve(cwd, emitterOutputDir);
   const tsConfigOutputPath = path.resolve(baseOutputDir, COMMON_PATHS.tsConfigJson);
 
-  const isExpress = !!config.options?.["@typespec/http-server-javascript"]?.express;
+  const expressOptions: PackageJsonExpressOptions = {
+    isExpress: !!config.options?.["@typespec/http-server-javascript"]?.express,
+    hasOpenApi: !!openapi3,
+  };
+
   console.info(
-    `[hsj] Emitter options have 'express: ${isExpress}'. Generating server model: '${isExpress ? "Express" : "Node"}'.`,
+    `[hsj] Emitter options have 'express: ${expressOptions.isExpress}'. Generating server model: '${expressOptions.isExpress ? "Express" : "Node"}'.`,
   );
 
   if (options["no-standalone"]) {
@@ -213,7 +227,7 @@ export async function scaffold(options: ScaffoldingOptions) {
   });
 
   const jsCtx = await createInitialContext(program, {
-    express: isExpress,
+    express: expressOptions.isExpress,
     "no-format": false,
     "omit-unreachable-types": true,
   });
@@ -269,19 +283,70 @@ export async function scaffold(options: ScaffoldingOptions) {
     "const PORT = process.env.PORT || 3000;",
   ]);
 
-  if (isExpress) {
-    indexModule.imports.push({
-      binder: "express",
-      from: "express",
-    });
+  if (expressOptions.isExpress) {
+    indexModule.imports.push(
+      {
+        binder: "express",
+        from: "express",
+      },
+      {
+        binder: "morgan",
+        from: "morgan",
+      },
+    );
+
+    if (expressOptions.hasOpenApi) {
+      const swaggerUiModule = createModule("swagger-ui", indexModule);
+
+      indexModule.imports.push({
+        from: swaggerUiModule,
+        binder: ["addSwaggerUi"],
+      });
+
+      swaggerUiModule.imports.push(
+        {
+          binder: "swaggerUi",
+          from: "swagger-ui-express",
+        },
+        {
+          binder: ["openApiDocument"],
+          from: "./generated/http/openapi3.js",
+        },
+        {
+          binder: "type express",
+          from: "express",
+        },
+      );
+
+      swaggerUiModule.declarations.push([
+        "export function addSwaggerUi(app: express.Application) {",
+        "  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));",
+        "}",
+      ]);
+
+      writeModuleFile(
+        jsCtx,
+        baseOutputDir,
+        swaggerUiModule,
+        createOnceQueue<Module>(),
+        true,
+        tryWrite,
+      );
+    }
 
     indexModule.declarations.push([
       "const app = express();",
+      "",
+      "app.use(morgan('dev'));",
+      ...(expressOptions.hasOpenApi ? ["addSwaggerUi(app);", ""] : []),
       "",
       "app.use(router.expressMiddleware);",
       "",
       "app.listen(PORT, () => {",
       `  console.log(\`Server is running at http://localhost:\${PORT}\`);`,
+      ...(expressOptions.hasOpenApi
+        ? ["  console.log(`API documentation is available at http://localhost:\${PORT}/api-docs`);"]
+        : []),
       "});",
     ]);
   } else {
@@ -368,7 +433,7 @@ export async function scaffold(options: ScaffoldingOptions) {
   if (options["no-standalone"]) {
     console.info("[hsj] Checking package.json for changes...");
 
-    packageJsonChanged = updatePackageJson(ownPackageJson, isExpress, options.force);
+    packageJsonChanged = updatePackageJson(ownPackageJson, expressOptions, options.force);
 
     if (packageJsonChanged) {
       console.info("[hsj] Writing updated package.json...");
@@ -387,7 +452,7 @@ export async function scaffold(options: ScaffoldingOptions) {
     const relativePathToSpec = path.relative(baseOutputDir, cwd);
     const packageJson = getPackageJsonForStandaloneProject(
       ownPackageJson,
-      isExpress,
+      expressOptions,
       relativePathToSpec,
     );
 
@@ -604,7 +669,7 @@ function* emitControllerOperationHandlers(
 
 function getPackageJsonForStandaloneProject(
   ownPackageJson: any,
-  isExpress: boolean,
+  express: PackageJsonExpressOptions,
   relativePathToSpec: string,
 ): any {
   const packageJson = {
@@ -618,7 +683,7 @@ function getPackageJsonForStandaloneProject(
     packageJson.private = true;
   }
 
-  updatePackageJson(packageJson, isExpress, true, () => {});
+  updatePackageJson(packageJson, express, true, () => {});
 
   delete packageJson.scripts["build:scaffold"];
   packageJson.scripts["build:typespec"] = 'tsp compile --output-dir=".." ' + relativePathToSpec;
@@ -628,9 +693,14 @@ function getPackageJsonForStandaloneProject(
 
 const JS_IDENTIFIER_RE = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 
+interface PackageJsonExpressOptions {
+  isExpress: boolean;
+  hasOpenApi: boolean;
+}
+
 function updatePackageJson(
   packageJson: any,
-  isExpress: boolean,
+  express: PackageJsonExpressOptions,
   force: boolean,
   info: (...args: any[]) => void = console.info,
 ): boolean {
@@ -644,9 +714,17 @@ function updatePackageJson(
   updateObjectPath(["devDependencies", "typescript"], "^5.7.3");
   updateObjectPath(["devDependencies", "@types/node"], "^22.13.1");
 
-  if (isExpress) {
-    updateObjectPath(["dependencies", "express"], "^4.21.2");
-    updateObjectPath(["devDependencies", "@types/express"], "^4.17.21");
+  if (express.isExpress) {
+    updateObjectPath(["dependencies", "express"], "^5.0.1");
+    updateObjectPath(["devDependencies", "@types/express"], "^5.0.0");
+
+    if (express.hasOpenApi) {
+      updateObjectPath(["dependencies", "swagger-ui-express"], "^5.0.1");
+      updateObjectPath(["devDependencies", "@types/swagger-ui-express"], "^4.1.7");
+    }
+
+    updateObjectPath(["dependencies", "morgan"], "^1.10.0");
+    updateObjectPath(["devDependencies", "@types/morgan"], "^1.9.9");
   }
 
   return changed;
