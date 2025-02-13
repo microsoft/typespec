@@ -15,6 +15,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapTy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -68,6 +70,8 @@ public abstract class Specification extends ModelBase {
 
     private final Map<String, Resource> resourcePathModelMap = new HashMap<>();
 
+    private final Map<ClientModel, FluentResourceModel> resourceModelMap = new HashMap<>();
+
     public boolean isSkipCleaning() {
         return skipCleaning;
     }
@@ -99,7 +103,7 @@ public abstract class Specification extends ModelBase {
     public Specification(String name, String provisioningPackage, String baseDir,
         List<FluentResourceModel> resourceModels) {
         super(name, provisioningPackage, null, null);
-        this.baseDir = baseDir + "/sdk/" + getProvisioningPackage().replace("com.", "").replace(".", "-");
+        this.baseDir = baseDir + "/sdk/" + name;
         TypeRegistry.register(this);
         this.resourceModels = resourceModels;
     }
@@ -157,6 +161,7 @@ public abstract class Specification extends ModelBase {
                 this.modelArmTypeMapping.put(resourceModel, resource);
                 this.resourcePathModelMap.put(resourceModel.getResourceCreate().getUrlPathSegments().getPath(),
                     resource);
+                this.resourceModelMap.put(resourceModel.getInnerModel(), resourceModel);
                 // FIXME parse provider namespace from scope resource url
                 if (!resourceModel.getResourceCreate().getUrlPathSegments().hasScope()) {
                     ResourceId resourceId = ResourceId.fromString(resourceModel.getResourceCreate().getUrlPathSegments().getPath());
@@ -238,12 +243,17 @@ public abstract class Specification extends ModelBase {
             return enumModel;
         } else if (ClientModelUtil.isClientModel(wireType)) {
             ModelBase model;
-            if ((model = TypeRegistry.get(ClientModelUtil.getClientModel(((ClassType) wireType).getName()))) != null) {
+            ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) wireType).getName());
+            if ((model = TypeRegistry.get(clientModel)) != null) {
                 return model;
             }
             ClassType classType = (ClassType) wireType;
+            String packageName = this.getProvisioningPackage();
+            if (!this.resourceModelMap.containsKey(clientModel)) {
+                packageName += "models";
+            }
             SimpleModel simpleModel
-                = new SimpleModel(this, resource.getArmType(), classType.getName(), this.getProvisioningPackage(), null);
+                = new SimpleModel(this, resource.getArmType(), classType.getName(), packageName, null);
             simpleModel.setProperties(
                 parseProperties(ClientModelUtil.getClientModel(((ClassType) wireType).getName()), resource));
             simpleModel.setSpec(this);
