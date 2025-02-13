@@ -1,8 +1,8 @@
 import type { ModuleResolutionResult, NodePackage, ResolveModuleHost } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { mkdir, readFile, realpath, stat } from "fs/promises";
-import { dirname, join } from "path";
 import { tmpdir } from "os";
+import { dirname, join } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
@@ -28,7 +28,7 @@ export async function isDirectory(path: string) {
   }
 }
 
-export async function createTempDir() {
+export async function createTempDir(): Promise<string> {
   const tempDir = tmpdir();
   const realTempDir = await realpath(tempDir);
   const uid = createGuid();

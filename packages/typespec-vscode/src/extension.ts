@@ -5,6 +5,11 @@ import { ExtensionStateManager } from "./extension-state-manager.js";
 import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
+import {
+  clearOpenApi3PreviewTempFolders,
+  getMainTspFile,
+  loadOpenApi3PreviewPanel,
+} from "./openapi3-preview.js";
 import { createTaskProvider } from "./task-provider.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import {
@@ -18,7 +23,6 @@ import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
-import { getMainTspFile, loadOpenApi3PreviewPanel } from "./openapi3-preview.js";
 
 let client: TspLanguageClient | undefined;
 /**
@@ -184,6 +188,7 @@ export async function activate(context: ExtensionContext) {
 
 export async function deactivate() {
   await client?.stop();
+  await clearOpenApi3PreviewTempFolders();
 }
 
 async function recreateLSPClient(context: ExtensionContext) {

@@ -1,8 +1,9 @@
-import { readdir, readFile } from "fs/promises";
+import { readdir, readFile, rm } from "fs/promises";
 import { basename, dirname, join } from "path";
 import * as vscode from "vscode";
 import logger from "./log/logger.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
+import { createTempDir } from "./utils.js";
 
 export async function getMainTspFile(): Promise<string | undefined> {
   const files = await vscode.workspace.findFiles("**/main.tsp").then((uris) => {
@@ -27,8 +28,9 @@ export async function getMainTspFile(): Promise<string | undefined> {
   }
 }
 
+const openApi3TempFolders = new Map<string, string>();
 const openApi3PreviewPanels = new Map<string, vscode.WebviewPanel>();
-const selectedOpenApi3OutputFile = new Map<string, string>();
+const selectedOpenApi3OutputFiles = new Map<string, string>();
 
 export async function loadOpenApi3PreviewPanel(
   mainTspFile: string,
@@ -46,8 +48,8 @@ export async function loadOpenApi3PreviewPanel(
         },
         async (): Promise<string | undefined> => {
           const srcFolder = dirname(mainTspFile);
-          const outputFolder = join(srcFolder, "tsp-output", "@typespec", "openapi3");
-          const result = await client.compileOpenApi3(mainTspFile, srcFolder);
+          const outputFolder = await getOutputFolder(mainTspFile);
+          const result = await client.compileOpenApi3(mainTspFile, srcFolder, outputFolder);
           if (result === undefined || result.exitCode !== 0) {
             const errMsg = result?.stderr ?? "Failed to generate openAPI3 files.";
             logger.error(errMsg);
@@ -64,8 +66,8 @@ export async function loadOpenApi3PreviewPanel(
               const first = outputs[0];
               return parseOpenApi3File(join(outputFolder, first));
             } else {
-              if (selectedOpenApi3OutputFile.has(mainTspFile)) {
-                return parseOpenApi3File(selectedOpenApi3OutputFile.get(mainTspFile)!);
+              if (selectedOpenApi3OutputFiles.has(mainTspFile)) {
+                return parseOpenApi3File(selectedOpenApi3OutputFiles.get(mainTspFile)!);
               }
 
               const files = outputs.map<vscode.QuickPickItem & { path: string }>((file) => {
@@ -85,7 +87,7 @@ export async function loadOpenApi3PreviewPanel(
                 placeHolder: "Select an OpenAPI3 file",
               });
               if (selected) {
-                selectedOpenApi3OutputFile.set(mainTspFile, selected.path);
+                selectedOpenApi3OutputFiles.set(mainTspFile, selected.path);
                 return parseOpenApi3File(selected.path);
               } else {
                 const msg = "No OpenAPI3 file selected";
@@ -127,7 +129,7 @@ export async function loadOpenApi3PreviewPanel(
 
     panel.onDidDispose(() => {
       openApi3PreviewPanels.delete(mainTspFile);
-      selectedOpenApi3OutputFile.delete(mainTspFile);
+      selectedOpenApi3OutputFiles.delete(mainTspFile);
       watch.dispose();
     });
 
@@ -212,5 +214,20 @@ async function parseOpenApi3File(filePath: string): Promise<string | undefined> 
     logger.error(`${errMsg}\nError: `, [e]);
     vscode.window.showErrorMessage(errMsg);
     return;
+  }
+}
+
+async function getOutputFolder(mainTspFile: string): Promise<string> {
+  let tmpFolder = openApi3TempFolders.get(mainTspFile);
+  if (!tmpFolder) {
+    tmpFolder = await createTempDir();
+    openApi3TempFolders.set(mainTspFile, tmpFolder);
+  }
+  return tmpFolder;
+}
+
+export async function clearOpenApi3PreviewTempFolders() {
+  for (const folder of openApi3TempFolders.values()) {
+    await rm(folder, { recursive: true, force: true });
   }
 }

@@ -225,7 +225,11 @@ export class TspLanguageClient {
     return new TspLanguageClient(lc, exe);
   }
 
-  async compileOpenApi3(mainTspFile: string, folder: string): Promise<ExecOutput | undefined> {
+  async compileOpenApi3(
+    mainTspFile: string,
+    srcFolder: string,
+    outputFolder: string,
+  ): Promise<ExecOutput | undefined> {
     const result = await this.runCliCommand(
       [
         "compile",
@@ -234,8 +238,9 @@ export class TspLanguageClient {
         "--option",
         "@typespec/openapi3.file-type=json",
         "--option",
+        `@typespec/openapi3.emitter-output-dir=${outputFolder}`,
       ],
-      folder,
+      srcFolder,
     );
     return result;
   }
