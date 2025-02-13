@@ -64,7 +64,7 @@ class BlackScriptPlugin(Plugin):
         lines = file_content.splitlines()
         if len(lines) > 0:
             if "line-too-long" not in lines[0] and any(len(line) > 120 for line in lines):
-                pylint_disables.append("line-too-long")
+                pylint_disables.extend(["line-too-long", "useless-suppression"])
             if "too-many-lines" not in lines[0] and len(lines) > 1000:
                 pylint_disables.append("too-many-lines")
             if pylint_disables:
