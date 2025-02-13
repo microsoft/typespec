@@ -1049,7 +1049,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         if status_code in status_code_error_map:
                             retval.append(
                                 "        raise {}(response=response{}{})".format(
-                                    status_code_error_map[status_code],
+                                    status_code_error_map[cast(int, status_code)],
                                     error_model,
                                     (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
                                 )
