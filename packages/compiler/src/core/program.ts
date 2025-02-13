@@ -576,7 +576,7 @@ export async function compile(
       },
     };
     try {
-      await emitter.emitFunction(context)
+      await emitter.emitFunction(context);
     } catch (error: unknown) {
       throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
     }

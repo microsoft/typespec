@@ -1,12 +1,11 @@
-import {unsafe_$ as $} from "@typespec/compiler/experimental";
-import {emitFile, joinPaths} from "@typespec/compiler"
-import {Children, OutputDirectory, render} from "@alloy-js/core"
+import { Children, OutputDirectory, render } from "@alloy-js/core";
+import { emitFile, joinPaths } from "@typespec/compiler";
+import { unsafe_$ as $ } from "@typespec/compiler/experimental";
 
 export async function writeOutput(rootComponent: Children, emitterOutputDir: string) {
   const tree = render(rootComponent);
   await writeOutputDirectory(tree, emitterOutputDir);
 }
-
 
 async function writeOutputDirectory(dir: OutputDirectory, emitterOutputDir: string) {
   for (const sub of dir.contents) {
