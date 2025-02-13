@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -220,6 +221,12 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         imports.add("java.util.function.Function");
         if (!settings.isStreamStyleSerialization()) {
             imports.add("com.fasterxml.jackson.annotation.JsonCreator");
+        } else {
+            imports.add(ClassType.JSON_READER.getFullName());
+            imports.add(ClassType.JSON_WRITER.getFullName());
+            imports.add(ClassType.JSON_SERIALIZABLE.getFullName());
+            imports.add(ClassType.JSON_TOKEN.getFullName());
+            imports.add(IOException.class.getName());
         }
 
         addGeneratedImport(imports);
@@ -231,7 +238,13 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
         IType elementType = enumType.getElementType();
         String typeName = elementType.getClientType().asNullable().toString();
         String pascalTypeName = CodeNamer.toPascalCase(typeName);
-        String declaration = enumName + " implements ExpandableEnum<" + pascalTypeName + ">";
+        String declaration;
+        if (settings.isStreamStyleSerialization()) {
+            declaration = String.format("%1$s implements ExpandableEnum<%2$s>, JsonSerializable<%1$s>", enumName,
+                pascalTypeName);
+        } else {
+            declaration = String.format("%1$s implements ExpandableEnum<%2$s>", enumName, pascalTypeName);
+        }
         javaFile.publicFinalClass(declaration, classBlock -> {
             classBlock.privateStaticFinalVariable(
                 String.format("Map<%1$s, %2$s> VALUES = new ConcurrentHashMap<>()", pascalTypeName, enumName));
@@ -287,22 +300,44 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 comment.description("Gets the value of the " + enumName + " instance.");
                 comment.methodReturns("the value of the " + enumName + " instance.");
             });
-
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("Override");
             classBlock.publicMethod(pascalTypeName + " getValue()", function -> function.methodReturn("this.value"));
+
+            if (settings.isStreamStyleSerialization()) {
+                // toJson
+                classBlock.javadocComment(JavaJavadocComment::inheritDoc);
+                addGeneratedAnnotation(classBlock);
+                classBlock.annotation("Override");
+                classBlock.publicMethod("JsonWriter toJson(JsonWriter jsonWriter) throws IOException", methodBlock -> {
+                    methodBlock.methodReturn(enumType.getElementType()
+                        .jsonSerializationMethodCall("jsonWriter", null, enumType.getToMethodName() + "()", false));
+                });
+
+                // fromJson
+                classBlock.javadocComment(javadocComment -> {
+                    javadocComment.description("Reads an instance of " + enumName + " from the JsonReader.");
+                    javadocComment.param("jsonReader", "The JsonReader being read.");
+                    javadocComment.methodReturns(
+                        "An instance of " + enumName + " if the JsonReader was pointing to an " + "instance of it.");
+                    javadocComment.methodThrows("IOException",
+                        "If an error occurs while reading the " + enumName + ".");
+                    javadocComment.methodThrows("IllegalArgumentException",
+                        "if the JsonReader was pointing to JSON null");
+                });
+                addGeneratedAnnotation(classBlock);
+                classBlock.publicStaticMethod(enumName + " fromJson(JsonReader jsonReader) throws IOException",
+                    methodBlock -> {
+                        methodBlock.line("jsonReader.nextToken();");
+                        methodBlock.methodReturn(enumType.jsonDeserializationMethod("jsonReader"));
+                    });
+            }
 
             // toString
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("Override");
             classBlock.method(JavaVisibility.Public, null, "String toString()",
                 function -> function.methodReturn("Objects.toString(this.value)"));
-
-            // equals
-            addGeneratedAnnotation(classBlock);
-            classBlock.annotation("Override");
-            classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
-                function -> function.methodReturn("this == obj"));
 
             // hashcode
             addGeneratedAnnotation(classBlock);
