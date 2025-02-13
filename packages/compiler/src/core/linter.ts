@@ -282,7 +282,7 @@ export function createDefaultLinter(nameResolver: NameResolver): LinterDefinitio
       severity: "warning",
       description: "Linter rules for unused using statement.",
       messages: {
-        default: paramMessage`${"code"} is declared but never be used.`,
+        default: paramMessage`'using ${"code"}' is declared but never be used.`,
       },
       create(context) {
         return {

@@ -242,7 +242,7 @@ export const StandardTestLibrary: TypeSpecTestLibrary = {
 };
 
 export async function createTestHost(config: TestHostConfig = {}): Promise<TestHost> {
-  const testHost = await createTestHostInternal(config);
+  const testHost = await createTestHostInternal();
   await testHost.addTypeSpecLibrary(StandardTestLibrary);
   if (config.libraries) {
     for (const library of config.libraries) {
@@ -257,7 +257,7 @@ export async function createTestRunner(host?: TestHost): Promise<BasicTestRunner
   return createTestWrapper(testHost);
 }
 
-async function createTestHostInternal(config: TestHostConfig): Promise<TestHost> {
+async function createTestHostInternal(): Promise<TestHost> {
   let program: Program | undefined;
   const libraries: TypeSpecTestLibrary[] = [];
   const testTypes: Record<string, Type> = {};
@@ -315,10 +315,7 @@ async function createTestHostInternal(config: TestHostConfig): Promise<TestHost>
 
   async function compile(main: string, options: CompilerOptions = {}) {
     const [testTypes, diagnostics] = await compileAndDiagnose(main, options);
-    const filteredDiagnostics = config.diagnosticFilter
-      ? diagnostics.filter(config.diagnosticFilter)
-      : diagnostics;
-    expectDiagnosticEmpty(filteredDiagnostics);
+    expectDiagnosticEmpty(diagnostics);
     return testTypes;
   }
 
@@ -337,13 +334,10 @@ async function createTestHostInternal(config: TestHostConfig): Promise<TestHost>
     }
     const p = await compileProgram(fileSystem.compilerHost, resolveVirtualPath(mainFile), options);
     program = p;
-    const filteredDiagnostics = config.diagnosticFilter
-      ? p.diagnostics.filter(config.diagnosticFilter)
-      : p.diagnostics;
     logVerboseTestOutput((log) =>
-      logDiagnostics(filteredDiagnostics, createLogger({ sink: fileSystem.compilerHost.logSink })),
+      logDiagnostics(p.diagnostics, createLogger({ sink: fileSystem.compilerHost.logSink })),
     );
-    return [testTypes, filteredDiagnostics];
+    return [testTypes, p.diagnostics];
   }
 }
 

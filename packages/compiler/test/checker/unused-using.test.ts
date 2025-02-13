@@ -1,4 +1,5 @@
 import { beforeEach, describe, it } from "vitest";
+import { CompilerOptions } from "../../src/index.js";
 import {
   TestHost,
   createTestHost,
@@ -12,6 +13,17 @@ describe("compiler: unused using statements", () => {
   beforeEach(async () => {
     testHost = await createTestHost();
   });
+
+  const diagnoseWithUnusedUsing = async (main: string, options: CompilerOptions = {}) => {
+    return testHost.diagnose(main, {
+      ...options,
+      linterRuleSet: {
+        enable: {
+          "@typespec/compiler/unused-using": true,
+        },
+      },
+    });
+  };
 
   it("no unused diagnostic when using is used", async () => {
     testHost.addTypeSpecFile(
@@ -69,12 +81,12 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using N' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -105,17 +117,17 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using N' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using N' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -147,17 +159,17 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using N' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using M' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using M' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -189,12 +201,12 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using M' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using M' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -222,12 +234,12 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using M' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using M' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -247,12 +259,12 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using N' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -284,17 +296,17 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using N.M' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N.M' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using N.M' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N.M' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -331,17 +343,17 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using TypeSpec.Xyz' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using TypeSpec.Xyz' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Xyz' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Xyz' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -367,17 +379,17 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using N.A' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N.A' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using M.A' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using M.A' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -409,7 +421,7 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnosticEmpty(diagnostics);
   });
 
@@ -439,12 +451,12 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using N.M' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using N.M' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -464,7 +476,7 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
         code: "invalid-ref",
@@ -490,7 +502,7 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
         code: "duplicate-using",
@@ -539,12 +551,12 @@ describe("compiler: unused using statements", () => {
       }
       `,
     );
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using M' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using M' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -611,52 +623,52 @@ describe("compiler: unused using statements", () => {
       model D { a: A3 }
       `,
     );
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using Ns1' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Ns1.Ns2' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1.Ns2' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Ns1.Ns2.Ns3' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1.Ns2.Ns3' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Ns1.Ns2' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1.Ns2' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Ns1.Ns2.Ns3' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1.Ns2.Ns3' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Ns1' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Ns1.Ns2.Ns3' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1.Ns2.Ns3' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Ns1' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1' is declared but never be used.",
+        severity: "warning",
       },
       {
-        code: "unused-using",
-        message: "'using Ns1.Ns2' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Ns1.Ns2' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -685,7 +697,7 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    const diagnostics = await diagnoseWithUnusedUsing("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
       {
         code: "ambiguous-symbol",
@@ -712,7 +724,7 @@ describe("compiler: unused using statements", () => {
       $dec1() {},
     });
 
-    const diagnostics = await testHost.diagnose("./");
+    const diagnostics = await diagnoseWithUnusedUsing("./");
     expectDiagnosticEmpty(diagnostics);
   });
 
@@ -726,12 +738,12 @@ describe("compiler: unused using statements", () => {
     `,
     );
 
-    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    const diagnostics = await diagnoseWithUnusedUsing("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using TypeSpec' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using TypeSpec' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -760,12 +772,12 @@ describe("compiler: unused using statements", () => {
       }
     `,
     );
-    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    const diagnostics = await diagnoseWithUnusedUsing("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using Other' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Other' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -803,12 +815,12 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    const diagnostics = await diagnoseWithUnusedUsing("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using LibNs' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using LibNs' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });
@@ -846,7 +858,7 @@ describe("compiler: unused using statements", () => {
       `,
     );
 
-    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    const diagnostics = await diagnoseWithUnusedUsing("./", { nostdlib: true });
     expectDiagnosticEmpty(diagnostics);
   });
 
@@ -873,12 +885,12 @@ describe("compiler: unused using statements", () => {
       }
     `,
     );
-    const diagnostics = await testHost.diagnose("./", { nostdlib: true });
+    const diagnostics = await diagnoseWithUnusedUsing("./", { nostdlib: true });
     expectDiagnostics(diagnostics, [
       {
-        code: "unused-using",
-        message: "'using Other' is declared but never used.",
-        severity: "hint",
+        code: "@typespec/compiler/unused-using",
+        message: "'using Other' is declared but never be used.",
+        severity: "warning",
       },
     ]);
   });

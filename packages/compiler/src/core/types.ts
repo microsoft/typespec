@@ -2538,7 +2538,6 @@ export interface DiagnosticDefinition<M extends DiagnosticMessages> {
    * Diagnostic severity.
    * - `warning` - Suppressable, should be used to represent potential issues but not blocking.
    * - `error` - Non-suppressable, should be used to represent failure to move forward.
-   * - `hint` - Something to hint to a better way of doing it, like proposing a refactoring.
    */
   readonly severity: "warning" | "error";
   /** Messages that can be reported with the diagnostic. */
