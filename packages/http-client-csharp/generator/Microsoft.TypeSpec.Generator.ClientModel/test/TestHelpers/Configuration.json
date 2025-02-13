@@ -3,6 +3,6 @@
   "project-folder": "./projectFolder",
   "namespace": "Sample",
   "unknown-bool-property": false,
-  "package-name": "sample-library",
+  "package-name": "SampleLibrary",
   "unknown-string-property": "unknownPropertyValue"
 }
