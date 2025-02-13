@@ -21,7 +21,7 @@ export interface SdkModelPropertyKit extends NameKit<ModelProperty>, AccessKit<M
    */
   isDiscriminator(type: ModelProperty): boolean;
   /**
-   * Returns whehter it's a credential parameter or not.
+   * Returns whether it's a credential parameter or not.
    *
    * @param type: model property we are checking to see if is a credential parameter
    */

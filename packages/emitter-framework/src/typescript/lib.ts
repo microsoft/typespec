@@ -45,7 +45,7 @@ export const $typescriptLib = createTypeSpecLibrary({
       },
       description: "Extended model transformation is not yet implemented",
     },
-    "typescript-spread-model-transofrmation-nyi": {
+    "typescript-spread-model-transformation-nyi": {
       severity: "warning", // TODO: Warning for release and error for debug
       messages: {
         default: "Spread model transformation is not yet implemented",

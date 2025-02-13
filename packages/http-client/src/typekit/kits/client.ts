@@ -44,7 +44,7 @@ interface ClientKit extends NameKit<InternalClient> {
   getConstructor(client: InternalClient): Operation;
 
   /**
-   * Whether the client is publicly initializable
+   * Whether the client can be initialized publicly
    */
   isPubliclyInitializable(client: InternalClient): boolean;
 
