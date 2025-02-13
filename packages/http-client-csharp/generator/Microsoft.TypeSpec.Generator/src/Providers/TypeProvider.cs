@@ -90,9 +90,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private string? _name;
 
-        public string Namespace => _namespace ??= BuildNamespace();
-        private string? _namespace;
-
         protected virtual FormattableString Description { get; } = FormattableStringHelpers.Empty;
 
         private XmlDocProvider? _xmlDocs;

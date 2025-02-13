@@ -12,10 +12,10 @@ namespace TspTest.Model;
 model Resource1 {
   name: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   outputData: OutputData;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   outputData2: InputOutputData2;
 }
 
