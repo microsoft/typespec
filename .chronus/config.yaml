@@ -62,9 +62,8 @@ versionPolicies:
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
 
-ignore:
-  - "@typespec/http-client-csharp"
-  - "@typespec/http-client-java"
+additionalPackages:
+  - packages/http-client-python
 
 changedFiles:
   - "!**/*.md"
