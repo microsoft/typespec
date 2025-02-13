@@ -29,12 +29,15 @@ describe("http-specs cases", () => {
         const res = Object.values(results)[0] as any;
         const getThing = res.paths["/authentication/api-key/valid"].get;
         ok(getThing.responses["204"]);
-        await markCoverage(`/authentication/api-key/valid`, {
+        const response = await markCoverage(`/authentication/api-key/valid`, {
           method: "GET",
           headers: {
             "x-ms-api-key": "valid-key",
           }
         });
+        if(response){
+          strictEqual(response?.status, 204);
+        }
       });
 
       it("should return 403 when the apiKey is invalid", async () => {
@@ -48,12 +51,19 @@ describe("http-specs cases", () => {
         deepStrictEqual(getThing.responses["403"].content["application/json"].schema, {
           $ref: "#/components/schemas/InvalidAuth",
         });
-        await markCoverage(`/authentication/api-key/invalid`, {
+        const response = await markCoverage(`/authentication/api-key/invalid`, {
           method: "GET",
           headers: {
             "x-ms-api-key": "invalid-key",
           },
         });
+        if(response)
+        {
+          strictEqual(response?.status, 403);
+          const data = await response?.text()
+          const jsonData = JSON.parse(data);
+          strictEqual(jsonData.error, "invalid-api-key");
+        }
       });
     });
 
@@ -65,7 +75,7 @@ describe("http-specs cases", () => {
       const results = await openApiForFile(curr);
       const v1 = Object.values(results)[0] as any;
       strictEqual(v1.info.version, "v1");
-      await markCoverage(`/versioning/added/api-version:v1/v1`, {
+      const response = await markCoverage(`/versioning/added/api-version:v1/v1`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
@@ -77,10 +87,19 @@ describe("http-specs cases", () => {
           unionProp: 10
         })
       });
+      if(response)
+      {
+        strictEqual(response?.status, 200);
+        const data = await response?.text()
+        const jsonData = JSON.parse(data);
+        strictEqual(jsonData.prop, "foo");
+        strictEqual(jsonData.enumProp, "enumMemberV2");
+        strictEqual(jsonData.unionProp, 10);
+      }
 
       const v2 = Object.values(results)[1] as any;
       strictEqual(v2.info.version, "v2");
-      await markCoverage(`/versioning/added/api-version:v2/v2`, {
+      const v2Response =await markCoverage(`/versioning/added/api-version:v2/v2`, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json'
@@ -91,6 +110,15 @@ describe("http-specs cases", () => {
           unionProp: "bar"
         })
       });
+      if(v2Response)
+      {
+        strictEqual(v2Response?.status, 200);
+        const data = await v2Response?.text()
+        const jsonData = JSON.parse(data);
+        strictEqual(jsonData.prop, "foo");
+        strictEqual(jsonData.enumProp, "enumMember");
+        strictEqual(jsonData.unionProp, "bar");
+      }
     });
   });
 });
