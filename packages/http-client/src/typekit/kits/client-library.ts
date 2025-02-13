@@ -15,7 +15,10 @@ import { $, defineKit } from "@typespec/compiler/experimental/typekit";
 import { isHttpFile } from "@typespec/http";
 import { InternalClient } from "../../interfaces.js";
 
-interface ClientLibraryKit {
+/**
+ * ClientLibraryKit provides a set of utilities to work with the client library.
+ */
+export interface ClientLibraryKit {
   /**
    * Get the top-level namespaces that are used to generate the client library.
    *
