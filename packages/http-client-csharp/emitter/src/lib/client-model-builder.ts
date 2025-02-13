@@ -17,7 +17,6 @@ import { InputOperationParameterKind } from "../type/input-operation-parameter-k
 import { InputParameter } from "../type/input-parameter.js";
 import { InputType } from "../type/input-type.js";
 import { RequestLocation } from "../type/request-location.js";
-import { reportDiagnostic } from "./lib.js";
 import { navigateModels } from "./model.js";
 import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
@@ -32,7 +31,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 
   const rootClients = sdkPackage.clients.filter((c) => c.initialization.access === "public");
   if (rootClients.length === 0) {
-    reportDiagnostic(sdkContext.program, {
+    sdkContext.logger.reportDiagnostic({
       code: "no-root-client",
       format: {},
       target: NoTarget,
@@ -93,7 +92,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       // we report diagnostics when the last segment of the namespace is the same as the client name
       // because in our design, a sub namespace will be generated as a sub client with exact the same name as the namespace
       // in csharp, this will cause a conflict between the namespace and the class name
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "client-namespace-conflict",
         format: { clientNamespace: client.clientNamespace, clientName },
         target: client.__raw.type ?? NoTarget,
@@ -150,7 +149,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
       .replace("http://", "")
       .split("/")[0];
     if (!/^\{\w+\}$/.test(endpointExpr)) {
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "unsupported-endpoint-url",
         format: { endpoint: type.serverUrl },
         target: NoTarget,

@@ -21,14 +21,13 @@ import {
   tspOutputFileName,
 } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
-import { reportDiagnostic } from "./lib/lib.js";
+import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
-import { LoggerLevel } from "./lib/logger-level.js";
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -190,7 +189,7 @@ export async function _validateDotNetSdk(
     return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
         format: {
@@ -219,7 +218,7 @@ function validateDotNetSdkVersionCore(
       return false;
     }
     if (major < minMajorVersion) {
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "invalid-dotnet-sdk-dependency",
         messageId: "invalidVersion",
         format: {

@@ -36,7 +36,6 @@ import {
   InputUnionType,
 } from "../type/input-type.js";
 import { LiteralTypeContext } from "../type/literal-type-context.js";
-import { reportDiagnostic } from "./lib.js";
 
 export function fromSdkType(
   sdkContext: CSharpEmitterContext,
@@ -94,7 +93,7 @@ export function fromSdkType(
       retVar = fromSdkEndpointType();
       break;
     case "credential":
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "unsupported-sdk-type",
         format: { sdkType: "Credential" },
         target: NoTarget,
