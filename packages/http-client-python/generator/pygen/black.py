@@ -60,8 +60,19 @@ class BlackScriptPlugin(Plugin):
         except:
             _LOGGER.error("Error: failed to format %s", file)
             raise
-        if len(file_content.splitlines()) > 1000 and "pylint: disable=too-many-lines" not in file_content:
-            file_content = "# pylint: disable=too-many-lines\n" + file_content
+        pylint_disables = []
+        lines = file_content.splitlines()
+        if len(lines) > 0:
+            if "line-too-long" not in lines[0] and any(len(line) > 120 for line in lines):
+                pylint_disables.append("line-too-long")
+            if "too-many-lines" not in lines[0] and len(lines) > 1000:
+                pylint_disables.append("too-many-lines")
+            if pylint_disables:
+                file_content = (
+                    "\n".join([lines[0] + ",".join([""] + pylint_disables)] + lines[1:])
+                    if "pylint: disable=" in lines[0]
+                    else f"# pylint: disable={','.join(pylint_disables)}\n" + file_content
+                )
         self.write_file(file, file_content)
 
 

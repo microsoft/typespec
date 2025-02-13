@@ -498,11 +498,7 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
             url_value = _escape_str(builder.url)
         else:
             url_value = f'kwargs.pop("template_url", {_escape_str(builder.url)})'
-        result = "_url = " + url_value
-        # there will be always 4 spaces before the url
-        if len(result) + 4 > 120:
-            return result + "  # pylint: disable=line-too-long"
-        return result
+        return "_url = " + url_value
 
 
 ############################## NORMAL OPERATIONS ##############################
