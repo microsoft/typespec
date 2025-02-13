@@ -86,13 +86,17 @@ export const defaultOptions = {
   "emitter-extension-path": undefined,
 };
 
+export interface CSharpResolvedOptions extends SdkContext<NetEmitterOptions> {
+  logger: Logger;
+}
+
 /**
  * Resolves the options for the CSharp emitter.
  * @param context - The emit context.
  * @returns The resolved options.
  * @beta
  */
-export function resolveOptions(context: EmitContext<NetEmitterOptions>) {
+export function resolveOptions(context: EmitContext<NetEmitterOptions>) : ResolvedOptions {
   const emitterOptions = context.options;
   const emitterOutputDir = context.emitterOutputDir;
   const resolvedOptions = { ...defaultOptions, ...emitterOptions };
