@@ -9,3 +9,11 @@ You can define an alias using the `alias` keyword.
 ```typespec
 alias Options = "one" | "two";
 ```
+
+## Referencing model properties
+
+You can reference model properties using the `.` operator for identifiers.
+
+```tsp
+alias PetName = Pet.name;
+```

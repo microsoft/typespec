@@ -65,20 +65,20 @@ namespace TspTest.LongRunning {
 
   model LroOperationStatus<TStatusResult = never, TStatusError = Foundations.Error> {
     @key("operationId")
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     id: Azure.Core.uuid;
 
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     @lroStatus
     status: JobStatus;
 
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     createdDateTime?: utcDateTime;
 
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     expirationDateTime?: utcDateTime;
 
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     lastUpdateDateTime?: utcDateTime;
 
     error?: TStatusError;

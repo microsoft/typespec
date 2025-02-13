@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using UnbrandedTypeSpec.Models;
 using UnbrandedTypeSpec.Models.Custom;
 
 namespace UnbrandedTypeSpec

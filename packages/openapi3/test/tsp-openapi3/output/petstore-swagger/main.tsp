@@ -108,398 +108,6 @@ model ApiResponse {
 }
 
 /**
- * Successful operation
- */
-model addPet200ApplicationXmlResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-  @header contentType: "application/xml";
-}
-
-/**
- * Successful operation
- */
-model addPet200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-}
-
-/**
- * Invalid input
- */
-@error
-model addPet405Response {
-  @statusCode statusCode: 405;
-}
-
-/**
- * Successful operation
- */
-model updatePet200ApplicationXmlResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-  @header contentType: "application/xml";
-}
-
-/**
- * Successful operation
- */
-model updatePet200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-}
-
-/**
- * Invalid ID supplied
- */
-@error
-model updatePet400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * Pet not found
- */
-@error
-model updatePet404Response {
-  @statusCode statusCode: 404;
-}
-
-/**
- * Validation exception
- */
-@error
-model updatePet405Response {
-  @statusCode statusCode: 405;
-}
-
-/**
- * successful operation
- */
-model findPetsByStatus200ApplicationXmlResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet[];
-  @header contentType: "application/xml";
-}
-
-/**
- * successful operation
- */
-model findPetsByStatus200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet[];
-}
-
-/**
- * Invalid status value
- */
-@error
-model findPetsByStatus400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * successful operation
- */
-model findPetsByTags200ApplicationXmlResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet[];
-  @header contentType: "application/xml";
-}
-
-/**
- * successful operation
- */
-model findPetsByTags200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet[];
-}
-
-/**
- * Invalid tag value
- */
-@error
-model findPetsByTags400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * Invalid pet value
- */
-@error
-model deletePet400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * successful operation
- */
-model getPetById200ApplicationXmlResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-  @header contentType: "application/xml";
-}
-
-/**
- * successful operation
- */
-model getPetById200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Pet;
-}
-
-/**
- * Invalid ID supplied
- */
-@error
-model getPetById400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * Pet not found
- */
-@error
-model getPetById404Response {
-  @statusCode statusCode: 404;
-}
-
-/**
- * Invalid input
- */
-@error
-model updatePetWithForm405Response {
-  @statusCode statusCode: 405;
-}
-
-/**
- * successful operation
- */
-model uploadFile200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: ApiResponse;
-}
-
-/**
- * successful operation
- */
-model getInventory200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Record<int32>;
-}
-
-/**
- * successful operation
- */
-model placeOrder200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Order;
-}
-
-/**
- * Invalid input
- */
-@error
-model placeOrder405Response {
-  @statusCode statusCode: 405;
-}
-
-/**
- * Invalid ID supplied
- */
-@error
-model deleteOrder400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * Order not found
- */
-@error
-model deleteOrder404Response {
-  @statusCode statusCode: 404;
-}
-
-/**
- * successful operation
- */
-model getOrderById200ApplicationXmlResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Order;
-  @header contentType: "application/xml";
-}
-
-/**
- * successful operation
- */
-model getOrderById200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: Order;
-}
-
-/**
- * Invalid ID supplied
- */
-@error
-model getOrderById400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * Order not found
- */
-@error
-model getOrderById404Response {
-  @statusCode statusCode: 404;
-}
-
-/**
- * successful operation
- */
-@defaultResponse
-model createUserDefaultApplicationJsonResponse {
-  @bodyRoot body: User;
-}
-
-/**
- * successful operation
- */
-@defaultResponse
-model createUserDefaultApplicationXmlResponse {
-  @bodyRoot body: User;
-  @header contentType: "application/xml";
-}
-
-/**
- * Successful operation
- */
-model createUsersWithListInput200ApplicationXmlResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: User;
-  @header contentType: "application/xml";
-}
-
-/**
- * Successful operation
- */
-model createUsersWithListInput200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: User;
-}
-
-/**
- * successful operation
- */
-@defaultResponse
-model createUsersWithListInputDefaultResponse {}
-
-/**
- * successful operation
- */
-model loginUser200ApplicationXmlResponse {
-  /**
-   * calls per hour allowed by the user
-   */
-  @header("X-Rate-Limit") XRateLimit?: int32;
-
-  /**
-   * date in UTC when token expires
-   */
-  @header("X-Expires-After") XExpiresAfter?: utcDateTime;
-
-  @statusCode statusCode: 200;
-  @bodyRoot body: string;
-  @header contentType: "application/xml";
-}
-
-/**
- * successful operation
- */
-model loginUser200ApplicationJsonResponse {
-  /**
-   * calls per hour allowed by the user
-   */
-  @header("X-Rate-Limit") XRateLimit?: int32;
-
-  /**
-   * date in UTC when token expires
-   */
-  @header("X-Expires-After") XExpiresAfter?: utcDateTime;
-
-  @statusCode statusCode: 200;
-  @bodyRoot body: string;
-}
-
-/**
- * Invalid username/password supplied
- */
-@error
-model loginUser400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * successful operation
- */
-@defaultResponse
-model logoutUserDefaultResponse {}
-
-/**
- * Invalid username supplied
- */
-@error
-model deleteUser400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * User not found
- */
-@error
-model deleteUser404Response {
-  @statusCode statusCode: 404;
-}
-
-/**
- * successful operation
- */
-model getUserByName200ApplicationXmlResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: User;
-  @header contentType: "application/xml";
-}
-
-/**
- * successful operation
- */
-model getUserByName200ApplicationJsonResponse {
-  @statusCode statusCode: 200;
-  @bodyRoot body: User;
-}
-
-/**
- * Invalid username supplied
- */
-@error
-model getUserByName400Response {
-  @statusCode statusCode: 400;
-}
-
-/**
- * User not found
- */
-@error
-model getUserByName404Response {
-  @statusCode statusCode: 404;
-}
-
-/**
- * successful operation
- */
-@defaultResponse
-model updateUserDefaultResponse {}
-
-/**
  * Add a new pet to the store
  */
 @tag("pet")
@@ -508,8 +116,17 @@ model updateUserDefaultResponse {}
 @summary("Add a new pet to the store")
 op addPet(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: Pet,
-): addPet200ApplicationXmlResponse | addPet200ApplicationJsonResponse | addPet405Response;
+
+  /**
+   * Create a new pet in the store
+   */
+  @body body: Pet,
+): {
+  @header contentType: "application/xml";
+  @body body: Pet;
+} | Pet | {
+  @statusCode statusCode: 405;
+};
 
 /**
  * Update an existing pet by Id
@@ -520,13 +137,22 @@ op addPet(
 @summary("Update an existing pet")
 op updatePet(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: Pet,
+
+  /**
+   * Update an existent pet in the store
+   */
+  @body body: Pet,
 ):
-  | updatePet200ApplicationXmlResponse
-  | updatePet200ApplicationJsonResponse
-  | updatePet400Response
-  | updatePet404Response
-  | updatePet405Response;
+  | {
+      @header contentType: "application/xml";
+      @body body: Pet;
+    }
+  | Pet
+  | BadRequestResponse
+  | NotFoundResponse
+  | {
+      @statusCode statusCode: 405;
+    };
 
 /**
  * Multiple status values can be provided with comma separated strings
@@ -540,7 +166,10 @@ op findPetsByStatus(
    * Status values that need to be considered for filter
    */
   @query(#{ explode: true }) status?: "available" | "pending" | "sold" = "available",
-): findPetsByStatus200ApplicationXmlResponse | findPetsByStatus200ApplicationJsonResponse | findPetsByStatus400Response;
+): {
+  @header contentType: "application/xml";
+  @body body: Pet[];
+} | Body<Pet[]> | BadRequestResponse;
 
 /**
  * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
@@ -554,7 +183,10 @@ op findPetsByTags(
    * Tags to filter by
    */
   @query(#{ explode: true }) tags?: string[],
-): findPetsByTags200ApplicationXmlResponse | findPetsByTags200ApplicationJsonResponse | findPetsByTags400Response;
+): {
+  @header contentType: "application/xml";
+  @body body: Pet[];
+} | Body<Pet[]> | BadRequestResponse;
 
 @tag("pet")
 @route("/pet/{petId}")
@@ -567,7 +199,7 @@ op deletePet(
    * Pet id to delete
    */
   @path petId: int64,
-): deletePet400Response;
+): BadRequestResponse;
 
 /**
  * Returns a single pet
@@ -582,10 +214,13 @@ op getPetById(
    */
   @path petId: int64,
 ):
-  | getPetById200ApplicationXmlResponse
-  | getPetById200ApplicationJsonResponse
-  | getPetById400Response
-  | getPetById404Response;
+  | {
+      @header contentType: "application/xml";
+      @body body: Pet;
+    }
+  | Pet
+  | BadRequestResponse
+  | NotFoundResponse;
 
 @tag("pet")
 @route("/pet/{petId}")
@@ -606,7 +241,9 @@ op updatePetWithForm(
    * Status of pet that needs to be updated
    */
   @query(#{ explode: true }) status?: string,
-): updatePetWithForm405Response;
+): {
+  @statusCode statusCode: 405;
+};
 
 @tag("pet")
 @route("/pet/{petId}/uploadImage")
@@ -624,8 +261,8 @@ op uploadFile(
   @query(#{ explode: true }) additionalMetadata?: string,
 
   @header contentType: "application/octet-stream",
-  @bodyRoot body: bytes,
-): uploadFile200ApplicationJsonResponse;
+  @body body: bytes,
+): ApiResponse;
 
 /**
  * Returns a map of status codes to quantities
@@ -635,7 +272,7 @@ op uploadFile(
 @route("/store/inventory")
 @get
 @summary("Returns pet inventories by status")
-op getInventory(): getInventory200ApplicationJsonResponse;
+op getInventory(): Body<Record<int32>>;
 
 /**
  * Place a new order in the store
@@ -647,8 +284,10 @@ op getInventory(): getInventory200ApplicationJsonResponse;
 @summary("Place an order for a pet")
 op placeOrder(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: Order,
-): placeOrder200ApplicationJsonResponse | placeOrder405Response;
+  @body body: Order,
+): Order | {
+  @statusCode statusCode: 405;
+};
 
 /**
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
@@ -663,7 +302,7 @@ op deleteOrder(
    * ID of the order that needs to be deleted
    */
   @path orderId: int64,
-): deleteOrder400Response | deleteOrder404Response;
+): BadRequestResponse | NotFoundResponse;
 
 /**
  * For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
@@ -679,10 +318,13 @@ op getOrderById(
    */
   @path orderId: int64,
 ):
-  | getOrderById200ApplicationXmlResponse
-  | getOrderById200ApplicationJsonResponse
-  | getOrderById400Response
-  | getOrderById404Response;
+  | {
+      @header contentType: "application/xml";
+      @body body: Order;
+    }
+  | Order
+  | BadRequestResponse
+  | NotFoundResponse;
 
 /**
  * This can only be done by the logged in user.
@@ -693,8 +335,21 @@ op getOrderById(
 @summary("Create user")
 op createUser(
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: User,
-): createUserDefaultApplicationJsonResponse | createUserDefaultApplicationXmlResponse;
+
+  /**
+   * Created user object
+   */
+  @body body: User,
+): GeneratedHelpers.DefaultResponse<
+  Description = "successful operation",
+  Body = User
+> | GeneratedHelpers.DefaultResponse<
+  Description = "successful operation",
+  Headers = {
+    @header contentType: "application/xml";
+  },
+  Body = User
+>;
 
 /**
  * Creates list of users with given input array
@@ -704,9 +359,10 @@ op createUser(
 @route("/user/createWithList")
 @post
 @summary("Creates list of users with given input array")
-op createUsersWithListInput(
-  @bodyRoot body: User[],
-): createUsersWithListInput200ApplicationXmlResponse | createUsersWithListInput200ApplicationJsonResponse | createUsersWithListInputDefaultResponse;
+op createUsersWithListInput(@body body: User[]): {
+  @header contentType: "application/xml";
+  @body body: User;
+} | User | GeneratedHelpers.DefaultResponse<Description = "successful operation">;
 
 @tag("user")
 @route("/user/login")
@@ -722,13 +378,38 @@ op loginUser(
    * The password for login in clear text
    */
   @query(#{ explode: true }) password?: string,
-): loginUser200ApplicationXmlResponse | loginUser200ApplicationJsonResponse | loginUser400Response;
+): {
+  /**
+   * calls per hour allowed by the user
+   */
+  @header("X-Rate-Limit") XRateLimit?: int32;
+
+  /**
+   * date in UTC when token expires
+   */
+  @header("X-Expires-After") XExpiresAfter?: utcDateTime;
+
+  @header contentType: "application/xml";
+  @body body: string;
+} | {
+  /**
+   * calls per hour allowed by the user
+   */
+  @header("X-Rate-Limit") XRateLimit?: int32;
+
+  /**
+   * date in UTC when token expires
+   */
+  @header("X-Expires-After") XExpiresAfter?: utcDateTime;
+
+  @body body: string;
+} | BadRequestResponse;
 
 @tag("user")
 @route("/user/logout")
 @get
 @summary("Logs out current logged in user session")
-op logoutUser(): logoutUserDefaultResponse;
+op logoutUser(): GeneratedHelpers.DefaultResponse<Description = "successful operation">;
 
 /**
  * This can only be done by the logged in user.
@@ -742,7 +423,7 @@ op deleteUser(
    * The name that needs to be deleted
    */
   @path username: string,
-): deleteUser400Response | deleteUser404Response;
+): BadRequestResponse | NotFoundResponse;
 
 @tag("user")
 @route("/user/{username}")
@@ -754,10 +435,13 @@ op getUserByName(
    */
   @path username: string,
 ):
-  | getUserByName200ApplicationXmlResponse
-  | getUserByName200ApplicationJsonResponse
-  | getUserByName400Response
-  | getUserByName404Response;
+  | {
+      @header contentType: "application/xml";
+      @body body: User;
+    }
+  | User
+  | BadRequestResponse
+  | NotFoundResponse;
 
 /**
  * This can only be done by the logged in user.
@@ -774,5 +458,22 @@ op updateUser(
   @path username: string,
 
   @header contentType: "application/json" | "application/xml" | "application/x-www-form-urlencoded",
-  @bodyRoot body: User,
-): updateUserDefaultResponse;
+
+  /**
+   * Update an existent user in the store
+   */
+  @body body: User,
+): GeneratedHelpers.DefaultResponse<Description = "successful operation">;
+
+namespace GeneratedHelpers {
+  @doc(Description)
+  @error
+  model DefaultResponse<
+    Description extends valueof string = "",
+    Body = void,
+    Headers extends {} = {}
+  > {
+    @body body: Body;
+    ...Headers;
+  }
+}

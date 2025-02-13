@@ -148,8 +148,8 @@ describe("emitting models", () => {
     );
 
     assert.deepStrictEqual(schemas["ExtendsRecord.json"].allOf[0], { $ref: "RecordString.json" });
-    assert.deepStrictEqual(schemas["RecordString.json"].additionalProperties, { type: "string" });
-    assert.deepStrictEqual(schemas["IsRecord.json"].additionalProperties, {
+    assert.deepStrictEqual(schemas["RecordString.json"].unevaluatedProperties, { type: "string" });
+    assert.deepStrictEqual(schemas["IsRecord.json"].unevaluatedProperties, {
       type: "object",
       properties: {
         x: {
@@ -181,10 +181,10 @@ describe("emitting models", () => {
       { emitAllRefs: true },
     );
 
-    assert.deepStrictEqual(schemas["RecordNever.json"].additionalProperties, { not: {} });
-    assert.deepStrictEqual(schemas["RecordUnknown.json"].additionalProperties, {});
-    assert.deepStrictEqual(schemas["RecordVoid.json"].additionalProperties, { not: {} });
-    assert.deepStrictEqual(schemas["RecordNull.json"].additionalProperties, { type: "null" });
+    assert.deepStrictEqual(schemas["RecordNever.json"].unevaluatedProperties, { not: {} });
+    assert.deepStrictEqual(schemas["RecordUnknown.json"].unevaluatedProperties, {});
+    assert.deepStrictEqual(schemas["RecordVoid.json"].unevaluatedProperties, { not: {} });
+    assert.deepStrictEqual(schemas["RecordNull.json"].unevaluatedProperties, { type: "null" });
   });
 
   it("handles instantiations of literal types", async () => {
@@ -198,15 +198,15 @@ describe("emitting models", () => {
       `,
       { emitAllRefs: true },
     );
-    assert.deepStrictEqual(schemas["Test.json"].properties.string.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.string.unevaluatedProperties, {
       type: "string",
       const: "hi",
     });
-    assert.deepStrictEqual(schemas["Test.json"].properties.number.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.number.unevaluatedProperties, {
       type: "number",
       const: 1.2,
     });
-    assert.deepStrictEqual(schemas["Test.json"].properties.boolean.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.boolean.unevaluatedProperties, {
       type: "boolean",
       const: true,
     });
@@ -227,7 +227,7 @@ describe("emitting models", () => {
       { emitAllRefs: true },
     );
 
-    assert.deepStrictEqual(schemas["Test.json"].properties.union.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.union.unevaluatedProperties, {
       anyOf: [
         {
           type: "integer",
@@ -242,7 +242,7 @@ describe("emitting models", () => {
       ],
     });
 
-    assert.deepStrictEqual(schemas["Test.json"].properties.intersection.additionalProperties, {
+    assert.deepStrictEqual(schemas["Test.json"].properties.intersection.unevaluatedProperties, {
       type: "object",
       properties: {
         x: {
@@ -260,11 +260,11 @@ describe("emitting models", () => {
     });
 
     assert.deepStrictEqual(
-      schemas["Test.json"].properties.unspeakableInstantiation.additionalProperties,
+      schemas["Test.json"].properties.unspeakableInstantiation.unevaluatedProperties,
       {
         type: "object",
         properties: {},
-        additionalProperties: {
+        unevaluatedProperties: {
           type: "object",
           properties: {
             x: {
@@ -282,7 +282,7 @@ describe("emitting models", () => {
         },
       },
     );
-    assert.deepStrictEqual(schemas["RecordRecordInt32.json"].additionalProperties, {
+    assert.deepStrictEqual(schemas["RecordRecordInt32.json"].unevaluatedProperties, {
       $ref: "RecordInt32.json",
     });
   });

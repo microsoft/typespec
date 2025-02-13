@@ -73,6 +73,7 @@ words:
   - fastify
   - fluentui
   - français
+  - fslib
   - genproto
   - getpgid
   - giacamo
@@ -111,6 +112,7 @@ words:
   - kwargs
   - labelledby
   - lifecyle
+  - LINUXARMVMIMAGE
   - LINUXNEXTVMIMAGE
   - LINUXOS
   - LINUXVMIMAGE
@@ -120,6 +122,7 @@ words:
   - lstrip
   - lzutf
   - MACVMIMAGE
+  - MACVMIMAGEM
   - mday
   - mgmt
   - mgmtplane
@@ -145,6 +148,7 @@ words:
   - nosec
   - nostdlib
   - noverify
+  - npath
   - npmjs
   - nspkg
   - nupkg
@@ -250,6 +254,7 @@ words:
   - wday
   - weidxu
   - westus
+  - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - xiangyan
   - xiaofei
@@ -275,6 +280,7 @@ ignorePaths:
   - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - pnpm-lock.yaml
   - "**/*.mp4"
+  - "**/*.plist"
   - .git/**
   - .gitignore
   - .vscode/**

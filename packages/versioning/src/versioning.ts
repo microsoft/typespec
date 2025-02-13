@@ -181,7 +181,7 @@ function resolveVersionsForNamespace(
   }
 }
 
-function getAllVersions(p: Program, t: Type): Version[] | undefined {
+export function getAllVersions(p: Program, t: Type): Version[] | undefined {
   const [namespace, _] = getVersions(p, t);
   if (namespace === undefined) return undefined;
 
@@ -372,6 +372,7 @@ export function getAvailabilityMapInTimeline(
 
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
   // Always lookup for the original type. This ensure reference equality when comparing versions.
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   member = (member.projectionBase as EnumMember) ?? member;
   const parentEnum = member.enum;
   const [, versions] = getVersionsForEnum(program, parentEnum);

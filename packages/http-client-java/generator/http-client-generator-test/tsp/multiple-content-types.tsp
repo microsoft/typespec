@@ -11,11 +11,11 @@ using Azure.ClientGenerator.Core;
 namespace TspTest.MultiContentTypes;
 
 model Resource {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @key
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   name: string;
 }
 

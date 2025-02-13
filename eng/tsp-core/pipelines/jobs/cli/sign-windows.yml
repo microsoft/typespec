@@ -1,0 +1,44 @@
+jobs:
+  - job: SignWindows
+    pool:
+      name: $(WINDOWSPOOL)
+      image: $(WINDOWSVMIMAGE)
+      os: windows
+
+    steps:
+      - download: current
+        artifact: standalone-windows-x64
+        patterns: tsp.exe
+        displayName: Download x64 binary
+      # - download: current
+      #   artifact: standalone-windows-arm64
+      #   patterns: tsp.exe
+      #   displayName: Download arm64 binary
+
+      - pwsh: |
+          New-Item -ItemType Directory -Path windows
+          New-Item -ItemType Directory -Path windows/standalone-windows-x64
+          # New-Item -ItemType Directory -Path windows/standalone-windows-arm64
+
+          Copy-Item $(Pipeline.Workspace)/standalone-windows-x64/tsp.exe windows/standalone-windows-x64/
+          # Copy-Item $(Pipeline.Workspace)/standalone-windows-arm64/tsp.exe windows/standalone-windows-arm64/
+        displayName: Package windows binary for signing
+
+      - template: /eng/tsp-core/pipelines/templates/signing/windows.yml
+        parameters:
+          path: windows
+
+      - pwsh: |
+          New-Item -ItemType Directory -Path signed-windows/
+          New-Item -ItemType Directory -Path signed-windows/standalone-windows-x64/
+          # New-Item -ItemType Directory -Path signed-windows/standalone-windows-arm64/
+          Copy-Item windows/standalone-windows-x64/tsp.exe signed-windows/standalone-windows-x64/
+          # Copy-Item windows/standalone-windows-arm64/tsp.exe signed-windows/standalone-windows-arm64/
+        displayName: Copy to output dir
+
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: signed-windows
+          artifact: standalone-windows-signed
+          displayName: Publish signed binaries

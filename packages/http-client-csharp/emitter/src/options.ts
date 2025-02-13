@@ -3,6 +3,11 @@ import { EmitContext, JSONSchemaType, resolvePath } from "@typespec/compiler";
 import { tspOutputFileName } from "./constants.js";
 import { LoggerLevel } from "./lib/log-level.js";
 
+/**
+ * The emitter options for the CSharp emitter.
+ * @beta
+ */
+//TODO: should this be renamed to CSharpEmitterOptions? https://github.com/microsoft/typespec/issues/5845
 export interface NetEmitterOptions extends SdkEmitterOptions {
   "api-version"?: string;
   outputFile?: string;
@@ -14,7 +19,6 @@ export interface NetEmitterOptions extends SdkEmitterOptions {
   "new-project"?: boolean;
   "clear-output-folder"?: boolean;
   "save-inputs"?: boolean;
-  "model-namespace"?: boolean;
   debug?: boolean;
   logLevel?: LoggerLevel;
   "disable-xml-docs"?: boolean;
@@ -22,6 +26,11 @@ export interface NetEmitterOptions extends SdkEmitterOptions {
   "emitter-extension-path"?: string;
 }
 
+/**
+ * The JSON schema for the CSharp emitter options.
+ * @beta
+ */
+//TODO: should this be renamed to CSharpEmitterOptionsSchema? https://github.com/microsoft/typespec/issues/5845
 export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   type: "object",
   additionalProperties: false,
@@ -43,7 +52,6 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
     "new-project": { type: "boolean", nullable: true },
     "clear-output-folder": { type: "boolean", nullable: true },
     "save-inputs": { type: "boolean", nullable: true },
-    "model-namespace": { type: "boolean", nullable: true },
     "generate-protocol-methods": { type: "boolean", nullable: true },
     "generate-convenience-methods": { type: "boolean", nullable: true },
     "flatten-union-as-enum": { type: "boolean", nullable: true },
@@ -61,6 +69,10 @@ export const NetEmitterOptionsSchema: JSONSchemaType<NetEmitterOptions> = {
   required: [],
 };
 
+/**
+ * The default options for the CSharp emitter.
+ * @beta
+ */
 export const defaultOptions = {
   "api-version": "latest",
   outputFile: tspOutputFileName,
@@ -78,12 +90,18 @@ export const defaultOptions = {
   "emitter-extension-path": undefined,
 };
 
+/**
+ * Resolves the options for the CSharp emitter.
+ * @param context - The emit context.
+ * @returns The resolved options.
+ * @beta
+ */
 export function resolveOptions(context: EmitContext<NetEmitterOptions>) {
   const emitterOptions = context.options;
   const emitterOutputDir = context.emitterOutputDir;
   const resolvedOptions = { ...defaultOptions, ...emitterOptions };
 
-  const outputFolder = resolveOutputFolder(context);
+  const outputFolder = _resolveOutputFolder(context);
   return {
     ...resolvedOptions,
     outputFile: resolvePath(outputFolder, resolvedOptions.outputFile),
@@ -91,6 +109,12 @@ export function resolveOptions(context: EmitContext<NetEmitterOptions>) {
   };
 }
 
-export function resolveOutputFolder(context: EmitContext<NetEmitterOptions>): string {
+/**
+ * Resolves the output folder for the CSharp emitter.
+ * @param context - The emit context.
+ * @returns The resolved output folder path.
+ * @internal
+ */
+export function _resolveOutputFolder(context: EmitContext<NetEmitterOptions>): string {
   return resolvePath(context.emitterOutputDir ?? "./tsp-output");
 }

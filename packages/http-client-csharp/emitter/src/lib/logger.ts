@@ -5,37 +5,22 @@ import { NoTarget, Program, Tracer } from "@typespec/compiler";
 import { getTracer, reportDiagnostic } from "./lib.js";
 import { LoggerLevel } from "./log-level.js";
 
+/**
+ * The Logger class for the emitter.
+ * @beta
+ */
 export class Logger {
-  private static instance: Logger;
-  private initialized: boolean = false;
   private tracer: Tracer;
   private level: LoggerLevel;
   private program: Program;
 
-  private constructor(program: Program, level: LoggerLevel) {
+  public constructor(program: Program, level: LoggerLevel) {
     this.tracer = getTracer(program);
     this.level = level;
     this.program = program;
   }
 
-  static initialize(program: Program, level: LoggerLevel): void {
-    if (!Logger.instance) {
-      Logger.instance = new Logger(program, level);
-      Logger.instance.initialized = true;
-    }
-  }
-
-  static getInstance(): Logger {
-    if (!Logger.instance) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
-    return Logger.instance;
-  }
-
   info(message: string): void {
-    if (!this.initialized) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
     if (
       this.level === LoggerLevel.INFO ||
       this.level === LoggerLevel.DEBUG ||
@@ -46,18 +31,12 @@ export class Logger {
   }
 
   debug(message: string): void {
-    if (!this.initialized) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
     if (this.level === LoggerLevel.DEBUG || this.level === LoggerLevel.VERBOSE) {
       this.tracer.trace(LoggerLevel.DEBUG, message);
     }
   }
 
   verbose(message: string): void {
-    if (!this.initialized) {
-      throw new Error("Logger is not initialized. Call initialize() first.");
-    }
     if (this.level === LoggerLevel.VERBOSE) {
       this.tracer.trace(LoggerLevel.VERBOSE, message);
     }

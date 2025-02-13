@@ -5,6 +5,7 @@ import {
   AccessFlags,
   DecoratorInfo,
   SdkBuiltInKinds,
+  SerializationOptions,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
@@ -78,6 +79,7 @@ export interface InputUnionType extends InputTypeBase {
   kind: "union";
   name: string;
   variantTypes: InputType[];
+  clientNamespace: string;
 }
 
 export function isInputUnionType(type: InputType): type is InputUnionType {
@@ -91,11 +93,13 @@ export interface InputModelType extends InputTypeBase {
   crossLanguageDefinitionId: string;
   access?: AccessFlags;
   usage: UsageFlags;
+  clientNamespace: string;
   additionalProperties?: InputType;
   discriminatorValue?: string;
   discriminatedSubtypes?: Record<string, InputModelType>;
   discriminatorProperty?: InputModelProperty;
   baseModel?: InputModelType;
+  serializationOptions: SerializationOptions;
 }
 
 export interface InputModelProperty extends InputTypeBase {
@@ -108,6 +112,7 @@ export interface InputModelProperty extends InputTypeBase {
   discriminator: boolean;
   crossLanguageDefinitionId: string;
   flatten: boolean;
+  serializationOptions: SerializationOptions;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {
@@ -124,6 +129,7 @@ export interface InputEnumType extends InputTypeBase {
   isFlags: boolean;
   usage: UsageFlags;
   access?: AccessFlags;
+  clientNamespace: string;
 }
 
 export interface InputEnumTypeValue extends InputTypeBase {
@@ -137,6 +143,7 @@ export interface InputEnumTypeValue extends InputTypeBase {
 export interface InputNullableType extends InputTypeBase {
   kind: "nullable";
   type: InputType;
+  clientNamespace: string;
 }
 
 export function isInputEnumType(type: InputType): type is InputEnumType {

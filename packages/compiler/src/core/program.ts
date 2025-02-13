@@ -68,14 +68,17 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 
+/** @deprecated */
 export interface ProjectedProgram extends Program {
   projector: Projector;
 }
 
+/** @deprecated use Mutators instead */
 export function projectProgram(
   program: Program,
   projections: ProjectionApplication[],
   startNode?: Type,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
 ): ProjectedProgram {
   return createProjector(program, projections, startNode);
 }
