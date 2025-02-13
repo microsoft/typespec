@@ -16,6 +16,7 @@ import { createOrGetModuleForNamespace } from "../../common/namespace.js";
 import { createInitialContext, createModule, isModule, JsContext, Module } from "../../ctx.js";
 import { parseCase } from "../../util/case.js";
 
+import { SupportedOpenAPIDocuments } from "@typespec/openapi3";
 import { module as httpHelperModule } from "../../../generated-defs/helpers/http.js";
 import { module as routerModule } from "../../../generated-defs/helpers/router.js";
 import { emitOptionsType } from "../../common/interface.js";
@@ -23,15 +24,8 @@ import { emitTypeReference, isValueLiteralType } from "../../common/reference.js
 import { getAllProperties } from "../../util/extends.js";
 import { bifilter, indent } from "../../util/iter.js";
 import { createOnceQueue } from "../../util/once-queue.js";
+import { tryGetOpenApi3 } from "../../util/openapi3.js";
 import { writeModuleFile } from "../../write.js";
-
-function tryGetOpenApi3(): Promise<typeof import("@typespec/openapi3") | undefined> {
-  try {
-    return import("@typespec/openapi3");
-  } catch {
-    return Promise.resolve(undefined);
-  }
-}
 
 function spawn(command: string, args: string[], options: SpawnOptions): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -160,8 +154,6 @@ async function confirmYesNo(message: string): Promise<void> {
 }
 
 export async function scaffold(options: ScaffoldingOptions) {
-  const openapi3 = await tryGetOpenApi3();
-
   if (options.force) {
     await confirmYesNo(
       "[hsj] The `--force` flag is set and will overwrite existing files and settings that may have been modified. Continue?",
@@ -205,7 +197,7 @@ export async function scaffold(options: ScaffoldingOptions) {
 
   const expressOptions: PackageJsonExpressOptions = {
     isExpress: !!config.options?.["@typespec/http-server-javascript"]?.express,
-    hasOpenApi: !!openapi3,
+    openApi3: undefined,
   };
 
   console.info(
@@ -236,6 +228,8 @@ export async function scaffold(options: ScaffoldingOptions) {
     console.error("[hsj] No services were found in the program. Exiting.");
     process.exit(1);
   }
+
+  expressOptions.openApi3 = await tryGetOpenApi3(program, jsCtx.service);
 
   const [httpService, httpDiagnostics] = getHttpService(program, jsCtx.service.type);
 
@@ -295,7 +289,7 @@ export async function scaffold(options: ScaffoldingOptions) {
       },
     );
 
-    if (expressOptions.hasOpenApi) {
+    if (expressOptions.openApi3) {
       const swaggerUiModule = createModule("swagger-ui", indexModule);
 
       indexModule.imports.push({
@@ -319,8 +313,8 @@ export async function scaffold(options: ScaffoldingOptions) {
       );
 
       swaggerUiModule.declarations.push([
-        "export function addSwaggerUi(app: express.Application) {",
-        "  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));",
+        "export function addSwaggerUi(path: string, app: express.Application) {",
+        "  app.use(path, swaggerUi.serve, swaggerUi.setup(openApiDocument));",
         "}",
       ]);
 
@@ -338,14 +332,23 @@ export async function scaffold(options: ScaffoldingOptions) {
       "const app = express();",
       "",
       "app.use(morgan('dev'));",
-      ...(expressOptions.hasOpenApi ? ["addSwaggerUi(app);", ""] : []),
+      ...(expressOptions.openApi3
+        ? [
+            "",
+            'const SWAGGER_UI_PATH = process.env.SWAGGER_UI_PATH || "/.api-docs";',
+            "",
+            "addSwaggerUi(SWAGGER_UI_PATH, app);",
+          ]
+        : []),
       "",
       "app.use(router.expressMiddleware);",
       "",
       "app.listen(PORT, () => {",
       `  console.log(\`Server is running at http://localhost:\${PORT}\`);`,
-      ...(expressOptions.hasOpenApi
-        ? ["  console.log(`API documentation is available at http://localhost:\${PORT}/api-docs`);"]
+      ...(expressOptions.openApi3
+        ? [
+            "  console.log(`API documentation is available at http://localhost:${PORT}${SWAGGER_UI_PATH}`);",
+          ]
         : []),
       "});",
     ]);
@@ -695,7 +698,7 @@ const JS_IDENTIFIER_RE = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
 
 interface PackageJsonExpressOptions {
   isExpress: boolean;
-  hasOpenApi: boolean;
+  openApi3: SupportedOpenAPIDocuments | undefined;
 }
 
 function updatePackageJson(
@@ -718,7 +721,7 @@ function updatePackageJson(
     updateObjectPath(["dependencies", "express"], "^5.0.1");
     updateObjectPath(["devDependencies", "@types/express"], "^5.0.0");
 
-    if (express.hasOpenApi) {
+    if (express.openApi3) {
       updateObjectPath(["dependencies", "swagger-ui-express"], "^5.0.1");
       updateObjectPath(["devDependencies", "@types/swagger-ui-express"], "^4.1.7");
     }

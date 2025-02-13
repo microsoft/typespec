@@ -5,7 +5,7 @@ import { NoTarget } from "@typespec/compiler";
 import { HttpServer, HttpService, getHttpService, getServers } from "@typespec/http";
 import { JsContext, Module, createModule } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
-import { getOpenApi3Emitter } from "../util/openapi3.js";
+import { getOpenApi3Emitter, getOpenApi3ServiceRecord, tryGetOpenApi3 } from "../util/openapi3.js";
 import { emitRawServer } from "./server/index.js";
 import { emitRouter } from "./server/router.js";
 
@@ -55,31 +55,23 @@ export async function emitHttp(ctx: JsContext) {
     servers,
   };
 
-  const openapi3 = await getOpenApi3Emitter();
+  const openapi3Emitter = await getOpenApi3Emitter();
+  const openapi3 = await tryGetOpenApi3(ctx.program, ctx.service);
 
   if (openapi3) {
-    const serviceRecords = await openapi3.getOpenAPI3(ctx.program, {
-      "include-x-typespec-name": "never",
-      "omit-unreachable-types": true,
-      "safeint-strategy": "int64",
+    const openApiDocumentModule = createModule("openapi3", httpModule);
+
+    openApiDocumentModule.declarations.push([
+      `export const openApiDocument = ${JSON.stringify(openapi3)}`,
+    ]);
+  } else if (openapi3Emitter) {
+    const serviceRecord = await getOpenApi3ServiceRecord(ctx.program, ctx.service);
+
+    reportDiagnostic(ctx.program, {
+      code: "openapi3-document-not-generated",
+      target: ctx.service.type,
+      messageId: serviceRecord?.versioned ? "versioned" : "unable",
     });
-
-    const serviceRecord = serviceRecords.find((s) => s.service === ctx.service);
-
-    if (serviceRecord && !serviceRecord.versioned) {
-      const openApiDocumentModule = createModule("openapi3", httpModule);
-
-      openApiDocumentModule.declarations.push([
-        `export const openApiDocument = ${JSON.stringify(serviceRecord.document)}`,
-      ]);
-    } else {
-      // Warning: service either wasn't returned or wasn't versioned. Warn that openAPI document was attempted but not generated.
-      reportDiagnostic(ctx.program, {
-        code: "openapi3-document-not-generated",
-        target: ctx.service.type,
-        messageId: serviceRecord ? "versioned" : "unable",
-      });
-    }
   }
 
   const operationsModule = createModule("operations", httpModule);
