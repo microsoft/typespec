@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import { NoTarget, Program, Tracer } from "@typespec/compiler";
-import { getTracer, reportDiagnostic as libReportDiagnostic } from "./lib.js";
+import { DiagnosticReport, NoTarget, Program, Tracer } from "@typespec/compiler";
+import { diagMessages, getTracer, reportDiagnostic as libReportDiagnostic } from "./lib.js";
 import { LoggerLevel } from "./logger-level.js";
 
 /**
@@ -42,7 +42,7 @@ export class Logger {
     }
   }
 
-  reportDiagnostic(diagnostic: Parameters<typeof libReportDiagnostic>[1]): void {
+  reportDiagnostic<C extends keyof typeof diagMessages, M extends keyof typeof diagMessages[C]>(diagnostic: DiagnosticReport<typeof diagMessages, C, M>): void {
     libReportDiagnostic(this.program, diagnostic);
   }
 
