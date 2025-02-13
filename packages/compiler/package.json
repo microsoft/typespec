@@ -91,6 +91,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@alloy-js/core": "^0.5.0",
     "@babel/code-frame": "~7.26.2",
     "@npmcli/arborist": "^8.0.0",
     "ajv": "~8.17.1",
@@ -108,7 +109,6 @@
     "yargs": "~17.7.2"
   },
   "devDependencies": {
-    "@alloy-js/core": "^0.5.0",
     "@types/babel__code-frame": "~7.0.6",
     "@types/mustache": "~4.2.5",
     "@types/node": "~22.10.10",
@@ -127,6 +127,7 @@
     "typescript": "~5.7.3",
     "vitest": "^3.0.5",
     "vscode-oniguruma": "~2.0.1",
-    "vscode-textmate": "~9.2.0"
+    "vscode-textmate": "~9.2.0",
+    "cross-env": "~7.0.3"
   }
 }
