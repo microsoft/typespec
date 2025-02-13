@@ -1,6 +1,11 @@
 package tsptest.armstreamstyleserialization;
 
+import com.azure.core.http.HttpClient;
+import com.azure.core.http.HttpPipelineBuilder;
+import com.azure.core.http.HttpRequest;
+import com.azure.core.http.HttpResponse;
 import com.azure.core.management.serializer.SerializerFactory;
+import com.azure.core.test.http.MockHttpResponse;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.serializer.SerializerAdapter;
 import com.azure.core.util.serializer.SerializerEncoding;
@@ -10,7 +15,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.utils.ArmUtils;
+import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.models.Error;
+import tsptest.armstreamstyleserialization.models.Priority;
 import tsptest.armstreamstyleserialization.models.SawShark;
 import tsptest.armstreamstyleserialization.models.Shark;
 
@@ -57,5 +65,18 @@ public class StreamStyleSerializationTests {
 
         shark.withRequiredStringAnotherPropertiesRequiredString("any");
         shark.validate();
+    }
+
+    @Test
+    public void testExpandableEnum() {
+        HttpClient httpClient = request -> {
+            String query = request.getUrl().getQuery();
+            Assertions.assertEquals("priority=0", query);
+            return Mono.just(new MockHttpResponse(request, 200, 0));
+        };
+        ArmStreamStyleSerializationManager manager = ArmStreamStyleSerializationManager
+            .authenticate(new HttpPipelineBuilder().httpClient(httpClient).build(), ArmUtils.getAzureProfile());
+        Priority priority = manager.priorities().setPriority(Priority.HIGH);
+        Assertions.assertEquals(Priority.HIGH, priority);
     }
 }
