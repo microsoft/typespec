@@ -1,5 +1,7 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
+export const LIB_NAME = "@typespec/http-client-java";
+
 export interface DevOptions {
   "generate-code-model"?: boolean;
   debug?: boolean;
@@ -89,7 +91,7 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 };
 
 export const $lib = createTypeSpecLibrary({
-  name: "@typespec/http-client-java",
+  name: LIB_NAME,
   diagnostics: {
     // error
     "unknown-error": {

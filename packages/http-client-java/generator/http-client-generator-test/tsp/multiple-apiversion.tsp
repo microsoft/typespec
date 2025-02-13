@@ -21,11 +21,11 @@ using Azure.ClientGenerator.Core;
 namespace TspTest.MultipleApiVersion {
   @resource("resources")
   model Resource {
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     id: string;
 
     @key
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     name: string;
 
     type: string;
@@ -60,11 +60,11 @@ namespace TspTest.MultipleApiVersion {
 namespace TspTest.MultipleApiVersion2 {
   @resource("resources")
   model Resource2 {
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     id: string;
 
     @key
-    @visibility("read")
+    @visibility(Lifecycle.Read)
     name: string;
 
     type: string;

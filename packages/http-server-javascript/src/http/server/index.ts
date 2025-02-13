@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation
 // Licensed under the MIT license.
 
-import { ModelProperty, Type, compilerAssert } from "@typespec/compiler";
+import { ModelProperty, NoTarget, Type, compilerAssert } from "@typespec/compiler";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -32,6 +32,7 @@ import { differentiateUnion, writeCodeTree } from "../../util/differentiate.js";
 import { emitMultipart, emitMultipartLegacy } from "./multipart.js";
 
 import { module as headerHelpers } from "../../../generated-defs/helpers/header.js";
+import { module as httpHelpers } from "../../../generated-defs/helpers/http.js";
 import { requiresJsonSerialization } from "../../common/serialization/json.js";
 
 const DEFAULT_CONTENT_TYPE = "application/json";
@@ -51,8 +52,21 @@ export function emitRawServer(ctx: HttpContext, operationsModule: Module): Modul
     from: routerHelpers,
   });
 
+  const isHttpResponder = ctx.gensym("isHttpResponder");
+  const httpResponderSym = ctx.gensym("httpResponderSymbol");
+
+  serverRawModule.imports.push({
+    binder: [`isHttpResponder as ${isHttpResponder}`, `HTTP_RESPONDER as ${httpResponderSym}`],
+    from: httpHelpers,
+  });
+
   for (const operation of ctx.httpService.operations) {
-    serverRawModule.declarations.push([...emitRawServerOperation(ctx, operation, serverRawModule)]);
+    serverRawModule.declarations.push([
+      ...emitRawServerOperation(ctx, operation, serverRawModule, {
+        isHttpResponder,
+        httpResponderSym,
+      }),
+    ]);
   }
 
   return serverRawModule;
@@ -68,6 +82,7 @@ function* emitRawServerOperation(
   ctx: HttpContext,
   operation: HttpOperation,
   module: Module,
+  responderNames: Pick<Names, "isHttpResponder" | "httpResponderSym">,
 ): Iterable<string> {
   const op = operation.operation;
   const operationNameCase = parseCase(op.name);
@@ -93,6 +108,7 @@ function* emitRawServerOperation(
     result: ctx.gensym("result"),
     operations: ctx.gensym("operations"),
     queryParams: ctx.gensym("queryParams"),
+    ...responderNames,
   };
 
   yield `export async function ${functionName}(`;
@@ -292,10 +308,22 @@ function* emitRawServerOperation(
     );
   }
 
-  yield `  const ${names.result} = await ${names.operations}.${operationNameCase.camelCase}(${names.ctx}, `;
-  yield* indent(indent(paramLines));
-  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  yield `  );`, yield "";
+  const returnType = emitTypeReference(ctx, op.returnType, NoTarget, module, {
+    altName: operationNameCase.pascalCase + "Result",
+  });
+
+  yield `  let ${names.result}: ${returnType};`;
+  yield "";
+  yield `  try {`;
+  yield `    ${names.result} = await ${names.operations}.${operationNameCase.camelCase}(${names.ctx}, `;
+  yield* indent(indent(indent(paramLines)));
+  yield `    );`;
+  yield "  } catch(e) {";
+  yield `    if (${names.isHttpResponder}(e)) {`;
+  yield `      return e[${names.httpResponderSym}](${names.ctx});`;
+  yield `    } else throw e;`;
+  yield `  }`;
+  yield "";
 
   yield* indent(emitResultProcessing(ctx, names, op.returnType, module));
 
@@ -309,6 +337,8 @@ interface Names {
   result: string;
   operations: string;
   queryParams: string;
+  isHttpResponder: string;
+  httpResponderSym: string;
 }
 
 /**
@@ -356,6 +386,30 @@ function* emitResultProcessingForType(
   target: Type,
   module: Module,
 ): Iterable<string> {
+  if (target.kind === "Intrinsic") {
+    switch (target.name) {
+      case "void":
+        yield `${names.ctx}.response.statusCode = 204;`;
+        yield `${names.ctx}.response.end();`;
+        return;
+      case "null":
+        yield `${names.ctx}.response.statusCode = 200;`;
+        yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+        yield `${names.ctx}.response.end("null");`;
+        return;
+      case "unknown":
+        yield `${names.ctx}.response.statusCode = 200;`;
+        yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+        yield `${names.ctx}.response.end(JSON.stringify(${names.result}));`;
+        return;
+      case "never":
+        yield `return ${names.ctx}.errorHandlers.onInternalError(${names.ctx}, "Internal server error.");`;
+        return;
+      default:
+        throw new UnimplementedError(`result processing for intrinsic type '${target.name}'`);
+    }
+  }
+
   if (target.kind !== "Model") {
     throw new UnimplementedError(`result processing for type kind '${target.kind}'`);
   }
@@ -487,7 +541,7 @@ function* emitQueryParamBinding(
 
   if (!parameter.param.optional) {
     yield `if (!${nameCase.camelCase}) {`;
-    yield `  ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}');`;
+    yield `  return ${names.ctx}.errorHandlers.onInvalidRequest(${names.ctx}, ${JSON.stringify(operation.path)}, "missing required query parameter '${parameter.name}'");`;
     yield "}";
     yield "";
   }

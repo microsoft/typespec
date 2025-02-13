@@ -40,8 +40,8 @@
     "upload-manifest": "pnpm -r --filter=@typespec/http-specs run upload-manifest"
   },
   "devDependencies": {
-    "@chronus/chronus": "^0.14.0",
-    "@chronus/github": "^0.4.5",
+    "@chronus/chronus": "^0.14.1",
+    "@chronus/github": "^0.4.7",
     "@eslint/js": "^9.18.0",
     "@microsoft/api-extractor": "^7.49.1",
     "@octokit/core": "^6.1.3",
@@ -71,7 +71,8 @@
     "tsx": "^4.19.2",
     "typescript": "~5.7.3",
     "typescript-eslint": "^8.21.0",
-    "vitest": "^3.0.4",
+    "vite-plugin-node-polyfills": "^0.23.0",
+    "vitest": "^3.0.5",
     "yaml": "~2.7.0"
   },
   "syncpack": {
