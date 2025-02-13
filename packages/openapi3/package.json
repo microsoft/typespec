@@ -91,7 +91,7 @@
     "@typespec/tspd": "workspace:~",
     "@typespec/versioning": "workspace:~",
     "@typespec/xml": "workspace:~",
-    "@typespec/http-specs": "0.1.0-alpha.7",
+    "@typespec/http-specs": "workspace:~",
     "@typespec/spector": "0.1.0-alpha.6",
     "@vitest/coverage-v8": "^3.0.4",
     "@vitest/ui": "^3.0.3",
@@ -99,6 +99,7 @@
     "cross-env": "~7.0.3",
     "rimraf": "~6.0.1",
     "typescript": "~5.7.3",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.5",
+    "isomorphic-fetch": "~3.0.0"
   }
 }
