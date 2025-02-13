@@ -222,15 +222,18 @@ public abstract class Specification extends ModelBase {
         if (wireType instanceof ListType) {
             ListModel listModel = new ListModel(getPropertyType(((ListType) wireType).getElementType(), resource));
             listModel.setProvisioningPackage(List.class.getPackageName());
+            listModel.setSpec(this);
             return listModel;
         } else if (wireType instanceof MapType) {
             DictionaryModel dictionaryModel
                 = new DictionaryModel(getPropertyType(((MapType) wireType).getValueType(), resource));
             dictionaryModel.setProvisioningPackage(Map.class.getPackageName());
+            dictionaryModel.setSpec(this);
             return dictionaryModel;
         } else if (wireType instanceof EnumType) {
             EnumModel enumModel = new EnumModel(((EnumType) wireType).getName(), this.getProvisioningPackage(),
                 ((EnumType) wireType).getValues().stream().map(ClientEnumValue::getValue).collect(Collectors.toList()));
+            enumModel.setSpec(this);
             modelNameMapping.put(((EnumType) wireType).getName(), enumModel);
             return enumModel;
         } else if (ClientModelUtil.isClientModel(wireType)) {
@@ -243,6 +246,7 @@ public abstract class Specification extends ModelBase {
                 = new SimpleModel(this, resource.getArmType(), classType.getName(), this.getProvisioningPackage(), null);
             simpleModel.setProperties(
                 parseProperties(ClientModelUtil.getClientModel(((ClassType) wireType).getName()), resource));
+            simpleModel.setSpec(this);
             modelNameMapping.put(classType.getName(), simpleModel);
             return simpleModel;
         } else if (wireType instanceof PrimitiveType) {
@@ -254,6 +258,7 @@ public abstract class Specification extends ModelBase {
             ExternalModel externalModel
                 = new ExternalModel(((ClassType) wireType).getName(), this.getProvisioningPackage() + ".models");
             externalModel.setExternal(true);
+            externalModel.setSpec(this);
             TypeRegistry.register(externalModel);
             return externalModel;
         } else {
