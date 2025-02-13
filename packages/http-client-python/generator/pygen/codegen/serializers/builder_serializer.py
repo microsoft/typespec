@@ -1040,34 +1040,23 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             )
                         # add build-in error type
                         # TODO: we should decide whether need to this wrapper for customized error type
-                        if status_code == 401:
+                        status_code_error_map = {
+                            401: "ClientAuthenticationError",
+                            404: "ResourceNotFoundError",
+                            409: "ResourceExistsError",
+                            304: "ResourceNotModifiedError",
+                        }
+                        if status_code in status_code_error_map:
                             retval.append(
-                                "        raise ClientAuthenticationError(response=response{}{})".format(
+                                "        raise {}(response=response{}{})".format(
+                                    status_code_error_map[status_code],
                                     error_model,
                                     (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
                                 )
                             )
-                        elif status_code == 404:
-                            retval.append(
-                                "        raise ResourceNotFoundError(response=response{}{})".format(
-                                    error_model,
-                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
-                                )
-                            )
-                        elif status_code == 409:
-                            retval.append(
-                                "        raise ResourceExistsError(response=response{}{})".format(
-                                    error_model,
-                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
-                                )
-                            )
-                        elif status_code == 304:
-                            retval.append(
-                                "        raise ResourceNotModifiedError(response=response{}{})".format(
-                                    error_model,
-                                    (", error_format=ARMErrorFormat" if self.code_model.options["azure_arm"] else ""),
-                                )
-                            )
+                            condition = "if"
+                        else:
+                            condition = "elif"
                 # ranged status code only exist in typespec and will not have multiple status codes
                 else:
                     retval.append(
@@ -1088,7 +1077,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
                             "pipeline_response)"
                         )
-                condition = "elif"
+                    condition = "elif"
         # default error handling
         if builder.default_error_deserialization and self.code_model.options["models_mode"]:
             error_model = ", model=error"
