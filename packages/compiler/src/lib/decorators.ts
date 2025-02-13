@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
+// TODO: remove after projection removal
 import type {
   DeprecatedDecorator,
   DiscriminatorDecorator,
@@ -100,7 +102,7 @@ import {
 } from "../core/types.js";
 import { useStateMap, useStateSet } from "../utils/index.js";
 import { setKey } from "./key.js";
-import { createStateSymbol } from "./utils.js";
+import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
 
 export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
@@ -811,17 +813,6 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
 
 export { getEncode };
 
-export function filterModelPropertiesInPlace(
-  model: Model,
-  filter: (prop: ModelProperty) => boolean,
-) {
-  for (const [key, prop] of model.properties) {
-    if (!filter(prop)) {
-      model.properties.delete(key);
-    }
-  }
-}
-
 // -- @withOptionalProperties decorator ---------------------
 
 export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
@@ -886,7 +877,6 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 ) => {
   // remove all read-only properties from the target type
   target.properties.forEach((p) => {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     delete p.default;
     delete p.defaultValue;
   });
@@ -1085,7 +1075,6 @@ export { getKeyName, isKey } from "./key.js";
  *     model Foo {}
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-deprecated
 export const $deprecated: DeprecatedDecorator = (
   context: DecoratorContext,
   target: Type,

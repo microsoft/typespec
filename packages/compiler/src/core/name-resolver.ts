@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 /**
  * The name resolver is responsible for resolving identifiers to symbols and
  * creating symbols for types that become known during this process. After name

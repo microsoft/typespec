@@ -3,8 +3,8 @@ import {
   SdkHttpOperation,
   SdkLroServiceMetadata,
 } from "@azure-tools/typespec-client-generator-core";
-import { getVisibility, ModelProperty, Operation, Program, Type, Union } from "@typespec/compiler";
-import { HttpOperation, isMetadata } from "@typespec/http";
+import { Operation, Program, Type, Union } from "@typespec/compiler";
+import { HttpOperation } from "@typespec/http";
 import { Client as CodeModelClient, ServiceVersion } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { modelIs, unionReferredByType } from "./type-utils.js";
@@ -115,10 +115,6 @@ export function operationRefersUnion(
   return null;
 }
 
-export function isPayloadProperty(program: Program, property: ModelProperty): boolean {
-  return !isMetadata(program, property) && !getVisibility(program, property)?.includes("none");
-}
-
 export function getServiceVersion(client: CodeModelClient | CodeModel): ServiceVersion {
   let name = client.language.default.name;
   let description = name;
@@ -156,7 +152,7 @@ export function isLroNewPollingStrategy(
     } else if (
       lroMetadata.finalStep &&
       lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
-      lroMetadata.finalResponse?.resultPath
+      lroMetadata.finalResponse?.resultSegments
     ) {
       // final result is the value in lroMetadata.finalStep.target
       useNewStrategy = true;

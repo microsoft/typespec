@@ -48,7 +48,7 @@ public class TemplateUtil {
     public static final String ARTIFACT_ID = "artifact-id";
     public static final String ARTIFACT_VERSION = "artifact-version";
     public static final String PACKAGE_NAME = "package-name";
-    public static final String IMPRESSION_PIXEL = "impression-pixel";
+    // public static final String IMPRESSION_PIXEL = "impression-pixel";
 
     public static final String MANAGER_CLASS = "manager-class";
 

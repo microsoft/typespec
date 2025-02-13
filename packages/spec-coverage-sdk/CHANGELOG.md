@@ -1,5 +1,16 @@
 # Change Log - @typespec/spec-coverage-sdk
 
+## 0.1.0-alpha.3
+
+### Bug Fixes
+
+- [#5748](https://github.com/microsoft/typespec/pull/5748) Fix invalid type with coverage report
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
 ## 0.1.0-alpha.2
 
 No changes, version bump only.

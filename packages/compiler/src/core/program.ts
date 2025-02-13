@@ -68,14 +68,17 @@ import {
   TypeSpecScriptNode,
 } from "./types.js";
 
+/** @deprecated */
 export interface ProjectedProgram extends Program {
   projector: Projector;
 }
 
+/** @deprecated use Mutators instead */
 export function projectProgram(
   program: Program,
   projections: ProjectionApplication[],
   startNode?: Type,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
 ): ProjectedProgram {
   return createProjector(program, projections, startNode);
 }
@@ -315,6 +318,7 @@ export async function compile(
   async function loadSources(entrypoint: string) {
     const sourceLoader = await createSourceLoader(host, {
       parseOptions: options.parseOptions,
+      tracer,
       getCachedScript: (file) =>
         oldProgram?.sourceFiles.get(file.path) ?? host.parseCache?.get(file),
     });
