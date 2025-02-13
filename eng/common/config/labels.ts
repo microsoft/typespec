@@ -218,6 +218,14 @@ export default defineConfig({
           color: "0969da",
           description: "Good candidate for MQ",
         },
+        P0: {
+          color: "1d76db",
+          description: "Priority level 0",
+        },
+        P1: {
+          color: "26EA9E",
+          description: "Priority level 1",
+        },
       },
     },
   },
