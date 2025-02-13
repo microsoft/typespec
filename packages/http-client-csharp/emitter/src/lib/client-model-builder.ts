@@ -25,6 +25,12 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
+/**
+ * Creates the code model from the SDK context.
+ * @param sdkContext - The SDK context
+ * @returns The code model
+ * @beta
+ */
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
