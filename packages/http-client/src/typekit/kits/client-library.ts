@@ -2,7 +2,6 @@ import {
   Enum,
   getLocationContext,
   Interface,
-  isStdNamespace,
   listServices,
   Model,
   Namespace,

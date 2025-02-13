@@ -1,6 +1,6 @@
 import { Model, Operation } from "@typespec/compiler";
-import { BasicTestRunner } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/experimental/typekit";
+import { BasicTestRunner } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/experimental/typekit/index.js";
 import { createHttpTestRunner } from "./../test-host.js";

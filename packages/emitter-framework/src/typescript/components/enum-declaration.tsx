@@ -1,10 +1,10 @@
+import { mapJoin, Refkey, refkey } from "@alloy-js/core";
+import * as ts from "@alloy-js/typescript";
 import { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import * as ts from "@alloy-js/typescript";
-import { mapJoin, Refkey, refkey } from "@alloy-js/core";
 import { reportDiagnostic } from "../../lib.js";
 
-export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name">{
+export interface EnumDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
   name?: string;
   type: Union | Enum;
 }
@@ -20,17 +20,21 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
     type = props.type;
   }
 
-  const members = mapJoin(type.members, (key, value) => {
-    return <EnumMember
+  const members = mapJoin(
+    type.members,
+    (key, value) => {
+      return <EnumMember
       type={value}
       refkey={$.union.is(props.type)
         ? refkey(props.type.variants.get(key))
         : refkey(value)
-      } />
-  }, { joiner: ",\n" });
+      } />;
+    },
+    { joiner: ",\n" },
+  );
 
-  if(!props.type.name || props.type.name === "") { 
-    reportDiagnostic($.program, {code: "type-declaration-missing-name", target: props.type});
+  if (!props.type.name || props.type.name === "") {
+    reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
 
   const name = props.name ?? ts.useTSNamePolicy().getName(props.type.name!, "enum");
@@ -42,7 +46,7 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
     export={props.export}
   >
     { members }
-  </ts.EnumDeclaration>
+  </ts.EnumDeclaration>;
 }
 
 export interface EnumMemberProps {
@@ -55,5 +59,5 @@ export function EnumMember(props: EnumMemberProps) {
     name={props.type.name}
     jsValue={props.type.value ?? props.type.name}
     refkey={refkey(props.refkey ?? props.type)}
-  />
+  />;
 }

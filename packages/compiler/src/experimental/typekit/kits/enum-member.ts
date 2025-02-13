@@ -36,17 +36,17 @@ export interface EnumMemberDescriptor {
  * @experimental
  */
 export interface EnumMemberKit {
-    /**
-     * Create an enum member. The enum member will be finished (i.e. decorators are run).
-     */
-    create(desc: EnumMemberDescriptor): EnumMember;
+  /**
+   * Create an enum member. The enum member will be finished (i.e. decorators are run).
+   */
+  create(desc: EnumMemberDescriptor): EnumMember;
 
-    /**
-     * Check if `type` is an enum member type.
-     *
-     * @param type the type to check.
-     */
-    is(type: Type): type is EnumMember;
+  /**
+   * Check if `type` is an enum member type.
+   *
+   * @param type the type to check.
+   */
+  is(type: Type): type is EnumMember;
 }
 
 interface TypekitExtension {

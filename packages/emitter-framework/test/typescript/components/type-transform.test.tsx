@@ -5,7 +5,11 @@ import { SourceFile } from "@alloy-js/typescript";
 import { Model } from "@typespec/compiler";
 import { BasicTestRunner } from "@typespec/compiler/testing";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { ArraySerializer, DateDeserializer, RecordSerializer } from "../../../src/typescript/components/static-serializers.js";
+import {
+  ArraySerializer,
+  DateDeserializer,
+  RecordSerializer,
+} from "../../../src/typescript/components/static-serializers.js";
 import {
   getTypeTransformerRefkey,
   ModelTransformExpression,
@@ -43,7 +47,7 @@ describe.skip("Typescript Type Transform", () => {
                 `}
               const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={["wireWidget"]} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -79,7 +83,7 @@ describe.skip("Typescript Type Transform", () => {
                 `}
               const wireWidget = <ModelTransformExpression type={Widget} target="transport" itemPath={["clientWidget"]} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -118,7 +122,7 @@ describe.skip("Typescript Type Transform", () => {
                 `}
               const clientWidget = <ModelTransformExpression type={Widget} target="application" itemPath={["wireWidget"]} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -163,7 +167,7 @@ describe.skip("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="application" />
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -227,7 +231,7 @@ describe.skip("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="application" />
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -282,7 +286,7 @@ describe.skip("Typescript Type Transform", () => {
               <TypeTransformDeclaration type={Widget} target="application" />
               <TypeTransformDeclaration type={Widget} target="transport" />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -328,7 +332,7 @@ describe.skip("Typescript Type Transform", () => {
                 const wireWidget = ${<TypeTransformCall itemPath={["clientWidget"]} type={Widget} collapse={true} target="transport" />}
                 `}
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -366,7 +370,7 @@ describe.skip("Typescript Type Transform", () => {
                 const wireWidget2 = ${<ts.FunctionCallExpression refkey={getTypeTransformerRefkey(Widget, "transport")} args={["clientWidget"]}/>};
                 `}
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -381,7 +385,7 @@ describe.skip("Typescript Type Transform", () => {
          `;
         expect(actualContent).toBe(expectedContent);
       });
-    })
+    });
   });
 
   describe("Discriminated Model Transforms", () => {
@@ -401,7 +405,6 @@ describe.skip("Typescript Type Transform", () => {
         }
       `)) as { Pet: Model; Cat: Model; Dog: Model };
 
-
       const res = render(
         <Output namePolicy={namePolicy}>
           <SourceFile path="test.ts">
@@ -415,7 +418,7 @@ describe.skip("Typescript Type Transform", () => {
             <TypeTransformDeclaration type={Pet} target="application" />
             <TypeTransformDeclaration type={Pet} target="transport" />
           </SourceFile>
-        </Output>
+        </Output>,
       );
 
       const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -469,7 +472,6 @@ describe.skip("Typescript Type Transform", () => {
       }
        `;
       expect(actualContent).toBe(expectedContent);
-
     });
   });
   describe("Discriminated Union Transforms", () => {
@@ -490,7 +492,6 @@ describe.skip("Typescript Type Transform", () => {
         }
       `)) as { Pet: Model; Cat: Model; Dog: Model };
 
-
       const res = render(
         <Output namePolicy={namePolicy}>
           <SourceFile path="test.ts">
@@ -504,7 +505,7 @@ describe.skip("Typescript Type Transform", () => {
             <TypeTransformDeclaration type={Pet} target="application" />
             <TypeTransformDeclaration type={Pet} target="transport" />
           </SourceFile>
-        </Output>
+        </Output>,
       );
 
       const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -556,7 +557,6 @@ describe.skip("Typescript Type Transform", () => {
       }
        `;
       expect(actualContent).toBe(expectedContent);
-
     });
-  })
+  });
 });

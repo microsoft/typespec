@@ -1,4 +1,4 @@
-import { type OutputDirectory } from "@alloy-js/core"; 
+import { type OutputDirectory } from "@alloy-js/core";
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/index.js";
@@ -18,6 +18,7 @@ import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
+import { emitFile } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
@@ -68,7 +69,6 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-import { emitFile } from "./emitter-utils.js";
 
 /** @deprecated */
 export interface ProjectedProgram extends Program {
@@ -581,7 +581,7 @@ export async function compile(
       const result = (await emitter.emitFunction(context)) as any;
       if (typeof result === "function") {
         // import {render, OutputDirectory} from "@alloy-js/core"
-        const {render} = await import("@alloy-js/core");
+        const { render } = await import("@alloy-js/core");
         // assume this is an alloy component
         const tree = render(result);
         await writeOutputDirectory(tree, context.emitterOutputDir);

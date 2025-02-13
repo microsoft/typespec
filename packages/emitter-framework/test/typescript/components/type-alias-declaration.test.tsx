@@ -3,8 +3,8 @@ import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
-import { getProgram } from "../test-host.js";
 import { TypeAliasDeclaration } from "../../../src/typescript/components/type-alias-declaration.jsx";
+import { getProgram } from "../test-host.js";
 
 describe("Typescript Type Alias Declaration", () => {
   describe("Type Alias bound to Typespec Scalar", () => {
@@ -23,7 +23,7 @@ describe("Typescript Type Alias Declaration", () => {
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -50,7 +50,7 @@ describe("Typescript Type Alias Declaration", () => {
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -77,7 +77,7 @@ describe("Typescript Type Alias Declaration", () => {
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -104,7 +104,7 @@ describe("Typescript Type Alias Declaration", () => {
             <SourceFile path="test.ts">
               <TypeAliasDeclaration export type={scalar} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");

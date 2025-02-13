@@ -3,9 +3,9 @@ import { SourceFile } from "@alloy-js/typescript";
 import { Namespace } from "@typespec/compiler";
 import { format } from "prettier";
 import { assert, describe, expect, it } from "vitest";
-import { getProgram } from "../test-host.js";
 import { UnionDeclaration } from "../../../src/typescript/components/union-declaration.js";
 import { UnionExpression } from "../../../src/typescript/components/union-expression.js";
+import { getProgram } from "../test-host.js";
 
 describe("Typescript Union Declaration", () => {
   describe("Union not bound to Typespec Types", () => {
@@ -17,7 +17,7 @@ describe("Typescript Union Declaration", () => {
               "red" | "blue"
             </UnionDeclaration>
           </SourceFile>
-        </Output>
+        </Output>,
       );
 
       const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -49,7 +49,7 @@ describe("Typescript Union Declaration", () => {
             <SourceFile path="test.ts">
               <UnionDeclaration type={union} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -78,7 +78,7 @@ describe("Typescript Union Declaration", () => {
             <SourceFile path="test.ts">
               <UnionDeclaration export type={union} name="MyUnion" />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -109,7 +109,7 @@ describe("Typescript Union Declaration", () => {
                 "three"
               </UnionDeclaration>
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -129,26 +129,26 @@ describe("Typescript Union Declaration", () => {
             two: "two"
           }
           `);
-  
-          const [namespace] = program.resolveTypeReference("DemoService");
-          const union = Array.from((namespace as Namespace).unions.values())[0];
-  
-          let res = render(
-            <Output>
+
+        const [namespace] = program.resolveTypeReference("DemoService");
+        const union = Array.from((namespace as Namespace).unions.values())[0];
+
+        let res = render(
+          <Output>
               <SourceFile path="test.ts">
                 let x: <UnionExpression type={union} /> = "one";
               </SourceFile>
-            </Output>
-          );
-  
-          const testFile = res.contents.find((file) => file.path === "test.ts");
-          assert(testFile, "test.ts file not rendered");
-          const actualContent = await format(testFile.contents as string, { parser: "typescript" });
-          const expectedContent = await format(`let x:"one" | "two" = "one"`, {
-            parser: "typescript",
-          });
-          expect(actualContent).toBe(expectedContent);
-      })
+            </Output>,
+        );
+
+        const testFile = res.contents.find((file) => file.path === "test.ts");
+        assert(testFile, "test.ts file not rendered");
+        const actualContent = await format(testFile.contents as string, { parser: "typescript" });
+        const expectedContent = await format(`let x:"one" | "two" = "one"`, {
+          parser: "typescript",
+        });
+        expect(actualContent).toBe(expectedContent);
+      });
     });
 
     describe("Bound to Enum", () => {
@@ -169,7 +169,7 @@ describe("Typescript Union Declaration", () => {
             <SourceFile path="test.ts">
               <UnionDeclaration type={union} />
             </SourceFile>
-          </Output>
+          </Output>,
         );
 
         const testFile = res.contents.find((file) => file.path === "test.ts");
@@ -180,7 +180,6 @@ describe("Typescript Union Declaration", () => {
         });
         expect(actualContent).toBe(expectedContent);
       });
-
     });
   });
 });

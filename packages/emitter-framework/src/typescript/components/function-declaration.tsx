@@ -37,8 +37,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     params: props.parameters,
     mode: props.parametersMode,
   });
-  return (
-    <ts.FunctionDeclaration
+  return <ts.FunctionDeclaration
       refkey={refkey}
       name={name}
       async={props.async}
@@ -49,8 +48,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     >
       <ts.FunctionDeclaration.Parameters parameters={allParameters} />
       {props.children}
-    </ts.FunctionDeclaration>
-  );
+    </ts.FunctionDeclaration>;
 }
 
 export interface TypedFunctionParametersProps extends Omit<ts.FunctionDeclarationProps, "name"> {
@@ -66,11 +64,9 @@ FunctionDeclaration.Parameters = function Parameters(props: FunctionParametersPr
   }
 
   const parameterDescriptors = buildParameterDescriptors(props.type);
-  return (
-    <ts.FunctionDeclaration.Parameters parameters={parameterDescriptors}>
+  return <ts.FunctionDeclaration.Parameters parameters={parameterDescriptors}>
       {props.children}
-    </ts.FunctionDeclaration.Parameters>
-  );
+    </ts.FunctionDeclaration.Parameters>;
 };
 
 function isTypedFunctionDeclarationProps(

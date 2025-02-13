@@ -32,17 +32,17 @@ export function createTypekit(realm: Realm): Typekit {
 
       const value = Reflect.get(target, prop, receiver);
 
-    // Wrap functions to set `this` correctly
-    if (typeof value === "function") {
-      return function (this: any, ...args: any[]) {
-        return value.apply(proxy, args);
-      };
-    }
-    
+      // Wrap functions to set `this` correctly
+      if (typeof value === "function") {
+        return function (this: any, ...args: any[]) {
+          return value.apply(proxy, args);
+        };
+      }
+
       // Only wrap objects marked as Typekit namespaces
-    if (typeof value === "object" && value !== null && isTypekitNamespace(value)) {
-      return new Proxy(value, handler); // Wrap namespace objects
-    }
+      if (typeof value === "object" && value !== null && isTypekitNamespace(value)) {
+        return new Proxy(value, handler); // Wrap namespace objects
+      }
 
       return value;
     },

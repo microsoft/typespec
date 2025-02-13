@@ -10,7 +10,7 @@ it("works", () => {
       <SourceFile path="index.ts">
         <FunctionDeclaration name="test">alert("Hello!");</FunctionDeclaration>
       </SourceFile>
-    </Output>
+    </Output>,
   );
 
   console.log(tree);

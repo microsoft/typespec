@@ -201,14 +201,14 @@ defineKit<TypekitExtension>({
             scalars: copyMap(type.scalars as any),
           });
           break;
-          case "Scalar":
-            clone = this.program.checker.createType({
-              ...type,
-              decorators: [...type.decorators],
-              derivedScalars: [...type.derivedScalars],
-              constructors: copyMap(type.constructors as any),
-            });
-            break;
+        case "Scalar":
+          clone = this.program.checker.createType({
+            ...type,
+            decorators: [...type.decorators],
+            derivedScalars: [...type.derivedScalars],
+            constructors: copyMap(type.constructors as any),
+          });
+          break;
         default:
           clone = this.program.checker.createType({
             ...type,
@@ -282,6 +282,6 @@ defineKit<TypekitExtension>({
     },
     isUserDefined(type) {
       return getLocationContext(this.program, type).type === "project";
-    }
+    },
   },
 });

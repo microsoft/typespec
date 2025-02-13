@@ -1,11 +1,11 @@
 import { Children, code, refkey as getRefkey, mapJoin } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import {  Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
-import {createRekeyableMap} from "@typespec/compiler/utils"
+import { Interface, Model, ModelProperty, Operation, RekeyableMap } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
+import { createRekeyableMap } from "@typespec/compiler/utils";
+import { reportDiagnostic } from "../../lib.js";
 import { InterfaceMember } from "./interface-member.js";
 import { TypeExpression } from "./type-expression.jsx";
-import { reportDiagnostic } from "../../lib.js";
 export interface TypedInterfaceDeclarationProps extends Omit<ts.InterfaceDeclarationProps, "name"> {
   type: Model | Interface;
   name?: string;
@@ -24,10 +24,9 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   let name = props.name ?? props.type.name;
 
-  if(!name || name === "") { 
-    reportDiagnostic($.program, {code: "type-declaration-missing-name", target: props.type});
+  if (!name || name === "") {
+    reportDiagnostic($.program, { code: "type-declaration-missing-name", target: props.type });
   }
-
 
   name = namePolicy.getName(name, "interface");
 
@@ -39,14 +38,13 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
 
   const children = [...members];
 
-  if(Array.isArray(props.children)) {
+  if (Array.isArray(props.children)) {
     children.push(...props.children);
   } else if (props.children) {
     children.push(props.children);
   }
 
-  return (
-    <ts.InterfaceDeclaration
+  return <ts.InterfaceDeclaration
       default={props.default}
       export={props.export}
       kind={props.kind}
@@ -55,12 +53,11 @@ export function InterfaceDeclaration(props: InterfaceDeclarationProps) {
       extends={extendsType}
     >
       {children}
-    </ts.InterfaceDeclaration>
-  );
+    </ts.InterfaceDeclaration>;
 }
 
 function isTypedInterfaceDeclarationProps(
-  props: InterfaceDeclarationProps
+  props: InterfaceDeclarationProps,
 ): props is TypedInterfaceDeclarationProps {
   return "type" in props;
 }
@@ -72,18 +69,16 @@ export interface InterfaceExpressionProps extends ts.InterfaceExpressionProps {
 export function InterfaceExpression({ type, children }: InterfaceExpressionProps) {
   const members = type ? membersFromType(type) : [];
 
-  return (
-    <>
+  return <>
       {"{"}
       {members}
       {children}
       {"}"}
-    </>
-  );
+    </>;
 }
 
 function getExtendsType(type: Model | Interface): Children | undefined {
-  if(!$.model.is(type)) { 
+  if (!$.model.is(type)) {
     return undefined;
   }
 
@@ -92,20 +87,20 @@ function getExtendsType(type: Model | Interface): Children | undefined {
   const recordExtends = code`Record<string, unknown>`;
 
   if (type.baseModel) {
-    if($.array.is(type.baseModel)) {
-      extending.push(<TypeExpression type={type.baseModel} />)
-    } else if($.record.is(type.baseModel)){
+    if ($.array.is(type.baseModel)) {
+      extending.push(<TypeExpression type={type.baseModel} />);
+    } else if ($.record.is(type.baseModel)) {
       extending.push(recordExtends);
       // When extending a record we need to override the element type to be unknown to avoid type errors
     } else {
-      extending.push(getRefkey(type.baseModel))
+      extending.push(getRefkey(type.baseModel));
     }
   }
 
   const spreadType = $.model.getSpreadType(type);
-  if(spreadType) {
+  if (spreadType) {
     // When extending a record we need to override the element type to be unknown to avoid type errors
-    if($.record.is(spreadType)) {
+    if ($.record.is(spreadType)) {
       // Here we are in the additional properties land.
       // Instead of extending we need to create an envelope property
       // do nothing here.
@@ -114,11 +109,11 @@ function getExtendsType(type: Model | Interface): Children | undefined {
     }
   }
 
-  if(extending.length === 0) {
+  if (extending.length === 0) {
     return undefined;
   }
 
-  return mapJoin(extending, (ext) => ext, {joiner: ","} );
+  return mapJoin(extending, (ext) => ext, { joiner: "," });
 }
 
 function membersFromType(type: Model | Interface) {
@@ -126,11 +121,14 @@ function membersFromType(type: Model | Interface) {
   if ($.model.is(type)) {
     typeMembers = $.model.getProperties(type);
     const spread = $.model.getSpreadType(type);
-    if(spread && $.model.is(spread) && $.record.is(spread)) {
-      typeMembers.set("additionalProperties", $.modelProperty.create({name: "additionalProperties", optional: true, type: spread}));
+    if (spread && $.model.is(spread) && $.record.is(spread)) {
+      typeMembers.set(
+        "additionalProperties",
+        $.modelProperty.create({ name: "additionalProperties", optional: true, type: spread }),
+      );
     }
   } else {
-    typeMembers = createRekeyableMap(type.operations)
+    typeMembers = createRekeyableMap(type.operations);
   }
 
   return mapJoin(typeMembers, (_, prop) => <InterfaceMember type={prop} />, {

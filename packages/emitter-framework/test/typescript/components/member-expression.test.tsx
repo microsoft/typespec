@@ -1,10 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { getEmitOutput } from "../../utils.js";
-import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
-import { Enum, Model, Union } from "@typespec/compiler";
 import { d } from "@alloy-js/core/testing";
-import { refkey } from "@alloy-js/core";
+import { Enum, Model, Union } from "@typespec/compiler";
+import { describe, expect, it } from "vitest";
+import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
 import { InterfaceDeclaration, UnionDeclaration } from "../../../src/typescript/index.js";
+import { getEmitOutput } from "../../utils.js";
 
 describe("Typescript Enum Member Expression", () => {
   it("Reference to a named enum member", async () => {
@@ -24,7 +23,7 @@ describe("Typescript Enum Member Expression", () => {
       return <>
         <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
         <InterfaceDeclaration type={Bar} />
-      </>
+      </>;
     });
 
     expect(output).toBe(d`
@@ -36,7 +35,7 @@ describe("Typescript Enum Member Expression", () => {
       interface Bar {
         "one": Foo.one;
       }
-    `)
+    `);
   });
 
   it("Reference to an unamed enum member", async () => {
@@ -56,7 +55,7 @@ describe("Typescript Enum Member Expression", () => {
       return <>
         <EnumDeclaration type={program.resolveTypeReference("Foo")[0]! as Enum} />
         <InterfaceDeclaration type={Bar} />
-      </>
+      </>;
     });
 
     expect(output).toBe(d`
@@ -68,7 +67,7 @@ describe("Typescript Enum Member Expression", () => {
       interface Bar {
         "one": Foo.one;
       }
-    `)
+    `);
   });
 });
 
@@ -90,7 +89,7 @@ describe("Typescript Union Member Expression", () => {
       return <>
         <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
         <InterfaceDeclaration type={Bar} />
-      </>
+      </>;
     });
 
     expect(output).toBe(d`
@@ -98,7 +97,7 @@ describe("Typescript Union Member Expression", () => {
       interface Bar {
         "one": 1;
       }
-    `)
+    `);
   });
 
   it("Reference to a union variant with unamed siblings", async () => {
@@ -118,7 +117,7 @@ describe("Typescript Union Member Expression", () => {
       return <>
         <UnionDeclaration type={program.resolveTypeReference("Foo")[0]! as Union} />
         <InterfaceDeclaration type={Bar} />
-      </>
+      </>;
     });
 
     expect(output).toBe(d`
@@ -126,6 +125,6 @@ describe("Typescript Union Member Expression", () => {
       interface Bar {
         "one": "one";
       }
-    `)
+    `);
   });
 });

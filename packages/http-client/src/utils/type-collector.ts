@@ -17,7 +17,7 @@ export function collectDataTypes(type: Type, dataTypes: Set<Model | Union | Enum
         if (!model.name) {
           return;
         }
-        
+
         dataTypes.add(model);
       },
       union(union) {
