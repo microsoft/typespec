@@ -1,5 +1,5 @@
 import type { Enum, EnumMember, Type } from "../../../core/types.js";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";

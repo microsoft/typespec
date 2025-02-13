@@ -61,7 +61,7 @@ interface ClientKit extends NameKit<InternalClient> {
   /**
    * Determines is both clients have the same constructor
    */
-  haveSameConstructor(a: InternalClient, b: InternalClient): Boolean;
+  haveSameConstructor(a: InternalClient, b: InternalClient): boolean;
   /**
    * Resolves the authentication schemes for a client
    * @param client
@@ -74,7 +74,7 @@ interface TypeKit {
 }
 
 declare module "@typespec/compiler/experimental/typekit" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+   
   interface Typekit extends TypeKit {}
 }
 

@@ -18,7 +18,7 @@ describe("Typescript Type Alias Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
@@ -45,7 +45,7 @@ describe("Typescript Type Alias Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
@@ -72,7 +72,7 @@ describe("Typescript Type Alias Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <TypeAliasDeclaration type={scalar} />
@@ -99,7 +99,7 @@ describe("Typescript Type Alias Declaration", () => {
         const [namespace] = program.resolveTypeReference("DemoService");
         const scalar = Array.from((namespace as Namespace).scalars.values())[0];
 
-        let res = render(
+        const res = render(
           <Output>
             <SourceFile path="test.ts">
               <TypeAliasDeclaration export type={scalar} />

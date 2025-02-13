@@ -39,7 +39,7 @@ interface SdkKit {
 }
 
 declare module "@typespec/compiler/experimental/typekit" {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+   
   interface OperationKit extends SdkOperationKit {}
 }
 
