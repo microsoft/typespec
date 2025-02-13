@@ -48,7 +48,6 @@ interface TypeKit {
 }
 
 declare module "@typespec/compiler/experimental/typekit" {
-   
   interface ModelPropertyKit extends SdkModelPropertyKit {}
 }
 

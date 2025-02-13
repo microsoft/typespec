@@ -44,24 +44,6 @@ describe("isSameConstructor", () => {
     expect($.client.haveSameConstructor(client, subClient)).toBeFalsy();
   });
 
-  it("should return false for the clients with different constructors", async () => {
-    const { DemoService, SubClient } = (await runner.compile(`
-      @service({
-        title: "Widget Service",
-      })
-      @test namespace DemoService {
-        @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
-        @test namespace SubClient {
-        }
-      }
-      `)) as { DemoService: Namespace; SubClient: Namespace };
-
-    const client = $.client.getClient(DemoService);
-    const subClient = $.client.getClient(SubClient);
-
-    expect($.client.haveSameConstructor(client, subClient)).toBeFalsy();
-  });
-
   it.skip("should return true when subclient doesn't override the client params", async () => {
     const { DemoService, SubClient } = (await runner.compile(`
       @service({

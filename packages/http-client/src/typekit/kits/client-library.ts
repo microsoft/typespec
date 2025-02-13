@@ -47,16 +47,15 @@ interface ClientLibraryKit {
   listDataTypes(namespace: InternalClient): Array<Model | Enum | Union>;
 }
 
-interface TK {
+interface TypekitExtension {
   clientLibrary: ClientLibraryKit;
 }
 
 declare module "@typespec/compiler/experimental/typekit" {
-   
-  interface Typekit extends TK {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<TK>({
+defineKit<TypekitExtension>({
   clientLibrary: {
     listNamespaces(namespace) {
       if (namespace) {

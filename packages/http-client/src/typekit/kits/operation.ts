@@ -39,7 +39,6 @@ interface SdkKit {
 }
 
 declare module "@typespec/compiler/experimental/typekit" {
-   
   interface OperationKit extends SdkOperationKit {}
 }
 

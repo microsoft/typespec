@@ -69,13 +69,12 @@ interface ClientKit extends NameKit<InternalClient> {
   getAuth(client: InternalClient): HttpServiceAuthentication;
 }
 
-interface TypeKit {
+interface TypekitExtension {
   client: ClientKit;
 }
 
 declare module "@typespec/compiler/experimental/typekit" {
-   
-  interface Typekit extends TypeKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
 function getClientName(name: string): string {
@@ -85,7 +84,7 @@ function getClientName(name: string): string {
 export const clientCache = new Map<Namespace | Interface, InternalClient>();
 export const clientOperationCache = new Map<InternalClient, Operation[]>();
 
-defineKit<TypeKit>({
+defineKit<TypekitExtension>({
   client: {
     getParent(client) {
       const type = client.kind === "Client" ? client.type : client;

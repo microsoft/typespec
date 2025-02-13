@@ -22,12 +22,10 @@ export interface NameKit<T extends Type | InternalClient> {
   getName(type: T): string;
 }
 
- 
 export function getAccess(type: Type): "public" | "internal" {
   return "public";
 }
 
- 
 export function getUsage(type: Type): UsageFlags {
   return UsageFlags.Input | UsageFlags.Output;
 }
