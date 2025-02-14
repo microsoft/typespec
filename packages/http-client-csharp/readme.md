@@ -70,4 +70,4 @@ You can configure whether to generate a convenience method for a specific operat
 ## Spector Tests
 
 We run the generator against the common set of test defined in https://github.com/microsoft/typespec/tree/main/packages/http-specs.
-For details on how to run and debug these tests see [Spector Testing](generator/docs/spector.md)
+For details on how to run and debug these tests see [Spector Testing](generator/docs/spector.md).
