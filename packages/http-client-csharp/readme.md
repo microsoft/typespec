@@ -65,7 +65,7 @@ options:
 By default, TypeSpec csharp generates all protocol APIs and convenience APIs.
 A few exceptions are API of JSON Merge Patch, and API of long-running operation with ambiguous response type.
 
-You can configure whether generate convenience API or not via `convenienceAPI` decorator.
+You can configure whether to generate a convenience method for a specific operation via the `convenienceAPI` decorator.
 
 ## Spector Tests
 
