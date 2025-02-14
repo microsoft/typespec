@@ -2,7 +2,11 @@ import type { Type, Union, UnionVariant } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
-interface UnionVariantDescriptor {
+/**
+ * A descriptor for a union variant.
+ * @experimental
+ */
+export interface UnionVariantDescriptor {
   /**
    * The name of the union variant.
    */
