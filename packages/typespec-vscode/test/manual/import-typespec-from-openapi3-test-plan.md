@@ -114,6 +114,6 @@ When an error is detected, it's necessary to document the findings by using the 
 
 The test results will be presented in the following form:
 
-| NO  |                      Test Cases                       |   Platform    | Result | Issues | Comments |
-| --- | :---------------------------------------------------: | :-----------: | :----: | :----: | :------: |
+| NO  |          Test Cases           |   Platform    | Result | Issues | Comments |
+| --- | :---------------------------: | :-----------: | :----: | :----: | :------: |
 | 1   | Import TypeSpec from OpenAPI3 | Windows/Linux |        |        |          |
