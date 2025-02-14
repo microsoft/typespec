@@ -4,7 +4,7 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import logger from "./log/logger.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
-import { createTempDir } from "./utils.js";
+import { createTempDir, ExecOutput } from "./utils.js";
 
 export async function getMainTspFile(): Promise<string | undefined> {
   const files = await vscode.workspace.findFiles("**/main.tsp").then((uris) => {
@@ -58,7 +58,16 @@ export async function loadOpenApi3PreviewPanel(
         async (): Promise<string | undefined> => {
           const srcFolder = dirname(mainTspFile);
           const outputFolder = await getOutputFolder(mainTspFile);
-          const result = await client.compileOpenApi3(mainTspFile, srcFolder, outputFolder);
+          let result: ExecOutput | undefined;
+          try {
+            result = await client.compileOpenApi3(mainTspFile, srcFolder, outputFolder);
+          } catch (e) {
+            const error = e as ExecOutput;
+            const errMsg = `Failed to generate OpenAPI3 files: ${error.stderr || error.stdout || error.error}`;
+            logger.error(errMsg);
+            vscode.window.showErrorMessage(errMsg);
+            return;
+          }
           if (result === undefined || result.exitCode !== 0) {
             const errMsg = result?.stderr ?? "Failed to generate OpenAPI3 files.";
             logger.error(errMsg);
