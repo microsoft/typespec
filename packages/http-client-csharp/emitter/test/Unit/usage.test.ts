@@ -4,9 +4,9 @@ import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -30,7 +30,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -51,7 +51,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -72,7 +72,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -94,7 +94,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -121,7 +121,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
     const templateModel = root.Models.find((model) => model.name === "TemplateModelFoo");
@@ -151,7 +151,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.name === "BaseModel");
     const fooModel = root.Models.find((model) => model.name === "Foo");
@@ -188,7 +188,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.name === "BaseModel");
     const fooModel = root.Models.find((model) => model.name === "Foo");
@@ -215,7 +215,7 @@ describe("Test Usage", () => {
       runner,
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooAlias = root.Models.find((model) => model.name === "TestRequest");
 
@@ -263,7 +263,7 @@ describe("Test Usage", () => {
       { IsNamespaceNeeded: true, IsAzureCoreNeeded: true },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooInfo = root.Models.find((model) => model.name === "FooInfo");
     const batchCreateFooListItemsRequest = root.Models.find(
@@ -309,7 +309,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const fooModel = root.Models.find((model) => model.name === "Foo");
 
@@ -368,7 +368,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
@@ -438,7 +438,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const baseModel = root.Models.find((model) => model.name === "BaseModelWithDiscriminator");
     const derivedModel = root.Models.find(
@@ -475,7 +475,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const simpleEnumRenamed = root.Enums.find((enumType) => enumType.name === "SimpleEnumRenamed");
 
@@ -499,7 +499,7 @@ describe("Test Usage", () => {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const renamedModel = root.Models.find((model) => model.name === "RenamedModel");
 
@@ -657,7 +657,7 @@ interface LegacyLro {
     );
 
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const radiologyInsightsInferenceResult = root.Models.find(
       (model) => model.name === "RadiologyInsightsInferenceResult",
