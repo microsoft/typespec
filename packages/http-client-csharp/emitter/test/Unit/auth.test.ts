@@ -31,17 +31,15 @@ describe("Test auth", () => {
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
-    const noAuthDiagnostic = diagnostics.find(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
+    const noAuthDiagnostics = diagnostics.filter(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
+        && d.message?.includes("Only header is supported for ApiKey authentication. cookie is not supported."),
     );
-    ok(noAuthDiagnostic);
-    strictEqual(
-      noAuthDiagnostic.message,
-      "Only header is supported for ApiKey authentication. cookie is not supported.",
-    );
+    strictEqual(noAuthDiagnostics.length, 1);
 
     const noSupportedAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/only-unsupported-auth-provided",
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
+        && d.message?.includes("No supported authentication methods were provided."),
     );
     strictEqual(noSupportedAuthDiagnostics.length, 1);
     ok(noSupportedAuthDiagnostics[0]);
@@ -71,17 +69,15 @@ describe("Test auth", () => {
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
-    const noAuthDiagnostic = diagnostics.find(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
+    const noAuthDiagnostics = diagnostics.filter(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
+        && d.message?.includes("Only header is supported for ApiKey authentication. query is not supported."),
     );
-    ok(noAuthDiagnostic);
-    strictEqual(
-      noAuthDiagnostic.message,
-      "Only header is supported for ApiKey authentication. query is not supported.",
-    );
+    strictEqual(noAuthDiagnostics.length, 1);
 
     const noSupportedAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/only-unsupported-auth-provided",
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
+        && d.message?.includes("No supported authentication methods were provided."),
     );
     strictEqual(noSupportedAuthDiagnostics.length, 1);
     ok(noSupportedAuthDiagnostics[0]);
@@ -112,15 +108,14 @@ describe("Test auth", () => {
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
+        && d.message?.includes("Only header is supported for ApiKey authentication."),
     );
     strictEqual(noAuthDiagnostics.length, 2);
-    noAuthDiagnostics.forEach((d) => {
-      ok(d.message?.includes("Only header is supported for ApiKey authentication."));
-    });
 
     const noSupportedAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/only-unsupported-auth-provided",
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
+        && d.message?.includes("No supported authentication methods were provided."),
     );
     strictEqual(noSupportedAuthDiagnostics.length, 1);
     ok(noSupportedAuthDiagnostics[0]);
@@ -156,7 +151,7 @@ describe("Test auth", () => {
     strictEqual(noAuthDiagnostic, undefined);
 
     const noSupportedAuthDiagnostic = diagnostics.find(
-      (d) => d.code === "@typespec/http-client-csharp/only-unsupported-auth-provided",
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
     );
     strictEqual(noSupportedAuthDiagnostic, undefined);
     ok(root.Auth?.ApiKey);
@@ -166,21 +161,11 @@ describe("Test auth", () => {
   it("at least one supported auth", async () => {
     const program = await typeSpecCompile(
       `
-            alias MyOAuth2<Scopes extends string[]> = OAuth2Auth<
-            [
-              {
-                type: OAuth2FlowType.implicit;
-                authorizationUrl: "https://api.example.com/oauth2/authorize";
-                refreshUrl: "https://api.example.com/oauth2/refresh";
-              }
-            ],
-            Scopes
-          >;
-            op test(): NoContentResponse;
+        op test(): NoContentResponse;
       `,
       runner,
       {
-        AuthDecorator: `@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api-key-name"> | MyOAuth2<["read"]>)`,
+        AuthDecorator: `@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api-key-name"> | ApiKeyAuth<ApiKeyLocation.header, "api-key-name">)`,
       },
     );
     const context = createEmitterContext(program);
@@ -198,11 +183,34 @@ describe("Test auth", () => {
     );
 
     const noSupportedAuthDiagnostic = diagnostics.find(
-      (d) => d.code === "@typespec/http-client-csharp/only-unsupported-auth-provided",
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth" && d.message?.includes("No supported authentication methods were provided."),
     );
 
     strictEqual(noSupportedAuthDiagnostic, undefined);
-    strictEqual(root.Auth?.ApiKey, undefined);
-    ok(root.Auth?.OAuth2);
+    ok(root.Auth?.ApiKey);
+  });
+
+  it("no auth", async () => {
+    const program = await typeSpecCompile(
+      `
+            op test(): NoContentResponse;
+      `,
+      runner,
+      {
+        AuthDecorator: `@useAuth(NoAuth)`,
+      },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createNetSdkContext(context);
+    const root = createModel(sdkContext);
+    const diagnostics = context.program.diagnostics;
+
+    const noAuthDiagnostics = diagnostics.filter(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth" && d.message?.includes("No supported authentication methods were provided."),
+    );
+    noAuthDiagnostics.forEach(element => {
+      console.log(element.message);
+    });
+    strictEqual(noAuthDiagnostics.length, 0);
   });
 });

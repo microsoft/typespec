@@ -158,7 +158,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsFalse(authFieldFound);
         }
 
-
         // validates the fields are built correctly when a client has sub-clients
         [TestCaseSource(nameof(SubClientFieldsTestCases), Category = SubClientsCategory)]
         public void TestBuildFields_WithSubClients(InputClient client, List<ExpectedFieldProvider> expectedFields)

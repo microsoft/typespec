@@ -36,9 +36,10 @@ export function processServiceAuthentication(
 
   if (authClientParameter.type.kind === "credential") {
     const auth = processAuthType(sdkContext, authClientParameter.type);
-    if (!auth) {
+    if (!auth && authClientParameter.type.scheme.type != "noAuth") {
       reportDiagnostic(sdkContext.program, {
-        code: "only-unsupported-auth-provided",
+        code: "unsupported-auth",
+        messageId: "onlyUnsupportedAuthProvided",
         target: authClientParameter.type.__raw ?? NoTarget,
       });
 
@@ -47,7 +48,9 @@ export function processServiceAuthentication(
     return auth;
   }
 
+  let containsNoAuth = false;
   for (const authType of authClientParameter.type.variantTypes) {
+    containsNoAuth = containsNoAuth || authType.scheme.type === "noAuth";
     const auth = processAuthType(sdkContext, authType);
     if (auth?.ApiKey) {
       inputAuth.ApiKey = auth.ApiKey;
@@ -57,9 +60,14 @@ export function processServiceAuthentication(
     }
   }
 
+  if (containsNoAuth && !inputAuth.ApiKey && !inputAuth.OAuth2) {
+    return undefined;
+  }
+
   if (!inputAuth?.ApiKey && !inputAuth?.OAuth2) {
     reportDiagnostic(sdkContext.program, {
-      code: "only-unsupported-auth-provided",
+      code: "unsupported-auth",
+      messageId: "onlyUnsupportedAuthProvided",
       target: authClientParameter.type.__raw ?? NoTarget,
     });
   }
