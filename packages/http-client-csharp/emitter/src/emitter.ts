@@ -95,9 +95,9 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         fs.mkdirSync(generatedFolder, { recursive: true });
       }
 
+      // emit tspCodeModel.json
       await writeCodeModel(sdkContext, root, outputFolder);
 
-      //emit configuration.json
       const namespace = root.Name;
       const configurations: Configuration = {
         "output-folder": ".",
@@ -107,6 +107,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
       };
 
+      //emit configuration.json
       await program.host.writeFile(
         resolvePath(outputFolder, configurationFileName),
         prettierOutput(JSON.stringify(configurations, null, 2)),
@@ -168,7 +169,6 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
     }
   }
-}
 
 /**
  * Write the code model to the output folder.
