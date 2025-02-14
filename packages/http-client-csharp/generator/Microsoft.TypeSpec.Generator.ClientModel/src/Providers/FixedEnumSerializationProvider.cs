@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     /// <summary>
     /// This defines a class with extension methods for enums to convert an enum to its underlying value, or from its underlying value to an instance of the enum
     /// </summary>
-    internal class FixedEnumSerializationProvider : TypeProvider
+    public class FixedEnumSerializationProvider : TypeProvider
     {
         private readonly InputEnumType _enumType;
         private TypeProvider _enumProvider;
