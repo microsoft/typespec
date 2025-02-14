@@ -101,10 +101,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         fs.mkdirSync(generatedFolder, { recursive: true });
       }
 
-      await program.host.writeFile(
-        resolvePath(outputFolder, tspOutputFileName),
-        prettierOutput(stringifyRefs(root, transformJSONProperties, 1, PreserveType.Objects)),
-      );
+      await writeCodeModel(csharpEmitterContext, root, outputFolder);
 
       //emit configuration.json
       const namespace = root.Name;
@@ -116,7 +113,10 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
       };
 
-      await writeCodeModel(program, root, outputFolder, configurationFileName);
+      await program.host.writeFile(
+        resolvePath(outputFolder, configurationFileName),
+        prettierOutput(JSON.stringify(configurations, null, 2)),
+      );
 
       const csProjFile = resolvePath(
         outputFolder,
@@ -183,21 +183,18 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
 /**
  * Write the code model to the output folder.
- * @param program - The program
+ * @param context - The CSharp emitter context
  * @param codeModel - The code model
  * @param outputFolder - The output folder
- * @param fileName - The file name
  * @beta
  */
 export async function writeCodeModel(
-  program: Program,
+  context: CSharpEmitterContext,
   codeModel: CodeModel,
-  outputFolder: string,
-  fileName: string,
-) {
-  await program.host.writeFile(
-    resolvePath(outputFolder, fileName),
-    prettierOutput(JSON.stringify(codeModel, null, 2)),
+  outputFolder: string) {
+  await context.program.host.writeFile(
+    resolvePath(outputFolder, tspOutputFileName),
+    prettierOutput(stringifyRefs(codeModel, transformJSONProperties, 1, PreserveType.Objects)),
   );
 }
 
