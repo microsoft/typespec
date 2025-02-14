@@ -1,5 +1,6 @@
 import { readdir, readFile, rm } from "fs/promises";
 import { basename, dirname, join } from "path";
+import * as semver from "semver";
 import * as vscode from "vscode";
 import logger from "./log/logger.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
@@ -37,6 +38,14 @@ export async function loadOpenApi3PreviewPanel(
   context: vscode.ExtensionContext,
   client: TspLanguageClient,
 ) {
+  const compilerVersion = client.initializeResult?.serverInfo?.version;
+  if (!compilerVersion || semver.lt(compilerVersion, "0.65.0")) {
+    const errMsg = "OpenAPI3 preview requires TypeSpec compiler version 0.65.0 or later.";
+    logger.info(errMsg);
+    vscode.window.showErrorMessage(errMsg);
+    return;
+  }
+
   if (openApi3PreviewPanels.has(mainTspFile)) {
     openApi3PreviewPanels.get(mainTspFile)!.reveal();
   } else {
@@ -51,7 +60,7 @@ export async function loadOpenApi3PreviewPanel(
           const outputFolder = await getOutputFolder(mainTspFile);
           const result = await client.compileOpenApi3(mainTspFile, srcFolder, outputFolder);
           if (result === undefined || result.exitCode !== 0) {
-            const errMsg = result?.stderr ?? "Failed to generate openAPI3 files.";
+            const errMsg = result?.stderr ?? "Failed to generate OpenAPI3 files.";
             logger.error(errMsg);
             vscode.window.showErrorMessage(errMsg);
             return;
