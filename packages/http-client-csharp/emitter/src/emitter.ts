@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-import {
-  createSdkContext,
-  SdkContext,
-  UsageFlags,
-} from "@azure-tools/typespec-client-generator-core";
+import { createSdkContext, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import {
   EmitContext,
   getDirectoryPath,
@@ -15,7 +11,6 @@ import {
   Program,
   resolvePath,
 } from "@typespec/compiler";
-
 import fs, { statSync } from "fs";
 import { PreserveType, stringifyRefs } from "json-serialize-refs";
 import { dirname } from "path";
@@ -26,22 +21,14 @@ import {
   tspOutputFileName,
 } from "./constants.js";
 import { createModel } from "./lib/client-model-builder.js";
-import { reportDiagnostic } from "./lib/lib.js";
-import { LoggerLevel } from "./lib/log-level.js";
+import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
-import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
+import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CodeModel } from "./type/code-model.js";
+import { CSharpEmitterContext } from "./sdk-context.js";
 import { Configuration } from "./type/configuration.js";
-
-/**
- * The emitter context for the CSharp emitter.
- * @beta
- */
-export interface CSharpEmitterContext extends SdkContext<NetEmitterOptions> {
-  logger: Logger;
-}
 
 /**
  * Look for the project root by looking up until a `package.json` is found.
@@ -68,7 +55,7 @@ function findProjectRoot(path: string): string | undefined {
  * @param context - The emit context
  * @beta
  */
-export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
+export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   const program: Program = context.program;
   const options = resolveOptions(context);
   const outputFolder = _resolveOutputFolder(context);
@@ -78,11 +65,19 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
-    const sdkContext = await createSdkContext(
-      context,
-      "@typespec/http-client-csharp",
-      defaultSDKContextOptions,
-    );
+    const sdkContext = {
+      ...(await createSdkContext(
+        context,
+        "@typespec/http-client-csharp",
+        defaultSDKContextOptions,
+      )),
+      logger: logger,
+      __typeCache: {
+        types: new Map(),
+        models: new Map(),
+        enums: new Map(),
+      },
+    };
     if (
       context.program.diagnostics.length > 0 &&
       context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
@@ -91,8 +86,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       process.exit(1);
     }
 
-    const csharpEmitterContext = { ...sdkContext, logger: logger };
-    const root = createModel(csharpEmitterContext);
+    const root = createModel(sdkContext);
 
     if (root) {
       const generatedFolder = resolvePath(outputFolder, "src", "Generated");
@@ -101,7 +95,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         fs.mkdirSync(generatedFolder, { recursive: true });
       }
 
-      await writeCodeModel(csharpEmitterContext, root, outputFolder);
+      await writeCodeModel(sdkContext, root, outputFolder);
 
       //emit configuration.json
       const namespace = root.Name;
@@ -137,45 +131,40 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
       logger.info(command);
 
-      try {
-        const result = await execAsync(
-          "dotnet",
-          [
-            "--roll-forward",
-            "Major",
-            generatorPath,
-            outputFolder,
-            "-p",
-            options["plugin-name"],
-            newProjectOption,
-            debugFlag,
-          ],
-          { stdio: "inherit" },
-        );
-        if (result.exitCode !== 0) {
-          const isValid = await _validateDotNetSdk(
-            csharpEmitterContext,
-            _minSupportedDotNetSdkVersion,
+        try {
+          const result = await execAsync(
+            "dotnet",
+            [
+              "--roll-forward",
+              "Major",
+              generatorPath,
+              outputFolder,
+              "-p",
+              options["plugin-name"],
+              newProjectOption,
+              debugFlag,
+            ],
+            { stdio: "inherit" },
           );
-          // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) {
-            if (result.stderr) logger.error(result.stderr);
-            if (result.stdout) logger.verbose(result.stdout);
-            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+          if (result.exitCode !== 0) {
+            const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+            // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+            if (isValid) {
+              if (result.stderr) logger.error(result.stderr);
+              if (result.stdout) logger.verbose(result.stdout);
+              throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+            }
           }
+        } catch (error: any) {
+          const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+          // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+          if (isValid) throw new Error(error);
         }
-      } catch (error: any) {
-        const isValid = await _validateDotNetSdk(
-          csharpEmitterContext,
-          _minSupportedDotNetSdkVersion,
-        );
-        // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) throw new Error(error);
-      }
-      if (!options["save-inputs"]) {
-        // delete
-        deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
-        deleteFile(resolvePath(outputFolder, configurationFileName), logger);
+        if (!options["save-inputs"]) {
+          // delete
+          deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
+          deleteFile(resolvePath(outputFolder, configurationFileName), logger);
+        }
       }
     }
   }
@@ -214,7 +203,7 @@ export async function _validateDotNetSdk(
     return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
     if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
         format: {
@@ -243,7 +232,7 @@ function validateDotNetSdkVersionCore(
       return false;
     }
     if (major < minMajorVersion) {
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "invalid-dotnet-sdk-dependency",
         messageId: "invalidVersion",
         format: {

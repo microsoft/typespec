@@ -212,6 +212,16 @@ model Function {
   properties: FunctionProperties;
 }
 
+union Priority {
+  int32,
+
+  @doc("high priority")
+  HIGH: 0,
+
+  @doc("low priority")
+  LOW: 1,
+}
+
 @route("/model")
 interface Fishes {
   @get
@@ -233,6 +243,14 @@ interface TopLevelArmResources {
 interface Functions {
   @put
   createFunction(@body function: Function): Function;
+}
+
+@route("/priority")
+interface Priorities {
+  @post
+  setPriority(@query priority: Priority): {
+    @body body: Priority;
+  };
 }
 
 @@flattenProperty(Fish.properties);
