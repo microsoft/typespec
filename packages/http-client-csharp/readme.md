@@ -56,6 +56,7 @@ options:
 - `clear-output-folder` indicate if you want to clear up the output folder.
 - `package-name` define the package name.
 - `new-project` whether or not to overwrite the csproj if it already exists.
+- `save-inputs` whether or not to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the C# generator.
 
 ## Convenience API
 
