@@ -93,14 +93,13 @@ public class StreamStyleSerializationTests {
             Assertions.assertEquals("priority=0", query);
             if (count == 1) {
                 // normal case
-                // we can't handle the case where body is a number, it has to be at least a string
                 return Mono.just(new MockHttpResponse(request, 200, "0".getBytes(StandardCharsets.UTF_8)));
             } else if (count == 2) {
                 // null case
-                return Mono.just(new MockHttpResponse(request, 200, (byte[]) null));
+                return Mono.just(new MockHttpResponse(request, 200, "null".getBytes(StandardCharsets.UTF_8)));
             } else {
                 // exception case, expected number, but received string
-                return Mono.just(new MockHttpResponse(request, 200, "abc".getBytes(StandardCharsets.UTF_8)));
+                return Mono.just(new MockHttpResponse(request, 200, "\"abc\"".getBytes(StandardCharsets.UTF_8)));
             }
         };
         return httpClient;
