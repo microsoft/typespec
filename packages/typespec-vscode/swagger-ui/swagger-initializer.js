@@ -17,7 +17,6 @@ window.onload = function () {
         });
         break;
       default:
-        console.error("Unknown command: " + message.command);
         break;
     }
   });
