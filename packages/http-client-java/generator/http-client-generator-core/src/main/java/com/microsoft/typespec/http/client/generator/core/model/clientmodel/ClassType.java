@@ -113,7 +113,7 @@ public class ClassType implements IType {
             put(Context.class, new ClassDetails(Context.class, "io.clientcore.core.util.Context"));
             put(HttpClient.class, new ClassDetails(HttpClient.class, "io.clientcore.core.http.client.HttpClient"));
             put(HttpLogOptions.class,
-                new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.models.HttpLogOptions"));
+                new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.models.HttpInstrumentationOptions"));
             put(HttpPipelinePolicy.class,
                 new ClassDetails(HttpPipelinePolicy.class, "io.clientcore.core.http.pipeline.HttpPipelinePolicy"));
             put(KeyCredentialPolicy.class,
@@ -122,8 +122,8 @@ public class ClassType implements IType {
                 new ClassDetails(RetryPolicy.class, "io.clientcore.core.http.pipeline.HttpRetryPolicy"));
             put(RedirectPolicy.class,
                 new ClassDetails(RedirectPolicy.class, "io.clientcore.core.http.pipeline.HttpRedirectPolicy"));
-            put(HttpLoggingPolicy.class,
-                new ClassDetails(HttpLoggingPolicy.class, "io.clientcore.core.http.pipeline.HttpLoggingPolicy"));
+            put(HttpLoggingPolicy.class, new ClassDetails(HttpLoggingPolicy.class,
+                "io.clientcore.core.http.pipeline.HttpInstrumentationPolicy"));
             put(Configuration.class,
                 new ClassDetails(Configuration.class, "io.clientcore.core.util.configuration.Configuration"));
             put(HttpHeaders.class, new ClassDetails(HttpHeaders.class, "io.clientcore.core.models.Headers"));
@@ -500,12 +500,6 @@ public class ClassType implements IType {
     public static final ClassType RETRY_POLICY = getClassTypeBuilder(RetryPolicy.class).build();
     public static final ClassType REDIRECT_POLICY = getClassTypeBuilder(RedirectPolicy.class).build();
     public static final ClassType HTTP_LOGGING_POLICY = getClassTypeBuilder(HttpLoggingPolicy.class).build();
-
-    // clientcore
-    public static final ClassType HTTP_INSTRUMENTATION_POLICY
-        = new ClassType.Builder(false).packageName("io.clientcore.core.http.pipeline")
-            .name("HttpInstrumentationPolicy")
-            .build();
 
     public static final ClassType RETRY_OPTIONS = getClassTypeBuilder(RetryOptions.class).build();
 
