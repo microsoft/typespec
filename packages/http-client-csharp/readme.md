@@ -58,6 +58,7 @@ options:
 - `new-project` set to `true` to overwrite the csproj if it already exists.
 - `save-inputs` set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the C# generator.
 - `debug` set to `true` to automatically attempt to attach to a debugger when executing the C# generator.
+- `plugin-name` by default this is set to `ClientModelPlugin`. Plugin authors can set this to the name of a plugin that inherits from `ClientModelPlugin`.
 
 ## Convenience API
 
