@@ -104,7 +104,6 @@ export function createEmitterContext(program: Program): EmitContext<NetEmitterOp
     options: {
       outputFile: "tspCodeModel.json",
       logFile: "log.json",
-      skipSDKGeneration: false,
       "new-project": false,
       "clear-output-folder": false,
       "save-inputs": false,

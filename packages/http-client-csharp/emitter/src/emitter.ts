@@ -120,66 +120,64 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
         prettierOutput(JSON.stringify(configurations, null, 2)),
       );
 
-      if (options.skipSDKGeneration !== true) {
-        const csProjFile = resolvePath(
-          outputFolder,
-          "src",
-          `${configurations["package-name"]}.csproj`,
+      const csProjFile = resolvePath(
+        outputFolder,
+        "src",
+        `${configurations["package-name"]}.csproj`,
+      );
+      logger.info(`Checking if ${csProjFile} exists`);
+      const newProjectOption =
+        options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
+      const debugFlag = (options.debug ?? false) ? "--debug" : "";
+
+      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
+      const generatorPath = resolvePath(
+        projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
+      );
+
+      const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
+      logger.info(command);
+
+      try {
+        const result = await execAsync(
+          "dotnet",
+          [
+            "--roll-forward",
+            "Major",
+            generatorPath,
+            outputFolder,
+            "-p",
+            options["plugin-name"],
+            newProjectOption,
+            debugFlag,
+          ],
+          { stdio: "inherit" },
         );
-        logger.info(`Checking if ${csProjFile} exists`);
-        const newProjectOption =
-          options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
-        const debugFlag = (options.debug ?? false) ? "--debug" : "";
-
-        const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
-        const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
-        const generatorPath = resolvePath(
-          projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
-        );
-
-        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
-        logger.info(command);
-
-        try {
-          const result = await execAsync(
-            "dotnet",
-            [
-              "--roll-forward",
-              "Major",
-              generatorPath,
-              outputFolder,
-              "-p",
-              options["plugin-name"],
-              newProjectOption,
-              debugFlag,
-            ],
-            { stdio: "inherit" },
-          );
-          if (result.exitCode !== 0) {
-            const isValid = await _validateDotNetSdk(
-              csharpEmitterContext,
-              _minSupportedDotNetSdkVersion,
-            );
-            // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-            if (isValid) {
-              if (result.stderr) logger.error(result.stderr);
-              if (result.stdout) logger.verbose(result.stdout);
-              throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
-            }
-          }
-        } catch (error: any) {
+        if (result.exitCode !== 0) {
           const isValid = await _validateDotNetSdk(
             csharpEmitterContext,
             _minSupportedDotNetSdkVersion,
           );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) throw new Error(error);
+          if (isValid) {
+            if (result.stderr) logger.error(result.stderr);
+            if (result.stdout) logger.verbose(result.stdout);
+            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+          }
         }
-        if (!options["save-inputs"]) {
-          // delete
-          deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
-          deleteFile(resolvePath(outputFolder, configurationFileName), logger);
-        }
+      } catch (error: any) {
+        const isValid = await _validateDotNetSdk(
+          csharpEmitterContext,
+          _minSupportedDotNetSdkVersion,
+        );
+        // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+        if (isValid) throw new Error(error);
+      }
+      if (!options["save-inputs"]) {
+        // delete
+        deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
+        deleteFile(resolvePath(outputFolder, configurationFileName), logger);
       }
     }
   }
