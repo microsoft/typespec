@@ -9,6 +9,10 @@ import com.azure.core.util.serializer.SerializerAdapter;
 import com.azure.core.util.serializer.SerializerEncoding;
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
@@ -17,11 +21,6 @@ import tsptest.armstreamstyleserialization.models.Error;
 import tsptest.armstreamstyleserialization.models.Priority;
 import tsptest.armstreamstyleserialization.models.SawShark;
 import tsptest.armstreamstyleserialization.models.Shark;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class StreamStyleSerializationTests {
     @Test
