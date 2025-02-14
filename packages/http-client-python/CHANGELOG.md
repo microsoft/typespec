@@ -1,5 +1,9 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.11
+
+No changes, version bump only.
+
 ## 0.6.10
 
 ### Bug Fixes

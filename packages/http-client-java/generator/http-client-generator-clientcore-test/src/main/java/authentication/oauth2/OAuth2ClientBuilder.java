@@ -7,7 +7,7 @@ import io.clientcore.core.annotation.Metadata;
 import io.clientcore.core.annotation.ServiceClientBuilder;
 import io.clientcore.core.credential.KeyCredential;
 import io.clientcore.core.http.client.HttpClient;
-import io.clientcore.core.http.models.HttpLogOptions;
+import io.clientcore.core.http.models.HttpInstrumentationOptions;
 import io.clientcore.core.http.models.HttpRedirectOptions;
 import io.clientcore.core.http.models.HttpRetryOptions;
 import io.clientcore.core.http.models.ProxyOptions;
@@ -92,15 +92,15 @@ public final class OAuth2ClientBuilder
      * The logging configuration for HTTP requests and responses.
      */
     @Metadata(generated = true)
-    private HttpLogOptions httpLogOptions;
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     /**
      * {@inheritDoc}.
      */
     @Metadata(generated = true)
     @Override
-    public OAuth2ClientBuilder httpLogOptions(HttpLogOptions httpLogOptions) {
-        this.httpLogOptions = httpLogOptions;
+    public OAuth2ClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
         return this;
     }
 
@@ -235,7 +235,9 @@ public final class OAuth2ClientBuilder
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
-        HttpLogOptions localHttpLogOptions = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
         HttpPipelineBuilder httpPipelineBuilder = new HttpPipelineBuilder();
         List<HttpPipelinePolicy> policies = new ArrayList<>();
         policies.add(redirectOptions == null ? new HttpRedirectPolicy() : new HttpRedirectPolicy(redirectOptions));
@@ -244,7 +246,7 @@ public final class OAuth2ClientBuilder
         if (keyCredential != null) {
             policies.add(new KeyCredentialPolicy("authorization", keyCredential, "Bearer"));
         }
-        policies.add(new HttpInstrumentationPolicy(null, localHttpLogOptions));
+        policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         httpPipelineBuilder.policies(policies.toArray(new HttpPipelinePolicy[0]));
         return httpPipelineBuilder.build();
     }
