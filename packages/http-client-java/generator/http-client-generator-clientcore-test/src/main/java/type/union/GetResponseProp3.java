@@ -5,6 +5,7 @@ package type.union;
 import io.clientcore.core.annotation.Metadata;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
 import io.clientcore.core.util.ExpandableEnum;
 import java.io.IOException;
@@ -90,13 +91,21 @@ public final class GetResponseProp3 implements ExpandableEnum<String>, JsonSeria
      * Reads an instance of GetResponseProp3 from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of GetResponseProp3 if the JsonReader was pointing to an instance of it.
+     * @return An instance of GetResponseProp3 if the JsonReader was pointing to an instance of it, or null if the
+     * JsonReader was pointing to JSON null.
      * @throws IOException If an error occurs while reading the GetResponseProp3.
-     * @throws IllegalArgumentException if the JsonReader was pointing to JSON null.
+     * @throws IllegalStateException If unexpected JSON token is found.
      */
     @Metadata(generated = true)
     public static GetResponseProp3 fromJson(JsonReader jsonReader) throws IOException {
-        jsonReader.nextToken();
+        JsonToken nextToken = jsonReader.nextToken();
+        if (nextToken == JsonToken.NULL) {
+            return null;
+        }
+        if (nextToken != JsonToken.STRING) {
+            throw new IllegalStateException(
+                String.format("Unexpected JSON token for %s deserialization: %s", JsonToken.STRING, nextToken));
+        }
         return GetResponseProp3.fromValue(jsonReader.getString());
     }
 
