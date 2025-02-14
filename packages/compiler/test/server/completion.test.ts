@@ -1167,7 +1167,7 @@ describe("identifiers", () => {
           documentation: {
             kind: MarkupKind.Markdown,
             value:
-              "```typespec\ndec N.hello(value: string)\n```\n\nJust an example.\n\n_@param_ `value` —\nThe value.\n\n_@example_ —\n```typespec\n@hello\nmodel M {}\n```",
+              "```typespec\ndec N.hello(value: string)\n```\n\n```\nJust an example.\n```\n\n```\n@param value — The value.\n```\n\n```\n@example —\n```\n```typespec\n@hello\nmodel M {}\n```",
           },
         },
       ],
@@ -1358,7 +1358,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              value:
+                "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\n```\nmy log message\n```",
             },
           },
           {
@@ -1367,7 +1368,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              value:
+                "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\n```\nmy log id\n```",
             },
           },
           {
@@ -1377,7 +1379,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\n```\nmy log context\n```",
             },
           },
         ],
@@ -1405,7 +1407,7 @@ describe("identifiers", () => {
               documentation: {
                 kind: MarkupKind.Markdown,
                 value:
-                  "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+                  "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\n```\nname of log context\n```",
               },
             },
             {
@@ -1415,7 +1417,7 @@ describe("identifiers", () => {
               documentation: {
                 kind: MarkupKind.Markdown,
                 value:
-                  "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+                  "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\n```\nitems of context\n```",
               },
             },
           ],
@@ -1736,7 +1738,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              value:
+                "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\n```\nmy log message\n```",
             },
           },
           {
@@ -1745,7 +1748,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              value:
+                "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\n```\nmy log id\n```",
             },
           },
           {
@@ -1755,7 +1759,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\n```\nmy log context\n```",
             },
           },
         ],
@@ -1780,7 +1784,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              value:
+                "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\n```\nmy log message\n```",
             },
           },
           {
@@ -1789,7 +1794,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              value:
+                "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\n```\nmy log id\n```",
             },
           },
           {
@@ -1799,7 +1805,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\n```\nmy log context\n```",
             },
           },
         ],
@@ -1824,7 +1830,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              value:
+                "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\n```\nmy log message\n```",
             },
           },
           {
@@ -1833,7 +1840,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              value:
+                "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\n```\nmy log id\n```",
             },
           },
           {
@@ -1843,7 +1851,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\n```\nmy log context\n```",
             },
           },
         ],
@@ -1932,7 +1940,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              value:
+                "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\n```\nmy log message\n```",
             },
           },
           {
@@ -1941,7 +1950,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              value:
+                "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\n```\nmy log id\n```",
             },
           },
           {
@@ -1951,7 +1961,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\n```\nmy log context\n```",
             },
           },
           {
@@ -1961,7 +1971,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
+                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\n```\nmy log context2\n```",
             },
           },
         ],
@@ -1987,7 +1997,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              value:
+                "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\n```\nmy log message\n```",
             },
           },
           {
@@ -1996,7 +2007,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              value:
+                "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\n```\nmy log id\n```",
             },
           },
           {
@@ -2006,7 +2018,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>[]\n```\n\n```\nmy log context\n```",
             },
           },
           {
@@ -2016,7 +2028,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\nmy log context2",
+                "(model property)\n```typespec\nMyLogArg.context2: [MyLogContext<string>, int16]\n```\n\n```\nmy log context2\n```",
             },
           },
         ],
@@ -2043,7 +2055,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\n```\nname of log context\n```",
             },
           },
           {
@@ -2053,7 +2065,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\n```\nitems of context\n```",
             },
           },
         ],
@@ -2080,7 +2092,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\n```\nname of log context\n```",
             },
           },
           {
@@ -2090,7 +2102,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\n```\nitems of context\n```",
             },
           },
         ],
@@ -2118,7 +2130,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\n```\nname of log context\n```",
             },
           },
           {
@@ -2128,7 +2140,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\nitems of context",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Array<Element>\n```\n\n```\nitems of context\n```",
             },
           },
         ],
@@ -2244,7 +2256,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\nmy log message",
+              value:
+                "(model property)\n```typespec\nMyLogArg.msg: string\n```\n\n```\nmy log message\n```",
             },
           },
           {
@@ -2253,7 +2266,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              value:
+                "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\n```\nmy log id\n```",
             },
           },
           {
@@ -2263,7 +2277,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\n```\nmy log context\n```",
             },
           },
         ],
@@ -2310,7 +2324,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\nname of log context",
+                "(model property)\n```typespec\nMyLogContext<T>.name: string\n```\n\n```\nname of log context\n```",
             },
           },
           {
@@ -2320,7 +2334,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of context",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\n```\nitems of context\n```",
             },
           },
         ],
@@ -2368,7 +2382,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\nitems of context",
+                "(model property)\n```typespec\nMyLogContext<T>.item: Record<Element>\n```\n\n```\nitems of context\n```",
             },
           },
         ],
@@ -2414,7 +2428,8 @@ describe("identifiers", () => {
             kind: CompletionItemKind.Field,
             documentation: {
               kind: MarkupKind.Markdown,
-              value: "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\nmy log id",
+              value:
+                "(model property)\n```typespec\nMyLogArg.id: int16\n```\n\n```\nmy log id\n```",
             },
           },
           {
@@ -2424,7 +2439,7 @@ describe("identifiers", () => {
             documentation: {
               kind: MarkupKind.Markdown,
               value:
-                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\nmy log context",
+                "(model property)\n```typespec\nMyLogArg.context: MyLogContext<string>\n```\n\n```\nmy log context\n```",
             },
           },
         ],
