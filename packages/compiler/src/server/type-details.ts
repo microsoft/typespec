@@ -43,10 +43,19 @@ export function getSymbolDetails(
         ) {
           continue;
         }
-        lines.push(
-          //prettier-ignore
-          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`,
-        );
+
+        const descMsg = getDocContent(tag.content);
+        if (descMsg.startsWith("```")) {
+          lines.push(
+            //prettier-ignore
+            fence(`@${tag.tagName.sv}${"paramName" in tag ? `${tag.paramName.sv}` : ""} —`)+`\n${descMsg}`,
+          );
+        } else {
+          lines.push(
+            //prettier-ignore
+            fence(`@${tag.tagName.sv}${"paramName" in tag ? ` ${tag.paramName.sv}` : ""} — ${descMsg}`),
+          );
+        }
       }
     }
   }
@@ -59,7 +68,7 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   for (const node of [...symbol.declarations, ...(symbol.node ? [symbol.node] : [])]) {
     // Add /** ... */ developer docs
     for (const d of node.docs ?? []) {
-      docs.push(getDocContent(d.content));
+      docs.push(fence(getDocContent(d.content)));
     }
   }
 
@@ -75,7 +84,7 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
     const apiDocs = getDocData(program, type);
     // The doc comment is already included above we don't want to duplicate. Only include if it was specificed via `@doc`
     if (apiDocs && apiDocs.source === "decorator") {
-      docs.push(apiDocs.value);
+      docs.push(fence(apiDocs.value));
     }
   }
 
@@ -120,4 +129,8 @@ function getDocContent(content: readonly DocContent[]) {
     docs.push(node.text);
   }
   return docs.join("");
+}
+
+function fence(content: string) {
+  return content.startsWith("```") ? content : `\`\`\`\n${content}\n\`\`\``;
 }
