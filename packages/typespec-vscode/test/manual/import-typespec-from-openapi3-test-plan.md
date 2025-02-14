@@ -1,4 +1,4 @@
-# Import TypeSpec from OpenAPI3 Test Scenario _(stretch goal for SE)_
+# Import TypeSpec from OpenAPI3 Test Scenario
 
 With the TypeSpec emitter for OpenAPI3, users can import a TypeSpec file from a designated OpenAPI3 document. While it is possible to repeatedly convert OpenAPI3 to TypeSpec.
 
@@ -54,9 +54,33 @@ _Option 2_. From the right-click context menu of a folder.
 
 ![alt text](./images/TriggerImportTypeSpecfromOpenAPI3_option2.png)
 
-**Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
+- If it is a non-empty folder:
 
-![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
+  **Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
+
+  ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
+
+- If it is a empty folder:
+
+  If the folder is empty, skip the query and go to the next step.
+
+_Option 3_. Typing `> TypeSpec: Import TypeSpec from OpenApi3` in the Command Palette.
+
+![alt text](./images/TriggerImportTypeSpecfromOpenAPI3_Option3.png)
+
+**Validate:** Will it appear: `Select target folder to import OpenAPI`.
+
+![alt text](./images/ImportTypeSpecfromOpenAPI3_ConfirmProjectFolder.png)
+
+- Select a non-empty folder:
+
+  **Validate:** Will it appear: `The selected folder isn't empty. Do you want to continue? Some existing files may be overwritten.`
+
+  ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyFolderIsEmpty.png)
+
+- Select a empty folder:
+
+  If the folder is empty, skip the query and go to the next step.
 
 ### Step 3: Specify the OpenAPI3 specification to convert.
 
@@ -64,7 +88,7 @@ _Option 2_. From the right-click context menu of a folder.
 
 ### Step 4: Verify that `@typespec/openapi3` are installed.
 
-- If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenApi3. Do you want to install it?`. Click `Install @typespec/openapi3` to install.
+- If `@typespec/openapi3` is not installed. it will prompt `'@typespec/openapi3' is required to import OpenAPI. Do you want to install it?`. Click `Install @typespec/openapi3 globally` to install.
 
   ![alt text](./images/ImportTypeSpecfromOpenAPI3_VerifyInstallaDependencies.png)
 
@@ -92,4 +116,4 @@ The test results will be presented in the following form:
 
 | NO  |                      Test Cases                       |   Platform    | Result | Issues | Comments |
 | --- | :---------------------------------------------------: | :-----------: | :----: | :----: | :------: |
-| 1   | Import TypeSpec from OpenAPI3 _(stretch goal for SE)_ | Windows/Linux |        |        |          |
+| 1   | Import TypeSpec from OpenAPI3 | Windows/Linux |        |        |          |
