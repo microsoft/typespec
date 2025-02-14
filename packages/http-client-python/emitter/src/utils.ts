@@ -255,7 +255,12 @@ function parseToken(token: Token): string {
       parsed += `\`\`${token.text}\`\``;
       break;
     case "code":
-      parsed += `\n.. code-block::\n\n  ${token.text.split("\n").join("\n  ")}\n\n`;
+      // TODO: We should have a method here that will try to parse the code block style if it's undefined from the `marked` library
+      let codeBlockStyle = token.codeBlockStyle;
+      if (codeBlockStyle === undefined) {
+        codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
+      }
+      parsed += `\n.. code-block::${codeBlockStyle ?? ""}\n\n  ${token.text.split("\n").join("\n  ")}\n\n`;
       break;
     default:
       parsed += token.raw;
@@ -263,24 +268,34 @@ function parseToken(token: Token): string {
   return parsed;
 }
 
-export function md2Rst(text: string): string {
-  const tokens = marked.lexer(text);
-  let rst = "";
+export function md2Rst(text?: string): string | undefined {
+  try {
+    if (!text || text === "") return text;
+    const tokens = marked.lexer(text);
+    let rst = "";
 
-  tokens.forEach((token: Token) => {
-    if (token.type === "heading") {
-      const parsedHeadingText = md2Rst(token.text);
-      rst += `${"=".repeat(
-        parsedHeadingText.length,
-      )}\n${parsedHeadingText}\n${"=".repeat(parsedHeadingText.length)}\n\n`;
-    } else if ("tokens" in token && token.tokens !== undefined && token.tokens.length > 0) {
-      token.tokens.forEach((element) => {
-        rst += parseToken(element);
-      });
-    } else {
-      rst += parseToken(token);
+    tokens.forEach((token: Token) => {
+      if (token.type === "heading") {
+        const parsedHeadingText = md2Rst(token.text);
+        rst += `${"=".repeat(
+          parsedHeadingText!.length,
+        )}\n${parsedHeadingText}\n${"=".repeat(parsedHeadingText!.length)}\n\n`;
+      } else if ("tokens" in token && token.tokens !== undefined && token.tokens.length > 0) {
+        token.tokens.forEach((element: any) => {
+          rst += parseToken(element);
+        });
+      } else {
+        rst += parseToken(token);
+      }
+    });
+
+    return rst;
+  } catch (e) {
+    if (e instanceof RangeError) {
+      // The error is thrown by the tokenizer when the markdown is too long
+      // We can ignore it and return the original text
+      return text;
     }
-  });
-
-  return rst;
+  }
+  return text;
 }
