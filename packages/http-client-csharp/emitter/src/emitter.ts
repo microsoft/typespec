@@ -116,10 +116,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
       };
 
-      await program.host.writeFile(
-        resolvePath(outputFolder, configurationFileName),
-        prettierOutput(JSON.stringify(configurations, null, 2)),
-      );
+      await writeCodeModel(program, root, generatedFolder, configurationFileName);
 
       const csProjFile = resolvePath(
         outputFolder,
@@ -192,13 +189,13 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
  * @param fileName - The file name
  * @beta
  */
-export function writeCodeModel(
+export async function writeCodeModel(
   program: Program,
   codeModel: CodeModel,
   outputFolder: string,
   fileName: string,
 ) {
-  program.host.writeFile(
+  await program.host.writeFile(
     resolvePath(outputFolder, fileName),
     prettierOutput(JSON.stringify(codeModel, null, 2)),
   );
