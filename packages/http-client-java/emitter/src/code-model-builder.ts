@@ -102,7 +102,11 @@ import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
 import { fail } from "assert";
 import pkg from "lodash";
-import { Client as CodeModelClient, EncodedSchema } from "./common/client.js";
+import {
+  Client as CodeModelClient,
+  EncodedSchema,
+  PageableContinuationToken,
+} from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
@@ -1030,10 +1034,41 @@ export class CodeModelBuilder {
             }
           });
 
+          // test code
+          let continuationTokenParameter: Parameter | undefined;
+          let continuationTokenResponseProperty: Property[] | undefined;
+          if (op.parameters) {
+            for (const param of op.parameters) {
+              if (param.language.default.serializedName === "continuationToken") {
+                continuationTokenParameter = param;
+                break;
+              }
+            }
+          }
+          if (op.responses) {
+            for (const response of op.responses) {
+              if (response instanceof SchemaResponse) {
+                if (response.schema instanceof ObjectSchema && response.schema.properties) {
+                  for (const p of response.schema.properties) {
+                    continuationTokenResponseProperty = [p];
+                    break;
+                  }
+                }
+              }
+            }
+          }
+
           op.extensions = op.extensions ?? {};
           op.extensions["x-ms-pageable"] = {
             itemName: itemSerializedName,
             nextLinkName: nextLinkSerializedName,
+            continuationToken: continuationTokenParameter
+              ? new PageableContinuationToken(
+                  continuationTokenParameter,
+                  continuationTokenResponseProperty,
+                  undefined,
+                )
+              : undefined,
           };
           break;
         }

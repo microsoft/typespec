@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { Aspect, Metadata, OperationGroup, Parameter, Security } from "@autorest/codemodel";
+import {
+  Aspect,
+  HttpHeader,
+  Metadata,
+  OperationGroup,
+  Parameter,
+  Property,
+  Security,
+} from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
 
 export interface Client extends Aspect {
@@ -69,4 +77,16 @@ export class ServiceVersion extends Metadata {
 
 export interface EncodedSchema {
   encode?: string;
+}
+
+export class PageableContinuationToken {
+  parameter: Parameter;
+  responseProperty?: Property[];
+  responseHeader?: HttpHeader;
+
+  constructor(parameter: Parameter, responseProperty?: Property[], responseHeader?: HttpHeader) {
+    this.parameter = parameter;
+    this.responseProperty = responseProperty;
+    this.responseHeader = responseHeader;
+  }
 }
