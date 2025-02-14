@@ -49,7 +49,7 @@ describe("Test auth", () => {
     ok(noSupportedAuthDiagnostics[0]);
     strictEqual(
       noSupportedAuthDiagnostics[0].message,
-      `No supported authentication methods were provided. No public client constructors will be generated, so please provide your own custom constructor for client instantiation.`,
+      `No supported authentication methods were provided. No public client constructors will be generated. Please provide your own custom constructor for client instantiation.`,
     );
 
     // auth was specified but it is not supported, so the known auth methods are undefined
@@ -91,7 +91,7 @@ describe("Test auth", () => {
     ok(noSupportedAuthDiagnostics[0]);
     strictEqual(
       noSupportedAuthDiagnostics[0].message,
-      `No supported authentication methods were provided. No public client constructors will be generated, so please provide your own custom constructor for client instantiation.`,
+      `No supported authentication methods were provided. No public client constructors will be generated. Please provide your own custom constructor for client instantiation.`,
     );
 
     // auth was specified but it is not supported, so the known auth methods are undefined
@@ -131,7 +131,7 @@ describe("Test auth", () => {
     ok(noSupportedAuthDiagnostics[0]);
     strictEqual(
       noSupportedAuthDiagnostics[0].message,
-      `No supported authentication methods were provided. No public client constructors will be generated, so please provide your own custom constructor for client instantiation.`,
+      `No supported authentication methods were provided. No public client constructors will be generated. Please provide your own custom constructor for client instantiation.`,
     );
 
     // auth was specified but it is not supported, so the known auth methods are undefined
