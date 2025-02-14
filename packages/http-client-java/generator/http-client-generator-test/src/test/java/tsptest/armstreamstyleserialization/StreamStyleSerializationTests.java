@@ -2,8 +2,6 @@ package tsptest.armstreamstyleserialization;
 
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpPipelineBuilder;
-import com.azure.core.http.HttpRequest;
-import com.azure.core.http.HttpResponse;
 import com.azure.core.management.serializer.SerializerFactory;
 import com.azure.core.test.http.MockHttpResponse;
 import com.azure.core.util.BinaryData;
