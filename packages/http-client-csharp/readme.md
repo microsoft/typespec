@@ -56,7 +56,7 @@ options:
 - `unreferenced-types-handling` define the strategy how to handle unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`. The default value is `removeOrInternalize`.
 - `clear-output-folder` indicate if you want to clear up the output folder before generating. The default value is `true`.
 - `new-project` set to `true` to overwrite the csproj if it already exists. The default value is `false`.
-- `save-inputs` set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the C# generator. The default value is `false.
+- `save-inputs` set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the C# generator. The default value is `false`.
 - `debug` set to `true` to automatically attempt to attach to a debugger when executing the C# generator. The default value is `false`.
 - `plugin-name` by default this is set to `ClientModelPlugin`. Plugin authors can set this to the name of a plugin that inherits from `ClientModelPlugin`.
 
