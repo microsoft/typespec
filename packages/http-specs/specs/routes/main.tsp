@@ -285,7 +285,7 @@ namespace PathParameters {
       @scenarioDoc("""
         Test matrix expansion with explode: false when passed an array value.
             Param value: ["a","b"]
-            Expected path: /routes/path/matrix/standard/array;param=a,b
+            Expected path: /routes/path/matrix/standard/array;param=a;param=b
         """)
       @route("array{;param}")
       op array(param: string[]): void;
@@ -294,7 +294,7 @@ namespace PathParameters {
       @scenarioDoc("""
         Test matrix expansion with explode: false when passed a record value.
             Param value: {a: 1, b: 2}
-            Expected path: /routes/path/matrix/standard/record;param=a,1,b,2
+            Expected path: /routes/path/matrix/standard/record;a=1;b=2
         """)
       @route("record{;param}")
       op record(param: Record<int32>): void;

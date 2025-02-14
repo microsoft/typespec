@@ -127,10 +127,10 @@ Scenarios.Routes_PathParameters_MatrixExpansion_Explode_primitive = createTests(
   "/routes/path/matrix/explode/primitive;param=a",
 );
 Scenarios.Routes_PathParameters_MatrixExpansion_Explode_array = createTests(
-  "/routes/path/matrix/explode/array;param=a;b",
+  "/routes/path/matrix/explode/array;param=a;param=b",
 );
 Scenarios.Routes_PathParameters_MatrixExpansion_Explode_record = createTests(
-  "/routes/path/matrix/explode/record;param=a=1;b=2",
+  "/routes/path/matrix/explode/record;a=1;b=2",
 );
 Scenarios.Routes_QueryParameters_templateOnly = createTests("/routes/query/template-only?param=a");
 Scenarios.Routes_QueryParameters_explicit = createTests("/routes/query/explicit?param=a");
