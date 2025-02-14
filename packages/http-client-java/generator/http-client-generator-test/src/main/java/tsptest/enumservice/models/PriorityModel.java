@@ -8,6 +8,7 @@ import com.azure.core.annotation.Generated;
 import com.azure.core.util.ExpandableEnum;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
+import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,13 +93,21 @@ public final class PriorityModel implements ExpandableEnum<Integer>, JsonSeriali
      * Reads an instance of PriorityModel from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of PriorityModel if the JsonReader was pointing to an instance of it.
+     * @return An instance of PriorityModel if the JsonReader was pointing to an instance of it, or null if the
+     * JsonReader was pointing to JSON null.
      * @throws IOException If an error occurs while reading the PriorityModel.
-     * @throws IllegalArgumentException if the JsonReader was pointing to JSON null.
+     * @throws IllegalStateException If unexpected JSON token is found.
      */
     @Generated
     public static PriorityModel fromJson(JsonReader jsonReader) throws IOException {
-        jsonReader.nextToken();
+        JsonToken nextToken = jsonReader.nextToken();
+        if (nextToken == JsonToken.NULL) {
+            return null;
+        }
+        if (nextToken != JsonToken.NUMBER) {
+            throw new IllegalStateException(
+                String.format("Unexpected JSON token for %s deserialization: %s", JsonToken.NUMBER, nextToken));
+        }
         return PriorityModel.fromValue(jsonReader.getInt());
     }
 
