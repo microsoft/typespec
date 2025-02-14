@@ -93,10 +93,10 @@ function getReturnStatement(returnType: CSharpType): string {
     return `return Task.FromResult(_initializer.Initialize(typeof(${returnType.getTypeReference()})) as ${returnType.getTypeReference()} ?? default);`;
   }
   if (returnType.isValueType) {
-    return `return Task.FromResult(default);`;
+    return `return Task.FromResult<${returnType.getTypeReference()}>(default);`;
   }
   if (returnType.name.endsWith("[]")) {
-    return `return Task.FromResult([]);`;
+    return `return Task.FromResult<${returnType.getTypeReference()}>([]);`;
   }
   if (returnType.name === "string") {
     return `return Task.FromResult("");`;

@@ -74,6 +74,8 @@ import {
 } from "./scaffolding.js";
 import { getRecordType, isKnownReferenceType } from "./type-helpers.js";
 import {
+  CSharpOperationHelpers,
+  EmittedTypeInfo,
   HttpMetadata,
   UnknownType,
   coalesceTypes,
@@ -84,16 +86,15 @@ import {
   getBusinessLogicCallParameters,
   getBusinessLogicDeclParameters,
   getCSharpIdentifier,
-  getCSharpOperationParameters,
   getCSharpStatusCode,
   getCSharpType,
   getCSharpTypeForIntrinsic,
   getCSharpTypeForScalar,
   getHttpDeclParameters,
   getModelAttributes,
+  getModelDeclarationName,
   getModelInstantiationName,
   getOperationVerbDecorator,
-  getTypeInfoForTsType,
   isEmptyResponseModel,
   isValueType,
 } from "./utils.js";
@@ -117,6 +118,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     #openapiPath: string = context.options["openapi-path"] || "openapi/openapi.yaml";
     #mockRegistrations: BusinessLogicRegistrations = new Map<string, BusinessLogicImplementation>();
     #mockFiles: LibrarySourceFile[] = [];
+    #opHelpers: CSharpOperationHelpers = new CSharpOperationHelpers(this.emitter);
 
     arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<string> {
       return this.emitter.result.declaration(
@@ -147,7 +149,12 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           if (!declarationType.name) return `Interface${_unionCounter++}`;
           return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Model":
-          if (!declarationType.name) return `Model${_unionCounter++}`;
+          if (!declarationType.name)
+            return getModelDeclarationName(
+              this.emitter.getProgram(),
+              declarationType,
+              `${_unionCounter++}`,
+            );
           return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
         case "Operation":
           return getCSharpIdentifier(declarationType.name, NameCasingType.Class);
@@ -377,7 +384,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       if (isStatusCode(this.emitter.getProgram(), property)) return "";
       let propertyName = ensureCSharpIdentifier(this.emitter.getProgram(), property, property.name);
 
-      const [typeName, typeDefault, nullable] = this.#findPropertyType(property);
+      const {
+        typeReference: typeName,
+        defaultValue: typeDefault,
+        nullableType: nullable,
+      } = this.#findPropertyType(property);
       const doc = getDoc(this.emitter.getProgram(), property);
       const attributes = getModelAttributes(this.emitter.getProgram(), property, propertyName);
       const modelName: string | undefined = this.emitter.getContext()["name"];
@@ -403,10 +414,8 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
     `);
     }
 
-    #findPropertyType(
-      property: ModelProperty,
-    ): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-      return getTypeInfoForTsType(this.emitter.getProgram(), property.type, this.emitter);
+    #findPropertyType(property: ModelProperty): EmittedTypeInfo {
+      return this.#opHelpers.getTypeInfo(this.emitter.getProgram(), property.type);
     }
 
     #isMultipartRequest(operation: HttpOperation): boolean {
@@ -525,11 +534,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
           name,
           NameCasingType.Method,
         );
-        const parameters = getCSharpOperationParameters(
-          this.emitter.getProgram(),
-          httpOp,
-          this.emitter,
-        );
+        const parameters = this.#opHelpers.getParameters(this.emitter.getProgram(), httpOp);
 
         const opImpl: BusinessLogicMethod = {
           methodName: `${opName}Async`,
@@ -576,11 +581,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
       const multipart: boolean = this.#isMultipartRequest(httpOperation);
-      const parameters = getCSharpOperationParameters(
-        this.emitter.getProgram(),
-        httpOperation,
-        this.emitter,
-      );
+      const parameters = this.#opHelpers.getParameters(this.emitter.getProgram(), httpOperation);
       const declParams = getHttpDeclParameters(parameters);
 
       if (multipart) {
@@ -673,11 +674,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       );
       const doc = getDoc(this.emitter.getProgram(), operation);
       const [httpOperation, _] = getHttpOperation(this.emitter.getProgram(), operation);
-      const parameters = getCSharpOperationParameters(
-        this.emitter.getProgram(),
-        httpOperation,
-        this.emitter,
-      );
+      const parameters = this.#opHelpers.getParameters(this.emitter.getProgram(), httpOperation);
       const declParams = getHttpDeclParameters(parameters);
       const responseInfo = this.#getOperationResponse(httpOperation);
       const status = responseInfo?.statusCode ?? 200;

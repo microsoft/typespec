@@ -5,6 +5,7 @@ import {
   ModelProperty,
   NoTarget,
   NumericLiteral,
+  Operation,
   Program,
   Scalar,
   StringTemplateSpan,
@@ -575,11 +576,32 @@ export function getModelAttributes(
   return getAttributes(program, entity, cSharpName);
 }
 
-export function getModelDeclarationName(program: Program, model: Model, name: string) {
-  if (name !== null && name.length > 0) {
-    return ensureCSharpIdentifier(program, model, name, NameCasingType.Class);
+export function getModelDeclarationName(
+  program: Program,
+  model: Model,
+  defaultSuffix: string,
+): string {
+  if (model.name !== null && model.name.length > 0) {
+    return ensureCSharpIdentifier(program, model, model.name, NameCasingType.Class);
   }
-  return ensureCSharpIdentifier(program, model, "", NameCasingType.Class);
+  if (model.sourceModel && model.sourceModel.name && model.sourceModel.name.length > 0) {
+    return ensureCSharpIdentifier(
+      program,
+      model,
+      `${model.sourceModel.name}${defaultSuffix}`,
+      NameCasingType.Class,
+    );
+  }
+  if (model.sourceModels.length > 0) {
+    const sourceNames = model.sourceModels
+      .filter((m) => m.model.name !== undefined && m.model.name.length > 0)
+      .flatMap((m) => ensureCSharpIdentifier(program, model, m.model.name, NameCasingType.Class));
+    if (sourceNames.length > 0) {
+      return `${sourceNames.join()}${defaultSuffix}`;
+    }
+  }
+
+  return `Model${defaultSuffix}`;
 }
 
 export function getModelInstantiationName(program: Program, model: Model, name: string): string {
@@ -678,8 +700,10 @@ export class HttpMetadata {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => true,
     });
+
     switch (responseType.kind) {
       case "Model":
+        if (responseType.indexer && responseType.indexer.key.name !== "string") return responseType;
         const bodyProp = new ModelInfo().filterAllProperties(
           program,
           responseType,
@@ -917,291 +941,382 @@ export function canHaveDefault(program: Program, type: Type): boolean {
       return false;
   }
 }
-export function getCSharpOperationParameters(
-  program: Program,
-  operation: HttpOperation,
-  emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
-): CSharpOperationParameter[] {
-  const bodyParam = operation.parameters.body;
-  const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
-  const result: CSharpOperationParameter[] = [];
-  const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
-    isValidParameter(program, p.param),
-  );
-  const requiredParams: HttpOperationParameter[] = validParams.filter(
-    (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
-  );
-  const optionalParams: HttpOperationParameter[] = validParams.filter(
-    (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
-  );
-  for (const parameter of requiredParams) {
-    let [paramType, paramValue, _] = getTypeInfoForTsType(program, parameter.param.type, emitter);
-    // cSharp does not allow array defaults in operation parameters
-    if (!canHaveDefault(program, parameter.param)) {
-      paramValue = undefined;
-    }
-    const paramName = ensureCSharpIdentifier(
-      program,
-      parameter.param,
-      parameter.param.name,
-      NameCasingType.Parameter,
-    );
-    result.push({
-      isExplicitBody: false,
-      name: paramName,
-      callName: paramName,
-      optional: false,
-      typeName: paramType,
-      defaultValue: paramValue,
-      httpParameterKind: getParameterKind(parameter),
-      httpParameterName: parameter.name,
-      nullable: false,
-      operationKind: "All",
-    });
-  }
 
-  const overrideParameters = getExplicitBodyParameters(program, operation);
-  if (overrideParameters !== undefined) {
-    for (const overrideParam of overrideParameters) {
-      result.push(overrideParam);
+export interface EmittedTypeInfo {
+  typeReference: EmitterOutput<string>;
+  nullableType: boolean;
+  defaultValue?: string | boolean;
+}
+
+export class CSharpOperationHelpers {
+  constructor(inEmitter: AssetEmitter<string, CSharpServiceEmitterOptions>) {
+    this.emitter = inEmitter;
+    this.#anonymousModels = new Map<Model, EmittedTypeInfo>();
+    this.#opCache = new Map<Operation, CSharpOperationParameter[]>();
+  }
+  emitter: AssetEmitter<string, CSharpServiceEmitterOptions>;
+  #anonymousModels: Map<Model, EmittedTypeInfo>;
+  #opCache: Map<Operation, CSharpOperationParameter[]>;
+  getParameters(program: Program, operation: HttpOperation): CSharpOperationParameter[] {
+    function safeConcat(...names: (string | undefined)[]): string {
+      return names
+        .filter((n) => n !== undefined && n !== null && n.length > 0)
+        .flatMap((s) => getCSharpIdentifier(s!, NameCasingType.Class))
+        .join();
     }
-  } else if (bodyParam !== undefined && isExplicitBodyParam) {
-    let [bodyType, bodyValue, isNullable] = getTypeInfoForTsType(program, bodyParam.type, emitter);
-    if (!canHaveDefault(program, bodyParam.type)) {
-      bodyValue = undefined;
+    const cached = this.#opCache.get(operation.operation);
+    if (cached) return cached;
+    const bodyParam = operation.parameters.body;
+    const isExplicitBodyParam: boolean = bodyParam?.property !== undefined;
+    const result: CSharpOperationParameter[] = [];
+    const validParams: HttpOperationParameter[] = operation.parameters.parameters.filter((p) =>
+      isValidParameter(program, p.param),
+    );
+    const requiredParams: HttpOperationParameter[] = validParams.filter(
+      (p) => p.type === "path" || (!p.param.optional && p.param.defaultValue === undefined),
+    );
+    const optionalParams: HttpOperationParameter[] = validParams.filter(
+      (p) => p.type !== "path" && (p.param.optional || p.param.defaultValue !== undefined),
+    );
+    for (const parameter of requiredParams) {
+      let { typeReference: paramType, defaultValue: paramValue } = this.getTypeInfo(
+        program,
+        parameter.param.type,
+      );
+      // cSharp does not allow array defaults in operation parameters
+      if (!canHaveDefault(program, parameter.param)) {
+        paramValue = undefined;
+      }
+      const paramName = ensureCSharpIdentifier(
+        program,
+        parameter.param,
+        parameter.param.name,
+        NameCasingType.Parameter,
+      );
+      result.push({
+        isExplicitBody: false,
+        name: paramName,
+        callName: paramName,
+        optional: false,
+        typeName: paramType,
+        defaultValue: paramValue,
+        httpParameterKind: getParameterKind(parameter),
+        httpParameterName: parameter.name,
+        nullable: false,
+        operationKind: "All",
+      });
     }
-    result.push({
-      isExplicitBody: true,
-      httpParameterKind: "body",
-      name: "body",
-      callName: "body",
-      typeName: bodyType,
-      nullable: isNullable,
-      defaultValue: bodyValue,
-      optional: bodyParam.property?.optional ?? false,
-      operationKind: "All",
-    });
-  } else if (bodyParam !== undefined) {
-    switch (bodyParam.type.kind) {
-      case "Model":
-        const [bodyType, _, __] = getTypeInfoForTsType(program, bodyParam.type, emitter);
-        const bodyName = ensureCSharpIdentifier(
-          program,
-          bodyParam.type,
-          "body",
-          NameCasingType.Parameter,
-        );
-        result.push({
-          isExplicitBody: false,
-          httpParameterKind: "body",
-          name: bodyName,
-          callName: bodyName,
-          typeName: bodyType,
-          nullable: false,
-          defaultValue: undefined,
-          optional: false,
-          operationKind: "Http",
-        });
-        for (const [propName, propDef] of bodyParam.type.properties) {
-          let [csType, csValue, isNullable] = getTypeInfoForTsType(program, propDef.type, emitter);
-          // cSharp does not allow array defaults in operation parameters
-          if (!canHaveDefault(program, propDef)) {
-            csValue = undefined;
+
+    const overrideParameters = getExplicitBodyParameters(program, operation);
+    if (overrideParameters !== undefined) {
+      for (const overrideParam of overrideParameters) {
+        result.push(overrideParam);
+      }
+    } else if (bodyParam !== undefined && isExplicitBodyParam) {
+      let {
+        typeReference: bodyType,
+        defaultValue: bodyValue,
+        nullableType: isNullable,
+      } = this.getTypeInfo(program, bodyParam.type);
+      if (!canHaveDefault(program, bodyParam.type)) {
+        bodyValue = undefined;
+      }
+      result.push({
+        isExplicitBody: true,
+        httpParameterKind: "body",
+        name: "body",
+        callName: "body",
+        typeName: bodyType,
+        nullable: isNullable,
+        defaultValue: bodyValue,
+        optional: bodyParam.property?.optional ?? false,
+        operationKind: "All",
+      });
+    } else if (bodyParam !== undefined) {
+      switch (bodyParam.type.kind) {
+        case "Model":
+          let tsBody: Model = bodyParam.type;
+          if (!bodyParam.type.name) {
+            tsBody = program.checker.cloneType(bodyParam.type, {
+              name: safeConcat(
+                operation.operation.interface?.name,
+                operation.operation.name,
+                "Request",
+              ),
+            });
           }
-          const paramName = ensureCSharpIdentifier(
+
+          const { typeReference: bodyType } = this.getTypeInfo(program, tsBody);
+          const bodyName = ensureCSharpIdentifier(
             program,
-            propDef,
-            propName,
+            bodyParam.type,
+            "body",
             NameCasingType.Parameter,
-          );
-          const refName = ensureCSharpIdentifier(
-            program,
-            propDef,
-            propName,
-            NameCasingType.Property,
           );
           result.push({
             isExplicitBody: false,
             httpParameterKind: "body",
-            name: paramName,
-            callName: `body.${refName}`,
-            typeName: csType,
-            nullable: isNullable,
-            defaultValue: csValue,
-            optional: propDef.optional,
-            operationKind: "BusinessLogic",
+            name: bodyName,
+            callName: bodyName,
+            typeName: bodyType,
+            nullable: false,
+            defaultValue: undefined,
+            optional: false,
+            operationKind: "Http",
           });
-        }
-        break;
-      case "ModelProperty":
-        {
-          let [csType, csValue, isNullable] = getTypeInfoForTsType(
-            program,
-            bodyParam.type.type,
-            emitter,
-          );
+          for (const [propName, propDef] of bodyParam.type.properties) {
+            let {
+              typeReference: csType,
+              defaultValue: csValue,
+              nullableType: isNullable,
+            } = this.getTypeInfo(program, propDef.type);
+            // cSharp does not allow array defaults in operation parameters
+            if (!canHaveDefault(program, propDef)) {
+              csValue = undefined;
+            }
+            const paramName = ensureCSharpIdentifier(
+              program,
+              propDef,
+              propName,
+              NameCasingType.Parameter,
+            );
+            const refName = ensureCSharpIdentifier(
+              program,
+              propDef,
+              propName,
+              NameCasingType.Property,
+            );
+            result.push({
+              isExplicitBody: false,
+              httpParameterKind: "body",
+              name: paramName,
+              callName: `body.${refName}`,
+              typeName: csType,
+              nullable: isNullable,
+              defaultValue: csValue,
+              optional: propDef.optional,
+              operationKind: "BusinessLogic",
+            });
+          }
+
+          break;
+        case "ModelProperty":
+          {
+            let {
+              typeReference: csType,
+              defaultValue: csValue,
+              nullableType: isNullable,
+            } = this.getTypeInfo(program, bodyParam.type.type);
+            if (!canHaveDefault(program, bodyParam.type)) {
+              csValue = undefined;
+            }
+            const optName = ensureCSharpIdentifier(
+              program,
+              bodyParam.type.type,
+              bodyParam.type.name,
+              NameCasingType.Parameter,
+            );
+            result.push({
+              isExplicitBody: true,
+              httpParameterKind: "body",
+              name: optName,
+              callName: optName,
+              typeName: csType,
+              nullable: isNullable,
+              defaultValue: csValue,
+              optional: bodyParam.type.optional,
+              operationKind: "All",
+            });
+          }
+          break;
+        default: {
+          let {
+            typeReference: csType,
+            defaultValue: csValue,
+            nullableType: isNullable,
+          } = this.getTypeInfo(program, bodyParam.type);
           if (!canHaveDefault(program, bodyParam.type)) {
             csValue = undefined;
           }
-          const optName = ensureCSharpIdentifier(
-            program,
-            bodyParam.type.type,
-            bodyParam.type.name,
-            NameCasingType.Parameter,
-          );
           result.push({
             isExplicitBody: true,
             httpParameterKind: "body",
-            name: optName,
-            callName: optName,
+            name: "body",
+            callName: "body",
             typeName: csType,
             nullable: isNullable,
             defaultValue: csValue,
-            optional: bodyParam.type.optional,
+            optional: false,
             operationKind: "All",
           });
         }
-        break;
-      default: {
-        let [csType, csValue, isNullable] = getTypeInfoForTsType(program, bodyParam.type, emitter);
-        if (!canHaveDefault(program, bodyParam.type)) {
-          csValue = undefined;
-        }
-        result.push({
-          isExplicitBody: true,
-          httpParameterKind: "body",
-          name: "body",
-          callName: "body",
-          typeName: csType,
-          nullable: isNullable,
-          defaultValue: csValue,
-          optional: false,
-          operationKind: "All",
-        });
       }
     }
+
+    for (const parameter of optionalParams) {
+      const {
+        typeReference: paramType,
+        defaultValue: paramValue,
+        nullableType: isNullable,
+      } = this.getTypeInfo(program, parameter.param.type);
+      const optName = ensureCSharpIdentifier(
+        program,
+        parameter.param,
+        parameter.param.name,
+        NameCasingType.Parameter,
+      );
+      result.push({
+        isExplicitBody: false,
+        name: optName,
+        callName: optName,
+        optional: true,
+        typeName: paramType,
+        defaultValue: paramValue,
+        httpParameterKind: getParameterKind(parameter),
+        httpParameterName: parameter.name,
+        nullable: isNullable,
+        operationKind: "All",
+      });
+    }
+
+    this.#opCache.set(operation.operation, result);
+    return result;
   }
-
-  for (const parameter of optionalParams) {
-    const [paramType, paramValue, isNullable] = getTypeInfoForTsType(
-      program,
-      parameter.param.type,
-      emitter,
-    );
-    const optName = ensureCSharpIdentifier(
-      program,
-      parameter.param,
-      parameter.param.name,
-      NameCasingType.Parameter,
-    );
-    result.push({
-      isExplicitBody: false,
-      name: optName,
-      callName: optName,
-      optional: true,
-      typeName: paramType,
-      defaultValue: paramValue,
-      httpParameterKind: getParameterKind(parameter),
-      httpParameterName: parameter.name,
-      nullable: isNullable,
-      operationKind: "All",
-    });
-  }
-
-  return result;
-}
-
-export function getTypeInfoForTsType(
-  program: Program,
-  tsType: Type,
-  emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
-): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-  function extractStringValue(type: Type, span: StringTemplateSpan): string {
-    switch (type.kind) {
-      case "String":
-        return type.value;
-      case "Boolean":
-        return `${type.value}`;
-      case "Number":
-        return type.valueAsString;
-      case "StringTemplateSpan":
-        if (type.isInterpolated) {
+  getTypeInfo(program: Program, tsType: Type): EmittedTypeInfo {
+    const myEmitter = this.emitter;
+    function extractStringValue(type: Type, span: StringTemplateSpan): string {
+      switch (type.kind) {
+        case "String":
+          return type.value;
+        case "Boolean":
+          return `${type.value}`;
+        case "Number":
+          return type.valueAsString;
+        case "StringTemplateSpan":
+          if (type.isInterpolated) {
+            return extractStringValue(type.type, span);
+          } else {
+            return type.type.value;
+          }
+        case "ModelProperty":
           return extractStringValue(type.type, span);
-        } else {
-          return type.type.value;
-        }
-      case "ModelProperty":
-        return extractStringValue(type.type, span);
-      case "EnumMember":
-        if (type.value === undefined) return type.name;
-        if (typeof type.value === "string") return type.value;
-        if (typeof type.value === "number") return `${type.value}`;
+        case "EnumMember":
+          if (type.value === undefined) return type.name;
+          if (typeof type.value === "string") return type.value;
+          if (typeof type.value === "number") return `${type.value}`;
+      }
+      reportDiagnostic(myEmitter.getProgram(), {
+        code: "invalid-interpolation",
+        target: span,
+        format: {},
+      });
+      return "";
     }
-    reportDiagnostic(emitter.getProgram(), {
-      code: "invalid-interpolation",
-      target: span,
-      format: {},
-    });
-    return "";
+    switch (tsType.kind) {
+      case "String":
+        return {
+          typeReference: code`string`,
+          defaultValue: `"${tsType.value}"`,
+          nullableType: false,
+        };
+      case "StringTemplate":
+        const template = tsType;
+        if (template.stringValue !== undefined)
+          return {
+            typeReference: code`string`,
+            defaultValue: `"${template.stringValue}"`,
+            nullableType: false,
+          };
+        const spanResults: string[] = [];
+        for (const span of template.spans) {
+          spanResults.push(extractStringValue(span, span));
+        }
+        return {
+          typeReference: code`string`,
+          defaultValue: `"${spanResults.join("")}"`,
+          nullableType: false,
+        };
+      case "Boolean":
+        return {
+          typeReference: code`bool`,
+          defaultValue: `${tsType.value === true ? true : false}`,
+          nullableType: false,
+        };
+      case "Number":
+        const [type, value] = findNumericType(tsType);
+        return { typeReference: code`${type}`, defaultValue: `${value}`, nullableType: false };
+      case "Tuple":
+        const defaults = [];
+        const [csharpType, isObject] = coalesceTsTypes(program, tsType.values);
+        if (isObject)
+          return { typeReference: "object[]", defaultValue: undefined, nullableType: false };
+        for (const value of tsType.values) {
+          const { defaultValue: itemDefault } = this.getTypeInfo(program, value);
+          defaults.push(itemDefault);
+        }
+        return {
+          typeReference: code`${csharpType.getTypeReference()}[]`,
+          defaultValue: `[${defaults.join(", ")}]`,
+          nullableType: csharpType.isNullable,
+        };
+      case "Object":
+        return { typeReference: code`object`, defaultValue: undefined, nullableType: false };
+      case "Model":
+        let modelResult: EmittedTypeInfo;
+        const cachedResult = this.#anonymousModels.get(tsType);
+        if (cachedResult) {
+          return cachedResult;
+        }
+        if (isRecord(tsType)) {
+          modelResult = { typeReference: code`JsonObject`, nullableType: false };
+        } else {
+          modelResult = {
+            typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
+            nullableType: false,
+          };
+        }
+        this.#anonymousModels.set(tsType, modelResult);
+        return modelResult;
+      case "ModelProperty":
+        return this.getTypeInfo(program, tsType.type);
+      case "Enum":
+        return {
+          typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
+          nullableType: false,
+        };
+      case "EnumMember":
+        if (typeof tsType.value === "number") {
+          const stringValue = tsType.value.toString();
+          if (stringValue.includes(".") || stringValue.includes("e"))
+            return { typeReference: "double", defaultValue: stringValue, nullableType: false };
+          return { typeReference: "int", defaultValue: stringValue, nullableType: false };
+        }
+        if (typeof tsType.value === "string") {
+          return { typeReference: "string", defaultValue: tsType.value, nullableType: false };
+        }
+        return { typeReference: code`object`, nullableType: false };
+      case "Union":
+        return this.getUnionInfo(program, tsType);
+      case "UnionVariant":
+        return this.getTypeInfo(program, tsType.type);
+      default:
+        return {
+          typeReference: code`${this.emitter.emitTypeReference(tsType)}`,
+          nullableType: false,
+        };
+    }
   }
-  switch (tsType.kind) {
-    case "String":
-      return [code`string`, `"${tsType.value}"`, false];
-    case "StringTemplate":
-      const template = tsType;
-      if (template.stringValue !== undefined)
-        return [code`string`, `"${template.stringValue}"`, false];
-      const spanResults: string[] = [];
-      for (const span of template.spans) {
-        spanResults.push(extractStringValue(span, span));
-      }
-      return [code`string`, `"${spanResults.join("")}"`, false];
-    case "Boolean":
-      return [code`bool`, `${tsType.value === true ? true : false}`, false];
-    case "Number":
-      const [type, value] = findNumericType(tsType);
-      return [code`${type}`, `${value}`, false];
-    case "Tuple":
-      const defaults = [];
-      const [csharpType, isObject] = coalesceTsTypes(program, tsType.values);
-      if (isObject) return ["object[]", undefined, false];
-      for (const value of tsType.values) {
-        const [_, itemDefault] = getTypeInfoForTsType(program, value, emitter);
-        defaults.push(itemDefault);
-      }
-      return [
-        code`${csharpType.getTypeReference()}[]`,
-        `[${defaults.join(", ")}]`,
-        csharpType.isNullable,
-      ];
-    case "Object":
-      return [code`object`, undefined, false];
-    case "Model":
-      if (isRecord(tsType)) {
-        return [code`JsonObject`, undefined, false];
-      }
-      return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
-    case "ModelProperty":
-      return getTypeInfoForTsType(program, tsType.type, emitter);
-    case "Enum":
-      return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
-    case "EnumMember":
-      if (typeof tsType.value === "number") {
-        const stringValue = tsType.value.toString();
-        if (stringValue.includes(".") || stringValue.includes("e"))
-          return ["double", stringValue, false];
-        return ["int", stringValue, false];
-      }
-      if (typeof tsType.value === "string") {
-        return ["string", tsType.value, false];
-      }
-      return [code`object`, undefined, false];
-    case "Union":
-      return getTypeInfoForUnion(program, tsType, emitter);
-    case "UnionVariant":
-      return getTypeInfoForTsType(program, tsType.type, emitter);
-    default:
-      return [code`${emitter.emitTypeReference(tsType)}`, undefined, false];
+  getUnionInfo(program: Program, union: Union): EmittedTypeInfo {
+    const propResult = getNonNullableTsType(union);
+    if (propResult === undefined) {
+      return {
+        typeReference: code`${this.emitter.emitTypeReference(union)}`,
+        nullableType: [...union.variants.values()].filter((v) => isNullType(v.type)).length > 0,
+      };
+    }
+    const candidate = this.getTypeInfo(program, propResult.type);
+    candidate.nullableType = propResult.nullable;
+    return candidate;
   }
 }
 
@@ -1225,22 +1340,6 @@ export function getExplicitBodyParameters(
   }
 
   return undefined;
-}
-export function getTypeInfoForUnion(
-  program: Program,
-  union: Union,
-  emitter: AssetEmitter<string, CSharpServiceEmitterOptions>,
-): [EmitterOutput<string>, string | boolean | undefined, boolean] {
-  const propResult = getNonNullableTsType(union);
-  if (propResult === undefined) {
-    return [
-      code`${emitter.emitTypeReference(union)}`,
-      undefined,
-      [...union.variants.values()].filter((v) => isNullType(v.type)).length > 0,
-    ];
-  }
-  const [typeName, typeDefault, _] = getTypeInfoForTsType(program, propResult.type, emitter);
-  return [typeName, typeDefault, propResult.nullable];
 }
 
 export function findNumericType(type: NumericLiteral): [string, string] {
