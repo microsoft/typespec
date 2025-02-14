@@ -242,11 +242,11 @@ it("generates numeric constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
+      "[NumericConstraint<int>( MinValue = 100, MaxValue = 1000)]",
       "public int? Int32Prop { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<UInt32>( MaxValue = 5000)]",
+      "[NumericConstraint<UInt32>( MaxValue = 5000)]",
       "public UInt32? Uint32Prop { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
+      "[NumericConstraint<float>( MinValue = 0, MinValueExclusive = true)]",
       "public float? F32Prop { get; set; }",
     ],
   );
@@ -269,7 +269,7 @@ it("generates string constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.StringConstraint( MinLength = 3, MaxLength = 72)]",
+      "[StringConstraint( MinLength = 3, MaxLength = 72)]",
       "public string StringProp { get; set; }",
     ],
   );
@@ -491,9 +491,9 @@ it("generates standard scalar array  constraints", async () => {
     "Foo.cs",
     [
       "public partial class Foo",
-      "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MinItems = 1, MaxItems = 10)]",
+      "[ArrayConstraint( MinItems = 1, MaxItems = 10)]",
       "public SByte[] ArrSbyteProp { get; set; }",
-      "[TypeSpec.Helpers.JsonConverters.ArrayConstraint( MaxItems = 10)]",
+      "[ArrayConstraint( MaxItems = 10)]",
       "public Byte[] ArrByteProp { get; set; }",
     ],
   );
@@ -848,8 +848,8 @@ it("Handles empty body 2xx as void", async () => {
         "MyServiceOperationsController.cs",
         [
           "public partial class MyServiceOperationsController: ControllerBase",
-          "public virtual async Task<IActionResult> Foo(long id, long petId, string name)",
-          ".FooAsync(id, petId, name)",
+          "public virtual async Task<IActionResult> Foo(MyServiceOperationsFooRequest body)",
+          ".FooAsync(body.Id, body.PetId, body.Name)",
         ],
       ],
       ["Toy.cs", ["public partial class Toy"]],
@@ -1125,8 +1125,8 @@ it("handles implicit request body models correctly", async () => {
       [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Foo(int? intProp, string[]? arrayProp)`,
-          ".FooAsync(intProp, arrayProp)",
+          `public virtual async Task<IActionResult> Foo(ContosoOperationsFooRequest body)`,
+          ".FooAsync(body.IntProp, body.ArrayProp)",
         ],
       ],
       ["IContosoOperations.cs", [`Task FooAsync( int? intProp, string[]? arrayProp);`]],
@@ -1367,8 +1367,8 @@ it("Handles spread parameters", async () => {
       [
         "ContosoOperationsController.cs",
         [
-          `public virtual async Task<IActionResult> Create(string id, string color, [FromQuery(Name="kind")] string? kind)`,
-          ".CreateAsync(id, color, kind)",
+          `public virtual async Task<IActionResult> Create(string id, ContosoOperationsCreateRequest body, [FromQuery(Name="kind")] string? kind)`,
+          ".CreateAsync(id, body.Color, kind)",
         ],
       ],
       [
