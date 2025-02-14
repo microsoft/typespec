@@ -36,7 +36,7 @@ export function processServiceAuthentication(
 
   if (authClientParameter.type.kind === "credential") {
     const auth = processAuthType(sdkContext, authClientParameter.type);
-    if (!auth && authClientParameter.type.scheme.type != "noAuth") {
+    if (!auth && authClientParameter.type.scheme.type !== "noAuth") {
       reportDiagnostic(sdkContext.program, {
         code: "unsupported-auth",
         messageId: "onlyUnsupportedAuthProvided",

@@ -32,14 +32,18 @@ describe("Test auth", () => {
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
-        && d.message?.includes("Only header is supported for ApiKey authentication. cookie is not supported."),
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes(
+          "Only header is supported for ApiKey authentication. cookie is not supported.",
+        ),
     );
     strictEqual(noAuthDiagnostics.length, 1);
 
     const noSupportedAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
-        && d.message?.includes("No supported authentication methods were provided."),
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
     );
     strictEqual(noSupportedAuthDiagnostics.length, 1);
     ok(noSupportedAuthDiagnostics[0]);
@@ -70,14 +74,18 @@ describe("Test auth", () => {
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
-        && d.message?.includes("Only header is supported for ApiKey authentication. query is not supported."),
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes(
+          "Only header is supported for ApiKey authentication. query is not supported.",
+        ),
     );
     strictEqual(noAuthDiagnostics.length, 1);
 
     const noSupportedAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
-        && d.message?.includes("No supported authentication methods were provided."),
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
     );
     strictEqual(noSupportedAuthDiagnostics.length, 1);
     ok(noSupportedAuthDiagnostics[0]);
@@ -108,14 +116,16 @@ describe("Test auth", () => {
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
-        && d.message?.includes("Only header is supported for ApiKey authentication."),
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("Only header is supported for ApiKey authentication."),
     );
     strictEqual(noAuthDiagnostics.length, 2);
 
     const noSupportedAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth"
-        && d.message?.includes("No supported authentication methods were provided."),
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
     );
     strictEqual(noSupportedAuthDiagnostics.length, 1);
     ok(noSupportedAuthDiagnostics[0]);
@@ -183,7 +193,9 @@ describe("Test auth", () => {
     );
 
     const noSupportedAuthDiagnostic = diagnostics.find(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth" && d.message?.includes("No supported authentication methods were provided."),
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
     );
 
     strictEqual(noSupportedAuthDiagnostic, undefined);
@@ -206,11 +218,12 @@ describe("Test auth", () => {
     const diagnostics = context.program.diagnostics;
 
     const noAuthDiagnostics = diagnostics.filter(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth" && d.message?.includes("No supported authentication methods were provided."),
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
     );
-    noAuthDiagnostics.forEach(element => {
-      console.log(element.message);
-    });
+
     strictEqual(noAuthDiagnostics.length, 0);
+    strictEqual(root.Auth, undefined);
   });
 });
