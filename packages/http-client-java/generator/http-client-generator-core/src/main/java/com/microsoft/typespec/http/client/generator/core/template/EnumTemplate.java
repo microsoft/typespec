@@ -318,17 +318,21 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
                 classBlock.javadocComment(javadocComment -> {
                     javadocComment.description("Reads an instance of " + enumName + " from the JsonReader.");
                     javadocComment.param("jsonReader", "The JsonReader being read.");
-                    javadocComment.methodReturns(
-                        "An instance of " + enumName + " if the JsonReader was pointing to an " + "instance of it.");
+                    javadocComment.methodReturns("An instance of " + enumName + " if the JsonReader was pointing to an "
+                        + "instance of it, or null if the JsonReader was pointing to JSON null.");
                     javadocComment.methodThrows("IOException",
                         "If an error occurs while reading the " + enumName + ".");
-                    javadocComment.methodThrows("IllegalArgumentException",
-                        "if the JsonReader was pointing to JSON null");
+                    javadocComment.methodThrows("IllegalStateException", "If unexpected JSON token is found.");
                 });
                 addGeneratedAnnotation(classBlock);
                 classBlock.publicStaticMethod(enumName + " fromJson(JsonReader jsonReader) throws IOException",
                     methodBlock -> {
-                        methodBlock.line("jsonReader.nextToken();");
+                        methodBlock.line("JsonToken nextToken = jsonReader.nextToken();");
+                        methodBlock.ifBlock("nextToken == JsonToken.NULL",
+                            ifAction -> methodBlock.methodReturn("null"));
+                        methodBlock.ifBlock("nextToken != " + elementType.jsonToken(), ifAction -> ifAction.line(
+                            "throw new IllegalStateException(String.format(\"Unexpected JSON token for %s deserialization: %s\", "
+                                + elementType.jsonToken() + ", nextToken));"));
                         methodBlock.methodReturn(enumType.jsonDeserializationMethod("jsonReader"));
                     });
             }
