@@ -73,10 +73,12 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
   };
 }
 
-function walkThroughNodes(yamlMap: Record<string, any>) {
+function walkThroughNodes(yamlMap: any) {
   for (const key in yamlMap) {
     if (key === "description" || key === "summary") {
-      yamlMap[key] = md2Rst(yamlMap[key]);
+      yamlMap[key] = md2Rst(yamlMap[key] ?? "");
+    } else if (Array.isArray(yamlMap[key])) {
+      yamlMap[key] = yamlMap[key].map((item: any) => walkThroughNodes(item));
     } else if (yamlMap[key] !== undefined && typeof yamlMap[key] === "object") {
       yamlMap[key] = walkThroughNodes(yamlMap[key]);
     }
