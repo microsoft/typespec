@@ -82,8 +82,6 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       "@typespec/http-client-csharp",
       defaultSDKContextOptions,
     );
-    const csharpEmitterContext = { ...sdkContext, logger: logger };
-    const root = createModel(csharpEmitterContext);
   if (
     context.program.diagnostics.length > 0 &&
     context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
@@ -91,6 +89,9 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
     logDiagnostics(context.program.diagnostics, context.program.host.logSink);
     process.exit(1);
   }
+
+  const csharpEmitterContext = { ...sdkContext, logger: logger };
+  const root = createModel(csharpEmitterContext);
 
   if (root) {
     const generatedFolder = resolvePath(outputFolder, "src", "Generated");
@@ -252,7 +253,15 @@ function constructCommandArg(arg: string): string {
   return arg !== "" ? ` ${arg}` : "";
 }
 
-function transformJSONProperties(this: any, key: string, value: any): any {
+/**
+ * Transforms JSON properties for writing.
+ * @param this - object instance
+ * @param key - JSON property
+ * @param value - JSON value
+ * @returns transformed value
+ * @beta
+ */
+export function transformJSONProperties(this: any, key: string, value: any): any {
   // convertUsageNumbersToStrings
   if (this["kind"] === "model" || this["kind"] === "enum") {
     if (key === "usage" && typeof value === "number") {
