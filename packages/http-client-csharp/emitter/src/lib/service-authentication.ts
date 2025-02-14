@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
-  SdkContext,
   SdkCredentialParameter,
   SdkCredentialType,
   SdkHttpOperation,
@@ -10,12 +9,11 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { Oauth2Auth, OAuth2Flow } from "@typespec/http";
-import { NetEmitterOptions } from "../options.js";
+import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputAuth } from "../type/input-auth.js";
-import { reportDiagnostic } from "./lib.js";
 
 export function processServiceAuthentication(
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: CSharpEmitterContext,
   sdkPackage: SdkPackage<SdkHttpOperation>,
 ): InputAuth | undefined {
   let authClientParameter: SdkCredentialParameter | undefined = undefined;
@@ -37,7 +35,7 @@ export function processServiceAuthentication(
   if (authClientParameter.type.kind === "credential") {
     const auth = processAuthType(sdkContext, authClientParameter.type);
     if (!auth && authClientParameter.type.scheme.type !== "noAuth") {
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "unsupported-auth",
         messageId: "onlyUnsupportedAuthProvided",
         target: authClientParameter.type.__raw ?? NoTarget,
@@ -65,7 +63,7 @@ export function processServiceAuthentication(
   }
 
   if (!inputAuth?.ApiKey && !inputAuth?.OAuth2) {
-    reportDiagnostic(sdkContext.program, {
+    sdkContext.logger.reportDiagnostic({
       code: "unsupported-auth",
       messageId: "onlyUnsupportedAuthProvided",
       target: authClientParameter.type.__raw ?? NoTarget,
@@ -76,14 +74,14 @@ export function processServiceAuthentication(
 }
 
 function processAuthType(
-  sdkContext: SdkContext<NetEmitterOptions>,
+  sdkContext: CSharpEmitterContext,
   credentialType: SdkCredentialType,
 ): InputAuth | undefined {
   const scheme = credentialType.scheme;
   switch (scheme.type) {
     case "apiKey":
       if (scheme.in !== "header") {
-        reportDiagnostic(sdkContext.program, {
+        sdkContext.logger.reportDiagnostic({
           code: "unsupported-auth",
           format: {
             message: `Only header is supported for ApiKey authentication. ${scheme.in} is not supported.`,
@@ -99,7 +97,7 @@ function processAuthType(
       const schemeOrApiKeyPrefix = scheme.scheme;
       switch (schemeOrApiKeyPrefix) {
         case "basic":
-          reportDiagnostic(sdkContext.program, {
+          sdkContext.logger.reportDiagnostic({
             code: "unsupported-auth",
             format: { message: `${schemeOrApiKeyPrefix} auth method is currently not supported.` },
             target: credentialType.__raw ?? NoTarget,
@@ -124,7 +122,7 @@ function processAuthType(
       }
     }
     default:
-      reportDiagnostic(sdkContext.program, {
+      sdkContext.logger.reportDiagnostic({
         code: "unsupported-auth",
         format: { message: `un-supported authentication scheme ${scheme.type}` },
         target: credentialType.__raw ?? NoTarget,

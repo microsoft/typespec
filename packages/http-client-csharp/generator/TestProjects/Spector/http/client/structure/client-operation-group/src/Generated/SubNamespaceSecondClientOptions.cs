@@ -4,7 +4,7 @@
 
 using System.ClientModel.Primitives;
 
-namespace Client.Structure.Service
+namespace Client.Structure.AnotherClientOperationGroup
 {
     public partial class SubNamespaceSecondClientOptions : ClientPipelineOptions
     {
