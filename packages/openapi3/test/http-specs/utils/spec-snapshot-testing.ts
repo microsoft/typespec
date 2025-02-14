@@ -1,5 +1,5 @@
 import { BASIC } from "@hyperjump/json-schema/experimental";
-import { registerSchema, validate } from "@hyperjump/json-schema/openapi-3-0";
+import { registerSchema, unregisterSchema, validate } from "@hyperjump/json-schema/openapi-3-0";
 import { validate as validateV31 } from "@hyperjump/json-schema/openapi-3-1";
 import {
   CompilerHost,
@@ -192,6 +192,7 @@ export async function checkServe() {
 }
 
 export async function validataDataWithSchema(data: any, schemaData: any) {
+  unregisterSchema("https://example.com/schema1");
   registerSchema(
     {
       $schema: "https://json-schema.org/draft/2020-12/schema",
