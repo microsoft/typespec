@@ -116,7 +116,7 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
           options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
       };
 
-      await writeCodeModel(program, root, generatedFolder, configurationFileName);
+      await writeCodeModel(program, root, outputFolder, configurationFileName);
 
       const csProjFile = resolvePath(
         outputFolder,
