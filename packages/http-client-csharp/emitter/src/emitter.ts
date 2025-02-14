@@ -33,6 +33,7 @@ import { execAsync } from "./lib/utils.js";
 import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { Configuration } from "./type/configuration.js";
+import { CodeModel } from "./type/code-model.js";
 
 /**
  * The emitter context for the CSharp emitter.
@@ -183,6 +184,26 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
   }
 }
 
+/**
+ * Write the code model to the output folder.
+ * @param program - The program
+ * @param codeModel - The code model
+ * @param outputFolder - The output folder
+ * @param fileName - The file name
+ * @beta
+ */
+export function writeCodeModel(
+  program: Program,
+  codeModel: CodeModel,
+  outputFolder: string,
+  fileName: string,
+) {
+  program.host.writeFile(
+    resolvePath(outputFolder, fileName),
+    prettierOutput(JSON.stringify(codeModel, null, 2)),
+  );
+}
+
 /** check the dotnet sdk installation.
  * Report diagnostic if dotnet sdk is not installed or its version does not meet prerequisite
  * @param sdkContext - The SDK context
@@ -251,15 +272,8 @@ function constructCommandArg(arg: string): string {
   return arg !== "" ? ` ${arg}` : "";
 }
 
-/**
- * Transforms JSON properties for writing.
- * @param this - object instance
- * @param key - JSON property
- * @param value - JSON value
- * @returns transformed value
- * @beta
- */
-export function transformJSONProperties(this: any, key: string, value: any): any {
+
+function transformJSONProperties(this: any, key: string, value: any): any {
   // convertUsageNumbersToStrings
   if (this["kind"] === "model" || this["kind"] === "enum") {
     if (key === "usage" && typeof value === "number") {
