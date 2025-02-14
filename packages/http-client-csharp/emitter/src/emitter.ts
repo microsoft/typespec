@@ -82,103 +82,103 @@ export async function $onEmit(context: EmitContext<NetEmitterOptions>) {
       "@typespec/http-client-csharp",
       defaultSDKContextOptions,
     );
-  if (
-    context.program.diagnostics.length > 0 &&
-    context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
-  ) {
-    logDiagnostics(context.program.diagnostics, context.program.host.logSink);
-    process.exit(1);
-  }
-
-  const csharpEmitterContext = { ...sdkContext, logger: logger };
-  const root = createModel(csharpEmitterContext);
-
-  if (root) {
-    const generatedFolder = resolvePath(outputFolder, "src", "Generated");
-
-    if (!fs.existsSync(generatedFolder)) {
-      fs.mkdirSync(generatedFolder, { recursive: true });
+    if (
+      context.program.diagnostics.length > 0 &&
+      context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
+    ) {
+      logDiagnostics(context.program.diagnostics, context.program.host.logSink);
+      process.exit(1);
     }
 
+    const csharpEmitterContext = { ...sdkContext, logger: logger };
+    const root = createModel(csharpEmitterContext);
+
+    if (root) {
+      const generatedFolder = resolvePath(outputFolder, "src", "Generated");
+
+      if (!fs.existsSync(generatedFolder)) {
+        fs.mkdirSync(generatedFolder, { recursive: true });
+      }
+
       await program.host.writeFile(
-      resolvePath(outputFolder, tspOutputFileName),
-      prettierOutput(stringifyRefs(root, transformJSONProperties, 1, PreserveType.Objects)),
-    );
-
-    //emit configuration.json
-    const namespace = root.Name;
-    const configurations: Configuration = {
-      "output-folder": ".",
-      "package-name": options["package-name"] ?? namespace,
-      "unreferenced-types-handling": options["unreferenced-types-handling"],
-      "disable-xml-docs":
-        options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
-    };
-
-    await program.host.writeFile(
-      resolvePath(outputFolder, configurationFileName),
-      prettierOutput(JSON.stringify(configurations, null, 2)),
-    );
-
-    if (options.skipSDKGeneration !== true) {
-      const csProjFile = resolvePath(
-        outputFolder,
-        "src",
-        `${configurations["package-name"]}.csproj`,
-      );
-      logger.info(`Checking if ${csProjFile} exists`);
-      const newProjectOption =
-        options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
-      const debugFlag = (options.debug ?? false) ? "--debug" : "";
-
-      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
-      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
-      const generatorPath = resolvePath(
-        projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
+        resolvePath(outputFolder, tspOutputFileName),
+        prettierOutput(stringifyRefs(root, transformJSONProperties, 1, PreserveType.Objects)),
       );
 
-      const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
-      logger.info(command);
+      //emit configuration.json
+      const namespace = root.Name;
+      const configurations: Configuration = {
+        "output-folder": ".",
+        "package-name": options["package-name"] ?? namespace,
+        "unreferenced-types-handling": options["unreferenced-types-handling"],
+        "disable-xml-docs":
+          options["disable-xml-docs"] === false ? undefined : options["disable-xml-docs"],
+      };
 
-      try {
-        const result = await execAsync(
-          "dotnet",
-          [
-            "--roll-forward",
-            "Major",
-            generatorPath,
-            outputFolder,
-            "-p",
-            options["plugin-name"],
-            newProjectOption,
-            debugFlag,
-          ],
-          { stdio: "inherit" },
+      await program.host.writeFile(
+        resolvePath(outputFolder, configurationFileName),
+        prettierOutput(JSON.stringify(configurations, null, 2)),
+      );
+
+      if (options.skipSDKGeneration !== true) {
+        const csProjFile = resolvePath(
+          outputFolder,
+          "src",
+          `${configurations["package-name"]}.csproj`,
         );
-        if (result.exitCode !== 0) {
-          const isValid = await _validateDotNetSdk(
+        logger.info(`Checking if ${csProjFile} exists`);
+        const newProjectOption =
+          options["new-project"] || !checkFile(csProjFile) ? "--new-project" : "";
+        const debugFlag = (options.debug ?? false) ? "--debug" : "";
+
+        const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+        const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
+        const generatorPath = resolvePath(
+          projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
+        );
+
+        const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
+        logger.info(command);
+
+        try {
+          const result = await execAsync(
+            "dotnet",
+            [
+              "--roll-forward",
+              "Major",
+              generatorPath,
+              outputFolder,
+              "-p",
+              options["plugin-name"],
+              newProjectOption,
+              debugFlag,
+            ],
+            { stdio: "inherit" },
+          );
+          if (result.exitCode !== 0) {
+            const isValid = await _validateDotNetSdk(
               csharpEmitterContext,
+              _minSupportedDotNetSdkVersion,
+            );
+            // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+            if (isValid) {
+              if (result.stderr) logger.error(result.stderr);
+              if (result.stdout) logger.verbose(result.stdout);
+              throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+            }
+          }
+        } catch (error: any) {
+          const isValid = await _validateDotNetSdk(
+            csharpEmitterContext,
             _minSupportedDotNetSdkVersion,
           );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) {
-            if (result.stderr) logger.error(result.stderr);
-            if (result.stdout) logger.verbose(result.stdout);
-            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
-          }
+          if (isValid) throw new Error(error);
         }
-      } catch (error: any) {
-        const isValid = await _validateDotNetSdk(
-            csharpEmitterContext,
-          _minSupportedDotNetSdkVersion,
-        );
-        // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-        if (isValid) throw new Error(error);
-      }
-      if (!options["save-inputs"]) {
-        // delete
-        deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
-        deleteFile(resolvePath(outputFolder, configurationFileName), logger);
+        if (!options["save-inputs"]) {
+          // delete
+          deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
+          deleteFile(resolvePath(outputFolder, configurationFileName), logger);
         }
       }
     }
