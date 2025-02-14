@@ -269,6 +269,13 @@ function parseToken(token: Token): string {
       }
       parsed += `${token.text}`;
       break;
+    case "list":
+      if (!token.ordered) {
+        parsed += `\n${token.items.map((item: any) => `* ${item.text}`).join("\n")}`;
+        break;
+      }
+      parsed += `\n${token.items.map((item: any, index: number) => `${index + 1}. ${item.text}`).join("\n")}`;
+      break;
     default:
       parsed += token.raw;
   }
