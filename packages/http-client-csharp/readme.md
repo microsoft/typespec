@@ -49,10 +49,10 @@ options:
 
 **Supported Emitter options**:
 
-- `package-name` define the package name. By default, the first namespace defined in the TypeSpec will be used as the package name.
-- `emitter-output-dir` define the output directory path which will store the generated code. The default value is the `tsp-output` directory.
-- `generate-protocol-methods` indicate if you want to generate **protocol method** for every operation or not. The default value is `true`.
-- `generate-convenience-methods` indicate if you want to generate **convenience method** for every operation or not. The default value is `true`.
+- `package-name` define the package name. If not specified, the first namespace defined in the TypeSpec is used as the package name.
+- `emitter-output-dir` define the output directory path which will store the generated code. If not specified, the `tsp-output` directory is used.
+- `generate-protocol-methods` indicate if you want to generate a **protocol method** for every operation or not. The default value is `true`.
+- `generate-convenience-methods` indicate if you want to generate a **convenience method** for every operation or not. The default value is `true`.
 - `unreferenced-types-handling` define the strategy how to handle unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`. The default value is `removeOrInternalize`.
 - `clear-output-folder` indicate if you want to clear up the output folder before generating. The default value is `true`.
 - `new-project` set to `true` to overwrite the csproj if it already exists. The default value is `false`.
