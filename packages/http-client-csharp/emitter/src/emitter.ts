@@ -32,8 +32,8 @@ import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
 import { _resolveOutputFolder, NetEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
-import { Configuration } from "./type/configuration.js";
 import { CodeModel } from "./type/code-model.js";
+import { Configuration } from "./type/configuration.js";
 
 /**
  * The emitter context for the CSharp emitter.
@@ -268,7 +268,6 @@ function validateDotNetSdkVersionCore(
 function constructCommandArg(arg: string): string {
   return arg !== "" ? ` ${arg}` : "";
 }
-
 
 function transformJSONProperties(this: any, key: string, value: any): any {
   // convertUsageNumbersToStrings
