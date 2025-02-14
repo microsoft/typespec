@@ -55,8 +55,9 @@ options:
 - `unreferenced-types-handling` define the strategy how to handle unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`.
 - `clear-output-folder` indicate if you want to clear up the output folder.
 - `package-name` define the package name.
-- `new-project` whether or not to overwrite the csproj if it already exists.
-- `save-inputs` whether or not to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the C# generator.
+- `new-project` set to `true` to overwrite the csproj if it already exists.
+- `save-inputs` set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the C# generator.
+- `debug` set to `true` to automatically attempt to attach to a debugger when executing the C# generator.
 
 ## Convenience API
 
