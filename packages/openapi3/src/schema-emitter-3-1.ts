@@ -6,6 +6,7 @@ import {
   getMinValueExclusive,
   IntrinsicScalarName,
   IntrinsicType,
+  isNeverType,
   Model,
   ModelProperty,
   Program,
@@ -145,6 +146,16 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     target: OpenAPISchema3_1 | Placeholder<OpenAPISchema3_1>,
   ): OpenAPISchema3_1 {
     return applyEncoding(this.emitter.getProgram(), typespecType, target as any, this._options);
+  }
+
+  applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
+    if (!model.indexer) return;
+    const indexerType = model.indexer.value;
+
+    const unevaluatedPropertiesSchema = isNeverType(indexerType)
+      ? { not: {} }
+      : this.emitter.emitTypeReference(indexerType);
+    schema.set("unevaluatedProperties", unevaluatedPropertiesSchema);
   }
 
   getRawBinarySchema(): OpenAPISchema3_1 {

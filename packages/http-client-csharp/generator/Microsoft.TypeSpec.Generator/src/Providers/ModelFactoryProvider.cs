@@ -14,16 +14,14 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal class ModelFactoryProvider : TypeProvider
+    public class ModelFactoryProvider : TypeProvider
     {
         private const string ModelFactorySuffix = "ModelFactory";
         private const string AdditionalBinaryDataParameterName = "additionalBinaryDataProperties";
 
         private readonly IEnumerable<InputModelType> _models;
 
-        public static ModelFactoryProvider FromInputLibrary() => new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
-
-        private ModelFactoryProvider(IEnumerable<InputModelType> models)
+        internal ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
         }

@@ -34,7 +34,7 @@ enum Versions {
 model Fish {
   age: int32;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   dna: string;
 
   properties: FishProperties;
@@ -63,7 +63,7 @@ model FishProperties {
 model TailProperties {
   length: float32;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   patten: string;
 
   requiredString: string;
@@ -76,7 +76,7 @@ model AnotherFishProperties {
 model EyeProperties {
   length: float32;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   patten: string;
 
   requiredString: string;
@@ -149,7 +149,7 @@ model ErrorMin {
 model OutputOnlyModel {
   name: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @flattenProperty
@@ -179,7 +179,7 @@ model Dog {
   weight: int32;
 
   @doc("dna of the dog")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   dna: string;
 }
 

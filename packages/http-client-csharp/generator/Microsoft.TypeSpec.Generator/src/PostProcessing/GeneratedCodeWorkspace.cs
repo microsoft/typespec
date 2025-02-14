@@ -211,10 +211,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         public async Task PostProcessAsync()
         {
-            var modelFactory = ModelFactoryProvider.FromInputLibrary();
+            var modelFactory = CodeModelPlugin.Instance.OutputLibrary.ModelFactory.Value;
             var postProcessor = new PostProcessor(
                 [.. CodeModelPlugin.Instance.TypeFactory.UnionTypes, .. CodeModelPlugin.Instance.TypesToKeep],
-                modelFactoryFullName: $"{modelFactory.Namespace}.{modelFactory.Name}");
+                modelFactoryFullName: $"{modelFactory.Type.Namespace}.{modelFactory.Name}");
             switch (Configuration.UnreferencedTypesHandling)
             {
                 case Configuration.UnreferencedTypesHandlingOption.KeepAll:

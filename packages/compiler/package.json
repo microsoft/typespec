@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.65.0",
+  "version": "0.65.1",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -92,7 +92,7 @@
   },
   "dependencies": {
     "@babel/code-frame": "~7.26.2",
-    "@npmcli/arborist": "^9.0.0",
+    "@npmcli/arborist": "^8.0.0",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
     "globby": "~14.0.2",
