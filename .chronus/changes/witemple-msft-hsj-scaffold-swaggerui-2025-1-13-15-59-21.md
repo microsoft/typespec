@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-server-javascript"
 ---
 
-Implement basic project scaffolding.
+Implement Swagger UI support when generating Express server model.

@@ -4,7 +4,6 @@
 package parameters.bodyoptionality;
 
 import io.clientcore.core.http.models.HttpHeaderName;
-import io.clientcore.core.http.models.HttpLogOptions;
 import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipelineNextPolicy;
@@ -17,9 +16,7 @@ public class BodyTests {
     private final ContentTypeValidationPolicy validationPolicy = new ContentTypeValidationPolicy();
     private final BodyOptionalityClient client = new BodyOptionalityClientBuilder().buildClient();
     private final OptionalExplicitClient optionalClient
-        = new BodyOptionalityClientBuilder().addHttpPipelinePolicy(validationPolicy)
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogOptions.HttpLogDetailLevel.BODY_AND_HEADERS))
-            .buildOptionalExplicitClient();
+        = new BodyOptionalityClientBuilder().addHttpPipelinePolicy(validationPolicy).buildOptionalExplicitClient();
 
     private final static class ContentTypeValidationPolicy implements HttpPipelinePolicy {
         private boolean contentTypeHeaderExists;

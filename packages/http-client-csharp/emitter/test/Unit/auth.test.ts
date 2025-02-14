@@ -3,9 +3,9 @@ import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import {
+  createCSharpSdkContext,
   createEmitterContext,
   createEmitterTestHost,
-  createNetSdkContext,
   typeSpecCompile,
 } from "./utils/test-util.js";
 
@@ -27,7 +27,7 @@ describe("Test auth", () => {
       },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
@@ -53,7 +53,7 @@ describe("Test auth", () => {
       },
     );
     const context = createEmitterContext(program);
-    const sdkContext = await createNetSdkContext(context);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
