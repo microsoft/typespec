@@ -61,7 +61,7 @@ _Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette
 
 #### Step 3. Select a folder as the root folder for the new TypeSpec project.
 
-![alt text](./images/CreateTypeSpecProject_SelectFolder.png)
+Click the `Create TypeSpec Project` command, and a folder selection interface will appear. Select a folder.
 
 - Select a non-empty folder. _(Single choice)_ `Y/N`
 
