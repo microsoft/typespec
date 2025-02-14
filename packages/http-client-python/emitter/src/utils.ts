@@ -262,6 +262,13 @@ function parseToken(token: Token): string {
       }
       parsed += `\n.. code-block::${codeBlockStyle ?? ""}\n\n  ${token.text.split("\n").join("\n  ")}\n\n`;
       break;
+    case "link":
+      if (token.href !== undefined) {
+        parsed += `\`${token.text} <${token.href}>\`_`;
+        break;
+      }
+      parsed += `${token.text}`;
+      break;
     default:
       parsed += token.raw;
   }
