@@ -7,7 +7,6 @@ export { createModel } from "./lib/client-model-builder.js";
 export { createDiagnostic, getTracer, reportDiagnostic } from "./lib/lib.js";
 export { LoggerLevel } from "./lib/logger-level.js";
 export { Logger } from "./lib/logger.js";
-export { CSharpEmitterContext } from "./sdk-context.js";
 export {
   CSharpEmitterOptions,
   CSharpEmitterOptionsSchema,
@@ -15,3 +14,4 @@ export {
   resolveOptions,
 } from "./options.js";
 export { setSDKContextOptions } from "./sdk-context-options.js";
+export { CSharpEmitterContext } from "./sdk-context.js";

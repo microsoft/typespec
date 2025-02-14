@@ -26,8 +26,8 @@ import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
-import { CodeModel } from "./type/code-model.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
+import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
 
 /**
@@ -132,43 +132,43 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       const command = `dotnet --roll-forward Major ${generatorPath} ${outputFolder} -p ${options["plugin-name"]}${constructCommandArg(newProjectOption)}${constructCommandArg(debugFlag)}`;
       logger.info(command);
 
-        try {
-          const result = await execAsync(
-            "dotnet",
-            [
-              "--roll-forward",
-              "Major",
-              generatorPath,
-              outputFolder,
-              "-p",
-              options["plugin-name"],
-              newProjectOption,
-              debugFlag,
-            ],
-            { stdio: "inherit" },
-          );
-          if (result.exitCode !== 0) {
-            const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
-            // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-            if (isValid) {
-              if (result.stderr) logger.error(result.stderr);
-              if (result.stdout) logger.verbose(result.stdout);
-              throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
-            }
-          }
-        } catch (error: any) {
+      try {
+        const result = await execAsync(
+          "dotnet",
+          [
+            "--roll-forward",
+            "Major",
+            generatorPath,
+            outputFolder,
+            "-p",
+            options["plugin-name"],
+            newProjectOption,
+            debugFlag,
+          ],
+          { stdio: "inherit" },
+        );
+        if (result.exitCode !== 0) {
           const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) throw new Error(error);
+          if (isValid) {
+            if (result.stderr) logger.error(result.stderr);
+            if (result.stdout) logger.verbose(result.stdout);
+            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+          }
         }
-        if (!options["save-inputs"]) {
-          // delete
-          deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
-          deleteFile(resolvePath(outputFolder, configurationFileName), logger);
-        }
+      } catch (error: any) {
+        const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+        // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+        if (isValid) throw new Error(error);
+      }
+      if (!options["save-inputs"]) {
+        // delete
+        deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
+        deleteFile(resolvePath(outputFolder, configurationFileName), logger);
       }
     }
   }
+}
 
 /**
  * Write the code model to the output folder.
@@ -180,7 +180,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
 export async function writeCodeModel(
   context: CSharpEmitterContext,
   codeModel: CodeModel,
-  outputFolder: string) {
+  outputFolder: string,
+) {
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
     prettierOutput(stringifyRefs(codeModel, transformJSONProperties, 1, PreserveType.Objects)),
