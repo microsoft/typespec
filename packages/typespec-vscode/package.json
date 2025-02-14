@@ -179,7 +179,7 @@
       },
       {
         "command": "typespec.showOpenApi3",
-        "title": "TypeSpec: Show OpenAPI3 Documentation",
+        "title": "Show OpenAPI3 Documentation",
         "category": "TypeSpec"
       }
     ],
