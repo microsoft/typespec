@@ -523,7 +523,6 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
         imports.add(HttpPolicyProviders.class.getName());
         ClassType.HTTP_PIPELINE_POLICY.addImportsTo(imports, false);
         ClassType.HTTP_LOGGING_POLICY.addImportsTo(imports, false);
-        ClassType.HTTP_INSTRUMENTATION_POLICY.addImportsTo(imports, false);
         imports.add(AddHeadersPolicy.class.getName());
         imports.add(RequestIdPolicy.class.getName());
         imports.add(AddHeadersFromContextPolicy.class.getName());
