@@ -60,7 +60,6 @@ import {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
-  SdkMethod,
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
@@ -991,7 +990,7 @@ export class CodeModelBuilder {
   private processRouteForPaged(
     op: CodeModelOperation,
     responses: SdkHttpResponse[],
-    sdkMethod: SdkMethod<SdkHttpOperation>,
+    sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   ) {
     if (sdkMethod.kind === "paging" || sdkMethod.kind === "lropaging") {
       for (const response of responses) {
