@@ -52,4 +52,49 @@ namespace ServerDrivenPagination {
 
     @nextLink next?: url;
   };
+
+  @route("/continuationtoken")
+  namespace ContinuationToken {
+    @scenario
+    @scenarioDoc("""
+      Test case for using continuation token as pagination. Continuation token is passed in the request body and response body.
+      
+      Two requests need to be tested.
+      1. Initial request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-body-response-body
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ],
+        "nextToken": "12345"
+      }
+      ```
+      2. Next page request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-body-response-body
+      Expected request body:
+      ```json
+      { "token": "12345" }
+      ```
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+      ```
+      """)
+    @scenarioDoc("""
+    """)
+    @route("/request-body-response-body")
+    @list
+    op reqBodyResBody(@continuationToken token?: string): {
+      @pageItems
+      pets: Pet[];
+
+      @continuationToken nextToken?: string;
+    };
+  }
 }
