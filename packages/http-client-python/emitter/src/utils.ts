@@ -260,7 +260,7 @@ function parseToken(token: Token): string {
       if (codeBlockStyle === undefined) {
         codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
       }
-      parsed += `\n.. code-block::${codeBlockStyle ?? ""}\n\n  ${token.text.split("\n").join("\n  ")}\n\n`;
+      parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
       break;
     case "link":
       if (token.href !== undefined) {
@@ -271,10 +271,10 @@ function parseToken(token: Token): string {
       break;
     case "list":
       if (!token.ordered) {
-        parsed += `\n${token.items.map((item: any) => `* ${item.text}`).join("\n")}`;
+        parsed += `\n\n${token.items.map((item: any) => `* ${item.text}`).join("\n")}`;
         break;
       }
-      parsed += `\n${token.items.map((item: any, index: number) => `${index + 1}. ${item.text}`).join("\n")}`;
+      parsed += `\n\n${token.items.map((item: any, index: number) => `${index + 1}. ${item.text}`).join("\n")}`;
       break;
     default:
       parsed += token.raw;
@@ -303,7 +303,8 @@ export function md2Rst(text?: string): string | undefined {
       }
     });
 
-    return rst;
+    // Trim trailing whitespace or tabs
+    return rst.replace(/[ \t]+$/, '');;
   } catch (e) {
     if (e instanceof RangeError) {
       // The error is thrown by the tokenizer when the markdown is too long
