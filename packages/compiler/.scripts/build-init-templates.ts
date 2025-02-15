@@ -23,42 +23,44 @@ const builtInTemplates: Record<string, InitTemplate> = {
     emitters: {
       "@typespec/openapi3": {
         selected: true,
+        label: "OpenAPI3.1 Document",
         options: {
           "emitter-output-dir": "{output-dir}/schema",
+          "openapi-versions": ["3.1.0"],
         },
       },
       "@typespec/http-client-csharp": {
-        description: "CSharp Client emitter",
+        label: "C# Client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/csharp",
         },
       },
       "@typespec/http-client-java": {
-        description: "Java Client emitter",
+        label: "Java Client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/java",
         },
       },
       "@azure-tools/typespec-ts": {
-        description: "JavaScript Client emitter",
+        label: "JavaScript Client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/js",
         },
       },
       "@typespec/http-client-python": {
-        description: "Python Client emitter",
+        label: "Python Client",
         options: {
           "emitter-output-dir": "{output-dir}/clients/python",
         },
       },
       "@typespec/http-server-csharp": {
-        description: "CSharp server stubs",
+        label: "CSharp server stubs",
         options: {
           "emitter-output-dir": "{output-dir}/server/generated",
         },
       },
       "@typespec/http-server-javascript": {
-        description: "Javascript server stubs",
+        label: "Javascript server stubs",
         options: {
           "emitter-output-dir": "{output-dir}/server",
         },

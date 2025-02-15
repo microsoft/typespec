@@ -289,12 +289,20 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
     return {};
   }
 
+  const emittersList = Object.entries(template.emitters);
+
+  const maxLabelLength = emittersList.reduce(
+    (max, [name, emitter]) => Math.max(max, emitter.label?.length ?? name.length),
+    0,
+  );
   const emitters = await checkbox({
     message: "Select emitters?",
-    choices: [...Object.entries(template.emitters)].map(([name, emitter]) => {
+    choices: emittersList.map(([name, emitter]) => {
       return {
         value: name,
-        name,
+        name: emitter.label
+          ? `${emitter.label.padEnd(maxLabelLength + 3)} ${pc.dim(`[${name}]`)}`
+          : name,
         description: emitter.description,
         selected: emitter.selected ?? false,
       };
