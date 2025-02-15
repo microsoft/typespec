@@ -14,7 +14,7 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
-import { md2Rst, removeUnderscoresFromNamespace } from "./utils.js";
+import { removeUnderscoresFromNamespace } from "./utils.js";
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
   if (specifiedModelsMode) {
@@ -73,19 +73,6 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
     ...sdkContext,
     __endpointPathParameters: [],
   };
-}
-
-function walkThroughNodes(yamlMap: any) {
-  for (const key in yamlMap) {
-    if (key === "description" || key === "summary") {
-      yamlMap[key] = md2Rst(yamlMap[key] ?? "");
-    } else if (Array.isArray(yamlMap[key])) {
-      yamlMap[key] = yamlMap[key].map((item: any) => walkThroughNodes(item));
-    } else if (yamlMap[key] !== undefined && typeof yamlMap[key] === "object") {
-      yamlMap[key] = walkThroughNodes(yamlMap[key]);
-    }
-  }
-  return yamlMap;
 }
 
 export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {

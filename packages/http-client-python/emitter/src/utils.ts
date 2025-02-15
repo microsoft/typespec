@@ -255,7 +255,6 @@ function parseToken(token: Token): string {
       parsed += `\`\`${token.text}\`\``;
       break;
     case "code":
-      // TODO: We should have a method here that will try to parse the code block style if it's undefined from the `marked` library
       let codeBlockStyle = token.codeBlockStyle;
       if (codeBlockStyle === undefined) {
         codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
