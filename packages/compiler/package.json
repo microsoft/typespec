@@ -92,6 +92,7 @@
   },
   "dependencies": {
     "@babel/code-frame": "~7.26.2",
+    "@inquirer/prompts": "^7.3.1",
     "@npmcli/arborist": "^8.0.0",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
@@ -99,7 +100,6 @@
     "mustache": "~4.2.0",
     "picocolors": "~1.1.1",
     "prettier": "~3.4.2",
-    "prompts": "~2.4.2",
     "semver": "^7.6.3",
     "temporal-polyfill": "^0.2.5",
     "vscode-languageserver": "~9.0.1",
@@ -112,7 +112,6 @@
     "@types/mustache": "~4.2.5",
     "@types/node": "~22.10.10",
     "@types/npmcli__arborist": "^6.3.0",
-    "@types/prompts": "~2.4.9",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.33",
     "@typespec/internal-build-utils": "workspace:~",

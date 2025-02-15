@@ -145,7 +145,7 @@
   "emitter-ts": {
     "title": "TypeSpec Emitter (With TypeScript)",
     "description": "Create a new package that will be emitting typespec",
-    "compilerVersion": "0.65.2",
+    "compilerVersion": "0.68.2",
     "libraries": [],
     "files": [
       {

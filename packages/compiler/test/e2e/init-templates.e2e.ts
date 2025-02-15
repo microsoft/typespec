@@ -71,7 +71,6 @@ describe("Init templates e2e tests", () => {
       NodeHost,
       makeScaffoldingConfig(template, {
         name,
-        folderName: name,
         directory: targetFolder,
         baseUri: typeSpecCoreTemplates.baseUri,
       }),

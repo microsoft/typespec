@@ -27,10 +27,8 @@ import {
   withCliHostAndDiagnostics,
 } from "./utils.js";
 
-async function main() {
-  // eslint-disable-next-line no-console
-  console.log(`TypeSpec compiler v${typespecVersion}\n`);
 
+async function main() {
   await yargs(process.argv.slice(2))
     .scriptName("tsp")
     .help()
