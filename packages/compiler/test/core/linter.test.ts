@@ -2,7 +2,6 @@ import { describe, it } from "vitest";
 
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
-import { createResolver } from "../../src/core/name-resolver.js";
 import type { LibraryInstance, LinterDefinition } from "../../src/index.js";
 import {
   createTestHost,
@@ -57,8 +56,7 @@ describe("compiler: linter", () => {
 
     await host.compile("main.tsp");
 
-    const resolver = createResolver(host.program);
-    const linter = createLinter(host.program, resolver, (libName) =>
+    const linter = createLinter(host.program, (libName) =>
       Promise.resolve(libName === "@typespec/test-linter" ? library : undefined),
     );
     return linter;

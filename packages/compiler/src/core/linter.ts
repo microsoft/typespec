@@ -27,6 +27,7 @@ type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
+  registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
   lint(): readonly Diagnostic[];
 }
 
@@ -60,7 +61,6 @@ export function resolveLinterDefinition(
 
 export function createLinter(
   program: Program,
-  nameResolver: NameResolver,
   loadLibrary: (name: string) => Promise<LinterLibraryInstance | undefined>,
 ): Linter {
   const tracer = program.tracer.sub("linter");
@@ -68,13 +68,10 @@ export function createLinter(
   const ruleMap = new Map<string, LinterRule<string, any>>();
   const enabledRules = new Map<string, LinterRule<string, any>>();
   const linterLibraries = new Map<string, LinterLibraryInstance | undefined>();
-  const builtInLinter: LinterResolvedDefinition = resolveLinterDefinition(
-    builtInLinterLibraryName,
-    createDefaultLinter(nameResolver),
-  );
 
   return {
     extendRuleSet,
+    registerLinterLibrary,
     lint,
   };
 
@@ -178,11 +175,13 @@ export function createLinter(
     return loadedLibrary;
   }
 
-  async function registerLinterLibrary(name: string): Promise<LinterLibraryInstance | undefined> {
+  async function registerLinterLibrary(
+    name: string,
+    lib?: LinterLibraryInstance,
+  ): Promise<LinterLibraryInstance | undefined> {
     tracer.trace("register-library", name);
 
-    const library =
-      name === builtInLinterLibraryName ? { linter: builtInLinter } : await loadLibrary(name);
+    const library = lib ?? (await loadLibrary(name));
     const linter = library?.linter;
     if (linter?.rules) {
       for (const rule of linter.rules) {
@@ -269,7 +268,14 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
 
 export const builtInLinterLibraryName = `@typespec/compiler`;
 export const builtInLinterRule_UnusedUsing = `unused-using`;
-function createDefaultLinter(nameResolver: NameResolver): LinterDefinition {
+export function createBuiltInLinterLibrary(nameResolver: NameResolver): LinterLibraryInstance {
+  const builtInLinter: LinterResolvedDefinition = resolveLinterDefinition(
+    builtInLinterLibraryName,
+    createBuiltInLinter(nameResolver),
+  );
+  return { linter: builtInLinter };
+}
+function createBuiltInLinter(nameResolver: NameResolver): LinterDefinition {
   const unusedUsingLinterRule = createUnusedUsingLinterRule();
 
   return defineLinter({
