@@ -36,6 +36,7 @@
     "workspaceContains:**/tspconfig.yaml"
   ],
   "icon": "./icons/logo.png",
+  "telemetryKey": "19cdc7e5-ff34-485f-b2cb-9538638cba7c",
   "contributes": {
     "viewsWelcome": [
       {
@@ -231,6 +232,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~28.0.0",
+    "@rollup/plugin-json": "~6.1.0",
     "@rollup/plugin-node-resolve": "~15.3.0",
     "@rollup/plugin-typescript": "~12.1.0",
     "@types/mocha": "^10.0.9",
@@ -241,6 +243,7 @@
     "@typespec/internal-build-utils": "workspace:~",
     "@vitest/coverage-v8": "^2.1.5",
     "@vitest/ui": "^2.1.2",
+    "@vscode/extension-telemetry": "^0.9.8",
     "@vscode/test-web": "^0.0.62",
     "@vscode/vsce": "~3.1.1",
     "c8": "^10.1.2",

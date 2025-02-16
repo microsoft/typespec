@@ -1,3 +1,5 @@
+import { TspLanguageClient } from "./tsp-language-client.js";
+
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
   InitTemplatesUrls = "typespec.initTemplatesUrls",
@@ -12,7 +14,13 @@ export const enum CommandName {
   GenerateCode = "typespec.generateCode",
 }
 
-export interface InstallGlobalCliCommandArgs {
+export type RestartServerCommandResult = Result<TspLanguageClient>;
+
+export interface BaseCommandArgs {
+  activityId: string;
+}
+
+export interface InstallGlobalCliCommandArgs extends BaseCommandArgs {
   /**
    * whether to confirm with end user before action
    * default: false
@@ -26,7 +34,7 @@ export interface InstallGlobalCliCommandArgs {
   silentMode?: boolean;
 }
 
-export interface RestartServerCommandArgs {
+export interface RestartServerCommandArgs extends BaseCommandArgs {
   /**
    * whether to recreate TspLanguageClient instead of just restarting it
    */
@@ -52,4 +60,4 @@ interface UnsuccessResult {
   details?: any;
 }
 
-export type Result<T> = SuccessResult<T> | UnsuccessResult;
+export type Result<T = void> = SuccessResult<T> | UnsuccessResult;

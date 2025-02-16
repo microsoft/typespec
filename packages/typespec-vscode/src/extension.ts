@@ -6,11 +6,16 @@ import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listen
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
 import { createTaskProvider } from "./task-provider.js";
+import telemetryClient from "./telemetry/telemetry-client.js";
+import { OperationTelemetryEvent, TelemetryEventName } from "./telemetry/telemetry-event.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import {
   CommandName,
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
+  RestartServerCommandResult,
+  Result,
+  ResultCode,
   SettingName,
 } from "./types.js";
 import { isWhitespaceStringOrUndefined } from "./utils.js";
@@ -28,6 +33,8 @@ logger.registerLogListener("extension-log", new ExtensionLogListener(outputChann
 
 export async function activate(context: ExtensionContext) {
   const stateManager = new ExtensionStateManager(context);
+
+  context.subscriptions.push(telemetryClient);
 
   context.subscriptions.push(createTaskProvider());
 
@@ -66,26 +73,37 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(
       CommandName.RestartServer,
-      async (args: RestartServerCommandArgs | undefined): Promise<TspLanguageClient> => {
+      async (args: RestartServerCommandArgs | undefined): Promise<RestartServerCommandResult> => {
         return vscode.window.withProgress(
           {
             title: args?.notificationMessage ?? "Restarting TypeSpec language service...",
             location: vscode.ProgressLocation.Notification,
           },
           async () => {
-            if (args?.forceRecreate === true) {
-              logger.info("Forcing to recreate TypeSpec LSP server...");
-              return await recreateLSPClient(context);
-            }
-            if (client && client.state === State.Running) {
-              await client.restart();
-              return client;
-            } else {
-              logger.info(
-                "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
-              );
-              return recreateLSPClient(context);
-            }
+            return await telemetryClient.doOperationWithTelemetry(
+              TelemetryEventName.RestartServer,
+              async (tel) => {
+                if (args?.forceRecreate === true) {
+                  logger.info("Forcing to recreate TypeSpec LSP server...");
+                  const c = await recreateLSPClient(context, tel.activityId);
+                  tel.lastStep = "Recreate LSP client";
+                  return getResultFromLSPClient(c);
+                }
+                if (client && client.state === State.Running) {
+                  await client.restart(tel.activityId);
+                  tel.lastStep = "Restart LSP client";
+                  return getResultFromLSPClient(client);
+                } else {
+                  logger.info(
+                    "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
+                  );
+                  const c = await recreateLSPClient(context, tel.activityId);
+                  tel.lastStep = "Create LSP client";
+                  return getResultFromLSPClient(c);
+                }
+              },
+              args?.activityId,
+            );
           },
         );
       },
@@ -153,7 +171,13 @@ export async function activate(context: ExtensionContext) {
         location: vscode.ProgressLocation.Notification,
       },
       async () => {
-        await recreateLSPClient(context);
+        await telemetryClient.doOperationWithTelemetry(
+          TelemetryEventName.StartExtension,
+          async (tel: OperationTelemetryEvent) => {
+            await recreateLSPClient(context, tel.activityId);
+            return getResultFromLSPClient(client);
+          },
+        );
       },
     );
   } else {
@@ -166,13 +190,27 @@ export async function deactivate() {
   await client?.stop();
 }
 
-async function recreateLSPClient(context: ExtensionContext) {
+async function recreateLSPClient(context: ExtensionContext, activityId?: string) {
   logger.info("Recreating TypeSpec LSP server...");
   const oldClient = client;
   client = await TspLanguageClient.create(context, outputChannel);
   await oldClient?.stop();
-  await client.start();
+  await client.start(activityId);
   return client;
+}
+
+function getResultFromLSPClient(c: TspLanguageClient | undefined): Result<TspLanguageClient> {
+  if (c?.state === State.Running) {
+    return {
+      code: ResultCode.Success,
+      value: c,
+    };
+  } else {
+    return {
+      code: ResultCode.Fail,
+      details: "TspLanguageClient is not running. Please check previous log for details.",
+    };
+  }
 }
 
 function showStartUpMessages(stateManager: ExtensionStateManager) {

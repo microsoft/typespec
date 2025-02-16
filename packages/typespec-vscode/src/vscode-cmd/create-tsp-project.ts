@@ -11,11 +11,14 @@ import { State } from "vscode-languageclient";
 import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths, normalizePath } from "../path-utils.js";
+import telemetryClient from "../telemetry/telemetry-client.js";
+import { TelemetryEventName } from "../telemetry/telemetry-event.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
 import {
   CommandName,
   InstallGlobalCliCommandArgs,
   RestartServerCommandArgs,
+  RestartServerCommandResult,
   Result,
   ResultCode,
   SettingName,
@@ -63,202 +66,224 @@ export async function createTypeSpecProject(
   client: TspLanguageClient | undefined,
   stateManager: ExtensionStateManager,
 ) {
-  await vscode.window.withProgress(
-    {
-      location: vscode.ProgressLocation.Window,
-      cancellable: false,
-      title: "Creating TypeSpec Project...",
-    },
-    async () => {
-      const selectedRootFolder = await selectProjectRootFolder();
-      if (!selectedRootFolder) {
-        logger.info("Creating TypeSpec Project cancelled when selecting project root folder.");
-        return;
-      }
-      if (!(await checkProjectRootFolderEmpty(selectedRootFolder))) {
-        logger.info(
-          "Creating TypeSpec Project cancelled when checking whether the project root folder is empty.",
-        );
-        return;
-      }
-      const folderName = getBaseFileName(selectedRootFolder);
-
-      if (!client || client.state !== State.Running) {
-        const r = await CheckCompilerAndStartLSPClient(selectedRootFolder);
-        if (r.code === ResultCode.Cancelled) {
-          logger.info("Creating TypeSpec Project cancelled when installing Compiler/CLI");
-          return;
-        }
-        if (
-          r.code !== ResultCode.Success ||
-          r.value === undefined ||
-          r.value.state !== State.Running
-        ) {
-          logger.error(
-            "Unexpected Error when checking Compiler/CLI. Please check the previous log for details.",
-            [],
-            {
-              showOutput: true,
-              showPopup: true,
-            },
-          );
-          return;
-        }
-        client = r.value;
-      }
-
-      const isSupport = await isCompilerSupport(client);
-      if (!isSupport) {
-        logger.info("Creating TypeSpec Project cancelled due to unsupported by compiler.");
-        return;
-      }
-
-      const templateInfoMap = await loadInitTemplates(client);
-      if (templateInfoMap.size === 0) {
-        logger.error(
-          "Unexpected Error: No templates loaded. Please check the configuration of InitTemplatesUrls or upgrade @typespec/compiler and try again.",
-          [],
-          {
-            showOutput: true,
-            showPopup: true,
-          },
-        );
-        return;
-      }
-      const info = await selectTemplate(templateInfoMap);
-      if (info === undefined) {
-        logger.info("Creating TypeSpec Project cancelled when selecting template.");
-        return;
-      } else {
-        logger.info(`Selected template: ${info.source}.${info.name}`);
-      }
-
-      const validateResult = await validateTemplate(info, client);
-      if (!validateResult) {
-        logger.info("Creating TypeSpec Project cancelled when validating template.");
-        return;
-      }
-
-      const projectName = await vscode.window.showInputBox({
-        prompt: "Please input the project name",
-        value: folderName,
-        ignoreFocusOut: true,
-        validateInput: (value) => {
-          if (isWhitespaceStringOrUndefined(value)) {
-            return "Project name cannot be empty.";
-          }
-          // we don't have a full rule for project name. Just have a simple check to avoid some strange name.
-          const regex = /^(?![./])(?!.*[./]{2})[a-zA-Z0-9-~_@./]*[a-zA-Z0-9-~_@]$/;
-          if (!regex.test(value)) {
-            return "Invalid project name. Only [a-zA-Z0-9-~_@./] are allowed and cannot start/end with [./] or consecutive [./]";
-          }
-          return undefined;
+  await telemetryClient.doOperationWithTelemetry<void>(
+    TelemetryEventName.CreateProject,
+    async (tel) => {
+      return vscode.window.withProgress<Result>(
+        {
+          location: vscode.ProgressLocation.Window,
+          cancellable: false,
+          title: "Creating TypeSpec Project...",
         },
-      });
-      if (isWhitespaceStringOrUndefined(projectName)) {
-        logger.info("Creating TypeSpec Project cancelled when input project name.", [], {
-          showOutput: false,
-          showPopup: false,
-        });
-        return;
-      }
+        async () => {
+          const selectedRootFolder = await selectProjectRootFolder();
+          if (!selectedRootFolder) {
+            logger.info("Creating TypeSpec Project cancelled when selecting project root folder.");
+            tel.lastStep = "Select project root folder";
+            return { code: ResultCode.Cancelled };
+          }
+          if (!(await checkProjectRootFolderEmpty(selectedRootFolder))) {
+            logger.info(
+              "Creating TypeSpec Project cancelled when checking whether the project root folder is empty.",
+            );
+            tel.lastStep = "Check project root folder";
+            return { code: ResultCode.Cancelled };
+          }
+          const folderName = getBaseFileName(selectedRootFolder);
 
-      const includeGitignoreResult = await vscode.window.showQuickPick(["Yes", "No"], {
-        title: TITLE,
-        canPickMany: false,
-        placeHolder: "Do you want to generate a .gitignore file",
-        ignoreFocusOut: true,
-      });
-      if (includeGitignoreResult === undefined) {
-        logger.info(
-          "Creating TypeSpec Project cancelled when selecting whether to include .gitignore.",
-        );
-        return;
-      }
-      const includeGitignore = includeGitignoreResult === "Yes";
+          if (!client || client.state !== State.Running) {
+            const r = await CheckCompilerAndStartLSPClient(selectedRootFolder, tel.activityId);
+            if (r.code === ResultCode.Cancelled) {
+              logger.info("Creating TypeSpec Project cancelled when installing Compiler/CLI");
+              tel.lastStep = "Install Compiler/CLI";
+              return { code: ResultCode.Cancelled };
+            }
+            if (
+              r.code !== ResultCode.Success ||
+              r.value === undefined ||
+              r.value.state !== State.Running
+            ) {
+              logger.error(
+                "Unexpected Error when checking Compiler/CLI. Please check the previous log for details.",
+                [],
+                {
+                  showOutput: true,
+                  showPopup: true,
+                },
+              );
+              tel.lastStep = "Install Compiler/CLI";
+              return { code: ResultCode.Fail };
+            }
+            client = r.value;
+          }
 
-      const librariesToInclude = await selectLibraries(info);
-      if (librariesToInclude === undefined) {
-        logger.info("Creating TypeSpec Project cancelled when selecting libraries to include.");
-        return;
-      }
+          const isSupport = await isCompilerSupport(client);
+          if (!isSupport) {
+            logger.info("Creating TypeSpec Project cancelled due to unsupported by compiler.");
+            tel.lastStep = "Check compiler support";
+            return { code: ResultCode.Fail };
+          }
 
-      const selectedEmitters = await selectEmitters(info);
-      if (selectedEmitters === undefined) {
-        logger.info("Creating TypeSpec Project cancelled when selecting emitters.");
-        return;
-      }
+          const templateInfoMap = await loadInitTemplates(client);
+          if (templateInfoMap.size === 0) {
+            logger.error(
+              "Unexpected Error: No templates loaded. Please check the configuration of InitTemplatesUrls or upgrade @typespec/compiler and try again.",
+              [],
+              {
+                showOutput: true,
+                showPopup: true,
+              },
+            );
+            tel.lastStep = "Load templates";
+            return { code: ResultCode.Fail };
+          }
+          const info = await selectTemplate(templateInfoMap);
+          if (info === undefined) {
+            logger.info("Creating TypeSpec Project cancelled when selecting template.");
+            tel.lastStep = "Select template";
+            return { code: ResultCode.Cancelled };
+          } else {
+            logger.info(`Selected template: ${info.source}.${info.name}`);
+          }
 
-      const inputs = await setInputs(info);
-      if (inputs === undefined) {
-        logger.info("Creating TypeSpec Project cancelled when setting inputs.");
-        return;
-      }
+          const validateResult = await validateTemplate(info, client);
+          if (!validateResult) {
+            logger.info("Creating TypeSpec Project cancelled when validating template.");
+            tel.lastStep = "Validate template";
+            return { code: ResultCode.Cancelled };
+          }
 
-      const initTemplateConfig: InitProjectConfig = {
-        template: info.template!,
-        directory: selectedRootFolder,
-        folderName: folderName,
-        baseUri: info.baseUrl,
-        name: projectName!,
-        parameters: inputs ?? {},
-        includeGitignore: includeGitignore,
-        libraries: librariesToInclude,
-        emitters: selectedEmitters,
-      };
-      const initResult = await initProject(client, initTemplateConfig);
-      if (!initResult) {
-        logger.info("Creating TypeSpec Project cancelled when initializing project.", [], {
-          showOutput: false,
-          showPopup: false,
-        });
-        return;
-      }
-
-      const packageJsonPath = joinPaths(selectedRootFolder, "package.json");
-      if (!(await isFile(packageJsonPath))) {
-        logger.warning("Skip tsp install since no package.json is found in the project folder.");
-      } else {
-        // just ignore the result from tsp install. We will open the project folder anyway.
-        await tspInstall(client, selectedRootFolder);
-      }
-
-      const msg = Object.entries(selectedEmitters)
-        .filter(([_k, e]) => !isWhitespaceStringOrUndefined(e.message))
-        .map(([k, e]) => `\t${k}: \n\t\t${e.message}`)
-        .join("\n");
-
-      if (!isWhitespaceStringOrUndefined(msg)) {
-        const p = normalizePath(selectedRootFolder);
-        if (
-          vscode.workspace.workspaceFolders?.find((x) => normalizePath(x.uri.fsPath) === p) ===
-          undefined
-        ) {
-          // if the folder is not opened as workspace, persist the message to extension state because
-          // openProjectFolder will reinitialize the extension.
-          stateManager.saveStartUpMessage(
-            {
-              popupMessage:
-                "Please review the message from emitters when creating TypeSpec Project",
-              detail: msg,
-              level: "warn",
+          const projectName = await vscode.window.showInputBox({
+            prompt: "Please input the project name",
+            value: folderName,
+            ignoreFocusOut: true,
+            validateInput: (value) => {
+              if (isWhitespaceStringOrUndefined(value)) {
+                return "Project name cannot be empty.";
+              }
+              // we don't have a full rule for project name. Just have a simple check to avoid some strange name.
+              const regex = /^(?![./])(?!.*[./]{2})[a-zA-Z0-9-~_@./]*[a-zA-Z0-9-~_@]$/;
+              if (!regex.test(value)) {
+                return "Invalid project name. Only [a-zA-Z0-9-~_@./] are allowed and cannot start/end with [./] or consecutive [./]";
+              }
+              return undefined;
             },
-            selectedRootFolder,
-          );
-        } else {
-          logger.warning("Please review the message from emitters\n", [msg], {
-            showPopup: true,
-            notificationButtonText: "Review in Output",
           });
-        }
-      }
+          if (isWhitespaceStringOrUndefined(projectName)) {
+            logger.info("Creating TypeSpec Project cancelled when input project name.", [], {
+              showOutput: false,
+              showPopup: false,
+            });
+            tel.lastStep = "Input project name";
+            return { code: ResultCode.Cancelled };
+          }
 
-      vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(selectedRootFolder), {
-        forceNewWindow: false,
-        forceReuseWindow: true,
-        noRecentEntry: false,
-      });
-      logger.info(`Creating TypeSpec Project completed successfully in ${selectedRootFolder}.`);
+          const includeGitignoreResult = await vscode.window.showQuickPick(["Yes", "No"], {
+            title: TITLE,
+            canPickMany: false,
+            placeHolder: "Do you want to generate a .gitignore file",
+            ignoreFocusOut: true,
+          });
+          if (includeGitignoreResult === undefined) {
+            logger.info(
+              "Creating TypeSpec Project cancelled when selecting whether to include .gitignore.",
+            );
+            tel.lastStep = "Select whether to include .gitignore";
+            return { code: ResultCode.Cancelled };
+          }
+          const includeGitignore = includeGitignoreResult === "Yes";
+
+          const librariesToInclude = await selectLibraries(info);
+          if (librariesToInclude === undefined) {
+            logger.info("Creating TypeSpec Project cancelled when selecting libraries to include.");
+            tel.lastStep = "Select libraries";
+            return { code: ResultCode.Cancelled };
+          }
+
+          const selectedEmitters = await selectEmitters(info);
+          if (selectedEmitters === undefined) {
+            logger.info("Creating TypeSpec Project cancelled when selecting emitters.");
+            tel.lastStep = "Select emitters";
+            return { code: ResultCode.Cancelled };
+          }
+
+          const inputs = await setInputs(info);
+          if (inputs === undefined) {
+            logger.info("Creating TypeSpec Project cancelled when setting inputs.");
+            tel.lastStep = "Set inputs";
+            return { code: ResultCode.Cancelled };
+          }
+
+          const initTemplateConfig: InitProjectConfig = {
+            template: info.template!,
+            directory: selectedRootFolder,
+            folderName: folderName,
+            baseUri: info.baseUrl,
+            name: projectName!,
+            parameters: inputs ?? {},
+            includeGitignore: includeGitignore,
+            libraries: librariesToInclude,
+            emitters: selectedEmitters,
+          };
+          const initResult = await initProject(client, initTemplateConfig);
+          if (!initResult) {
+            logger.info("Creating TypeSpec Project cancelled when initializing project.", [], {
+              showOutput: false,
+              showPopup: false,
+            });
+            tel.lastStep = "Initialize project";
+            return { code: ResultCode.Cancelled };
+          }
+
+          const packageJsonPath = joinPaths(selectedRootFolder, "package.json");
+          if (!(await isFile(packageJsonPath))) {
+            logger.warning(
+              "Skip tsp install since no package.json is found in the project folder.",
+            );
+          } else {
+            // just ignore the result from tsp install. We will open the project folder anyway.
+            await tspInstall(client, selectedRootFolder);
+          }
+
+          const msg = Object.entries(selectedEmitters)
+            .filter(([_k, e]) => !isWhitespaceStringOrUndefined(e.message))
+            .map(([k, e]) => `\t${k}: \n\t\t${e.message}`)
+            .join("\n");
+
+          if (!isWhitespaceStringOrUndefined(msg)) {
+            const p = normalizePath(selectedRootFolder);
+            if (
+              vscode.workspace.workspaceFolders?.find((x) => normalizePath(x.uri.fsPath) === p) ===
+              undefined
+            ) {
+              // if the folder is not opened as workspace, persist the message to extension state because
+              // openProjectFolder will reinitialize the extension.
+              stateManager.saveStartUpMessage(
+                {
+                  popupMessage:
+                    "Please review the message from emitters when creating TypeSpec Project",
+                  detail: msg,
+                  level: "warn",
+                },
+                selectedRootFolder,
+              );
+            } else {
+              logger.warning("Please review the message from emitters\n", [msg], {
+                showPopup: true,
+                notificationButtonText: "Review in Output",
+              });
+            }
+          }
+
+          vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(selectedRootFolder), {
+            forceNewWindow: false,
+            forceReuseWindow: true,
+            noRecentEntry: false,
+          });
+          logger.info(`Creating TypeSpec Project completed successfully in ${selectedRootFolder}.`);
+          return { code: ResultCode.Success, value: undefined };
+        },
+      );
     },
   );
 }
@@ -767,7 +792,10 @@ async function checkProjectRootFolderEmpty(selectedFolder: string): Promise<bool
   }
 }
 
-async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<TspLanguageClient>> {
+async function CheckCompilerAndStartLSPClient(
+  folder: string,
+  activityId: string,
+): Promise<Result<TspLanguageClient>> {
   // language server may not be started because no workspace is opened or failed to start for some reason
   // so before trying to start it, let's try to check whether global compiler is available first
   // to avoid unnecessary error notification when starting LSP which would be confusing (we can't avoid it which
@@ -778,6 +806,7 @@ async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<Ts
   }
   if (!r.value) {
     const igcArgs: InstallGlobalCliCommandArgs = {
+      activityId,
       confirm: true,
       confirmTitle: TITLE,
       confirmPlaceholder: "Install TypeSpec Compiler CLI.",
@@ -793,14 +822,16 @@ async function CheckCompilerAndStartLSPClient(folder: string): Promise<Result<Ts
   }
   logger.info("Try to restart lsp client.");
   const rsArgs: RestartServerCommandArgs = {
+    activityId,
     forceRecreate: false,
     notificationMessage: "Launching TypeSpec language service...",
   };
-  const newClient = await vscode.commands.executeCommand<TspLanguageClient>(
-    CommandName.RestartServer,
-    rsArgs,
-  );
-  return { code: ResultCode.Success, value: newClient };
+  const restartResult: RestartServerCommandResult =
+    await vscode.commands.executeCommand<RestartServerCommandResult>(
+      CommandName.RestartServer,
+      rsArgs,
+    );
+  return restartResult;
 }
 
 async function IsGlobalCompilerAvailable(folder: string): Promise<Result<boolean>> {

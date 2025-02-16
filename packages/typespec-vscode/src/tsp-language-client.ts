@@ -9,6 +9,7 @@ import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
 import { TspConfigFileName } from "./const.js";
 import logger from "./log/logger.js";
+import telemetryClient from "./telemetry/telemetry-client.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
 import {
   ExecOutput,
@@ -112,7 +113,7 @@ export class TspLanguageClient {
     }
   }
 
-  async restart(): Promise<void> {
+  async restart(activityId?: string): Promise<void> {
     try {
       if (this.client.needsStop()) {
         await this.client.restart();
@@ -123,6 +124,11 @@ export class TspLanguageClient {
       } else {
         logger.error(
           `Unexpected state when restarting TypeSpec server. state = ${this.client.state}.`,
+        );
+        telemetryClient.log(
+          "error",
+          `Unexpected state when restarting TypeSpec server. state = ${this.client.state}.`,
+          activityId,
         );
       }
     } catch (e) {
@@ -143,7 +149,7 @@ export class TspLanguageClient {
     }
   }
 
-  async start(): Promise<void> {
+  async start(activityId?: string): Promise<void> {
     try {
       if (this.client.needsStart()) {
         // please be aware that this method would popup error notification in vscode directly
@@ -167,6 +173,7 @@ export class TspLanguageClient {
           { showOutput: false, showPopup: true },
         );
         logger.error("Error detail", [e]);
+        telemetryClient.log("error", "TypeSpec server executable not found", activityId);
       } else {
         logger.error("Unexpected error when starting TypeSpec server", [e], {
           showOutput: false,
