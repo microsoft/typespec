@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Versioning.MadeOptional
+namespace Versioning.MadeOptional.V2
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct), AllowMultiple = true, Inherited = true)]
     internal partial class CodeGenSerializationAttribute : Attribute

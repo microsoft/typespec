@@ -308,7 +308,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return [mockingConstructor, subClientConstructor];
             }
 
-            // we need to construct two sets of constructors for both auth we supported if any.
+            // we need to construct two sets of constructors for both auth if we supported any.
             var primaryConstructors = new List<ConstructorProvider>();
             var secondaryConstructors = new List<ConstructorProvider>();
 
@@ -322,22 +322,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 AppendConstructors(_oauth2Fields, primaryConstructors, secondaryConstructors);
             }
+
+            bool onlyContainsUnsupportedAuth = _inputAuth != null && _apiKeyAuthFields == null && _oauth2Fields == null;
             // if there is no auth
             if (_apiKeyAuthFields == null && _oauth2Fields == null)
             {
-                AppendConstructors(null, primaryConstructors, secondaryConstructors);
+                AppendConstructors(null, primaryConstructors, secondaryConstructors, onlyContainsUnsupportedAuth);
             }
-            var shouldIncludeMockingConstructor = secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
+
+            var shouldIncludeMockingConstructor = !onlyContainsUnsupportedAuth && secondaryConstructors.All(c => c.Signature.Parameters.Count > 0);
+
             return shouldIncludeMockingConstructor
                 ? [ConstructorProviderHelper.BuildMockingConstructor(this), .. secondaryConstructors, .. primaryConstructors]
                 : [.. secondaryConstructors, .. primaryConstructors];
 
-            void AppendConstructors(AuthFields? authFields, List<ConstructorProvider> primaryConstructors, List<ConstructorProvider> secondaryConstructors)
+            void AppendConstructors(
+                AuthFields? authFields,
+                List<ConstructorProvider> primaryConstructors,
+                List<ConstructorProvider> secondaryConstructors,
+                bool onlyContainsUnsupportedAuth = false)
             {
                 var requiredParameters = GetRequiredParameters(authFields?.AuthField);
                 ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, ClientOptionsParameter.Value];
+                // If auth exists but it's not supported, we will make the constructor internal.
+                var constructorModifier = onlyContainsUnsupportedAuth ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
                 var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
+                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters),
                     BuildPrimaryConstructorBody(primaryConstructorParameters, authFields),
                     this);
 
@@ -347,7 +357,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ParameterProvider[] secondaryConstructorParameters = _endpointParameter.InitializationValue is null
                     ? [_endpointParameter, .. requiredParameters]
                     : [.. requiredParameters];
-                var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters);
+                var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters, constructorModifier);
 
                 secondaryConstructors.Add(secondaryConstructor);
             }
@@ -444,7 +454,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <param name="primaryCtorOrderedParams">The ordered parameters for the primary constructor.</param>
         private ConstructorProvider BuildSecondaryConstructor(
             IReadOnlyList<ParameterProvider> secondaryConstructorParameters,
-            IReadOnlyList<ParameterProvider> primaryCtorOrderedParams)
+            IReadOnlyList<ParameterProvider> primaryCtorOrderedParams,
+            MethodSignatureModifiers modifier)
         {
             // initialize the arguments to reference the primary constructor
             var primaryCtorInitializer = new ConstructorInitializer(
@@ -454,7 +465,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var constructorSignature = new ConstructorSignature(
                 Type,
                 _publicCtorDescription,
-                MethodSignatureModifiers.Public,
+                modifier,
                 secondaryConstructorParameters,
                 Initializer: primaryCtorInitializer);
 

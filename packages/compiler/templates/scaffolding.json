@@ -3,12 +3,12 @@
     "title": "Empty project",
     "description": "Create an empty project.",
     "libraries": [],
-    "compilerVersion": "0.65.1"
+    "compilerVersion": "0.65.2"
   },
   "rest": {
     "title": "Generic REST API",
     "description": "Create a project representing a generic REST API",
-    "compilerVersion": "0.65.1",
+    "compilerVersion": "0.65.2",
     "libraries": [
       "@typespec/http",
       "@typespec/rest",
@@ -69,7 +69,7 @@
   "library-ts": {
     "title": "TypeSpec Library (With TypeScript)",
     "description": "Create a new package to add decorators or linters to typespec.",
-    "compilerVersion": "0.65.1",
+    "compilerVersion": "0.65.2",
     "libraries": [],
     "files": [
       {
@@ -145,7 +145,7 @@
   "emitter-ts": {
     "title": "TypeSpec Emitter (With TypeScript)",
     "description": "Create a new package that will be emitting typespec",
-    "compilerVersion": "0.65.1",
+    "compilerVersion": "0.65.2",
     "libraries": [],
     "files": [
       {

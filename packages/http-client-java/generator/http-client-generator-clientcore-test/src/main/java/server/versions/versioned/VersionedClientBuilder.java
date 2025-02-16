@@ -5,7 +5,7 @@ package server.versions.versioned;
 import io.clientcore.core.annotation.Metadata;
 import io.clientcore.core.annotation.ServiceClientBuilder;
 import io.clientcore.core.http.client.HttpClient;
-import io.clientcore.core.http.models.HttpLogOptions;
+import io.clientcore.core.http.models.HttpInstrumentationOptions;
 import io.clientcore.core.http.models.HttpRedirectOptions;
 import io.clientcore.core.http.models.HttpRetryOptions;
 import io.clientcore.core.http.models.ProxyOptions;
@@ -89,15 +89,15 @@ public final class VersionedClientBuilder
      * The logging configuration for HTTP requests and responses.
      */
     @Metadata(generated = true)
-    private HttpLogOptions httpLogOptions;
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     /**
      * {@inheritDoc}.
      */
     @Metadata(generated = true)
     @Override
-    public VersionedClientBuilder httpLogOptions(HttpLogOptions httpLogOptions) {
-        this.httpLogOptions = httpLogOptions;
+    public VersionedClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
         return this;
     }
 
@@ -236,13 +236,15 @@ public final class VersionedClientBuilder
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
-        HttpLogOptions localHttpLogOptions = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
         HttpPipelineBuilder httpPipelineBuilder = new HttpPipelineBuilder();
         List<HttpPipelinePolicy> policies = new ArrayList<>();
         policies.add(redirectOptions == null ? new HttpRedirectPolicy() : new HttpRedirectPolicy(redirectOptions));
         policies.add(retryOptions == null ? new HttpRetryPolicy() : new HttpRetryPolicy(retryOptions));
         this.pipelinePolicies.stream().forEach(p -> policies.add(p));
-        policies.add(new HttpInstrumentationPolicy(null, localHttpLogOptions));
+        policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         httpPipelineBuilder.policies(policies.toArray(new HttpPipelinePolicy[0]));
         return httpPipelineBuilder.build();
     }

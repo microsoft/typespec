@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Versioning.MadeOptional
+namespace Versioning.MadeOptional.V1
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct))]
     internal partial class CodeGenTypeAttribute : Attribute
