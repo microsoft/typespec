@@ -421,6 +421,7 @@ export function createBinder(program: Program): Binder {
    * multiple times for the same symbol.
    *
    */
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   function bindProjectionStatement(node: ProjectionStatementNode) {
     const name = node.id.sv;
     const table: SymbolTable = (scope as NamespaceStatementNode | TypeSpecScriptNode).symbol

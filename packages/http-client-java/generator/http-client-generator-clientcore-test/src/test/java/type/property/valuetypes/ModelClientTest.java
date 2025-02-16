@@ -6,18 +6,18 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class ModelClientTest {
+public class ModelClientTest {
 
-    ModelClient client = new ValueTypesClientBuilder().buildModelClient();
+    private final ModelClient client = new ValueTypesClientBuilder().buildModelClient();
 
     @Test
-    void get() {
+    public void get() {
         ModelProperty modelProperty = client.get();
         Assertions.assertEquals("hello", modelProperty.getProperty().getProperty());
     }
 
     @Test
-    void put() {
+    public void put() {
         InnerModel innerModel = new InnerModel("hello");
         ModelProperty modelProperty = new ModelProperty(innerModel);
         client.put(modelProperty);

@@ -113,7 +113,7 @@ public class ClassType implements IType {
             put(Context.class, new ClassDetails(Context.class, "io.clientcore.core.util.Context"));
             put(HttpClient.class, new ClassDetails(HttpClient.class, "io.clientcore.core.http.client.HttpClient"));
             put(HttpLogOptions.class,
-                new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.models.HttpLogOptions"));
+                new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.models.HttpInstrumentationOptions"));
             put(HttpPipelinePolicy.class,
                 new ClassDetails(HttpPipelinePolicy.class, "io.clientcore.core.http.pipeline.HttpPipelinePolicy"));
             put(KeyCredentialPolicy.class,
@@ -122,8 +122,8 @@ public class ClassType implements IType {
                 new ClassDetails(RetryPolicy.class, "io.clientcore.core.http.pipeline.HttpRetryPolicy"));
             put(RedirectPolicy.class,
                 new ClassDetails(RedirectPolicy.class, "io.clientcore.core.http.pipeline.HttpRedirectPolicy"));
-            put(HttpLoggingPolicy.class,
-                new ClassDetails(HttpLoggingPolicy.class, "io.clientcore.core.http.pipeline.HttpLoggingPolicy"));
+            put(HttpLoggingPolicy.class, new ClassDetails(HttpLoggingPolicy.class,
+                "io.clientcore.core.http.pipeline.HttpInstrumentationPolicy"));
             put(Configuration.class,
                 new ClassDetails(Configuration.class, "io.clientcore.core.util.configuration.Configuration"));
             put(HttpHeaders.class, new ClassDetails(HttpHeaders.class, "io.clientcore.core.models.Headers"));
@@ -154,8 +154,10 @@ public class ClassType implements IType {
             put(KeyCredentialTrait.class,
                 new ClassDetails(KeyCredentialTrait.class, "io.clientcore.core.models.traits.KeyCredentialTrait"));
             put(TypeReference.class, new ClassDetails(TypeReference.class, "io.clientcore.core.models.TypeReference"));
-            put(ClientLogger.class, new ClassDetails(ClientLogger.class, "io.clientcore.core.util.ClientLogger"));
-            put(LogLevel.class, new ClassDetails(LogLevel.class, "io.clientcore.core.util.ClientLogger.LogLevel"));
+            put(ClientLogger.class,
+                new ClassDetails(ClientLogger.class, "io.clientcore.core.instrumentation.logging.ClientLogger"));
+            put(LogLevel.class,
+                new ClassDetails(LogLevel.class, "io.clientcore.core.instrumentation.logging.ClientLogger.LogLevel"));
             put(com.azure.core.util.ServiceVersion.class, new ClassDetails(com.azure.core.util.ServiceVersion.class,
                 "io.clientcore.core.http.models.ServiceVersion"));
         }
@@ -463,6 +465,9 @@ public class ClassType implements IType {
 
     public static final ClassType CLIENT_LOGGER = ClassType.getClassTypeBuilder(ClientLogger.class).build();
     public static final ClassType LOG_LEVEL = ClassType.getClassTypeBuilder(LogLevel.class).build();
+
+    public static final ClassType AZURE_CLOUD
+        = new ClassType.Builder(false).packageName("com.azure.core.models").name("AzureCloud").build();
 
     public static final ClassType AZURE_ENVIRONMENT
         = new ClassType.Builder(false).packageName("com.azure.core.management").name("AzureEnvironment").build();

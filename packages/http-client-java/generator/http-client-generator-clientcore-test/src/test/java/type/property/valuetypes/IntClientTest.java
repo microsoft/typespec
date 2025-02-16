@@ -6,18 +6,18 @@ package type.property.valuetypes;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class IntClientTest {
+public class IntClientTest {
 
-    IntClient client = new ValueTypesClientBuilder().buildIntClient();
+    private final IntClient client = new ValueTypesClientBuilder().buildIntClient();
 
     @Test
-    void get() {
+    public void get() {
         IntProperty intProperty = client.get();
         Assertions.assertEquals(42, intProperty.getProperty());
     }
 
     @Test
-    void put() {
+    public void put() {
         IntProperty intProperty = new IntProperty(42);
         client.put(intProperty);
     }

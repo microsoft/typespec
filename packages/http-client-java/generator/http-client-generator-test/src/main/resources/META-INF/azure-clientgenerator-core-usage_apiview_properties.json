@@ -1,0 +1,25 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.usage.UsageAsyncClient": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation",
+    "azure.clientgenerator.core.usage.UsageAsyncClient.inputToInputOutput": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.inputToInputOutput",
+    "azure.clientgenerator.core.usage.UsageAsyncClient.inputToInputOutputWithResponse": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.inputToInputOutput",
+    "azure.clientgenerator.core.usage.UsageAsyncClient.modelInReadOnlyProperty": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.modelInReadOnlyProperty",
+    "azure.clientgenerator.core.usage.UsageAsyncClient.modelInReadOnlyPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.modelInReadOnlyProperty",
+    "azure.clientgenerator.core.usage.UsageAsyncClient.outputToInputOutput": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.outputToInputOutput",
+    "azure.clientgenerator.core.usage.UsageAsyncClient.outputToInputOutputWithResponse": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.outputToInputOutput",
+    "azure.clientgenerator.core.usage.UsageClient": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation",
+    "azure.clientgenerator.core.usage.UsageClient.inputToInputOutput": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.inputToInputOutput",
+    "azure.clientgenerator.core.usage.UsageClient.inputToInputOutputWithResponse": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.inputToInputOutput",
+    "azure.clientgenerator.core.usage.UsageClient.modelInReadOnlyProperty": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.modelInReadOnlyProperty",
+    "azure.clientgenerator.core.usage.UsageClient.modelInReadOnlyPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.modelInReadOnlyProperty",
+    "azure.clientgenerator.core.usage.UsageClient.outputToInputOutput": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.outputToInputOutput",
+    "azure.clientgenerator.core.usage.UsageClient.outputToInputOutputWithResponse": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.outputToInputOutput",
+    "azure.clientgenerator.core.usage.UsageClientBuilder": "_Specs_.Azure.ClientGenerator.Core.Usage",
+    "azure.clientgenerator.core.usage.models.InputModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.InputModel",
+    "azure.clientgenerator.core.usage.models.OrphanModel": "_Specs_.Azure.ClientGenerator.Core.Usage.OrphanModel",
+    "azure.clientgenerator.core.usage.models.OutputModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.OutputModel",
+    "azure.clientgenerator.core.usage.models.ResultModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.ResultModel",
+    "azure.clientgenerator.core.usage.models.RoundTripModel": "_Specs_.Azure.ClientGenerator.Core.Usage.ModelInOperation.RoundTripModel"
+  }
+}

@@ -51,6 +51,7 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   },
   "authentication/http/custom": {
     "package-name": "authentication-http-custom",
+    "package-pprint-name": "Authentication Http Custom",
   },
   "authentication/union": {
     "package-name": "authentication-union",
@@ -219,6 +220,9 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
 
+        // after https://github.com/Azure/autorest.python/issues/3043 fixed, remove this check
+        if (mainTspRelativePath.includes("azure/client-generator-core/api-version")) return;
+
         const hasMainTsp = await promises
           .access(mainTspPath)
           .then(() => true)
@@ -292,7 +296,7 @@ function addOptions(
     }
     options["examples-dir"] = toPosix(join(dirname(spec), "examples"));
     const configs = Object.entries(options).flatMap(([k, v]) => {
-      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${v}`;
+      return `--option ${argv.values.emitterName || "@typespec/http-client-python"}.${k}=${typeof v === "string" && v.indexOf(" ") > -1 ? `"${v}"` : v}`;
     });
     emitterConfigs.push({
       optionsStr: configs.join(" "),

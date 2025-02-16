@@ -65,14 +65,13 @@ function addDefaultOptions(sdkContext: SdkContext) {
 async function createPythonSdkContext<TServiceOperation extends SdkServiceOperation>(
   context: EmitContext<PythonEmitterOptions>,
 ): Promise<PythonSdkContext<TServiceOperation>> {
+  const sdkContext = await createSdkContext<PythonEmitterOptions, TServiceOperation>(
+    context,
+    "@azure-tools/typespec-python",
+  );
+  context.program.reportDiagnostics(sdkContext.diagnostics);
   return {
-    ...(await createSdkContext<PythonEmitterOptions, TServiceOperation>(
-      context,
-      "@typespec/http-client-python",
-      {
-        additionalDecorators: ["TypeSpec\\.@encodedName"],
-      },
-    )),
+    ...sdkContext,
     __endpointPathParameters: [],
   };
 }
@@ -107,7 +106,9 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     resolvedOptions["package-pprint-name"] !== undefined &&
     !resolvedOptions["package-pprint-name"].startsWith('"')
   ) {
-    resolvedOptions["package-pprint-name"] = `${resolvedOptions["package-pprint-name"]}`;
+    resolvedOptions["package-pprint-name"] = resolvedOptions["use-pyodide"]
+      ? `${resolvedOptions["package-pprint-name"]}`
+      : `"${resolvedOptions["package-pprint-name"]}"`;
   }
 
   for (const [key, value] of Object.entries(resolvedOptions)) {

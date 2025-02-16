@@ -12,6 +12,7 @@ export const enum CommandName {
   CreateProject = "typespec.createProject",
   OpenUrl = "typespec.openUrl",
   GenerateCode = "typespec.generateCode",
+  ImportFromOpenApi3 = "typespec.importFromOpenApi3",
 }
 
 export type RestartServerCommandResult = Result<TspLanguageClient>;

@@ -2,16 +2,16 @@ import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
 import { worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
+worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, objectSchemaIndexer }) => {
   describe("extends Record<T>", () => {
-    it("doesn't set additionalProperties on model itself", async () => {
+    it(`doesn't set ${objectSchemaIndexer} on model itself`, async () => {
       const res = await oapiForModel("Pet", `model Pet extends Record<unknown> {};`);
-      deepStrictEqual(res.schemas.Pet.additionalProperties, undefined);
+      deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], undefined);
     });
 
     it("links to an allOf of the Record<unknown> schema", async () => {
       const res = await oapiForModel("Pet", `model Pet extends Record<unknown> {};`);
-      deepStrictEqual(res.schemas.Pet.allOf, [{ type: "object", additionalProperties: {} }]);
+      deepStrictEqual(res.schemas.Pet.allOf, [{ type: "object", [objectSchemaIndexer]: {} }]);
     });
 
     it("include model properties", async () => {
@@ -23,14 +23,14 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
   });
 
   describe("is Record<T>", () => {
-    it("set additionalProperties on model itself", async () => {
+    it(`set ${objectSchemaIndexer} on model itself`, async () => {
       const res = await oapiForModel("Pet", `model Pet is Record<unknown> {};`);
-      deepStrictEqual(res.schemas.Pet.additionalProperties, {});
+      deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], {});
     });
 
     it("set additional properties type", async () => {
       const res = await oapiForModel("Pet", `model Pet is Record<string> {};`);
-      deepStrictEqual(res.schemas.Pet.additionalProperties, {
+      deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], {
         type: "string",
       });
     });
@@ -44,7 +44,7 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
   });
 
   describe("referencing Record<T>", () => {
-    it("add additionalProperties inline for property of type Record<unknown>", async () => {
+    it(`add ${objectSchemaIndexer} inline for property of type Record<unknown>`, async () => {
       const res = await oapiForModel(
         "Pet",
         `
@@ -56,12 +56,61 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
       ok(res.schemas.Pet, "expected definition named Pet");
       deepStrictEqual(res.schemas.Pet.properties.details, {
         type: "object",
-        additionalProperties: {},
+        [objectSchemaIndexer]: {},
+      });
+    });
+
+    it(`add ${objectSchemaIndexer} inline for property of type Record<never>`, async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+        model Pet { empty: Record<never> };
+        `,
+      );
+
+      ok(res.isRef);
+      ok(res.schemas.Pet, "expected definition named Pet");
+      deepStrictEqual(res.schemas.Pet.properties.empty, {
+        type: "object",
+        [objectSchemaIndexer]: { not: {} },
       });
     });
   });
 
-  it("set additionalProperties if model extends Record with leaf type", async () => {
+  describe("spreading Record<T>", () => {
+    it(`add ${objectSchemaIndexer} of type Record<unknown>`, async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+        model Pet { ...Record<unknown> };
+        `,
+      );
+
+      ok(res.isRef);
+      ok(res.schemas.Pet, "expected definition named Pet");
+      deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], {});
+    });
+
+    it(`add ${objectSchemaIndexer} of type Record<never> as "{ not: {} }"`, async () => {
+      const res = await oapiForModel(
+        "Pet",
+        `
+        model Pet { name: string, ...Record<never> };
+        `,
+      );
+
+      ok(res.isRef);
+      ok(res.schemas.Pet, "expected definition named Pet");
+      deepStrictEqual(res.schemas.Pet, {
+        type: "object",
+        required: ["name"],
+        properties: { name: { type: "string" } },
+        [objectSchemaIndexer]: { not: {} },
+      });
+    });
+  });
+
+  it(`set ${objectSchemaIndexer} if model extends Record with leaf type`, async () => {
     const res = await oapiForModel(
       "Pet",
       `
@@ -73,8 +122,60 @@ worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
 
     ok(res.isRef);
     ok(res.schemas.Pet, "expected definition named Pet");
-    deepStrictEqual(res.schemas.Pet.additionalProperties, {
+    deepStrictEqual(res.schemas.Pet[objectSchemaIndexer], {
       $ref: "#/components/schemas/Value",
+    });
+  });
+});
+
+worksFor(["3.0.0"], ({ oapiForModel }) => {
+  describe("additionalProperties: { not: {} }", () => {
+    it("copies properties from base models", async () => {
+      const res = await oapiForModel(
+        "Spinner",
+        `
+        model Entity { id: string; };
+        model Widget extends Entity { kind: string; name: string; };
+        model Spinner extends Widget { kind: "spinner"; cycles: int8; ...Record<never>; }
+      `,
+      );
+      deepStrictEqual(res.schemas.Spinner, {
+        type: "object",
+        allOf: [{ $ref: "#/components/schemas/Widget" }],
+        required: ["kind", "cycles"],
+        properties: {
+          kind: { type: "string", enum: ["spinner"] },
+          cycles: { type: "integer", format: "int8" },
+          name: {},
+          id: {},
+        },
+        additionalProperties: { not: {} },
+      });
+    });
+  });
+});
+
+worksFor(["3.1.0"], ({ oapiForModel }) => {
+  describe("unevaluatedProperties: { not: {} }", () => {
+    it("does not copy properties from base models", async () => {
+      const res = await oapiForModel(
+        "Spinner",
+        `
+        model Entity { id: string; };
+        model Widget extends Entity { kind: string; name: string; };
+        model Spinner extends Widget { kind: "spinner"; cycles: int8; ...Record<never>; }
+      `,
+      );
+      deepStrictEqual(res.schemas.Spinner, {
+        type: "object",
+        allOf: [{ $ref: "#/components/schemas/Widget" }],
+        required: ["kind", "cycles"],
+        properties: {
+          kind: { type: "string", enum: ["spinner"] },
+          cycles: { type: "integer", format: "int8" },
+        },
+        unevaluatedProperties: { not: {} },
+      });
     });
   });
 });

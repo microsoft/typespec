@@ -7,23 +7,23 @@ import io.clientcore.core.annotation.Metadata;
 import io.clientcore.core.annotation.ServiceClientBuilder;
 import io.clientcore.core.credential.KeyCredential;
 import io.clientcore.core.http.client.HttpClient;
-import io.clientcore.core.http.models.HttpLogOptions;
+import io.clientcore.core.http.models.HttpInstrumentationOptions;
 import io.clientcore.core.http.models.HttpRedirectOptions;
 import io.clientcore.core.http.models.HttpRetryOptions;
 import io.clientcore.core.http.models.ProxyOptions;
-import io.clientcore.core.http.pipeline.HttpLoggingPolicy;
+import io.clientcore.core.http.pipeline.HttpInstrumentationPolicy;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.http.pipeline.HttpPipelineBuilder;
 import io.clientcore.core.http.pipeline.HttpPipelinePolicy;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
 import io.clientcore.core.http.pipeline.KeyCredentialPolicy;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.traits.ConfigurationTrait;
 import io.clientcore.core.models.traits.EndpointTrait;
 import io.clientcore.core.models.traits.HttpTrait;
 import io.clientcore.core.models.traits.KeyCredentialTrait;
 import io.clientcore.core.models.traits.ProxyTrait;
-import io.clientcore.core.util.ClientLogger;
 import io.clientcore.core.util.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,15 +91,15 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
      * The logging configuration for HTTP requests and responses.
      */
     @Metadata(generated = true)
-    private HttpLogOptions httpLogOptions;
+    private HttpInstrumentationOptions httpInstrumentationOptions;
 
     /**
      * {@inheritDoc}.
      */
     @Metadata(generated = true)
     @Override
-    public UnionClientBuilder httpLogOptions(HttpLogOptions httpLogOptions) {
-        this.httpLogOptions = httpLogOptions;
+    public UnionClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+        this.httpInstrumentationOptions = httpInstrumentationOptions;
         return this;
     }
 
@@ -234,7 +234,9 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
     private HttpPipeline createHttpPipeline() {
         Configuration buildConfiguration
             = (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
-        HttpLogOptions localHttpLogOptions = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;
+        HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
+            ? new HttpInstrumentationOptions()
+            : this.httpInstrumentationOptions;
         HttpPipelineBuilder httpPipelineBuilder = new HttpPipelineBuilder();
         List<HttpPipelinePolicy> policies = new ArrayList<>();
         policies.add(redirectOptions == null ? new HttpRedirectPolicy() : new HttpRedirectPolicy(redirectOptions));
@@ -243,7 +245,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
         if (keyCredential != null) {
             policies.add(new KeyCredentialPolicy("authorization", keyCredential, "Bearer"));
         }
-        policies.add(new HttpLoggingPolicy(localHttpLogOptions));
+        policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         httpPipelineBuilder.policies(policies.toArray(new HttpPipelinePolicy[0]));
         return httpPipelineBuilder.build();
     }

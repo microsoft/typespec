@@ -1,4 +1,4 @@
-import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../charcode.js";
+import { CharCode, isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../charcode.js";
 import { Keywords } from "../scanner.js";
 import { IdentifierNode, MemberExpressionNode, SyntaxKind, TypeReferenceNode } from "../types.js";
 
@@ -56,4 +56,34 @@ export function typeReferenceToString(
     case SyntaxKind.Identifier:
       return node.sv;
   }
+}
+
+export function splitLines(text: string): string[] {
+  const lines = [];
+  let start = 0;
+  let pos = 0;
+
+  while (pos < text.length) {
+    const ch = text.charCodeAt(pos);
+    switch (ch) {
+      case CharCode.CarriageReturn:
+        if (text.charCodeAt(pos + 1) === CharCode.LineFeed) {
+          lines.push(text.slice(start, pos));
+          start = pos + 2;
+          pos++;
+        } else {
+          lines.push(text.slice(start, pos));
+          start = pos + 1;
+        }
+        break;
+      case CharCode.LineFeed:
+        lines.push(text.slice(start, pos));
+        start = pos + 1;
+        break;
+    }
+    pos++;
+  }
+
+  lines.push(text.slice(start));
+  return lines;
 }

@@ -2,6 +2,8 @@ import { readdir } from "fs/promises";
 import pc from "picocolors";
 import prompts from "prompts";
 import * as semver from "semver";
+import { CliCompilerHost } from "../core/cli/types.js";
+import { installTypeSpecDependencies } from "../core/install.js";
 import { createDiagnostic } from "../core/messages.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
@@ -10,7 +12,12 @@ import { readUrlOrPath } from "../utils/misc.js";
 import { getTypeSpecCoreTemplates } from "./core-templates.js";
 import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
 import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "./init-template.js";
-import { makeScaffoldingConfig, normalizeLibrary, scaffoldNewProject } from "./scaffold.js";
+import {
+  isFileSkipGeneration,
+  makeScaffoldingConfig,
+  normalizeLibrary,
+  scaffoldNewProject,
+} from "./scaffold.js";
 
 export interface InitTypeSpecProjectOptions {
   templatesUrl?: string;
@@ -18,7 +25,7 @@ export interface InitTypeSpecProjectOptions {
 }
 
 export async function initTypeSpecProject(
-  host: CompilerHost,
+  host: CliCompilerHost,
   directory: string,
   options: InitTypeSpecProjectOptions = {},
 ) {
@@ -80,14 +87,22 @@ export async function initTypeSpecProject(
   });
 
   await scaffoldNewProject(host, scaffoldingConfig);
+  const projectJsonCreated = !isFileSkipGeneration(
+    "package.json",
+    scaffoldingConfig.template.files ?? [],
+  );
 
   // eslint-disable-next-line no-console
   console.log("");
-  // eslint-disable-next-line no-console
-  console.log("TypeSpec init completed. You can run `tsp install` now to install dependencies.");
 
   // eslint-disable-next-line no-console
   console.log(pc.green("Project created successfully."));
+
+  if (projectJsonCreated) {
+    // eslint-disable-next-line no-console
+    console.log(pc.green("Installing dependencies..."));
+    await installTypeSpecDependencies(host, directory);
+  }
 
   if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
     // eslint-disable-next-line no-console

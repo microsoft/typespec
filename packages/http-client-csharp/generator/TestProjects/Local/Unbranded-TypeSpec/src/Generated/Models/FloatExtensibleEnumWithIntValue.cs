@@ -6,7 +6,7 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec
 {
     /// <summary> float fixed enum. </summary>
     public readonly partial struct FloatExtensibleEnumWithIntValue : IEquatable<FloatExtensibleEnumWithIntValue>

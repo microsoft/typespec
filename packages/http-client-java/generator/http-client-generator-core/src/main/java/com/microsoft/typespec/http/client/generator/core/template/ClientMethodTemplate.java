@@ -433,19 +433,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         } else {
                             if (elementType == ClassType.STRING
                                 || (elementType instanceof ClassType && ((ClassType) elementType).isBoxedType())) {
-                                if (alreadyNullChecked) {
-                                    expression = parameterName + ".stream()\n"
-                                        + "    .map(paramItemValue -> Objects.toString(paramItemValue, \"\"))\n"
-                                        + "    .collect(Collectors.joining(" + delimiter + "))";
-                                } else {
-                                    expression
-                                        = "(" + parameterName + " == null) ? null : " + parameterName + ".stream()\n"
-                                            + "    .map(paramItemValue -> Objects.toString(paramItemValue, \"\"))\n"
-                                            + "    .collect(Collectors.joining(" + delimiter + "))";
+                                String streamSource = parameterName;
+                                if (!alreadyNullChecked) {
+                                    streamSource = "(" + parameterName + " == null) ? null : " + parameterName;
                                 }
+                                expression = streamSource + ".stream()\n"
+                                    + "    .map(paramItemValue -> Objects.toString(paramItemValue, \"\"))\n"
+                                    + "    .collect(Collectors.joining(" + delimiter + "))";
                             } else {
-                                // Always use serializeIterable as Iterable supports both Iterable and List.
-
                                 // this logic depends on rawType of proxy method parameter be List<WireType>
                                 // alternative would be check wireType of client method parameter
                                 IType elementWireType = parameter.getRawType() instanceof IterableType
@@ -461,9 +456,23 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                                 }
 
                                 // convert List<WireType> to String
-                                expression = String.format(
-                                    "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
-                                    serializeIterableInput, collectionFormat.toString().toUpperCase(Locale.ROOT));
+                                if (JavaSettings.getInstance().isBranded()) {
+                                    // Always use serializeIterable as Iterable supports both Iterable and List.
+                                    expression = String.format(
+                                        "JacksonAdapter.createDefaultSerializerAdapter().serializeIterable(%s, CollectionFormat.%s)",
+                                        serializeIterableInput, collectionFormat.toString().toUpperCase(Locale.ROOT));
+                                } else {
+                                    String streamSource = serializeIterableInput;
+                                    if (!alreadyNullChecked) {
+                                        streamSource = "(" + parameterName + " == null) ? null : " + parameterName;
+                                    }
+                                    // mostly code from
+                                    // https://github.com/Azure/azure-sdk-for-java/blob/e1f8f21b1111f8ac9372e0b039f3de92485a5a66/sdk/core/azure-core/src/main/java/com/azure/core/util/serializer/JacksonAdapter.java#L250-L304
+                                    String serializeItemValueCode
+                                        = TemplateUtil.loadTextFromResource("ClientMethodSerializeItemValue.java");
+                                    expression = streamSource + ".stream().map(" + serializeItemValueCode
+                                        + ").collect(Collectors.joining(" + delimiter + "))";
+                                }
                             }
                         }
                     } else {
@@ -819,13 +828,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("res.getBody(),");
                 function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                     .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
+                // continuation token
+                function.line("null,");
+                // next link
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                     String nextLinkLine = nextLinkLine(clientMethod);
                     nextLinkLine = nextLinkLine.substring(0, nextLinkLine.length() - 1);
-                    function.line(nextLinkLine + ");");
+                    function.line(nextLinkLine + ",");
                 } else {
-                    function.line("null);");
+                    function.line("null,");
                 }
+                // previous link, first link, last link
+                function.line("null,null,null);");
             }
         });
     }
@@ -1584,9 +1598,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
-            Optional<String> serializedName
+            Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
-            if (serializedName.isPresent()) {
+            if (maxPageSizeSerializedName.isPresent()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
                 expression.append("(pageSize) -> {");
@@ -1596,7 +1610,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
                     .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
                     .append("    urlBuilder.setQueryParameter(\"")
-                    .append(serializedName.get())
+                    .append(maxPageSizeSerializedName.get())
                     .append("\", String.valueOf(pageSize));")
                     .append("    requestLocal.setUrl(urlBuilder.toString());")
                     .append("  });")
@@ -1607,15 +1621,20 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        return String.format("() -> %s(%s)", methodName, argumentLine);
+        String lambdaParameters = "";
+        if (!settings.isBranded()) {
+            lambdaParameters = "pagingOptions";
+        }
+
+        return String.format("(%s) -> %s(%s)", lambdaParameters, methodName, argumentLine);
     }
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
-            Optional<String> serializedName
+            Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
-            if (serializedName.isPresent()) {
+            if (maxPageSizeSerializedName.isPresent()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
                 expression.append("(nextLink, pageSize) -> {");
@@ -1625,7 +1644,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
                     .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
                     .append("    urlBuilder.setQueryParameter(\"")
-                    .append(serializedName.get())
+                    .append(maxPageSizeSerializedName.get())
                     .append("\", String.valueOf(pageSize));")
                     .append("    requestLocal.setUrl(urlBuilder.toString());")
                     .append("  });")
@@ -1636,10 +1655,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
+        String lambdaParameters = "nextLink";
+        if (!settings.isBranded()) {
+            lambdaParameters = "(pagingOptions, nextLink)";
+        }
+
         if (settings.isDataPlaneClient()) {
             argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
         }
-        return String.format("nextLink -> %s(%s)", methodName, argumentLine);
+
+        return String.format("%s -> %s(%s)", lambdaParameters, methodName, argumentLine);
     }
 
     private String getPollingStrategy(ClientMethod clientMethod, String contextParam) {

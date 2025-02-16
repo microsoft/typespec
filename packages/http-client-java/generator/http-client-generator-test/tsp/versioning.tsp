@@ -25,11 +25,11 @@ enum ApiVersions {
 
 @resource("resources")
 model Resource {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @key
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   name: string;
 
   type: string;

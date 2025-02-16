@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using UnbrandedTypeSpec;
 
-namespace UnbrandedTypeSpec.Models
+namespace UnbrandedTypeSpec.Models.Custom
 {
     /// <summary></summary>
     public partial class Friend : IJsonModel<Friend>

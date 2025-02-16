@@ -14,7 +14,7 @@ granted herein, whether by implication, estoppel or otherwise.
 4. brace-expansion version 2.0.1 (https://github.com/juliangruber/brace-expansion)
 5. minimatch version 5.1.6 (https://github.com/isaacs/minimatch)
 6. semver version 7.6.3 (https://github.com/npm/node-semver)
-7. yaml version 2.5.1 (github:eemeli/yaml)
+5. yaml version 2.7.0 (github:eemeli/yaml)
 
 
 %% @nevware21/ts-async NOTICES AND INFORMATION BEGIN HERE

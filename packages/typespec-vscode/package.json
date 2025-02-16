@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.64.0",
+  "version": "0.65.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -27,7 +27,7 @@
   "main": "./dist/src/extension.cjs",
   "browser": "./dist/src/web/extension.js",
   "engines": {
-    "vscode": "^1.94.0"
+    "vscode": "^1.96.0"
   },
   "activationEvents": [
     "onLanguage:typespec",
@@ -78,7 +78,7 @@
           "typespec.initTemplatesUrls": {
             "type": "array",
             "default": [],
-            "description": "List of URLs to fetch templates from when creating a new project.",
+            "description": "List of URLs to fetch templates from when creating a new project.\n\nExample:\n\"typespec.initTemplatesUrls\": [{\n\"name\": \"displayName\",\n\"url\": \"https://urlToTheFileContainsTemplates\"\n}],",
             "scope": "machine-overridable",
             "items": {
               "type": "object",
@@ -113,6 +113,26 @@
         }
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "typespec.importFromOpenApi3",
+          "group": "typespec@2"
+        },
+        {
+          "command": "typespec.generateCode",
+          "when": "explorerResourceIsFolder || resourceLangId == typespec",
+          "group": "typespec@1"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "typespec.generateCode",
+          "when": "resourceLangId == typespec",
+          "group": "typespec@1"
+        }
+      ]
+    },
     "grammars": [
       {
         "language": "typespec",
@@ -156,24 +176,13 @@
         "command": "typespec.installGlobalCompilerCli",
         "title": "Install TypeSpec Compiler/CLI globally",
         "category": "TypeSpec"
+      },
+      {
+        "command": "typespec.importFromOpenApi3",
+        "title": "Import TypeSpec from OpenApi3",
+        "category": "TypeSpec"
       }
     ],
-    "menus": {
-      "explorer/context": [
-        {
-          "command": "typespec.generateCode",
-          "when": "explorerResourceIsFolder || resourceLangId == typespec",
-          "group": "code_generation"
-        }
-      ],
-      "editor/context": [
-        {
-          "command": "typespec.generateCode",
-          "when": "resourceLangId == typespec",
-          "group": "code_generation"
-        }
-      ]
-    },
     "semanticTokenScopes": [
       {
         "scopes": {
@@ -231,29 +240,29 @@
     "test:web": "vscode-test-web --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "~28.0.0",
+    "@rollup/plugin-commonjs": "~28.0.2",
     "@rollup/plugin-json": "~6.1.0",
-    "@rollup/plugin-node-resolve": "~15.3.0",
+    "@rollup/plugin-node-resolve": "~16.0.0",
     "@rollup/plugin-typescript": "~12.1.0",
     "@types/mocha": "^10.0.9",
-    "@types/node": "~22.7.9",
-    "@types/vscode": "~1.94.0",
+    "@types/node": "~22.10.10",
+    "@types/vscode": "~1.96.0",
     "@types/semver": "^7.5.8",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.5",
-    "@vitest/ui": "^2.1.2",
+    "@vitest/coverage-v8": "^3.0.4",
+    "@vitest/ui": "^3.0.3",
     "@vscode/extension-telemetry": "^0.9.8",
-    "@vscode/test-web": "^0.0.62",
-    "@vscode/vsce": "~3.1.1",
-    "c8": "^10.1.2",
-    "mocha": "^10.7.3",
+    "@vscode/test-web": "^0.0.65",
+    "@vscode/vsce": "~3.2.1",
+    "c8": "^10.1.3",
+    "mocha": "^11.1.0",
     "rimraf": "~6.0.1",
-    "rollup": "~4.24.0",
-    "typescript": "~5.6.3",
-    "vitest": "^2.1.5",
-    "vscode-languageclient": "~9.0.1",
+    "rollup": "~4.31.0",
     "semver": "^7.6.3",
-    "yaml": "~2.5.1"
+    "typescript": "~5.7.3",
+    "vitest": "^3.0.5",
+    "vscode-languageclient": "~9.0.1",
+    "yaml": "~2.7.0"
   }
 }

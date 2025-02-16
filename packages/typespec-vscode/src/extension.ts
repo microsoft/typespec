@@ -21,6 +21,7 @@ import {
 import { isWhitespaceStringOrUndefined } from "./utils.js";
 import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
+import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
 
 let client: TspLanguageClient | undefined;
@@ -122,6 +123,12 @@ export async function activate(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(CommandName.CreateProject, async () => {
       await createTypeSpecProject(client, stateManager);
+    }),
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand(CommandName.ImportFromOpenApi3, async (uri: vscode.Uri) => {
+      await importFromOpenApi3(uri);
     }),
   );
 
