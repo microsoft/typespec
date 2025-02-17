@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapTy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -226,7 +227,21 @@ public abstract class Specification extends ModelBase {
     private Set<Property> adaptResourceProperties(Resource resource, Set<Property> properties) {
         Set<String> propertyNames = properties.stream().map(Property::getName).collect(Collectors.toSet());
         ClientModel innerModel = resource.getResourceModel().getInnerModel();
-
+        Set<Property> result = new HashSet<>(properties);
+        String parentModelName = innerModel.getParentModelName();
+        while (parentModelName != null) {
+            if ((parentModelName.equals("Resource") || parentModelName.equals("ProxyResource")) && ClientModelUtil.isExternalModel()) {
+                if (!propertyNames.contains("name")) {
+                    result.add(new Property(resource, new ExternalModel(String.class), "name"));
+                }
+                if (parentModelName.equals("Resource")) {
+                    result.add(new Property(resource, new ExternalModel(String.class), "location"));
+                    result.add(new Property(resource, new ExternalModel(String.class), "tags"));
+                }
+            }
+            parentModelName = ClientModelUtil.getClientModel(parentModelName).getParentModelName();
+        }
+        return result;
     }
 
     private ModelBase getPropertyType(IType wireType, Resource resource) {
