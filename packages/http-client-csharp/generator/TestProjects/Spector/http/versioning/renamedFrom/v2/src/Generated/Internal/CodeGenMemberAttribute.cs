@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Versioning.RenamedFrom
+namespace Versioning.RenamedFrom.V2
 {
     [AttributeUsage((AttributeTargets.Property | AttributeTargets.Field))]
     internal partial class CodeGenMemberAttribute : CodeGenTypeAttribute

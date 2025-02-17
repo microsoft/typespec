@@ -93,7 +93,6 @@ export function createEmitterContext(program: Program): EmitContext<CSharpEmitte
     options: {
       outputFile: "tspCodeModel.json",
       logFile: "log.json",
-      skipSDKGeneration: false,
       "new-project": false,
       "clear-output-folder": false,
       "save-inputs": false,

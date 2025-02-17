@@ -327,8 +327,8 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private string? _rootNamespace;
-        public virtual string RootNamespace => _rootNamespace ??= GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
+        private string? _packageName;
+        public virtual string PackageName => _packageName ??= GetCleanNameSpace(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Name);
 
         public string GetCleanNameSpace(string clientNamespace)
         {

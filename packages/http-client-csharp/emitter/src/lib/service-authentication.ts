@@ -29,11 +29,26 @@ export function processServiceAuthentication(
   if (!authClientParameter) {
     return undefined;
   }
-  if (authClientParameter.type.kind === "credential") {
-    return processAuthType(sdkContext, authClientParameter.type);
-  }
+
   const inputAuth: InputAuth = {};
+
+  if (authClientParameter.type.kind === "credential") {
+    const auth = processAuthType(sdkContext, authClientParameter.type);
+    if (!auth && authClientParameter.type.scheme.type !== "noAuth") {
+      sdkContext.logger.reportDiagnostic({
+        code: "unsupported-auth",
+        messageId: "onlyUnsupportedAuthProvided",
+        target: authClientParameter.type.__raw ?? NoTarget,
+      });
+
+      return inputAuth;
+    }
+    return auth;
+  }
+
+  let containsNoAuth = false;
   for (const authType of authClientParameter.type.variantTypes) {
+    containsNoAuth = containsNoAuth || authType.scheme.type === "noAuth";
     const auth = processAuthType(sdkContext, authType);
     if (auth?.ApiKey) {
       inputAuth.ApiKey = auth.ApiKey;
@@ -42,6 +57,19 @@ export function processServiceAuthentication(
       inputAuth.OAuth2 = auth.OAuth2;
     }
   }
+
+  if (containsNoAuth && !inputAuth.ApiKey && !inputAuth.OAuth2) {
+    return undefined;
+  }
+
+  if (!inputAuth?.ApiKey && !inputAuth?.OAuth2) {
+    sdkContext.logger.reportDiagnostic({
+      code: "unsupported-auth",
+      messageId: "onlyUnsupportedAuthProvided",
+      target: authClientParameter.type.__raw ?? NoTarget,
+    });
+  }
+
   return inputAuth;
 }
 
