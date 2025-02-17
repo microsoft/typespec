@@ -152,7 +152,7 @@ export function isLroNewPollingStrategy(
     } else if (
       lroMetadata.finalStep &&
       lroMetadata.finalStep.kind === "pollingSuccessProperty" &&
-      lroMetadata.finalResponse?.resultPath
+      lroMetadata.finalResponse?.resultSegments
     ) {
       // final result is the value in lroMetadata.finalStep.target
       useNewStrategy = true;

@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 extern alias SrvDrivenV2;
+extern alias SrvDrivenV1;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SrvDrivenV2::Resiliency.ServiceDriven;
+using SrvDrivenV2::Resiliency.SrvDriven.V2;
 
 namespace TestProjects.Spector.Tests.Http.Resiliency.SrvDriven.V2
 {
