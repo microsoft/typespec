@@ -38,7 +38,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? kind = null;
             bool isRequired = false;
             bool isApiVersion = false;
-            bool isResourceParameter = false;
             bool isContentType = false;
             bool isEndpoint = false;
             bool skipUrlEncoding = false;
@@ -59,7 +58,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString(nameof(InputParameter.Kind), ref kind)
                     || reader.TryReadBoolean(nameof(InputParameter.IsRequired), ref isRequired)
                     || reader.TryReadBoolean(nameof(InputParameter.IsApiVersion), ref isApiVersion)
-                    || reader.TryReadBoolean(nameof(InputParameter.IsResourceParameter), ref isResourceParameter)
                     || reader.TryReadBoolean(nameof(InputParameter.IsContentType), ref isContentType)
                     || reader.TryReadBoolean(nameof(InputParameter.IsEndpoint), ref isEndpoint)
                     || reader.TryReadBoolean(nameof(InputParameter.SkipUrlEncoding), ref skipUrlEncoding)
@@ -106,7 +104,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                 kind: parameterKind,
                 isRequired: isRequired,
                 isApiVersion: isApiVersion,
-                isResourceParameter: isResourceParameter,
                 isContentType: isContentType,
                 isEndpoint: isEndpoint,
                 skipUrlEncoding: skipUrlEncoding,
