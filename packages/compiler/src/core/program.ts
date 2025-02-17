@@ -1,3 +1,4 @@
+import { relative } from "path";
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/index.js";
@@ -19,6 +20,13 @@ import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
+import {
+  initializeSpinner,
+  pauseSpinner,
+  resumeSpinner,
+  setChildLogPrefix,
+  stopSpinner,
+} from "./helpers/progress-logger.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLinter, resolveLinterDefinition } from "./linter.js";
 import { createLogger } from "./logger/index.js";
@@ -29,6 +37,7 @@ import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
+
 import {
   SourceLoader,
   SourceResolution,
@@ -141,6 +150,10 @@ interface TypeSpecLibraryReference {
   manifest: PackageJson;
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function compile(
   host: CompilerHost,
   mainFile: string,
@@ -205,6 +218,7 @@ export async function compile(
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
+  initializeSpinner("Parsing...");
   await loadSources(resolvedMain);
 
   let emit = options.emit;
@@ -237,6 +251,7 @@ export async function compile(
 
   const resolver = createResolver(program);
   resolver.resolveProgram();
+  initializeSpinner("Checker...");
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
 
@@ -244,6 +259,8 @@ export async function compile(
     return program;
   }
   // onValidate stage
+  initializeSpinner("Validation...");
+  await delay(1000);
   await runValidators();
 
   validateRequiredImports();
@@ -260,6 +277,7 @@ export async function compile(
   for (const instance of emitters) {
     await runEmitter(instance);
   }
+  console.log();
 
   return program;
 
@@ -567,6 +585,10 @@ export async function compile(
    * @param emitter Emitter ref to run
    */
   async function runEmitter(emitter: EmitterRef) {
+    const emitterName = emitter.metadata.name as string;
+    initializeSpinner(emitterName);
+
+    await delay(1000);
     const context: EmitContext<any> = {
       program,
       emitterOutputDir: emitter.emitterOutputDir,
@@ -575,10 +597,20 @@ export async function compile(
         return createAssetEmitter(program, TypeEmitterClass, this);
       },
     };
+    const outputRelativePath = `./${relative(context.program.projectRoot, context.emitterOutputDir)}/`;
+    setChildLogPrefix(outputRelativePath);
     try {
+      pauseSpinner(); //letting the console free for emitter logs
       await emitter.emitFunction(context);
+      resumeSpinner();
     } catch (error: unknown) {
       throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
+    }
+
+    if (options.listOutputs) {
+      stopSpinner(`✓ ${emitterName}\t${outputRelativePath}`, true);
+    } else {
+      stopSpinner(`✓ ${emitterName}`);
     }
   }
 

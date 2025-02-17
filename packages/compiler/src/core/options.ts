@@ -26,6 +26,11 @@ export interface CompilerOptions {
   emit?: string[];
 
   /**
+   * List emitted outputs and their paths.
+   */
+  listOutputs?: boolean;
+
+  /**
    * Emitter options.
    * Key value pair where the key must be the emitter name.
    */
