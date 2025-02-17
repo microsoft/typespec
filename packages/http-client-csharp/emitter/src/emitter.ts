@@ -152,11 +152,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
             _minSupportedDotNetSdkVersion,
           );
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          // if (isValid) {
-          //   if (result.stderr) logger.error(result.stderr);
-          //   if (result.stdout) logger.verbose(result.stdout);
-          //   throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
-          // }
+          if (isValid) throw new Error(error);
         }
       if (!options["save-inputs"]) {
         // delete
