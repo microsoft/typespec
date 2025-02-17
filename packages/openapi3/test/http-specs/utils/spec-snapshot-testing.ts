@@ -178,7 +178,7 @@ export async function markCoverage(path: string, options: Record<string, any>) {
 
 export async function checkServe() {
   const interval = 1000; // 1 second
-  const timeout = 5000; // 5 seconds
+  const timeout = 10000; // 10 seconds
 
   const startTime = Date.now();
   while (Date.now() - startTime < timeout) {
