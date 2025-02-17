@@ -70,7 +70,7 @@ function processJsonRpc(context: CSharpEmitterContext, message: string) {
       context.logger.info(params.message);
       break;
     case "diagnostic":
-      let crossLanguageDefinitionId : string | undefined;
+      let crossLanguageDefinitionId: string | undefined;
       if ("crossLanguageDefinitionId" in params) {
         crossLanguageDefinitionId = params.crossLanguageDefinitionId;
       }

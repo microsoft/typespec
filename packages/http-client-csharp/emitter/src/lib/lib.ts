@@ -100,14 +100,14 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
     severity: "warning",
     messages: {
       default: paramMessage`Duplicate cross-language-definition-id found: kind=${"newKind"}, name=${"newName"}`,
-    }
+    },
   },
   "diagnostic-from-csharp": {
     severity: "warning",
     messages: {
       default: paramMessage`${"message"}`,
-    }
-  }
+    },
+  },
 };
 
 const $lib = createTypeSpecLibrary({
