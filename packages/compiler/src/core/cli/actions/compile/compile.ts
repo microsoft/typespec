@@ -1,5 +1,6 @@
 import { logDiagnostics } from "../../../diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "../../../entrypoint-resolution.js";
+import { stopSpinner } from "../../../helpers/progress-logger.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { Program, compile as compileProgram } from "../../../program.js";
@@ -63,6 +64,7 @@ async function compileOnce(
   const cliOptions = await getCompilerOptionsOrExit(host, entrypoint, args);
   try {
     const program = await compileProgram(host, entrypoint, cliOptions);
+    stopSpinner();
     logProgramResult(host, program);
     if (program.hasError()) {
       process.exit(1);
@@ -177,7 +179,7 @@ function logProgramResult(
     logDiagnostics(program.diagnostics, host.logSink);
     logDiagnosticCount(program.diagnostics);
   } else {
-    log("Compilation completed successfully.");
+    log("\nCompilation completed successfully.");
   }
   // eslint-disable-next-line no-console
   console.log(); // Insert a newline
