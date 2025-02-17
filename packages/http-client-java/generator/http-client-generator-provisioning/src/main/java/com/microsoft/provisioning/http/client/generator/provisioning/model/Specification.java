@@ -225,7 +225,7 @@ public abstract class Specification extends ModelBase {
     }
 
     private Set<Property> adaptResourceProperties(Resource resource, Set<Property> properties) {
-        Set<String> propertyNames = properties.stream().map(Property::getName).collect(Collectors.toSet());
+        Set<String> propertyNames = new HashSet<>(properties.stream().map(Property::getName).collect(Collectors.toSet()));
         ClientModel innerModel = resource.getResourceModel().getInnerModel();
         Set<Property> result = new HashSet<>(properties);
         String parentModelName = innerModel.getParentModelName();
@@ -233,10 +233,17 @@ public abstract class Specification extends ModelBase {
             if ((parentModelName.equals("Resource") || parentModelName.equals("ProxyResource"))) {
                 if (!propertyNames.contains("name")) {
                     result.add(new Property(resource, new ExternalModel(String.class), "name"));
+                    propertyNames.add("name");
                 }
                 if (parentModelName.equals("Resource")) {
-                    result.add(new Property(resource, new ExternalModel(String.class), "location"));
-                    result.add(new Property(resource, new ExternalModel(String.class), "tags"));
+                    if (!propertyNames.contains("location")) {
+                        result.add(new Property(resource, new ExternalModel(String.class), "location"));
+                        propertyNames.add("location");
+                    }
+                    if (!propertyNames.contains("tags")) {
+                        result.add(new Property(resource, new ExternalModel(String.class), "tags"));
+                        propertyNames.add("tags");
+                    }
                 }
             }
             parentModelName = ClientModelUtil.getClientModel(parentModelName).getParentModelName();
