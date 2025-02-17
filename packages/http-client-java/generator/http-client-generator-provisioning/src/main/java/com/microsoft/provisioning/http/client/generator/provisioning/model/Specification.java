@@ -224,56 +224,48 @@ public abstract class Specification extends ModelBase {
     }
 
     private ModelBase getPropertyType(IType wireType, Resource resource) {
+        ModelBase propertyModel;
         if (wireType instanceof ListType) {
-            ListModel listModel = new ListModel(getPropertyType(((ListType) wireType).getElementType(), resource));
-            listModel.setProvisioningPackage(List.class.getPackageName());
-            listModel.setSpec(this);
-            return listModel;
+            propertyModel = new ListModel(getPropertyType(((ListType) wireType).getElementType(), resource));
+            propertyModel.setProvisioningPackage(List.class.getPackageName());
         } else if (wireType instanceof MapType) {
-            DictionaryModel dictionaryModel
+            propertyModel
                 = new DictionaryModel(getPropertyType(((MapType) wireType).getValueType(), resource));
-            dictionaryModel.setProvisioningPackage(Map.class.getPackageName());
-            dictionaryModel.setSpec(this);
-            return dictionaryModel;
+            propertyModel.setProvisioningPackage(Map.class.getPackageName());
         } else if (wireType instanceof EnumType) {
             EnumModel enumModel = new EnumModel(((EnumType) wireType).getName(), this.getProvisioningPackage(),
                 ((EnumType) wireType).getValues().stream().map(ClientEnumValue::getValue).collect(Collectors.toList()));
-            enumModel.setSpec(this);
             modelNameMapping.put(((EnumType) wireType).getName(), enumModel);
-            return enumModel;
+            propertyModel = enumModel;
+            TypeRegistry.register(enumModel);
         } else if (ClientModelUtil.isClientModel(wireType)) {
-            ModelBase model;
-            ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) wireType).getName());
-            if ((model = TypeRegistry.get(clientModel)) != null) {
-                return model;
+            if ((propertyModel = TypeRegistry.get(ClientModelUtil.getClientModel(((ClassType) wireType).getName()))) != null) {
+                return propertyModel;
             }
             ClassType classType = (ClassType) wireType;
-            String packageName = this.getProvisioningPackage();
-            if (!this.resourceModelMap.containsKey(clientModel)) {
-                packageName += ".models";
-            }
-            SimpleModel simpleModel
-                = new SimpleModel(this, resource.getArmType(), classType.getName(), packageName, null);
+            SimpleModel simpleModel = new SimpleModel(this, resource.getArmType(), classType.getName(),
+                this.getProvisioningPackage(), null);
             simpleModel.setProperties(
                 parseProperties(ClientModelUtil.getClientModel(((ClassType) wireType).getName()), resource));
-            simpleModel.setSpec(this);
             modelNameMapping.put(classType.getName(), simpleModel);
-            return simpleModel;
+            propertyModel = simpleModel;
+            TypeRegistry.register(simpleModel);
         } else if (wireType instanceof PrimitiveType) {
             ExternalModel externalModel = new ExternalModel(((PrimitiveType) wireType).getName(), "java.lang");
             externalModel.setExternal(true);
             TypeRegistry.register(externalModel);
-            return externalModel;
+            propertyModel = externalModel;
         } else if (wireType instanceof ClassType) {
             ExternalModel externalModel
-                = new ExternalModel(((ClassType) wireType).getName(), ((ClassType) wireType).getPackage());
+                = new ExternalModel(((ClassType) wireType).getName(), this.getProvisioningPackage() + ".models");
             externalModel.setExternal(true);
-            externalModel.setSpec(this);
             TypeRegistry.register(externalModel);
-            return externalModel;
+            propertyModel = externalModel;
         } else {
             throw new IllegalArgumentException("Unsupported wireType: " + wireType);
         }
+        propertyModel.setSpec(this);
+        return propertyModel;
     }
 
     private Set<Property> parseProperties(ClientModel clientModel, Resource resource) {
