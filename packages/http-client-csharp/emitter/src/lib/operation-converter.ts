@@ -57,7 +57,6 @@ export function fromSdkServiceMethod(
     generateConvenience = false;
   }
 
-  const responseMap = fromSdkHttpOperationResponses(sdkContext, method.operation.responses);
   return {
     Name: method.name,
     ResourceName:
@@ -69,7 +68,7 @@ export function fromSdkServiceMethod(
     Doc: method.doc,
     Accessibility: method.access,
     Parameters: fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions),
-    Responses: [...responseMap.values()],
+    Responses: fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
     Uri: uri,
@@ -84,7 +83,7 @@ export function fromSdkServiceMethod(
     CrossLanguageDefinitionId: method.crossLanguageDefinitionId,
     Decorators: method.decorators,
     Examples: method.operation.examples
-      ? fromSdkHttpExamples(sdkContext, method.operation.examples, responseMap)
+      ? fromSdkHttpExamples(sdkContext, method.operation.examples)
       : undefined,
   };
 }
@@ -234,20 +233,36 @@ function loadLongRunningOperation(
 function fromSdkHttpOperationResponses(
   sdkContext: CSharpEmitterContext,
   operationResponses: SdkHttpResponse[],
-): Map<SdkHttpResponse, OperationResponse> {
-  const responses = new Map<SdkHttpResponse, OperationResponse>();
+): OperationResponse[] {
+  const responses: OperationResponse[] = [];
   for (const r of operationResponses) {
-    const range = r.statusCodes;
-    responses.set(r, {
-      StatusCodes: toStatusCodesArray(range),
-      BodyType: r.type ? fromSdkType(sdkContext, r.type) : undefined,
-      BodyMediaType: BodyMediaType.Json,
-      Headers: fromSdkServiceResponseHeaders(sdkContext, r.headers),
-      IsErrorResponse: r.type !== undefined && isErrorModel(sdkContext.program, r.type.__raw!),
-      ContentTypes: r.contentTypes,
-    });
+    responses.push(fromSdkHttpOperationResponse(sdkContext, r));
   }
   return responses;
+}
+
+export function fromSdkHttpOperationResponse(
+  sdkContext: CSharpEmitterContext,
+  sdkResponse: SdkHttpResponse,
+): OperationResponse {
+  let retVar = sdkContext.__typeCache.responses.get(sdkResponse);
+  if (retVar) {
+    return retVar;
+  }
+
+  const range = sdkResponse.statusCodes;
+  retVar = {
+    StatusCodes: toStatusCodesArray(range),
+    BodyType: sdkResponse.type ? fromSdkType(sdkContext, sdkResponse.type) : undefined,
+    BodyMediaType: BodyMediaType.Json,
+    Headers: fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers),
+    IsErrorResponse:
+      sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
+    ContentTypes: sdkResponse.contentTypes,
+  };
+
+  sdkContext.__typeCache.updateSdkResponseReferences(sdkResponse, retVar);
+  return retVar;
 }
 
 function fromSdkServiceResponseHeaders(

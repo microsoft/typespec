@@ -8,7 +8,6 @@ import {
   SdkExampleValue,
   SdkHttpOperationExample,
   SdkHttpParameterExampleValue,
-  SdkHttpResponse,
   SdkHttpResponseExampleValue,
   SdkModelExampleValue,
   SdkNullExampleValue,
@@ -41,13 +40,12 @@ import {
   InputPrimitiveType,
   InputUnionType,
 } from "../type/input-type.js";
-import { OperationResponse } from "../type/operation-response.js";
+import { fromSdkHttpOperationResponse } from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
 
 export function fromSdkHttpExamples(
   sdkContext: CSharpEmitterContext,
   examples: SdkHttpOperationExample[],
-  responseMap: Map<SdkHttpResponse, OperationResponse>,
 ): InputHttpOperationExample[] {
   return examples.map((example) => fromSdkHttpExample(example));
 
@@ -72,12 +70,12 @@ export function fromSdkHttpExamples(
   }
 
   function fromSdkOperationResponse(
-    response: SdkHttpResponseExampleValue,
+    responseValue: SdkHttpResponseExampleValue,
   ): OperationResponseExample {
     return {
-      response: responseMap.get(response.response)!,
-      statusCode: response.statusCode,
-      bodyValue: response.bodyValue ? fromSdkExample(response.bodyValue) : undefined,
+      response: fromSdkHttpOperationResponse(sdkContext, responseValue.response),
+      statusCode: responseValue.statusCode,
+      bodyValue: responseValue.bodyValue ? fromSdkExample(responseValue.bodyValue) : undefined,
     };
   }
 
