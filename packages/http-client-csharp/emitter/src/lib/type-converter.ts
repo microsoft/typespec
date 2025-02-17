@@ -42,11 +42,11 @@ export function fromSdkType(
   sdkType: SdkType,
   literalTypeContext?: LiteralTypeContext,
 ): InputType {
-  if (sdkContext.__typeCache.types.has(sdkType)) {
-    return sdkContext.__typeCache.types.get(sdkType)!;
+  let retVar = sdkContext.__typeCache.types.get(sdkType);
+  if (retVar) {
+    return retVar;
   }
 
-  let retVar: InputType;
   switch (sdkType.kind) {
     case "nullable":
       const inputType = fromSdkType(sdkContext, sdkType.type);
@@ -104,24 +104,8 @@ export function fromSdkType(
       break;
   }
 
-  updateSdkTypeReferences(sdkContext, sdkType, retVar);
+  sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
   return retVar;
-}
-
-function updateTypeCache(sdkContext: CSharpEmitterContext, typeName: string, type: InputType) {
-  if (type.kind === "model") {
-    sdkContext.__typeCache.models.set(typeName, type);
-  } else if (type.kind === "enum") {
-    sdkContext.__typeCache.enums.set(typeName, type);
-  }
-}
-
-function updateSdkTypeReferences(
-  sdkContext: CSharpEmitterContext,
-  sdkType: SdkType,
-  inputType: InputType,
-) {
-  sdkContext.__typeCache.types.set(sdkType, inputType);
 }
 
 export function fromSdkModelType(
@@ -145,7 +129,7 @@ export function fromSdkModelType(
       decorators: modelType.decorators,
     } as InputModelType;
 
-    updateTypeCache(sdkContext, modelTypeName, inputModelType);
+    sdkContext.__typeCache.updateTypeCache(modelTypeName, inputModelType);
 
     inputModelType.additionalProperties = modelType.additionalProperties
       ? fromSdkType(sdkContext, modelType.additionalProperties)
@@ -250,7 +234,7 @@ export function fromSdkEnumType(
       decorators: enumType.decorators,
     };
     if (addToCollection) {
-      updateTypeCache(sdkContext, enumName, inputEnumType);
+      sdkContext.__typeCache.updateTypeCache(enumName, inputEnumType);
     }
     for (const v of enumType.values) {
       values.push(fromSdkEnumValueType(sdkContext, v));
@@ -373,7 +357,7 @@ function fromSdkConstantType(
       decorators: constantType.decorators,
     };
 
-    updateTypeCache(sdkContext, enumName, enumType);
+    sdkContext.__typeCache.updateTypeCache(enumName, enumType);
 
     values.push({
       kind: "enumvalue",

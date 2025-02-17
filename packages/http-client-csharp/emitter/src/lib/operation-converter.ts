@@ -57,7 +57,6 @@ export function fromSdkServiceMethod(
     generateConvenience = false;
   }
 
-  const parameterMap = fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions);
   const responseMap = fromSdkHttpOperationResponses(sdkContext, method.operation.responses);
   return {
     Name: method.name,
@@ -69,7 +68,7 @@ export function fromSdkServiceMethod(
     Summary: method.summary,
     Doc: method.doc,
     Accessibility: method.access,
-    Parameters: [...parameterMap.values()],
+    Parameters: fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions),
     Responses: [...responseMap.values()],
     HttpMethod: parseHttpRequestMethod(method.operation.verb),
     RequestBodyMediaType: getBodyMediaType(method.operation.bodyParam?.type),
@@ -85,7 +84,7 @@ export function fromSdkServiceMethod(
     CrossLanguageDefinitionId: method.crossLanguageDefinitionId,
     Decorators: method.decorators,
     Examples: method.operation.examples
-      ? fromSdkHttpExamples(sdkContext, method.operation.examples, parameterMap, responseMap)
+      ? fromSdkHttpExamples(sdkContext, method.operation.examples, responseMap)
       : undefined,
   };
 }
@@ -138,8 +137,8 @@ function fromSdkOperationParameters(
   sdkContext: CSharpEmitterContext,
   operation: SdkHttpOperation,
   rootApiVersions: string[],
-): Map<SdkHttpParameter, InputParameter> {
-  const parameters = new Map<SdkHttpParameter, InputParameter>();
+): InputParameter[] {
+  const parameters: InputParameter[] = [];
   for (const p of operation.parameters) {
     if (p.kind === "cookie") {
       sdkContext.logger.reportDiagnostic({
@@ -150,7 +149,7 @@ function fromSdkOperationParameters(
       return parameters;
     }
     const param = fromSdkHttpOperationParameter(sdkContext, p, rootApiVersions);
-    parameters.set(p, param);
+    parameters.push(param);
   }
 
   if (operation.bodyParam) {
@@ -159,28 +158,33 @@ function fromSdkOperationParameters(
       operation.bodyParam,
       rootApiVersions,
     );
-    parameters.set(operation.bodyParam, bodyParam);
+    parameters.push(bodyParam);
   }
   return parameters;
 }
 
-function fromSdkHttpOperationParameter(
+export function fromSdkHttpOperationParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkPathParameter | SdkQueryParameter | SdkHeaderParameter | SdkBodyParameter,
   rootApiVersions: string[],
 ): InputParameter {
+  let retVar = sdkContext.__typeCache.parameters.get(p);
+  if (retVar) {
+    return retVar;
+  }
+
   const isContentType =
     p.kind === "header" && p.serializedName.toLocaleLowerCase() === "content-type";
   const parameterType = fromSdkType(sdkContext, p.type);
   const format = p.kind === "header" || p.kind === "query" ? p.collectionFormat : undefined;
   const serializedName = p.kind !== "body" ? p.serializedName : p.name;
 
-  // TO-DO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
+  // TODO: In addition to checking if a path parameter is exploded, we should consider capturing the delimiter for
   // any path expansion to ensure the parameter values are delimited correctly during serialization.
   // https://github.com/microsoft/typespec/issues/5561
   const explode = isExplodedParameter(p);
 
-  return {
+  retVar = {
     Name: p.name,
     NameInRequest: p.kind === "header" ? normalizeHeaderName(serializedName) : serializedName,
     Summary: p.summary,
@@ -188,7 +192,7 @@ function fromSdkHttpOperationParameter(
     Type: parameterType,
     Location: getParameterLocation(p),
     IsApiVersion:
-      p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version",
+      p.name.toLocaleLowerCase() === "apiversion" || p.name.toLocaleLowerCase() === "api-version", // TODO -- we should use `isApiVersionParam` instead
     IsContentType: isContentType,
     IsEndpoint: false,
     Explode: explode,
@@ -198,7 +202,10 @@ function fromSdkHttpOperationParameter(
     DefaultValue: getParameterDefaultValue(sdkContext, p.clientDefaultValue, parameterType),
     Decorators: p.decorators,
     SkipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
-  } as InputParameter;
+  };
+
+  sdkContext.__typeCache.updateSdkParameterReferences(p, retVar);
+  return retVar;
 }
 
 function loadLongRunningOperation(
