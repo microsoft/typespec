@@ -178,7 +178,7 @@ public class ProxyMethodParameter extends MethodParameter {
                 imports.add(String.format("%1$s.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
                     CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
             } else {
-                imports.add(String.format("%1$s.http.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
+                imports.add(String.format("%1$s.http.annotations.%2$sParam", ExternalPackage.CORE.getPackageName(),
                     CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
             }
         }
