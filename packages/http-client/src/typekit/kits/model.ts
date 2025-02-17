@@ -4,7 +4,6 @@ import {
   ignoreDiagnostics,
   Model,
   ModelProperty,
-  Type,
 } from "@typespec/compiler";
 import { defineKit } from "@typespec/compiler/experimental/typekit";
 import { AccessKit, getAccess, getName, getUsage, NameKit, UsageKit } from "./utils.js";
@@ -16,13 +15,6 @@ export interface SdkModelKit extends NameKit<Model>, AccessKit<Model>, UsageKit<
    * @param model model to get the properties
    */
   listProperties(model: Model): ModelProperty[];
-
-  /**
-   * Get type of additionalProperties, if there are additional properties
-   *
-   * @param model model to get the additional properties type of
-   */
-  getAdditionalPropertiesType(model: Model): Type | undefined;
 
   /**
    * Get discriminator of a model, if a discriminator exists
@@ -65,17 +57,6 @@ defineKit<SdkKit>({
   model: {
     listProperties(model) {
       return [...model.properties.values()];
-    },
-    getAdditionalPropertiesType(model) {
-      // model MyModel is Record<> {} should be model with additional properties
-      if (model.sourceModel?.kind === "Model" && model.sourceModel?.name === "Record") {
-        return model.sourceModel!.indexer!.value!;
-      }
-      // model MyModel { ...Record<>} should be model with additional properties
-      if (model.indexer) {
-        return model.indexer.value;
-      }
-      return undefined;
     },
     getDiscriminatorProperty(model) {
       const discriminator = getDiscriminator(this.program, model);

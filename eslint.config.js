@@ -120,6 +120,7 @@ const testFilesConfig = tsEslint.config({
 const jsxFilesConfig = tsEslint.config({
   files: ["**/*.tsx"],
   plugins: { "react-hooks": reactHooks },
+  ignores: ["**/packages/http-client-js/**/*"],
   rules: {
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
@@ -138,6 +139,7 @@ export default tsEslint.config(
   {
     ignores: [
       "**/dist/**/*",
+      "**/dist-test/**/*",
       "**/.temp/**/*",
       "**/temp/**/*",
       "**/generated-defs/*",
@@ -146,6 +148,8 @@ export default tsEslint.config(
       "**/.docusaurus/**/*",
       "website/src/assets/**/*",
       "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
+      "packages/http-client-js/test/e2e/generated", // Ignore the generated http client
+      "packages/http-client-js/sample/output/**/*", // Ignore the generated http client
       "**/venv/**/*", // Ignore python virtual env
       "**/.vscode-test-web/**/*", // Ignore VSCode test web project
       // TODO: enable

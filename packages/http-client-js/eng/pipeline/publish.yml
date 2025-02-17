@@ -1,0 +1,32 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - packages/http-client-js/
+
+pr: none
+
+extends:
+  template: /eng/common/pipelines/templates/1es-redirect.yml
+
+  parameters:
+    stages:
+      - template: /eng/emitters/pipelines/templates/stages/emitter-stages.yml
+        parameters:
+          BuildPrereleaseVersion: true
+          UseTypeSpecNext: false
+          Publish: ${{replace(replace('True',eq(variables['Build.SourceBranchName'], 'main'), 'public'),'True','internal')}}
+          PublishDependsOnTest: true
+          PackagePath: /packages/http-client-js
+          EmitterPackageJsonPath: packages/http-client-js/package.json
+          Packages:
+            - name: typespec-http-client-js
+              file: typespec-http-client-js-*.tgz
+              type: npm
+          UnitTestArgs: -UnitTests
+          StagePrefix: "JavaScript"
+          LanguageShortName: "js"
+          HasNugetPackages: false
+          CadlRanchName: "@typespec/http-client-js"

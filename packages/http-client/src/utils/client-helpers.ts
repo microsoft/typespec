@@ -1,7 +1,7 @@
 import { Refkey, refkey } from "@alloy-js/core";
 import { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/experimental/typekit";
-import { getHttpService, getServers, resolveAuthentication } from "@typespec/http";
+import { getHttpService, resolveAuthentication } from "@typespec/http";
 import { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
@@ -12,7 +12,11 @@ import { getStringValue, getUniqueTypes } from "./helpers.js";
  * @returns
  */
 export function getEndpointParametersPerConstructor(client: InternalClient): ModelProperty[][] {
-  const servers = getServers($.program, client.service);
+  const servers = $.client.listServers(client);
+  /**
+   * If there are no servers, then we have a single constructor with a single parameter, "endpoint".
+   * This is the default behavior when there are no servers defined.
+   */
   if (servers === undefined) {
     const name = "endpoint";
     return [
@@ -30,15 +34,21 @@ export function getEndpointParametersPerConstructor(client: InternalClient): Mod
   for (const server of servers) {
     const overridingEndpointConstructor: ModelProperty[] = [];
     // add a parameter for each server, this is where users can override and pass in the full server
-    overridingEndpointConstructor.push(
-      $.modelProperty.create({
-        name: "endpoint",
-        type: $.builtin.string,
-        optional: false,
-        defaultValue: getStringValue(server.url),
-      }),
-    );
-    retval.push(overridingEndpointConstructor);
+    // If there is a default url, then endpoint should be optional
+    const isEndpointOptional = server.url !== undefined && server.parameters.size === 0;
+
+    if (isEndpointOptional) {
+      overridingEndpointConstructor.push(
+        $.modelProperty.create({
+          name: "endpoint",
+          type: $.builtin.string,
+          optional: isEndpointOptional,
+          defaultValue: getStringValue(server.url),
+        }),
+      );
+      retval.push(overridingEndpointConstructor);
+    }
+
     const formattingServerUrlConstructor: ModelProperty[] = [];
     for (const param of server.parameters.values()) {
       formattingServerUrlConstructor.push(

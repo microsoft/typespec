@@ -271,36 +271,34 @@ function parseScenario(
   );
 
   for (const line of rawLines) {
-    if (line.startsWith("```")) {
-      if (currentCodeBlock) {
-        // Close the code block
-        scenario.lines.push(currentCodeBlock);
-        if (!isTestCodeBlock(currentCodeBlock)) {
-          scenario.specBlock.content = currentCodeBlock.content;
-        } else {
-          for (const [template, fn] of Object.entries(outputCodeBlockTypes)) {
-            const templateRegex = new RegExp(
-              "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$",
-            );
-
-            const match = currentCodeBlock.heading.match(templateRegex);
-            if (match) {
-              currentCodeBlock.matchedTemplate = {
-                template,
-                fn,
-                namedArgs: match.groups ?? null,
-              };
-              break;
-            }
-          }
-          scenario.testBlocks.push(currentCodeBlock);
-        }
-        currentCodeBlock = null;
+    if (line.startsWith("```") && currentCodeBlock) {
+      // Close the code block
+      scenario.lines.push(currentCodeBlock);
+      if (!isTestCodeBlock(currentCodeBlock)) {
+        scenario.specBlock.content = currentCodeBlock.content;
       } else {
-        const codeBlockKind = line.includes("tsp") || line.includes("typespec") ? "spec" : "test";
-        // Start a new code block
-        currentCodeBlock = { kind: codeBlockKind, heading: line.substring(3), content: [] };
+        for (const [template, fn] of Object.entries(outputCodeBlockTypes)) {
+          const templateRegex = new RegExp(
+            "^" + template.replace(/\{(\w+)\}/g, "(?<$1>[^\\s]+)") + "$",
+          );
+
+          const match = currentCodeBlock.heading.match(templateRegex);
+          if (match) {
+            currentCodeBlock.matchedTemplate = {
+              template,
+              fn,
+              namedArgs: match.groups ?? null,
+            };
+            break;
+          }
+        }
+        scenario.testBlocks.push(currentCodeBlock);
       }
+      currentCodeBlock = null;
+    } else if (line.startsWith("```")) {
+      const codeBlockKind = line.includes("tsp") || line.includes("typespec") ? "spec" : "test";
+      // Start a new code block
+      currentCodeBlock = { kind: codeBlockKind, heading: line.substring(3), content: [] };
     } else if (currentCodeBlock) {
       // Append to code block content
       currentCodeBlock.content.push(line);

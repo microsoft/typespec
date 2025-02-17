@@ -27,6 +27,12 @@
       }
     },
     {
+      "files": ["packages/http-client-js/**/*.tsx"],
+      "options": {
+        "parser": "alloy-ts"
+      }
+    },
+    {
       "files": ["packages/emitter-framework/**/*.tsx"],
       "options": {
         "parser": "alloy-ts"

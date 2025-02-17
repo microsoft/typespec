@@ -20,6 +20,11 @@
 /packages/http-client-python/                @iscai-msft @tadelesh @msyyc
 
 ######################
+# JavaScript
+######################
+/packages/http-client-js/                @joheredi
+
+######################
 # Emiter Shared
 ######################
 /eng/emitters/                               @m-nash @iscai-msft

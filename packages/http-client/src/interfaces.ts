@@ -1,4 +1,4 @@
-import { Interface, Namespace, Operation } from "@typespec/compiler";
+import { Interface, Namespace } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
 
 export interface InternalClient {
@@ -17,7 +17,6 @@ export interface Client extends InternalClient {
 export interface ClientOperation {
   kind: "ClientOperation";
   name: string;
-  operation: Operation;
   httpOperation: HttpOperation;
   client: Client;
 }
