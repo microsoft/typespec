@@ -4,7 +4,7 @@
 package type.enums.fixed;
 
 import io.clientcore.core.http.exceptions.HttpResponseException;
-import io.clientcore.core.http.models.HttpRetryOptions;
+import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.time.Duration;
 import org.junit.jupiter.api.Assertions;
