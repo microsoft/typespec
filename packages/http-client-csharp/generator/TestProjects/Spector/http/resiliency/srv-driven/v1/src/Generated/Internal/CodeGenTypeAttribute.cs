@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Resiliency.ServiceDriven
+namespace Resiliency.SrvDriven.V1
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct))]
     internal partial class CodeGenTypeAttribute : Attribute
