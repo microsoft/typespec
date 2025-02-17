@@ -119,6 +119,12 @@ public final class OlympicRecordModel implements ExpandableEnum<Double>, JsonSer
 
     @Generated
     @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
+
+    @Generated
+    @Override
     public int hashCode() {
         return Objects.hashCode(this.value);
     }
