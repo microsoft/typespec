@@ -7,7 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import java.util.Set;
 
 public class Annotation {
-    private static final String CLIENTCORE_PACKAGE = "io.clientcore.core.http.annotation";
+    private static final String CLIENT_CORE_ANNOTATIONS_PACKAGE = "io.clientcore.core.http.annotations";
 
     public static final Annotation GENERATED
         = new Annotation.Builder().knownClass(com.azure.core.annotation.Generated.class).build();
@@ -54,13 +54,13 @@ public class Annotation {
     public static final Annotation HEADER_COLLECTION
         = new Annotation.Builder().knownClass(com.azure.core.annotation.HeaderCollection.class).build();
 
-    public static final Annotation METADATA = new Annotation("io.clientcore.core.annotation", "Metadata");
+    public static final Annotation METADATA = new Annotation(CLIENT_CORE_ANNOTATIONS_PACKAGE, "Metadata");
 
     public static final Annotation HTTP_REQUEST_INFORMATION
-        = new Annotation(CLIENTCORE_PACKAGE, "HttpRequestInformation");
+        = new Annotation(CLIENT_CORE_ANNOTATIONS_PACKAGE, "HttpRequestInformation");
     public static final Annotation UNEXPECTED_RESPONSE_EXCEPTION_INFORMATION
-        = new Annotation(CLIENTCORE_PACKAGE, "UnexpectedResponseExceptionDetail");
-    public static final Annotation TYPE_CONDITIONS = new Annotation("io.clientcore.core.annotation", "TypeConditions");
+        = new Annotation(CLIENT_CORE_ANNOTATIONS_PACKAGE, "UnexpectedResponseExceptionDetail");
+    public static final Annotation TYPE_CONDITIONS = new Annotation(CLIENT_CORE_ANNOTATIONS_PACKAGE, "TypeConditions");
 
     private final String fullName;
     private final String packageName;
@@ -106,7 +106,8 @@ public class Annotation {
                 this.packageName(clazz.getPackage()
                     .getName()
                     .replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME, ExternalPackage.CLIENTCORE_PACKAGE_NAME)
-                    .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME));
+                    .replace(ExternalPackage.AZURE_JSON_PACKAGE_NAME, ExternalPackage.CLIENTCORE_JSON_PACKAGE_NAME)
+                    .replace("io.clientcore.core.http.annotation", CLIENT_CORE_ANNOTATIONS_PACKAGE));
             }
 
             return this;
