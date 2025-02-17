@@ -15,7 +15,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapTy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
-import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -220,7 +219,14 @@ public abstract class Specification extends ModelBase {
     private Set<Property> parseProperties(Resource resource) {
         FluentResourceModel resourceModel = resource.getResourceModel();
         ClientModel clientModel = resourceModel.getInnerModel();
-        return parseProperties(clientModel, resource);
+        Set<Property> properties = parseProperties(clientModel, resource);
+        return adaptResourceProperties(resource, properties);
+    }
+
+    private Set<Property> adaptResourceProperties(Resource resource, Set<Property> properties) {
+        Set<String> propertyNames = properties.stream().map(Property::getName).collect(Collectors.toSet());
+        ClientModel innerModel = resource.getResourceModel().getInnerModel();
+
     }
 
     private ModelBase getPropertyType(IType wireType, Resource resource) {
@@ -261,7 +267,7 @@ public abstract class Specification extends ModelBase {
             propertyModel = externalModel;
         } else if (wireType instanceof ClassType) {
             ExternalModel externalModel
-                = new ExternalModel(((ClassType) wireType).getName(), this.getProvisioningPackage());
+                = new ExternalModel(((ClassType) wireType).getName(), ((ClassType) wireType).getPackage());
             externalModel.setExternal(true);
             TypeRegistry.register(externalModel);
             propertyModel = externalModel;
