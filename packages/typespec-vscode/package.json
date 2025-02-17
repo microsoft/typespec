@@ -1,6 +1,6 @@
 {
   "name": "typespec-vscode",
-  "version": "0.64.0",
+  "version": "0.65.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -115,16 +115,20 @@
     "menus": {
       "explorer/context": [
         {
+          "command": "typespec.importFromOpenApi3",
+          "group": "typespec@2"
+        },
+        {
           "command": "typespec.generateCode",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
-          "group": "code_generation"
+          "group": "typespec@1"
         }
       ],
       "editor/context": [
         {
           "command": "typespec.generateCode",
           "when": "resourceLangId == typespec",
-          "group": "code_generation"
+          "group": "typespec@1"
         }
       ]
     },

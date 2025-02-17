@@ -1,5 +1,21 @@
 # Change Log - @typespec/openapi3
 
+## 0.65.0
+
+### Bug Fixes
+
+- [#5893](https://github.com/microsoft/typespec/pull/5893) Updates tsp-openapi3 to support $ref in requestBodies
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5831](https://github.com/microsoft/typespec/pull/5831) Updates tsp-openapi3 operation response generation to inline expressions and pare down fields with default values. Also adds support for Open API headers and responses $refs.
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Migrate versioning implementation to use mutator approach.
+
+
 ## 0.64.0
 
 ### Bug Fixes

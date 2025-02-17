@@ -14,25 +14,23 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal class ModelFactoryProvider : TypeProvider
+    public class ModelFactoryProvider : TypeProvider
     {
         private const string ModelFactorySuffix = "ModelFactory";
         private const string AdditionalBinaryDataParameterName = "additionalBinaryDataProperties";
 
         private readonly IEnumerable<InputModelType> _models;
 
-        public static ModelFactoryProvider FromInputLibrary() => new ModelFactoryProvider(CodeModelPlugin.Instance.InputLibrary.InputNamespace.Models);
-
-        private ModelFactoryProvider(IEnumerable<InputModelType> models)
+        internal ModelFactoryProvider(IEnumerable<InputModelType> models)
         {
             _models = models;
         }
 
         protected override string BuildName()
         {
-            var span = CodeModelPlugin.Instance.Configuration.LibraryName.AsSpan();
+            var span = CodeModelPlugin.Instance.Configuration.PackageName.AsSpan();
             if (span.IndexOf('.') == -1)
-                return string.Concat(CodeModelPlugin.Instance.Configuration.LibraryName, ModelFactorySuffix);
+                return string.Concat(CodeModelPlugin.Instance.Configuration.PackageName, ModelFactorySuffix);
 
             Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
             int j = 0;

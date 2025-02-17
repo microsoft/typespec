@@ -3,7 +3,7 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor }) => {
+worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor, objectSchemaIndexer }) => {
   it("model used with @body and without shouldn't conflict if it contains no metadata", async () => {
     const res = await openApiFor(
       `
@@ -293,7 +293,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor }) => {
     );
   });
 
-  it("produce additionalProperties schema if response is Record<T>", async () => {
+  it(`produce ${objectSchemaIndexer} schema if response is Record<T>`, async () => {
     const res = await openApiFor(
       `
       @get op test(): Record<string>;
@@ -306,7 +306,7 @@ worksFor(["3.0.0", "3.1.0"], ({ checkFor, openApiFor }) => {
       "application/json": {
         schema: {
           type: "object",
-          additionalProperties: {
+          [objectSchemaIndexer]: {
             type: "string",
           },
         },

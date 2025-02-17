@@ -49,23 +49,25 @@ options:
 
 **Supported Emitter options**:
 
-- `namespace` define the client library namespace. e.g. MyService.Namespace.
-- `emitter-output-dir` define the output dire path which will store the generated code.
-- `generate-protocol-methods` indicate if you want to generate **protocol method** for every operation or not. The default value is true.
-- `generate-convenience-methods` indicate if you want to generate **convenience method** for every operation or not. The default value is true.
-- `unreferenced-types-handling` define the strategy how to handle the unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`
-- `model-namespace` indicate if we want to put the models in their own namespace which is a sub namespace of the client library namespace plus ".Models". if it is set `false`, the models will be put in the same namespace of the client. The default value is `true`.
-- `clear-output-folder` indicate if you want to clear up the output folder.
-- `package-name` define the package name.
+- `package-name` define the package name. If not specified, the first namespace defined in the TypeSpec is used as the package name.
+- `emitter-output-dir` define the output directory path which will store the generated code. If not specified, the `tsp-output` directory is used.
+- `generate-protocol-methods` indicate if you want to generate a **protocol method** for every operation or not. The default value is `true`.
+- `generate-convenience-methods` indicate if you want to generate a **convenience method** for every operation or not. The default value is `true`.
+- `unreferenced-types-handling` define the strategy how to handle unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`. The default value is `removeOrInternalize`.
+- `clear-output-folder` indicate if you want to clear up the output folder before generating. The default value is `true`.
+- `new-project` set to `true` to overwrite the csproj if it already exists. The default value is `false`.
+- `save-inputs` set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the C# generator. The default value is `false`.
+- `debug` set to `true` to automatically attempt to attach to a debugger when executing the C# generator. The default value is `false`.
+- `plugin-name` by default this is set to `ClientModelPlugin`. Plugin authors can set this to the name of a plugin that inherits from `ClientModelPlugin`.
 
 ## Convenience API
 
 By default, TypeSpec csharp generates all protocol APIs and convenience APIs.
 A few exceptions are API of JSON Merge Patch, and API of long-running operation with ambiguous response type.
 
-You can configure whether generate convenience API or not via `convenienceAPI` decorator.
+You can configure whether to generate a convenience method for a specific operation via the `convenienceAPI` decorator.
 
-## CadlRanch Tests
+## Spector Tests
 
-We run the generator against the common set of test defined in https://github.com/Azure/cadl-ranch/tree/main/packages/cadl-ranch-specs.
-For details on how to run and debug these tests see [CadlRanch Testing](generator/docs/cadl-ranch.md)
+We run the generator against the common set of test defined in https://github.com/microsoft/typespec/tree/main/packages/http-specs.
+For details on how to run and debug these tests see [Spector Testing](generator/docs/spector.md).

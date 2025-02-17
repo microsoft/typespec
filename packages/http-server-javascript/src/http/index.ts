@@ -5,6 +5,7 @@ import { NoTarget } from "@typespec/compiler";
 import { HttpServer, HttpService, getHttpService, getServers } from "@typespec/http";
 import { JsContext, Module, createModule } from "../ctx.js";
 import { reportDiagnostic } from "../lib.js";
+import { getOpenApi3Emitter, getOpenApi3ServiceRecord, tryGetOpenApi3 } from "../util/openapi3.js";
 import { emitRawServer } from "./server/index.js";
 import { emitRouter } from "./server/router.js";
 
@@ -45,7 +46,7 @@ export async function emitHttp(ctx: JsContext) {
 
   const servers = getServers(ctx.program, ctx.service.type) ?? [];
 
-  const httpModule = createModule("http", ctx.rootModule);
+  const httpModule = createModule("http", ctx.generatedModule);
 
   const httpContext: HttpContext = {
     ...ctx,
@@ -53,6 +54,25 @@ export async function emitHttp(ctx: JsContext) {
     httpModule,
     servers,
   };
+
+  const openapi3Emitter = await getOpenApi3Emitter();
+  const openapi3 = await tryGetOpenApi3(ctx.program, ctx.service);
+
+  if (openapi3) {
+    const openApiDocumentModule = createModule("openapi3", httpModule);
+
+    openApiDocumentModule.declarations.push([
+      `export const openApiDocument = ${JSON.stringify(openapi3)}`,
+    ]);
+  } else if (openapi3Emitter) {
+    const serviceRecord = await getOpenApi3ServiceRecord(ctx.program, ctx.service);
+
+    reportDiagnostic(ctx.program, {
+      code: "openapi3-document-not-generated",
+      target: ctx.service.type,
+      messageId: serviceRecord?.versioned ? "versioned" : "unable",
+    });
+  }
 
   const operationsModule = createModule("operations", httpModule);
 

@@ -1,5 +1,5 @@
 import { spawn, SpawnOptions } from "child_process";
-import { CSharpEmitterContext } from "../emitter.js";
+import { CSharpEmitterContext } from "../sdk-context.js";
 
 export async function execCSharpGenerator(
   context: CSharpEmitterContext,

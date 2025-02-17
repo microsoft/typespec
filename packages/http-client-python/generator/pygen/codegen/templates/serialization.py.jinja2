@@ -1360,7 +1360,7 @@ def xml_key_extractor(attr, attr_desc, data):  # pylint: disable=unused-argument
         # Iter and wrapped, should have found one node only (the wrap one)
         if len(children) != 1:
             raise DeserializationError(
-                "Tried to deserialize an array not wrapped, and found several nodes '{}'. Maybe you should declare this array as wrapped?".format(  # pylint: disable=line-too-long
+                "Tried to deserialize an array not wrapped, and found several nodes '{}'. Maybe you should declare this array as wrapped?".format(
                     xml_name
                 )
             )

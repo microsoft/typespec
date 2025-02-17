@@ -1,5 +1,51 @@
 # Change Log - @typespec/compiler
 
+## 0.65.2
+
+### Bug Fixes
+
+- [#6003](https://github.com/microsoft/typespec/pull/6003) Fix regression where enum values would report not being assignable to their enum when using versioning
+
+
+## 0.65.1
+
+### Bug Fixes
+
+- [#5975](https://github.com/microsoft/typespec/pull/5975) Downgrade arborist dependency which added node20+ requirement
+
+
+## 0.65.0
+
+### Bug Fixes
+
+- [#5940](https://github.com/microsoft/typespec/pull/5940) Fix: Infinite loop in language server due to not caching indeterminate entities in templates
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Fix issue that extra " will be added when auto completing emitter options inside ""
+- [#5833](https://github.com/microsoft/typespec/pull/5833) Fix tracing in `SourceLoader`
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5572](https://github.com/microsoft/typespec/pull/5572) Add support for [ESM subpath imports](https://nodejs.org/api/packages.html#subpath-imports)
+- [#5790](https://github.com/microsoft/typespec/pull/5790) Add option for semantic walker to visit model derived types
+- [#5340](https://github.com/microsoft/typespec/pull/5340) Add Experimental Typekit helpers for `@typespec/http`
+- [#5716](https://github.com/microsoft/typespec/pull/5716) Updated Rest init template to include additional emitters(client, server) and a basic sample.
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Support the auto completion for extends, imports, rule, rule sets and variables in tspconfig.yaml
+- [#5186](https://github.com/microsoft/typespec/pull/5186) Show required/optional information in the details of emitter's options completion item in tspconfig.yaml
+- [#5342](https://github.com/microsoft/typespec/pull/5342) Convert model/tuple expression to value code fix is applied to the entire value.
+- [#5699](https://github.com/microsoft/typespec/pull/5699) Promote `unsafe_useStateMap` and `unsafe_useStateSet` experimental APIs to stable version `useStateMap` and `useStateSet`. Old ones are deprecated
+- [#5794](https://github.com/microsoft/typespec/pull/5794) Use local version of npm to manage dependencies when running `tsp install`
+- [#5824](https://github.com/microsoft/typespec/pull/5824) `tsp init` will not automatically run `tsp install` if a `package.json` file is created.
+- [#4931](https://github.com/microsoft/typespec/pull/4931) [Experimental] Update to subgraph mutator to visit all missing relations
+- [#5416](https://github.com/microsoft/typespec/pull/5416) Added APIs for getting parameterVisibility and returnTypeVisibility as VisibilityFilter objects.
+
+### Deprecations
+
+- [#4931](https://github.com/microsoft/typespec/pull/4931) Deprecate experimental projection.
+
+
 ## 0.64.0
 
 ### Bug Fixes
