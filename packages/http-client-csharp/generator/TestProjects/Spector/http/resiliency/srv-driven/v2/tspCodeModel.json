@@ -1,6 +1,6 @@
 {
  "$id": "1",
- "Name": "Resiliency.ServiceDriven",
+ "Name": "Resiliency.SrvDriven.V2",
  "ApiVersions": [
   "v1",
   "v2"

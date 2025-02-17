@@ -40,7 +40,8 @@
     "upload-manifest": "pnpm -r --filter=@typespec/http-specs run upload-manifest"
   },
   "devDependencies": {
-    "@chronus/chronus": "^0.14.1",
+    "@alloy-js/prettier-plugin-alloy": "^0.1.0",
+    "@chronus/chronus": "^0.15.0",
     "@chronus/github": "^0.4.7",
     "@eslint/js": "^9.18.0",
     "@microsoft/api-extractor": "^7.49.1",
