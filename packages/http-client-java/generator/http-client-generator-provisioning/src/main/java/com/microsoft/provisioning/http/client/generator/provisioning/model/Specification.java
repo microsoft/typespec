@@ -230,7 +230,7 @@ public abstract class Specification extends ModelBase {
         Set<Property> result = new HashSet<>(properties);
         String parentModelName = innerModel.getParentModelName();
         while (parentModelName != null) {
-            if ((parentModelName.equals("Resource") || parentModelName.equals("ProxyResource")) && ClientModelUtil.isExternalModel()) {
+            if ((parentModelName.equals("Resource") || parentModelName.equals("ProxyResource"))) {
                 if (!propertyNames.contains("name")) {
                     result.add(new Property(resource, new ExternalModel(String.class), "name"));
                 }
