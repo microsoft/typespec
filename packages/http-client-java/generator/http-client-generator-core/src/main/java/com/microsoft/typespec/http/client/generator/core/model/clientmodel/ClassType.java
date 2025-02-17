@@ -145,7 +145,7 @@ public class ClassType implements IType {
                 new ClassDetails(ExpandableStringEnum.class, "io.clientcore.core.util.ExpandableEnum"));
             put(ExpandableEnum.class, new ClassDetails(ExpandableEnum.class, "io.clientcore.core.util.ExpandableEnum"));
             put(HttpResponseException.class, new ClassDetails(HttpResponseException.class,
-                "io.clientcore.core.http.exception.HttpResponseException"));
+                "io.clientcore.core.http.exceptions.HttpResponseException"));
             put(HttpTrait.class, new ClassDetails(HttpTrait.class, "io.clientcore.core.models.traits.HttpTrait"));
             put(ConfigurationTrait.class,
                 new ClassDetails(ConfigurationTrait.class, "io.clientcore.core.models.traits.ConfigurationTrait"));
