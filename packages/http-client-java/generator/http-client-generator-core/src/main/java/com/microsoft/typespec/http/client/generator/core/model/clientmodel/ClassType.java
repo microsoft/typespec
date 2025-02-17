@@ -115,6 +115,8 @@ public class ClassType implements IType {
                 new ClassDetails(HttpLogOptions.class, "io.clientcore.core.http.pipeline.HttpInstrumentationOptions"));
             put(HttpPipelinePolicy.class,
                 new ClassDetails(HttpPipelinePolicy.class, "io.clientcore.core.http.pipeline.HttpPipelinePolicy"));
+            put(KeyCredential.class,
+                new ClassDetails(KeyCredential.class, "io.clientcore.core.credentials.KeyCredential"));
             put(KeyCredentialPolicy.class,
                 new ClassDetails(KeyCredentialPolicy.class, "io.clientcore.core.http.pipeline.KeyCredentialPolicy"));
             put(RetryPolicy.class,
@@ -201,7 +203,7 @@ public class ClassType implements IType {
     public static final ClassType HTTP_TRAIT = getClassTypeBuilder(HttpTrait.class).build();
     public static final ClassType CONFIGURATION_TRAIT = getClassTypeBuilder(ConfigurationTrait.class).build();
     public static final ClassType PROXY_TRAIT
-        = new ClassType.Builder(false).packageName("io.clientcore.core.models.traits").name("ProxyTrait").build();
+        = new ClassType.Builder(false).packageName("io.clientcore.core.traits").name("ProxyTrait").build();
     public static final ClassType POLL_OPERATION_DETAILS = getClassTypeBuilder(PollOperationDetails.class).build();
     public static final ClassType JSON_SERIALIZABLE = getClassTypeBuilder(JsonSerializable.class).build();
     public static final ClassType JSON_WRITER = getClassTypeBuilder(JsonWriter.class).build();
@@ -742,7 +744,7 @@ public class ClassType implements IType {
         } else if (this == ClassType.UNIX_TIME_LONG) {
             expression = expression + ".toEpochSecond()";
         } else if (this == ClassType.BASE_64_URL) {
-            expression = "Base64Url.encode(" + expression + ")";
+            expression = ClassType.BASE_64_URL.getName() + ".encode(" + expression + ")";
         } else if (this == ClassType.URL) {
             expression = expression + ".toString()";
         } else if (this == ClassType.DURATION_LONG) {
