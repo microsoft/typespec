@@ -139,6 +139,12 @@ public final class DaysOfWeekExtensibleEnum
 
     @Metadata(generated = true)
     @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
+
+    @Metadata(generated = true)
+    @Override
     public int hashCode() {
         return Objects.hashCode(this.value);
     }
