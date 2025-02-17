@@ -403,10 +403,10 @@ describe("listServiceOperations", () => {
     const namespace = $.program.getGlobalNamespaceType();
     const client = $.client.getClient(namespace);
 
-    const operations = $.client.listServiceOperations(client);
+    const operations = $.client.listHttpOperations(client);
 
     expect(operations).toHaveLength(1);
-    expect(operations[0].name).toEqual("foo");
+    expect(operations[0].operation.name).toEqual("foo");
   });
 
   it("no operations", async () => {
@@ -417,7 +417,7 @@ describe("listServiceOperations", () => {
       @test namespace DemoService;
       `)) as { DemoService: Namespace };
     const client = $.clientLibrary.listClients(DemoService)[0];
-    const operations = $.client.listServiceOperations(client);
+    const operations = $.client.listHttpOperations(client);
     expect(operations).toHaveLength(0);
   });
   it("nested namespace", async () => {
@@ -436,11 +436,15 @@ describe("listServiceOperations", () => {
       `)) as { DemoService: Namespace; NestedService: Namespace };
 
     const demoServiceClient = $.clientLibrary.listClients(DemoService)[0];
-    expect($.client.listServiceOperations(demoServiceClient)).toHaveLength(1);
-    expect($.client.listServiceOperations(demoServiceClient)[0].name).toEqual("demoServiceOp");
+    expect($.client.listHttpOperations(demoServiceClient)).toHaveLength(1);
+    expect($.client.listHttpOperations(demoServiceClient)[0].operation.name).toEqual(
+      "demoServiceOp",
+    );
 
     const nestedServiceClient = $.clientLibrary.listClients(NestedService)[0];
-    expect($.client.listServiceOperations(nestedServiceClient)).toHaveLength(1);
-    expect($.client.listServiceOperations(nestedServiceClient)[0].name).toEqual("nestedServiceOp");
+    expect($.client.listHttpOperations(nestedServiceClient)).toHaveLength(1);
+    expect($.client.listHttpOperations(nestedServiceClient)[0].operation.name).toEqual(
+      "nestedServiceOp",
+    );
   });
 });

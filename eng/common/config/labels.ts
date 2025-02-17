@@ -63,6 +63,10 @@ export const AreaLabels = defineLabels({
     color: "e1b300",
     description: "Issue for the Python client emitter: @typespec/http-client-python",
   },
+  "emitter:client:js": {
+    color: "e1b300",
+    description: "Issue for the JavaScript client emitter: @typespec/http-client-js",
+  },
   "emitter:graphql": {
     color: "957300",
     description: "Issues for @typespec/graphql emitter",

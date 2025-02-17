@@ -18,6 +18,7 @@ export const AreaPaths: Record<keyof typeof AreaLabels, string[]> = {
   "emitter:client:csharp": ["packages/http-client-csharp/"],
   "emitter:client:java": ["packages/http-client-java/"],
   "emitter:client:python": ["packages/http-client-python/"],
+  "emitter:client:js": ["packages/http-client-js/"],
   "emitter:graphql": ["packages/graphql/"],
   "emitter:json-schema": ["packages/json-schema/"],
   "emitter:protobuf": ["packages/protobuf/"],
