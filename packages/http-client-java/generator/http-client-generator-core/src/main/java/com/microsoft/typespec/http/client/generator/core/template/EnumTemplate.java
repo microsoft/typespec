@@ -339,6 +339,14 @@ public class EnumTemplate implements IJavaTemplate<EnumType, JavaFile> {
             classBlock.method(JavaVisibility.Public, null, "String toString()",
                 function -> function.methodReturn("Objects.toString(this.value)"));
 
+            // equals
+            // checkstyle needs both equals() and hashcode() override, so even if its implementation is identical to
+            // Object's equals(), we still need it
+            addGeneratedAnnotation(classBlock);
+            classBlock.annotation("Override");
+            classBlock.method(JavaVisibility.Public, null, "boolean equals(Object obj)",
+              function -> function.methodReturn("this == obj"));
+
             // hashcode
             addGeneratedAnnotation(classBlock);
             classBlock.annotation("Override");
