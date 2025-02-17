@@ -160,6 +160,8 @@ public class ClassType implements IType {
                 new ClassDetails(LogLevel.class, "io.clientcore.core.instrumentation.logging.ClientLogger.LogLevel"));
             put(com.azure.core.util.ServiceVersion.class, new ClassDetails(com.azure.core.util.ServiceVersion.class,
                 "io.clientcore.core.http.models.ServiceVersion"));
+            put(com.azure.core.util.Base64Url.class,
+                new ClassDetails(com.azure.core.util.Base64Url.class, "com.azure.core.util.Base64Uri"));
         }
     };
 
@@ -291,10 +293,13 @@ public class ClassType implements IType {
     public static final ClassType BASE_64_URL = getClassTypeBuilder(Base64Url.class)
         .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
         .jsonToken("JsonToken.STRING")
-        .jsonDeserializationMethod("getNullable(nonNullReader -> new Base64Url(nonNullReader.getString()))")
+        .jsonDeserializationMethod("getNullable(nonNullReader -> new "
+            + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "(nonNullReader.getString()))")
         .serializationMethodBase("writeString")
-        .xmlElementDeserializationMethod("getNullableElement(Base64Url::new)")
-        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, Base64Url::new)")
+        .xmlElementDeserializationMethod(
+            "getNullableElement(" + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "::new)")
+        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, "
+            + (JavaSettings.getInstance().isBranded() ? "Base64Url" : "Base64Uri") + "::new)")
         .build();
 
     public static final ClassType ANDROID_BASE_64_URL
