@@ -1,9 +1,9 @@
 -e ../../../tools/azure-sdk-tools
 ../../core/azure-core
-{% if token_credential -%}
+{% if token_credential %}
 ../../identity/azure-identity
 {% endif -%}
-{% if azure_arm -%}
+{% if azure_arm %}
 ../../core/azure-mgmt-core
-{% endif -%}
+{% endif %}
 aiohttp

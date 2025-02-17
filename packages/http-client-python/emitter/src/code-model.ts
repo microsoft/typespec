@@ -32,12 +32,7 @@ import {
   simpleTypesMap,
   typesMap,
 } from "./types.js";
-import {
-  emitParamBase,
-  getClientNamespace,
-  getImplementation,
-  removeUnderscoresFromNamespace,
-} from "./utils.js";
+import { emitParamBase, getClientNamespace, getImplementation, getRootNamespace } from "./utils.js";
 
 function emitBasicMethod<TServiceOperation extends SdkServiceOperation>(
   context: PythonSdkContext<TServiceOperation>,
@@ -281,7 +276,7 @@ export function emitCodeModel<TServiceOperation extends SdkServiceOperation>(
   // Get types
   const sdkPackage = sdkContext.sdkPackage;
   const codeModel: Record<string, any> = {
-    namespace: removeUnderscoresFromNamespace(sdkPackage.rootNamespace).toLowerCase(),
+    namespace: getRootNamespace(sdkContext),
     clients: [],
   };
   for (const client of sdkPackage.clients) {
