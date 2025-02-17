@@ -1,3 +1,4 @@
+import { NoTarget } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { CSharpEmitterContext } from "../sdk-context.js";
 
@@ -69,7 +70,13 @@ function processJsonRpc(context: CSharpEmitterContext, message: string) {
       context.logger.info(params.message);
       break;
     case "diagnostic":
-      context.logger.reportDiagnostic(params.code, params.message); // TODO -- add target
+      context.logger.reportDiagnostic({
+        code: params.code,
+        format: {
+          message: params.message,
+        },
+        target: NoTarget, // TODO -- add target
+      });
       break;
   }
 }

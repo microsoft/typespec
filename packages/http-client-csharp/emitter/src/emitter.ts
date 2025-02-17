@@ -119,41 +119,35 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         `${configurations["package-name"]}.csproj`,
       );
       logger.info(`Checking if ${csProjFile} exists`);
-      
-        const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
-        const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
-        const generatorPath = resolvePath(
-          projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
-        );
 
-        try {
-          const result = await execCSharpGenerator(sdkContext, {
-            generatorPath: generatorPath,
-            outputFolder: outputFolder,
-            pluginName: options["plugin-name"],
-            newProject: options["new-project"] ?? !checkFile(csProjFile),
-            debug: options.debug ?? false,
-          });
-          if (result.exitCode !== 0) {
-            const isValid = await _validateDotNetSdk(
-              sdkContext,
-              _minSupportedDotNetSdkVersion,
-            );
-            // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-            if (isValid) {
-              if (result.stderr) logger.error(result.stderr);
-              if (result.stdout) logger.verbose(result.stdout);
-              throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
-            }
-          }
-        } catch (error: any) {
-          const isValid = await _validateDotNetSdk(
-            sdkContext,
-            _minSupportedDotNetSdkVersion,
-          );
+      const emitterPath = options["emitter-extension-path"] ?? import.meta.url;
+      const projectRoot = findProjectRoot(dirname(fileURLToPath(emitterPath)));
+      const generatorPath = resolvePath(
+        projectRoot + "/dist/generator/Microsoft.TypeSpec.Generator.dll",
+      );
+
+      try {
+        const result = await execCSharpGenerator(sdkContext, {
+          generatorPath: generatorPath,
+          outputFolder: outputFolder,
+          pluginName: options["plugin-name"],
+          newProject: options["new-project"] ?? !checkFile(csProjFile),
+          debug: options.debug ?? false,
+        });
+        if (result.exitCode !== 0) {
+          const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
-          if (isValid) throw new Error(error);
+          if (isValid) {
+            if (result.stderr) logger.error(result.stderr);
+            if (result.stdout) logger.verbose(result.stdout);
+            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+          }
         }
+      } catch (error: any) {
+        const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
+        // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
+        if (isValid) throw new Error(error);
+      }
       if (!options["save-inputs"]) {
         // delete
         deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
