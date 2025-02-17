@@ -6,7 +6,7 @@
 
 Follow [TypeSpec Getting Started](https://typespec.io/docs) to initialize your TypeSpec project.
 
-Make sure `npx tsp compile .` runs correctly.
+Make sure `npx tsp compile . ` runs correctly.
 
 ### Add `@typespec/http-client-python` to your project
 
