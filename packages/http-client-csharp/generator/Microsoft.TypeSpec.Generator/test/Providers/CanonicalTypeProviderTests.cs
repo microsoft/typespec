@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void ValidateNamespace()
         {
-            Assert.AreEqual(_typeProvider.Namespace, _typeProvider.CanonicalView.Namespace);
+            Assert.AreEqual(_typeProvider.Type.Namespace, _typeProvider.CanonicalView.Type.Namespace);
         }
 
         [Test]

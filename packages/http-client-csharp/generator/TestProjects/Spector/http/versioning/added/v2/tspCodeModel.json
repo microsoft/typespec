@@ -1,6 +1,6 @@
 {
  "$id": "1",
- "Name": "Versioning.Added",
+ "Name": "Versioning.Added.V2",
  "ApiVersions": [
   "v1",
   "v2"

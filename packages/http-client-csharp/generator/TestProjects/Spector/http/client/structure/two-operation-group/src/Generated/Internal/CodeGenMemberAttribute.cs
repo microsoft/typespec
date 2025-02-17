@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Client.Structure.Service
+namespace Client.Structure.Service.TwoOperationGroup
 {
     [AttributeUsage((AttributeTargets.Property | AttributeTargets.Field))]
     internal partial class CodeGenMemberAttribute : CodeGenTypeAttribute

@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Versioning.ReturnTypeChangedFrom
+namespace Versioning.ReturnTypeChangedFrom.V2
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct))]
     internal partial class CodeGenTypeAttribute : Attribute

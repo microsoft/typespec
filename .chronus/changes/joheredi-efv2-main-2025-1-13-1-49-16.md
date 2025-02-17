@@ -1,7 +1,9 @@
 ---
 changeKind: feature
 packages:
+  - "@typespec/html-program-viewer"
   - "@typespec/http-server-javascript"
+  - "@typespec/http"
 ---
 
-Implement basic project scaffolding.
+Emitter Framework V2
