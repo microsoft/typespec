@@ -150,10 +150,6 @@ interface TypeSpecLibraryReference {
   manifest: PackageJson;
 }
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export async function compile(
   host: CompilerHost,
   mainFile: string,
@@ -260,7 +256,6 @@ export async function compile(
   }
   // onValidate stage
   initializeSpinner("Validation...");
-  await delay(1000);
   await runValidators();
 
   validateRequiredImports();
@@ -588,7 +583,6 @@ export async function compile(
     const emitterName = emitter.metadata.name as string;
     initializeSpinner(emitterName);
 
-    await delay(1000);
     const context: EmitContext<any> = {
       program,
       emitterOutputDir: emitter.emitterOutputDir,
