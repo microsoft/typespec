@@ -117,6 +117,12 @@ public final class GetResponseProp3 implements ExpandableEnum<String>, JsonSeria
 
     @Metadata(generated = true)
     @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
+
+    @Metadata(generated = true)
+    @Override
     public int hashCode() {
         return Objects.hashCode(this.value);
     }

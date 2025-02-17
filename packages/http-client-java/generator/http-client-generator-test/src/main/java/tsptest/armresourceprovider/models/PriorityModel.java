@@ -77,6 +77,11 @@ public final class PriorityModel implements ExpandableEnum<Integer> {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return this == obj;
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hashCode(this.value);
     }
