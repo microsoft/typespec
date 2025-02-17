@@ -233,7 +233,7 @@ public abstract class Specification extends ModelBase {
                 = new DictionaryModel(getPropertyType(((MapType) wireType).getValueType(), resource));
             propertyModel.setProvisioningPackage(Map.class.getPackageName());
         } else if (wireType instanceof EnumType) {
-            EnumModel enumModel = new EnumModel(((EnumType) wireType).getName(), this.getProvisioningPackage(),
+            EnumModel enumModel = new EnumModel(((EnumType) wireType).getName(), this.getProvisioningPackage() + ".models",
                 ((EnumType) wireType).getValues().stream().map(ClientEnumValue::getValue).collect(Collectors.toList()));
             modelNameMapping.put(((EnumType) wireType).getName(), enumModel);
             propertyModel = enumModel;
