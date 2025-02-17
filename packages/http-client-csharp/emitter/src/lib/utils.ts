@@ -1,4 +1,4 @@
-import { NoTarget } from "@typespec/compiler";
+import { NoTarget, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { CSharpEmitterContext } from "../sdk-context.js";
 
@@ -70,14 +70,29 @@ function processJsonRpc(context: CSharpEmitterContext, message: string) {
       context.logger.info(params.message);
       break;
     case "diagnostic":
+      let crossLanguageDefinitionId : string | undefined;
+      if ("crossLanguageDefinitionId" in params) {
+        crossLanguageDefinitionId = params.crossLanguageDefinitionId;
+      }
       context.logger.reportDiagnostic({
         code: params.code,
         format: {
           message: params.message,
         },
-        target: NoTarget, // TODO -- add target
+        target: findTarget(crossLanguageDefinitionId) ?? NoTarget,
       });
       break;
+  }
+
+  function findTarget(crossLanguageDefinitionId: string | undefined): Type | undefined {
+    if (crossLanguageDefinitionId === undefined) {
+      return undefined;
+    }
+    const target = context.__typeCache.crossLanguageDefinitionIds.get(crossLanguageDefinitionId);
+    if (target) {
+      return target.__raw;
+    }
+    return undefined;
   }
 }
 

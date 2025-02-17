@@ -122,6 +122,20 @@ function updateSdkTypeReferences(
   inputType: InputType,
 ) {
   sdkContext.__typeCache.types.set(sdkType, inputType);
+  if ('crossLanguageDefinitionId' in sdkType) {
+      const oldType = sdkContext.__typeCache.crossLanguageDefinitionIds.get(sdkType.crossLanguageDefinitionId);
+      if (oldType) {
+        sdkContext.logger.reportDiagnostic({
+          code: "duplicate-cross-language-definition-id",
+          format: {
+            newKind: sdkType.kind,
+            newName: sdkType.name,
+          },
+          target: oldType.__raw ?? NoTarget,
+        });
+      }
+    sdkContext.__typeCache.crossLanguageDefinitionIds.set(sdkType.crossLanguageDefinitionId, sdkType);
+  }
 }
 
 export function fromSdkModelType(
