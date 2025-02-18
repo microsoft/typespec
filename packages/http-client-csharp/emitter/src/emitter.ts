@@ -139,9 +139,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
           const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) {
-            if (result.stderr) logger.error(result.stderr);
-            if (result.stdout) logger.verbose(result.stdout);
-            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}`);
+            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`);
           }
         }
       } catch (error: any) {
@@ -151,8 +149,8 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
       }
       if (!options["save-inputs"]) {
         // delete
-        deleteFile(resolvePath(outputFolder, tspOutputFileName), logger);
-        deleteFile(resolvePath(outputFolder, configurationFileName), logger);
+        context.program.host.rm(resolvePath(outputFolder, tspOutputFileName));
+        context.program.host.rm(resolvePath(outputFolder, configurationFileName));
       }
     }
   }
@@ -217,7 +215,6 @@ function validateDotNetSdkVersionCore(
     const major = Number(firstPart);
 
     if (isNaN(major)) {
-      sdkContext.logger.error("Invalid .NET SDK version.");
       return false;
     }
     if (major < minMajorVersion) {

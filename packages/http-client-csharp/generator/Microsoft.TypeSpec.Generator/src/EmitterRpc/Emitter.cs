@@ -62,6 +62,15 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
             }
         }
 
+        public void WriteFile(string path, string content)
+        {
+            SendNotification("file", new
+            {
+                path = path,
+                content = content
+            });
+        }
+
         private void Dispose(bool disposing)
         {
             if (!_disposedValue)

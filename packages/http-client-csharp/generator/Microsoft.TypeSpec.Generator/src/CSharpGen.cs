@@ -86,9 +86,7 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
                 var filename = Path.Combine(outputPath, file.Name);
-                Emitter.Instance.Info($"Writing {Path.GetFullPath(filename)}");
-                Directory.CreateDirectory(Path.GetDirectoryName(filename)!);
-                await File.WriteAllTextAsync(filename, file.Text);
+                Emitter.Instance.WriteFile(filename, file.Text);
             }
 
             // Write project scaffolding files

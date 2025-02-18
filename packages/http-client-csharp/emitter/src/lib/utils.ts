@@ -1,6 +1,7 @@
 import { NoTarget, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { CSharpEmitterContext } from "../sdk-context.js";
+import path from "path";
 
 export async function execCSharpGenerator(
   context: CSharpEmitterContext,
@@ -11,7 +12,7 @@ export async function execCSharpGenerator(
     newProject: boolean;
     debug: boolean;
   },
-): Promise<{ exitCode: number; stdio: string; stdout: string; stderr: string; proc: any }> {
+): Promise<{ exitCode: number; stderr: string; proc: any }> {
   const command = "dotnet";
   const args = [
     "--roll-forward",
@@ -31,18 +32,23 @@ export async function execCSharpGenerator(
 
   const child = spawn(command, args, { stdio: "pipe" });
 
+  const stderr: Buffer[] = [];
   return new Promise((resolve, reject) => {
     let buffer = "";
 
-    child.stdout?.on("data", (data) => {
+    child.stdout?.on("data", async (data) => {
       buffer += data.toString();
       let index;
       while ((index = buffer.indexOf("\n")) !== -1) {
         const message = buffer.slice(0, index);
         buffer = buffer.slice(index + 1);
-        context.logger.info(`Received from C#: ${message}`);
-        processJsonRpc(context, message);
+        // context.logger.info(`Received from C#: ${message}`);
+        await processJsonRpc(context, message);
       }
+    });
+
+    child.stderr?.on("data", (data) => {
+      stderr.push(data);
     });
 
     child.on("error", (error) => {
@@ -52,16 +58,14 @@ export async function execCSharpGenerator(
     child.on("exit", (exitCode) => {
       resolve({
         exitCode: exitCode ?? -1,
-        stdio: "",
-        stdout: "",
-        stderr: "",
+        stderr: Buffer.concat(stderr).toString(),
         proc: child,
       });
     });
   });
 }
 
-function processJsonRpc(context: CSharpEmitterContext, message: string) {
+async function processJsonRpc(context: CSharpEmitterContext, message: string): Promise<void> {
   const response = JSON.parse(message);
   const method = response.method;
   const params = response.params;
@@ -81,6 +85,15 @@ function processJsonRpc(context: CSharpEmitterContext, message: string) {
         },
         target: findTarget(crossLanguageDefinitionId) ?? NoTarget,
       });
+      break;
+    case "file":
+      const filepath = params.path;
+      const content = params.content;
+      context.logger.info(`Writing ${filepath}`);
+      // get the directory name of path
+      const dirPath = path.dirname(filepath);
+      await context.program.host.mkdirp(dirPath);
+      context.program.host.writeFile(filepath, content);
       break;
   }
 

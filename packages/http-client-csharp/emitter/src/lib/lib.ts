@@ -96,18 +96,6 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`Convenience method is not supported for PATCH method, it will be turned off. Please set the '@convenientAPI' to false for operation ${"methodCrossLanguageDefinitionId"}.`,
     },
   },
-  "duplicate-cross-language-definition-id": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`Duplicate cross-language-definition-id found: kind=${"newKind"}, name=${"newName"}`,
-    },
-  },
-  "diagnostic-from-csharp": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`${"message"}`,
-    },
-  },
 };
 
 const $lib = createTypeSpecLibrary({

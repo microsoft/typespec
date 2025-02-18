@@ -42,8 +42,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _baseTypeProvider = new(() => CodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
-
-            Emitter.Instance.ReportDiagnostic("diagnostic-from-csharp", $"dealing with {inputModel.Name}", inputModel.CrossLanguageDefinitionId);
         }
 
         public bool IsUnknownDiscriminatorModel => _inputModel.IsUnknownDiscriminatorModel;
