@@ -96,7 +96,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
     }
 
     this.#applyConstraints(model, schema);
@@ -111,7 +111,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     });
 
     if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
     }
 
     return schema;

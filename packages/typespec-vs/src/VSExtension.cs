@@ -42,6 +42,11 @@ namespace Microsoft.TypeSpec.VisualStudio
         public FileExtensionToContentTypeDefinition? TypeSpecFileExtensionDefinition => null;
 
         [Export]
+        [FileName("tspconfig.yaml")]
+        [ContentType("typespec")]
+        public FileExtensionToContentTypeDefinition? ConfigYamlFileExtensionDefinition => null;
+
+        [Export]
         [FileExtension(".cadl")]
         [ContentType("typespec")]
         public FileExtensionToContentTypeDefinition? CadlFileExtensionDefinition => null;

@@ -97,7 +97,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         private async Task<Compilation?> LoadBaselineContract()
         {
             string fullPath;
-            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.TypeFactory.RootNamespace}.csproj"));
+            string projectFilePath = Path.GetFullPath(Path.Combine(CodeModelPlugin.Instance.Configuration.ProjectDirectory, $"{CodeModelPlugin.Instance.TypeFactory.PackageName}.csproj"));
             if (!File.Exists(projectFilePath))
                 return null;
 
@@ -106,15 +106,15 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             if (baselineVersion is not null)
             {
                 var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(new NullSettings());
-                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelPlugin.Instance.TypeFactory.RootNamespace.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
-                fullPath = Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.TypeFactory.RootNamespace}.dll");
+                var nugetFolder = Path.Combine(nugetGlobalPackageFolder, CodeModelPlugin.Instance.TypeFactory.PackageName.ToLowerInvariant(), baselineVersion, "lib", "netstandard2.0");
+                fullPath = Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.TypeFactory.PackageName}.dll");
                 if (File.Exists(fullPath))
                 {
-                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.TypeFactory.RootNamespace}.xml"), fullPath);
+                    return await GeneratedCodeWorkspace.CreatePreviousContractFromDll(Path.Combine(nugetFolder, $"{CodeModelPlugin.Instance.TypeFactory.PackageName}.xml"), fullPath);
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelPlugin.Instance.TypeFactory.RootNamespace}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
+                    throw new InvalidOperationException($"Can't find Baseline contract assembly ({CodeModelPlugin.Instance.TypeFactory.PackageName}@{baselineVersion}) from Nuget Global Package Folder at {fullPath}. " +
                         $"Please make sure the baseline nuget package has been installed properly");
                 }
             }

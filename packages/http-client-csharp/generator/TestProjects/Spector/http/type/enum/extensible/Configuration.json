@@ -1,5 +1,4 @@
 {
   "output-folder": ".",
-  "namespace": "Type.Enum.Extensible",
-  "library-name": "Type.Enum.Extensible"
+  "package-name": "Type.Enum.Extensible"
 }

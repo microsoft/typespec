@@ -1,5 +1,4 @@
 {
   "output-folder": ".",
-  "namespace": "Type.Model.Inheritance.EnumDiscriminator",
-  "library-name": "Type.Model.Inheritance.EnumDiscriminator"
+  "package-name": "Type.Model.Inheritance.EnumDiscriminator"
 }
