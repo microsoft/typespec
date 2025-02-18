@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespace(), Name);
+            => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
 
