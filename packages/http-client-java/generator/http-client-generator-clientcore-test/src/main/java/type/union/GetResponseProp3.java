@@ -2,12 +2,12 @@
 
 package type.union;
 
-import io.clientcore.core.annotation.Metadata;
+import io.clientcore.core.annotations.Metadata;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
-import io.clientcore.core.util.ExpandableEnum;
+import io.clientcore.core.utils.ExpandableEnum;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -113,6 +113,12 @@ public final class GetResponseProp3 implements ExpandableEnum<String>, JsonSeria
     @Override
     public String toString() {
         return Objects.toString(this.value);
+    }
+
+    @Metadata(generated = true)
+    @Override
+    public boolean equals(Object obj) {
+        return this == obj;
     }
 
     @Metadata(generated = true)
