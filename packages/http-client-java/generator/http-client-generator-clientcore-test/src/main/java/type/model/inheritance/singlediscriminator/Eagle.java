@@ -2,8 +2,8 @@
 
 package type.model.inheritance.singlediscriminator;
 
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.annotation.TypeConditions;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.TypeConditions;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
