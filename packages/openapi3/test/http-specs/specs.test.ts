@@ -19,7 +19,24 @@ describe.skip("http-specs convert", () => {
   defineSpecTests({
     specDir: specsRoot,
     outputDir: rootOutputDir,
-    exclude: ["parameters/collection-format", "payload/xml", "routes"],
+    // Excluded cases hits errors/warnings during conversion.
+    exclude: [
+      // warning @typespec/openapi3/invalid-format: Collection format 'tsv' is not supported in OpenAPI3 query parameters. Defaulting to type 'string'.
+      // > 49 |     colors: string[],
+      "parameters/collection-format",
+
+      // warning @typespec/openapi3/xml-unwrapped-invalid-property-type: XML `@unwrapped` can only used on array properties or primitive ones in the OpenAPI 3 emitter, Property 'content' will be ignored.
+      // > 70 |   @unwrapped content: string;
+      "payload/xml",
+
+      // error @typespec/openapi3/unsupported-status-code-range: Status code range '494 to '499' is not supported. OpenAPI 3.0 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX. Example: `@minValue(400) @maxValue(499)` for 4XX.
+      // 59 | model ErrorInRange {
+      "response/status-code-range",
+
+      // error @typespec/openapi3/path-query: OpenAPI does not allow paths containing a query string.
+      // > 435 |       op array(param: string[]): void;
+      "routes",
+    ],
   });
 });
 
