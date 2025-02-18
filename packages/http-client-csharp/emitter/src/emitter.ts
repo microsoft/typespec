@@ -6,7 +6,6 @@ import {
   EmitContext,
   getDirectoryPath,
   joinPaths,
-  logDiagnostics,
   NoTarget,
   Program,
   resolvePath,
