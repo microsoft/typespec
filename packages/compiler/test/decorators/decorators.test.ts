@@ -842,7 +842,8 @@ describe("compiler: built-in decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "unexpected-property",
-          message: "Object value may only specify known properties, and 'notMee' does not exist in type 'OriginalModel'.",
+          message:
+            "Object value may only specify known properties, and 'notMee' does not exist in type 'OriginalModel'.",
         },
       ]);
     });

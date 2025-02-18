@@ -946,15 +946,11 @@ export const $withPickedProperties: WithPickedPropertiesDecorator = (
   filterModelPropertiesInPlace(target, (prop) => pickedNames.has(prop.name));
 };
 
-function validatePropertyName(
-  context: DecoratorContext,
-  target: Model,
-  name: string
-) {
+function validatePropertyName(context: DecoratorContext, target: Model, name: string) {
   const source = target.templateMapper?.args[0] as Model;
   if (source && !source.properties?.has(name)) {
     reportDiagnostic(context.program, {
-      code:"unexpected-property",
+      code: "unexpected-property",
       format: {
         propertyName: name,
         type: getTypeName(source),
@@ -963,7 +959,6 @@ function validatePropertyName(
     });
   }
 }
-
 
 // -- @withoutDefaultValues decorator ----------------------
 
