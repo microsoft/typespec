@@ -87,3 +87,40 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqBodyResBo
     kind: "MockApiDefinition",
   },
 ]);
+
+function reqQueryResBodyHandler(req: MockRequest) {
+  switch (req.params?.token) {
+    case undefined:
+      return {
+        status: 200,
+        body: json({
+          pets: FirstPage,
+          nextToken: "12345",
+        }),
+      } as const;
+    case "12345":
+      return {
+        status: 200,
+        body: json({
+          pets: SecondPage,
+        }),
+      } as const;
+    default:
+      throw new ValidationError(
+        "Unsupported continuation token",
+        `"undefined" | "12345"`,
+        req.body.token,
+      );
+  }
+}
+
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResBody = passOnSuccess([
+  {
+    uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body",
+    method: "get",
+    request: {},
+    response: EmptyResponse,
+    handler: (req) => reqBodyResBodyHandler(req),
+    kind: "MockApiDefinition",
+  },
+]);
