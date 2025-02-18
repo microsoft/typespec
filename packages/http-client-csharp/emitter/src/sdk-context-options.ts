@@ -7,20 +7,30 @@ export let defaultSDKContextOptions: CreateSdkContextOptions = {
   additionalDecorators: [],
 };
 
+/** 
+* Sets the SDK context options to be used by the CSharp emitter.
+* @param options - The SDK context options.
+* @beta
+*/
+export function setSDKContextOptions(options: CreateSdkContextOptions) {
+  defaultSDKContextOptions = getSDKContextOptions(options);
+}
+
 /**
- * Sets the SDK context options to be used by the CSharp emitter.
- * @param options - The SDK context options.
+ * Gets the SDK context options to be used taking into account any passed in options and
+ * the default values used by the CSharp emitter.
+ * @param options - Emitter-specific options to be combined with the CSharp default options.
  * @beta
  */
-export function setSDKContextOptions(options: CreateSdkContextOptions) {
-  defaultSDKContextOptions = {
-    versioning: options.versioning ?? defaultSDKContextOptions.versioning,
+export function getSDKContextOptions(options?: CreateSdkContextOptions): CreateSdkContextOptions {
+  return {
+    versioning: options?.versioning ?? defaultSDKContextOptions.versioning,
     additionalDecorators: appendAdditionalDecoratorsInContextOptions(options),
   };
 }
 
-function appendAdditionalDecoratorsInContextOptions(options: CreateSdkContextOptions) {
-  if (options.additionalDecorators) {
+function appendAdditionalDecoratorsInContextOptions(options?: CreateSdkContextOptions) {
+  if (options?.additionalDecorators) {
     if (defaultSDKContextOptions.additionalDecorators) {
       return [...defaultSDKContextOptions.additionalDecorators, ...options.additionalDecorators];
     } else {

@@ -13,5 +13,5 @@ export {
   defaultOptions,
   resolveOptions,
 } from "./options.js";
-export { setSDKContextOptions } from "./sdk-context-options.js";
+export { getSDKContextOptions, setSDKContextOptions } from "./sdk-context-options.js";
 export { CSharpEmitterContext } from "./sdk-context.js";
