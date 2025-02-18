@@ -25,7 +25,7 @@ import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
 import { execAsync } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
-import { defaultSDKContextOptions, getSDKContextOptions } from "./sdk-context-options.js";
+import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
 import { CodeModel } from "./type/code-model.js";
 import { Configuration } from "./type/configuration.js";
@@ -66,7 +66,11 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // Write out the dotnet model to the output path
     const sdkContext = {
-      ...(await createSdkContext(context, "@typespec/http-client-csharp", defaultSDKContextOptions)),
+      ...(await createSdkContext(
+        context,
+        "@typespec/http-client-csharp",
+        defaultSDKContextOptions,
+      )),
       logger: logger,
       __typeCache: {
         types: new Map(),

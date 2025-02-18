@@ -1,16 +1,16 @@
+import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { getSDKContextOptions, setSDKContextOptions } from "../../src/sdk-context-options.js";
-import { CreateSdkContextOptions } from "@azure-tools/typespec-client-generator-core";
-import { defaultSDKContextOptions } from "../../src/sdk-context-options.js";
+import {
+  defaultSDKContextOptions,
+  getSDKContextOptions,
+  setSDKContextOptions,
+} from "../../src/sdk-context-options.js";
 
 describe("Get/Set SDK context options", () => {
   const testOptions: CreateSdkContextOptions = {
-    additionalDecorators: [
-        "@fooDecorator",
-        "@barDecorator"
-    ]
-};
+    additionalDecorators: ["@fooDecorator", "@barDecorator"],
+  };
 
   it("get context options applies passed in decorators and does not modify state", async () => {
     const contextOptions = getSDKContextOptions(testOptions);
