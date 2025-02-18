@@ -9,6 +9,7 @@
 !dist/**/*.js
 !dist/**/*.cjs
 !dist/**/*.js.map
+!dist/**/*.css
 !dist/**/language-configuration.json
 dist/test/
 

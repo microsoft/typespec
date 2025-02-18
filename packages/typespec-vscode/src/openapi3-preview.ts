@@ -170,18 +170,18 @@ let html: string | undefined;
 
 function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
   if (html === undefined) {
-    const swaggerUiRoot = vscode.Uri.joinPath(extensionUri, "swagger-ui");
-    const css = panel.webview.asWebviewUri(vscode.Uri.joinPath(swaggerUiRoot, "swagger-ui.css"));
+    const distRoot = vscode.Uri.joinPath(extensionUri, "dist");
+    const css = panel.webview.asWebviewUri(vscode.Uri.joinPath(distRoot, "swagger-ui.css"));
     const bundleJs = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(swaggerUiRoot, "swagger-ui-bundle.js"),
+      vscode.Uri.joinPath(distRoot, "swagger-ui-bundle.js"),
     );
 
     const presetJs = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(swaggerUiRoot, "swagger-ui-standalone-preset.js"),
+      vscode.Uri.joinPath(distRoot, "swagger-ui-standalone-preset.js"),
     );
     // initialization script is customized to load openapi3 spec from openapi emitter output
     const initJs = panel.webview.asWebviewUri(
-      vscode.Uri.joinPath(swaggerUiRoot, "swagger-initializer.js"),
+      vscode.Uri.joinPath(extensionUri, "swagger-ui", "swagger-initializer.js"),
     );
 
     html = `<!doctype html>

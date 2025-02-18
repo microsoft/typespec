@@ -226,14 +226,15 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run compile && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
+    "build": "npm run compile && npm run copy-tmlanguage && npm run copy-swagger-ui-dist && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
     "compile": "rollup --config rollup.config.ts --configPlugin typescript --failAfterWarnings 2>&1",
     "watch": "rollup --config rollup.config.ts --configPlugin typescript --watch",
     "dogfood": "node scripts/dogfood.js",
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
+    "copy-swagger-ui-dist": "node scripts/copy-swagger-ui-dist.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
-    "package-vsix": "vsce package",
+    "package-vsix": "vsce package --no-dependencies",
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web",
@@ -262,5 +263,8 @@
     "vitest": "^3.0.5",
     "vscode-languageclient": "~9.0.1",
     "yaml": "~2.7.0"
+  },
+  "dependencies": {
+    "swagger-ui-dist": "^5.18.2"
   }
 }
