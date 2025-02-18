@@ -297,6 +297,7 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
   );
   const emitters = await checkbox({
     message: "Select emitters?",
+    instructions: ` (Press ${pc.cyan("space")} to select, ${pc.cyan("a")} to toggle all, ${pc.cyan("i")} to invert selection and ${pc.cyan("enter")} to proceed.)`,
     choices: emittersList.map(([name, emitter]) => {
       return {
         value: name,
