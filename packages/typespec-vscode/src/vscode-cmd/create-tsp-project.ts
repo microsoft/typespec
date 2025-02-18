@@ -198,7 +198,6 @@ export async function createTypeSpecProject(
       const initTemplateConfig: InitProjectConfig = {
         template: info.template!,
         directory: selectedRootFolder,
-        folderName: folderName,
         baseUri: info.baseUrl,
         name: projectName!,
         parameters: inputs ?? {},
