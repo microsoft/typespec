@@ -191,7 +191,7 @@ export async function _validateDotNetSdk(
     const result = await execAsync("dotnet", ["--version"], { stdio: "pipe" });
     return validateDotNetSdkVersionCore(sdkContext, result.stdout, minMajorVersion);
   } catch (error: any) {
-    if (error && "code" in (error as {}) && error["code"] === "ENOENT") {
+    if (error && "code" in error && error["code"] === "ENOENT") {
       sdkContext.logger.reportDiagnostic({
         code: "invalid-dotnet-sdk-dependency",
         messageId: "missing",
