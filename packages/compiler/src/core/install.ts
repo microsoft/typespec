@@ -42,7 +42,7 @@ async function installWithNpmExe(host: CliCompilerHost, directory: string): Prom
     env: process.env,
   });
 
-  return new Promise(() => {
+  return new Promise((resolve, reject) => {
     child.on("error", (error: SpawnError) => {
       if (error.code === "ENOENT") {
         host.logger.error(
@@ -54,7 +54,11 @@ async function installWithNpmExe(host: CliCompilerHost, directory: string): Prom
       process.exit(error.errno);
     });
     child.on("exit", (exitCode) => {
-      process.exit(exitCode ?? -1);
+      if (exitCode !== 0) {
+        reject(new Error(`Npm installed failed with exit code ${exitCode}`));
+      } else {
+        resolve();
+      }
     });
   });
 }

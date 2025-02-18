@@ -89,17 +89,16 @@ export async function initTypeSpecProjectWorker(
     scaffoldingConfig.template.files ?? [],
   );
 
-  // eslint-disable-next-line no-console
-  console.log("");
-
-  // eslint-disable-next-line no-console
-  console.log(pc.green("Project created successfully."));
+  whiteline();
 
   if (projectJsonCreated) {
     // eslint-disable-next-line no-console
     console.log(pc.green("Installing dependencies..."));
     await installTypeSpecDependencies(host, directory);
   }
+
+  whiteline();
+  success("Project initialized!");
 
   if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
     // eslint-disable-next-line no-console
@@ -144,6 +143,10 @@ async function isDirectoryEmpty(directory: string) {
 function warning(message: string) {
   // eslint-disable-next-line no-console
   console.log(pc.yellow(`warning: ${message}`));
+}
+function success(message: string) {
+  // eslint-disable-next-line no-console
+  console.log(pc.green(`success: ${message}`));
 }
 function whiteline() {
   // eslint-disable-next-line no-console
