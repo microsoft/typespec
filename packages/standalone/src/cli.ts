@@ -13,11 +13,21 @@ import pnpPlugin from "@yarnpkg/plugin-pnp";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { pathToFileURL } from "node:url";
+import { parseArgs } from "node:util";
 
 const tspDir = homedir() + "/.tsp";
 
+const args = parseArgs({
+  options: {
+    server: { type: "string" },
+    "no-cache": { type: "boolean", default: false },
+  },
+});
 async function main() {
-  await installAndRun({ noCache: process.argv.includes("--no-cache") });
+  if (args.values.server) {
+    await import(pathToFileURL(args.values.server).href);
+  }
+  await installAndRun({ noCache: args.values["no-cache"] });
 }
 async function installAndRun({ noCache }: { noCache: boolean }) {
   await install({
