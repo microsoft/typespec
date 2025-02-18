@@ -9,12 +9,6 @@ const pkgJson = JSON.parse(
 const minCompilerVersion = pkgJson.version;
 
 const builtInTemplates: Record<string, InitTemplate> = {
-  empty: {
-    title: "Empty project",
-    description: "Create an empty project.",
-    libraries: [],
-    compilerVersion: minCompilerVersion,
-  },
   rest: {
     title: "Generic REST API",
     description: "Create a project representing a generic REST API",

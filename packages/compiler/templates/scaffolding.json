@@ -1,10 +1,4 @@
 {
-  "empty": {
-    "title": "Empty project",
-    "description": "Create an empty project.",
-    "libraries": [],
-    "compilerVersion": "0.65.2"
-  },
   "rest": {
     "title": "Generic REST API",
     "description": "Create a project representing a generic REST API",
@@ -51,7 +45,7 @@
         }
       },
       "@typespec/http-server-csharp": {
-        "label": "CSharp server stubs",
+        "label": "C# server stubs",
         "options": {
           "emitter-output-dir": "{output-dir}/server/generated"
         }
