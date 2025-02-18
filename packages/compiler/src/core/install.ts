@@ -40,7 +40,7 @@ async function installWithNpmExe(
   directory: string,
   stdio: "inherit" | "pipe",
 ): Promise<void> {
-  const child = spawn("npm", ["insta2ll"], {
+  const child = spawn("npm", ["install"], {
     shell: process.platform === "win32",
     stdio: "pipe",
     cwd: directory,

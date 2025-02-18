@@ -318,7 +318,7 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
           if (choices.length === 0) {
             return "None selected.";
           } else {
-            return `${choices.map((x) => x.name).join(", ")}`;
+            return `${choices.map((x) => x.value).join(", ")}`;
           }
         },
       },
@@ -380,6 +380,7 @@ async function action(message: string, fn: () => Promise<unknown>) {
   } catch (e: any) {
     // eslint-disable-next-line no-console
     console.log(`\r${pc.red("×")} ${message}\n${e.message}`);
+    process.exit(1);
   } finally {
     if (interval) {
       clearInterval(interval);
