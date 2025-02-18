@@ -35,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? GetCustomCodeView()
-            => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespace(), BuildName());
+            => CodeModelPlugin.Instance.SourceInputModel.FindForType(BuildNamespace(), Name);
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
 
@@ -79,14 +79,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected string? _deprecated;
 
         /// <summary>
-        /// Gets the relative file path where the generated file will be stored.
+        /// Gets and sets the relative file path where the generated file will be stored.
         /// This path is relative to the project's root directory.
         /// </summary>
-        internal string RelativeFilePath => _relativeFilePath ??= BuildRelativeFilePath();
+        internal string RelativeFilePath
+        {
+            get => _relativeFilePath ??= BuildRelativeFilePath();
+            set
+            {
+                _relativeFilePath = value;
+            }
+        }
 
         private string? _relativeFilePath;
 
-        public string Name => _name ??= CustomCodeView?.Name ?? BuildName();
+        /// <summary>
+        /// Gets and sets the name of the type.
+        /// </summary>
+        public string Name
+        {
+            get => _name ??= CustomCodeView?.Name ?? BuildName();
+            set
+            {
+                _name = value;
+            }
+        }
 
         private string? _name;
 
@@ -120,7 +137,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private TypeSignatureModifiers? _declarationModifiers;
 
-        public TypeSignatureModifiers DeclarationModifiers => _declarationModifiers ??= BuildDeclarationModifiersInternal();
+        /// <summary>
+        /// Gets and sets the declaration modifiers for the type.
+        /// </summary>
+        public TypeSignatureModifiers DeclarationModifiers
+        {
+            get => _declarationModifiers ??= BuildDeclarationModifiersInternal();
+            set
+            {
+                _declarationModifiers = value;
+            }
+        }
 
         protected virtual TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.None;
 
@@ -325,9 +352,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
-            XmlDocProvider? xmlDocs = null,
-            TypeSignatureModifiers? modifiers = null,
-            string? relativeFilePath = null)
+            XmlDocProvider? xmlDocs = null)
         {
             if (methods != null)
             {
@@ -356,14 +381,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (xmlDocs != null)
             {
                 XmlDocs = xmlDocs;
-            }
-            if (modifiers != null)
-            {
-                _declarationModifiers = modifiers;
-            }
-            if (relativeFilePath != null)
-            {
-                _relativeFilePath = relativeFilePath;
             }
         }
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
