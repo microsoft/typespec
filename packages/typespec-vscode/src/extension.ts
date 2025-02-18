@@ -236,9 +236,10 @@ async function showOpenApi3(docUri: vscode.Uri, context: vscode.ExtensionContext
   const selectedFile = docUri.fsPath;
   const mainTspFile = selectedFile.endsWith("main.tsp") ? selectedFile : await getMainTspFile();
   if (mainTspFile === undefined) {
-    const errMsg = `No 'main.tsp' file can be determined from '${selectedFile}' in workspace.`;
-    logger.info(errMsg);
-    vscode.window.showErrorMessage(errMsg);
+    logger.error(`No 'main.tsp' file can be determined from '${selectedFile}' in workspace.`, [], {
+      showOutput: true,
+      showPopup: true,
+    });
     return;
   }
 

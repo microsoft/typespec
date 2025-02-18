@@ -13,9 +13,10 @@ export async function getMainTspFile(): Promise<string | undefined> {
 
   switch (files.length) {
     case 0:
-      const errMsg = "No 'main.tsp' file found in the workspace.";
-      logger.error(errMsg);
-      vscode.window.showErrorMessage(errMsg);
+      logger.error("No 'main.tsp' file found in the workspace.", [], {
+        showOutput: true,
+        showPopup: true,
+      });
       return undefined;
     case 1:
       return files[0].fsPath;
@@ -40,9 +41,10 @@ export async function loadOpenApi3PreviewPanel(
 ) {
   const compilerVersion = client.initializeResult?.serverInfo?.version;
   if (!compilerVersion || semver.lt(compilerVersion, "0.65.0")) {
-    const errMsg = "OpenAPI3 preview requires TypeSpec compiler version 0.65.0 or later.";
-    logger.info(errMsg);
-    vscode.window.showErrorMessage(errMsg);
+    logger.error("OpenAPI3 preview requires TypeSpec compiler version 0.65.0 or later.", [], {
+      showOutput: true,
+      showPopup: true,
+    });
     return;
   }
 
@@ -63,22 +65,21 @@ export async function loadOpenApi3PreviewPanel(
             result = await client.compileOpenApi3(mainTspFile, srcFolder, outputFolder);
           } catch (e) {
             const error = e as ExecOutput;
-            const errMsg = `Failed to generate OpenAPI3 files: ${error.stderr || error.stdout || error.error}`;
-            logger.error(errMsg);
-            vscode.window.showErrorMessage(errMsg);
+            logger.error(
+              `Failed to generate OpenAPI3 files: ${error.stderr || error.stdout || error.error}`,
+            );
             return;
           }
           if (result === undefined || result.exitCode !== 0) {
-            const errMsg = result?.stderr ?? "Failed to generate OpenAPI3 files.";
-            logger.error(errMsg);
-            vscode.window.showErrorMessage(errMsg);
+            logger.error(result?.stderr ?? "Failed to generate OpenAPI3 files.");
             return;
           } else {
             const outputs = await readdir(outputFolder);
             if (outputs.length === 0) {
-              const errMsg = result?.stderr ?? "No openAPI3 file generated.";
-              logger.error(errMsg);
-              vscode.window.showErrorMessage(errMsg);
+              logger.error(result?.stderr ?? "No openAPI3 file generated.", [], {
+                showOutput: true,
+                showPopup: true,
+              });
               return;
             } else if (outputs.length === 1) {
               const first = outputs[0];
@@ -108,9 +109,10 @@ export async function loadOpenApi3PreviewPanel(
                 selectedOpenApi3OutputFiles.set(mainTspFile, selected.path);
                 return parseOpenApi3File(selected.path);
               } else {
-                const msg = "No OpenAPI3 file selected";
-                logger.info(msg);
-                vscode.window.showInformationMessage(msg);
+                logger.info("No OpenAPI3 file selected", [], {
+                  showOutput: true,
+                  showPopup: true,
+                });
                 return;
               }
             }
@@ -228,9 +230,10 @@ async function parseOpenApi3File(filePath: string): Promise<string | undefined> 
     const content = JSON.parse(fileContent);
     return content;
   } catch (e) {
-    const errMsg = `Failed to load OpenAPI3 file: ${filePath}`;
-    logger.error(`${errMsg}\nError: `, [e]);
-    vscode.window.showErrorMessage(errMsg);
+    logger.error(`Failed to load OpenAPI3 file: ${filePath}`, [e], {
+      showOutput: true,
+      showPopup: true,
+    });
     return;
   }
 }
