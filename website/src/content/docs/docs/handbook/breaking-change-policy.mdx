@@ -1,0 +1,54 @@
+---
+title: Breaking Change Policy
+---
+
+# Breaking Change Policy
+
+import { Badge } from "@astrojs/starlight/components";
+
+:::note
+This is to be applicable after 1.0.0 release
+:::
+
+## Versioning Scheme
+
+TypeSpec Compiler and libraries follow [semver](https://semver.org/) for versioning. Which means a breaking change(according the following policy) will only be introduced in a major version release.
+
+## Breaking Change Philosophy
+
+The basic of the policy can be summarized as follows, we guarantee stability for runtime behavior but not for the build process.
+
+- A spec that was building successfully should build successfully with the new version of the compiler and libraries with the same major version.
+- New types and functionalities can be added in a minor version release.
+  - If a spec updates to use that new functionality/type it is not considered a breaking change if it goes through a library/emitter that will now break.
+- TypeScript types might change in ways that introcue compilation type checking errors. Those are not considered breaking changes.
+
+### Bugs
+
+A bug fix that requires breaking will not be considered a breaking change if the behavior was already broken to start with.
+
+## Categories of Breaking Changes
+
+- <Badge text="Level 0" variant="danger" />: Those Apis shouldn't be broken unless we make a major
+  version and a lot of consideration should given in making any of those. This should be apis that
+  are recommended to be used by library author.
+- <Badge text="Level 1" variant="note" />: Those describe change that are not semantically relevant
+  but still produce noticeable changes in the output. This could be for example a change in the way
+  the output is formatted.
+- <Badge text="Level 2" variant="tip" />: Those are internal apis that could be accessed but
+  touching it would be at the library author risk and breaking change wouldn't even need to be
+  documented
+
+| Example                          | Level                               | Description                                                                                                                                                                                                                                                                                       |
+| -------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeKit                          | <Badge text="0" variant="danger" /> | TypeKit will be moving forward the recommend way to expose apis for a library. Those should be extremely stable.                                                                                                                                                                                  |
+| Additional helpers for a library | <Badge text="0" variant="danger" /> | Depending on the helper this could be considered critical or more advanced usage                                                                                                                                                                                                                  |
+| TypeSpec SyntaxTree              | <Badge text="2" variant="tip" />    | The TypeSpec Ast is not part of the contract a library should depend on.                                                                                                                                                                                                                          |
+| Checker                          | <Badge text="2" variant="tip" />    | Checker is an internal of the typespec program                                                                                                                                                                                                                                                    |
+| Symbols                          | <Badge text="2" variant="tip" />    | Internals                                                                                                                                                                                                                                                                                         |
+| Formatter                        | <Badge text="1" variant="note" />   | Formatting shouldn't' affect the meaning of the language. Changes to the formatting should be taken with consideration as it could create a lot of diff but it shouldn't also be considered a breaking change                                                                                     |
+| Bug                              | [See bug](#bugs)                    | I think if something is found to be a bug from the documented behavior and fixing it is in someway breaking it shouldn't be considered as such unless it is such a widely used item where it has to become a "feature". Those should however still be documented as breaking in the release notes |
+
+### Supported node version
+
+TypeSpec support all currently supported node version by the node foundation.
