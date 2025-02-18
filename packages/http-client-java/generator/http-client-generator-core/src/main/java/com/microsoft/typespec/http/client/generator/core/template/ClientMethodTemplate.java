@@ -744,7 +744,42 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 });
             });
         } else if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+            PageableContinuationToken continuationToken = clientMethod.getMethodPageDetails().getContinuationToken();
             // currently this is for unbranded
+            String methodName = clientMethod.getProxyMethod().getPagingSinglePageMethodName();
+            String argumentLine = clientMethod.getArgumentList().replace("requestOptions", "requestOptionsLocal");
+
+            writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+                addOptionalVariables(function, clientMethod);
+
+                function.line("return new PagedIterable<>(pagingOptions -> {");
+                function.indent(() -> {
+                    function.line(
+                        "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;\n");
+                    function.ifBlock("pagingOptions.getContinuationToken() != null", ifBlock -> {
+                        if (continuationToken.getParameter().getProtocol().getHttp().getIn()
+                            == RequestParameterLocation.QUERY) {
+                            // QUERY
+                            function.line("requestOptionsLocal.addRequestCallback(requestLocal -> {");
+                            function.line("    UriBuilder urlBuilder = UriBuilder.parse(requestLocal.getUri());");
+                            function.line("    urlBuilder.setQueryParameter("
+                                + ClassType.STRING.defaultValueExpression(
+                                    continuationToken.getParameter().getLanguage().getDefault().getSerializedName())
+                                + ", String.valueOf(pagingOptions.getContinuationToken()));");
+                            function.line("    requestLocal.setUri(urlBuilder.toString());");
+                            function.line("});");
+                        } else {
+                            // HEADER
+                            function.line("requestOptionsLocal.setHeader(HttpHeaderName.fromString("
+                                + ClassType.STRING.defaultValueExpression(
+                                    continuationToken.getParameter().getLanguage().getDefault().getSerializedName())
+                                + "), String.valueOf(pagingOptions.getContinuationToken()));");
+                        }
+                    });
+                    function.methodReturn(methodName + "(" + argumentLine + ")");
+                });
+                function.line("});");
+            });
         } else {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
                 addOptionalVariables(function, clientMethod);
@@ -838,8 +873,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     PageableContinuationToken continuationToken
                         = clientMethod.getMethodPageDetails().getContinuationToken();
                     if (continuationToken.getResponseHeader() != null) {
-                        function.line("res.getHeaders().getValue(HttpHeaderName.fromString(\""
-                            + continuationToken.getResponseHeader().getHeader() + "\")),");
+                        function.line("res.getHeaders().getValue(HttpHeaderName.fromString("
+                            + ClassType.STRING.defaultValueExpression(continuationToken.getResponseHeader().getHeader())
+                            + ")),");
                     } else if (continuationToken.getResponseProperty() != null) {
                         StringBuilder continuationTokenExpression = new StringBuilder("res.getValue()");
                         for (Property property : continuationToken.getResponseProperty()) {

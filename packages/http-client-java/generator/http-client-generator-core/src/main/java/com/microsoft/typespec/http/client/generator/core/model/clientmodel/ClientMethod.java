@@ -403,6 +403,7 @@ public class ClientMethod {
 
             // for query parameter modification in RequestOptions (UrlBuilder.parse)
             imports.add(UrlBuilder.class.getName());
+            imports.add("io.clientcore.core.utils.UriBuilder");
         }
 
         getReturnValue().addImportsTo(imports, includeImplementationImports);
@@ -451,10 +452,6 @@ public class ClientMethod {
                     imports.add("java.util.List");
                     imports.add("java.util.Map");
                     ClassType.BINARY_DATA.addImportsTo(imports, includeImplementationImports);
-                }
-
-                if (getMethodPageDetails().getContinuationToken() != null) {
-                    ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
                 }
             }
 
