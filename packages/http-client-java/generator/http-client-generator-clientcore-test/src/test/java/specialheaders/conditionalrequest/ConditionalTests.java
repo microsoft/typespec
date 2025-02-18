@@ -1,9 +1,8 @@
 package specialheaders.conditionalrequest;
 
 import io.clientcore.core.utils.DateTimeRfc1123;
-import org.junit.jupiter.api.Test;
-
 import java.time.OffsetDateTime;
+import org.junit.jupiter.api.Test;
 
 public class ConditionalTests {
 

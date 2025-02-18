@@ -5,14 +5,13 @@ package encode.datetime;
 
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.Response;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class EncodeDateTimeTests {
 
