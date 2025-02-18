@@ -214,7 +214,7 @@ namespace Microsoft.TypeSpec.Generator
 
             var usings = root.DescendantNodes().OfType<UsingDirectiveSyntax>().ToList();
 
-            var namespacesToRemove = new HashSet<string>();
+            var orphanedNamespaces = new HashSet<string>();
             foreach (var u in usings)
             {
                 if (u.Name == null)
@@ -235,11 +235,11 @@ namespace Microsoft.TypeSpec.Generator
                 // If no matching namespace or type is found, mark for removal
                 if (!symbols.Any())
                 {
-                    namespacesToRemove.Add(name);
+                    orphanedNamespaces.Add(name);
                 }
             }
             var usingsToRemove = usings
-                .Where(u => u.Name != null && namespacesToRemove.Contains(u.Name.ToString()))
+                .Where(u => u.Name != null && orphanedNamespaces.Contains(u.Name.ToString()))
                 .ToList();
             root = root.RemoveNodes(usingsToRemove, SyntaxRemoveOptions.KeepNoTrivia)!;
             modelFactoryGeneratedDocument = modelFactoryGeneratedDocument.WithSyntaxRoot(root);
