@@ -2,13 +2,13 @@
 
 package type.property.valuetypes;
 
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.annotation.TypeConditions;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.TypeConditions;
+import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
-import io.clientcore.core.util.binarydata.BinaryData;
 import java.io.IOException;
 
 /**
