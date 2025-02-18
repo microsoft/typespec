@@ -23,7 +23,7 @@ import {
 import { createModel } from "./lib/client-model-builder.js";
 import { LoggerLevel } from "./lib/logger-level.js";
 import { Logger } from "./lib/logger.js";
-import { execAsync, execCSharpGenerator } from "./lib/utils.js";
+import { execCSharpGenerator } from "./lib/utils.js";
 import { _resolveOutputFolder, CSharpEmitterOptions, resolveOptions } from "./options.js";
 import { defaultSDKContextOptions } from "./sdk-context-options.js";
 import { CSharpEmitterContext } from "./sdk-context.js";
