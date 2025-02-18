@@ -22,12 +22,13 @@ const args = parseArgs({
     server: { type: "string" },
     "no-cache": { type: "boolean", default: false },
   },
+  strict: false,
 });
 async function main() {
   if (args.values.server) {
-    await import(pathToFileURL(args.values.server).href);
+    await import(pathToFileURL(args.values.server as string).href);
   }
-  await installAndRun({ noCache: args.values["no-cache"] });
+  await installAndRun({ noCache: args.values["no-cache"] as boolean });
 }
 async function installAndRun({ noCache }: { noCache: boolean }) {
   await install({
