@@ -86,8 +86,6 @@ namespace ServerDrivenPagination {
       }
       ```
       """)
-    @scenarioDoc("""
-    """)
     @route("/request-body-response-body")
     @list
     op reqBodyResBody(@continuationToken token?: string): {
@@ -113,10 +111,10 @@ namespace ServerDrivenPagination {
         "nextToken": "12345"
       }
       ```
-
+      
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?token=12345
-
+      
       Expected response body:
       ```json
       { "pets": [
@@ -126,8 +124,6 @@ namespace ServerDrivenPagination {
       }
       ```
       """)
-    @scenarioDoc("""
-    """)
     @route("/request-query-response-body")
     @list
     op reqQueryResBody(@continuationToken @query token?: string): {
@@ -137,7 +133,6 @@ namespace ServerDrivenPagination {
       @continuationToken nextToken?: string;
     };
 
-
     @scenario
     @scenarioDoc("""
       Test case for using continuation token as pagination. Continuation token is passed in the request header and response body.
@@ -145,7 +140,7 @@ namespace ServerDrivenPagination {
       Two requests need to be tested.
       1. Initial request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body      
-
+      
       Expected response body:
       ```json
       { "pets": [
@@ -157,10 +152,10 @@ namespace ServerDrivenPagination {
       ```
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
-
+      
       Expected header:
       token=12345
-
+      
       Expected response body:
       ```json
       { "pets": [
@@ -170,8 +165,6 @@ namespace ServerDrivenPagination {
       }
       ```
       """)
-    @scenarioDoc("""
-    """)
     @route("/request-header-response-body")
     @list
     op reqHeaderResBody(@continuationToken @header token?: string): {
@@ -179,6 +172,128 @@ namespace ServerDrivenPagination {
       pets: Pet[];
 
       @continuationToken nextToken?: string;
+    };
+
+    @scenario
+    @scenarioDoc("""
+      Test case for using continuation token as pagination. Continuation token is passed in the request body and response header.
+      
+      Two requests need to be tested.
+      1. Initial request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-body-response-header
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ]
+      }
+      
+      Expected response header:
+      next-token=12345
+      ```
+      2. Next page request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-body-response-header
+      Expected request body:
+      ```json
+      { "token": "12345" }
+      ```
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+      ```
+      """)
+    @route("/request-body-response-header")
+    @list
+    op reqBodyResHeader(@continuationToken token?: string): {
+      @pageItems
+      pets: Pet[];
+
+      @continuationToken @header nextToken?: string;
+    };
+
+    @scenario
+    @scenarioDoc("""
+      Test case for using continuation token as pagination. Continuation token is passed in the request query and response header.
+      
+      Two requests need to be tested.
+      1. Initial request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ]
+      }
+      
+      Expected response header:
+      next-token=12345
+      ```
+      2. Next page request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=12345
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+      ```
+      """)
+    @route("/request-query-response-header")
+    @list
+    op reqQueryResHeader(@continuationToken @query token?: string): {
+      @pageItems
+      pets: Pet[];
+
+      @continuationToken @header nextToken?: string;
+    };
+
+    @scenario
+    @scenarioDoc("""
+      Test case for using continuation token as pagination. Continuation token is passed in the request header and response header.
+      
+      Two requests need to be tested.
+      1. Initial request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ]
+      }
+      
+      Expected response header:
+      next-token=12345
+      ```
+      2. Next page request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?token=12345
+      
+      Expected request header:
+      token=12345
+      
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+      ```
+      """)
+    @route("/request-header-response-header")
+    @list
+    op reqHeaderResHeader(@continuationToken @header token?: string): {
+      @pageItems
+      pets: Pet[];
+
+      @continuationToken @header nextToken?: string;
     };
   }
 }
