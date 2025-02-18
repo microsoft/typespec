@@ -181,7 +181,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         }
 
         public string Namespace { get; set; }
-        public string Name { get; private init; }
+
+        /// <summary>
+        /// Gets or sets the name of the type.
+        /// </summary>
+        public string Name { get; set; }
         public CSharpType? DeclaringType { get; private init; }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
