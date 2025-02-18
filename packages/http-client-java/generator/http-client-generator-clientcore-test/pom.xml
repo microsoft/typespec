@@ -23,7 +23,7 @@
     <dependency>
       <groupId>io.clientcore</groupId>
       <artifactId>core</artifactId>
-      <version>1.0.0-beta.3</version>
+      <version>1.0.0-beta.5</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

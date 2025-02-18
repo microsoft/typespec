@@ -3,7 +3,7 @@
 
 package org.utils;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 
