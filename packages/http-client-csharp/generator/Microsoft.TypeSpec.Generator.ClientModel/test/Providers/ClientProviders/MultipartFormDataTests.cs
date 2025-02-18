@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
             var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
-            MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null), clients: () => [inputClient]);
+            MockHelpers.LoadMockPlugin(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
             var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             Assert.AreEqual(2, client!.Methods.Count);
@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var operation = InputFactory.Operation("MultipartOperation", requestMediaTypes: ["multipart/form-data"], parameters: [InputFactory.ContentTypeParameter("multipart/form-data")]);
             var inputClient = InputFactory.Client("MultipartClient", operations: [operation]);
-            MockHelpers.LoadMockPlugin(apiKeyAuth: () => new InputApiKeyAuth("mock", null), clients: () => [inputClient]);
+            MockHelpers.LoadMockPlugin(auth: () => new(new InputApiKeyAuth("mock", null), null), clients: () => [inputClient]);
             var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             Assert.AreEqual(2, client!.Methods.Count);

@@ -22,6 +22,12 @@ import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-conv
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 
+/**
+ * Creates the code model from the SDK context.
+ * @param sdkContext - The SDK context
+ * @returns The code model
+ * @beta
+ */
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
 
@@ -48,6 +54,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   fromSdkClients(rootClients, inputClients, []);
 
   const clientModel: CodeModel = {
+    // rootNamespace is really coalescing the `package-name` option and the first namespace found.
     Name: sdkPackage.rootNamespace,
     ApiVersions: rootApiVersions,
     Enums: Array.from(sdkContext.__typeCache.enums.values()),
