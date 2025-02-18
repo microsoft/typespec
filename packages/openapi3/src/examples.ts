@@ -17,7 +17,7 @@ import type {
 } from "@typespec/http";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import { OpenAPI3Example, OpenAPI3MediaType } from "./types.js";
-import { isSharedHttpOperation, SharedHttpOperation } from "./util.js";
+import { isSharedHttpOperation, SharedHttpOperation } from "./utils/basic-util.js";
 
 export interface OperationExamples {
   requestBody: Record<string, [Example, Type][]>;

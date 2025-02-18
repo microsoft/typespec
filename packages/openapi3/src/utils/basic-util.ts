@@ -14,7 +14,7 @@ import {
   Value,
 } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
-import { createDiagnostic, createStateSymbol } from "./lib.js";
+
 /**
  * Checks if two objects are deeply equal.
  *
@@ -158,30 +158,4 @@ export function getDefaultValue(
 
 export function isBytesKeptRaw(program: Program, type: Type) {
   return type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined;
-}
-
-export const invalidComponentFixedFieldKey = createStateSymbol("invalidComponentFixedField");
-export function validateComponentFixedFieldKey(program: Program, type: Type, name: string) {
-  if (!isValidComponentFixedFieldKey) {
-    const invalidKeys = program
-      .stateMap(invalidComponentFixedFieldKey)
-      .get(program.getGlobalNamespaceType()) as Set<string>;
-    if (!invalidKeys.has(name)) {
-      invalidKeys.add(name);
-    }
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "invalid-component-fixed-field-key",
-        format: {
-          value: name,
-        },
-        target: type,
-      }),
-    );
-  }
-}
-
-export function isValidComponentFixedFieldKey(key: string) {
-  const validPattern = /^[a-zA-Z0-9.\-_]+$/;
-  return validPattern.test(key);
 }

@@ -31,7 +31,7 @@ import { CreateSchemaEmitter } from "./openapi-spec-mappings.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { Builders, OpenAPI3SchemaEmitterBase } from "./schema-emitter.js";
 import { JsonType, OpenAPI3Schema } from "./types.js";
-import { isBytesKeptRaw, isLiteralType, literalType } from "./util.js";
+import { isBytesKeptRaw, isLiteralType, literalType } from "./utils/basic-util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 

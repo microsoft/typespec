@@ -115,12 +115,16 @@ import {
 import {
   deepEquals,
   getDefaultValue,
-  invalidComponentFixedFieldKey,
   isBytesKeptRaw,
   isSharedHttpOperation,
   SharedHttpOperation,
+} from "./utils/basic-util.js";
+import {
+  getComponentFixedFieldKeyContext,
+  setUpComponentFixedFieldKeyContext,
+  updateToValidRefs,
   validateComponentFixedFieldKey,
-} from "./util.js";
+} from "./utils/component-key-util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
 
@@ -274,9 +278,7 @@ function createOAPIEmitter(
     },
   };
 
-  program
-    .stateMap(invalidComponentFixedFieldKey)
-    .set(program.getGlobalNamespaceType(), new Map<string, string>());
+  const reportedDiagnostics = new Map<string, Diagnostic>();
 
   return { emitOpenAPI, getOpenAPI };
 
@@ -645,6 +647,7 @@ function createOAPIEmitter(
     version?: string,
   ): Promise<[SupportedOpenAPIDocuments, Readonly<Diagnostic[]>] | undefined> {
     try {
+      setUpComponentFixedFieldKeyContext(program);
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       const auth = (serviceAuth = resolveAuthentication(httpService));
 
@@ -680,19 +683,15 @@ function createOAPIEmitter(
         }
       }
 
-      // Use valid keys in components/schemas and components/parameters
-      const invalidKeys = program
-        .stateMap(invalidComponentFixedFieldKey)
-        .get(program.getGlobalNamespaceType()) as Set<string>;
-      useValidKeysInComponentFixedFields(invalidKeys, root.components?.schemas);
-      const invalidToValidKeyMap = useValidKeysInComponentFixedFields(
-        invalidKeys,
-        root.components?.parameters,
-      );
-      for (const invalidKey in invalidToValidKeyMap) {
-        const validKey = invalidToValidKeyMap.get(invalidKey);
-        updateRefs(root, invalidKey, validKey!);
+      const diagnosticsForComponentKeys = getComponentFixedFieldKeyContext(program).diagnostics;
+      for (const [key, diagnostic] of diagnosticsForComponentKeys) {
+        if (reportedDiagnostics.has(key)) continue;
+        reportedDiagnostics.set(key, diagnostic);
+        program.reportDiagnostic(diagnostic);
       }
+
+      updateToValidRefs(program, root);
+
       return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
@@ -701,72 +700,6 @@ function createOAPIEmitter(
         return;
       } else {
         throw err;
-      }
-    }
-
-
-    // find anything uses references
-
-    // TODO: OpenAPI3SchemaProperty
-    // TODO: OpenAPI3Link
-
-    // TODO: OpenAPI3Responses.status
-    // TODO: OpenAPI3Response.headers
-    // TODO: OpenAPI3Response.links
-    // TODO: OpenAPI3MediaType.schema
-    // TODO: OpenAPI3Encoding.headers
-    // TODO: OpenAPI3Schema.allof/oneof/anyof/not/items/additionalProperties/
-    // TODO: OpenAPI3Operation.requestBody
-    // TODO: OpenAPI3Operation.parameters
-
-    // TODO: JsonSchema.contentSchema/allof/anyof/oneof/not/items/prefixItems/contains/properties/additionalProperties
-    // TODO:OpenAPIComponents3_1.responses/parameters/examples/requestBodies/headers/securitySchemes/links
-    function updateRefs(root: SupportedOpenAPIDocuments, oldModelName: string, newModelName: string) {
-      
-    }
-
-    function useValidKeysInComponentFixedFields(
-      invalidKeys: Set<string>,
-      pairs?: Record<string, unknown>,
-    ): Map<string, string> | undefined {
-      if (!pairs) return;
-
-      const newPairs: typeof pairs = {};
-      const originalKeys = Object.keys(pairs);
-      const validKeys = new Set<string>(originalKeys.filter((key) => !invalidKeys.has(key)));
-      const invalidToValidKeyMap = new Map<string, string>();
-
-      for (const [_, key] of originalKeys.entries()) {
-        if (validKeys.has(key)) {
-          newPairs[key] = pairs[key];
-          continue;
-        }
-
-        const newKey = createValidKey(key, validKeys, newPairs);
-        newPairs[newKey] = pairs[key];
-        pairs = newPairs;
-        invalidToValidKeyMap.set(key, newKey);
-      }
-
-      return invalidToValidKeyMap;
-
-      function createValidKey(
-        invalidKey: string,
-        originalValidKeys: Set<string>,
-        newPairs: Record<string, unknown>,
-      ): string {
-        let baseKey = invalidKey.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-        let index = 1;
-        let validKey = baseKey;
-
-        for (
-          let validKey = baseKey;
-          validKey in originalValidKeys || validKey in newPairs;
-          index++
-        ) {
-          validKey = baseKey + index;
-        }
-        return validKey;
       }
     }
   }
@@ -1660,7 +1593,7 @@ function createOAPIEmitter(
         delete param[key];
       }
 
-      param.$ref = "#/components/parameters/" + encodeURIComponent(key);
+      param.$ref = "#/components/parameters/" + key;
     }
   }
 

@@ -80,8 +80,8 @@ import {
   includeDerivedModel,
   isBytesKeptRaw,
   isStdType,
-  validateComponentFixedFieldKey,
-} from "./util.js";
+} from "./utils/basic-util.js";
+import { validateComponentFixedFieldKey } from "./utils/component-key-util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
 
@@ -163,7 +163,6 @@ export class OpenAPI3SchemaEmitterBase<
 
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
-    validateComponentFixedFieldKey(program, model, model.name);
     const visibility = this.#getVisibilityContext();
     const schema: ObjectBuilder<any> = new ObjectBuilder({
       type: "object",
@@ -746,6 +745,10 @@ export class OpenAPI3SchemaEmitterBase<
       fullName,
       Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true])),
     );
+
+    if (type.kind === "Model") {
+      validateComponentFixedFieldKey(this.emitter.getProgram(), type, fullName);
+    }
     return decl;
   }
 
