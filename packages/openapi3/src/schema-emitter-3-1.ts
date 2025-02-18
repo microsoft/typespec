@@ -6,7 +6,6 @@ import {
   getMinValueExclusive,
   IntrinsicScalarName,
   IntrinsicType,
-  isNeverType,
   Model,
   ModelProperty,
   Program,
@@ -149,12 +148,12 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
   }
 
   applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
-    if (!model.indexer) return;
-    const indexerType = model.indexer.value;
+    const shouldSeal = this.shouldSealSchema(model);
+    if (!shouldSeal && !model.indexer) return;
 
-    const unevaluatedPropertiesSchema = isNeverType(indexerType)
+    const unevaluatedPropertiesSchema = shouldSeal
       ? { not: {} }
-      : this.emitter.emitTypeReference(indexerType);
+      : this.emitter.emitTypeReference(model.indexer!.value);
     schema.set("unevaluatedProperties", unevaluatedPropertiesSchema);
   }
 
