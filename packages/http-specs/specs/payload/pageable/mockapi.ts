@@ -80,7 +80,7 @@ function reqBodyResBodyHandler(req: MockRequest) {
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqBodyResBody = passOnSuccess([
   {
     uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-body-response-body",
-    method: "get",
+    method: "post",
     request: {},
     response: EmptyResponse,
     handler: (req) => reqBodyResBodyHandler(req),
@@ -197,7 +197,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqBodyResHe
   passOnSuccess([
     {
       uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-body-response-header",
-      method: "get",
+      method: "post",
       request: {},
       response: EmptyResponse,
       handler: (req) => reqBodyResHeaderHandler(req),
