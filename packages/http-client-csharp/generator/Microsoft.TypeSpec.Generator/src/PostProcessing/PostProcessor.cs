@@ -205,6 +205,45 @@ namespace Microsoft.TypeSpec.Generator
                 return project.RemoveDocument(modelFactoryGeneratedDocument.Id);
             }
 
+            // ensure that all usings are still valid
+            var semanticModel = await modelFactoryGeneratedDocument.GetSemanticModelAsync();
+            if (semanticModel == null)
+            {
+                return project;
+            }
+
+            var usings = root.DescendantNodes().OfType<UsingDirectiveSyntax>().ToList();
+
+            var namespacesToRemove = new HashSet<string>();
+            foreach (var u in usings)
+            {
+                if (u.Name == null)
+                {
+                    continue;
+                }
+
+                var name = u.Name.ToString();
+                // Skip System namespaces
+                if (name.StartsWith("System.", StringComparison.Ordinal) || name.Equals("System", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                // Use LookupNamespacesAndTypes to check if the namespace is valid
+                var symbols = semanticModel.LookupNamespacesAndTypes(u.Name.SpanStart, null, name);
+
+                // If no matching namespace or type is found, mark for removal
+                if (!symbols.Any())
+                {
+                    namespacesToRemove.Add(name);
+                }
+            }
+            var usingsToRemove = usings
+                .Where(u => u.Name != null && namespacesToRemove.Contains(u.Name.ToString()))
+                .ToList();
+            root = root.RemoveNodes(usingsToRemove, SyntaxRemoveOptions.KeepNoTrivia)!;
+            modelFactoryGeneratedDocument = modelFactoryGeneratedDocument.WithSyntaxRoot(root);
+
             return modelFactoryGeneratedDocument.Project;
         }
 
