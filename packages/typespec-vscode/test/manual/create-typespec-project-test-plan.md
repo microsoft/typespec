@@ -65,7 +65,7 @@ Click the `Create TypeSpec Project` command, and a folder selection interface wi
 
 - Select a non-empty folder. _(Single choice)_ `Y/N`
 
-  **Validate:** Will it appear: `The folder to create project is not empty. Do you want to continue?`
+  **Validate:** Will it appear: `The folder selected is not empty. Are you sure you want to initialize a new project here?`
 
   ![alt text](./images/CreateTypeSpecProject_VerifyFolderIsEmpty.png)
 
@@ -191,9 +191,15 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
    ![alt text](./images/CreateTypeSpecProject_StandAlone_InstallLibraries.png)
 
-5. Input service namespace - _(Text input)_ requires Pascal format.
+5. Input your `service namespace` or `ARM Resource Provider Name` - _(Text input)_ requires Pascal format.
 
-   ![alt text](./images/CreateTypeSpecProject_InputServiceNamespace.png)
+   - For Data Plane API - Input service namespace.
+
+     ![alt text](./images/CreateTypeSpecProject_InputServiceNamespace.png)
+
+   - For ARM API - Input ARM Resource Provider Name.
+
+     ![alt text](./images/CreateTypeSpecProject_InputARMResourceProviderName.png)
 
 6. Press "Enter" and the project will be created.
 

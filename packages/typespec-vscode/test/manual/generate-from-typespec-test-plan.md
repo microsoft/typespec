@@ -4,14 +4,14 @@ Different emitter types can be used to generate different codes to meet specific
 
 - Client Code
 - Server Stub
-- Protocol Schema
+- OpenAPI Document
 
 **Important: There must be at least one TypeSpec project in the project folder.**
 
 ## Test Environment
 
 - OS : Windows or Linux
-- Emitter: Client Code, Server Stub, Protocol Schema
+- Emitter: Client Code, Server Stub, OpenAPI Document
 - Language : Python, Java, JavaScript, .NET, OpenAPI3
 
 > Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
@@ -65,7 +65,7 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
 ### Step 4: Select an Emitter Type.
 
-**Validate:** There should be a prompt "Select an Emitter Type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `Protocol Schema`.
+**Validate:** There should be a prompt "Select an Emitter Type", and should see three emitter types: `Client Code`, `<PREVIEW> Server Stub`, `OpenAPI Document`.
 
 ![alt text](./images/GeneratefromTypeSpec_SelectEmitter_client.png)
 
@@ -141,13 +141,13 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
        ![alt text](./images/GeneratefromTypeSpec_GenerateServerCodePrompt_DotNet.png)
 
-- For Emitter Type `Protocol Schema`:
+- For Emitter Type `OpenAPI Document`:
 
   Emit OpenAPI3 from TypeSpec to automate API-related tasks: generate API documentation, test API, etc.
 
   The TypeSpec file itself is not sufficient to generate OpenAPI3. The conversion process will always reference the entry point (main.tsp) of the TypeSpec build, which includes the main definitions of models, services, and operations.
 
-  1. Click `Protocol Schema`.
+  1. Click `OpenAPI Document`.
 
      **Validate:** There should be a prompt "Select a Language", and should see languages: `OpenAPI3`.
 
