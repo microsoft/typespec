@@ -7,7 +7,9 @@ import com.azure.core.annotation.ReturnType;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.serializer.CollectionFormat;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.PageableContinuationToken;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -35,6 +37,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -740,6 +743,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             clientMethod.getMethodPageDetails().getNextMethod().getArgumentList(), settings));
                 });
             });
+        } else if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+            // currently this is for unbranded
         } else {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
                 addOptionalVariables(function, clientMethod);
@@ -829,7 +834,29 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.line("res.getValue().%s(),", CodeNamer.getModelNamer()
                     .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                 // continuation token
-                function.line("null,");
+                if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+                    PageableContinuationToken continuationToken
+                        = clientMethod.getMethodPageDetails().getContinuationToken();
+                    if (continuationToken.getResponseHeader() != null) {
+                        function.line("res.getHeaders().getValue(HttpHeaderName.fromString(\""
+                            + continuationToken.getResponseHeader().getHeader() + "\")),");
+                    } else if (continuationToken.getResponseProperty() != null) {
+                        StringBuilder continuationTokenExpression = new StringBuilder("res.getValue()");
+                        for (Property property : continuationToken.getResponseProperty()) {
+                            continuationTokenExpression.append(".")
+                                .append(CodeNamer.getModelNamer()
+                                    .modelPropertyGetterName(
+                                        CodeNamer.getPropertyName(SchemaUtil.getJavaName(property))))
+                                .append("()");
+                        }
+                        function.line(continuationTokenExpression.append(",").toString());
+                    } else {
+                        // this should not happen
+                        function.line("null,");
+                    }
+                } else {
+                    function.line("null,");
+                }
                 // next link
                 if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
                     String nextLinkLine = nextLinkLine(clientMethod);

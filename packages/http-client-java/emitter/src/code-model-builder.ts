@@ -1050,8 +1050,10 @@ export class CodeModelBuilder {
               if (response instanceof SchemaResponse) {
                 if (response.schema instanceof ObjectSchema && response.schema.properties) {
                   for (const p of response.schema.properties) {
-                    continuationTokenResponseProperty = [p];
-                    break;
+                    if (p.serializedName === "continuationToken") {
+                      continuationTokenResponseProperty = [p];
+                      break;
+                    }
                   }
                 }
               }

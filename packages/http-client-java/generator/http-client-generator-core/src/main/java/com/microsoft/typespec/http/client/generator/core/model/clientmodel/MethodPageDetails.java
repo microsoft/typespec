@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.PageableContinuationToken;
+
 /**
  * A page class that contains results that are received from a service request.
  */
@@ -30,8 +32,11 @@ public class MethodPageDetails {
     // This intermediate type is the type of pagination response (the type with values and nextLink).
     private final IType lroIntermediateType;
 
+    private PageableContinuationToken continuationToken;
+
     public MethodPageDetails(String nextLinkName, IType nextLinkType, String itemName, ClientMethod nextMethod,
-        IType lroIntermediateType, String serializedNextLinkName, String serializedItemName) {
+        IType lroIntermediateType, String serializedNextLinkName, String serializedItemName,
+        PageableContinuationToken continuationToken) {
         this.nextLinkName = nextLinkName;
         this.nextLinkType = nextLinkType;
         this.itemName = itemName;
@@ -39,6 +44,7 @@ public class MethodPageDetails {
         this.lroIntermediateType = lroIntermediateType;
         this.serializedNextLinkName = serializedNextLinkName;
         this.serializedItemName = serializedItemName;
+        this.continuationToken = continuationToken;
     }
 
     public String getNextLinkName() {
@@ -71,5 +77,9 @@ public class MethodPageDetails {
 
     public boolean nonNullNextLink() {
         return nextLinkName != null && !nextLinkName.isEmpty();
+    }
+
+    public PageableContinuationToken getContinuationToken() {
+        return continuationToken;
     }
 }

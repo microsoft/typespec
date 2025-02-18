@@ -766,7 +766,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 : proxyMethod.getResponseBodyType()).toString());
 
         MethodPageDetails details = new MethodPageDetails(CodeNamer.getPropertyName(nextLinkName), nextLinkType,
-            pageableItemName, nextMethod, lroIntermediateType, nextLinkName, itemName);
+            pageableItemName, nextMethod, lroIntermediateType, nextLinkName, itemName,
+            operation.getExtensions().getXmsPageable().getContinuationToken());
         builder.methodPageDetails(details);
 
         String pageMethodName
@@ -836,7 +837,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
             if (nextMethod != null) {
                 detailsWithContext = new MethodPageDetails(CodeNamer.getPropertyName(nextLinkName), nextLinkType,
-                    pageableItemName, nextMethod, lroIntermediateType, nextLinkName, itemName);
+                    pageableItemName, nextMethod, lroIntermediateType, nextLinkName, itemName,
+                    operation.getExtensions().getXmsPageable().getContinuationToken());
             }
         }
 

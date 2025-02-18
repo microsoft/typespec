@@ -452,6 +452,10 @@ public class ClientMethod {
                     imports.add("java.util.Map");
                     ClassType.BINARY_DATA.addImportsTo(imports, includeImplementationImports);
                 }
+
+                if (getMethodPageDetails().getContinuationToken() != null) {
+                    ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
+                }
             }
 
             if (type == ClientMethodType.LongRunningBeginAsync || type == ClientMethodType.LongRunningBeginSync) {
