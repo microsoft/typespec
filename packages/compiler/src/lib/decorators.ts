@@ -100,6 +100,7 @@ import {
   UnionVariant,
   Value,
 } from "../core/types.js";
+import { Realm } from "../experimental/realm.js";
 import { useStateMap, useStateSet } from "../utils/index.js";
 import { setKey } from "./key.js";
 import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
@@ -1300,7 +1301,7 @@ export const $example: ExampleDecorator = (
   compilerAssert(decorator, `Couldn't find @example decorator`, context.decoratorTarget);
   const rawExample = decorator.args[0].value as Value;
   // skip validation in projections
-  if (target.projectionBase === undefined) {
+  if (target.projectionBase === undefined && Realm.realmForType.get(target) === undefined) {
     if (
       !checkExampleValid(
         context.program,

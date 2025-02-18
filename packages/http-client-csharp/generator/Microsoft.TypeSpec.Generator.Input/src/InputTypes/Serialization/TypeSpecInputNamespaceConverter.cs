@@ -59,8 +59,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             enums ??= Array.Empty<InputEnumType>();
             models ??= Array.Empty<InputModelType>();
             clients ??= Array.Empty<InputClient>();
-            // it is possible that no auth is defined in the typespec, in this case, we just create an empty auth.
-            auth ??= new InputAuth();
 
             return new InputNamespace(
                 name ?? throw new JsonException(),
