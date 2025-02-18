@@ -92,9 +92,10 @@ export async function initTypeSpecProjectWorker(
   whiteline();
 
   if (projectJsonCreated) {
-    // eslint-disable-next-line no-console
-    console.log(pc.green("Installing dependencies..."));
-    await installTypeSpecDependencies(host, directory);
+    await action(
+      "Installing dependencies",
+      async () => await installTypeSpecDependencies(host, directory, "pipe"),
+    );
   }
 
   whiteline();
@@ -311,6 +312,17 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
         selected: emitter.selected ?? false,
       };
     }),
+    theme: {
+      style: {
+        renderSelectedChoices: (choices: ReadonlyArray<any>) => {
+          if (choices.length === 0) {
+            return "None selected.";
+          } else {
+            return `${choices.map((x) => x.name).join(", ")}`;
+          }
+        },
+      },
+    },
   });
 
   const selectedEmitters = [...Object.entries(template.emitters)].filter(([key, value], index) =>
@@ -336,4 +348,56 @@ function logDiagnostics(diagnostics: readonly Diagnostic[]): void {
     // eslint-disable-next-line no-console
     console.log(diagnostic.message);
   });
+}
+
+async function action(message: string, fn: () => Promise<unknown>) {
+  const isTTY = process.stdout?.isTTY && !process.env.CI;
+
+  let interval;
+
+  if (isTTY) {
+    const spinner = createSpinner();
+    interval = setInterval(() => {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.write(`\r${pc.yellow(spinner())} ${message}`);
+    }, 300);
+  } else {
+    // eslint-disable-next-line no-console
+    console.log(`- ${message}`);
+  }
+
+  try {
+    await fn();
+    if (isTTY) {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.write(`\r${pc.green("✓")} ${message}`);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`\r${pc.green("✓")} ${message}`);
+    }
+  } catch (e: any) {
+    // eslint-disable-next-line no-console
+    console.log(`\r${pc.red("×")} ${message}\n${e.message}`);
+  } finally {
+    if (interval) {
+      clearInterval(interval);
+    }
+  }
+}
+
+import isUnicodeSupported from "is-unicode-supported";
+
+export const spinnerFrames = isUnicodeSupported()
+  ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+  : ["-", "\\", "|", "/"];
+
+export function createSpinner() {
+  let index = 0;
+
+  return () => {
+    index = ++index % spinnerFrames.length;
+    return spinnerFrames[index];
+  };
 }

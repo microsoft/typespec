@@ -11,7 +11,7 @@ const minCompilerVersion = pkgJson.version;
 const builtInTemplates: Record<string, InitTemplate> = {
   rest: {
     title: "Generic REST API",
-    description: "Create a project representing a generic REST API",
+    description: "Create a project representing a generic REST API service",
     compilerVersion: minCompilerVersion,
     libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi", "@typespec/openapi3"],
     emitters: {
@@ -63,8 +63,8 @@ const builtInTemplates: Record<string, InitTemplate> = {
     files: [...(await localDir("rest"))],
   },
   "library-ts": {
-    title: "TypeSpec Library (With TypeScript)",
-    description: "Create a new package to add decorators or linters to typespec.",
+    title: "TypeSpec Library",
+    description: "Build your own TypeSpec library with custom types, decorators or linters.",
     compilerVersion: minCompilerVersion,
     libraries: [],
     files: [
@@ -74,8 +74,8 @@ const builtInTemplates: Record<string, InitTemplate> = {
     ],
   },
   "emitter-ts": {
-    title: "TypeSpec Emitter (With TypeScript)",
-    description: "Create a new package that will be emitting typespec",
+    title: "TypeSpec Emitter",
+    description: "Create a new package that will be emitting artifacts from TypeSpec.",
     compilerVersion: minCompilerVersion,
     libraries: [],
     files: [
