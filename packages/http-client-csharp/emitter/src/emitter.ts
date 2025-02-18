@@ -264,16 +264,6 @@ function transformJSONProperties(this: any, key: string, value: any): any {
   return value;
 }
 
-function deleteFile(filePath: string, logger: Logger) {
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      logger.error(`Failed to delete files: ${err}`);
-    } else {
-      logger.info(`File ${filePath} is deleted.`);
-    }
-  });
-}
-
 function prettierOutput(output: string) {
   return output + "\n";
 }
