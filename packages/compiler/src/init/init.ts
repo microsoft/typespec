@@ -1,4 +1,4 @@
-import { checkbox, confirm as confirmInquirer, input, select } from "@inquirer/prompts";
+import { confirm as confirmInquirer, input, select } from "@inquirer/prompts";
 import { readdir } from "fs/promises";
 import pc from "picocolors";
 import * as semver from "semver";
@@ -12,6 +12,7 @@ import { readUrlOrPath } from "../utils/misc.js";
 import { getTypeSpecCoreTemplates } from "./core-templates.js";
 import { validateTemplateDefinitions, ValidationResult } from "./init-template-validate.js";
 import { EmitterTemplate, InitTemplate } from "./init-template.js";
+import { checkbox } from "./prompts.js";
 import { isFileSkipGeneration, makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
 
 export interface InitTypeSpecProjectOptions {
@@ -68,7 +69,7 @@ export async function initTypeSpecProjectWorker(
 
   const template = result.templates[templateName] as InitTemplate;
   const name = await input({
-    message: `Project name`,
+    message: `Project name:`,
     default: folderName,
   });
 
@@ -156,7 +157,7 @@ async function confirmDirectoryEmpty(directory: string) {
 
   warning(`Folder '${pc.cyan(directory)}' is not empty.`);
   whiteline();
-  return confirm(`Initialize a new project here?`);
+  return confirm(`Initialize a new project here?:`);
 }
 
 async function confirm(message: string): Promise<boolean> {
@@ -211,7 +212,7 @@ function getTemplateName(template: InitTemplate) {
 
 async function promptTemplateSelection(templates: Record<string, any>): Promise<string> {
   const templateName = await select({
-    message: "Select a project template",
+    message: "Select a project template:",
     choices: Object.entries(templates).map(([id, template]) => {
       return {
         value: id,
@@ -296,8 +297,7 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
     0,
   );
   const emitters = await checkbox({
-    message: "Select emitters?",
-    instructions: ` (Press ${pc.cyan("space")} to select, ${pc.cyan("a")} to toggle all, ${pc.cyan("i")} to invert selection and ${pc.cyan("enter")} to proceed.)`,
+    message: "Select emitters:",
     choices: emittersList.map(([name, emitter]) => {
       return {
         value: name,
