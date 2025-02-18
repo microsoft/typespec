@@ -3,7 +3,7 @@
 
 package authentication.union;
 
-import io.clientcore.core.credential.KeyCredential;
+import io.clientcore.core.credentials.KeyCredential;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

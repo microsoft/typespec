@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
@@ -49,7 +50,8 @@ public class MethodUtil {
         = CodeNamer.toCamelCase(REPEATABILITY_REQUEST_ID_HEADER);
     public static final String REPEATABILITY_FIRST_SENT_VARIABLE_NAME
         = CodeNamer.toCamelCase(REPEATABILITY_FIRST_SENT_HEADER);
-    public static final String REPEATABILITY_REQUEST_ID_EXPRESSION = "CoreUtils.randomUuid().toString()";
+    public static final String REPEATABILITY_REQUEST_ID_EXPRESSION
+        = JavaSettings.getInstance().isBranded() ? "CoreUtils.randomUuid().toString()" : "UUID.randomUUID().toString()";
     public static final String REPEATABILITY_FIRST_SENT_EXPRESSION
         = "DateTimeRfc1123.toRfc1123String(OffsetDateTime.now())";
 
