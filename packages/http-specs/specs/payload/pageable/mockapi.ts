@@ -89,7 +89,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqBodyResBo
 ]);
 
 function reqQueryResBodyHandler(req: MockRequest) {
-  switch (req.params?.token) {
+  switch (req.query?.token) {
     case undefined:
       return {
         status: 200,
@@ -109,7 +109,7 @@ function reqQueryResBodyHandler(req: MockRequest) {
       throw new ValidationError(
         "Unsupported continuation token",
         `"undefined" | "12345"`,
-        req.params.token,
+        req.query.token,
       );
   }
 }
@@ -206,7 +206,7 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqBodyResHe
   ]);
 
 function reqQueryResHeaderHandler(req: MockRequest) {
-  switch (req.params?.token) {
+  switch (req.query?.token) {
     case undefined:
       return {
         status: 200,
@@ -228,7 +228,7 @@ function reqQueryResHeaderHandler(req: MockRequest) {
       throw new ValidationError(
         "Unsupported continuation token",
         `"undefined" | "12345"`,
-        req.headers.token,
+        req.query.token,
       );
   }
 }
