@@ -138,47 +138,47 @@ namespace ServerDrivenPagination {
     };
 
 
-    // @scenario
-    // @scenarioDoc("""
-    //   Test case for using continuation token as pagination. Continuation token is passed in the request header and response body.
+    @scenario
+    @scenarioDoc("""
+      Test case for using continuation token as pagination. Continuation token is passed in the request header and response body.
       
-    //   Two requests need to be tested.
-    //   1. Initial request:
-    //   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body      
+      Two requests need to be tested.
+      1. Initial request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body      
 
-    //   Expected response body:
-    //   ```json
-    //   { "pets": [
-    //       { "id": "1", "name": "dog" },
-    //       { "id": "2", "name": "cat" }
-    //     ],
-    //     "nextToken": "12345"
-    //   }
-    //   ```
-    //   2. Next page request:
-    //   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "1", "name": "dog" },
+          { "id": "2", "name": "cat" }
+        ],
+        "nextToken": "12345"
+      }
+      ```
+      2. Next page request:
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
 
-    //   Expected header:
-    //   token=12345
+      Expected header:
+      token=12345
 
-    //   Expected response body:
-    //   ```json
-    //   { "pets": [
-    //       { "id": "3", "name": "bird" },
-    //       { "id": "4", "name": "fish" }
-    //     ]
-    //   }
-    //   ```
-    //   """)
-    // @scenarioDoc("""
-    // """)
-    // @route("/request-header-response-body")
-    // @list
-    // op reqHeaderResBody(@continuationToken @header token?: string): {
-    //   @pageItems
-    //   pets: Pet[];
+      Expected response body:
+      ```json
+      { "pets": [
+          { "id": "3", "name": "bird" },
+          { "id": "4", "name": "fish" }
+        ]
+      }
+      ```
+      """)
+    @scenarioDoc("""
+    """)
+    @route("/request-header-response-body")
+    @list
+    op reqHeaderResBody(@continuationToken @header token?: string): {
+      @pageItems
+      pets: Pet[];
 
-    //   @continuationToken nextToken?: string;
-    // };
+      @continuationToken nextToken?: string;
+    };
   }
 }
