@@ -8,8 +8,9 @@ export let defaultSDKContextOptions: CreateSdkContextOptions = {
 };
 
 /**
- * Sets the SDK context options to be used by the CSharp emitter.
- * @param options - The SDK context options.
+ * Sets the SDK context options to be used taking into account any passed in options and
+ * the default values used by the CSharp emitter.
+ * @param options - Emitter-specific options to be combined with the CSharp default options.
  * @beta
  */
 export function setSDKContextOptions(options: CreateSdkContextOptions) {
@@ -19,7 +20,7 @@ export function setSDKContextOptions(options: CreateSdkContextOptions) {
 /**
  * Gets the SDK context options to be used taking into account any passed in options and
  * the default values used by the CSharp emitter.
- * @param options - Emitter-specific options to be combined with the CSharp default options.
+ * @param options - Optional emitter-specific options to be combined with the CSharp default options.
  * @beta
  */
 export function getSDKContextOptions(options?: CreateSdkContextOptions): CreateSdkContextOptions {
