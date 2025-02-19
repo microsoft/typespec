@@ -399,7 +399,7 @@ model DiscriminatedOptions {
   envelope?: "object" | "none";
 
   /** Name of the discriminator property */
-  discriminator?: string;
+  discriminatorPropertyName?: string;
 
   envelopePropertyName?: string;
 }
@@ -438,7 +438,7 @@ model DiscriminatedOptions {
  * @example Custom property names
  *
  * ```typespec
- * @discriminated(#{discriminator: "dataKind", envelopePropertyName: "data"})
+ * @discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
  * union Pet{ cat: Cat, dog: Dog }
  *
  * model Cat { meow: boolean }
@@ -462,7 +462,7 @@ model DiscriminatedOptions {
  * }
  * ```
  */
-extern dec discriminated(target: Union, propertyName?: valueof DiscriminatedOptions);
+extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
 
 /**
  * Specify the property to be used to discriminate this type.

@@ -548,7 +548,7 @@ export class OpenAPI3SchemaEmitterBase<
         type: "object",
         oneOf: items,
         discriminator: {
-          propertyName: union.options.discriminator,
+          propertyName: union.options.discriminatorPropertyName,
           mapping: this.getDiscriminatorMapping(union.variants),
         },
       };
@@ -559,8 +559,8 @@ export class OpenAPI3SchemaEmitterBase<
         const envelopeModel = $.model.create({
           name: union.type.name + capitalize(name),
           properties: {
-            [union.options.discriminator]: $.modelProperty.create({
-              name: union.options.discriminator,
+            [union.options.discriminatorPropertyName]: $.modelProperty.create({
+              name: union.options.discriminatorPropertyName,
               type: $.literal.createString(name),
             }),
             [union.options.envelopePropertyName]: $.modelProperty.create({
@@ -581,7 +581,7 @@ export class OpenAPI3SchemaEmitterBase<
         type: "object",
         oneOf: items,
         discriminator: {
-          propertyName: union.options.discriminator,
+          propertyName: union.options.discriminatorPropertyName,
           mapping: this.getDiscriminatorMapping(envelopeVariants),
         },
       };

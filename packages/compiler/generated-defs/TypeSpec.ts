@@ -16,7 +16,7 @@ import type {
 
 export interface DiscriminatedOptions {
   readonly envelope?: "object" | "none";
-  readonly discriminator?: string;
+  readonly discriminatorPropertyName?: string;
   readonly envelopePropertyName?: string;
 }
 
@@ -605,7 +605,7 @@ export type EncodedNameDecorator = (
  * @example Custom property names
  *
  * ```typespec
- * @discriminated(#{discriminator: "dataKind", envelopePropertyName: "data"})
+ * @discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
  * union Pet{ cat: Cat, dog: Dog }
  *
  * model Cat { meow: boolean }
@@ -632,7 +632,7 @@ export type EncodedNameDecorator = (
 export type DiscriminatedDecorator = (
   context: DecoratorContext,
   target: Union,
-  propertyName: DiscriminatedOptions,
+  options?: DiscriminatedOptions,
 ) => void;
 
 /**

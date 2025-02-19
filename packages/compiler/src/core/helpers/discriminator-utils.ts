@@ -1,7 +1,6 @@
 import { DiscriminatedOptions } from "../../../generated-defs/TypeSpec.js";
 import { DuplicateTracker } from "../../utils/duplicate-tracker.js";
 import { isDefined } from "../../utils/misc.js";
-import { compilerAssert } from "../index.js";
 import {
   Discriminator,
   getDiscriminatedOptions,
@@ -82,7 +81,7 @@ function getDiscriminatedUnionForUnion(
 
   // If there is not envelope then every variant needs to be a model.
   for (const variant of type.variants.values()) {
-    if (variant.name === undefined) {
+    if (typeof variant.name !== "string") {
       if (defaultVariant) {
         diagnostics.push(
           createDiagnostic({
@@ -94,8 +93,8 @@ function getDiscriminatedUnionForUnion(
       } else {
         defaultVariant = variant.type;
       }
+      continue;
     }
-    compilerAssert(typeof variant.name === "string", "variant name must be a string", variant);
     variants.set(variant.name, variant.type);
     if (options.envelope === "none") {
       if (variant.type.kind !== "Model") {
@@ -109,7 +108,7 @@ function getDiscriminatedUnionForUnion(
         continue;
       }
 
-      const prop = variant.type.properties.get(options.discriminator);
+      const prop = variant.type.properties.get(options.discriminatorPropertyName);
       if (prop !== undefined) {
         const key = getStringValue(prop.type);
         if (key !== variant.name) {
@@ -119,7 +118,7 @@ function getDiscriminatedUnionForUnion(
               messageId: "discriminantMismatch",
               format: {
                 name: variant.name.toString(),
-                discriminant: options.discriminator,
+                discriminant: options.discriminatorPropertyName,
                 propertyValue: key!,
                 variantName: String(variant.name),
               },

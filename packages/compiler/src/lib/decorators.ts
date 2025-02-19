@@ -1269,10 +1269,13 @@ export const discriminatedDecorator: DiscriminatedDecorator = (
 ) => {
   setDiscriminatedOptions(context.program, entity, {
     envelope: "object",
-    discriminator: "kind",
+    discriminatorPropertyName: "kind",
     envelopePropertyName: "value",
     ...options,
   });
+
+  const [_, diagnostics] = getDiscriminatedUnion(context.program, entity);
+  context.program.reportDiagnostics(diagnostics);
 };
 
 export const $discriminator: DiscriminatorDecorator = (
