@@ -15,8 +15,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@chronus/chronus':
-        specifier: ^0.14.1
-        version: 0.14.1
+        specifier: ^0.15.0
+        version: 0.15.0
       '@chronus/github':
         specifier: ^0.4.7
         version: 0.4.7
@@ -3304,11 +3304,6 @@ packages:
 
   '@chevrotain/utils@11.0.3':
     resolution: {integrity: sha512-YslZMgtJUyuMbZ+aKvfF3x1f5liK4mWNxghFRv7jqRR9C3R3fAOGTTKvxXDa2Y1s9zSbcpuO0cAxDYsc9SrXoQ==}
-
-  '@chronus/chronus@0.14.1':
-    resolution: {integrity: sha512-rJtN18zFipONmzPTpApzri9TWibLTyK7oMpn6jaSBpZ0b1A/DhdZ8DsiiTvs+wHkAXdnMTqcOna15QLdOndfHQ==}
-    engines: {node: '>=16.0.0'}
-    hasBin: true
 
   '@chronus/chronus@0.15.0':
     resolution: {integrity: sha512-KUU14Ti75+H6XOeltDO7jrlxwiEhb0T18YZp8O8V/yJ7AkOR+R/XKSN70xLIJTNJAWpk1WEkGYCOgad883n6sw==}
@@ -8933,10 +8928,6 @@ packages:
     resolution: {integrity: sha512-s3Fq41ZVh7vbbe2PN3nrW7yC7U7MFVc5c98/iTl9c2GawNMKx/J648KQRW6WKkuU8GIbbh2IXfIRQjOZnXcTnw==}
     engines: {node: '>=18'}
 
-  globby@14.1.0:
-    resolution: {integrity: sha512-0Ia46fDOaT7k4og1PDW4YbodWWr3scS2vAr2lTbsplOt2WkKp0vQbkI9wKis/T5LV/dqPjO3bpS/z6GTJB82LA==}
-    engines: {node: '>=18'}
-
   globrex@0.1.2:
     resolution: {integrity: sha512-uHJgbwAMwNFf5mLst7IWLNg14x1CkeqglJb/K3doi4dw6q2IvAAmM/Y81kevy83wP+Sst+nutFTYOGg3d1lsxg==}
 
@@ -9239,10 +9230,6 @@ packages:
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
-    engines: {node: '>= 4'}
-
-  ignore@7.0.3:
-    resolution: {integrity: sha512-bAH5jbK/F3T3Jls4I0SO1hmPR0dKU0a7+SY6n1yzRtG54FLO8d6w/nxLFX2Nb7dBu6cCWXPaAME6cYqFUMmuCA==}
     engines: {node: '>= 4'}
 
   import-fresh@3.3.0:
@@ -10940,10 +10927,6 @@ packages:
   path-type@5.0.0:
     resolution: {integrity: sha512-5HviZNaZcfqP95rwpv+1HDgUamezbqdSYTyzjTvwtJSnIH+3vnbmWsItli8OFEndS984VT55M3jduxZbX351gg==}
     engines: {node: '>=12'}
-
-  path-type@6.0.0:
-    resolution: {integrity: sha512-Vj7sf++t5pBD637NSfkxpHSMfWaeig5+DKWLhcqIYx6mWQz5hdJTGDVMQiJcw1ZYkhs7AazKDGpRVji1LJCZUQ==}
-    engines: {node: '>=18'}
 
   pathe@1.1.2:
     resolution: {integrity: sha512-whLdWMYL2TwI08hn8/ZqAbrVemu0LNaNNJZX73O6qaIdCTfXutsLhMkjdENX0qhsQ9uIimo4/aQOmXkoon2nDQ==}
@@ -14825,30 +14808,10 @@ snapshots:
 
   '@chevrotain/utils@11.0.3': {}
 
-  '@chronus/chronus@0.14.1':
-    dependencies:
-      cross-spawn: 7.0.6
-      globby: 14.0.2
-      is-unicode-supported: 2.1.0
-      micromatch: 4.0.8
-      pacote: 20.0.0
-      picocolors: 1.1.1
-      pluralize: 8.0.0
-      prompts: 2.4.2
-      semver: 7.6.3
-      source-map-support: 0.5.21
-      std-env: 3.8.0
-      yaml: 2.7.0
-      yargs: 17.7.2
-      zod: 3.24.1
-    transitivePeerDependencies:
-      - bluebird
-      - supports-color
-
   '@chronus/chronus@0.15.0':
     dependencies:
       cross-spawn: 7.0.6
-      globby: 14.1.0
+      globby: 14.0.2
       is-unicode-supported: 2.1.0
       micromatch: 4.0.8
       pacote: 20.0.0
@@ -17932,7 +17895,7 @@ snapshots:
       jsdoc-type-pratt-parser: 4.1.0
       process: 0.11.10
       recast: 0.23.9
-      semver: 7.6.3
+      semver: 7.7.1
       util: 0.12.5
       ws: 8.18.0
     optionalDependencies:
@@ -22160,15 +22123,6 @@ snapshots:
       slash: 5.1.0
       unicorn-magic: 0.1.0
 
-  globby@14.1.0:
-    dependencies:
-      '@sindresorhus/merge-streams': 2.3.0
-      fast-glob: 3.3.3
-      ignore: 7.0.3
-      path-type: 6.0.0
-      slash: 5.1.0
-      unicorn-magic: 0.3.0
-
   globrex@0.1.2: {}
 
   gopd@1.0.1:
@@ -22636,8 +22590,6 @@ snapshots:
       minimatch: 9.0.5
 
   ignore@5.3.2: {}
-
-  ignore@7.0.3: {}
 
   import-fresh@3.3.0:
     dependencies:
@@ -24265,7 +24217,7 @@ snapshots:
       make-fetch-happen: 14.0.3
       nopt: 8.1.0
       proc-log: 5.0.0
-      semver: 7.6.3
+      semver: 7.7.1
       tar: 7.4.3
       which: 5.0.0
     transitivePeerDependencies:
@@ -24808,8 +24760,6 @@ snapshots:
   path-type@4.0.0: {}
 
   path-type@5.0.0: {}
-
-  path-type@6.0.0: {}
 
   pathe@1.1.2: {}
 
