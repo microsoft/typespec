@@ -53,6 +53,8 @@ options:
 - `emitter-output-dir` define the output directory path which will store the generated code. If not specified, the `tsp-output` directory is used.
 - `generate-protocol-methods` indicate if you want to generate a **protocol method** for every operation or not. The default value is `true`.
 - `generate-convenience-methods` indicate if you want to generate a **convenience method** for every operation or not. The default value is `true`.
+- `disable-xml-docs` set to `true` to not generate XML docs in the generated library. The default value is `false`.
+- `api-version` for TypeSpec files using the [`@versioned`](https://typespec.io/docs/libraries/versioning/reference/decorators/#@TypeSpec.Versioning.versioned) decorator, set to the version that should be used to generate against.
 - `unreferenced-types-handling` define the strategy how to handle unreferenced types. It can be `removeOrInternalize`, `internalize` or `keepAll`. The default value is `removeOrInternalize`.
 - `clear-output-folder` indicate if you want to clear up the output folder before generating. The default value is `true`.
 - `new-project` set to `true` to overwrite the csproj if it already exists. The default value is `false`.
