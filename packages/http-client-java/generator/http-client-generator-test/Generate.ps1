@@ -64,8 +64,6 @@ $generateScript = {
   } elseif ($tspFile -match "arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
-    # also don't generate with stream-style-serialization as azure-core-management hasn't migrated to azure-json yet
-    $tspOptions += " --option ""@typespec/http-client-java.stream-style-serialization=false"""
     # also generate with group-etag-headers=false since mgmt doesn't support etag grouping yet
     $tspOptions += " --option ""@typespec/http-client-java.group-etag-headers=false"""
     # also test generating from specific api-version

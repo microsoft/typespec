@@ -89,7 +89,7 @@ public interface ChildExtensionResource {
          * The stage of the ChildExtensionResource definition which contains all the minimum required properties for the
          * resource to be created, but also allows for any other optional properties to be specified.
          */
-        interface WithCreate extends DefinitionStages.WithProperties {
+        interface WithCreate extends WithProperties {
             /**
              * Executes the create request.
              * 
@@ -125,7 +125,7 @@ public interface ChildExtensionResource {
      * 
      * @return the stage of resource update.
      */
-    ChildExtensionResource.Update update();
+    Update update();
 
     /**
      * The template for ChildExtensionResource update.
