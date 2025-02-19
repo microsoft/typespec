@@ -6,6 +6,8 @@ import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
 import { createTempDir, parseOpenApi3File, throttle } from "../utils.js";
 
+const TITLE = "Preview in OpenAPI3";
+
 export async function showOpenApi3(
   docUri: vscode.Uri,
   context: vscode.ExtensionContext,
@@ -42,7 +44,8 @@ async function getMainTspFile(): Promise<string | undefined> {
       return await vscode.window.showQuickPick(
         files.map((file) => file.fsPath),
         {
-          title: "Select the 'main.tsp' file",
+          title: TITLE,
+          placeHolder: "Select the 'main.tsp' file",
         },
       );
   }
@@ -132,8 +135,8 @@ async function loadOpenApi3PreviewPanel(
                 };
               });
               const selected = await vscode.window.showQuickPick(files, {
-                title: "Multiple OpenAPI3 files found. Select one to preview",
-                placeHolder: "Select an OpenAPI3 file",
+                title: TITLE,
+                placeHolder: "Multiple OpenAPI3 files found. Select one to preview",
               });
               if (selected) {
                 selectedOpenApi3OutputFiles.set(mainTspFile, selected.path);
