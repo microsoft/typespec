@@ -60,6 +60,14 @@ export async function loadOpenApi3PreviewPanel(
         async (): Promise<string | undefined> => {
           const srcFolder = dirname(mainTspFile);
           const outputFolder = await getOutputFolder(mainTspFile);
+          if (!outputFolder) {
+            logger.error("Failed to create temporary folder for OpenAPI3 files", [], {
+              showOutput: true,
+              showPopup: true,
+            });
+            return undefined;
+          }
+
           let result: ExecOutput | undefined;
           try {
             result = await client.compileOpenApi3(mainTspFile, srcFolder, outputFolder);
@@ -74,7 +82,17 @@ export async function loadOpenApi3PreviewPanel(
             logger.error(result?.stderr ?? "Failed to generate OpenAPI3 files.");
             return;
           } else {
-            const outputs = await readdir(outputFolder);
+            let outputs: string[] | undefined;
+            try {
+              outputs = await readdir(outputFolder);
+            } catch (e) {
+              logger.error(`Failed to read output folder: ${outputFolder}`, [e], {
+                showOutput: true,
+                showPopup: true,
+              });
+              return;
+            }
+
             if (outputs.length === 0) {
               logger.error(result?.stderr ?? "No openAPI3 file generated.", [], {
                 showOutput: true,
@@ -238,17 +256,23 @@ async function parseOpenApi3File(filePath: string): Promise<string | undefined> 
   }
 }
 
-async function getOutputFolder(mainTspFile: string): Promise<string> {
+async function getOutputFolder(mainTspFile: string): Promise<string | undefined> {
   let tmpFolder = openApi3TempFolders.get(mainTspFile);
   if (!tmpFolder) {
     tmpFolder = await createTempDir();
-    openApi3TempFolders.set(mainTspFile, tmpFolder);
+    if (tmpFolder) {
+      openApi3TempFolders.set(mainTspFile, tmpFolder);
+    }
   }
   return tmpFolder;
 }
 
 export async function clearOpenApi3PreviewTempFolders() {
   for (const folder of openApi3TempFolders.values()) {
-    await rm(folder, { recursive: true, force: true });
+    try {
+      await rm(folder, { recursive: true, force: true });
+    } catch (e) {
+      logger.error(`Failed to delete temporary folder: ${folder}`, [e]);
+    }
   }
 }

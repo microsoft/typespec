@@ -28,13 +28,18 @@ export async function isDirectory(path: string) {
   }
 }
 
-export async function createTempDir(): Promise<string> {
-  const tempDir = tmpdir();
-  const realTempDir = await realpath(tempDir);
-  const uid = createGuid();
-  const subDir = join(realTempDir, uid);
-  await mkdir(subDir);
-  return subDir;
+export async function createTempDir(): Promise<string | undefined> {
+  try {
+    const tempDir = tmpdir();
+    const realTempDir = await realpath(tempDir);
+    const uid = createGuid();
+    const subDir = join(realTempDir, uid);
+    await mkdir(subDir);
+    return subDir;
+  } catch (e) {
+    logger.error("Failed to create temp folder", [e]);
+    return undefined;
+  }
 }
 
 function createGuid() {
