@@ -55,6 +55,7 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
+import { $ } from "@typespec/compiler/experimental/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
@@ -141,16 +142,20 @@ export class OpenAPI3SchemaEmitterBase<
     return patch;
   }
 
-  applyDiscriminator(type: Model | Union, schema: Schema): void {
+  applyDiscriminator(type: Union | Model, schema: Schema): void {
     const program = this.emitter.getProgram();
     const discriminator = getDiscriminator(program, type);
     if (discriminator) {
       // the decorator validates that all the variants will be a model type
       // with the discriminator field present.
       schema.discriminator = { ...discriminator };
-      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(type, discriminator));
+      const discriminatedUnion = ignoreDiagnostics(
+        // TODO: get rid of before 1.0-rc
+        // eslint-disable-next-line @typescript-eslint/no-deprecated
+        getDiscriminatedUnion(type, discriminator),
+      );
       if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion);
+        schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion.variants);
       }
     }
   }
@@ -532,9 +537,62 @@ export class OpenAPI3SchemaEmitterBase<
     throw new Error("Method not implemented.");
   }
 
-  getDiscriminatorMapping(union: DiscriminatedUnion) {
+  discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
+    let schema: any;
+    if (union.options.envelope === "none") {
+      const items = new ArrayBuilder();
+      for (const variant of union.variants.values()) {
+        items.push(this.emitter.emitTypeReference(variant));
+      }
+      schema = {
+        type: "object",
+        oneOf: items,
+        discriminator: {
+          propertyName: union.options.discriminator,
+          mapping: this.getDiscriminatorMapping(union.variants),
+        },
+      };
+    } else {
+      const envelopeVariants = new Map<string, Model>();
+
+      for (const [name, variant] of union.variants) {
+        const envelopeModel = $.model.create({
+          name: union.type.name + capitalize(name),
+          properties: {
+            [union.options.discriminator]: $.modelProperty.create({
+              name: union.options.discriminator,
+              type: $.literal.createString(name),
+            }),
+            [union.options.envelopePropertyName]: $.modelProperty.create({
+              name: union.options.envelopePropertyName,
+              type: variant,
+            }),
+          },
+        });
+
+        envelopeVariants.set(name, envelopeModel);
+      }
+
+      const items = new ArrayBuilder();
+      for (const variant of envelopeVariants.values()) {
+        items.push(this.emitter.emitTypeReference(variant));
+      }
+      schema = {
+        type: "object",
+        oneOf: items,
+        discriminator: {
+          propertyName: union.options.discriminator,
+          mapping: this.getDiscriminatorMapping(envelopeVariants),
+        },
+      };
+    }
+
+    return this.applyConstraints(union.type, schema);
+  }
+
+  getDiscriminatorMapping(variants: Map<string, Type>) {
     const mapping: Record<string, string> | undefined = {};
-    for (const [key, model] of union.variants.entries()) {
+    for (const [key, model] of variants.entries()) {
       const ref = this.emitter.emitTypeReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
       mapping[key] = (ref.value as any).$ref;
@@ -809,3 +867,10 @@ export const Builders = {
     return builder;
   },
 } as const;
+
+/**
+ * Simple utility function to capitalize a string.
+ */
+function capitalize<S extends string>(s: S) {
+  return (s.slice(0, 1).toUpperCase() + s.slice(1)) as Capitalize<S>;
+}

@@ -391,6 +391,79 @@ extern dec projectedName(
  */
 extern dec encodedName(target: unknown, mimeType: valueof string, name: valueof string);
 
+model DiscriminatedOptions {
+  /**
+   * How is the discriminated union serialized.
+   * @default object
+   */
+  envelope?: "object" | "none";
+
+  /** Name of the discriminator property */
+  discriminator?: string;
+
+  envelopePropertyName?: string;
+}
+
+/**
+ * Specify that this union is discriminated.
+ * @param propertyName The property name to use for discrimination
+ *
+ * @example
+ *
+ * ```typespec
+ * @discriminated
+ * union Pet{ cat: Cat, dog: Dog }
+ *
+ * model Cat { meow: boolean }
+ * model Dog { bark: boolean }
+ * ```
+ * Serialized as:
+ * ```json
+ * {
+ *   "kind": "cat",
+ *   "value": {
+ *     "name": "Whiskers",
+ *     "meow": true
+ *   }
+ * },
+ * {
+ *   "kind": "dog",
+ *   "value": {
+ *     "name": "Rex",
+ *     "bark": false
+ *   }
+ * }
+ * ```
+ *
+ * @example Custom property names
+ *
+ * ```typespec
+ * @discriminated(#{discriminator: "dataKind", envelopePropertyName: "data"})
+ * union Pet{ cat: Cat, dog: Dog }
+ *
+ * model Cat { meow: boolean }
+ * model Dog { bark: boolean }
+ * ```
+ * Serialized as:
+ * ```json
+ * {
+ *   "dataKind": "cat",
+ *   "data": {
+ *     "name": "Whiskers",
+ *     "meow": true
+ *   }
+ * },
+ * {
+ *   "dataKind": "dog",
+ *   "data": {
+ *     "name": "Rex",
+ *     "bark": false
+ *   }
+ * }
+ * ```
+ */
+extern dec discriminated(target: Union, propertyName?: valueof DiscriminatedOptions);
+
 /**
  * Specify the property to be used to discriminate this type.
  * @param propertyName The property name to use for discrimination
