@@ -29,8 +29,7 @@ export async function initTypeSpecProject(
     await initTypeSpecProjectWorker(host, directory, options);
   } catch (error) {
     if (error instanceof Error && error.name === "ExitPromptError") {
-      // eslint-disable-next-line no-console
-      console.log(pc.yellow("interupted, until next time!"));
+      warning("interupted, until next time!");
     } else {
       // Rethrow unknown errors
       throw error;
@@ -69,7 +68,7 @@ export async function initTypeSpecProjectWorker(
 
   const template = result.templates[templateName] as InitTemplate;
   const name = await input({
-    message: `Project name:`,
+    message: `Enter a project name:`,
     default: folderName,
   });
 
@@ -301,7 +300,7 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
     0,
   );
   const emitters = await checkbox({
-    message: "Select emitters:",
+    message: "What emitters do you want ot use?:",
     choices: emittersList.map(([name, emitter]) => {
       return {
         value: name,
