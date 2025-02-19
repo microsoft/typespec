@@ -2549,12 +2549,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case IdentifierKind.ModelExpressionProperty:
       case IdentifierKind.ObjectLiteralProperty:
         const model = getReferencedModel(node as ModelPropertyNode | ObjectLiteralPropertyNode);
-        if (model.length === 1) {
-          sym = getMemberSymbol(model[0].node!.symbol, id.sv);
-        } else {
-          return undefined;
-        }
-        break;
+        return model
+          .map((m) => getMemberSymbol(m.node!.symbol, id.sv))
+          .filter((m): m is Sym => m !== undefined);
       case IdentifierKind.ModelStatementProperty:
       case IdentifierKind.Declaration:
         const links = resolver.getNodeLinks(id);
@@ -2855,7 +2852,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       const decSym = program.checker.resolveIdentifier(
         decNode.target.kind === SyntaxKind.MemberExpression ? decNode.target.id : decNode.target,
       );
-      if (!decSym) {
+      if (!decSym || decSym.length <= 0) {
         return undefined;
       }
 
