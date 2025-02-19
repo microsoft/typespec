@@ -838,6 +838,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual("/// <summary> client description. </summary>\n", client!.XmlDocs.Summary!.ToDisplayString());
         }
 
+        [Test]
+        public void ValidateClientWithRequestHeaderParams()
+        {
+            var modelWithHeader = InputFactory.Model(
+                "ModelWithHeader",
+                properties: [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("bar", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+
+            var inputClient = InputFactory.Client(
+                    TestClientName,
+                    operations:
+                    [
+                        InputFactory.Operation(
+                        "testOperation",
+                        parameters:
+                        [
+                            InputFactory.Parameter(
+                                "body",
+                                modelWithHeader,
+                                location: InputRequestLocation.Body,
+                                isRequired: true),
+                        ])
+                    ]);
+            var clientProvider = new ClientProvider(inputClient);
+            var methods = clientProvider.Methods;
+
+            Assert.AreEqual(4, methods.Count);
+
+            var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Type.Name.Equals(modelWithHeader.Name))).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            Assert.AreEqual(2, convenienceMethods[0].Signature.Parameters.Count);
+
+            Assert.AreEqual(modelWithHeader.Name, convenienceMethods[0].Signature.Parameters[0].Type.Name);
+            Assert.AreEqual("body", convenienceMethods[0].Signature.Parameters[0].Name);
+        }
+
+        [Test]
+        public void ValidateClientWithResponseHeaders()
+        {
+            var responseModelWithHeader = InputFactory.Model(
+               "ModelWithHeader",
+               properties: [
+                   InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true),
+               ]);
+
+            var inputClient = InputFactory.Client(
+                TestClientName,
+                operations:
+                [
+                    InputFactory.Operation(
+                        "testOperation",
+                        responses:
+                        [
+                            InputFactory.OperationResponse(
+                                [200],
+                                headers: [InputFactory.OperationResponseHeader("foo", "x-foo")],
+                                bodytype: responseModelWithHeader)
+                        ])
+                ]);
+            var clientProvider = new ClientProvider(inputClient);
+            var methods = clientProvider.Methods;
+
+            Assert.AreEqual(4, methods.Count);
+
+            var convenienceMethods = methods.Where(m => m.Signature.Parameters.Any(p => p.Name.Equals("cancellationToken"))).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+            Assert.AreEqual(1, convenienceMethods[0].Signature.Parameters.Count);
+
+            // validate the response
+            var responseType = convenienceMethods[0].Signature.ReturnType;
+
+            Assert.AreEqual(responseModelWithHeader.Name, responseType?.Arguments.FirstOrDefault()?.Name);
+
+        }
+
         private static InputClient GetEnumQueryParamClient()
             => InputFactory.Client(
                 TestClientName,

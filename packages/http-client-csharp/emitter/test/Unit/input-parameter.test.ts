@@ -591,77 +591,73 @@ describe("Test Parameter Explode", () => {
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
     });
+  });
+});
 
-    describe("Cookie parameter not supported", () => {
-      let runner: TestHost;
+describe("Test Cookie Parameters", () => {
+  let runner: TestHost;
 
-      beforeEach(async () => {
-        runner = await createEmitterTestHost();
-      });
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
 
-      it("cookie parameter is not supported", async () => {
-        const program = await typeSpecCompile(
-          `
-                @route("test")
-                op test(@cookie cookie: string): NoContentResponse;
-          `,
-          runner,
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = await createCSharpSdkContext(context);
-        const diagnostics = context.program.diagnostics;
-        createModel(sdkContext);
+  describe("Cookie parameter not supported", () => {
+    it("cookie parameter is not supported", async () => {
+      const program = await typeSpecCompile(
+        `
+              @route("test")
+              op test(@cookie cookie: string): NoContentResponse;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const diagnostics = context.program.diagnostics;
+      createModel(sdkContext);
 
-        const unsupportedCookie = diagnostics.find(
-          (d) => d.code === "@typespec/http-client-csharp/unsupported-cookie-parameter",
-        );
-        ok(unsupportedCookie);
-        strictEqual(
-          unsupportedCookie.message,
-          "Cookie parameter is not supported: cookie, found in operation /test",
-        );
-      });
+      const unsupportedCookie = diagnostics.find(
+        (d) => d.code === "@typespec/http-client-csharp/unsupported-cookie-parameter",
+      );
+      ok(unsupportedCookie);
+      strictEqual(
+        unsupportedCookie.message,
+        "Cookie parameter is not supported: cookie, found in operation /test",
+      );
     });
+  });
 
-    describe("Unsupported endpoint url", () => {
-      let runner: TestHost;
+  describe("Unsupported endpoint url", () => {
+    it("cookie parameter is not supported", async () => {
+      const program = await typeSpecCompile(
+        `
+              @service(#{
+                title: "Azure Csharp emitter Testing",
+              })
+              @server(
+              "https://{param1}{param2}/",
+              "Test endpoint",
+              {
+                param1: string,
+                param2: string
+              })
+              namespace Test;
+        `,
+        runner,
+        { IsNamespaceNeeded: false },
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const diagnostics = context.program.diagnostics;
+      createModel(sdkContext);
 
-      beforeEach(async () => {
-        runner = await createEmitterTestHost();
-      });
-
-      it("cookie parameter is not supported", async () => {
-        const program = await typeSpecCompile(
-          `
-                @service(#{
-                  title: "Azure Csharp emitter Testing",
-                })
-                @server(
-                "https://{param1}{param2}/",
-                "Test endpoint",
-                {
-                  param1: string,
-                  param2: string
-                })
-                namespace Test;
-          `,
-          runner,
-          { IsNamespaceNeeded: false },
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = await createCSharpSdkContext(context);
-        const diagnostics = context.program.diagnostics;
-        createModel(sdkContext);
-
-        const unsupportedCookie = diagnostics.find(
-          (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
-        );
-        ok(unsupportedCookie);
-        strictEqual(
-          unsupportedCookie.message,
-          "Unsupported server endpoint URL: https://{param1}{param2}/",
-        );
-      });
+      const unsupportedCookie = diagnostics.find(
+        (d) => d.code === "@typespec/http-client-csharp/unsupported-endpoint-url",
+      );
+      ok(unsupportedCookie);
+      strictEqual(
+        unsupportedCookie.message,
+        "Unsupported server endpoint URL: https://{param1}{param2}/",
+      );
     });
   });
 });

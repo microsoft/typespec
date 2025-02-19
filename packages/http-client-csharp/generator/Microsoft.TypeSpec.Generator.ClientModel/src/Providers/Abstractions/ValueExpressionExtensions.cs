@@ -30,6 +30,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
                 case nameof(RequestContentApi):
                     return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
+                case nameof(HttpResponseHeadersApi):
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseHeadersApi.FromExpression(valueExpression);
                 default:
                     throw new InvalidOperationException($"Invalid type {typeof(T)}");
             }
@@ -55,6 +57,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
                 case nameof(RequestContentApi):
                     return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
+                case nameof(HttpResponseHeadersApi):
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseHeadersApi.FromExpression(valueExpression);
                 default:
                     throw new InvalidOperationException($"Invalid type {typeof(T)}");
             }
@@ -80,6 +84,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.FromExpression(valueExpression);
                 case nameof(RequestContentApi):
                     return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.FromExpression(valueExpression);
+                case nameof(HttpResponseHeadersApi):
+                    return (T)(object)ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseHeadersApi.FromExpression(valueExpression);
                 default:
                     throw new InvalidOperationException($"Invalid type {typeof(T)}");
             }

@@ -159,5 +159,65 @@ namespace SampleTypeSpec
 
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The HeaderBugReproModel. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.HeaderBugReproModel"/> instance for mocking. </returns>
+        public static HeaderBugReproModel HeaderBugReproModel(string foo = default, int bar = default)
+        {
+
+            return new HeaderBugReproModel(foo, bar, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The Animal. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.Animal"/> instance for mocking. </returns>
+        public static Animal Animal(AnimalXFoo foo = default, int bar = default)
+        {
+
+            return new Animal(foo, bar, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ModelWithHeaderResponse. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithHeaderResponse"/> instance for mocking. </returns>
+        public static ModelWithHeaderResponse ModelWithHeaderResponse(string foo = default, int bar = default)
+        {
+
+            return new ModelWithHeaderResponse(foo, bar, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ModelWithHeaderRoundTrip. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithHeaderRoundTrip"/> instance for mocking. </returns>
+        public static ModelWithHeaderRoundTrip ModelWithHeaderRoundTrip(string foo = default, int bar = default)
+        {
+
+            return new ModelWithHeaderRoundTrip(foo, bar, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ModelWithQueryRequest. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithQueryRequest"/> instance for mocking. </returns>
+        public static ModelWithQueryRequest ModelWithQueryRequest(string foo = default, int bar = default)
+        {
+
+            return new ModelWithQueryRequest(foo, bar, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ModelWithPathRequest. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithPathRequest"/> instance for mocking. </returns>
+        public static ModelWithPathRequest ModelWithPathRequest(string foo = default, int bar = default)
+        {
+
+            return new ModelWithPathRequest(foo, bar, additionalBinaryDataProperties: null);
+        }
     }
 }

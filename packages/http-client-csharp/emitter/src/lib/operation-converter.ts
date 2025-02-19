@@ -3,6 +3,7 @@
 
 import {
   getHttpOperationParameter,
+  getSdkModel,
   SdkBuiltInKinds,
   SdkContext,
   SdkHttpOperation,
@@ -26,7 +27,7 @@ import { InputConstant } from "../type/input-constant.js";
 import { InputOperationParameterKind } from "../type/input-operation-parameter-kind.js";
 import { InputOperation } from "../type/input-operation.js";
 import { InputParameter } from "../type/input-parameter.js";
-import { InputType } from "../type/input-type.js";
+import { InputModelType, InputType } from "../type/input-type.js";
 import { convertLroFinalStateVia } from "../type/operation-final-state-via.js";
 import { OperationLongRunning } from "../type/operation-long-running.js";
 import {
@@ -152,6 +153,7 @@ function fromSdkOperationParameters(
       });
       return parameters;
     }
+
     const param = fromSdkHttpOperationParameter(sdkContext, p, rootApiVersions);
     parameters.set(p, param);
   }
@@ -206,6 +208,19 @@ function fromSdkHttpOperationParameter(
     decorators: p.decorators,
     skipUrlEncoding: p.kind === "path" ? p.allowReserved : false,
   } as InputParameter;
+}
+
+function getCorrespondingInputModelForParameter(
+  sdkContext: CSharpEmitterContext,
+  p: SdkModelPropertyType,
+): InputModelType | undefined {
+  if (p.__raw?.model) {
+    const sdkModel = getSdkModel(sdkContext, p.__raw.model);
+    if (sdkModel) {
+      return sdkContext.__typeCache.models.get(sdkModel.name);
+    }
+  }
+  return undefined;
 }
 
 function loadLongRunningOperation(

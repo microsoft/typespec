@@ -11,6 +11,7 @@ import {
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
 import { InputOperation } from "./input-operation.js";
 import { InputParameter } from "./input-parameter.js";
+import { InputModelPropertyKind } from "./input-model-property-kind.js";
 
 export interface InputClient extends DecoratedType {
   kind: "client";
@@ -122,7 +123,7 @@ export interface InputModelType extends InputTypeBase {
 }
 
 export interface InputModelProperty extends InputTypeBase {
-  kind: "property";
+  kind: InputModelPropertyKind;
   name: string;
   serializedName: string;
   type: InputType;
@@ -131,7 +132,7 @@ export interface InputModelProperty extends InputTypeBase {
   discriminator: boolean;
   crossLanguageDefinitionId: string;
   flatten: boolean;
-  serializationOptions: SerializationOptions;
+  serializationOptions?: SerializationOptions;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {

@@ -27,6 +27,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public override ScopedApi<bool> IsError()
             => Original.Property(nameof(PipelineResponse.IsError)).As<bool>();
+        public override ScopedApi<HttpResponseHeadersApi> Headers()
+            => Original.Property(nameof(PipelineResponse.Headers)).As<HttpResponseHeadersApi>();
 
         public override ScopedApi<bool> TryGetHeader(string name, out ScopedApi<string>? value)
         {
