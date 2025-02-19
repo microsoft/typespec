@@ -158,7 +158,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
             [
-                InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, clientNamespace: "Sample.TestClient"), isRequired: false)
+                InputFactory.Parameter("p1", InputFactory.Model("myStruct", modelAsStruct: true, @namespace: "Sample.TestClient"), isRequired: false)
             ]);
             var inputClient = InputFactory.Client("TestClient", operations: [inputOperation]);
             var plugin = await MockHelpers.LoadMockPluginAsync(
