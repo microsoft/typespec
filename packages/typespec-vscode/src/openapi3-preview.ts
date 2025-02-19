@@ -4,7 +4,7 @@ import * as semver from "semver";
 import * as vscode from "vscode";
 import logger from "./log/logger.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
-import { createTempDir } from "./utils.js";
+import { createTempDir, throttle } from "./utils.js";
 
 export async function getMainTspFile(): Promise<string | undefined> {
   const files = await vscode.workspace.findFiles("**/main.tsp").then((uris) => {
@@ -215,25 +215,6 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
   }
 
   panel.webview.html = html;
-}
-
-/**
- * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
- * is useful when your event handler will trigger the same event multiple times in a short period.
- *
- * @param fn Underlying function to be throttled
- * @param blockInMs Block time in milliseconds
- * @returns a throttled function
- */
-function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: number): T {
-  let time: number | undefined;
-  return function (this: any, ...args: Parameters<T>) {
-    const now = Date.now();
-    if (time === undefined || now - time >= blockInMs) {
-      time = now;
-      fn.apply(this, args);
-    }
-  } as T;
 }
 
 async function parseOpenApi3File(filePath: string): Promise<string | undefined> {

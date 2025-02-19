@@ -408,3 +408,22 @@ export async function loadPackageJsonFile(
   if (!packageJson) return undefined;
   return packageJson as NodePackage;
 }
+
+/**
+ * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
+ * is useful when your event handler will trigger the same event multiple times in a short period.
+ *
+ * @param fn Underlying function to be throttled
+ * @param blockInMs Block time in milliseconds
+ * @returns a throttled function
+ */
+export function throttle<T extends (...args: any[]) => any>(fn: T, blockInMs: number): T {
+  let time: number | undefined;
+  return function (this: any, ...args: Parameters<T>) {
+    const now = Date.now();
+    if (time === undefined || now - time >= blockInMs) {
+      time = now;
+      fn.apply(this, args);
+    }
+  } as T;
+}
