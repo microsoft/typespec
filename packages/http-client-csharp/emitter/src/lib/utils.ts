@@ -1,7 +1,6 @@
 import { NoTarget, Type } from "@typespec/compiler";
 import { spawn, SpawnOptions } from "child_process";
 import { CSharpEmitterContext } from "../sdk-context.js";
-import path from "path";
 
 export async function execCSharpGenerator(
   context: CSharpEmitterContext,

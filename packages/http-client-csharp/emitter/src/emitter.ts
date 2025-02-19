@@ -139,7 +139,9 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
           const isValid = await _validateDotNetSdk(sdkContext, _minSupportedDotNetSdkVersion);
           // if the dotnet sdk is valid, the error is not dependency issue, log it as normal
           if (isValid) {
-            throw new Error(`Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`);
+            throw new Error(
+              `Failed to generate the library. Exit code: ${result.exitCode}.\nStackTrace: \n${result.stderr}`,
+            );
           }
         }
       } catch (error: any) {
