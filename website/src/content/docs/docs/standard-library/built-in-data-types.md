@@ -166,7 +166,7 @@ None
 
 ### `DiscriminatedOptions` {#DiscriminatedOptions}
 
-
+Options for `@discriminated` decorator.
 ```typespec
 model DiscriminatedOptions
 ```
@@ -177,7 +177,7 @@ model DiscriminatedOptions
 |------|------|-------------|
 | envelope? | `"object" \| "none"` | How is the discriminated union serialized. |
 | discriminatorPropertyName? | [`string`](#string) | Name of the discriminator property |
-| envelopePropertyName? | [`string`](#string) |  |
+| envelopePropertyName? | [`string`](#string) | Name of the property envelopping the data |
 
 ### `ExampleOptions` {#ExampleOptions}
 

@@ -391,6 +391,9 @@ extern dec projectedName(
  */
 extern dec encodedName(target: unknown, mimeType: valueof string, name: valueof string);
 
+/**
+ * Options for `@discriminated` decorator.
+ */
 model DiscriminatedOptions {
   /**
    * How is the discriminated union serialized.
@@ -401,6 +404,7 @@ model DiscriminatedOptions {
   /** Name of the discriminator property */
   discriminatorPropertyName?: string;
 
+  /** Name of the property envelopping the data */
   envelopePropertyName?: string;
 }
 
