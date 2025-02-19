@@ -427,7 +427,30 @@ namespace Microsoft.TypeSpec.Generator
             // `ClassDeclarationSyntax` and `StructDeclarationSyntax` both inherit `TypeDeclarationSyntax`
             var typeNodes = root.DescendantNodes().OfType<BaseTypeDeclarationSyntax>();
             // there is possibility that we have multiple types defined in the same document (for instance, custom code)
-            return typeNodes.Any(t => typesToKeep.Contains(t.Identifier.Text));
+            return typeNodes.Any(t =>
+            {
+                // Get simple name
+                var simpleName = t.Identifier.Text;
+                if (typesToKeep.Contains(simpleName))
+                {
+                    return true;
+                }
+
+                // Get fully qualified name
+                var fullName = GetFullyQualifiedName(t);
+                return typesToKeep.Contains(fullName);
+            });
+        }
+
+        private static string GetFullyQualifiedName(BaseTypeDeclarationSyntax typeDeclaration)
+        {
+            var namespaceDeclaration = typeDeclaration.Ancestors()
+                .OfType<NamespaceDeclarationSyntax>()
+                .FirstOrDefault();
+
+            return namespaceDeclaration != null
+                ? $"{namespaceDeclaration.Name}.{typeDeclaration.Identifier.Text}"
+                : typeDeclaration.Identifier.Text;
         }
 
         private static bool IsClientDocument(Document document)
