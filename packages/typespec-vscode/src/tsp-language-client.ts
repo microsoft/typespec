@@ -108,7 +108,7 @@ export class TspLanguageClient {
       return result;
     } catch (e) {
       logger.error(`Unexpected error when running Cli command with args [${args.join(", ")}]`, [e]);
-      throw e;
+      return undefined;
     }
   }
 
