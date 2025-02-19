@@ -164,7 +164,7 @@ export async function markCoverage(path: string, options: Record<string, any>) {
     const body = await response.json();
     return { status: response.status, body: body };
   } catch (e) {
-    console.warn(`No response: ${e}`, e);
+    // no response
     return null;
   }
 }
