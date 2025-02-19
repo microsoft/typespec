@@ -116,14 +116,8 @@ export async function activate(context: ExtensionContext) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand(CommandName.ShowOpenApi3, async () => {
-      const docUri = vscode.window.activeTextEditor?.document.uri;
-      if (!docUri || !docUri.fsPath.endsWith(".tsp")) {
-        logger.info("No TypeSpec file selected.");
-        vscode.window.showErrorMessage("Please select a Typespec file.");
-        return;
-      }
-      await showOpenApi3(docUri, context, client!);
+    commands.registerCommand(CommandName.ShowOpenApi3, async (uri: vscode.Uri) => {
+      await showOpenApi3(uri, context, client!);
     }),
   );
 

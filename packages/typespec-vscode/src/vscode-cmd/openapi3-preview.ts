@@ -9,11 +9,19 @@ import { createTempDir, parseOpenApi3File, throttle } from "../utils.js";
 const TITLE = "Preview in OpenAPI3";
 
 export async function showOpenApi3(
-  docUri: vscode.Uri,
+  uri: vscode.Uri,
   context: vscode.ExtensionContext,
   client: TspLanguageClient,
 ) {
-  const selectedFile = docUri.fsPath;
+  const selectedFile = uri?.fsPath ?? vscode.window.activeTextEditor?.document.uri.fsPath;
+  if (!selectedFile || !selectedFile.endsWith(".tsp")) {
+    logger.error("Please select a Typespec file", [], {
+      showOutput: true,
+      showPopup: true,
+    });
+    return;
+  }
+
   const mainTspFile = selectedFile.endsWith("main.tsp") ? selectedFile : await getMainTspFile();
   if (mainTspFile === undefined) {
     logger.error(`No 'main.tsp' file can be determined from '${selectedFile}' in workspace.`, [], {
@@ -70,9 +78,32 @@ async function loadOpenApi3PreviewPanel(
   }
 
   if (openApi3PreviewPanels.has(mainTspFile)) {
-    openApi3PreviewPanels.get(mainTspFile)!.reveal();
+    // if panel is already opened, there should be a watcher to automatically update the content
+    // no need to generate the openapi3 files
+    const panel = openApi3PreviewPanels.get(mainTspFile)!;
+    const outputFolder = await getOutputFolder(mainTspFile);
+    if (!outputFolder) {
+      panel.dispose();
+      logger.error(
+        "Unexpected error. Please try again.",
+        ["OpenAPI3 preview panel is available, but output folder is not."],
+        {
+          showOutput: true,
+          showPopup: true,
+        },
+      );
+      return;
+    }
+
+    const fileContent = await selectAndGetOpenApi3Content(mainTspFile, outputFolder, true, context);
+    if (fileContent === undefined) {
+      return;
+    }
+
+    void panel.webview.postMessage({ command: "load", param: fileContent });
+    panel.reveal();
   } else {
-    const getOpenApi3Output = async (uri?: vscode.Uri): Promise<string | undefined> => {
+    const getOpenApi3Output = async (selectOutput: boolean): Promise<string | undefined> => {
       return await vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -97,64 +128,18 @@ async function loadOpenApi3PreviewPanel(
             );
             return;
           } else {
-            let outputs: string[] | undefined;
-            try {
-              outputs = await readdir(outputFolder);
-            } catch (e) {
-              logger.error(`Failed to read output folder: ${outputFolder}`, [e], {
-                showOutput: true,
-                showPopup: true,
-              });
-              return;
-            }
-
-            if (outputs.length === 0) {
-              logger.error(result?.stderr ?? "No openAPI3 file generated.", [], {
-                showOutput: true,
-                showPopup: true,
-              });
-              return;
-            } else if (outputs.length === 1) {
-              const first = outputs[0];
-              return parseOpenApi3File(joinPaths(outputFolder, first));
-            } else {
-              if (selectedOpenApi3OutputFiles.has(mainTspFile)) {
-                return parseOpenApi3File(selectedOpenApi3OutputFiles.get(mainTspFile)!);
-              }
-
-              const files = outputs.map<vscode.QuickPickItem & { path: string }>((file) => {
-                const filePath = joinPaths(outputFolder, file);
-                return {
-                  label: getBaseFileName(file),
-                  detail: filePath,
-                  path: filePath,
-                  iconPath: {
-                    light: vscode.Uri.file(context.asAbsolutePath(`./icons/openapi3.light.svg`)),
-                    dark: vscode.Uri.file(context.asAbsolutePath(`./icons/openapi3.dark.svg`)),
-                  },
-                };
-              });
-              const selected = await vscode.window.showQuickPick(files, {
-                title: TITLE,
-                placeHolder: "Multiple OpenAPI3 files found. Select one to preview",
-              });
-              if (selected) {
-                selectedOpenApi3OutputFiles.set(mainTspFile, selected.path);
-                return parseOpenApi3File(selected.path);
-              } else {
-                logger.info("No OpenAPI3 file selected", [], {
-                  showOutput: true,
-                  showPopup: true,
-                });
-                return;
-              }
-            }
+            return await selectAndGetOpenApi3Content(
+              mainTspFile,
+              outputFolder,
+              selectOutput,
+              context,
+            );
           }
         },
       );
     };
 
-    const fileContent = await getOpenApi3Output();
+    const fileContent = await getOpenApi3Output(true);
     if (fileContent === undefined) {
       return;
     }
@@ -173,7 +158,7 @@ async function loadOpenApi3PreviewPanel(
 
     const watch = vscode.workspace.createFileSystemWatcher("**/*.{tsp}");
     const throttledChangeHandler = throttle(async () => {
-      const content = await getOpenApi3Output();
+      const content = await getOpenApi3Output(false);
       void panel.webview.postMessage({ command: "load", param: content });
     }, 1000);
     watch.onDidChange(throttledChangeHandler);
@@ -255,6 +240,67 @@ export async function clearOpenApi3PreviewTempFolders() {
       await rm(folder, { recursive: true, force: true });
     } catch (e) {
       logger.error(`Failed to delete temporary folder: ${folder}`, [e]);
+    }
+  }
+}
+
+async function selectAndGetOpenApi3Content(
+  mainTspFile: string,
+  outputFolder: string,
+  selectOutput: boolean,
+  context: vscode.ExtensionContext,
+): Promise<string | undefined> {
+  let outputs: string[] | undefined;
+  try {
+    outputs = await readdir(outputFolder);
+  } catch (e) {
+    logger.error(`Failed to read output folder: ${outputFolder}`, [e], {
+      showOutput: true,
+      showPopup: true,
+    });
+    return;
+  }
+
+  if (outputs.length === 0) {
+    logger.error("No openAPI3 file generated.", [], {
+      showOutput: true,
+      showPopup: true,
+    });
+    return;
+  } else if (outputs.length === 1) {
+    const first = outputs[0];
+    const filePath = joinPaths(outputFolder, first);
+    selectedOpenApi3OutputFiles.set(mainTspFile, filePath);
+    return parseOpenApi3File(filePath);
+  } else {
+    if (selectedOpenApi3OutputFiles.has(mainTspFile) && !selectOutput) {
+      return parseOpenApi3File(selectedOpenApi3OutputFiles.get(mainTspFile)!);
+    }
+    const files = outputs.map<vscode.QuickPickItem & { path: string }>((file) => {
+      const filePath = joinPaths(outputFolder, file);
+      return {
+        label: getBaseFileName(file),
+        detail: filePath,
+        path: filePath,
+        iconPath: {
+          light: vscode.Uri.file(context.asAbsolutePath(`./icons/openapi3.light.svg`)),
+          dark: vscode.Uri.file(context.asAbsolutePath(`./icons/openapi3.dark.svg`)),
+        },
+      };
+    });
+    const selected = await vscode.window.showQuickPick(files, {
+      title: TITLE,
+      placeHolder: "Multiple OpenAPI3 files found. Select one to preview",
+    });
+    if (selected) {
+      selectedOpenApi3OutputFiles.set(mainTspFile, selected.path);
+      return parseOpenApi3File(selected.path);
+    } else {
+      logger.info("No OpenAPI3 file selected", [], {
+        showOutput: true,
+        showPopup: true,
+      });
+      return;
     }
   }
 }
