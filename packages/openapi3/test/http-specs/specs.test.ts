@@ -1,8 +1,8 @@
 import { resolvePath } from "@typespec/compiler";
 import { findTestPackageRoot } from "@typespec/compiler/testing";
-import { deepStrictEqual, ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual  } from "assert";
 import { exec, execSync } from "child_process";
-import { afterAll, beforeAll, describe, it } from "vitest";
+import { afterAll, beforeAll, describe, it, expect } from "vitest";
 import { worksFor } from "./../works-for.js";
 import {
   checkServe,
@@ -75,11 +75,12 @@ describe("http-specs cases", () => {
             "x-ms-api-key": "invalid-key",
           },
         });
-        if (response) {
+        expect(response).toBeDefined();
+        if(response) {
           strictEqual(response.status, 403);
           strictEqual(response.body.error, "invalid-api-key");
           await validataDataWithSchema(response.body, invalidAuthSchemas);
-        }
+        }        
       });
     });
 
@@ -105,6 +106,7 @@ describe("http-specs cases", () => {
           unionProp: 10,
         }),
       });
+      expect(response).toBeDefined();
       if (response) {
         strictEqual(response.status, 200);
         strictEqual(response.body.prop, "foo");
@@ -135,6 +137,7 @@ describe("http-specs cases", () => {
           unionProp: "bar",
         }),
       });
+      expect(v2Response).toBeDefined();
       if (v2Response) {
         strictEqual(v2Response.status, 200);
         strictEqual(v2Response.body.prop, "foo");
