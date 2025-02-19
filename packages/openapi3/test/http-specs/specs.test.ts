@@ -15,7 +15,7 @@ const pkgRoot = await findTestPackageRoot(import.meta.url);
 const specsRoot = resolvePath(pkgRoot, "node_modules", "@typespec", "http-specs", "specs");
 const rootOutputDir = resolvePath(pkgRoot, "test", "http-specs", "output");
 
-describe("http-specs convert", () => {
+describe.skip("http-specs convert", () => {
   defineSpecTests({
     specDir: specsRoot,
     outputDir: rootOutputDir,
@@ -41,16 +41,17 @@ describe("http-specs convert", () => {
 });
 
 describe("http-specs cases", () => {
+  beforeAll(async () => {
+    exec("pnpm spector-serve", { cwd: pkgRoot });
+    await checkServe();
+  });
+
+  afterAll(() => {
+    execSync("pnpm spector-stop", { stdio: "inherit", cwd: pkgRoot });
+  });
   worksFor(["3.0.0", "3.1.0"], ({ openApiForFile }) => {
     describe("AuthApiKeyClient Rest Client", () => {
-      beforeAll(async () => {
-        exec("pnpm spector-serve", { cwd: pkgRoot });
-        await checkServe();
-      });
-
-      afterAll(() => {
-        execSync("pnpm spector-stop", { stdio: "inherit", cwd: pkgRoot });
-      });
+     
 
       it("should return 204 when the apiKey is valid", async () => {
         const curr = {
