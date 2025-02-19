@@ -1,6 +1,7 @@
 import {
   compilerAssert,
   Enum,
+  getDiscriminatedUnion,
   getExamples,
   getMaxValueExclusive,
   getMinValueExclusive,
@@ -199,6 +200,10 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
 
   unionSchema(union: Union): ObjectBuilder<OpenAPISchema3_1> {
     const program = this.emitter.getProgram();
+    const [disriminated] = getDiscriminatedUnion(program, union);
+    if (disriminated) {
+      return this.discriminatedUnion(disriminated);
+    }
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
       return new ObjectBuilder({});

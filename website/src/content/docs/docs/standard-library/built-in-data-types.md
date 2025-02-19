@@ -164,6 +164,21 @@ model DeleteDog is Delete<Dog>;
 #### Properties
 None
 
+### `DiscriminatedOptions` {#DiscriminatedOptions}
+
+
+```typespec
+model DiscriminatedOptions
+```
+
+
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| envelope? | `"object" \| "none"` | How is the discriminated union serialized. |
+| discriminatorPropertyName? | [`string`](#string) | Name of the discriminator property |
+| envelopePropertyName? | [`string`](#string) |  |
+
 ### `ExampleOptions` {#ExampleOptions}
 
 Options for example decorators

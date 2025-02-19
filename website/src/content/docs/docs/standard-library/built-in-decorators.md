@@ -84,6 +84,78 @@ op Action<Result>(): Result;
 ```
 
 
+### `@discriminated` {#@discriminated}
+
+Specify that this union is discriminated.
+```typespec
+@discriminated(options?: valueof DiscriminatedOptions)
+```
+
+#### Target
+
+`Union`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| options | [valueof `DiscriminatedOptions`](./built-in-data-types.md#DiscriminatedOptions) |  |
+
+#### Examples
+
+```typespec
+@discriminated
+union Pet{ cat: Cat, dog: Dog }
+
+model Cat { meow: boolean }
+model Dog { bark: boolean }
+```
+Serialized as:
+```json
+{
+  "kind": "cat",
+  "value": {
+    "name": "Whiskers",
+    "meow": true
+  }
+},
+{
+  "kind": "dog",
+  "value": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+##### Custom property names
+
+
+```typespec
+@discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
+union Pet{ cat: Cat, dog: Dog }
+
+model Cat { meow: boolean }
+model Dog { bark: boolean }
+```
+Serialized as:
+```json
+{
+  "dataKind": "cat",
+  "data": {
+    "name": "Whiskers",
+    "meow": true
+  }
+},
+{
+  "dataKind": "dog",
+  "data": {
+    "name": "Rex",
+    "bark": false
+  }
+}
+```
+
+
 ### `@discriminator` {#@discriminator}
 
 Specify the property to be used to discriminate this type.
