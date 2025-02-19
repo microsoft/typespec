@@ -33,7 +33,6 @@ function clearLastLine(): void {
 
 function printChildMessages(): void {
   logMessages.forEach((message) => console.log(message));
-  logMessages.length = 0;
 }
 
 export function initializeSpinner(message: string, interval: number = 100): void {
@@ -46,14 +45,18 @@ export function initializeSpinner(message: string, interval: number = 100): void
   spinnerInterval = setInterval(displaySpinner, interval);
 }
 
+function resetSpinnerState(): void {
+  spinnerInterval = null;
+  childLogPrefix = "";
+  spinnerMessage = "";
+  logMessages.length = 0;
+}
+
 export function stopSpinner(finishMessage?: string, printChildMessage: boolean = false): void {
   if (spinnerInterval) {
+    spinnerActive = false;
     clearInterval(spinnerInterval);
     clearLastLine();
-    spinnerInterval = null;
-    spinnerActive = false;
-    childLogPrefix = "";
-    spinnerMessage = "";
 
     if (finishMessage) {
       console.log(finishMessage);
@@ -63,7 +66,7 @@ export function stopSpinner(finishMessage?: string, printChildMessage: boolean =
       printChildMessages();
     }
 
-    logMessages.length = 0;
+    resetSpinnerState();
   }
 }
 
