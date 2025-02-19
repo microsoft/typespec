@@ -35,18 +35,22 @@ namespace Microsoft.TypeSpec.Generator.Input
             // create an empty model property to resolve circular references
             var property = new InputModelProperty(
                 name: null!,
+                kind: default,
                 summary: null,
                 doc: null,
                 type: null!,
                 isRequired: false,
                 isReadOnly: false,
                 isDiscriminator: false,
+                serializedName: null!,
                 serializationOptions: null!);
             resolver.AddReference(id, property);
 
             var isFirstProperty = true;
+            string? kind = null;
             string? summary = null;
             string? doc = null;
+            string? serializedName = null;
             InputType? propertyType = null;
             bool isReadOnly = false;
             bool isOptional = false;
@@ -58,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref isFirstProperty, ref id)
                     || reader.TryReadString("name", ref name)
+                    || reader.TryReadString("kind", ref kind)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("type", options, ref propertyType)
@@ -65,6 +70,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("optional", ref isOptional)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
 
                 if (!isKnownProperty)
@@ -73,7 +79,14 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
+            if (kind == null)
+            {
+                throw new JsonException("Property must have kind");
+            }
+            Enum.TryParse(kind, ignoreCase: true, out InputModelPropertyKind propertyKind);
+
             property.Name = name ?? throw new JsonException($"{nameof(InputModelProperty)} must have a name.");
+            property.Kind = propertyKind;
             property.Summary = summary;
             property.Doc = doc;
             property.Type = propertyType ?? throw new JsonException($"{nameof(InputModelProperty)} must have a property type.");
@@ -81,7 +94,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.IsReadOnly = isReadOnly;
             property.IsDiscriminator = isDiscriminator;
             property.Decorators = decorators ?? [];
-            property.SerializationOptions = serializationOptions ?? throw new JsonException($"{nameof(InputModelProperty)} must have serialization options.");
+            property.SerializationOptions = serializationOptions;
+            property.DefaultSerializedName = serializedName;
 
             return property;
         }

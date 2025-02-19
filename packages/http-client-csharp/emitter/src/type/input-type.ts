@@ -9,6 +9,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import { DateTimeKnownEncoding, DurationKnownEncoding } from "@typespec/compiler";
+import { InputModelPropertyKind } from "./input-model-property-kind.js";
 
 interface InputTypeBase {
   kind: string;
@@ -103,7 +104,7 @@ export interface InputModelType extends InputTypeBase {
 }
 
 export interface InputModelProperty extends InputTypeBase {
-  kind: "property";
+  kind: InputModelPropertyKind;
   name: string;
   serializedName: string;
   type: InputType;
@@ -112,7 +113,7 @@ export interface InputModelProperty extends InputTypeBase {
   discriminator: boolean;
   crossLanguageDefinitionId: string;
   flatten: boolean;
-  serializationOptions: SerializationOptions;
+  serializationOptions?: SerializationOptions;
 }
 
 export function isInputModelType(type: InputType): type is InputModelType {
