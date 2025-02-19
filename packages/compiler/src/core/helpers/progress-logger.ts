@@ -9,6 +9,7 @@ let logMessages: string[] = [];
 let spinnerInterval: NodeJS.Timeout | null = null;
 let childLogPrefix = "";
 let spinnerMessage = "";
+let spinnerActive = false;
 
 function createSpinner(): () => string {
   let index = 0;
@@ -32,7 +33,7 @@ function clearLastLine(): void {
 
 function printChildMessages(): void {
   logMessages.forEach((message) => console.log(message));
-  logMessages.length = 0; // Clear the log messages
+  logMessages.length = 0;
 }
 
 export function initializeSpinner(message: string, interval: number = 100): void {
@@ -41,6 +42,7 @@ export function initializeSpinner(message: string, interval: number = 100): void
   }
 
   spinnerMessage = message;
+  spinnerActive = true;
   spinnerInterval = setInterval(displaySpinner, interval);
 }
 
@@ -49,6 +51,7 @@ export function stopSpinner(finishMessage?: string, printChildMessage: boolean =
     clearInterval(spinnerInterval);
     clearLastLine();
     spinnerInterval = null;
+    spinnerActive = false;
     childLogPrefix = "";
     spinnerMessage = "";
 
@@ -59,19 +62,8 @@ export function stopSpinner(finishMessage?: string, printChildMessage: boolean =
     if (printChildMessage) {
       printChildMessages();
     }
-  }
-}
 
-export function pauseSpinner(): void {
-  if (spinnerInterval) {
-    clearInterval(spinnerInterval);
-    spinnerInterval = null;
-  }
-}
-
-export function resumeSpinner(interval: number = 100): void {
-  if (!spinnerInterval) {
-    spinnerInterval = setInterval(displaySpinner, interval);
+    logMessages.length = 0;
   }
 }
 
@@ -82,3 +74,15 @@ export function setChildLogPrefix(message: string): void {
 export function addChildLog(message: string): void {
   logMessages.push(`\t${childLogPrefix}${message}`);
 }
+
+// Override console.log to handle spinner
+const originalConsoleLog = console.log;
+console.log = function (...args: any[]) {
+  if (spinnerActive) {
+    clearLastLine();
+  }
+  originalConsoleLog.apply(console, args);
+  if (spinnerActive) {
+    displaySpinner();
+  }
+};

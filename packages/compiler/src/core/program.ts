@@ -20,13 +20,7 @@ import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
-import {
-  initializeSpinner,
-  pauseSpinner,
-  resumeSpinner,
-  setChildLogPrefix,
-  stopSpinner,
-} from "./helpers/progress-logger.js";
+import { initializeSpinner, setChildLogPrefix, stopSpinner } from "./helpers/progress-logger.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLinter, resolveLinterDefinition } from "./linter.js";
 import { createLogger } from "./logger/index.js";
@@ -37,7 +31,6 @@ import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
-
 import {
   SourceLoader,
   SourceResolution,
@@ -214,7 +207,6 @@ export async function compile(
   const basedir = getDirectoryPath(resolvedMain) || "/";
   await checkForCompilerVersionMismatch(basedir);
 
-  initializeSpinner("Parsing...");
   await loadSources(resolvedMain);
 
   let emit = options.emit;
@@ -250,7 +242,7 @@ export async function compile(
   initializeSpinner("Checker...");
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
-
+  stopSpinner();
   if (!continueToNextStage) {
     return program;
   }
@@ -259,8 +251,8 @@ export async function compile(
   await runValidators();
 
   validateRequiredImports();
-
   await validateLoadedLibraries();
+  stopSpinner();
   if (!continueToNextStage) {
     return program;
   }
@@ -272,7 +264,6 @@ export async function compile(
   for (const instance of emitters) {
     await runEmitter(instance);
   }
-  console.log();
 
   return program;
 
@@ -594,9 +585,7 @@ export async function compile(
     const outputRelativePath = `./${relative(context.program.projectRoot, context.emitterOutputDir)}/`;
     setChildLogPrefix(outputRelativePath);
     try {
-      pauseSpinner(); //letting the console free for emitter logs
       await emitter.emitFunction(context);
-      resumeSpinner();
     } catch (error: unknown) {
       throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
     }
