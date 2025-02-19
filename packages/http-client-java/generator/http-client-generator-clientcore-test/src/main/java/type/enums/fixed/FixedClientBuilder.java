@@ -2,25 +2,25 @@
 
 package type.enums.fixed;
 
-import io.clientcore.core.annotation.Metadata;
-import io.clientcore.core.annotation.ServiceClientBuilder;
+import io.clientcore.core.annotations.Metadata;
+import io.clientcore.core.annotations.ServiceClientBuilder;
 import io.clientcore.core.http.client.HttpClient;
-import io.clientcore.core.http.models.HttpInstrumentationOptions;
-import io.clientcore.core.http.models.HttpRedirectOptions;
-import io.clientcore.core.http.models.HttpRetryOptions;
 import io.clientcore.core.http.models.ProxyOptions;
+import io.clientcore.core.http.pipeline.HttpInstrumentationOptions;
 import io.clientcore.core.http.pipeline.HttpInstrumentationPolicy;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.http.pipeline.HttpPipelineBuilder;
 import io.clientcore.core.http.pipeline.HttpPipelinePolicy;
+import io.clientcore.core.http.pipeline.HttpRedirectOptions;
 import io.clientcore.core.http.pipeline.HttpRedirectPolicy;
+import io.clientcore.core.http.pipeline.HttpRetryOptions;
 import io.clientcore.core.http.pipeline.HttpRetryPolicy;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
-import io.clientcore.core.models.traits.ConfigurationTrait;
-import io.clientcore.core.models.traits.EndpointTrait;
-import io.clientcore.core.models.traits.HttpTrait;
-import io.clientcore.core.models.traits.ProxyTrait;
-import io.clientcore.core.util.configuration.Configuration;
+import io.clientcore.core.traits.ConfigurationTrait;
+import io.clientcore.core.traits.EndpointTrait;
+import io.clientcore.core.traits.HttpTrait;
+import io.clientcore.core.traits.ProxyTrait;
+import io.clientcore.core.utils.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -224,7 +224,7 @@ public final class FixedClientBuilder implements HttpTrait<FixedClientBuilder>, 
         policies.add(retryOptions == null ? new HttpRetryPolicy() : new HttpRetryPolicy(retryOptions));
         this.pipelinePolicies.stream().forEach(p -> policies.add(p));
         policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
-        httpPipelineBuilder.policies(policies.toArray(new HttpPipelinePolicy[0]));
+        policies.forEach(httpPipelineBuilder::addPolicy);
         return httpPipelineBuilder.build();
     }
 

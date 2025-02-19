@@ -3,8 +3,8 @@
 
 package authentication.apikey;
 
-import io.clientcore.core.credential.KeyCredential;
-import io.clientcore.core.http.exception.HttpResponseException;
+import io.clientcore.core.credentials.KeyCredential;
+import io.clientcore.core.http.exceptions.HttpResponseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

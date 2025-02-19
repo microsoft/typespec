@@ -77,7 +77,7 @@ public final class TemplateHelper {
             });
         }
         function.line("policies.add(new HttpInstrumentationPolicy(%s));", localHttpInstrumentationOptionsName);
-        function.line("httpPipelineBuilder.policies(policies.toArray(new HttpPipelinePolicy[0]));");
+        function.line("policies.forEach(httpPipelineBuilder::addPolicy);");
         function.methodReturn("httpPipelineBuilder.build()");
     }
 
