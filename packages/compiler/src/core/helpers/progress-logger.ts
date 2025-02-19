@@ -1,11 +1,10 @@
 import isUnicodeSupported from "is-unicode-supported";
-import { clearLine, cursorTo } from "readline";
 
 const spinnerFrames = isUnicodeSupported()
   ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
   : ["-", "\\", "|", "/"];
 
-let logMessages: string[] = [];
+const logMessages: string[] = [];
 let spinnerInterval: NodeJS.Timeout | null = null;
 let childLogPrefix = "";
 let spinnerMessage = "";
@@ -27,11 +26,11 @@ function displaySpinner(): void {
 }
 
 function clearLastLine(): void {
-  cursorTo(process.stdout, 0);
-  clearLine(process.stdout, 0);
+  process.stdout.write("\r\x1b[K");
 }
 
 function printChildMessages(): void {
+  // eslint-disable-next-line no-console
   logMessages.forEach((message) => console.log(message));
 }
 
@@ -59,6 +58,7 @@ export function stopSpinner(finishMessage?: string, printChildMessage: boolean =
     clearLastLine();
 
     if (finishMessage) {
+      // eslint-disable-next-line no-console
       console.log(finishMessage);
     }
 
@@ -79,7 +79,9 @@ export function addChildLog(message: string): void {
 }
 
 // Override console.log to handle spinner
+// eslint-disable-next-line no-console
 const originalConsoleLog = console.log;
+// eslint-disable-next-line no-console
 console.log = function (...args: any[]) {
   if (spinnerActive) {
     clearLastLine();

@@ -1,4 +1,3 @@
-import { relative } from "path";
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { setCurrentProgram } from "../experimental/typekit/index.js";
@@ -34,7 +33,12 @@ import { createDiagnostic } from "./messages.js";
 import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
-import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
+import {
+  getDirectoryPath,
+  getRelativePathFromDirectory,
+  joinPaths,
+  resolvePath,
+} from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   SourceLoader,
@@ -589,7 +593,7 @@ export async function compile(
         return createAssetEmitter(program, TypeEmitterClass, this);
       },
     };
-    const outputRelativePath = `./${relative(context.program.projectRoot, context.emitterOutputDir)}/`;
+    const outputRelativePath = `./${getRelativePathFromDirectory(context.program.projectRoot, context.emitterOutputDir, false)}/`;
     setChildLogPrefix(outputRelativePath);
     try {
       await emitter.emitFunction(context);

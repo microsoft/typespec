@@ -1,6 +1,5 @@
-import { relative } from "path";
 import { addChildLog } from "./helpers/progress-logger.js";
-import { getDirectoryPath } from "./path-utils.js";
+import { getDirectoryPath, getRelativePathFromDirectory } from "./path-utils.js";
 import type { Program } from "./program.js";
 
 export type NewLine = "lf" | "crlf";
@@ -24,6 +23,6 @@ export async function emitFile(program: Program, options: EmitFileOptions): Prom
       ? options.content.replace(/(\r\n|\n|\r)/gm, "\r\n")
       : options.content;
 
-  addChildLog(relative(outputFolder, options.path));
+  addChildLog(getRelativePathFromDirectory(outputFolder, options.path, true));
   return await program.host.writeFile(options.path, content);
 }
