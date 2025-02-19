@@ -9,8 +9,7 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 {
     public sealed class Emitter : IDisposable
     {
-        //private const string BasicRequestFormat = @"{{""jsonrpc"":""2.0"",""method"":{1},""params"":[{2},{3}],""id"":{0}}}";
-        private const string BasicNotificationFormat = @"{{""jsonrpc"":""2.0"",""method"":{0},""params"":{1}}}";
+        private const string BasicNotificationFormat = @"{{""method"":{0},""params"":{1}}}";
 
         private static Emitter? _emitter;
         private bool _disposedValue;
@@ -35,8 +34,27 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         public void Info(string message)
         {
-            SendNotification("info", new
+            SendNotification("trace", new
             {
+                level = "info",
+                message = message,
+            });
+        }
+
+        public void Debug(string message)
+        {
+            SendNotification("trace", new
+            {
+                level = "debug",
+                message = message,
+            });
+        }
+
+        public void Verbose(string message)
+        {
+            SendNotification("trace", new
+            {
+                level = "verbose",
                 message = message,
             });
         }
@@ -60,15 +78,6 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
                     message = message,
                 });
             }
-        }
-
-        public void WriteFile(string path, string content)
-        {
-            SendNotification("file", new
-            {
-                path = path,
-                content = content
-            });
         }
 
         private void Dispose(bool disposing)

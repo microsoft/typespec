@@ -36,14 +36,13 @@ export async function execCSharpGenerator(
   return new Promise((resolve, reject) => {
     let buffer = "";
 
-    child.stdout?.on("data", async (data) => {
+    child.stdout?.on("data", (data) => {
       buffer += data.toString();
       let index;
       while ((index = buffer.indexOf("\n")) !== -1) {
         const message = buffer.slice(0, index);
         buffer = buffer.slice(index + 1);
-        // context.logger.info(`Received from C#: ${message}`);
-        await processJsonRpc(context, message);
+        processJsonRpc(context, message);
       }
     });
 
@@ -65,13 +64,13 @@ export async function execCSharpGenerator(
   });
 }
 
-async function processJsonRpc(context: CSharpEmitterContext, message: string): Promise<void> {
+function processJsonRpc(context: CSharpEmitterContext, message: string) {
   const response = JSON.parse(message);
   const method = response.method;
   const params = response.params;
   switch (method) {
-    case "info":
-      context.logger.info(params.message);
+    case "trace":
+      context.logger.trace(params.level, params.message);
       break;
     case "diagnostic":
       let crossLanguageDefinitionId: string | undefined;
@@ -85,15 +84,6 @@ async function processJsonRpc(context: CSharpEmitterContext, message: string): P
         },
         target: findTarget(crossLanguageDefinitionId) ?? NoTarget,
       });
-      break;
-    case "file":
-      const filepath = params.path;
-      const content = params.content;
-      context.logger.info(`Writing ${filepath}`);
-      // get the directory name of path
-      const dirPath = path.dirname(filepath);
-      await context.program.host.mkdirp(dirPath);
-      context.program.host.writeFile(filepath, content);
       break;
   }
 
