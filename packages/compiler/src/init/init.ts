@@ -360,11 +360,11 @@ async function action(message: string, fn: () => Promise<unknown>) {
     interval = setInterval(() => {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`\r${pc.yellow(spinner())} ${message}`);
+      process.stdout.write(`\r  ${pc.yellow(spinner())} ${message}`);
     }, 300);
   } else {
     // eslint-disable-next-line no-console
-    console.log(`- ${message}`);
+    console.log(`  - ${message}`);
   }
 
   try {
@@ -372,14 +372,14 @@ async function action(message: string, fn: () => Promise<unknown>) {
     if (isTTY) {
       process.stdout.clearLine(0);
       process.stdout.cursorTo(0);
-      process.stdout.write(`\r${pc.green("✓")} ${message}`);
+      process.stdout.write(`\r  ${pc.green("✓")} ${message}\n`);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`\r${pc.green("✓")} ${message}`);
+      console.log(`  ${pc.green("✓")} ${message}`);
     }
   } catch (e: any) {
     // eslint-disable-next-line no-console
-    console.log(`\r${pc.red("×")} ${message}\n${e.message}`);
+    console.log(`\r  ${pc.red("×")} ${message}\n${e.message}`);
     process.exit(1);
   } finally {
     if (interval) {
