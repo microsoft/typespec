@@ -100,6 +100,9 @@ export async function initTypeSpecProjectWorker(
   whiteline();
   success("Project initialized!");
 
+  // eslint-disable-next-line no-console
+  console.log(`Run ${pc.cyan(`tsp compile .`)} to run TypeSpec.`);
+
   if (Object.values(emitters).some((emitter) => emitter.message !== undefined)) {
     // eslint-disable-next-line no-console
     console.log(pc.yellow("\nPlease review the following messages from emitters:"));
