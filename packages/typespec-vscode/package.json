@@ -118,11 +118,21 @@
           "command": "typespec.generateCode",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
           "group": "code_generation"
+        },
+        {
+          "command": "typespec.showOpenApi3",
+          "when": "resourceLangId == typespec",
+          "group": "code_generation"
         }
       ],
       "editor/context": [
         {
           "command": "typespec.generateCode",
+          "when": "resourceLangId == typespec",
+          "group": "code_generation"
+        },
+        {
+          "command": "typespec.showOpenApi3",
           "when": "resourceLangId == typespec",
           "group": "code_generation"
         }
