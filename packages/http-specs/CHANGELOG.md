@@ -1,11 +1,5 @@
 # @typespec/http-specs
 
-## 0.1.0-alpha.10
-
-### Bug Fixes
-
-- [#6013](https://github.com/microsoft/typespec/pull/6013) Fixed paths in the specs/routes.
-
 ## 0.1.0-alpha.9
 
 ### Bug Fixes
