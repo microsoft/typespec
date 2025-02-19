@@ -56,6 +56,23 @@ public interface ChildExtensionResourceInterfacesClient {
      * @param topLevelArmResourceName arm resource name for path.
      * @param childExtensionResourceName ChildExtensionResources.
      * @param resource Resource create parameters.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return extensionResource of Top Level Arm Resource along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<ChildExtensionResourceInner> createOrUpdateWithResponse(String resourceUri, String topLevelArmResourceName,
+        String childExtensionResourceName, ChildExtensionResourceInner resource, Context context);
+
+    /**
+     * Create a ChildExtensionResource.
+     * 
+     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param childExtensionResourceName ChildExtensionResources.
+     * @param resource Resource create parameters.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -149,6 +166,22 @@ public interface ChildExtensionResourceInterfacesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     ChildExtensionResourceInner update(String resourceUri, String topLevelArmResourceName,
         String childExtensionResourceName, ChildExtensionResourceUpdate properties);
+
+    /**
+     * Delete a ChildExtensionResource.
+     * 
+     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param childExtensionResourceName ChildExtensionResources.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Response<Void> deleteWithResponse(String resourceUri, String topLevelArmResourceName,
+        String childExtensionResourceName, Context context);
 
     /**
      * Delete a ChildExtensionResource.

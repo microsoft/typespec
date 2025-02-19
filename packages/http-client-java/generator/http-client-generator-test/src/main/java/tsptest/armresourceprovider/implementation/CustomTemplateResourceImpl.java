@@ -116,16 +116,18 @@ public final class CustomTemplateResourceImpl
     public CustomTemplateResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getCustomTemplateResourceInterfaces()
-            .createOrUpdate(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
-                createIfNoneMatch, Context.NONE);
+            .createOrUpdateWithResponse(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
+                createIfNoneMatch, Context.NONE)
+            .getValue();
         return this;
     }
 
     public CustomTemplateResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getCustomTemplateResourceInterfaces()
-            .createOrUpdate(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
-                createIfNoneMatch, context);
+            .createOrUpdateWithResponse(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
+                createIfNoneMatch, context)
+            .getValue();
         return this;
     }
 
@@ -145,14 +147,17 @@ public final class CustomTemplateResourceImpl
     public CustomTemplateResource apply() {
         this.innerObject = serviceManager.serviceClient()
             .getCustomTemplateResourceInterfaces()
-            .updateLongRunning(resourceGroupName, customTemplateResourceName, updateProperties, Context.NONE);
+            .updateLongRunningWithResponse(resourceGroupName, customTemplateResourceName, updateProperties,
+                Context.NONE)
+            .getValue();
         return this;
     }
 
     public CustomTemplateResource apply(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getCustomTemplateResourceInterfaces()
-            .updateLongRunning(resourceGroupName, customTemplateResourceName, updateProperties, context);
+            .updateLongRunningWithResponse(resourceGroupName, customTemplateResourceName, updateProperties, context)
+            .getValue();
         return this;
     }
 

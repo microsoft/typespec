@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.implementation;
 
+import com.azure.core.http.rest.Response;
 import com.azure.core.management.Region;
 import com.azure.core.management.SystemData;
 import com.azure.core.util.Context;
@@ -89,15 +90,18 @@ public final class ChildResourceImpl implements ChildResource, ChildResource.Def
     public ChildResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getChildResourcesInterfaces()
-            .createOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, this.innerModel(),
-                Context.NONE);
+            .createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName,
+                this.innerModel(), Context.NONE)
+            .getValue();
         return this;
     }
 
     public ChildResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getChildResourcesInterfaces()
-            .createOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, this.innerModel(), context);
+            .createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName,
+                this.innerModel(), context)
+            .getValue();
         return this;
     }
 
@@ -154,6 +158,11 @@ public final class ChildResourceImpl implements ChildResource, ChildResource.Def
             .getWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, context)
             .getValue();
         return this;
+    }
+
+    public Response<Void> actionWithoutBodyWithResponse(Context context) {
+        return serviceManager.childResourcesInterfaces()
+            .actionWithoutBodyWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName, context);
     }
 
     public void actionWithoutBody() {

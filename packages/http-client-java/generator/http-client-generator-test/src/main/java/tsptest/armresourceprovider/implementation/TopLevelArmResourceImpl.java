@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.implementation;
 
+import com.azure.core.http.rest.Response;
 import com.azure.core.management.Region;
 import com.azure.core.management.SystemData;
 import com.azure.core.util.Context;
@@ -115,14 +116,16 @@ public final class TopLevelArmResourceImpl
     public TopLevelArmResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResourceInterfaces()
-            .createOrUpdate(resourceGroupName, topLevelArmResourceName, this.innerModel(), Context.NONE);
+            .createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, this.innerModel(), Context.NONE)
+            .getValue();
         return this;
     }
 
     public TopLevelArmResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResourceInterfaces()
-            .createOrUpdate(resourceGroupName, topLevelArmResourceName, this.innerModel(), context);
+            .createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, this.innerModel(), context)
+            .getValue();
         return this;
     }
 
@@ -176,6 +179,11 @@ public final class TopLevelArmResourceImpl
             .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourceName, context)
             .getValue();
         return this;
+    }
+
+    public Response<Result> actionWithResponse(Context context) {
+        return serviceManager.topLevelArmResourceInterfaces()
+            .actionWithResponse(resourceGroupName, topLevelArmResourceName, context);
     }
 
     public Result action() {

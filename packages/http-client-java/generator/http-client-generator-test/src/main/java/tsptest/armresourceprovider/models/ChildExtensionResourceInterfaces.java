@@ -46,6 +46,21 @@ public interface ChildExtensionResourceInterfaces {
      * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
      * @param topLevelArmResourceName arm resource name for path.
      * @param childExtensionResourceName ChildExtensionResources.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    Response<Void> deleteWithResponse(String resourceUri, String topLevelArmResourceName,
+        String childExtensionResourceName, Context context);
+
+    /**
+     * Delete a ChildExtensionResource.
+     * 
+     * @param resourceUri The fully qualified Azure Resource manager identifier of the resource.
+     * @param topLevelArmResourceName arm resource name for path.
+     * @param childExtensionResourceName ChildExtensionResources.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -132,8 +147,9 @@ public interface ChildExtensionResourceInterfaces {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
-    void deleteByIdWithResponse(String id, Context context);
+    Response<Void> deleteByIdWithResponse(String id, Context context);
 
     /**
      * Begins definition for a new ChildExtensionResource resource.

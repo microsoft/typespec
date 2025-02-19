@@ -4,6 +4,7 @@
 
 package tsptest.armresourceprovider.models;
 
+import com.azure.core.http.rest.Response;
 import com.azure.core.management.Region;
 import com.azure.core.management.SystemData;
 import com.azure.core.util.Context;
@@ -366,6 +367,17 @@ public interface TopLevelArmResource {
      * @return the refreshed resource.
      */
     TopLevelArmResource refresh(Context context);
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    Response<Result> actionWithResponse(Context context);
 
     /**
      * A long-running resource action.

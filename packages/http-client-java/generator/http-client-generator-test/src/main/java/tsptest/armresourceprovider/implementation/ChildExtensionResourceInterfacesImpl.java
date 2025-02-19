@@ -50,6 +50,12 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
         }
     }
 
+    public Response<Void> deleteWithResponse(String resourceUri, String topLevelArmResourceName,
+        String childExtensionResourceName, Context context) {
+        return this.serviceClient()
+            .deleteWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
+    }
+
     public void delete(String resourceUri, String topLevelArmResourceName, String childExtensionResourceName) {
         this.serviceClient().delete(resourceUri, topLevelArmResourceName, childExtensionResourceName);
     }
@@ -146,10 +152,10 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
                 .format("The resource ID '%s' is not valid. Missing path segment 'childExtensionResources'.", id)));
         }
-        this.delete(resourceUri, topLevelArmResourceName, childExtensionResourceName, Context.NONE);
+        this.deleteWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, Context.NONE);
     }
 
-    public void deleteByIdWithResponse(String id, Context context) {
+    public Response<Void> deleteByIdWithResponse(String id, Context context) {
         String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
             "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
             "resourceUri");
@@ -171,7 +177,7 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
                 .format("The resource ID '%s' is not valid. Missing path segment 'childExtensionResources'.", id)));
         }
-        this.delete(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
+        return this.deleteWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
     }
 
     private ChildExtensionResourceInterfacesClient serviceClient() {

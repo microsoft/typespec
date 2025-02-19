@@ -23,6 +23,7 @@ import com.azure.core.management.exception.ManagementException;
 import com.azure.core.management.polling.PollResult;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
 import java.nio.ByteBuffer;
@@ -75,10 +76,31 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") CustomTemplateResourceInner resource, Context context);
 
+        @Put("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
+        @ExpectedResponses({ 200, 201 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<Flux<ByteBuffer>> createOrUpdateSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName, @HeaderParam("If-Match") String ifMatch,
+            @HeaderParam("If-None-Match") String ifNoneMatch,
+            @PathParam("customTemplateResourceName") String customTemplateResourceName,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") CustomTemplateResourceInner resource, Context context);
+
         @Patch("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
         @ExpectedResponses({ 200, 202 })
         @UnexpectedResponseExceptionType(ManagementException.class)
         Mono<Response<Flux<ByteBuffer>>> updateLongRunning(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("customTemplateResourceName") String customTemplateResourceName,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") CustomTemplateResourcePatch properties, Context context);
+
+        @Patch("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/customTemplateResources/{customTemplateResourceName}")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<Flux<ByteBuffer>> updateLongRunningSync(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("customTemplateResourceName") String customTemplateResourceName,
@@ -104,23 +126,27 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     private Mono<Response<Flux<ByteBuffer>>> createOrUpdateWithResponseAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch) {
         if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (customTemplateResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter customTemplateResourceName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter customTemplateResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -153,23 +179,27 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch,
         Context context) {
         if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (customTemplateResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter customTemplateResourceName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter customTemplateResourceName is required and cannot be null."));
         }
         if (resource == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
         } else {
             resource.validate();
         }
@@ -177,6 +207,57 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service.createOrUpdate(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, ifMatch, ifNoneMatch, customTemplateResourceName,
+            contentType, accept, resource, context);
+    }
+
+    /**
+     * Create a CustomTemplateResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param customTemplateResourceName arm resource name for path.
+     * @param resource Resource create parameters.
+     * @param ifMatch The request should only proceed if an entity matches this string.
+     * @param ifNoneMatch The request should only proceed if no entity matches this string.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
+     * with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<CustomTemplateResourceInner> createOrUpdateWithResponse(String resourceGroupName,
+        String customTemplateResourceName, CustomTemplateResourceInner resource, String ifMatch, String ifNoneMatch,
+        Context context) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (customTemplateResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter customTemplateResourceName is required and cannot be null."));
+        }
+        if (resource == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
+        } else {
+            resource.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, ifMatch, ifNoneMatch, customTemplateResourceName,
             contentType, accept, resource, context);
     }
@@ -274,8 +355,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource) {
         final String ifMatch = null;
         final String ifNoneMatch = null;
-        return this
-            .beginCreateOrUpdateAsync(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch)
+        return beginCreateOrUpdateAsync(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch)
             .getSyncPoller();
     }
 
@@ -298,10 +378,8 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     public SyncPoller<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginCreateOrUpdate(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourceInner resource,
         String ifMatch, String ifNoneMatch, Context context) {
-        return this
-            .beginCreateOrUpdateAsync(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch,
-                context)
-            .getSyncPoller();
+        return beginCreateOrUpdateAsync(resourceGroupName, customTemplateResourceName, resource, ifMatch, ifNoneMatch,
+            context).getSyncPoller();
     }
 
     /**
@@ -428,23 +506,27 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     private Mono<Response<Flux<ByteBuffer>>> updateLongRunningWithResponseAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties) {
         if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (customTemplateResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter customTemplateResourceName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter customTemplateResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -474,23 +556,27 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     private Mono<Response<Flux<ByteBuffer>>> updateLongRunningWithResponseAsync(String resourceGroupName,
         String customTemplateResourceName, CustomTemplateResourcePatch properties, Context context) {
         if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
         }
         if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
         }
         if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
         }
         if (customTemplateResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter customTemplateResourceName is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter customTemplateResourceName is required and cannot be null."));
         }
         if (properties == null) {
-            return Mono.error(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
         } else {
             properties.validate();
         }
@@ -498,6 +584,54 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         final String accept = "application/json";
         context = this.client.mergeContext(context);
         return service.updateLongRunning(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, customTemplateResourceName, contentType, accept,
+            properties, context);
+    }
+
+    /**
+     * Update a CustomTemplateResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param customTemplateResourceName arm resource name for path.
+     * @param properties The resource properties to be updated.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete tracked resource types can be created by aliasing this type using a specific property type along
+     * with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<CustomTemplateResourceInner> updateLongRunningWithResponse(String resourceGroupName,
+        String customTemplateResourceName, CustomTemplateResourcePatch properties, Context context) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (this.client.getSubscriptionId() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
+        }
+        if (resourceGroupName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
+        }
+        if (customTemplateResourceName == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter customTemplateResourceName is required and cannot be null."));
+        }
+        if (properties == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Parameter properties is required and cannot be null."));
+        } else {
+            properties.validate();
+        }
+        final String contentType = "application/json";
+        final String accept = "application/json";
+        return service.updateLongRunningSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, customTemplateResourceName, contentType, accept,
             properties, context);
     }
@@ -565,8 +699,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
     public SyncPoller<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginUpdateLongRunning(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourcePatch properties) {
-        return this.beginUpdateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties)
-            .getSyncPoller();
+        return beginUpdateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties).getSyncPoller();
     }
 
     /**
@@ -586,7 +719,7 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
     public SyncPoller<PollResult<CustomTemplateResourceInner>, CustomTemplateResourceInner> beginUpdateLongRunning(
         String resourceGroupName, String customTemplateResourceName, CustomTemplateResourcePatch properties,
         Context context) {
-        return this.beginUpdateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties, context)
+        return beginUpdateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties, context)
             .getSyncPoller();
     }
 
@@ -663,4 +796,6 @@ public final class CustomTemplateResourceInterfacesClientImpl implements CustomT
         CustomTemplateResourcePatch properties, Context context) {
         return updateLongRunningAsync(resourceGroupName, customTemplateResourceName, properties, context).block();
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(CustomTemplateResourceInterfacesClientImpl.class);
 }
