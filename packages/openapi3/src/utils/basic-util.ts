@@ -14,7 +14,6 @@ import {
   Value,
 } from "@typespec/compiler";
 import { HttpOperation } from "@typespec/http";
-
 /**
  * Checks if two objects are deeply equal.
  *
