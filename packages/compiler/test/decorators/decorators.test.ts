@@ -1185,9 +1185,29 @@ describe("compiler: built-in decorators", () => {
     });
   });
 
-  describe("@discriminator on unions", () => {
+  describe("@discriminated", () => {
+    it("error if more than one unnamed variant", async () => {
+      const diagnostics = await runner.diagnose(`
+        @discriminated
+        union Foo {
+          "A",
+          "B"
+        }
+      `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-discriminated-union-variant",
+          message: `Union variant "a" must be a model type.`,
+        },
+      ]);
+    });
+  });
+
+  describe("@discriminator on unions (LEGACY)", () => {
     it("requires variants to be models", async () => {
       const diagnostics = await runner.diagnose(`
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Foo {
           a: "hi"
@@ -1206,6 +1226,7 @@ describe("compiler: built-in decorators", () => {
         model A {
 
         }
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Foo {
           a: A
@@ -1226,6 +1247,7 @@ describe("compiler: built-in decorators", () => {
           kind: string,
         }
 
+        #suppress "deprecated" "For testing"
         @discriminator("kind")
         union Foo {
           a: A
