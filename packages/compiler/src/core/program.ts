@@ -22,7 +22,12 @@ import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { initializeSpinner, setChildLogPrefix, stopSpinner } from "./helpers/progress-logger.js";
 import { getLibraryUrlsLoaded } from "./library.js";
-import { createLinter, resolveLinterDefinition } from "./linter.js";
+import {
+  builtInLinterLibraryName,
+  createBuiltInLinterLibrary,
+  createLinter,
+  resolveLinterDefinition,
+} from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
@@ -232,13 +237,15 @@ export async function compile(
   oldProgram = undefined;
   setCurrentProgram(program);
 
+  const resolver = createResolver(program);
+  resolver.resolveProgram();
+
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
+  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary(resolver));
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
-  const resolver = createResolver(program);
-  resolver.resolveProgram();
   initializeSpinner("Checker...");
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();

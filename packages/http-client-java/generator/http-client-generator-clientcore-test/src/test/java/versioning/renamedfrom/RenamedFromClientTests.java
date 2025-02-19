@@ -3,7 +3,7 @@
 
 package versioning.renamedfrom;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import org.junit.jupiter.api.Test;
 
 public class RenamedFromClientTests {
