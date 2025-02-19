@@ -31,15 +31,31 @@ describe("Test auth", () => {
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
-    const noAuthDiagnostic = diagnostics.find(
-      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
+    const noAuthDiagnostics = diagnostics.filter(
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes(
+          "Only header is supported for ApiKey authentication. cookie is not supported.",
+        ),
     );
-    ok(noAuthDiagnostic);
+    strictEqual(noAuthDiagnostics.length, 1);
+
+    const noSupportedAuthDiagnostics = diagnostics.filter(
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
+    );
+    strictEqual(noSupportedAuthDiagnostics.length, 1);
+    ok(noSupportedAuthDiagnostics[0]);
     strictEqual(
-      noAuthDiagnostic.message,
-      "Only header is supported for ApiKey authentication. cookie is not supported.",
+      noSupportedAuthDiagnostics[0].message,
+      `No supported authentication methods were provided. No public client constructors will be generated. Please provide your own custom constructor for client instantiation.`,
     );
-    strictEqual(root.Auth, undefined); // we do not support it therefore it falls back to undefined
+
+    // auth was specified but it is not supported, so the known auth methods are undefined
+    ok(root.Auth);
+    strictEqual(root.Auth?.ApiKey, undefined);
+    strictEqual(root.Auth?.OAuth2, undefined);
   });
 
   it("query header is not supported", async () => {
@@ -57,14 +73,157 @@ describe("Test auth", () => {
     const root = createModel(sdkContext);
     const diagnostics = context.program.diagnostics;
 
+    const noAuthDiagnostics = diagnostics.filter(
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes(
+          "Only header is supported for ApiKey authentication. query is not supported.",
+        ),
+    );
+    strictEqual(noAuthDiagnostics.length, 1);
+
+    const noSupportedAuthDiagnostics = diagnostics.filter(
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
+    );
+    strictEqual(noSupportedAuthDiagnostics.length, 1);
+    ok(noSupportedAuthDiagnostics[0]);
+    strictEqual(
+      noSupportedAuthDiagnostics[0].message,
+      `No supported authentication methods were provided. No public client constructors will be generated. Please provide your own custom constructor for client instantiation.`,
+    );
+
+    // auth was specified but it is not supported, so the known auth methods are undefined
+    ok(root.Auth);
+    strictEqual(root.Auth?.ApiKey, undefined);
+    strictEqual(root.Auth?.OAuth2, undefined);
+  });
+
+  it("query header and cookie header are not supported", async () => {
+    const program = await typeSpecCompile(
+      `
+            op test(): NoContentResponse;
+      `,
+      runner,
+      {
+        AuthDecorator: `@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api-key-name"> | ApiKeyAuth<ApiKeyLocation.cookie, "api-key-name">)`,
+      },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const diagnostics = context.program.diagnostics;
+
+    const noAuthDiagnostics = diagnostics.filter(
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("Only header is supported for ApiKey authentication."),
+    );
+    strictEqual(noAuthDiagnostics.length, 2);
+
+    const noSupportedAuthDiagnostics = diagnostics.filter(
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
+    );
+    strictEqual(noSupportedAuthDiagnostics.length, 1);
+    ok(noSupportedAuthDiagnostics[0]);
+    strictEqual(
+      noSupportedAuthDiagnostics[0].message,
+      `No supported authentication methods were provided. No public client constructors will be generated. Please provide your own custom constructor for client instantiation.`,
+    );
+
+    // auth was specified but it is not supported, so the known auth methods are undefined
+    ok(root.Auth);
+    strictEqual(root.Auth?.ApiKey, undefined);
+    strictEqual(root.Auth?.OAuth2, undefined);
+  });
+
+  it("apikey header auth", async () => {
+    const program = await typeSpecCompile(
+      `
+            op test(): NoContentResponse;
+      `,
+      runner,
+      {
+        AuthDecorator: `@useAuth(ApiKeyAuth<ApiKeyLocation.header, "api-key-name">)`,
+      },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const diagnostics = context.program.diagnostics;
+
     const noAuthDiagnostic = diagnostics.find(
       (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
     );
-    ok(noAuthDiagnostic);
+    strictEqual(noAuthDiagnostic, undefined);
+
+    const noSupportedAuthDiagnostic = diagnostics.find(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
+    );
+    strictEqual(noSupportedAuthDiagnostic, undefined);
+    ok(root.Auth?.ApiKey);
+    strictEqual(root.Auth?.OAuth2, undefined);
+  });
+
+  it("at least one supported auth", async () => {
+    const program = await typeSpecCompile(
+      `
+        op test(): NoContentResponse;
+      `,
+      runner,
+      {
+        AuthDecorator: `@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api-key-name"> | ApiKeyAuth<ApiKeyLocation.header, "api-key-name">)`,
+      },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const diagnostics = context.program.diagnostics;
+
+    const noAuthDiagnostics = diagnostics.filter(
+      (d) => d.code === "@typespec/http-client-csharp/unsupported-auth",
+    );
+    strictEqual(noAuthDiagnostics.length, 1);
     strictEqual(
-      noAuthDiagnostic.message,
+      noAuthDiagnostics[0].message,
       "Only header is supported for ApiKey authentication. query is not supported.",
     );
-    strictEqual(root.Auth, undefined); // we do not support it therefore it falls back to undefined
+
+    const noSupportedAuthDiagnostic = diagnostics.find(
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
+    );
+
+    strictEqual(noSupportedAuthDiagnostic, undefined);
+    ok(root.Auth?.ApiKey);
+  });
+
+  it("no auth", async () => {
+    const program = await typeSpecCompile(
+      `
+            op test(): NoContentResponse;
+      `,
+      runner,
+      {
+        AuthDecorator: `@useAuth(NoAuth)`,
+      },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const diagnostics = context.program.diagnostics;
+
+    const noAuthDiagnostics = diagnostics.filter(
+      (d) =>
+        d.code === "@typespec/http-client-csharp/unsupported-auth" &&
+        d.message?.includes("No supported authentication methods were provided."),
+    );
+
+    strictEqual(noAuthDiagnostics.length, 0);
+    strictEqual(root.Auth, undefined);
   });
 });

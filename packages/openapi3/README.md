@@ -109,6 +109,14 @@ How to handle safeint type. Options are:
 
 Default: `int64`
 
+### `seal-object-schemas`
+
+**Type:** `boolean`
+
+If true, then for models emitted as object schemas we default `additionalProperties` to false for
+OpenAPI 3.0, and `unevaluatedProperties` to false for OpenAPI 3.1, if not explicitly specified elsewhere.
+Default: `false`
+
 ## Decorators
 
 ### TypeSpec.OpenAPI

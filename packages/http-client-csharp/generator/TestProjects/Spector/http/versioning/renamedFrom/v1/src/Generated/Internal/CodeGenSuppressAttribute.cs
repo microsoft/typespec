@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Versioning.RenamedFrom
+namespace Versioning.RenamedFrom.V1
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Enum | AttributeTargets.Struct), AllowMultiple = true)]
     internal partial class CodeGenSuppressAttribute : Attribute
