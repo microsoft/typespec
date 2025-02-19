@@ -44,11 +44,6 @@ export function defineSpecTests(config: SpecSnapshotTestOptions) {
     },
   };
 
-  afterAll(async function (context: Readonly<RunnerTestSuite | RunnerTestFile>) {
-    if (context.tasks.some((x) => x.mode === "skip")) {
-      return; // Not running the full test suite, so don't bother checking snapshots.
-    }
-  });
   worksFor(["3.0.0", "3.1.0"], ({ openApiForFile }) => {
     specs.forEach((spec) => defineSpecTest(context, config, spec, openApiForFile));
   });
@@ -64,8 +59,6 @@ function defineSpecTest(
     context.runCount++;
     const results = await openApiForFile(spec);
     if (shouldUpdateSnapshots) {
-      //await cleanUpDir(config.outputDir, Object.entries(results));
-
       for (const [snapshotPath, content] of Object.entries(results)) {
         const outputPath = resolvePath(config.outputDir, snapshotPath);
         try {
@@ -171,13 +164,14 @@ export async function markCoverage(path: string, options: Record<string, any>) {
     const body = await response.json();
     return { status: response.status, body: body };
   } catch (e) {
+    console.warn(`No response: ${e}`, e);
     return null;
   }
 }
 
 export async function checkServe() {
   const interval = 1000; // 1 second
-  const timeout = 10000; // 10 seconds
+  const timeout = 60000; // 60 seconds
 
   const startTime = Date.now();
   while (Date.now() - startTime < timeout) {
