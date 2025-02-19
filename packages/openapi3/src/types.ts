@@ -128,17 +128,7 @@ export interface OpenAPI3Tag extends Extensions {
   externalDocs?: OpenAPI3ExternalDocs;
 }
 
-export const httpMethods = [
-  "get",
-  "put",
-  "post",
-  "delete",
-  "options",
-  "head",
-  "patch",
-  "trace",
-] as const;
-export type HttpMethod = (typeof httpMethods)[number];
+export type HttpMethod = "get" | "put" | "post" | "delete" | "options" | "head" | "patch" | "trace";
 
 /**
  * Describes the operations available on a single path. A Path Item may be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
