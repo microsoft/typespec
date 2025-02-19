@@ -184,7 +184,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         public string Namespace { get; set; }
         public string Name { get; private init; }
-        public string FullyQualifiedName { get; private init; }
+        internal string FullyQualifiedName { get; private init; }
         public CSharpType? DeclaringType { get; private init; }
         public bool IsValueType { get; private init; }
         public bool IsEnum => _underlyingType is not null;
