@@ -5,10 +5,8 @@ package encode.bytes;
 
 import io.clientcore.core.models.binarydata.BinaryData;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.utils.FileUtils;
 
