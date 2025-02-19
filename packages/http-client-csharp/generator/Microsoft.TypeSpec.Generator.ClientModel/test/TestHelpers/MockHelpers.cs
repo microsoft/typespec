@@ -58,7 +58,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
             HttpMessageApi? httpMessageApi = null,
-            Func<InputAuth>? auth = null)
+            Func<InputAuth>? auth = null,
+            string? packageName = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
@@ -101,6 +102,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             if (createClientCore is not null)
             {
                 mockTypeFactory.Protected().Setup<ClientProvider?>("CreateClientCore", ItExpr.IsAny<InputClient>()).Returns(createClientCore);
+            }
+
+            if (packageName is not null)
+            {
+                mockTypeFactory.Setup(p => p.PackageName).Returns(packageName);
             }
 
             // initialize the mock singleton instance of the plugin
