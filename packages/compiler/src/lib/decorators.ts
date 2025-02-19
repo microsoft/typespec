@@ -1347,7 +1347,7 @@ export const $opExample: OpExampleDecorator = (
   const returnType = rawExampleConfig.properties.get("returnType")?.value;
 
   // skip validation in projections
-  if (target.projectionBase === undefined) {
+  if (target.projectionBase === undefined && Realm.realmForType.get(target) === undefined) {
     if (
       parameters &&
       !checkExampleValid(

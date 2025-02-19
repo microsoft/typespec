@@ -90,7 +90,6 @@ function defineSpecTest(
         }
         context.registerSnapshot(resolvePath(spec.name, snapshotPath));
         deepStrictEqual(JSON.parse(existingContent.toString()), content);
-        //strictEqual(prettierOutput(JSON.stringify(content, null, 2)), existingContent.toString());
       }
     }
   });
