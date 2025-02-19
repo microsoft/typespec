@@ -1,8 +1,8 @@
 import { readdir, rm } from "fs/promises";
-import { basename, dirname, join } from "path";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import logger from "./log/logger.js";
+import { getBaseFileName, getDirectoryPath, joinPaths } from "./path-utils.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import { createTempDir, parseOpenApi3File, throttle } from "./utils.js";
 
@@ -58,7 +58,7 @@ export async function loadOpenApi3PreviewPanel(
           title: "Loading OpenAPI3 files...",
         },
         async (): Promise<string | undefined> => {
-          const srcFolder = dirname(mainTspFile);
+          const srcFolder = getDirectoryPath(mainTspFile);
           const outputFolder = await getOutputFolder(mainTspFile);
           if (!outputFolder) {
             logger.error("Failed to create temporary folder for OpenAPI3 files", [], {
@@ -95,16 +95,16 @@ export async function loadOpenApi3PreviewPanel(
               return;
             } else if (outputs.length === 1) {
               const first = outputs[0];
-              return parseOpenApi3File(join(outputFolder, first));
+              return parseOpenApi3File(joinPaths(outputFolder, first));
             } else {
               if (selectedOpenApi3OutputFiles.has(mainTspFile)) {
                 return parseOpenApi3File(selectedOpenApi3OutputFiles.get(mainTspFile)!);
               }
 
               const files = outputs.map<vscode.QuickPickItem & { path: string }>((file) => {
-                const filePath = join(outputFolder, file);
+                const filePath = joinPaths(outputFolder, file);
                 return {
-                  label: basename(file),
+                  label: getBaseFileName(file),
                   detail: filePath,
                   path: filePath,
                   iconPath: {

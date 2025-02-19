@@ -2,7 +2,7 @@ import type { ModuleResolutionResult, NodePackage, ResolveModuleHost } from "@ty
 import { spawn, SpawnOptions } from "child_process";
 import { mkdir, readFile, realpath, stat } from "fs/promises";
 import { tmpdir } from "os";
-import { dirname, join } from "path";
+import { dirname } from "path";
 import { CancellationToken } from "vscode";
 import { Executable } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
@@ -33,7 +33,7 @@ export async function createTempDir(): Promise<string | undefined> {
     const tempDir = tmpdir();
     const realTempDir = await realpath(tempDir);
     const uid = createGuid();
-    const subDir = join(realTempDir, uid);
+    const subDir = joinPaths(realTempDir, uid);
     await mkdir(subDir);
     return subDir;
   } catch (e) {
