@@ -461,7 +461,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // convert the property to a parameter
                 var inputParameter = new InputParameter(
                     property.Name,
-                    property.SerializationOptions.Json?.Name ?? property.Name,
+                    property.SerializationOptions?.Json?.Name ?? property.Name,
                     property.Summary,
                     property.Doc,
                     property.Type,
@@ -474,6 +474,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     false,
                     false,
                     false,
+                    null,
                     null,
                     null);
 

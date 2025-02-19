@@ -6,7 +6,7 @@
   {
    "$id": "2",
    "kind": "enum",
-   "name": "FileSpecificContentType_contentType",
+   "name": "FloatRequestTemperature_content-type",
    "valueType": {
     "$id": "3",
     "kind": "string",
@@ -18,14 +18,48 @@
     {
      "$id": "4",
      "kind": "enumvalue",
-     "name": "image/jpg",
-     "value": "image/jpg",
-     "doc": "image/jpg",
+     "name": "text/plain",
+     "value": "text/plain",
+     "doc": "text/plain",
      "valueType": {
       "$ref": "3"
      },
      "enumType": {
       "$ref": "2"
+     }
+    }
+   ],
+   "crossLanguageDefinitionId": "",
+   "namespace": "Payload.MultiPart.FormData.HttpParts.NonString",
+   "doc": "The FloatRequestTemperature_content-type",
+   "isFixed": false,
+   "isFlags": false,
+   "usage": "Input",
+   "decorators": []
+  },
+  {
+   "$id": "5",
+   "kind": "enum",
+   "name": "FileSpecificContentType_contentType",
+   "valueType": {
+    "$id": "6",
+    "kind": "string",
+    "name": "string",
+    "crossLanguageDefinitionId": "TypeSpec.string",
+    "decorators": []
+   },
+   "values": [
+    {
+     "$id": "7",
+     "kind": "enumvalue",
+     "name": "image/jpg",
+     "value": "image/jpg",
+     "doc": "image/jpg",
+     "valueType": {
+      "$ref": "6"
+     },
+     "enumType": {
+      "$ref": "5"
      }
     }
    ],
@@ -40,7 +74,7 @@
  ],
  "models": [
   {
-   "$id": "5",
+   "$id": "8",
    "kind": "model",
    "name": "MultiPartRequest",
    "namespace": "Payload.MultiPart",
@@ -49,12 +83,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "6",
+     "$id": "9",
      "kind": "property",
      "name": "id",
      "serializedName": "id",
      "type": {
-      "$id": "7",
+      "$id": "10",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -67,9 +101,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.MultiPartRequest.id",
      "serializationOptions": {
-      "$id": "8",
+      "$id": "11",
       "multipart": {
-       "$id": "9",
+       "$id": "12",
        "isFilePart": false,
        "isMulti": false,
        "defaultContentTypes": [
@@ -80,12 +114,12 @@
      }
     },
     {
-     "$id": "10",
+     "$id": "13",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$id": "11",
+      "$id": "14",
       "kind": "bytes",
       "name": "bytes",
       "encode": "base64",
@@ -99,9 +133,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.MultiPartRequest.profileImage",
      "serializationOptions": {
-      "$id": "12",
+      "$id": "15",
       "multipart": {
-       "$id": "13",
+       "$id": "16",
        "isFilePart": true,
        "isMulti": false,
        "defaultContentTypes": [
@@ -114,7 +148,7 @@
    ]
   },
   {
-   "$id": "14",
+   "$id": "17",
    "kind": "model",
    "name": "ComplexPartsRequest",
    "namespace": "Payload.MultiPart",
@@ -123,12 +157,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "15",
+     "$id": "18",
      "kind": "property",
      "name": "id",
      "serializedName": "id",
      "type": {
-      "$id": "16",
+      "$id": "19",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -141,9 +175,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexPartsRequest.id",
      "serializationOptions": {
-      "$id": "17",
+      "$id": "20",
       "multipart": {
-       "$id": "18",
+       "$id": "21",
        "isFilePart": false,
        "isMulti": false,
        "defaultContentTypes": [
@@ -154,12 +188,12 @@
      }
     },
     {
-     "$id": "19",
+     "$id": "22",
      "kind": "property",
      "name": "address",
      "serializedName": "address",
      "type": {
-      "$id": "20",
+      "$id": "23",
       "kind": "model",
       "name": "Address",
       "namespace": "Payload.MultiPart",
@@ -168,12 +202,12 @@
       "decorators": [],
       "properties": [
        {
-        "$id": "21",
+        "$id": "24",
         "kind": "property",
         "name": "city",
         "serializedName": "city",
         "type": {
-         "$id": "22",
+         "$id": "25",
          "kind": "string",
          "name": "string",
          "crossLanguageDefinitionId": "TypeSpec.string",
@@ -186,9 +220,9 @@
         "decorators": [],
         "crossLanguageDefinitionId": "Payload.MultiPart.Address.city",
         "serializationOptions": {
-         "$id": "23",
+         "$id": "26",
          "json": {
-          "$id": "24",
+          "$id": "27",
           "name": "city"
          }
         }
@@ -202,9 +236,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexPartsRequest.address",
      "serializationOptions": {
-      "$id": "25",
+      "$id": "28",
       "multipart": {
-       "$id": "26",
+       "$id": "29",
        "isFilePart": false,
        "isMulti": false,
        "defaultContentTypes": [
@@ -215,12 +249,12 @@
      }
     },
     {
-     "$id": "27",
+     "$id": "30",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$id": "28",
+      "$id": "31",
       "kind": "bytes",
       "name": "bytes",
       "encode": "base64",
@@ -234,9 +268,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexPartsRequest.profileImage",
      "serializationOptions": {
-      "$id": "29",
+      "$id": "32",
       "multipart": {
-       "$id": "30",
+       "$id": "33",
        "isFilePart": true,
        "isMulti": false,
        "defaultContentTypes": [
@@ -247,16 +281,16 @@
      }
     },
     {
-     "$id": "31",
+     "$id": "34",
      "kind": "property",
      "name": "pictures",
      "serializedName": "pictures",
      "type": {
-      "$id": "32",
+      "$id": "35",
       "kind": "array",
       "name": "ArrayHttpPart",
       "valueType": {
-       "$id": "33",
+       "$id": "36",
        "kind": "bytes",
        "name": "bytes",
        "encode": "base64",
@@ -273,9 +307,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexPartsRequest.pictures",
      "serializationOptions": {
-      "$id": "34",
+      "$id": "37",
       "multipart": {
-       "$id": "35",
+       "$id": "38",
        "isFilePart": true,
        "isMulti": true,
        "defaultContentTypes": [
@@ -288,10 +322,10 @@
    ]
   },
   {
-   "$ref": "20"
+   "$ref": "23"
   },
   {
-   "$id": "36",
+   "$id": "39",
    "kind": "model",
    "name": "JsonPartRequest",
    "namespace": "Payload.MultiPart",
@@ -300,12 +334,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "37",
+     "$id": "40",
      "kind": "property",
      "name": "address",
      "serializedName": "address",
      "type": {
-      "$ref": "20"
+      "$ref": "23"
      },
      "optional": false,
      "readOnly": false,
@@ -314,9 +348,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.JsonPartRequest.address",
      "serializationOptions": {
-      "$id": "38",
+      "$id": "41",
       "multipart": {
-       "$id": "39",
+       "$id": "42",
        "isFilePart": false,
        "isMulti": false,
        "defaultContentTypes": [
@@ -327,12 +361,12 @@
      }
     },
     {
-     "$id": "40",
+     "$id": "43",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$id": "41",
+      "$id": "44",
       "kind": "bytes",
       "name": "bytes",
       "encode": "base64",
@@ -346,9 +380,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.JsonPartRequest.profileImage",
      "serializationOptions": {
-      "$id": "42",
+      "$id": "45",
       "multipart": {
-       "$id": "43",
+       "$id": "46",
        "isFilePart": true,
        "isMulti": false,
        "defaultContentTypes": [
@@ -361,7 +395,7 @@
    ]
   },
   {
-   "$id": "44",
+   "$id": "47",
    "kind": "model",
    "name": "BinaryArrayPartsRequest",
    "namespace": "Payload.MultiPart",
@@ -370,12 +404,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "45",
+     "$id": "48",
      "kind": "property",
      "name": "id",
      "serializedName": "id",
      "type": {
-      "$id": "46",
+      "$id": "49",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -388,9 +422,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.BinaryArrayPartsRequest.id",
      "serializationOptions": {
-      "$id": "47",
+      "$id": "50",
       "multipart": {
-       "$id": "48",
+       "$id": "51",
        "isFilePart": false,
        "isMulti": false,
        "defaultContentTypes": [
@@ -401,16 +435,16 @@
      }
     },
     {
-     "$id": "49",
+     "$id": "52",
      "kind": "property",
      "name": "pictures",
      "serializedName": "pictures",
      "type": {
-      "$id": "50",
+      "$id": "53",
       "kind": "array",
       "name": "ArrayHttpPart1",
       "valueType": {
-       "$id": "51",
+       "$id": "54",
        "kind": "bytes",
        "name": "bytes",
        "encode": "base64",
@@ -427,9 +461,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.BinaryArrayPartsRequest.pictures",
      "serializationOptions": {
-      "$id": "52",
+      "$id": "55",
       "multipart": {
-       "$id": "53",
+       "$id": "56",
        "isFilePart": true,
        "isMulti": true,
        "defaultContentTypes": [
@@ -442,7 +476,7 @@
    ]
   },
   {
-   "$id": "54",
+   "$id": "57",
    "kind": "model",
    "name": "MultiBinaryPartsRequest",
    "namespace": "Payload.MultiPart",
@@ -451,12 +485,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "55",
+     "$id": "58",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$id": "56",
+      "$id": "59",
       "kind": "bytes",
       "name": "bytes",
       "encode": "base64",
@@ -470,9 +504,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.MultiBinaryPartsRequest.profileImage",
      "serializationOptions": {
-      "$id": "57",
+      "$id": "60",
       "multipart": {
-       "$id": "58",
+       "$id": "61",
        "isFilePart": true,
        "isMulti": false,
        "defaultContentTypes": [
@@ -483,12 +517,12 @@
      }
     },
     {
-     "$id": "59",
+     "$id": "62",
      "kind": "property",
      "name": "picture",
      "serializedName": "picture",
      "type": {
-      "$id": "60",
+      "$id": "63",
       "kind": "bytes",
       "name": "bytes",
       "encode": "base64",
@@ -502,9 +536,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.MultiBinaryPartsRequest.picture",
      "serializationOptions": {
-      "$id": "61",
+      "$id": "64",
       "multipart": {
-       "$id": "62",
+       "$id": "65",
        "isFilePart": true,
        "isMulti": false,
        "defaultContentTypes": [
@@ -517,7 +551,7 @@
    ]
   },
   {
-   "$id": "63",
+   "$id": "66",
    "kind": "model",
    "name": "AnonymousModelRequest",
    "namespace": "Payload.MultiPart.FormData",
@@ -526,12 +560,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "64",
+     "$id": "67",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$id": "65",
+      "$id": "68",
       "kind": "bytes",
       "name": "bytes",
       "encode": "base64",
@@ -545,9 +579,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.FormData.anonymousModel.Request.anonymous.profileImage",
      "serializationOptions": {
-      "$id": "66",
+      "$id": "69",
       "multipart": {
-       "$id": "67",
+       "$id": "70",
        "isFilePart": true,
        "isMulti": false,
        "defaultContentTypes": [
@@ -560,7 +594,7 @@
    ]
   },
   {
-   "$id": "68",
+   "$id": "71",
    "kind": "model",
    "name": "ComplexHttpPartsModelRequest",
    "namespace": "Payload.MultiPart",
@@ -569,12 +603,12 @@
    "decorators": [],
    "properties": [
     {
-     "$id": "69",
+     "$id": "72",
      "kind": "property",
      "name": "id",
      "serializedName": "id",
      "type": {
-      "$id": "70",
+      "$id": "73",
       "kind": "string",
       "name": "string",
       "crossLanguageDefinitionId": "TypeSpec.string",
@@ -587,9 +621,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexHttpPartsModelRequest.id",
      "serializationOptions": {
-      "$id": "71",
+      "$id": "74",
       "multipart": {
-       "$id": "72",
+       "$id": "75",
        "isFilePart": false,
        "isMulti": false,
        "defaultContentTypes": [
@@ -600,12 +634,12 @@
      }
     },
     {
-     "$id": "73",
+     "$id": "76",
      "kind": "property",
      "name": "address",
      "serializedName": "address",
      "type": {
-      "$ref": "20"
+      "$ref": "23"
      },
      "optional": false,
      "readOnly": false,
@@ -614,9 +648,9 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexHttpPartsModelRequest.address",
      "serializationOptions": {
-      "$id": "74",
+      "$id": "77",
       "multipart": {
-       "$id": "75",
+       "$id": "78",
        "isFilePart": false,
        "isMulti": false,
        "defaultContentTypes": [
@@ -627,12 +661,12 @@
      }
     },
     {
-     "$id": "76",
+     "$id": "79",
      "kind": "property",
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$id": "77",
+      "$id": "80",
       "kind": "model",
       "name": "FileRequiredMetaData",
       "namespace": "Payload.MultiPart",
@@ -640,7 +674,7 @@
       "usage": "Input",
       "decorators": [],
       "baseModel": {
-       "$id": "78",
+       "$id": "81",
        "kind": "model",
        "name": "File",
        "namespace": "TypeSpec.Http",
@@ -651,7 +685,7 @@
        "decorators": [],
        "properties": [
         {
-         "$id": "79",
+         "$id": "82",
          "kind": "property",
          "name": "contentType",
          "serializedName": "contentType",
@@ -693,7 +727,7 @@
          "discriminator": false,
          "flatten": false,
          "decorators": [],
-         "crossLanguageDefinitionId": "TypeSpec.Http.File.filename",
+         "crossLanguageDefinitionId": "TypeSpec.Http.File.contentType",
          "serializationOptions": {
           "$id": "84"
          }
@@ -701,12 +735,34 @@
         {
          "$id": "85",
          "kind": "property",
+         "name": "filename",
+         "serializedName": "filename",
+         "type": {
+          "$id": "86",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+         },
+         "optional": true,
+         "readOnly": false,
+         "discriminator": false,
+         "flatten": false,
+         "decorators": [],
+         "crossLanguageDefinitionId": "TypeSpec.Http.File.filename",
+         "serializationOptions": {
+          "$id": "87"
+         }
+        },
+        {
+         "$id": "88",
+         "kind": "property",
          "name": "contents",
          "serializedName": "contents",
          "summary": "The contents of the file.",
          "doc": "The contents of the file.\n\nIn file bodies, this value comes from the body of the request, response, or multipart payload. In JSON bodies,\nthis value is serialized as a field in the response.",
          "type": {
-          "$id": "86",
+          "$id": "89",
           "kind": "bytes",
           "name": "bytes",
           "encode": "base64",
@@ -720,39 +776,17 @@
          "decorators": [],
          "crossLanguageDefinitionId": "TypeSpec.Http.File.contents",
          "serializationOptions": {
-          "$id": "87"
+          "$id": "90"
          }
         }
        ]
       },
       "properties": [
        {
-        "$id": "88",
+        "$id": "91",
         "kind": "property",
         "name": "filename",
         "serializedName": "filename",
-        "type": {
-         "$id": "89",
-         "kind": "string",
-         "name": "string",
-         "crossLanguageDefinitionId": "TypeSpec.string",
-         "decorators": []
-        },
-        "optional": false,
-        "readOnly": false,
-        "discriminator": false,
-        "flatten": false,
-        "decorators": [],
-        "crossLanguageDefinitionId": "Payload.MultiPart.FileRequiredMetaData.filename",
-        "serializationOptions": {
-         "$id": "90"
-        }
-       },
-       {
-        "$id": "91",
-        "kind": "property",
-        "name": "contentType",
-        "serializedName": "contentType",
         "type": {
          "$id": "92",
          "kind": "string",
@@ -765,9 +799,31 @@
         "discriminator": false,
         "flatten": false,
         "decorators": [],
-        "crossLanguageDefinitionId": "Payload.MultiPart.FileRequiredMetaData.contentType",
+        "crossLanguageDefinitionId": "Payload.MultiPart.FileRequiredMetaData.filename",
         "serializationOptions": {
          "$id": "93"
+        }
+       },
+       {
+        "$id": "94",
+        "kind": "property",
+        "name": "contentType",
+        "serializedName": "contentType",
+        "type": {
+         "$id": "95",
+         "kind": "string",
+         "name": "string",
+         "crossLanguageDefinitionId": "TypeSpec.string",
+         "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": false,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "Payload.MultiPart.FileRequiredMetaData.contentType",
+        "serializationOptions": {
+         "$id": "96"
         }
        }
       ]
@@ -779,13 +835,13 @@
      "decorators": [],
      "crossLanguageDefinitionId": "Payload.MultiPart.ComplexHttpPartsModelRequest.profileImage",
      "serializationOptions": {
-      "$id": "94",
+      "$id": "97",
       "multipart": {
-       "$id": "95",
+       "$id": "98",
        "isFilePart": true,
        "isMulti": false,
        "filename": {
-        "$id": "96",
+        "$id": "99",
         "apiVersions": [],
         "type": {
          "$id": "4948",
@@ -816,7 +872,7 @@
         "isMultipartFileInput": false,
         "flatten": false,
         "serializationOptions": {
-         "$ref": "90"
+         "$ref": "93"
         }
        },
        "contentType": {
@@ -851,7 +907,7 @@
         "isMultipartFileInput": false,
         "flatten": false,
         "serializationOptions": {
-         "$ref": "93"
+         "$ref": "96"
         }
        },
        "defaultContentTypes": [
@@ -871,7 +927,7 @@
       "kind": "array",
       "name": "ArrayAddress",
       "valueType": {
-       "$ref": "20"
+       "$ref": "23"
       },
       "crossLanguageDefinitionId": "TypeSpec.Array",
       "decorators": []
@@ -905,7 +961,7 @@
       "kind": "array",
       "name": "ArrayHttpPart2",
       "valueType": {
-       "$ref": "77"
+       "$ref": "80"
       },
       "crossLanguageDefinitionId": "TypeSpec.Array",
       "decorators": []
@@ -923,7 +979,7 @@
        "isFilePart": true,
        "isMulti": true,
        "filename": {
-        "$ref": "96"
+        "$ref": "99"
        },
        "contentType": {
         "$ref": "4949"
@@ -938,10 +994,10 @@
    ]
   },
   {
-   "$ref": "77"
+   "$ref": "80"
   },
   {
-   "$ref": "78"
+   "$ref": "81"
   },
   {
    "$id": "4960",
@@ -966,7 +1022,7 @@
       "usage": "Input",
       "decorators": [],
       "baseModel": {
-       "$ref": "78"
+       "$ref": "81"
       },
       "properties": [
        {
@@ -1000,7 +1056,7 @@
          "$id": "4967",
          "kind": "constant",
          "valueType": {
-          "$ref": "2"
+          "$ref": "5"
          },
          "value": "image/jpg",
          "decorators": []
@@ -1134,7 +1190,7 @@
      "name": "profileImage",
      "serializedName": "profileImage",
      "type": {
-      "$ref": "77"
+      "$ref": "80"
      },
      "optional": false,
      "readOnly": false,
@@ -1149,7 +1205,7 @@
        "isFilePart": true,
        "isMulti": false,
        "filename": {
-        "$ref": "96"
+        "$ref": "99"
        },
        "contentType": {
         "$ref": "4949"
@@ -1186,7 +1242,7 @@
       "usage": "Input",
       "decorators": [],
       "baseModel": {
-       "$ref": "78"
+       "$ref": "81"
       },
       "properties": [
        {
@@ -1294,7 +1350,7 @@
         "isMultipartFileInput": false,
         "flatten": false,
         "serializationOptions": {
-         "$ref": "81"
+         "$ref": "84"
         }
        },
        "defaultContentTypes": [
