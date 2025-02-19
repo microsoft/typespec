@@ -18,14 +18,89 @@ const SecondPage = [
   { id: "4", name: "fish" },
 ];
 
-const EmptyResponse = { status: 200 };
+const FirstResponseTokenInBody = {
+  status: 200,
+  body: json({
+    pets: FirstPage,
+    nextToken: "12345",
+  }),
+};
+
+const SecondResponse = {
+  status: 200,
+  body: json({
+    pets: SecondPage,
+  }),
+};
+
+const FirstResponseTokenInHeader = {
+  status: 200,
+  body: json({
+    pets: FirstPage,
+  }),
+  headers: {
+    "next-token": "12345",
+  },
+};
+
+const RequestTokenInQuery = {
+  params: { token: "12345" },
+};
+
+const RequestTokenInHeader = { headers: { token: "12345" } };
+
+function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
+  const uri = `/payload/pageable/server-driven-pagination/continuationtoken/request-${reqInfo}-response-${resInfo}`;
+  function createHandler() {
+    return (req: MockRequest) => {
+      const token = reqInfo === "header" ? req.headers?.token : req.query?.token;
+      switch (token) {
+        case undefined:
+          return resInfo === "header" ? FirstResponseTokenInHeader : FirstResponseTokenInBody;
+        case "12345":
+          return SecondResponse;
+        default:
+          throw new ValidationError(
+            "Unsupported continuation token",
+            `"undefined" | "12345"`,
+            token,
+          );
+      }
+    };
+  }
+
+  return passOnSuccess([
+    {
+      uri: uri,
+      method: "get",
+      request: {},
+      response: resInfo === "header" ? FirstResponseTokenInHeader : FirstResponseTokenInBody,
+      handler: createHandler(),
+      kind: "MockApiDefinition",
+    },
+    {
+      uri: uri,
+      method: "get",
+      request: reqInfo === "header" ? RequestTokenInHeader : RequestTokenInQuery,
+      response: SecondResponse,
+      handler: createHandler(),
+      kind: "MockApiDefinition",
+    },
+  ]);
+}
 
 Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
   {
     uri: "/payload/pageable/server-driven-pagination/link",
     method: "get",
     request: {},
-    response: EmptyResponse,
+    response: {
+      status: 200,
+      body: json({
+        pets: FirstPage,
+        next: "/payload/pageable/server-driven-pagination/link/nextPage",
+      }),
+    },
     handler: (req: MockRequest) => {
       return {
         status: 200,
@@ -41,246 +116,24 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
     uri: "/payload/pageable/server-driven-pagination/link/nextPage",
     method: "get",
     request: {},
-    response: {
-      status: 200,
-      body: json({
-        pets: SecondPage,
-      }),
-    },
+    response: SecondResponse,
     kind: "MockApiDefinition",
   },
 ]);
 
-function reqBodyResBodyHandler(req: MockRequest) {
-  switch (req.body?.token) {
-    case undefined:
-      return {
-        status: 200,
-        body: json({
-          pets: FirstPage,
-          nextToken: "12345",
-        }),
-      } as const;
-    case "12345":
-      return {
-        status: 200,
-        body: json({
-          pets: SecondPage,
-        }),
-      } as const;
-    default:
-      throw new ValidationError(
-        "Unsupported continuation token",
-        `"undefined" | "12345"`,
-        req.body.token,
-      );
-  }
-}
-
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqBodyResBody = passOnSuccess([
-  {
-    uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-body-response-body",
-    method: "post",
-    request: {},
-    response: EmptyResponse,
-    handler: (req) => reqBodyResBodyHandler(req),
-    kind: "MockApiDefinition",
-  },
-]);
-
-function reqQueryResBodyHandler(req: MockRequest) {
-  switch (req.query?.token) {
-    case undefined:
-      return {
-        status: 200,
-        body: json({
-          pets: FirstPage,
-          nextToken: "12345",
-        }),
-      } as const;
-    case "12345":
-      return {
-        status: 200,
-        body: json({
-          pets: SecondPage,
-        }),
-      } as const;
-    default:
-      throw new ValidationError(
-        "Unsupported continuation token",
-        `"undefined" | "12345"`,
-        req.query.token,
-      );
-  }
-}
-
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResBody = passOnSuccess(
-  [
-    {
-      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body",
-      method: "get",
-      request: {},
-      response: EmptyResponse,
-      handler: (req) => reqQueryResBodyHandler(req),
-      kind: "MockApiDefinition",
-    },
-  ],
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResBody = createTests(
+  "query",
+  "body",
 );
 
-function reqHeaderResBodyHandler(req: MockRequest) {
-  switch (req.headers?.token) {
-    case undefined:
-      return {
-        status: 200,
-        body: json({
-          pets: FirstPage,
-          nextToken: "12345",
-        }),
-      } as const;
-    case "12345":
-      return {
-        status: 200,
-        body: json({
-          pets: SecondPage,
-        }),
-      } as const;
-    default:
-      throw new ValidationError(
-        "Unsupported continuation token",
-        `"undefined" | "12345"`,
-        req.headers.token,
-      );
-  }
-}
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqHeaderResBody = createTests(
+  "header",
+  "body",
+);
 
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqHeaderResBody =
-  passOnSuccess([
-    {
-      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body",
-      method: "get",
-      request: {},
-      response: EmptyResponse,
-      handler: (req) => reqHeaderResBodyHandler(req),
-      kind: "MockApiDefinition",
-    },
-  ]);
-
-function reqBodyResHeaderHandler(req: MockRequest) {
-  switch (req.body?.token) {
-    case undefined:
-      return {
-        status: 200,
-        body: json({
-          pets: FirstPage,
-        }),
-        headers: {
-          "next-token": "12345",
-        },
-      } as const;
-    case "12345":
-      return {
-        status: 200,
-        body: json({
-          pets: SecondPage,
-        }),
-      } as const;
-    default:
-      throw new ValidationError(
-        "Unsupported continuation token",
-        `"undefined" | "12345"`,
-        req.headers.token,
-      );
-  }
-}
-
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqBodyResHeader =
-  passOnSuccess([
-    {
-      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-body-response-header",
-      method: "post",
-      request: {},
-      response: EmptyResponse,
-      handler: (req) => reqBodyResHeaderHandler(req),
-      kind: "MockApiDefinition",
-    },
-  ]);
-
-function reqQueryResHeaderHandler(req: MockRequest) {
-  switch (req.query?.token) {
-    case undefined:
-      return {
-        status: 200,
-        body: json({
-          pets: FirstPage,
-        }),
-        headers: {
-          "next-token": "12345",
-        },
-      } as const;
-    case "12345":
-      return {
-        status: 200,
-        body: json({
-          pets: SecondPage,
-        }),
-      } as const;
-    default:
-      throw new ValidationError(
-        "Unsupported continuation token",
-        `"undefined" | "12345"`,
-        req.query.token,
-      );
-  }
-}
-
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResHeader =
-  passOnSuccess([
-    {
-      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header",
-      method: "get",
-      request: {},
-      response: EmptyResponse,
-      handler: (req) => reqQueryResHeaderHandler(req),
-      kind: "MockApiDefinition",
-    },
-  ]);
-
-function reqHeaderResHeaderHandler(req: MockRequest) {
-  switch (req.headers?.token) {
-    case undefined:
-      return {
-        status: 200,
-        body: json({
-          pets: FirstPage,
-        }),
-        headers: {
-          "next-token": "12345",
-        },
-      } as const;
-    case "12345":
-      return {
-        status: 200,
-        body: json({
-          pets: SecondPage,
-        }),
-      } as const;
-    default:
-      throw new ValidationError(
-        "Unsupported continuation token",
-        `"undefined" | "12345"`,
-        req.headers.token,
-      );
-  }
-}
-
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResHeader = createTests(
+  "query",
+  "header",
+);
 Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqHeaderResHeader =
-  passOnSuccess([
-    {
-      uri: "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header",
-      method: "get",
-      request: {},
-      response: EmptyResponse,
-      handler: (req) => reqHeaderResHeaderHandler(req),
-      kind: "MockApiDefinition",
-    },
-  ]);
+  createTests("header", "header");
