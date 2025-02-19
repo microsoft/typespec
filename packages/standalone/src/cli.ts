@@ -27,8 +27,7 @@ const args = parseArgs({
 async function main() {
   if (args.values.server) {
     await import(pathToFileURL(args.values.server as string).href);
-  }
-  else {
+  } else {
     await installAndRun({ noCache: args.values["no-cache"] as boolean });
   }
 }
