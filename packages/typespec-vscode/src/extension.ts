@@ -5,11 +5,6 @@ import { ExtensionStateManager } from "./extension-state-manager.js";
 import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listener.js";
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
-import {
-  clearOpenApi3PreviewTempFolders,
-  getMainTspFile,
-  loadOpenApi3PreviewPanel,
-} from "./openapi3-preview.js";
 import { createTaskProvider } from "./task-provider.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
 import {
@@ -23,6 +18,7 @@ import { createTypeSpecProject } from "./vscode-cmd/create-tsp-project.js";
 import { emitCode } from "./vscode-cmd/emit-code/emit-code.js";
 import { importFromOpenApi3 } from "./vscode-cmd/import-from-openapi3.js";
 import { installCompilerGlobally } from "./vscode-cmd/install-tsp-compiler.js";
+import { clearOpenApi3PreviewTempFolders, showOpenApi3 } from "./vscode-cmd/openapi3-preview.js";
 
 let client: TspLanguageClient | undefined;
 /**
@@ -127,7 +123,7 @@ export async function activate(context: ExtensionContext) {
         vscode.window.showErrorMessage("Please select a Typespec file.");
         return;
       }
-      await showOpenApi3(docUri, context);
+      await showOpenApi3(docUri, context, client!);
     }),
   );
 
@@ -230,18 +226,4 @@ function showStartUpMessages(stateManager: ExtensionStateManager) {
     }
     stateManager.cleanUpStartUpMessage(workspaceFolder.uri.fsPath);
   });
-}
-
-async function showOpenApi3(docUri: vscode.Uri, context: vscode.ExtensionContext) {
-  const selectedFile = docUri.fsPath;
-  const mainTspFile = selectedFile.endsWith("main.tsp") ? selectedFile : await getMainTspFile();
-  if (mainTspFile === undefined) {
-    logger.error(`No 'main.tsp' file can be determined from '${selectedFile}' in workspace.`, [], {
-      showOutput: true,
-      showPopup: true,
-    });
-    return;
-  }
-
-  await loadOpenApi3PreviewPanel(mainTspFile, context, client!);
 }

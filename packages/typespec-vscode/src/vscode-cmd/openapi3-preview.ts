@@ -1,12 +1,30 @@
 import { readdir, rm } from "fs/promises";
 import * as semver from "semver";
 import * as vscode from "vscode";
-import logger from "./log/logger.js";
-import { getBaseFileName, getDirectoryPath, joinPaths } from "./path-utils.js";
-import { TspLanguageClient } from "./tsp-language-client.js";
-import { createTempDir, parseOpenApi3File, throttle } from "./utils.js";
+import logger from "../log/logger.js";
+import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
+import { TspLanguageClient } from "../tsp-language-client.js";
+import { createTempDir, parseOpenApi3File, throttle } from "../utils.js";
 
-export async function getMainTspFile(): Promise<string | undefined> {
+export async function showOpenApi3(
+  docUri: vscode.Uri,
+  context: vscode.ExtensionContext,
+  client: TspLanguageClient,
+) {
+  const selectedFile = docUri.fsPath;
+  const mainTspFile = selectedFile.endsWith("main.tsp") ? selectedFile : await getMainTspFile();
+  if (mainTspFile === undefined) {
+    logger.error(`No 'main.tsp' file can be determined from '${selectedFile}' in workspace.`, [], {
+      showOutput: true,
+      showPopup: true,
+    });
+    return;
+  }
+
+  await loadOpenApi3PreviewPanel(mainTspFile, context, client);
+}
+
+async function getMainTspFile(): Promise<string | undefined> {
   const files = await vscode.workspace.findFiles("**/main.tsp").then((uris) => {
     return uris.filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"));
   });
@@ -34,7 +52,7 @@ const openApi3TempFolders = new Map<string, string>();
 const openApi3PreviewPanels = new Map<string, vscode.WebviewPanel>();
 const selectedOpenApi3OutputFiles = new Map<string, string>();
 
-export async function loadOpenApi3PreviewPanel(
+async function loadOpenApi3PreviewPanel(
   mainTspFile: string,
   context: vscode.ExtensionContext,
   client: TspLanguageClient,
