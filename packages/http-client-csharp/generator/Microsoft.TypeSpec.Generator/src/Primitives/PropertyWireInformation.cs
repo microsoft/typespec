@@ -11,14 +11,16 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsReadOnly { get; }
         public bool IsNullable { get; }
         public bool IsDiscriminator { get; }
+        public PropertyLocation Location { get; }
 
-        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName)
+        public PropertyWireInformation(SerializationFormat serializationFormat, bool isRequired, bool isReadOnly, bool isNullable, bool isDiscriminator, string serializedName, PropertyLocation location)
             : base(serializationFormat, serializedName)
         {
             IsRequired = isRequired;
             IsReadOnly = isReadOnly;
             IsNullable = isNullable;
             IsDiscriminator = isDiscriminator;
+            Location = location;
         }
 
         /// <summary>
@@ -33,6 +35,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             IsReadOnly = inputModelProperty.IsReadOnly;
             IsNullable = inputModelProperty.Type is InputNullableType;
             IsDiscriminator = inputModelProperty.IsDiscriminator;
+            Location = ToPropertyLocation(inputModelProperty.Kind);
         }
+
+        private static PropertyLocation ToPropertyLocation(InputModelPropertyKind kind)
+            => kind switch
+            {
+                InputModelPropertyKind.Header => PropertyLocation.Header,
+                InputModelPropertyKind.Property => PropertyLocation.Body,
+                _ => PropertyLocation.Unknown,
+            };
     }
 }

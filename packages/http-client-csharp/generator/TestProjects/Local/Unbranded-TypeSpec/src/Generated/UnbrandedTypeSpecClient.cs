@@ -1419,5 +1419,573 @@ namespace UnbrandedTypeSpec
         {
             return new ListWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
         }
+
+        /// <summary>
+        /// [Protocol Method] bugTest
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult BugTest(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateBugTestRequest(foo, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] bugTest
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> BugTestAsync(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateBugTestRequest(foo, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> bugTest. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult BugTest(string foo, HeaderBugReproModel body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            return BugTest(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> bugTest. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> BugTestAsync(string foo, HeaderBugReproModel body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            return await BugTestAsync(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] bugTestHeaderDefaultValue
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult BugTestHeaderDefaultValue(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateBugTestHeaderDefaultValueRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] bugTestHeaderDefaultValue
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> BugTestHeaderDefaultValueAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateBugTestHeaderDefaultValueRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> bugTestHeaderDefaultValue. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult BugTestHeaderDefaultValue(Animal body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            return BugTestHeaderDefaultValue(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> bugTestHeaderDefaultValue. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> BugTestHeaderDefaultValueAsync(Animal body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            return await BugTestHeaderDefaultValueAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] bugTestWithResponse
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult BugTestWithResponse(RequestOptions options)
+        {
+            using PipelineMessage message = CreateBugTestWithResponseRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] bugTestWithResponse
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> BugTestWithResponseAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateBugTestWithResponseRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> bugTestWithResponse. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<ModelWithHeaderResponse> BugTestWithResponse(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = BugTestWithResponse(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return ClientResult.FromValue((ModelWithHeaderResponse)result, result.GetRawResponse());
+        }
+
+        /// <summary> bugTestWithResponse. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<ModelWithHeaderResponse>> BugTestWithResponseAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await BugTestWithResponseAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return ClientResult.FromValue((ModelWithHeaderResponse)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] headerBugTestRoundTrip
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult HeaderBugTestRoundTrip(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateHeaderBugTestRoundTripRequest(foo, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] headerBugTestRoundTrip
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> HeaderBugTestRoundTripAsync(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateHeaderBugTestRoundTripRequest(foo, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> headerBugTestRoundTrip. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<ModelWithHeaderRoundTrip> HeaderBugTestRoundTrip(string foo, ModelWithHeaderRoundTrip body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = HeaderBugTestRoundTrip(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return ClientResult.FromValue((ModelWithHeaderRoundTrip)result, result.GetRawResponse());
+        }
+
+        /// <summary> headerBugTestRoundTrip. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<ModelWithHeaderRoundTrip>> HeaderBugTestRoundTripAsync(string foo, ModelWithHeaderRoundTrip body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await HeaderBugTestRoundTripAsync(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return ClientResult.FromValue((ModelWithHeaderRoundTrip)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] queryBugTest
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult QueryBugTest(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateQueryBugTestRequest(foo, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] queryBugTest
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> QueryBugTestAsync(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateQueryBugTestRequest(foo, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> queryBugTest. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult QueryBugTest(string foo, ModelWithQueryRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            return QueryBugTest(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> queryBugTest. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> QueryBugTestAsync(string foo, ModelWithQueryRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            return await QueryBugTestAsync(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] queryBugTestRoundTrip
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult QueryBugTestRoundTrip(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateQueryBugTestRoundTripRequest(foo, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] queryBugTestRoundTrip
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> QueryBugTestRoundTripAsync(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateQueryBugTestRoundTripRequest(foo, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> queryBugTestRoundTrip. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<ModelWithQueryRequest> QueryBugTestRoundTrip(string foo, ModelWithQueryRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = QueryBugTestRoundTrip(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return ClientResult.FromValue((ModelWithQueryRequest)result, result.GetRawResponse());
+        }
+
+        /// <summary> queryBugTestRoundTrip. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<ModelWithQueryRequest>> QueryBugTestRoundTripAsync(string foo, ModelWithQueryRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await QueryBugTestRoundTripAsync(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return ClientResult.FromValue((ModelWithQueryRequest)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] pathBugTest
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult PathBugTest(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreatePathBugTestRequest(foo, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] pathBugTest
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PathBugTestAsync(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreatePathBugTestRequest(foo, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> pathBugTest. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult PathBugTest(string foo, ModelWithPathRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            return PathBugTest(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> pathBugTest. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> PathBugTestAsync(string foo, ModelWithPathRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            return await PathBugTestAsync(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] pathBugTestRoundTrip
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult PathBugTestRoundTrip(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreatePathBugTestRoundTripRequest(foo, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] pathBugTestRoundTrip
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="foo"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PathBugTestRoundTripAsync(string foo, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreatePathBugTestRoundTripRequest(foo, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> pathBugTestRoundTrip. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<ModelWithPathRequest> PathBugTestRoundTrip(string foo, ModelWithPathRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = PathBugTestRoundTrip(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            return ClientResult.FromValue((ModelWithPathRequest)result, result.GetRawResponse());
+        }
+
+        /// <summary> pathBugTestRoundTrip. </summary>
+        /// <param name="foo"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="foo"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<ModelWithPathRequest>> PathBugTestRoundTripAsync(string foo, ModelWithPathRequest body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await PathBugTestRoundTripAsync(foo, body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return ClientResult.FromValue((ModelWithPathRequest)result, result.GetRawResponse());
+        }
     }
 }
