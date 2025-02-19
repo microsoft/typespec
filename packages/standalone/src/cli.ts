@@ -28,7 +28,9 @@ async function main() {
   if (args.values.server) {
     await import(pathToFileURL(args.values.server as string).href);
   }
-  await installAndRun({ noCache: args.values["no-cache"] as boolean });
+  else {
+    await installAndRun({ noCache: args.values["no-cache"] as boolean });
+  }
 }
 async function installAndRun({ noCache }: { noCache: boolean }) {
   await install({
