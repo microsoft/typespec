@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 0.65.3
+
+### Bug Fixes
+
+- [#6041](https://github.com/microsoft/typespec/pull/6041) Fix validation issue in `@opExample` when using versioning/mutators
+
+
 ## 0.65.2
 
 ### Bug Fixes
