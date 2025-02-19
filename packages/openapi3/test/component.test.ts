@@ -22,6 +22,11 @@ const kindMap = {
   [Kind.Parameter]: "ModelProperty",
 };
 
+const prefixMap = {
+  [Kind.Model]: "#/components/schemas",
+  [Kind.Parameter]: "#/components/parameters",
+};
+
 worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
   describe("Invalid component key", () => {
     it.each([
@@ -31,6 +36,7 @@ worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
         @service
         namespace Ns1Valid {
           model \`foo-/inva*li\td\` {}
+          op f(p: \`foo-/inva*li\td\`): void;
         }`,
         invalidKey: "foo-/inva*li\td",
         validKey: "foo-_inva_li_d",
@@ -44,6 +50,7 @@ worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
         namespace NsOut {
           namespace NsNested {
             model \`foo/invalid\` {}
+             op f(p: \`foo/invalid\`): void;
           }
         }`,
         invalidKey: "NsNested.foo/invalid",
@@ -61,7 +68,7 @@ worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
             \`para/invalid\`: string;
             b: string;
           }
-          op get(...Zoo): string;
+          op f(...Zoo): string;
         }`,
         invalidKey: "Zoo.para/invalid",
         validKey: "Zoo.para_invalid",
@@ -79,7 +86,7 @@ worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
               \`para/invalid\`: string;
               b: string;
             }
-            op get(...Zoo): string;
+            op f(...Zoo): string;
           }
         }`,
         invalidKey: "NsNest.Zoo.para/invalid",
@@ -103,14 +110,18 @@ worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
       expect(componentField).not.toHaveProperty(c.invalidKey);
       expect(componentField).toHaveProperty(c.validKey);
 
-      // check ref: TODO
+      // check ref
       switch (c.kind) {
-        case Kind.Model: {
+        case Kind.Model:
+          expect(
+            (doc as any).paths["/"].post.requestBody.content["application/json"].schema.properties.p.$ref,
+          ).toBe(`${prefixMap[c.kind]}/${c.validKey}`);
           break;
-        }
-        case Kind.Parameter: {
+        case Kind.Parameter:
+          expect((doc as any).paths["/"].post.parameters![0].$ref).toBe(
+            `${prefixMap[c.kind]}/${c.validKey}`,
+          );
           break;
-        }
       }
     });
   });
