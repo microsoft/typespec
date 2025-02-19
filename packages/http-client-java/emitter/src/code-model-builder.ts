@@ -1037,9 +1037,10 @@ export class CodeModelBuilder {
           // test code
           let continuationTokenParameter: Parameter | undefined;
           let continuationTokenResponseProperty: Property[] | undefined;
+          let continuationTokenResponseHeader: HttpHeader | undefined;
           if (op.parameters) {
             for (const param of op.parameters) {
-              if (param.language.default.serializedName === "continuationToken") {
+              if (param.language.default.serializedName.toLowerCase().includes("token")) {
                 continuationTokenParameter = param;
                 break;
               }
@@ -1050,8 +1051,16 @@ export class CodeModelBuilder {
               if (response instanceof SchemaResponse) {
                 if (response.schema instanceof ObjectSchema && response.schema.properties) {
                   for (const p of response.schema.properties) {
-                    if (p.serializedName === "continuationToken") {
+                    if (p.serializedName.toLowerCase().includes("token")) {
                       continuationTokenResponseProperty = [p];
+                      break;
+                    }
+                  }
+                }
+                if (response.protocol.http) {
+                  for (const h of response.protocol.http.headers) {
+                    if (h.header.toLowerCase().includes("token")) {
+                      continuationTokenResponseHeader = h;
                       break;
                     }
                   }
@@ -1068,7 +1077,7 @@ export class CodeModelBuilder {
               ? new PageableContinuationToken(
                   continuationTokenParameter,
                   continuationTokenResponseProperty,
-                  undefined,
+                  continuationTokenResponseHeader,
                 )
               : undefined,
           };
