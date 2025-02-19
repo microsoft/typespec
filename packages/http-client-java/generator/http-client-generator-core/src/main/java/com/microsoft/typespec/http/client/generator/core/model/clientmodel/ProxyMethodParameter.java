@@ -178,13 +178,17 @@ public class ProxyMethodParameter extends MethodParameter {
                 imports.add(String.format("%1$s.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
                     CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
             } else {
-                imports.add(String.format("%1$s.http.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
+                imports.add(String.format("%1$s.http.annotations.%2$sParam", ExternalPackage.CORE.getPackageName(),
                     CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
             }
         }
         if (getRequestParameterLocation() != RequestParameterLocation.BODY) {
             if (getClientType() == ArrayType.BYTE_ARRAY) {
-                imports.add("com.azure.core.util.Base64Util");
+                if (settings.isBranded()) {
+                    imports.add("com.azure.core.util.Base64Util");
+                } else {
+                    imports.add("io.clientcore.core.utils.Base64Util");
+                }
             } else if (getClientType() instanceof ListType && !getExplode()) {
                 imports.add("com.azure.core.util.serializer.CollectionFormat");
                 imports.add("com.azure.core.util.serializer.JacksonAdapter");

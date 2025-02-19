@@ -155,14 +155,23 @@ export class OpenAPI3SchemaEmitterBase<
     }
   }
 
-  applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
-    if (!model.indexer) return;
-    const indexerType = model.indexer.value;
-    const isSealed = isNeverType(indexerType);
+  shouldSealSchema(model: Model): boolean {
+    // when an indexer is not present, we might be able to seal it
+    if (!model.indexer) {
+      const derivedModels = model.derivedModels.filter(includeDerivedModel);
+      return !!this._options.sealObjectSchemas && !derivedModels.length;
+    }
 
-    // if the indexer type is 'never' and the model extends another model,
-    // then we need redefine any baseModel properties
-    if (isSealed) {
+    return isNeverType(model.indexer.value);
+  }
+
+  applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
+    const shouldSeal = this.shouldSealSchema(model);
+    if (!shouldSeal && !model.indexer) return;
+
+    // if the schema is 'sealed' the model extends another model,
+    // then we need to redefine any baseModel properties
+    if (shouldSeal) {
       const props = new ObjectBuilder(schema.properties ?? {});
       let baseModel = model.baseModel;
       while (baseModel) {
@@ -183,9 +192,9 @@ export class OpenAPI3SchemaEmitterBase<
       }
     }
 
-    const additionalPropertiesSchema = isSealed
+    const additionalPropertiesSchema = shouldSeal
       ? { not: {} }
-      : this.emitter.emitTypeReference(indexerType);
+      : this.emitter.emitTypeReference(model.indexer!.value);
     schema.set("additionalProperties", additionalPropertiesSchema);
   }
 
