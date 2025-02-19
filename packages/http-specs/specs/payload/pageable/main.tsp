@@ -148,10 +148,11 @@ namespace ServerDrivenPagination {
           { "id": "2", "name": "cat" }
         ]
       }
+      ```
       
       Expected response header:
       next-token=12345
-      ```
+      
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=12345
       Expected response body:
@@ -186,10 +187,11 @@ namespace ServerDrivenPagination {
           { "id": "2", "name": "cat" }
         ]
       }
+      ```
       
       Expected response header:
       next-token=12345
-      ```
+      
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?token=12345
       

@@ -1714,15 +1714,16 @@ Two requests need to be tested.
    Expected response body:
 
 ```json
-{ "pets": [
+{
+  "pets": [
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ]
 }
+```
 
 Expected response header:
 next-token=12345
-```
 
 2. Next page request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?token=12345
@@ -1790,15 +1791,16 @@ Two requests need to be tested.
    Expected response body:
 
 ```json
-{ "pets": [
+{
+  "pets": [
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ]
 }
+```
 
 Expected response header:
 next-token=12345
-```
 
 2. Next page request:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=12345
