@@ -98,10 +98,10 @@ async function main() {
             string: true,
             describe: "Name of the emitters",
           })
-          .option("listOutputs", {
+          .option("list-outputs", {
             type: "boolean",
             default: false,
-            describe: "List emitted outputs and their paths.",
+            describe: "List paths of emitted files.",
           })
           .option("trace", {
             type: "array",

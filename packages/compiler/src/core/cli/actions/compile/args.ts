@@ -17,7 +17,7 @@ export interface CompileCliArgs {
   emit?: string[];
   trace?: string[];
   debug?: boolean;
-  listOutputs?: boolean;
+  "list-outputs"?: boolean;
   config?: string;
   "warn-as-error"?: boolean;
   "no-emit"?: boolean;
@@ -62,7 +62,7 @@ export async function getCompilerOptions(
   if (args["no-emit"]) {
     resolvedOptions.noEmit = true;
   }
-  if (args["listOutputs"]) {
+  if (args["list-outputs"]) {
     resolvedOptions.listOutputs = true;
   }
 

@@ -6,4 +6,4 @@ packages:
 
 Improvements in tsp CLI:
 - Added a progress indicator to show the current stage of tsp compilation process.
-- Introduced a `listOutputs` flag to log all emitted files.
+- Introduced a `list-outputs` flag to log all emitted files.
