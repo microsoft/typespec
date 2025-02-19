@@ -83,7 +83,7 @@ describe("http-specs cases", () => {
         deepStrictEqual(getThing.responses["403"].content["application/json"].schema, {
           $ref: "#/components/schemas/InvalidAuth",
         });
-        const invalidAuthSchemas = res.components.schemas;
+        const invalidAuthSchemas = res.components.schemas.InvalidAuth;
 
         const response = await markCoverage(`/authentication/api-key/invalid`, {
           method: "GET",
