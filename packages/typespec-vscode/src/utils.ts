@@ -409,6 +409,20 @@ export async function loadPackageJsonFile(
   return packageJson as NodePackage;
 }
 
+export async function parseOpenApi3File(filePath: string): Promise<string | undefined> {
+  try {
+    const fileContent = await readFile(filePath, "utf-8");
+    const content = JSON.parse(fileContent);
+    return content;
+  } catch (e) {
+    logger.error(`Failed to load OpenAPI3 file: ${filePath}`, [e], {
+      showOutput: true,
+      showPopup: true,
+    });
+    return;
+  }
+}
+
 /**
  * Throttle the function to be called at most once in every blockInMs milliseconds. This utility
  * is useful when your event handler will trigger the same event multiple times in a short period.

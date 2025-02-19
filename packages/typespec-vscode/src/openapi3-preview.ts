@@ -1,10 +1,10 @@
-import { readdir, readFile, rm } from "fs/promises";
+import { readdir, rm } from "fs/promises";
 import { basename, dirname, join } from "path";
 import * as semver from "semver";
 import * as vscode from "vscode";
 import logger from "./log/logger.js";
 import { TspLanguageClient } from "./tsp-language-client.js";
-import { createTempDir, throttle } from "./utils.js";
+import { createTempDir, parseOpenApi3File, throttle } from "./utils.js";
 
 export async function getMainTspFile(): Promise<string | undefined> {
   const files = await vscode.workspace.findFiles("**/main.tsp").then((uris) => {
@@ -215,20 +215,6 @@ function loadHtml(extensionUri: vscode.Uri, panel: vscode.WebviewPanel) {
   }
 
   panel.webview.html = html;
-}
-
-async function parseOpenApi3File(filePath: string): Promise<string | undefined> {
-  try {
-    const fileContent = await readFile(filePath, "utf-8");
-    const content = JSON.parse(fileContent);
-    return content;
-  } catch (e) {
-    logger.error(`Failed to load OpenAPI3 file: ${filePath}`, [e], {
-      showOutput: true,
-      showPopup: true,
-    });
-    return;
-  }
 }
 
 async function getOutputFolder(mainTspFile: string): Promise<string | undefined> {
