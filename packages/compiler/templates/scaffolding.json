@@ -1,7 +1,7 @@
 {
   "rest": {
     "title": "Generic REST API",
-    "description": "Create a project representing a generic REST API service",
+    "description": "Create a project representing a generic REST API service.",
     "compilerVersion": "0.65.3",
     "libraries": [
       "@typespec/http",
@@ -12,7 +12,7 @@
     "emitters": {
       "@typespec/openapi3": {
         "selected": true,
-        "label": "OpenAPI3.1 document",
+        "label": "OpenAPI 3.1 document",
         "options": {
           "emitter-output-dir": "{output-dir}/schema",
           "openapi-versions": [
@@ -65,7 +65,7 @@
     ]
   },
   "library-ts": {
-    "title": "TypeSpec Library",
+    "title": "TypeSpec library",
     "description": "Build your own TypeSpec library with custom types, decorators or linters.",
     "compilerVersion": "0.65.3",
     "libraries": [],
@@ -141,8 +141,8 @@
     ]
   },
   "emitter-ts": {
-    "title": "TypeSpec Emitter",
-    "description": "Create a new package that will be emitting artifacts from TypeSpec.",
+    "title": "TypeSpec emitter",
+    "description": "Create a new package that emits artifacts from TypeSpec.",
     "compilerVersion": "0.65.3",
     "libraries": [],
     "files": [
