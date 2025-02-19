@@ -13,7 +13,7 @@ import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { deepStrictEqual, fail } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
-import { RunnerTestFile, RunnerTestSuite, afterAll, it } from "vitest";
+import { it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../../../src/lib.js";
 import { worksFor } from "./../../works-for.js";
 

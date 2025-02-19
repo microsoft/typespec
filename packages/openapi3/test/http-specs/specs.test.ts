@@ -1,8 +1,8 @@
 import { resolvePath } from "@typespec/compiler";
 import { findTestPackageRoot } from "@typespec/compiler/testing";
-import { deepStrictEqual, ok, strictEqual  } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { exec, execSync } from "child_process";
-import { afterAll, beforeAll, describe, it, expect } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { worksFor } from "./../works-for.js";
 import {
   checkServe,
@@ -51,8 +51,6 @@ describe("http-specs cases", () => {
   });
   worksFor(["3.0.0", "3.1.0"], ({ openApiForFile }) => {
     describe("AuthApiKeyClient Rest Client", () => {
-     
-
       it("should return 204 when the apiKey is valid", async () => {
         const curr = {
           name: "authentication/api-key",
@@ -94,11 +92,11 @@ describe("http-specs cases", () => {
           },
         });
         expect(response).toBeDefined();
-        if(response) {
+        if (response) {
           strictEqual(response.status, 403);
           strictEqual(response.body.error, "invalid-api-key");
           await validataDataWithSchema(response.body, invalidAuthSchemas);
-        }        
+        }
       });
     });
 
