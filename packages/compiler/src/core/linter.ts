@@ -1,25 +1,33 @@
+import { removeUnusedCodeCodeFix } from "./compiler-code-fixes/remove-unused-code.codefix.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
+import { createLinterRule, defineLinter, paramMessage } from "./library.js";
 import { createDiagnostic } from "./messages.js";
+import { NameResolver } from "./name-resolver.js";
 import type { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
 import {
   Diagnostic,
   DiagnosticMessages,
-  LibraryInstance,
+  IdentifierNode,
   LinterDefinition,
   LinterResolvedDefinition,
   LinterRule,
   LinterRuleContext,
   LinterRuleDiagnosticReport,
   LinterRuleSet,
+  MemberExpressionNode,
   NoTarget,
   RuleRef,
   SemanticNodeListener,
+  SyntaxKind,
 } from "./types.js";
+
+type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
+  registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
   lint(): readonly Diagnostic[];
 }
 
@@ -53,16 +61,17 @@ export function resolveLinterDefinition(
 
 export function createLinter(
   program: Program,
-  loadLibrary: (name: string) => Promise<LibraryInstance | undefined>,
+  loadLibrary: (name: string) => Promise<LinterLibraryInstance | undefined>,
 ): Linter {
   const tracer = program.tracer.sub("linter");
 
   const ruleMap = new Map<string, LinterRule<string, any>>();
   const enabledRules = new Map<string, LinterRule<string, any>>();
-  const linterLibraries = new Map<string, LibraryInstance | undefined>();
+  const linterLibraries = new Map<string, LinterLibraryInstance | undefined>();
 
   return {
     extendRuleSet,
+    registerLinterLibrary,
     lint,
   };
 
@@ -158,7 +167,7 @@ export function createLinter(
     return diagnostics.diagnostics;
   }
 
-  async function resolveLibrary(name: string): Promise<LibraryInstance | undefined> {
+  async function resolveLibrary(name: string): Promise<LinterLibraryInstance | undefined> {
     const loadedLibrary = linterLibraries.get(name);
     if (loadedLibrary === undefined) {
       return registerLinterLibrary(name);
@@ -166,10 +175,13 @@ export function createLinter(
     return loadedLibrary;
   }
 
-  async function registerLinterLibrary(name: string): Promise<LibraryInstance | undefined> {
+  async function registerLinterLibrary(
+    name: string,
+    lib?: LinterLibraryInstance,
+  ): Promise<LinterLibraryInstance | undefined> {
     tracer.trace("register-library", name);
 
-    const library = await loadLibrary(name);
+    const library = lib ?? (await loadLibrary(name));
     const linter = library?.linter;
     if (linter?.rules) {
       for (const rule of linter.rules) {
@@ -251,5 +263,55 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
         diagnosticCollector.add(diagnostic);
       }
     }
+  }
+}
+
+export const builtInLinterLibraryName = `@typespec/compiler`;
+export const builtInLinterRule_UnusedUsing = `unused-using`;
+export function createBuiltInLinterLibrary(nameResolver: NameResolver): LinterLibraryInstance {
+  const builtInLinter: LinterResolvedDefinition = resolveLinterDefinition(
+    builtInLinterLibraryName,
+    createBuiltInLinter(nameResolver),
+  );
+  return { linter: builtInLinter };
+}
+function createBuiltInLinter(nameResolver: NameResolver): LinterDefinition {
+  const unusedUsingLinterRule = createUnusedUsingLinterRule();
+
+  return defineLinter({
+    rules: [unusedUsingLinterRule],
+  });
+
+  function createUnusedUsingLinterRule() {
+    return createLinterRule({
+      name: builtInLinterRule_UnusedUsing,
+      severity: "warning",
+      description: "Linter rules for unused using statement.",
+      messages: {
+        default: paramMessage`'using ${"code"}' is declared but never be used.`,
+      },
+      create(context) {
+        return {
+          root: (_root) => {
+            const getUsingName = (node: MemberExpressionNode | IdentifierNode): string => {
+              if (node.kind === SyntaxKind.MemberExpression) {
+                return `${getUsingName(node.base)}${node.selector}${node.id.sv}`;
+              } else {
+                // identifier node
+                return node.sv;
+              }
+            };
+            nameResolver.getUnusedUsings().forEach((target) => {
+              context.reportDiagnostic({
+                messageId: "default",
+                format: { code: getUsingName(target.name) },
+                target,
+                codefixes: [removeUnusedCodeCodeFix(target)],
+              });
+            });
+          },
+        };
+      },
+    });
   }
 }
