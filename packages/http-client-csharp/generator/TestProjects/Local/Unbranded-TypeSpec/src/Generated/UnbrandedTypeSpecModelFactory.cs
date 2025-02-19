@@ -156,5 +156,35 @@ namespace UnbrandedTypeSpec
 
             return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The HeaderBugReproModel. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.HeaderBugReproModel"/> instance for mocking. </returns>
+        public static HeaderBugReproModel HeaderBugReproModel(string foo = default, int bar = default)
+        {
+
+            return new HeaderBugReproModel(foo, bar, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The Animal. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.Animal"/> instance for mocking. </returns>
+        public static Animal Animal(AnimalXFoo foo = default, int bar = default)
+        {
+
+            return new Animal(foo, bar, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The ModelWithHeaderResponse. </summary>
+        /// <param name="foo"></param>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="UnbrandedTypeSpec.ModelWithHeaderResponse"/> instance for mocking. </returns>
+        public static ModelWithHeaderResponse ModelWithHeaderResponse(string foo = default, int bar = default)
+        {
+
+            return new ModelWithHeaderResponse(foo, bar, additionalBinaryDataProperties: null);
+        }
     }
 }
