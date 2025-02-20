@@ -3,7 +3,7 @@ if ((format != "J"))
 {
     throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
 }
-if ((MockProperty != null))
+if (global::Sample.Optional.IsDefined(MockProperty))
 {
     writer.WritePropertyName("mock_wire_name"u8);
     writer.WriteNumberValue(MockProperty.Value);

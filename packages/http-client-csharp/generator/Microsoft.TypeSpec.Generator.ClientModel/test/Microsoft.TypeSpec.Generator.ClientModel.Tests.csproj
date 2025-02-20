@@ -14,6 +14,12 @@
     <None Update="ModelReaderWriterValidation\TestProjects\**\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="ModelReaderWriterValidation\TestProjects\Unbranded_TypeSpec\TestData\Thing\ThingWithNulls.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ModelReaderWriterValidation\TestProjects\Unbranded_TypeSpec\TestData\Thing\ThingWithNullsWireFormat.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
