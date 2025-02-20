@@ -310,9 +310,6 @@ importers:
       globby:
         specifier: ~14.0.2
         version: 14.0.2
-      is-unicode-supported:
-        specifier: ^2.1.0
-        version: 2.1.0
       mustache:
         specifier: ~4.2.0
         version: 4.2.0

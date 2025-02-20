@@ -1,8 +1,4 @@
-import isUnicodeSupported from "is-unicode-supported";
-
-const spinnerFrames = isUnicodeSupported()
-  ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-  : ["-", "\\", "|", "/"];
+const spinnerFrames = ["-", "\\", "|", "/"];
 
 const logMessages: string[] = [];
 let spinnerInterval: NodeJS.Timeout | null = null;
