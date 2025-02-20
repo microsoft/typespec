@@ -33,12 +33,7 @@ import { createDiagnostic } from "./messages.js";
 import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
-import {
-  getDirectoryPath,
-  getRelativePathFromDirectory,
-  joinPaths,
-  resolvePath,
-} from "./path-utils.js";
+import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   SourceLoader,
@@ -599,7 +594,7 @@ export async function compile(
 
     let outputRelativePath = "";
     if (options.listOutputs) {
-      outputRelativePath = `./${getRelativePathFromDirectory(context.program.projectRoot, context.emitterOutputDir, false)}/`;
+      outputRelativePath = `/`;
       setChildLogPrefix(outputRelativePath);
     }
 
