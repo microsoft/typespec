@@ -93,17 +93,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private string? _relativeFilePath;
 
-        /// <summary>
-        /// Gets and sets the name of the type.
-        /// </summary>
-        public string Name
-        {
-            get => _name ??= CustomCodeView?.Name ?? BuildName();
-            set
-            {
-                _name = value;
-            }
-        }
+        public string Name =>
+            _type is not null
+            ? _type.Name
+            : _name ??= CustomCodeView?.Name ?? BuildName();
 
         private string? _name;
 
@@ -352,7 +345,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<FieldProvider>? fields = null,
             IEnumerable<TypeProvider>? serializations = null,
             IEnumerable<TypeProvider>? nestedTypes = null,
-            XmlDocProvider? xmlDocs = null)
+            XmlDocProvider? xmlDocs = null,
+            TypeSignatureModifiers? modifiers = null,
+            string? relativeFilePath = null)
         {
             if (methods != null)
             {
@@ -381,6 +376,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (xmlDocs != null)
             {
                 XmlDocs = xmlDocs;
+            }
+            if (modifiers != null)
+            {
+                _declarationModifiers = modifiers;
+            }
+            if (relativeFilePath != null)
+            {
+                _relativeFilePath = relativeFilePath;
             }
         }
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
