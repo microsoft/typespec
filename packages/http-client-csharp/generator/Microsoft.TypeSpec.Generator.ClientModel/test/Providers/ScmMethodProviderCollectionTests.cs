@@ -32,7 +32,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
-            var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             Assert.IsNotNull(methodCollection);
@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             MockHelpers.LoadMockPlugin(
                 createCSharpTypeCore: (inputType) => new CSharpType(typeof(bool)));
 
-            var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+            var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
             Assert.IsNotNull(client);
             var methodCollection = new ScmMethodProviderCollection(inputOperation, client!);
             Assert.IsNotNull(methodCollection);

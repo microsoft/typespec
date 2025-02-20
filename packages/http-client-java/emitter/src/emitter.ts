@@ -122,7 +122,8 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
             target: NoTarget,
           });
           if (error instanceof SpawnError) {
-            trace(program, `Code generation error: ${error.stdout}`);
+            trace(program, `Code generation log: ${error.stdout}`);
+            trace(program, `Code generation error: ${error.stderr}`);
           }
         }
       }

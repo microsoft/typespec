@@ -75,7 +75,7 @@ Regenerating authentication\api-key
 TypeSpec compiler v0.64.0
 
 trace @typespec/http-client-csharp.info: Checking if C:/repos/typespec/packages/http-client-csharp/generator/TestProjects/Spector/http/authentication/api-key/src/Authentication.ApiKey.csproj exists
-trace @typespec/http-client-csharp.info: dotnet --roll-forward Major C:/repos/typespec/packages/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll C:/repos/typespec/packages/http-client-csharp/generator/TestProjects/Spector/http/authentication/api-key -p ClientModelPlugin
+trace @typespec/http-client-csharp.info: dotnet --roll-forward Major C:/repos/typespec/packages/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll C:/repos/typespec/packages/http-client-csharp/generator/TestProjects/Spector/http/authentication/api-key -p ScmCodeModelPlugin
 Writing C:\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenTypeAttribute.cs
 Writing C:\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenMemberAttribute.cs
 Writing C:\repos\typespec\packages\http-client-csharp\generator\TestProjects\Spector\http\authentication\api-key\src\Generated\Internal\CodeGenSuppressAttribute.cs
