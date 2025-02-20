@@ -7,9 +7,7 @@ import com.azure.core.annotation.ReturnType;
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.serializer.CollectionFormat;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
-import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.PageableContinuationToken;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -21,7 +19,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodTransformationDetail;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -37,7 +37,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -744,7 +743,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 });
             });
         } else if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
-            PageableContinuationToken continuationToken = clientMethod.getMethodPageDetails().getContinuationToken();
+            MethodPageDetails.ContinuationToken continuationToken
+                = clientMethod.getMethodPageDetails().getContinuationToken();
             // currently this is for unbranded
             String methodName = clientMethod.getProxyMethod().getPagingSinglePageMethodName();
             String argumentLine = clientMethod.getArgumentList().replace("requestOptions", "requestOptionsLocal");
@@ -757,14 +757,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     function.line(
                         "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;\n");
                     function.ifBlock("pagingOptions.getContinuationToken() != null", ifBlock -> {
-                        if (continuationToken.getParameter().getProtocol().getHttp().getIn()
+                        if (continuationToken.getRequestParameter().getRequestParameterLocation()
                             == RequestParameterLocation.QUERY) {
                             // QUERY
                             function.line("requestOptionsLocal.addRequestCallback(requestLocal -> {");
                             function.line("    UriBuilder urlBuilder = UriBuilder.parse(requestLocal.getUri());");
                             function.line("    urlBuilder.setQueryParameter("
                                 + ClassType.STRING.defaultValueExpression(
-                                    continuationToken.getParameter().getLanguage().getDefault().getSerializedName())
+                                    continuationToken.getRequestParameter().getRequestParameterName())
                                 + ", String.valueOf(pagingOptions.getContinuationToken()));");
                             function.line("    requestLocal.setUri(urlBuilder.toString());");
                             function.line("});");
@@ -772,7 +772,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             // HEADER
                             function.line("requestOptionsLocal.setHeader(HttpHeaderName.fromString("
                                 + ClassType.STRING.defaultValueExpression(
-                                    continuationToken.getParameter().getLanguage().getDefault().getSerializedName())
+                                    continuationToken.getRequestParameter().getRequestParameterName())
                                 + "), String.valueOf(pagingOptions.getContinuationToken()));");
                         }
                     });
@@ -870,19 +870,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .modelPropertyGetterName(clientMethod.getMethodPageDetails().getItemName()));
                 // continuation token
                 if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
-                    PageableContinuationToken continuationToken
+                    MethodPageDetails.ContinuationToken continuationToken
                         = clientMethod.getMethodPageDetails().getContinuationToken();
-                    if (continuationToken.getResponseHeader() != null) {
-                        function.line("res.getHeaders().getValue(HttpHeaderName.fromString("
-                            + ClassType.STRING.defaultValueExpression(continuationToken.getResponseHeader().getHeader())
-                            + ")),");
-                    } else if (continuationToken.getResponseProperty() != null) {
+                    if (continuationToken.getResponseHeaderSerializedName() != null) {
+                        function.line("res.getHeaders().getValue(HttpHeaderName.fromString(" + ClassType.STRING
+                            .defaultValueExpression(continuationToken.getResponseHeaderSerializedName()) + ")),");
+                    } else if (continuationToken.getResponsePropertyReference() != null) {
                         StringBuilder continuationTokenExpression = new StringBuilder("res.getValue()");
-                        for (Property property : continuationToken.getResponseProperty()) {
+                        for (ModelPropertySegment propertySegment : continuationToken.getResponsePropertyReference()) {
                             continuationTokenExpression.append(".")
-                                .append(CodeNamer.getModelNamer()
-                                    .modelPropertyGetterName(
-                                        CodeNamer.getPropertyName(SchemaUtil.getJavaName(property))))
+                                .append(
+                                    CodeNamer.getModelNamer().modelPropertyGetterName(propertySegment.getProperty()))
                                 .append("()");
                         }
                         function.line(continuationTokenExpression.append(",").toString());
