@@ -5,4 +5,4 @@ packages:
   - "@typespec/openapi3"
 ---
 
-Add support for new `@disriminated` unions
+Add support for new `@discriminated` unions
