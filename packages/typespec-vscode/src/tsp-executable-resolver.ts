@@ -2,6 +2,7 @@ import { dirname, isAbsolute, join } from "path";
 import { ExtensionContext, workspace } from "vscode";
 import { Executable, ExecutableOptions } from "vscode-languageclient/node.js";
 import logger from "./log/logger.js";
+import telemetryClient from "./telemetry/telemetry-client.js";
 import { SettingName } from "./types.js";
 import { isFile, loadModule, useShellInExec } from "./utils.js";
 import { VSCodeVariableResolver } from "./vscode-variable-resolver.js";
@@ -42,7 +43,10 @@ export async function resolveTypeSpecCli(
   }
 }
 
-export async function resolveTypeSpecServer(context: ExtensionContext): Promise<Executable> {
+export async function resolveTypeSpecServer(
+  activityId: string,
+  context: ExtensionContext,
+): Promise<Executable> {
   const nodeOptions = process.env.TYPESPEC_SERVER_NODE_OPTIONS;
   const args = ["--stdio"];
 
@@ -75,6 +79,9 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
   // @typespec/compiler` in a vanilla setup.
   if (serverPath) {
     logger.info(`Server path loaded from TypeSpec extension configuration: ${serverPath}`);
+    telemetryClient.logOperationDetailTelemetry(activityId, {
+      compilerLocation: "customized-compiler",
+    });
   } else {
     logger.info(
       "Server path not configured in TypeSpec extension configuration, trying to resolve locally within current workspace.",
@@ -87,8 +94,14 @@ export async function resolveTypeSpecServer(context: ExtensionContext): Promise<
     logger.warning(
       `Can't resolve server path from either TypeSpec extension configuration or workspace, try to use default value ${executable}.`,
     );
+    telemetryClient.logOperationDetailTelemetry(activityId, {
+      compilerLocation: "global-compiler",
+    });
     return useShellInExec({ command: executable, args, options });
   }
+  telemetryClient.logOperationDetailTelemetry(activityId, {
+    compilerLocation: "local-compiler",
+  });
   const variableResolver = new VSCodeVariableResolver({
     workspaceFolder,
     workspaceRoot: workspaceFolder, // workspaceRoot is deprecated but we still support it for backwards compatibility.

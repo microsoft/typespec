@@ -43,7 +43,7 @@ export interface RestartServerCommandArgs extends BaseCommandArgs {
   notificationMessage?: string;
 }
 
-export const enum ResultCode {
+export enum ResultCode {
   Success = "success",
   Fail = "fail",
   Cancelled = "cancelled",

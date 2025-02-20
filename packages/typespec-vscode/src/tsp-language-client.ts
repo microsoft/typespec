@@ -5,6 +5,7 @@ import type {
   InitProjectTemplate,
   ServerInitializeResult,
 } from "@typespec/compiler";
+import { inspect } from "util";
 import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
 import { Executable, LanguageClient, LanguageClientOptions } from "vscode-languageclient/node.js";
 import { TspConfigFileName } from "./const.js";
@@ -113,7 +114,7 @@ export class TspLanguageClient {
     }
   }
 
-  async restart(activityId?: string): Promise<void> {
+  async restart(): Promise<void> {
     try {
       if (this.client.needsStop()) {
         await this.client.restart();
@@ -124,11 +125,6 @@ export class TspLanguageClient {
       } else {
         logger.error(
           `Unexpected state when restarting TypeSpec server. state = ${this.client.state}.`,
-        );
-        telemetryClient.log(
-          "error",
-          `Unexpected state when restarting TypeSpec server. state = ${this.client.state}.`,
-          activityId,
         );
       }
     } catch (e) {
@@ -149,7 +145,7 @@ export class TspLanguageClient {
     }
   }
 
-  async start(activityId?: string): Promise<void> {
+  async start(activityId: string): Promise<void> {
     try {
       if (this.client.needsStart()) {
         // please be aware that this method would popup error notification in vscode directly
@@ -173,13 +169,15 @@ export class TspLanguageClient {
           { showOutput: false, showPopup: true },
         );
         logger.error("Error detail", [e]);
-        telemetryClient.log("error", "TypeSpec server executable not found", activityId);
       } else {
         logger.error("Unexpected error when starting TypeSpec server", [e], {
           showOutput: false,
           showPopup: true,
         });
       }
+      telemetryClient.logOperationDetailTelemetry(activityId, {
+        error: `Error when starting TypeSpec server: ${inspect(e)}`,
+      });
     }
   }
 
@@ -190,10 +188,11 @@ export class TspLanguageClient {
   }
 
   static async create(
+    activityId: string,
     context: ExtensionContext,
     outputChannel: LogOutputChannel,
   ): Promise<TspLanguageClient> {
-    const exe = await resolveTypeSpecServer(context);
+    const exe = await resolveTypeSpecServer(activityId, context);
     logger.debug("TypeSpec server resolved as ", [exe]);
     const watchers = [
       workspace.createFileSystemWatcher("**/*.cadl"),

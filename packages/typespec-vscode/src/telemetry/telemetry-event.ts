@@ -8,37 +8,30 @@ export enum TelemetryEventName {
   RestartServer = "restart-server",
   GenerateCode = "generate-code",
   ImportFromOpenApi3 = "import-from-openapi3",
-  /** For extra log we need in telemetry.
-   *  IMPORTANT: make sure to:
-   *   - Collect as *little* telemetry as possible.
-   *   - Do not include any personal or sensitive information.
-   *  Detail guidance can be found at: https://code.visualstudio.com/api/extension-guides/telemetry
-   */
-  Log = "typespec/log",
+  ServerPathSettingChanged = "server-path-changed",
+  OperationDetail = "operation-detail",
+}
+export class OperationDetailProperties {
+  error = "error";
+  emitterPackage = "emitterPackage";
+  compilerLocation = "compilerLocation";
 }
 
-export interface BaseTelemetryEvent {
-  /**
-   * all the telemetry events from the same activity should have the same activityId
-   * if not provided, a new activityId will be generated
-   */
+export interface TelemetryEventBase {
   activityId: string;
-  /**
-   * the name of the event
-   */
   eventName: TelemetryEventName;
 }
 
-export interface OperationTelemetryEvent extends BaseTelemetryEvent {
-  eventName: TelemetryEventName;
+export interface OperationTelemetryEvent extends TelemetryEventBase {
   startTime: Date;
   endTime?: Date;
   result?: ResultCode;
-  /**
-   * the last step when the operation finish successfully or not
-   */
   lastStep?: string;
 }
+
+export interface OperationDetailTelemetryEvent
+  extends TelemetryEventBase,
+    Partial<Record<keyof OperationDetailProperties, string>> {}
 
 /**
  * Create a operation telemetry event with following default values.

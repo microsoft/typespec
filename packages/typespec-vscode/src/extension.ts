@@ -86,21 +86,21 @@ export async function activate(context: ExtensionContext) {
               async (tel) => {
                 if (args?.forceRecreate === true) {
                   logger.info("Forcing to recreate TypeSpec LSP server...");
-                  const c = await recreateLSPClient(context, tel.activityId);
-                  tel.lastStep = "Recreate LSP client";
-                  return getResultFromLSPClient(c);
+                  tel.lastStep = "Recreate LSP client in force";
+                  return await recreateLSPClient(context, tel.activityId);
                 }
                 if (client && client.state === State.Running) {
-                  await client.restart(tel.activityId);
                   tel.lastStep = "Restart LSP client";
-                  return getResultFromLSPClient(client);
+                  await client.restart();
+                  return client.state === State.Running
+                    ? { code: ResultCode.Success, value: client }
+                    : { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
                 } else {
                   logger.info(
                     "TypeSpec LSP server is not running which is not expected, try to recreate and start...",
                   );
-                  const c = await recreateLSPClient(context, tel.activityId);
-                  tel.lastStep = "Create LSP client";
-                  return getResultFromLSPClient(c);
+                  tel.lastStep = "Recreate LSP client";
+                  return await recreateLSPClient(context, tel.activityId);
                 }
               },
               args?.activityId,
@@ -136,7 +136,12 @@ export async function activate(context: ExtensionContext) {
     vscode.workspace.onDidChangeConfiguration(async (e: vscode.ConfigurationChangeEvent) => {
       if (e.affectsConfiguration(SettingName.TspServerPath)) {
         logger.info("TypeSpec server path changed, restarting server...");
-        await recreateLSPClient(context);
+        await telemetryClient.doOperationWithTelemetry(
+          TelemetryEventName.ServerPathSettingChanged,
+          async (tel) => {
+            return await recreateLSPClient(context, tel.activityId);
+          },
+        );
       }
     }),
   );
@@ -181,8 +186,7 @@ export async function activate(context: ExtensionContext) {
         await telemetryClient.doOperationWithTelemetry(
           TelemetryEventName.StartExtension,
           async (tel: OperationTelemetryEvent) => {
-            await recreateLSPClient(context, tel.activityId);
-            return getResultFromLSPClient(client);
+            return await recreateLSPClient(context, tel.activityId);
           },
         );
       },
@@ -197,27 +201,18 @@ export async function deactivate() {
   await client?.stop();
 }
 
-async function recreateLSPClient(context: ExtensionContext, activityId?: string) {
+async function recreateLSPClient(
+  context: ExtensionContext,
+  activityId: string,
+): Promise<Result<TspLanguageClient>> {
   logger.info("Recreating TypeSpec LSP server...");
   const oldClient = client;
-  client = await TspLanguageClient.create(context, outputChannel);
+  client = await TspLanguageClient.create(activityId, context, outputChannel);
   await oldClient?.stop();
   await client.start(activityId);
-  return client;
-}
-
-function getResultFromLSPClient(c: TspLanguageClient | undefined): Result<TspLanguageClient> {
-  if (c?.state === State.Running) {
-    return {
-      code: ResultCode.Success,
-      value: c,
-    };
-  } else {
-    return {
-      code: ResultCode.Fail,
-      details: "TspLanguageClient is not running. Please check previous log for details.",
-    };
-  }
+  return client.state === State.Running
+    ? { code: ResultCode.Success, value: client }
+    : { code: ResultCode.Fail, details: "TspLanguageClient is not running." };
 }
 
 function showStartUpMessages(stateManager: ExtensionStateManager) {

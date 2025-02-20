@@ -66,10 +66,10 @@ export async function createTypeSpecProject(
   client: TspLanguageClient | undefined,
   stateManager: ExtensionStateManager,
 ) {
-  await telemetryClient.doOperationWithTelemetry<void>(
+  await telemetryClient.doOperationWithTelemetry<ResultCode>(
     TelemetryEventName.CreateProject,
-    async (tel) => {
-      return vscode.window.withProgress<Result>(
+    async (tel, sendTelEvent) => {
+      return vscode.window.withProgress<ResultCode>(
         {
           location: vscode.ProgressLocation.Window,
           cancellable: false,
@@ -80,14 +80,14 @@ export async function createTypeSpecProject(
           if (!selectedRootFolder) {
             logger.info("Creating TypeSpec Project cancelled when selecting project root folder.");
             tel.lastStep = "Select project root folder";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
           if (!(await checkProjectRootFolderEmpty(selectedRootFolder))) {
             logger.info(
               "Creating TypeSpec Project cancelled when checking whether the project root folder is empty.",
             );
             tel.lastStep = "Check project root folder";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
           const folderName = getBaseFileName(selectedRootFolder);
 
@@ -96,7 +96,7 @@ export async function createTypeSpecProject(
             if (r.code === ResultCode.Cancelled) {
               logger.info("Creating TypeSpec Project cancelled when installing Compiler/CLI");
               tel.lastStep = "Install Compiler/CLI";
-              return { code: ResultCode.Cancelled };
+              return ResultCode.Cancelled;
             }
             if (
               r.code !== ResultCode.Success ||
@@ -112,7 +112,7 @@ export async function createTypeSpecProject(
                 },
               );
               tel.lastStep = "Install Compiler/CLI";
-              return { code: ResultCode.Fail };
+              return ResultCode.Fail;
             }
             client = r.value;
           }
@@ -121,7 +121,7 @@ export async function createTypeSpecProject(
           if (!isSupport) {
             logger.info("Creating TypeSpec Project cancelled due to unsupported by compiler.");
             tel.lastStep = "Check compiler support";
-            return { code: ResultCode.Fail };
+            return ResultCode.Fail;
           }
 
           const templateInfoMap = await loadInitTemplates(client);
@@ -135,13 +135,13 @@ export async function createTypeSpecProject(
               },
             );
             tel.lastStep = "Load templates";
-            return { code: ResultCode.Fail };
+            return ResultCode.Fail;
           }
           const info = await selectTemplate(templateInfoMap);
           if (info === undefined) {
             logger.info("Creating TypeSpec Project cancelled when selecting template.");
             tel.lastStep = "Select template";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           } else {
             logger.info(`Selected template: ${info.source}.${info.name}`);
           }
@@ -150,7 +150,7 @@ export async function createTypeSpecProject(
           if (!validateResult) {
             logger.info("Creating TypeSpec Project cancelled when validating template.");
             tel.lastStep = "Validate template";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
 
           const projectName = await vscode.window.showInputBox({
@@ -175,7 +175,7 @@ export async function createTypeSpecProject(
               showPopup: false,
             });
             tel.lastStep = "Input project name";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
 
           const includeGitignoreResult = await vscode.window.showQuickPick(["Yes", "No"], {
@@ -189,7 +189,7 @@ export async function createTypeSpecProject(
               "Creating TypeSpec Project cancelled when selecting whether to include .gitignore.",
             );
             tel.lastStep = "Select whether to include .gitignore";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
           const includeGitignore = includeGitignoreResult === "Yes";
 
@@ -197,21 +197,21 @@ export async function createTypeSpecProject(
           if (librariesToInclude === undefined) {
             logger.info("Creating TypeSpec Project cancelled when selecting libraries to include.");
             tel.lastStep = "Select libraries";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
 
           const selectedEmitters = await selectEmitters(info);
           if (selectedEmitters === undefined) {
             logger.info("Creating TypeSpec Project cancelled when selecting emitters.");
             tel.lastStep = "Select emitters";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
 
           const inputs = await setInputs(info);
           if (inputs === undefined) {
             logger.info("Creating TypeSpec Project cancelled when setting inputs.");
             tel.lastStep = "Set inputs";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
 
           const initTemplateConfig: InitProjectConfig = {
@@ -232,7 +232,7 @@ export async function createTypeSpecProject(
               showPopup: false,
             });
             tel.lastStep = "Initialize project";
-            return { code: ResultCode.Cancelled };
+            return ResultCode.Cancelled;
           }
 
           const packageJsonPath = joinPaths(selectedRootFolder, "package.json");
@@ -275,13 +275,16 @@ export async function createTypeSpecProject(
             }
           }
 
+          // vscode.openFolder command will re-initialize the extension, so we need to send telemetry event and flush before it.
+          sendTelEvent(ResultCode.Success);
+          await telemetryClient.flush();
           vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(selectedRootFolder), {
             forceNewWindow: false,
             forceReuseWindow: true,
             noRecentEntry: false,
           });
           logger.info(`Creating TypeSpec Project completed successfully in ${selectedRootFolder}.`);
-          return { code: ResultCode.Success, value: undefined };
+          return ResultCode.Success;
         },
       );
     },
