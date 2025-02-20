@@ -220,11 +220,14 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 final boolean isPageable = operation.getExtensions() != null
                     && operation.getExtensions().getXmsPageable() != null
                     && shouldGeneratePagingMethods();
-                if (isPageable && JavaSettings.getInstance().isPageSizeEnabled()) {
-                    // remove maxpagesize parameter from client method API, it would be in e.g.
+                if (isPageable) {
+                    // remove maxpagesize parameter from client method API, for Azure, it would be in e.g.
                     // PagedIterable.iterableByPage(int)
+
+                    // also remove continuationToken etc. for unbranded
                     codeModelParameters = codeModelParameters.stream()
-                        .filter(p -> !MethodUtil.isMaxPageSizeParameter(p))
+                        .filter(p -> !MethodUtil.shouldHideParameterInPageable(p,
+                            operation.getExtensions().getXmsPageable()))
                         .collect(Collectors.toList());
                 }
 
