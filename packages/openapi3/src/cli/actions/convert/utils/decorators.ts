@@ -151,7 +151,14 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
   }
 
   if (schema.discriminator) {
-    decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
+    if (schema.oneOf || schema.anyOf) {
+      decorators.push({
+        name: "discriminated",
+        args: [{ envelope: "none", discriminatorPropertyName: schema.discriminator.propertyName }],
+      });
+    } else {
+      decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
+    }
   }
 
   if (schema.oneOf) {
