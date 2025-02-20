@@ -4,7 +4,11 @@ import {
   type InitProjectTemplateEmitterTemplate,
   type InitProjectTemplateLibrarySpec,
 } from "@typespec/compiler";
-import { NodeSystemHost, scaffoldNewProject } from "@typespec/compiler/internals/init";
+import {
+  getTypeSpecCoreTemplates,
+  NodeSystemHost,
+  scaffoldNewProject,
+} from "@typespec/compiler/internals/init";
 import { readdir } from "fs/promises";
 import * as semver from "semver";
 import vscode, { OpenDialogOptions, QuickPickItem } from "vscode";
@@ -559,6 +563,19 @@ async function loadInitTemplates(): Promise<Map<string, InitTemplateInfo[]>> {
   logger.info("Loading init templates from compiler...");
   const templateInfoMap: Map<string, InitTemplateInfo[]> = new Map();
   logger.info("Loading init templates from config...");
+  const templates = await getTypeSpecCoreTemplates(NodeSystemHost);
+  templateInfoMap.set(
+    COMPILER_CORE_TEMPLATES,
+    Object.entries(templates.templates)
+      .filter(([_key, value]) => value !== undefined)
+      .map(([key, value]) => ({
+        source: COMPILER_CORE_TEMPLATES,
+        sourceType: "compiler",
+        baseUrl: templates.baseUri,
+        name: key,
+        template: value,
+      })),
+  );
   const settings = vscode.workspace
     .getConfiguration()
     .get<InitTemplatesUrlSetting[]>(SettingName.InitTemplatesUrls);
