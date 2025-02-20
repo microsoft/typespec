@@ -138,8 +138,8 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
 
   unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
     const program = this.emitter.getProgram();
-    const [disriminated] = getDiscriminatedUnion(program, union);
-    if (disriminated) {
+    const [discriminated] = getDiscriminatedUnion(program, union);
+    if (discriminated) {
       return this.discriminatedUnion(disriminated);
     }
     if (union.variants.size === 0) {
