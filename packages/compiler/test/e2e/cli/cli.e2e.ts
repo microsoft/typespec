@@ -166,6 +166,35 @@ describe("cli", () => {
     });
   });
 
+  it("log outputs paths with --list-outputs flag", async () => {
+    const { stdout } = await execCliSuccess(
+      [
+        "compile",
+        ".",
+        "--emit",
+        "./emitter.js",
+        "--option",
+        "test-emitter.text=foo",
+        "--list-outputs",
+      ],
+      {
+        cwd: getScenarioDir("with-emitter"),
+      },
+    );
+    expect(stdout).toContain("✓ test-emitter\t./tsp-output/test-emitter/");
+  });
+
+  it("doesn't log outputs paths when there is not --list-outputs flag", async () => {
+    const { stdout } = await execCliSuccess(
+      ["compile", ".", "--emit", "./emitter.js", "--option", "test-emitter.text=foo"],
+      {
+        cwd: getScenarioDir("with-emitter"),
+      },
+    );
+    expect(stdout).toContain("✓ test-emitter");
+    expect(stdout).not.toContain("✓ test-emitter\t./tsp-output/test-emitter/");
+  });
+
   it("can provide emitter options", async () => {
     const { stdout } = await execCliSuccess(
       ["compile", ".", "--emit", "./emitter.js", "--option", "test-emitter.text=foo"],

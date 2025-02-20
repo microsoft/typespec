@@ -19,6 +19,7 @@ export interface CompileCliArgs {
   debug?: boolean;
   config?: string;
   "warn-as-error"?: boolean;
+  "list-outputs"?: boolean;
   "no-emit"?: boolean;
   "ignore-deprecated"?: boolean;
   args?: string[];
@@ -60,6 +61,8 @@ export async function getCompilerOptions(
   );
   if (args["no-emit"]) {
     resolvedOptions.noEmit = true;
+  } else if (args["list-outputs"]) {
+    resolvedOptions.listOutputs = true;
   }
 
   return diagnostics.wrap(

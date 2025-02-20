@@ -71,6 +71,9 @@ importers:
       eslint-plugin-vitest:
         specifier: ^0.5.4
         version: 0.5.4(eslint@9.18.0(jiti@1.21.6))(typescript@5.7.3)(vitest@3.0.5(@types/debug@4.1.12)(@types/node@22.10.10)(happy-dom@16.7.2)(jiti@1.21.6)(jsdom@19.0.0)(tsx@4.19.2)(yaml@2.7.0))
+      is-unicode-supported:
+        specifier: ^2.1.0
+        version: 2.1.0
       micromatch:
         specifier: ^4.0.8
         version: 4.0.8

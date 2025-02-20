@@ -19,6 +19,7 @@ import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js
 import { compilerAssert } from "./diagnostics.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
+import { initializeSpinner, setChildLogPrefix, stopSpinner } from "./helpers/progress-logger.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import {
   builtInLinterLibraryName,
@@ -32,7 +33,12 @@ import { createDiagnostic } from "./messages.js";
 import { createResolver } from "./name-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
-import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
+import {
+  getDirectoryPath,
+  getRelativePathFromDirectory,
+  joinPaths,
+  resolvePath,
+} from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   SourceLoader,
@@ -244,18 +250,24 @@ export async function compile(
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
+  initializeSpinner("Checker...");
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
+  stopSpinner();
 
   if (!continueToNextStage) {
     return program;
   }
+
+  initializeSpinner("Validation...");
   // onValidate stage
   await runValidators();
 
   validateRequiredImports();
 
   await validateLoadedLibraries();
+  stopSpinner();
+
   if (!continueToNextStage) {
     return program;
   }
@@ -574,6 +586,8 @@ export async function compile(
    * @param emitter Emitter ref to run
    */
   async function runEmitter(emitter: EmitterRef) {
+    const emitterName = emitter.metadata.name as string;
+    initializeSpinner(emitterName);
     const context: EmitContext<any> = {
       program,
       emitterOutputDir: emitter.emitterOutputDir,
@@ -582,10 +596,23 @@ export async function compile(
         return createAssetEmitter(program, TypeEmitterClass, this);
       },
     };
+
+    let outputRelativePath = "";
+    if (options.listOutputs) {
+      outputRelativePath = `./${getRelativePathFromDirectory(context.program.projectRoot, context.emitterOutputDir, false)}/`;
+      setChildLogPrefix(outputRelativePath);
+    }
+
     try {
       await emitter.emitFunction(context);
     } catch (error: unknown) {
       throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
+    }
+
+    if (options.listOutputs) {
+      stopSpinner(`✓ ${emitterName}\t${outputRelativePath}`, true);
+    } else {
+      stopSpinner(`✓ ${emitterName}`);
     }
   }
 
