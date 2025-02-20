@@ -62,7 +62,7 @@ export interface ServerHost {
 
 export interface CompileResult {
   readonly program: Program;
-  readonly document: TextDocument;
+  readonly document: TextDocument | undefined;
   readonly script: TypeSpecScriptNode;
 }
 

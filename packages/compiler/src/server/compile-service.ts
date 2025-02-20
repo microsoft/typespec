@@ -57,9 +57,7 @@ export interface CompileService {
 
   on(event: "compileEnd", listener: (result: CompileResult) => void): void;
 
-  compileDocumentOnce(
-    document: TextDocument | TextDocumentIdentifier,
-  ): Promise<Program | undefined>;
+  getMainFileForDocument(path: string): Promise<string>;
 }
 
 export interface CompileServiceOptions {
@@ -81,7 +79,7 @@ export function createCompileService({
   const eventListeners = new Map<string, (...args: unknown[]) => void>();
   const updated = new UpdateManger((document) => compile(document));
 
-  return { compile, getScript, on, notifyChange, compileDocumentOnce };
+  return { compile, getScript, on, notifyChange, getMainFileForDocument };
 
   function on(event: string, listener: (...args: any[]) => void) {
     eventListeners.set(event, listener);
@@ -141,67 +139,12 @@ export function createCompileService({
       }
 
       const doc = "version" in document ? document : serverHost.getOpenDocumentByURL(document.uri);
-      compilerAssert(doc, "Failed to get document.");
-      const resolvedPath = await fileService.getPath(doc);
-      const script = program.sourceFiles.get(resolvedPath);
+      const script = program.sourceFiles.get(path);
       compilerAssert(script, "Failed to get script.");
 
       const result: CompileResult = { program, document: doc, script };
       notify("compileEnd", result);
       return result;
-    } catch (err: any) {
-      if (serverHost.throwInternalErrors) {
-        throw err;
-      }
-      serverHost.sendDiagnostics({
-        uri: document.uri,
-        diagnostics: [
-          {
-            severity: DiagnosticSeverity.Error,
-            range: Range.create(0, 0, 0, 0),
-            message:
-              `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n` +
-              err.stack,
-          },
-        ],
-      });
-
-      return undefined;
-    }
-  }
-
-  async function compileDocumentOnce(
-    document: TextDocument | TextDocumentIdentifier,
-  ): Promise<Program | undefined> {
-    const path = await fileService.getPath(document);
-    const mainFile = await getMainFileForDocument(path);
-    const config = await getConfig(mainFile);
-    log({ level: "debug", message: `config resolved`, detail: config });
-
-    const [optionsFromConfig] = resolveOptionsFromConfig(config, { cwd: path });
-    const options: CompilerOptions = {
-      ...optionsFromConfig,
-      ...serverOptions,
-    };
-    log({ level: "debug", message: `compiler options resolved`, detail: options });
-
-    if (!fileService.upToDate(document)) {
-      return undefined;
-    }
-
-    try {
-      const program = await compileProgram(
-        compilerHost,
-        mainFile,
-        options,
-        oldPrograms.get(mainFile),
-      );
-      oldPrograms.set(mainFile, program);
-      if (!fileService.upToDate(document)) {
-        return undefined;
-      }
-
-      return program;
     } catch (err: any) {
       if (serverHost.throwInternalErrors) {
         throw err;

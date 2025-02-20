@@ -353,7 +353,7 @@ export function createServer(host: ServerHost): Server {
       // Modify file name or move the file to a new location,
       // the original file is marked as delete, and the new file is marked as Create
       if (change.type === 1) {
-        newFilePath = change.uri;
+        newFilePath = await fileService.getPath({ uri: change.uri });
       } else if (change.type === 3) {
         oldFilePath = change.uri;
       }
@@ -364,15 +364,14 @@ export function createServer(host: ServerHost): Server {
     }
 
     // Diagnostic information in the program can be obtained only through the compilation of the main.tsp file without opening any tsp file.
-    const program = await compileService.compileDocumentOnce({ uri: newFilePath });
-    if (!program) {
+    const mainFile = await compileService.getMainFileForDocument(newFilePath);
+    const result = await compileService.compile({ uri: fileService.getURL(mainFile) });
+    if (!result) {
       return;
     }
 
     const oldFileName = getBaseFileName(oldFilePath);
-    newFilePath = await fileService.getPath({ uri: newFilePath });
-
-    for (const diagnostic of program.diagnostics) {
+    for (const diagnostic of result.program.diagnostics) {
       if (diagnostic.code !== "import-not-found") continue;
 
       const target = diagnostic.target as Node;
@@ -414,9 +413,9 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  function getRelativePath(from: string, to: string): string {
-    if (!from || !to || from === to) {
-      return "";
+  function getRelativePath(from: string, to: string): string | undefined {
+    if (from.length === 0 || to.length === 0 || from === to) {
+      return undefined;
     }
 
     const fromComponents = getPathComponents(from);
@@ -546,6 +545,10 @@ export function createServer(host: ServerHost): Server {
       return [];
     }
     const { program, document, script } = result;
+    if (!document) {
+      return [];
+    }
+
     const identifiers = findReferenceIdentifiers(
       program,
       script,
@@ -564,6 +567,7 @@ export function createServer(host: ServerHost): Server {
     compileService.notifyChange(change.document);
   }
   async function reportDiagnostics({ program, document }: CompileResult) {
+    if (!document) return undefined;
     if (isTspConfigFile(document)) return undefined;
 
     currentDiagnosticIndex.clear();
@@ -619,6 +623,10 @@ export function createServer(host: ServerHost): Server {
     }
     const { program, document, script } = result;
 
+    if (!document) {
+      return { contents: [] };
+    }
+
     const id = getNodeAtPosition(script, document.offsetAt(params.position));
     const sym =
       id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
@@ -640,6 +648,9 @@ export function createServer(host: ServerHost): Server {
       return undefined;
     }
     const { script, document, program } = result;
+    if (!document) {
+      return undefined;
+    }
     const data = getSignatureHelpNodeAtPosition(script, document.offsetAt(params.position));
     if (data === undefined) {
       return undefined;
@@ -842,7 +853,7 @@ export function createServer(host: ServerHost): Server {
     if (isTspConfigFile(params.textDocument)) return [];
 
     const result = await compileService.compile(params.textDocument);
-    if (result === undefined) {
+    if (result === undefined || result.document === undefined) {
       return [];
     }
     const node = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
@@ -907,6 +918,9 @@ export function createServer(host: ServerHost): Server {
     const result = await compileService.compile(params.textDocument);
     if (result) {
       const { script, document, program } = result;
+      if (!document) {
+        return completions;
+      }
       const posDetail = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
       return await resolveCompletion(
@@ -927,7 +941,7 @@ export function createServer(host: ServerHost): Server {
     if (isTspConfigFile(params.textDocument)) return [];
 
     const result = await compileService.compile(params.textDocument);
-    if (result === undefined) {
+    if (result === undefined || result.document === undefined) {
       return [];
     }
     const identifiers = findReferenceIdentifiers(
@@ -942,7 +956,7 @@ export function createServer(host: ServerHost): Server {
     if (isTspConfigFile(params.textDocument)) return undefined;
 
     const result = await compileService.compile(params.textDocument);
-    if (result === undefined) {
+    if (result === undefined || result.document === undefined) {
       return undefined;
     }
     const id = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
@@ -954,7 +968,7 @@ export function createServer(host: ServerHost): Server {
 
     const changes: Record<string, TextEdit[]> = {};
     const result = await compileService.compile(params.textDocument);
-    if (result) {
+    if (result && result.document) {
       const identifiers = findReferenceIdentifiers(
         result.program,
         result.script,
