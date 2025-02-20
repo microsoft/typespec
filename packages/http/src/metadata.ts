@@ -450,6 +450,7 @@ export function isMetadata(program: Program, property: ModelProperty) {
  * Determines if the given property is visible with the given visibility.
  */
 export function isVisible(program: Program, property: ModelProperty, visibility: Visibility) {
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   if (visibility & Visibility.LegacyParameterVisibility) {
     // This is a hack that preserves the behavior of `@parameterVisibility()` with no arguments for now.
     // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -723,6 +724,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     const hasUpdate = (visibility & Visibility.Update) !== 0;
     const isPatch = (visibility & Visibility.PatchUpdateOptionality) !== 0;
     const isItem = (visibility & Visibility.Item) !== 0;
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const skipEffectiveOptionality = (visibility & Visibility.LegacyParameterVisibility) !== 0;
     return property.optional || (!skipEffectiveOptionality && hasUpdate && isPatch && !isItem);
   }
