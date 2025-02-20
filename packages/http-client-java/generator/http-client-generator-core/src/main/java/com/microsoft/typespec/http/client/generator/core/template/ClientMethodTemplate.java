@@ -754,6 +754,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
                 function.line("return new PagedIterable<>(pagingOptions -> {");
                 function.indent(() -> {
+                    function.line(getLogExceptionExpressionForPagingOptions(clientMethod));
                     function.line(
                         "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;\n");
                     function.ifBlock("pagingOptions.getContinuationToken() != null", ifBlock -> {
@@ -1682,12 +1683,12 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        String lambdaParameters = "";
-        if (!settings.isBranded()) {
-            lambdaParameters = "pagingOptions";
+        if (settings.isBranded()) {
+            return String.format("() -> %s(%s)", methodName, argumentLine);
+        } else {
+            return String.format("pagingOptions -> { %s return %s(%s); }",
+                getLogExceptionExpressionForPagingOptions(clientMethod), methodName, argumentLine);
         }
-
-        return String.format("(%s) -> %s(%s)", lambdaParameters, methodName, argumentLine);
     }
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
@@ -1716,16 +1717,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
 
-        String lambdaParameters = "nextLink";
-        if (!settings.isBranded()) {
-            lambdaParameters = "(pagingOptions, nextLink)";
-        }
-
         if (settings.isDataPlaneClient()) {
             argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
         }
 
-        return String.format("%s -> %s(%s)", lambdaParameters, methodName, argumentLine);
+        if (settings.isBranded()) {
+            return String.format("nextLink -> %s(%s)", methodName, argumentLine);
+        } else {
+            return String.format("(pagingOptions, nextLink) -> { %s return %s(%s); }",
+                getLogExceptionExpressionForPagingOptions(clientMethod), methodName, argumentLine);
+        }
     }
 
     private String getPollingStrategy(ClientMethod clientMethod, String contextParam) {
@@ -1839,5 +1840,36 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             }
         }
         return serviceVersion;
+    }
+
+    private static String getLogExceptionExpressionForPagingOptions(ClientMethod clientMethod) {
+        StringBuilder expression = new StringBuilder();
+        expression.append("if (pagingOptions.getOffset() != null) {")
+            .append(
+                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'offset' in PagingOptions is not supported in API '")
+            .append(clientMethod.getName())
+            .append("'.\"));")
+            .append("}");
+        expression.append("if (pagingOptions.getPageSize() != null) {")
+            .append(
+                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'pageSize' in PagingOptions is not supported in API '")
+            .append(clientMethod.getName())
+            .append("'.\"));")
+            .append("}");
+        expression.append("if (pagingOptions.getPageIndex() != null) {")
+            .append(
+                "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'pageIndex' in PagingOptions is not supported in API '")
+            .append(clientMethod.getName())
+            .append("'.\"));")
+            .append("}");
+        if (clientMethod.getMethodPageDetails().getContinuationToken() == null) {
+            expression.append("if (pagingOptions.getContinuationToken() != null) {")
+                .append(
+                    "throw LOGGER.logThrowableAsError(new IllegalArgumentException(\"'continuationToken' in PagingOptions is not supported in API '")
+                .append(clientMethod.getName())
+                .append("'.\"));")
+                .append("}");
+        }
+        return expression.toString();
     }
 }
