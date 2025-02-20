@@ -410,7 +410,7 @@ model DiscriminatedOptions {
 
 /**
  * Specify that this union is discriminated.
- * @param propertyName The property name to use for discrimination
+ * @param options Options to configure the serialization of the discriminated union.
  *
  * @example
  *

@@ -98,7 +98,7 @@ Specify that this union is discriminated.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| options | [valueof `DiscriminatedOptions`](./built-in-data-types.md#DiscriminatedOptions) |  |
+| options | [valueof `DiscriminatedOptions`](./built-in-data-types.md#DiscriminatedOptions) | Options to configure the serialization of the discriminated union. |
 
 #### Examples
 
