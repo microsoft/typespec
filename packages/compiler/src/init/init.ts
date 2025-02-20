@@ -303,7 +303,7 @@ async function selectEmitters(template: InitTemplate): Promise<Record<string, Em
     0,
   );
   const emitters = await checkbox({
-    message: "What emitters do you want ot use?:",
+    message: "What emitters do you want to use?:",
     choices: emittersList.map(([name, emitter]) => {
       return {
         value: name,
