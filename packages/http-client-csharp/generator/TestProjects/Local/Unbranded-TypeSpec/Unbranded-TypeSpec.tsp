@@ -224,11 +224,11 @@ model RoundTripModel {
   optionalRecordUnknown?: Record<unknown>;
 
   @doc("required readonly record of unknown")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   readOnlyRequiredRecordUnknown: Record<unknown>;
 
   @doc("optional readonly record of unknown")
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   readOnlyOptionalRecordUnknown?: Record<unknown>;
 
   @doc("this is a model with required nullable properties")
