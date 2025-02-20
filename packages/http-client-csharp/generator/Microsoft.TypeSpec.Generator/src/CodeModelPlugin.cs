@@ -79,12 +79,20 @@ namespace Microsoft.TypeSpec.Generator
 
         public IReadOnlyList<string> SharedSourceDirectories => _sharedSourceDirectories;
 
+        internal IReadOnlyList<TypeProvider> CustomCodeAttributeProviders { get; } =
+        [
+            new CodeGenTypeAttributeDefinition(),
+            new CodeGenMemberAttributeDefinition(),
+            new CodeGenSuppressAttributeDefinition(),
+            new CodeGenSerializationAttributeDefinition()
+        ];
+
         public virtual void Configure()
         {
-            AddTypeToKeep("CodeGenTypeAttribute");
-            AddTypeToKeep("CodeGenMemberAttribute");
-            AddTypeToKeep("CodeGenSuppressAttribute");
-            AddTypeToKeep("CodeGenSerializationAttribute");
+            foreach (var type in CustomCodeAttributeProviders)
+            {
+                AddTypeToKeep(type);
+            }
         }
 
         public void AddVisitor(LibraryVisitor visitor)
@@ -103,11 +111,20 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         internal HashSet<string> TypesToKeep { get; } = new();
-        //TODO consider using TypeProvider so we can have a fully qualified name to filter on
-        //https://github.com/microsoft/typespec/issues/4418
+
+        /// <summary>
+        /// Adds a type to the list of types to keep.
+        /// </summary>
+        /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
         public void AddTypeToKeep(string typeName)
         {
             TypesToKeep.Add(typeName);
         }
+
+        /// <summary>
+        /// Adds a type to the list of types to keep.
+        /// </summary>
+        /// <param name="type">The type provider representing the type.</param>
+        public void AddTypeToKeep(TypeProvider type) => AddTypeToKeep(type.Type.FullyQualifiedName);
     }
 }

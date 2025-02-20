@@ -8,6 +8,7 @@ try {
 
 import yargs from "yargs";
 import { typespecVersion } from "../../utils/misc.js";
+import { getTypeSpecEngine } from "../engine.js";
 import { installTypeSpecDependencies } from "../install.js";
 import { compileAction } from "./actions/compile/compile.js";
 import { formatAction } from "./actions/format.js";
@@ -228,7 +229,7 @@ async function main() {
       () => {},
       withCliHostAndDiagnostics((host) => printInfoAction(host)),
     )
-    .version(typespecVersion)
+    .version(getTypeSpecEngine() === "tsp" ? `${typespecVersion} standalone` : typespecVersion)
     .demandCommand(1, "You must use one of the supported commands.").argv;
 }
 
