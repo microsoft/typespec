@@ -1661,7 +1661,7 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
-### Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqHeaderResBody
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseBody
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body`
 
@@ -1680,7 +1680,7 @@ Expected response body:
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
-  "nextToken": "12345"
+  "nextToken": "page2"
 }
 ```
 
@@ -1688,7 +1688,7 @@ Expected response body:
    Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
 
 Expected header:
-token=12345
+token=page2
 
 Expected response body:
 
@@ -1701,7 +1701,7 @@ Expected response body:
 }
 ```
 
-### Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqHeaderResHeader
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header`
 
@@ -1723,13 +1723,13 @@ Two requests need to be tested.
 ```
 
 Expected response header:
-next-token=12345
+next-token=page2
 
 2. Next page request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?token=12345
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
 
 Expected request header:
-token=12345
+token=page2
 
 Expected response body:
 
@@ -1742,7 +1742,7 @@ Expected response body:
 }
 ```
 
-### Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResBody
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseBody
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body`
 
@@ -1760,12 +1760,12 @@ Two requests need to be tested.
     { "id": "1", "name": "dog" },
     { "id": "2", "name": "cat" }
   ],
-  "nextToken": "12345"
+  "nextToken": "page2"
 }
 ```
 
 2. Next page request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?token=12345
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?token=page2
 
 Expected response body:
 
@@ -1778,7 +1778,7 @@ Expected response body:
 }
 ```
 
-### Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResHeader
+### Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseHeader
 
 - Endpoint: `get /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header`
 
@@ -1800,10 +1800,10 @@ Two requests need to be tested.
 ```
 
 Expected response header:
-next-token=12345
+next-token=page2
 
 2. Next page request:
-   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=12345
+   Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=page2
    Expected response body:
 
 ```json
@@ -2354,7 +2354,7 @@ Expected path: /routes/path/label/standard/record.a,1,b,2
 
 Test matrix expansion with explode: true when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/path/matrix/explode/array;a.b
+Expected path: /routes/path/matrix/explode/array;param=a;param=b
 
 ### Routes_PathParameters_MatrixExpansion_Explode_primitive
 
@@ -2362,7 +2362,7 @@ Expected path: /routes/path/matrix/explode/array;a.b
 
 Test matrix expansion with explode: true when passed a primitive value.
 Param value: "a"
-Expected path: /routes/path/matrix/explode/primitive;a
+Expected path: /routes/path/matrix/explode/primitive;param=a
 
 ### Routes_PathParameters_MatrixExpansion_Explode_record
 
@@ -2378,7 +2378,7 @@ Expected path: /routes/path/matrix/explode/record;a=1;b=2
 
 Test matrix expansion with explode: false when passed an array value.
 Param value: ["a","b"]
-Expected path: /routes/path/matrix/standard/array;a,b
+Expected path: /routes/path/matrix/standard/array;param=a;param=b
 
 ### Routes_PathParameters_MatrixExpansion_Standard_primitive
 
@@ -2386,7 +2386,7 @@ Expected path: /routes/path/matrix/standard/array;a,b
 
 Test matrix expansion with explode: false when passed a primitive value.
 Param value: "a"
-Expected path: /routes/path/matrix/standard/primitive;a
+Expected path: /routes/path/matrix/standard/primitive;param=a
 
 ### Routes_PathParameters_MatrixExpansion_Standard_record
 
@@ -2394,7 +2394,7 @@ Expected path: /routes/path/matrix/standard/primitive;a
 
 Test matrix expansion with explode: false when passed a record value.
 Param value: {a: 1, b: 2}
-Expected path: /routes/path/matrix/standard/record;a,1,b,2
+Expected path: /routes/path/matrix/standard/record;a=1;b=2
 
 ### Routes_PathParameters_PathExpansion_Explode_array
 

@@ -68,12 +68,12 @@ namespace ServerDrivenPagination {
           { "id": "1", "name": "dog" },
           { "id": "2", "name": "cat" }
         ],
-        "nextToken": "12345"
+        "nextToken": "page2"
       }
       ```
       
       2. Next page request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?token=12345
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body?token=page2
       
       Expected response body:
       ```json
@@ -86,7 +86,7 @@ namespace ServerDrivenPagination {
       """)
     @route("/request-query-response-body")
     @list
-    op reqQueryResBody(@continuationToken @query token?: string): {
+    op requestQueryResponseBody(@continuationToken @query token?: string): {
       @pageItems
       pets: Pet[];
 
@@ -107,14 +107,14 @@ namespace ServerDrivenPagination {
           { "id": "1", "name": "dog" },
           { "id": "2", "name": "cat" }
         ],
-        "nextToken": "12345"
+        "nextToken": "page2"
       }
       ```
       2. Next page request:
       Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body
       
       Expected header:
-      token=12345
+      token=page2
       
       Expected response body:
       ```json
@@ -127,7 +127,7 @@ namespace ServerDrivenPagination {
       """)
     @route("/request-header-response-body")
     @list
-    op reqHeaderResBody(@continuationToken @header token?: string): {
+    op requestHeaderResponseBody(@continuationToken @header token?: string): {
       @pageItems
       pets: Pet[];
 
@@ -151,10 +151,10 @@ namespace ServerDrivenPagination {
       ```
       
       Expected response header:
-      next-token=12345
+      next-token=page2
       
       2. Next page request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=12345
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header?token=page2
       Expected response body:
       ```json
       { "pets": [
@@ -166,7 +166,7 @@ namespace ServerDrivenPagination {
       """)
     @route("/request-query-response-header")
     @list
-    op reqQueryResHeader(@continuationToken @query token?: string): {
+    op requestQueryResponseHeader(@continuationToken @query token?: string): {
       @pageItems
       pets: Pet[];
 
@@ -190,13 +190,13 @@ namespace ServerDrivenPagination {
       ```
       
       Expected response header:
-      next-token=12345
+      next-token=page2
       
       2. Next page request:
-      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header?token=12345
+      Expected route: /payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header
       
       Expected request header:
-      token=12345
+      token=page2
       
       Expected response body:
       ```json
@@ -209,7 +209,7 @@ namespace ServerDrivenPagination {
       """)
     @route("/request-header-response-header")
     @list
-    op reqHeaderResHeader(@continuationToken @header token?: string): {
+    op requestHeaderResponseHeader(@continuationToken @header token?: string): {
       @pageItems
       pets: Pet[];
 

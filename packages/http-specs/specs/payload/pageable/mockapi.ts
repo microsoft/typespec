@@ -22,7 +22,7 @@ const FirstResponseTokenInBody = {
   status: 200,
   body: json({
     pets: FirstPage,
-    nextToken: "12345",
+    nextToken: "page2",
   }),
 };
 
@@ -39,15 +39,15 @@ const FirstResponseTokenInHeader = {
     pets: FirstPage,
   }),
   headers: {
-    "next-token": "12345",
+    "next-token": "page2",
   },
 };
 
 const RequestTokenInQuery = {
-  params: { token: "12345" },
+  params: { token: "page2" },
 };
 
-const RequestTokenInHeader = { headers: { token: "12345" } };
+const RequestTokenInHeader = { headers: { token: "page2" } };
 
 function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
   const uri = `/payload/pageable/server-driven-pagination/continuationtoken/request-${reqInfo}-response-${resInfo}`;
@@ -57,12 +57,12 @@ function createTests(reqInfo: "query" | "header", resInfo: "body" | "header") {
       switch (token) {
         case undefined:
           return resInfo === "header" ? FirstResponseTokenInHeader : FirstResponseTokenInBody;
-        case "12345":
+        case "page2":
           return SecondResponse;
         default:
           throw new ValidationError(
             "Unsupported continuation token",
-            `"undefined" | "12345"`,
+            `"undefined" | "page2"`,
             token,
           );
       }
@@ -121,19 +121,13 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
   },
 ]);
 
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResBody = createTests(
-  "query",
-  "body",
-);
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseBody =
+  createTests("query", "body");
 
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqHeaderResBody = createTests(
-  "header",
-  "body",
-);
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseBody =
+  createTests("header", "body");
 
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqQueryResHeader = createTests(
-  "query",
-  "header",
-);
-Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_reqHeaderResHeader =
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestQueryResponseHeader =
+  createTests("query", "header");
+Scenarios.Payload_Pageable_ServerDrivenPagination_ContinuationToken_requestHeaderResponseHeader =
   createTests("header", "header");
