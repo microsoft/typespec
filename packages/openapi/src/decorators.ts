@@ -4,10 +4,12 @@ import {
   getDoc,
   getService,
   getSummary,
+  isType,
   Model,
   Namespace,
   Operation,
   Program,
+  reportDeprecated,
   Type,
   typespecTypeToJson,
   TypeSpecValue,
@@ -23,7 +25,7 @@ import {
   TagMetadata,
   TagMetadataDecorator,
 } from "../generated-defs/TypeSpec.OpenAPI.js";
-import { isOpenAPIExtensionKey, validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
+import { validateAdditionalInfoModel, validateIsUri } from "./helpers.js";
 import { createStateSymbol, OpenAPIKeys, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey, ExternalDocs } from "./types.js";
 
@@ -56,20 +58,26 @@ export const $extension: ExtensionDecorator = (
   context: DecoratorContext,
   entity: Type,
   extensionName: string,
-  value: TypeSpecValue,
+  value: unknown,
 ) => {
-  if (!isOpenAPIExtensionKey(extensionName)) {
-    reportDiagnostic(context.program, {
-      code: "invalid-extension-key",
-      format: { value: extensionName },
-      target: entity,
-    });
+  let data = value;
+  if (value && isType(value as any)) {
+    const [result, diagnostics] = typespecTypeToJson(value as Type, entity);
+    if (diagnostics.length > 0) {
+      context.program.reportDiagnostics(diagnostics);
+    }
+    reportDeprecated(
+      context.program,
+      [
+        "Passing extension values as types will emit Open API schemas instead of raw values in a future version of TypeSpec.",
+        "To continue emitting raw values, use value kinds.",
+        "See https://typespec.io/docs/language-basics/values/ for more information.",
+      ].join("\n"),
+      entity,
+    );
+    data = result;
   }
 
-  const [data, diagnostics] = typespecTypeToJson(value, entity);
-  if (diagnostics.length > 0) {
-    context.program.reportDiagnostics(diagnostics);
-  }
   setExtension(context.program, entity, extensionName as ExtensionKey, data);
 };
 
@@ -94,12 +102,7 @@ export function setInfo(
  * @param extensionName Extension key
  * @param data Extension value
  */
-export function setExtension(
-  program: Program,
-  entity: Type,
-  extensionName: ExtensionKey,
-  data: unknown,
-) {
+export function setExtension(program: Program, entity: Type, extensionName: string, data: unknown) {
   const openApiExtensions = program.stateMap(openApiExtensionKey);
   const typeExtensions = openApiExtensions.get(entity) ?? new Map<string, any>();
   typeExtensions.set(extensionName, data);

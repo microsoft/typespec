@@ -62,7 +62,7 @@ describe("openapi: decorators", () => {
 
     it("apply extension with complex value", async () => {
       const { Foo } = await runner.compile(`
-        @extension("x-custom", {foo: 123, bar: "string"})
+        @extension("x-custom", #{foo: 123, bar: "string"})
         @test
         model Foo {
           prop: string
@@ -71,6 +71,69 @@ describe("openapi: decorators", () => {
 
       deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
         "x-custom": { foo: 123, bar: "string" },
+      });
+    });
+
+    it.for([
+      { type: `{ name: "foo" }`, expected: { name: "foo" } },
+      { type: `{ items: [ {foo: "bar" }]}`, expected: { items: [{ foo: "bar" }] } },
+      { type: `["foo"]`, expected: ["foo"] },
+      { type: `typeof true`, expected: true },
+      { type: `typeof 42`, expected: 42 },
+      { type: `typeof "hi"`, expected: "hi" },
+    ])("treats type $type as raw value and emits diagnostic", async ({ type, expected }) => {
+      const [{ Foo }, diagnostics] = await runner.compileAndDiagnose(`
+          @extension("x-custom", ${type})
+          @test
+          model Foo{}  
+        `);
+
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
+        "x-custom": expected,
+      });
+
+      expectDiagnostics(diagnostics, {
+        code: "deprecated",
+        severity: "warning",
+        message: [
+          "Deprecated: Passing extension values as types will emit Open API schemas instead of raw values in a future version of TypeSpec.",
+          "To continue emitting raw values, use value kinds.",
+          "See https://typespec.io/docs/language-basics/values/ for more information.",
+        ].join("\n"),
+      });
+    });
+
+    it.for([
+      { value: `#{ name: "foo" }`, expected: { name: "foo" } },
+      { value: `#{ items: #[ #{foo: "bar" }]}`, expected: { items: [{ foo: "bar" }] } },
+      { value: `#["foo"]`, expected: ["foo"] },
+      { value: `true`, expected: true },
+      { value: `42`, expected: 42 },
+      { value: `"hi"`, expected: "hi" },
+      { value: `null`, expected: null },
+    ])("treats value $value as raw value", async ({ value, expected }) => {
+      const { Foo } = await runner.compile(`
+          @extension("x-custom", ${value})
+          @test
+          model Foo{}  
+        `);
+
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
+        "x-custom": expected,
+      });
+    });
+
+    it("supports extension key not starting with `x-`", async () => {
+      const { Foo } = await runner.compile(`
+        @extension("foo", "Bar")
+        @test
+        model Foo {
+          prop: string
+        }
+      `);
+
+      deepStrictEqual(Object.fromEntries(getExtensions(runner.program, Foo)), {
+        foo: "Bar",
       });
     });
 
@@ -85,21 +148,6 @@ describe("openapi: decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-      });
-    });
-
-    it("emit diagnostics when passing extension key not starting with `x-`", async () => {
-      const diagnostics = await runner.diagnose(`
-        @extension("foo", "Bar")
-        @test
-        model Foo {
-          prop: string
-        }
-      `);
-
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/openapi/invalid-extension-key",
-        message: `OpenAPI extension must start with 'x-' but was 'foo'`,
       });
     });
   });

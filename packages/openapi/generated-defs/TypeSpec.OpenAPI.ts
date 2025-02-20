@@ -44,7 +44,7 @@ export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: Type,
+  value: Type | unknown,
 ) => void;
 
 /**

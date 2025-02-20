@@ -37,7 +37,7 @@ op listPets(): Pet[] | PetStoreResponse;
 Attach some custom data to the OpenAPI element generated from this type.
 
 ```typespec
-@TypeSpec.OpenAPI.extension(key: valueof string, value: unknown)
+@TypeSpec.OpenAPI.extension(key: valueof string, value: unknown | valueof unknown)
 ```
 
 #### Target
@@ -46,10 +46,10 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 #### Parameters
 
-| Name  | Type             | Description                         |
-| ----- | ---------------- | ----------------------------------- |
-| key   | `valueof string` | Extension key. Must start with `x-` |
-| value | `unknown`        | Extension value.                    |
+| Name  | Type                           | Description                         |
+| ----- | ------------------------------ | ----------------------------------- |
+| key   | `valueof string`               | Extension key. Must start with `x-` |
+| value | `unknown` \| `valueof unknown` | Extension value.                    |
 
 #### Examples
 

@@ -30,7 +30,7 @@ extern dec operationId(target: Operation, operationId: valueof string);
  * op read(): string;
  * ```
  */
-extern dec extension(target: unknown, key: valueof string, value: unknown);
+extern dec extension(target: unknown, key: valueof string, value: unknown | (valueof unknown));
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.
