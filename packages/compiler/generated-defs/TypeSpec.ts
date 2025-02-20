@@ -582,8 +582,8 @@ export type EncodedNameDecorator = (
  * @discriminated
  * union Pet{ cat: Cat, dog: Dog }
  *
- * model Cat { meow: boolean }
- * model Dog { bark: boolean }
+ * model Cat { name: string, meow: boolean }
+ * model Dog { name: string, bark: boolean }
  * ```
  * Serialized as:
  * ```json
@@ -608,8 +608,8 @@ export type EncodedNameDecorator = (
  * @discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
  * union Pet{ cat: Cat, dog: Dog }
  *
- * model Cat { meow: boolean }
- * model Dog { bark: boolean }
+ * model Cat { name: string, meow: boolean }
+ * model Dog { name: string, bark: boolean }
  * ```
  * Serialized as:
  * ```json

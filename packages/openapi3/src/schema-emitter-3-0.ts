@@ -140,7 +140,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const program = this.emitter.getProgram();
     const [discriminated] = getDiscriminatedUnion(program, union);
     if (discriminated) {
-      return this.discriminatedUnion(disriminated);
+      return this.discriminatedUnion(discriminated);
     }
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });

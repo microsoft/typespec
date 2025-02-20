@@ -106,8 +106,8 @@ Specify that this union is discriminated.
 @discriminated
 union Pet{ cat: Cat, dog: Dog }
 
-model Cat { meow: boolean }
-model Dog { bark: boolean }
+model Cat { name: string, meow: boolean }
+model Dog { name: string, bark: boolean }
 ```
 Serialized as:
 ```json
@@ -134,8 +134,8 @@ Serialized as:
 @discriminated(#{discriminatorPropertyName: "dataKind", envelopePropertyName: "data"})
 union Pet{ cat: Cat, dog: Dog }
 
-model Cat { meow: boolean }
-model Dog { bark: boolean }
+model Cat { name: string, meow: boolean }
+model Dog { name: string, bark: boolean }
 ```
 Serialized as:
 ```json
