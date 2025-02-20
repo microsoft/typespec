@@ -29,7 +29,7 @@ export async function initTypeSpecProject(
     await initTypeSpecProjectWorker(host, directory, options);
   } catch (error) {
     if (error instanceof Error && error.name === "ExitPromptError") {
-      warning("interupted, until next time!");
+      warning("interrupted, until next time!");
     } else {
       // Rethrow unknown errors
       throw error;
