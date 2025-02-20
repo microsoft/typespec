@@ -32,6 +32,10 @@ import {
 import { getHttpOperation } from "./operations.js";
 import { HttpVerb, OperationParameterOptions } from "./types.js";
 
+// Used in @link JsDoc tag.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { PatchOptions } from "../generated-defs/TypeSpec.Http.js";
+
 /**
  * Flags enum representation of well-known visibilities that are used in
  * REST API.
@@ -49,20 +53,18 @@ export enum Visibility {
   /**
    * Additional flag to indicate when something is nested in a collection
    * and therefore no metadata is applicable.
-   *
-   * Never use this flag. It is used internally by the HTTP core.
-   *
-   * @internal
    */
   Item = 1 << 20,
 
   /**
-   * Additional flag to indicate when the verb is patch and will have fields made
-   * optional if request visibility includes update.
+   * Additional flag to indicate when the verb is PATCH and will have fields made
+   * optional if the request visibility includes update.
    *
-   * Never use this flag. It is used internally by the HTTP core.
+   * Whether or not this flag is set automatically is determined by the options
+   * passed to the `@patch` decorator. By default, it is set in requests for any
+   * operation that uses the PATCH verb.
    *
-   * @internal
+   * @see {@link PatchOptions}
    */
   Patch = 1 << 21,
 
