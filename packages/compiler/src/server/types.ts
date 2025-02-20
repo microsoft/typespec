@@ -58,7 +58,6 @@ export interface ServerHost {
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
   ) => Promise<ApplyWorkspaceEditResult>;
-  readonly getOneOpenDocumentUrl: () => string | undefined;
 }
 
 export interface CompileResult {

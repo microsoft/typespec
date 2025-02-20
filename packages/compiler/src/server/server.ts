@@ -84,10 +84,6 @@ function main() {
     applyEdit(paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit) {
       return connection.workspace.applyEdit(paramOrEdit);
     },
-    getOneOpenDocumentUrl() {
-      const allOpenDoc = documents.all();
-      return allOpenDoc && allOpenDoc.length > 0 ? allOpenDoc[0].uri : undefined;
-    },
   };
 
   const s = createServer(host);

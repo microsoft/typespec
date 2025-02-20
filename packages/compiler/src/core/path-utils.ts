@@ -584,13 +584,8 @@ function getPathComponentsRelativeTo(
 
   const components = toComponents.slice(start);
   const relative: string[] = [];
-  if (fromComponents.length - start === 1) {
-    relative.push(".");
-  } else {
-    start++;
-    for (; start < fromComponents.length; start++) {
-      relative.push("..");
-    }
+  for (; start < fromComponents.length; start++) {
+    relative.push("..");
   }
 
   return ["", ...relative, ...components];

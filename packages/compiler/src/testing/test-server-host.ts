@@ -35,9 +35,6 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
     getOpenDocumentByURL(url) {
       return documents.get(url);
     },
-    getOneOpenDocumentUrl() {
-      return documents.size > 0 ? documents.values().next().value?.uri : undefined;
-    },
     getOpenDocument(path: string) {
       return this.getOpenDocumentByURL(this.getURL(path));
     },
