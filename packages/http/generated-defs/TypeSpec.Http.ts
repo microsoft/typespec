@@ -24,6 +24,10 @@ export interface PathOptions {
   readonly allowReserved?: boolean;
 }
 
+export interface PatchOptions {
+  readonly implicitOptionality?: boolean;
+}
+
 /**
  * Specify the status code for this response. Property type must be a status code integer or a union of status code integer.
  *
@@ -211,7 +215,11 @@ export type PostDecorator = (context: DecoratorContext, target: Operation) => vo
  * @patch op update(pet: Pet): void
  * ```
  */
-export type PatchDecorator = (context: DecoratorContext, target: Operation) => void;
+export type PatchDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  options?: PatchOptions,
+) => void;
 
 /**
  * Specify the HTTP verb for the target operation to be `DELETE`.

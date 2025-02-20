@@ -260,6 +260,17 @@ extern dec put(target: Operation);
 extern dec post(target: Operation);
 
 /**
+ * Options for PATCH operations.
+ */
+model PatchOptions {
+  /**
+   * If set to `false`, disables the implicit transform that makes the body of a
+   * PATCH operation deeply optional.
+   */
+  implicitOptionality?: boolean;
+}
+
+/**
  * Specify the HTTP verb for the target operation to be `PATCH`.
  *
  * @example
@@ -268,7 +279,7 @@ extern dec post(target: Operation);
  * @patch op update(pet: Pet): void
  * ```
  */
-extern dec patch(target: Operation);
+extern dec patch(target: Operation, options?: valueof PatchOptions);
 
 /**
  * Specify the HTTP verb for the target operation to be `DELETE`.
