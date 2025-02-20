@@ -131,6 +131,7 @@ const defaultOptions = {
   "omit-unreachable-types": false,
   "include-x-typespec-name": "never",
   "safeint-strategy": "int64",
+  "seal-object-schemas": false,
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
@@ -213,6 +214,7 @@ export function resolveOptions(
     safeintStrategy: resolvedOptions["safeint-strategy"],
     outputFile: resolvePath(context.emitterOutputDir, specDir, outputFile),
     openapiVersions,
+    sealObjectSchemas: resolvedOptions["seal-object-schemas"],
   };
 }
 
@@ -224,6 +226,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   omitUnreachableTypes: boolean;
   includeXTypeSpecName: "inline-only" | "never";
   safeintStrategy: "double-int" | "int64";
+  sealObjectSchemas: boolean;
 }
 
 function createOAPIEmitter(

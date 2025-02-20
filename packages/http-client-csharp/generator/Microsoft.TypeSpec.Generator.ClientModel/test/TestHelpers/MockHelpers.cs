@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         private static readonly string _configFilePath = Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
         public const string TestHelpersFolder = "TestHelpers";
 
-        public static async Task<Mock<ClientModelPlugin>> LoadMockPluginAsync(
+        public static async Task<Mock<ScmCodeModelPlugin>> LoadMockPluginAsync(
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
             Func<IReadOnlyList<InputClient>>? clients = null,
@@ -43,13 +43,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             return mockPlugin;
         }
 
-        public static Mock<ClientModelPlugin> LoadMockPlugin(
+        public static Mock<ScmCodeModelPlugin> LoadMockPlugin(
             Func<InputType, TypeProvider, IReadOnlyList<TypeProvider>>? createSerializationsCore = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<CSharpType>? matchConditionsType = null,
             Func<InputParameter, ParameterProvider>? createParameterCore = null,
-            Func<InputApiKeyAuth>? apiKeyAuth = null,
-            Func<InputOAuth2Auth>? oauth2Auth = null,
             Func<IReadOnlyList<string>>? apiVersions = null,
             Func<IReadOnlyList<InputEnumType>>? inputEnums = null,
             Func<IReadOnlyList<InputModelType>>? inputModels = null,
@@ -59,13 +57,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             string? configuration = null,
             ClientResponseApi? clientResponseApi = null,
             ClientPipelineApi? clientPipelineApi = null,
-            HttpMessageApi? httpMessageApi = null)
+            HttpMessageApi? httpMessageApi = null,
+            Func<InputAuth>? auth = null,
+            string? packageName = null)
         {
             IReadOnlyList<string> inputNsApiVersions = apiVersions?.Invoke() ?? [];
             IReadOnlyList<InputEnumType> inputNsEnums = inputEnums?.Invoke() ?? [];
             IReadOnlyList<InputClient> inputNsClients = clients?.Invoke() ?? [];
             IReadOnlyList<InputModelType> inputNsModels = inputModels?.Invoke() ?? [];
-            InputAuth inputNsAuth = new InputAuth(apiKeyAuth?.Invoke(), oauth2Auth?.Invoke());
+            InputAuth? inputAuth = auth?.Invoke() ?? null;
+
             var mockTypeFactory = new Mock<ScmTypeFactory>() { CallBase = true };
             var mockInputNs = new Mock<InputNamespace>(
                 "Sample",
@@ -73,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 inputNsEnums,
                 inputNsModels,
                 inputNsClients,
-                inputNsAuth,
+                inputAuth!,
                 Array.Empty<string>());
             var mockInputLibrary = new Mock<InputLibrary>(_configFilePath);
             mockInputLibrary.Setup(p => p.InputNamespace).Returns(mockInputNs.Object);
@@ -103,15 +104,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
                 mockTypeFactory.Protected().Setup<ClientProvider?>("CreateClientCore", ItExpr.IsAny<InputClient>()).Returns(createClientCore);
             }
 
+            if (packageName is not null)
+            {
+                mockTypeFactory.Setup(p => p.PackageName).Returns(packageName);
+            }
+
             // initialize the mock singleton instance of the plugin
             var codeModelInstance = typeof(CodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
-            var clientModelInstance = typeof(ClientModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+            var clientModelInstance = typeof(ScmCodeModelPlugin).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
             // invoke the load method with the config file path
             var loadMethod = typeof(Configuration).GetMethod("Load", BindingFlags.Static | BindingFlags.NonPublic);
             object?[] parameters = [_configFilePath, configuration];
             var config = loadMethod?.Invoke(null, parameters);
             var mockGeneratorContext = new Mock<GeneratorContext>(config!);
-            var mockPluginInstance = new Mock<ClientModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
+            var mockPluginInstance = new Mock<ScmCodeModelPlugin>(mockGeneratorContext.Object) { CallBase = true };
             mockPluginInstance.SetupGet(p => p.TypeFactory).Returns(mockTypeFactory.Object);
             mockPluginInstance.Setup(p => p.InputLibrary).Returns(mockInputLibrary.Object);
             if (clientResponseApi is not null)

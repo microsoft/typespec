@@ -1,5 +1,26 @@
 # Change Log - @typespec/compiler
 
+## 0.65.3
+
+### Bug Fixes
+
+- [#6041](https://github.com/microsoft/typespec/pull/6041) Fix validation issue in `@opExample` when using versioning/mutators
+
+
+## 0.65.2
+
+### Bug Fixes
+
+- [#6003](https://github.com/microsoft/typespec/pull/6003) Fix regression where enum values would report not being assignable to their enum when using versioning
+
+
+## 0.65.1
+
+### Bug Fixes
+
+- [#5975](https://github.com/microsoft/typespec/pull/5975) Downgrade arborist dependency which added node20+ requirement
+
+
 ## 0.65.0
 
 ### Bug Fixes

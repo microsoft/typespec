@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Client.Structure.Service
+namespace Client.Structure.Service.Default
 {
     [AttributeUsage((AttributeTargets.Class | AttributeTargets.Struct))]
     internal partial class CodeGenTypeAttribute : Attribute

@@ -55,10 +55,10 @@ public final class TemplateHelper {
         SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails, JavaBlock function) {
         function.line("Configuration buildConfiguration = (configuration == null) ? Configuration"
             + ".getGlobalConfiguration() : configuration;");
-        String localHttpLogOptionsName = "local" + CodeNamer.toPascalCase("httpLogOptions");
+        String localHttpInstrumentationOptionsName = "local" + CodeNamer.toPascalCase("httpInstrumentationOptions");
         function.line(String.format(
-            "HttpLogOptions %s = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;",
-            localHttpLogOptionsName));
+            "HttpInstrumentationOptions %s = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;",
+            localHttpInstrumentationOptionsName));
 
         function.line("HttpPipelineBuilder httpPipelineBuilder = new HttpPipelineBuilder();");
         function.line("List<HttpPipelinePolicy> policies = new ArrayList<>();");
@@ -76,8 +76,8 @@ public final class TemplateHelper {
                     + "\", keyCredential, " + prefixExpr + "));");
             });
         }
-        function.line("policies.add(new HttpInstrumentationPolicy(null, %s));", localHttpLogOptionsName);
-        function.line("httpPipelineBuilder.policies(policies.toArray(new HttpPipelinePolicy[0]));");
+        function.line("policies.add(new HttpInstrumentationPolicy(%s));", localHttpInstrumentationOptionsName);
+        function.line("policies.forEach(httpPipelineBuilder::addPolicy);");
         function.methodReturn("httpPipelineBuilder.build()");
     }
 

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using NUnit.Framework;
@@ -14,14 +15,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
     {
         private NamedTypeSymbolProvider _namedTypeSymbolProvider;
         private NamedSymbol _namedSymbol;
+        private readonly INamedTypeSymbol _iNamedSymbol;
 
         public NamedTypeSymbolProviderTests()
         {
             _namedSymbol = new NamedSymbol();
             var compilation = CompilationHelper.LoadCompilation([_namedSymbol, new PropertyType()]);
-            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
+            _iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol")!;
 
-            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(_iNamedSymbol);
+        }
+
+        [Test]
+        public void ValidateCSharpType()
+        {
+            var type = _iNamedSymbol.GetCSharpType();
+            Assert.AreEqual(_namedTypeSymbolProvider.Type, type);
         }
 
         [Test]

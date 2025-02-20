@@ -35,9 +35,11 @@ import tsptest.armstreamstyleserialization.fluent.ArmStreamStyleSerializationCli
 import tsptest.armstreamstyleserialization.implementation.ArmStreamStyleSerializationClientBuilder;
 import tsptest.armstreamstyleserialization.implementation.FishesImpl;
 import tsptest.armstreamstyleserialization.implementation.FunctionsImpl;
+import tsptest.armstreamstyleserialization.implementation.PrioritiesImpl;
 import tsptest.armstreamstyleserialization.implementation.TopLevelArmResourcesImpl;
 import tsptest.armstreamstyleserialization.models.Fishes;
 import tsptest.armstreamstyleserialization.models.Functions;
+import tsptest.armstreamstyleserialization.models.Priorities;
 import tsptest.armstreamstyleserialization.models.TopLevelArmResources;
 
 /**
@@ -50,6 +52,8 @@ public final class ArmStreamStyleSerializationManager {
     private TopLevelArmResources topLevelArmResources;
 
     private Functions functions;
+
+    private Priorities priorities;
 
     private final ArmStreamStyleSerializationClient clientObject;
 
@@ -302,6 +306,18 @@ public final class ArmStreamStyleSerializationManager {
             this.functions = new FunctionsImpl(clientObject.getFunctions(), this);
         }
         return functions;
+    }
+
+    /**
+     * Gets the resource collection API of Priorities.
+     * 
+     * @return Resource collection API of Priorities.
+     */
+    public Priorities priorities() {
+        if (this.priorities == null) {
+            this.priorities = new PrioritiesImpl(clientObject.getPriorities(), this);
+        }
+        return priorities;
     }
 
     /**

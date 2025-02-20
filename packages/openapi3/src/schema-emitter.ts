@@ -155,6 +155,49 @@ export class OpenAPI3SchemaEmitterBase<
     }
   }
 
+  shouldSealSchema(model: Model): boolean {
+    // when an indexer is not present, we might be able to seal it
+    if (!model.indexer) {
+      const derivedModels = model.derivedModels.filter(includeDerivedModel);
+      return !!this._options.sealObjectSchemas && !derivedModels.length;
+    }
+
+    return isNeverType(model.indexer.value);
+  }
+
+  applyModelIndexer(schema: ObjectBuilder<any>, model: Model): void {
+    const shouldSeal = this.shouldSealSchema(model);
+    if (!shouldSeal && !model.indexer) return;
+
+    // if the schema is 'sealed' the model extends another model,
+    // then we need to redefine any baseModel properties
+    if (shouldSeal) {
+      const props = new ObjectBuilder(schema.properties ?? {});
+      let baseModel = model.baseModel;
+      while (baseModel) {
+        const result = this.emitter.emitModelProperties(baseModel);
+        baseModel = baseModel.baseModel;
+        if (result.kind !== "code" || !(result.value instanceof ObjectBuilder)) continue;
+        const baseProperties = result.value;
+        for (const key of Object.keys(baseProperties)) {
+          if (key in props) continue;
+          // Here we are saying that this property will always validate as true for this schema.
+          // This is because the `allOf` subSchema will contain the more specific validation
+          // for this property.
+          props.set(key, {});
+        }
+      }
+      if (Object.keys(props).length > 0) {
+        schema.set("properties", props);
+      }
+    }
+
+    const additionalPropertiesSchema = shouldSeal
+      ? { not: {} }
+      : this.emitter.emitTypeReference(model.indexer!.value);
+    schema.set("additionalProperties", additionalPropertiesSchema);
+  }
+
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const visibility = this.#getVisibilityContext();
@@ -164,9 +207,7 @@ export class OpenAPI3SchemaEmitterBase<
       properties: this.emitter.emitModelProperties(model),
     });
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.applyModelIndexer(schema, model);
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
@@ -224,9 +265,7 @@ export class OpenAPI3SchemaEmitterBase<
       required: this.#requiredModelProperties(model, this.#getVisibilityContext()),
     });
 
-    if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
-    }
+    this.applyModelIndexer(schema, model);
 
     return schema;
   }
