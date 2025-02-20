@@ -210,9 +210,17 @@ export type PostDecorator = (context: DecoratorContext, target: Operation) => vo
 /**
  * Specify the HTTP verb for the target operation to be `PATCH`.
  *
+ * @param options Options for the PATCH operation.
  * @example
  * ```typespec
- * @patch op update(pet: Pet): void
+ * @patch op update(pet: Pet): void;
+ * ```
+ * @example
+ * ```typespec
+ * // Disable implicit optionality, making the body of the PATCH operation use the
+ * // optionality as defined in the `Pet` model.
+ * @patch(#{ implicitOptionality: false })
+ * op update(pet: Pet): void;
  * ```
  */
 export type PatchDecorator = (
