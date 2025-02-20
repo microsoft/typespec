@@ -101,6 +101,7 @@ function getDiscriminatedUnionForUnion(
         diagnostics.push(
           createDiagnostic({
             code: "invalid-discriminated-union-variant",
+            messageId: "noEnvelopeModel",
             format: { name: variant.name.toString() },
             target: variant,
           }),
