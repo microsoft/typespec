@@ -24,7 +24,7 @@ describe("compiler: unused template parameter in model template", () => {
     strictEqual(diagnostics[0].code, "unused-template-parameter");
     strictEqual(
       diagnostics[0].message,
-      "Template may only specify used parameter, and 'T' does not exist in type 'A'.",
+      "Templates should use all specified parameters, and parameter 'T' does not exist in type 'A'. Consider removing this parameter.",
     );
   });
 
