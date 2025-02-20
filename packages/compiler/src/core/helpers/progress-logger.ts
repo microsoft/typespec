@@ -1,71 +1,71 @@
-import isUnicodeSupported from "is-unicode-supported";
+import { Direction } from "readline";
+import { LogSink, ProcessedLog } from "../types.js";
 
-const spinnerFrames = isUnicodeSupported()
-  ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-  : ["-", "\\", "|", "/"];
+export class ConsoleSink implements LogSink {
+  log(log: ProcessedLog): void {
+    process.stdout.write(log.message);
+  }
+  cursorTo(position: number): void {
+    process.stdout.cursorTo(position);
+  }
+  clearLine(line: Direction): void {
+    process.stdout.clearLine(line);
+  }
+}
 
 const logMessages: string[] = [];
-let spinnerInterval: NodeJS.Timeout | null = null;
 let childLogPrefix = "";
-let spinnerMessage = "";
-let spinnerActive = false;
+const logger = new ConsoleSink();
 
-function createSpinner(): () => string {
-  let index = 0;
-
-  return () => {
-    index = ++index % spinnerFrames.length;
-    return spinnerFrames[index];
-  };
-}
-
-const spinner = createSpinner();
-
-function displaySpinner(): void {
-  process.stdout.write(`\r${spinner()} ${spinnerMessage}`);
-}
-
-function clearLastLine(): void {
-  process.stdout.write("\r\x1b[K");
-}
-
-function printChildMessages(): void {
-  logMessages.forEach((message) => process.stdout.write(`${message}\n`));
-}
-
-export function initializeSpinner(message: string, interval: number = 100): void {
-  if (spinnerInterval) {
-    clearInterval(spinnerInterval);
+export async function actionWithProgressSpinner<T>(
+  asyncAction: () => Promise<T>,
+  startMessage: string,
+  finishMessage?: string,
+  printChildMessage: boolean = false,
+): Promise<T> {
+  const isTTY = process.stdout?.isTTY && !process.env.CI;
+  let interval;
+  if (isTTY) {
+    const spinner = createSpinner();
+    interval = setInterval(() => {
+      logger.clearLine(0);
+      logger.cursorTo(0);
+      logger.log({
+        level: "trace",
+        message: `\r${spinner()} ${startMessage}`,
+      });
+    }, 200);
   }
 
-  spinnerMessage = message;
-  spinnerActive = true;
-  spinnerInterval = setInterval(displaySpinner, interval);
-}
-
-function resetSpinnerState(): void {
-  spinnerInterval = null;
-  childLogPrefix = "";
-  spinnerMessage = "";
-  logMessages.length = 0;
+  try {
+    return await asyncAction();
+  } finally {
+    if (interval) {
+      clearInterval(interval);
+      stopSpinner(finishMessage, printChildMessage);
+    } else if (finishMessage) {
+      // eslint-disable-next-line no-console
+      console.log(finishMessage);
+    }
+  }
 }
 
 export function stopSpinner(finishMessage?: string, printChildMessage: boolean = false): void {
-  if (spinnerInterval) {
-    spinnerActive = false;
-    clearInterval(spinnerInterval);
-    clearLastLine();
+  clearLastLine();
 
-    if (finishMessage) {
-      process.stdout.write(`${finishMessage}\n`);
-    }
-
-    if (printChildMessage) {
-      printChildMessages();
-    }
-
-    resetSpinnerState();
+  if (finishMessage) {
+    logger.log({
+      level: "trace",
+      message: `${finishMessage}\n`,
+    });
   }
+
+  if (printChildMessage) {
+    printChildMessages();
+  }
+
+  childLogPrefix = "";
+  logMessages.length = 0;
 }
 
 export function setChildLogPrefix(message: string): void {
@@ -76,16 +76,50 @@ export function addChildLog(message: string): void {
   logMessages.push(`\t${childLogPrefix}${message}`);
 }
 
-// Override console.log to handle spinner
-// eslint-disable-next-line no-console
-const originalConsoleLog = console.log;
-// eslint-disable-next-line no-console
-console.log = function (...args: any[]) {
-  if (spinnerActive) {
-    clearLastLine();
+function clearLastLine(): void {
+  process.stdout.write("\r\x1b[K");
+}
+
+function printChildMessages(): void {
+  logMessages.forEach((message) =>
+    logger.log({
+      level: "trace",
+      message: `${message}\n`,
+    }),
+  );
+}
+
+function createSpinner(): () => string {
+  let index = 0;
+
+  return () => {
+    index = ++index % spinnerFrames.length;
+    return spinnerFrames[index];
+  };
+}
+
+export const spinnerFrames = isUnicodeSupported()
+  ? ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+  : ["-", "\\", "|", "/"];
+
+function isUnicodeSupported() {
+  const { env } = process;
+  const { TERM, TERM_PROGRAM } = env;
+
+  if (process.platform !== "win32") {
+    return TERM !== "linux"; // Linux console (kernel)
   }
-  originalConsoleLog.apply(console, args);
-  if (spinnerActive) {
-    displaySpinner();
-  }
-};
+
+  return (
+    Boolean(env.WT_SESSION) || // Windows Terminal
+    Boolean(env.TERMINUS_SUBLIME) || // Terminus (<0.2.27)
+    env.ConEmuTask === "{cmd::Cmder}" || // ConEmu and cmder
+    TERM_PROGRAM === "Terminus-Sublime" ||
+    TERM_PROGRAM === "vscode" ||
+    TERM === "xterm-256color" ||
+    TERM === "alacritty" ||
+    TERM === "rxvt-unicode" ||
+    TERM === "rxvt-unicode-256color" ||
+    env.TERMINAL_EMULATOR === "JetBrains-JediTerm"
+  );
+}
