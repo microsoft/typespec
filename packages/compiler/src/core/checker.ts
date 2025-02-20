@@ -2950,7 +2950,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       const curModelNode = ancestor.parent as ModelExpressionNode | ObjectLiteralNode;
       for (const curModel of model) {
-        addInheritedPropertyCompletions(curModel, curModelNode);
+        for (const prop of walkPropertiesInherited(curModel)) {
+          if (
+            identifier.sv === prop.name ||
+            !curModelNode.properties.find(
+              (p) =>
+                (p.kind === SyntaxKind.ModelProperty ||
+                  p.kind === SyntaxKind.ObjectLiteralProperty) &&
+                p.id.sv === prop.name,
+            )
+          ) {
+            const sym = getMemberSymbol(curModel.node!.symbol, prop.name);
+            if (sym) {
+              addCompletion(prop.name, sym);
+            }
+          }
+        }
       }
     } else if (identifier.parent && identifier.parent.kind === SyntaxKind.MemberExpression) {
       let base = resolver.getNodeLinks(identifier.parent.base).resolvedSymbol;
@@ -3011,28 +3026,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     return completions;
-
-    function addInheritedPropertyCompletions(
-      model: Model,
-      curModelNode: ModelExpressionNode | ObjectLiteralNode,
-    ) {
-      for (const prop of walkPropertiesInherited(model)) {
-        if (
-          identifier.sv === prop.name ||
-          !curModelNode.properties.find(
-            (p) =>
-              (p.kind === SyntaxKind.ModelProperty ||
-                p.kind === SyntaxKind.ObjectLiteralProperty) &&
-              p.id.sv === prop.name,
-          )
-        ) {
-          const sym = getMemberSymbol(model.node!.symbol, prop.name);
-          if (sym) {
-            addCompletion(prop.name, sym);
-          }
-        }
-      }
-    }
 
     function addCompletions(table: SymbolTable | undefined) {
       if (!table) {
