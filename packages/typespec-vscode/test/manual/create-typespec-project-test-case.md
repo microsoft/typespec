@@ -18,7 +18,7 @@ Selecting a template involves:
 - OS : Windows or Linux
 - Template : Empty Project, Generic REST API, TypeSpec Library (With TypeScript), TypeSpec Emitter (With TypeScript) ...
 
-> Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
+> Note: The extension should support all test cases in VS Code for Windows and Linux.
 
 ## Prerequisites
 
@@ -55,7 +55,7 @@ _Option 1_. Clicking "Create TypeSpec Project" button/link in the "No Folder Ope
 
 ![alt text](./images/TriggerCreateTypeSpecProject_NoFolderOpened.png)
 
-_Option 2_. Typing `> TypeSpec: Create TypeSpec Project` in the _Command Palette_.
+_Option 2_. Typing `>TypeSpec: Create TypeSpec Project` in the _Command Palette_.
 
 ![alt text](./images/TriggerCreateTypeSpecProject_CommandPalette.png)
 
@@ -203,17 +203,11 @@ See [step 4 of test case 1](#step-4-check-if-typespec-compiler-cli-is-install-op
 
 6. Press "Enter" and the project will be created.
 
-   - For `rest-api-spec repo`:
+   **Validate:** Verify that the project was created correctly.
 
-     **Validate:** Verify that the project was created correctly.
+   ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder.png)
 
-     ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder.png)
-
-   - For `stand alone`:
-
-     **Validate:** Verify that the project was created correctly.
-
-     ![alt text](./images/CreateTypeSpecProject_TestCase_2_CreateSucceedFolder_standalone.png)
+   > Note: The name of the created file will change depending on the template used, it may be client.tsp, or employee.tsp.
 
 ## Issue Report
 

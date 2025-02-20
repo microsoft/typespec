@@ -14,7 +14,7 @@ Different emitter types can be used to generate different codes to meet specific
 - Emitter: Client Code, Server Stub, OpenAPI Document
 - Language : Python, Java, JavaScript, .NET, OpenAPI3
 
-> Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
+> Note: The extension should support all test cases in VS Code for Windows and Linux.
 
 ## Prerequisites
 
@@ -65,23 +65,23 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
 ### Step 4: Select an Emitter for code generation.(optional)
 
-- If an emitter is configured in `tspconfig.yaml`.
-  For example, the configuration in the `tspconfig.yaml` file is as follows:
+**Validate:** There should be a prompt "Select an emitter for code generation".
 
-  ```yaml
-  emit:
-    - "@typespec/http-client-python"
-  ```
+![alt text](./images/GeneratefromTypeSpec_yamlFileConfigurationEmitter.png)
 
-  After selecting the project, this page will show as first page to support quick path scenario to regen existing code.
+- If there is no emitter that you need, click `Choose another emitter`.
 
-  ![alt text](./images/GeneratefromTypeSpec_yamlFileConfigurationEmitter.png)
+- If there is an emitter that you need, click the corresponding language emitter type, and skip to step 6 of the corresponding emitter type step `Check if packages need to be installed or updated`.
 
-  Click the language of the corresponding emitter type, and skip to step 6 of the corresponding emitter type step `Check if packages need to be installed or updated`.
+- If there is no emitter configured in `tspconfig.yaml`, skip the current step and go to the next step.
 
-  If you want to choose another emitter type, click `Choose another emitter`, then skip to [step 5](#step-5-select-an-emitter-type).
+**This step only appears if the emitter is configured in the `tspconfig.yaml` file.**
 
-- If there is no emitter configured in `tspconfig.yaml`, skip to the next step.
+```yaml
+emit:
+  - "@azure-tools/typespec-autorest"
+  - "@typespec/http-client-python"
+```
 
 ### Step 5: Select an Emitter Type.
 
@@ -139,6 +139,8 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
      **Validate:** There should be a prompt "Select a Language for server code generation", and should see two languages: `.NET`, `JavaScript`.
 
+     > Note: JavaScript server code emitter is experimental.
+
   2. Check if packages need to be installed or updated.
 
      **Validate:** There should be a prompt `Here are libraries to install or update`, and confirm to install the required libraries.
@@ -148,8 +150,6 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
   3. Initiate the generation of Server Stub on the backend.
 
      **Validate:** The result appears as a Notification in the bottom right corner, and generate the server folder.
-
-     > Note: JavaScript server code emitter is experimental.
 
      - For `.NET`:
 
@@ -185,9 +185,9 @@ _Option 2_. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_ 
 
 When an error is detected, it's necessary to document the findings by using the following form:
 
-| No  |              Title               | Emitter Type |              Language              |                       Issue Description                        |                                                                         Repro Steps                                                                          |                 Expected Results                  |                         Actual Results                         |  Comments  |
-| --- | :------------------------------: | :----------: | :--------------------------------: | :------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------: | :------------------------------------------------------------: | :--------: |
-| 1   | e.g. Generate Client Code failed | Client Code  | DotNet/ Java / JavaScript / Python | Exception occurred when generating client code for JavaScript. | 1. Typing `>TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. Choose a project. <br> 3. Select an Emitter Type. <br> 4. Select a Language. | Generate client code for JavaScript ...Succeeded. | Exception occurred when generating client code for JavaScript. | Issue link |
+| No  |              Title               | Emitter Type |              Language              |                       Issue Description                        |                                                                          Repro Steps                                                                          |                 Expected Results                  |                         Actual Results                         |  Comments  |
+| --- | :------------------------------: | :----------: | :--------------------------------: | :------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------: | :------------------------------------------------------------: | :--------: |
+| 1   | e.g. Generate Client Code failed | Client Code  | DotNet/ Java / JavaScript / Python | Exception occurred when generating client code for JavaScript. | 1. Typing `> TypeSpec: Generate from TypeSpec` in the _Command Palette_. <br> 2. Choose a project. <br> 3. Select an Emitter Type. <br> 4. Select a Language. | Generate client code for JavaScript ...Succeeded. | Exception occurred when generating client code for JavaScript. | Issue link |
 
 ## Test Results Summary
 

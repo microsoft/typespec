@@ -18,7 +18,7 @@ The TypeSpec for VS Code extension provides TypeSpec language support for VS Cod
 - OS : Windows or Linux
 - Editor: Visual Studio Code
 
-> Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
+> Note: The extension should support all test cases in VS Code for Windows and Linux.
 
 ## Test Steps
 

@@ -6,7 +6,7 @@ With the TypeSpec emitter for OpenAPI3, users can import a TypeSpec file from a 
 
 - OS : Windows or Linux
 
-> Note: The extension should support all test cases in VS Code for Windows and Linux. Mac support is a stretch goal for Selenium semester.
+> Note: The extension should support all test cases in VS Code for Windows and Linux.
 
 ## Prerequisites
 
@@ -64,7 +64,7 @@ _Option 2_. From the right-click context menu of a folder.
 
   If the folder is empty, skip the query and go to the next step.
 
-_Option 3_. Typing `> TypeSpec: Import TypeSpec from OpenApi3` in the Command Palette.
+_Option 3_. Typing `>TypeSpec: Import TypeSpec from OpenApi3` in the _Command Palette_.
 
 ![alt text](./images/TriggerImportTypeSpecfromOpenAPI3_Option3.png)
 
