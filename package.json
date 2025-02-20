@@ -60,7 +60,6 @@
     "eslint-plugin-react-hooks": "5.1.0",
     "eslint-plugin-unicorn": "^56.0.1",
     "eslint-plugin-vitest": "^0.5.4",
-    "is-unicode-supported": "^2.1.0",
     "micromatch": "^4.0.8",
     "picocolors": "~1.1.1",
     "playwright": "^1.50.0",
