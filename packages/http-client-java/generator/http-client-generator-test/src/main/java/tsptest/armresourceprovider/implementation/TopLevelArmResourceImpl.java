@@ -116,16 +116,14 @@ public final class TopLevelArmResourceImpl
     public TopLevelArmResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResourceInterfaces()
-            .createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, this.innerModel(), Context.NONE)
-            .getValue();
+            .createOrUpdate(resourceGroupName, topLevelArmResourceName, this.innerModel(), Context.NONE);
         return this;
     }
 
     public TopLevelArmResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResourceInterfaces()
-            .createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, this.innerModel(), context)
-            .getValue();
+            .createOrUpdate(resourceGroupName, topLevelArmResourceName, this.innerModel(), context);
         return this;
     }
 

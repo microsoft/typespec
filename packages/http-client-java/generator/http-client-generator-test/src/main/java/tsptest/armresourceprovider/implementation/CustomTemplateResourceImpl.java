@@ -116,18 +116,16 @@ public final class CustomTemplateResourceImpl
     public CustomTemplateResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getCustomTemplateResourceInterfaces()
-            .createOrUpdateWithResponse(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
-                createIfNoneMatch, Context.NONE)
-            .getValue();
+            .createOrUpdate(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
+                createIfNoneMatch, Context.NONE);
         return this;
     }
 
     public CustomTemplateResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getCustomTemplateResourceInterfaces()
-            .createOrUpdateWithResponse(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
-                createIfNoneMatch, context)
-            .getValue();
+            .createOrUpdate(resourceGroupName, customTemplateResourceName, this.innerModel(), createIfMatch,
+                createIfNoneMatch, context);
         return this;
     }
 
@@ -147,17 +145,14 @@ public final class CustomTemplateResourceImpl
     public CustomTemplateResource apply() {
         this.innerObject = serviceManager.serviceClient()
             .getCustomTemplateResourceInterfaces()
-            .updateLongRunningWithResponse(resourceGroupName, customTemplateResourceName, updateProperties,
-                Context.NONE)
-            .getValue();
+            .updateLongRunning(resourceGroupName, customTemplateResourceName, updateProperties, Context.NONE);
         return this;
     }
 
     public CustomTemplateResource apply(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getCustomTemplateResourceInterfaces()
-            .updateLongRunningWithResponse(resourceGroupName, customTemplateResourceName, updateProperties, context)
-            .getValue();
+            .updateLongRunning(resourceGroupName, customTemplateResourceName, updateProperties, context);
         return this;
     }
 

@@ -152,10 +152,10 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
                 .format("The resource ID '%s' is not valid. Missing path segment 'childExtensionResources'.", id)));
         }
-        this.deleteWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, Context.NONE);
+        this.delete(resourceUri, topLevelArmResourceName, childExtensionResourceName, Context.NONE);
     }
 
-    public Response<Void> deleteByIdWithResponse(String id, Context context) {
+    public void deleteByIdWithResponse(String id, Context context) {
         String resourceUri = ResourceManagerUtils.getValueFromIdByParameterName(id,
             "/{resourceUri}/providers/TspTest.ArmResourceProvider/topLevelArmResources/{topLevelArmResourceName}/childExtensionResources/{childExtensionResourceName}",
             "resourceUri");
@@ -177,7 +177,7 @@ public final class ChildExtensionResourceInterfacesImpl implements ChildExtensio
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(String
                 .format("The resource ID '%s' is not valid. Missing path segment 'childExtensionResources'.", id)));
         }
-        return this.deleteWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
+        this.delete(resourceUri, topLevelArmResourceName, childExtensionResourceName, context);
     }
 
     private ChildExtensionResourceInterfacesClient serviceClient() {

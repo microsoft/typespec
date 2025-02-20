@@ -63,18 +63,16 @@ public final class ChildExtensionResourceImpl
     public ChildExtensionResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getChildExtensionResourceInterfaces()
-            .createOrUpdateWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName,
-                this.innerModel(), Context.NONE)
-            .getValue();
+            .createOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, this.innerModel(),
+                Context.NONE);
         return this;
     }
 
     public ChildExtensionResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getChildExtensionResourceInterfaces()
-            .createOrUpdateWithResponse(resourceUri, topLevelArmResourceName, childExtensionResourceName,
-                this.innerModel(), context)
-            .getValue();
+            .createOrUpdate(resourceUri, topLevelArmResourceName, childExtensionResourceName, this.innerModel(),
+                context);
         return this;
     }
 

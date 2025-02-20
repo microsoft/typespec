@@ -90,18 +90,15 @@ public final class ChildResourceImpl implements ChildResource, ChildResource.Def
     public ChildResource create() {
         this.innerObject = serviceManager.serviceClient()
             .getChildResourcesInterfaces()
-            .createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName,
-                this.innerModel(), Context.NONE)
-            .getValue();
+            .createOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, this.innerModel(),
+                Context.NONE);
         return this;
     }
 
     public ChildResource create(Context context) {
         this.innerObject = serviceManager.serviceClient()
             .getChildResourcesInterfaces()
-            .createOrUpdateWithResponse(resourceGroupName, topLevelArmResourceName, childResourceName,
-                this.innerModel(), context)
-            .getValue();
+            .createOrUpdate(resourceGroupName, topLevelArmResourceName, childResourceName, this.innerModel(), context);
         return this;
     }
 
