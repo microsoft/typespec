@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
         internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel)
         {
-            var model = ClientModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
+            var model = ScmCodeModelPlugin.Instance.TypeFactory.CreateModel(inputModel);
             var serializations = model!.SerializationProviders;
 
             Assert.AreEqual(1, serializations.Count);

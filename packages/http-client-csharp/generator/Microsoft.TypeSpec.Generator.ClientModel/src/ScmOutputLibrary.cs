@@ -11,11 +11,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
     {
         private static TypeProvider[] BuildClients()
         {
-            var inputClients = ClientModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
+            var inputClients = ScmCodeModelPlugin.Instance.InputLibrary.InputNamespace.Clients;
             var clients = new List<TypeProvider>(inputClients.Count * 3);
             foreach (var inputClient in inputClients)
             {
-                var client = ClientModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
+                var client = ScmCodeModelPlugin.Instance.TypeFactory.CreateClient(inputClient);
                 if (client == null)
                 {
                     continue;
@@ -62,10 +62,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         private IEnumerable<TypeProvider> GetMultipartFormDataBinaryContentDefinition()
         {
-            if (ClientModelPlugin.Instance.InputLibrary.HasMultipartFormDataOperation)
+            if (ScmCodeModelPlugin.Instance.InputLibrary.HasMultipartFormDataOperation)
             {
                 var multipart = new MultiPartFormDataBinaryContentDefinition();
-                ClientModelPlugin.Instance.AddTypeToKeep(multipart.Name);
+                ScmCodeModelPlugin.Instance.AddTypeToKeep(multipart.Name);
                 yield return multipart;
             }
         }
