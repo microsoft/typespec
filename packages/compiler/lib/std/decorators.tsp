@@ -476,14 +476,6 @@ extern dec discriminated(target: Union, options?: valueof DiscriminatedOptions);
  *
  * ```typespec
  * @discriminator("kind")
- * union Pet{ cat: Cat, dog: Dog }
- *
- * model Cat {kind: "cat", meow: boolean}
- * model Dog {kind: "dog", bark: boolean}
- * ```
- *
- * ```typespec
- * @discriminator("kind")
  * model Pet{ kind: string }
  *
  * model Cat extends Pet {kind: "cat", meow: boolean}
