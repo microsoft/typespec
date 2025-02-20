@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 import type { Program, ProjectedProgram } from "../program.js";
 import { projectProgram } from "../program.js";
 import type { Projector, Type } from "../types.js";

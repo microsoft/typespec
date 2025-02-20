@@ -88,17 +88,6 @@ Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse
 # remove xml tests, emitter has not supported xml model
 Remove-Item ./specs/payload/xml -Recurse -Force
 
-# TokenCredential not in core
-Remove-Item ./specs/authentication/oauth2 -Recurse -Force
-Remove-Item ./specs/authentication/union -Recurse -Force
-# Base64Url not in core
-Remove-Item ./specs/encode/bytes -Recurse -Force
-# DateTimeRfc1123 is private in beta.1, should now be public in main
-Remove-Item ./specs/encode/datetime -Recurse -Force
-Remove-Item ./specs/special-headers -Recurse -Force
-# JacksonAdapter not in core
-Remove-Item ./specs/encode/duration -Recurse -Force
-
 $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
 $job | Wait-Job -Timeout 1200

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi",
-  "version": "0.63.0",
+  "version": "0.65.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing OpenAPI concepts",
   "homepage": "https://typespec.io",
@@ -58,17 +58,17 @@
     "@typespec/http": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~22.7.9",
+    "@types/node": "~22.10.10",
     "@typespec/compiler": "workspace:~",
     "@typespec/http": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^2.1.5",
-    "@vitest/ui": "^2.1.2",
-    "c8": "^10.1.2",
+    "@vitest/coverage-v8": "^3.0.4",
+    "@vitest/ui": "^3.0.3",
+    "c8": "^10.1.3",
     "rimraf": "~6.0.1",
-    "typescript": "~5.6.3",
-    "vitest": "^2.1.5"
+    "typescript": "~5.7.3",
+    "vitest": "^3.0.5"
   }
 }

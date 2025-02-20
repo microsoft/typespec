@@ -1,5 +1,39 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.9
+
+### Bug Fixes
+
+- [#5717](https://github.com/microsoft/typespec/pull/5717) Fixed paths in the specs/routes.
+- [#5875](https://github.com/microsoft/typespec/pull/5875) Upgrade to new `@visibility` syntax
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5577](https://github.com/microsoft/typespec/pull/5577) Add test case on status code range
+
+
+## 0.1.0-alpha.8
+
+### Bug Fixes
+
+- [#5717](https://github.com/microsoft/typespec/pull/5717) Fixed paths in the specs/routes.
+
+## 0.1.0-alpha.7
+
+No changes, version bump only.
+
+## 0.1.0-alpha.6
+
+### Bug Fixes
+
+- [#5545](https://github.com/microsoft/typespec/pull/5545) remove unsupported pageable things
+- [#5401](https://github.com/microsoft/typespec/pull/5401) fix missing `@list` decorator for unbranded pageable operation
+
+
 ## 0.1.0-alpha.5
 
 ### Bug Fixes

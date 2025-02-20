@@ -36,7 +36,7 @@ model Optional {
 model Immutable {
   stringReadWriteRequired: string;
 
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   stringReadOnlyOptional?: string;
 }
 

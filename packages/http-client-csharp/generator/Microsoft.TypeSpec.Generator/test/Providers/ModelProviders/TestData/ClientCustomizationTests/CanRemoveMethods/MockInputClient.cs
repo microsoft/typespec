@@ -1,0 +1,27 @@
+using System.Collections.Generic;
+using UnbrandedTypeSpec;
+
+namespace Sample
+{
+    [CodeGenSuppress("Method1")]
+    [CodeGenSuppress("Method2", typeof(bool)]
+    [CodeGenSuppress("Method3", typeof(string), typeof(int))]
+    [CodeGenSuppress("Method4", typeof(string), typeof(int?))]
+    [CodeGenSuppress("Method5", typeof(string))]
+    [CodeGenSuppress("Method6", typeof(Foo))]
+    [CodeGenSuppress("Method7", typeof(BarNamespace.Foo))]
+    public partial class MockInputClient
+    {
+    }
+
+    public class Foo
+    {
+    }
+}
+
+namespace BarNamespace
+{
+    public class Foo
+    {
+    }
+}

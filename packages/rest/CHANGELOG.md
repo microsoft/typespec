@@ -1,5 +1,23 @@
 # Change Log - @typespec/rest
 
+## 0.65.0
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+### Features
+
+- [#5685](https://github.com/microsoft/typespec/pull/5685) Updates `CollectionWithNextLink` to support pagination
+
+
+## 0.64.0
+
+### Bug Fixes
+
+- [#5455](https://github.com/microsoft/typespec/pull/5455) In some scenarios, the options for the `@path` decorator do not accurately reflect the provided parameters, including the `#{allowReserved: true}` which is the `x-ms-skip-url-encoding` option. This change addresses and fixes this issue.
+
+
 ## 0.63.0
 
 No changes, version bump only.

@@ -3,7 +3,7 @@
 
 package type.property.additionalproperties;
 
-import io.clientcore.core.util.binarydata.BinaryData;
+import io.clientcore.core.models.binarydata.BinaryData;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Arrays;

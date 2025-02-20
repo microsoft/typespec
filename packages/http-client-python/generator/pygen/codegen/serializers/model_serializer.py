@@ -192,9 +192,10 @@ class MsrestModelSerializer(_ModelSerializer):
             if prop.is_discriminator:
                 init_args.append(self.initialize_discriminator_property(model, prop))
             elif prop.readonly:
+                # we want typing for readonly since typing isn't provided from the command line
                 init_args.append(f"self.{prop.client_name}: {prop.type_annotation()} = None")
             elif not prop.constant:
-                init_args.append(f"self.{prop.client_name}: {prop.type_annotation()} = {prop.client_name}")
+                init_args.append(f"self.{prop.client_name} = {prop.client_name}")
         return init_args
 
     @staticmethod
@@ -324,13 +325,7 @@ class DpgModelSerializer(_ModelSerializer):
         )
         type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
         generated_code = f'{prop.client_name}: {type_annotation} = {field}({", ".join(args)})'
-        # there is 4 spaces indentation so original line length limit 120 - 4 = 116
-        pylint_disable = (
-            " # pylint: disable=line-too-long"
-            if len(generated_code) <= 116 < (len(generated_code) + len(type_ignore))
-            else ""
-        )
-        return f"{generated_code}{type_ignore}{pylint_disable}"
+        return f"{generated_code}{type_ignore}"
 
     def initialize_properties(self, model: ModelType) -> List[str]:
         init_args = []

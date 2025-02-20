@@ -2,7 +2,11 @@ import type { Type, Union, UnionVariant } from "../../../core/types.js";
 import { defineKit } from "../define-kit.js";
 import { decoratorApplication, DecoratorArgs } from "../utils.js";
 
-interface UnionVariantDescriptor {
+/**
+ * A descriptor for a union variant.
+ * @experimental
+ */
+export interface UnionVariantDescriptor {
   /**
    * The name of the union variant.
    */
@@ -25,29 +29,43 @@ interface UnionVariantDescriptor {
   union?: Union;
 }
 
+/**
+ * Utilities for working with union variants.
+ *
+ * Union variants are types that represent a single value within a union that can be one of
+ * several types.
+ *
+ * @experimental
+ */
 export interface UnionVariantKit {
-  unionVariant: {
-    /**
-     * Create a union variant.
-     *
-     * @param desc The descriptor of the union variant.
-     */
-    create(desc: UnionVariantDescriptor): UnionVariant;
+  /**
+   * Create a union variant.
+   *
+   * @param desc The descriptor of the union variant.
+   */
+  create(desc: UnionVariantDescriptor): UnionVariant;
 
-    /**
-     * Check if the given `type` is a union.
-     *
-     * @param type The type to check.
-     */
-    is(type: Type): type is UnionVariant;
-  };
+  /**
+   * Check if the given `type` is a union.
+   *
+   * @param type The type to check.
+   */
+  is(type: Type): type is UnionVariant;
+}
+
+interface TypekitExtension {
+  /**
+   * Utilities for working with union variants.
+   * @experimental
+   */
+  unionVariant: UnionVariantKit;
 }
 
 declare module "../define-kit.js" {
-  interface Typekit extends UnionVariantKit {}
+  interface Typekit extends TypekitExtension {}
 }
 
-defineKit<UnionVariantKit>({
+defineKit<TypekitExtension>({
   unionVariant: {
     create(desc) {
       const variant: UnionVariant = this.program.checker.createType({

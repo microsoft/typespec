@@ -1,5 +1,16 @@
 # Change Log - typespec-vs
 
+## 0.65.0
+
+### Bug Fixes
+
+- [#5834](https://github.com/microsoft/typespec/pull/5834) Update extension configuration URLs in error message
+
+
+## 0.64.0
+
+No changes, version bump only.
+
 ## 0.63.0
 
 No changes, version bump only.

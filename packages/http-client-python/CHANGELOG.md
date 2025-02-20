@@ -1,5 +1,64 @@
 # Change Log - @typespec/http-client-python
 
+## 0.6.11
+
+No changes, version bump only.
+
+## 0.6.10
+
+### Bug Fixes
+
+- [#5739](https://github.com/microsoft/typespec/pull/5739) Fix output folder of models when output folder is different with namespace in configuration
+- [#5862](https://github.com/microsoft/typespec/pull/5862) Fix crash when value of `--package-pprint-name` contains space
+- [#5764](https://github.com/microsoft/typespec/pull/5764) Fix bug in indentation for wrapping a property description that includes a long url
+- [#5853](https://github.com/microsoft/typespec/pull/5853) Improve logging by catching expected `ModuleNotFoundError`
+
+
+## 0.6.9
+
+### Bug Fixes
+
+- Fix output folder of models when output folder is different with namespace in configuration
+
+## 0.6.8
+
+### Bug Fixes
+
+- Fix for scenario that output folder is different with namespace
+- Improve XML serialization information in generated models
+
+## 0.6.7
+
+### Bug Fixes
+
+- Fix sphinx typing for raising documentation
+- fix typing for class methods in _serialization.py
+
+## 0.6.6
+
+### Other Changes
+
+- Rename `apiview_mapping_python.json` cross-language id file to `apiview-properties.json` for cross-language compatibility
+- Order keyword-only args overload first in generated operations
+
+## 0.6.5
+
+### Bug Fixes
+
+- Only add type annotation during initialization for readonly
+- Fix pylint issues
+
+### Bump dependencies
+
+- Bump `@typespec/*` 0.64.0 and `@azure-tools/*` 0.50.0
+
+## 0.6.4
+
+### Bug Fixes
+
+- Fix pack issue for typespec namespace
+- Fix typing issue for unbranded test case
+
 ## 0.6.3
 
 ### Bug Fixes

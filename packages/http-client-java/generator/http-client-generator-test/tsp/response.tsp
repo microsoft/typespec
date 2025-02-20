@@ -40,11 +40,11 @@ op RpcOperationWithAdditionalResponse<
 
 @resource("resources")
 model Resource {
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   id: string;
 
   @key
-  @visibility("read")
+  @visibility(Lifecycle.Read)
   name: string;
 
   description?: string;
@@ -57,7 +57,7 @@ model ResourceArray is Resource[];
 model OperationDetails1 {
   @doc("Operation ID")
   @key
-  @visibility("read", "create")
+  @visibility(Lifecycle.Create, Lifecycle.Read)
   operationId: uuid;
 
   status: Azure.Core.Foundations.OperationState;
@@ -71,23 +71,29 @@ model OperationDetails1 {
 model OperationDetails2 {
   @doc("Operation ID")
   @key
-  @visibility("read", "create")
+  @visibility(Lifecycle.Create, Lifecycle.Read)
   id: uuid;
 
   status: Azure.Core.Foundations.OperationState;
   error?: Azure.Core.Foundations.Error;
 
   @lroResult
+  @clientName("longRunningResult", "java")
+  @encodedName("application/json", "lro_result")
   lroResult?: Resource;
 }
 
 @pagedResult
 model StringsList {
   @items
+  @clientName("items", "java")
+  @encodedName("application/json", "items_value")
   value: string[];
 
   @nextLink
-  nextLink?: string;
+  @clientName("nextLink", "java")
+  @encodedName("application/json", "next_link")
+  next?: string;
 }
 
 @pagedResult

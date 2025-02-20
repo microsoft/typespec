@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
 /**
  * The name resolver is responsible for resolving identifiers to symbols and
  * creating symbols for types that become known during this process. After name
@@ -60,7 +61,7 @@
 import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
-import { visitChildren } from "./parser.js";
+import { getFirstAncestor, visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
@@ -94,6 +95,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionStatementNode,
+  UsingStatementNode,
 } from "./types.js";
 
 export interface NameResolver {
@@ -148,6 +150,9 @@ export interface NameResolver {
     node: TypeReferenceNode | IdentifierNode | MemberExpressionNode,
   ): ResolutionResult;
 
+  /** Get the using statement nodes which is not used in resolving yet */
+  getUnusedUsings(): UsingStatementNode[];
+
   /** Built-in symbols. */
   readonly symbols: {
     /** Symbol for the global namespace */
@@ -180,6 +185,11 @@ export function createResolver(program: Program): NameResolver {
   );
   mutate(globalNamespaceNode).symbol = globalNamespaceSym;
   mutate(globalNamespaceSym.exports).set(globalNamespaceNode.id.sv, globalNamespaceSym);
+
+  /**
+   * Tracking the symbols that are used through using.
+   */
+  const usedUsingSym = new Map<TypeSpecScriptNode, Set<Sym>>();
 
   const metaTypePrototypes = createMetaTypePrototypes();
 
@@ -235,7 +245,32 @@ export function createResolver(program: Program): NameResolver {
     getAugmentDecoratorsForSym,
     isUsedTemplateParameterDeclarationNode,
     setTemplateParameterDeclarationNode,
+    getUnusedUsings,
   };
+
+  function getUnusedUsings(): UsingStatementNode[] {
+    const unusedUsings: Set<UsingStatementNode> = new Set();
+    for (const file of program.sourceFiles.values()) {
+      const lc = program.getSourceFileLocationContext(file.file);
+      if (lc.type === "project") {
+        const usedSym = usedUsingSym.get(file) ?? new Set<Sym>();
+        for (const using of file.usings) {
+          const table = getNodeLinks(using.name).resolvedSymbol;
+          let used = false;
+          for (const [_, sym] of table?.exports ?? new Map<string, Sym>()) {
+            if (usedSym.has(getMergedSymbol(sym))) {
+              used = true;
+              break;
+            }
+          }
+          if (used === false) {
+            unusedUsings.add(using);
+          }
+        }
+      }
+    }
+    return [...unusedUsings];
+  }
 
   function getAugmentDecoratorsForSym(sym: Sym) {
     return augmentDecoratorsForSym.get(sym) ?? [];
@@ -982,6 +1017,15 @@ export function createResolver(program: Program): NameResolver {
       if ("locals" in scope && scope.locals !== undefined) {
         binding = tableLookup(scope.locals, node, options.resolveDecorators);
         if (binding) {
+          if (binding.flags & SymbolFlags.Using && binding.symbolSource) {
+            const fileNode = getFirstAncestor(node, (n) => n.kind === SyntaxKind.TypeSpecScript) as
+              | TypeSpecScriptNode
+              | undefined;
+            if (fileNode) {
+              usedUsingSym.get(fileNode)?.add(binding.symbolSource) ??
+                usedUsingSym.set(fileNode, new Set([binding.symbolSource]));
+            }
+          }
           return resolvedResult(binding);
         }
       }
@@ -1018,6 +1062,10 @@ export function createResolver(program: Program): NameResolver {
             ...((augmentedSymbolTables.get(scope.locals)?.duplicates.get(usingBinding) as any) ??
               []),
           ]);
+        }
+        if (usingBinding.flags & SymbolFlags.Using && usingBinding.symbolSource) {
+          usedUsingSym.get(scope)?.add(usingBinding.symbolSource) ??
+            usedUsingSym.set(scope, new Set([usingBinding.symbolSource]));
         }
         return resolvedResult(usingBinding.symbolSource!);
       }

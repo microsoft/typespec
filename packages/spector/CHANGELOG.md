@@ -1,5 +1,16 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.7
+
+### Bump dependencies
+
+- [#5690](https://github.com/microsoft/typespec/pull/5690) Upgrade dependencies
+
+
+## 0.1.0-alpha.6
+
+No changes, version bump only.
+
 ## 0.1.0-alpha.5
 
 No changes, version bump only.

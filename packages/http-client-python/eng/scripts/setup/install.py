@@ -14,14 +14,14 @@ if not sys.version_info >= (3, 8, 0):
 
 try:
     import pip
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     raise Warning(
         "Your Python installation doesn't have pip available. We will run your code with Pyodide since your Python version isn't adequate."
     )
 
 try:
     import venv
-except ImportError:
+except (ImportError, ModuleNotFoundError):
     raise Warning(
         "Your Python installation doesn't have venv available. We will run your code with Pyodide since your Python version isn't adequate."
     )

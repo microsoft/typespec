@@ -60,8 +60,9 @@ public final class MultipleContentTypesOnRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadBytesWithSingleBodyTypeForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadBytesWithSingleBodyTypeForMultiContentTypes' is
-        // multiple content-type
+        // Operation 'uploadBytesWithSingleBodyTypeForMultiContentTypes' can be invoked with multiple content-type. It
+        // is difficult to form a correct method signature for convenience API, and hence the convenience API is not
+        // generated.
         return this.serviceClient.uploadBytesWithSingleBodyTypeForMultiContentTypesWithResponse(contentType, data,
             requestOptions);
     }
@@ -90,8 +91,9 @@ public final class MultipleContentTypesOnRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadBytesWithMultiBodyTypesForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadBytesWithMultiBodyTypesForMultiContentTypes' is
-        // multiple content-type
+        // Operation 'uploadBytesWithMultiBodyTypesForMultiContentTypes' can be invoked with multiple content-type. It
+        // is difficult to form a correct method signature for convenience API, and hence the convenience API is not
+        // generated.
         return this.serviceClient.uploadBytesWithMultiBodyTypesForMultiContentTypesWithResponse(contentType, data,
             requestOptions);
     }
@@ -148,8 +150,9 @@ public final class MultipleContentTypesOnRequestClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypesWithResponse(String contentType,
         BinaryData data, RequestOptions requestOptions) {
-        // Convenience API is not generated, as operation 'uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypes' is
-        // multiple content-type
+        // Operation 'uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypes' can be invoked with multiple
+        // content-type. It is difficult to form a correct method signature for convenience API, and hence the
+        // convenience API is not generated.
         return this.serviceClient.uploadJsonOrBytesWithMultiBodyTypesForMultiContentTypesWithResponse(contentType, data,
             requestOptions);
     }
