@@ -65,16 +65,56 @@ import { createStateSymbol, filterModelPropertiesInPlace } from "./utils.js";
  * @returns a tuple containing visibility enum members in the first position and
  *         legacy visibility strings in the second position
  */
-function splitLegacyVisibility(visibilities: (string | EnumValue)[]): [EnumMember[], string[]] {
+function splitLegacyVisibility(
+  context: DecoratorContext,
+  visibilities: (string | EnumValue)[],
+): [EnumMember[], string[]] {
   const legacyVisibilities = [] as string[];
   const modifiers = [] as EnumMember[];
 
+  let argIdx = 0;
   for (const visibility of visibilities) {
     if (typeof visibility === "string") {
+      const lifecycleModifier = normalizeLegacyLifecycleVisibilityString(
+        context.program,
+        visibility,
+      );
+
+      const target = context.getArgumentTarget(argIdx) ?? context.decoratorTarget;
+
+      if (lifecycleModifier) {
+        reportDiagnostic(context.program, {
+          code: "visibility-legacy",
+          target,
+          messageId: "default",
+          format: {
+            modifier: visibility,
+            newModifier: `Lifecycle.${lifecycleModifier.name}`,
+          },
+        });
+      } else if (visibility === "none") {
+        reportDiagnostic(context.program, {
+          code: "visibility-legacy",
+          messageId: "none",
+          target,
+        });
+      } else {
+        reportDiagnostic(context.program, {
+          code: "visibility-legacy",
+          target: context.getArgumentTarget(argIdx) ?? context.decoratorTarget,
+          messageId: "unrecognized",
+          format: {
+            modifier: visibility,
+          },
+        });
+      }
+
       legacyVisibilities.push(visibility);
     } else {
       modifiers.push(visibility.value);
     }
+
+    argIdx += 1;
   }
 
   return [modifiers, legacyVisibilities] as const;
@@ -166,10 +206,15 @@ export const $parameterVisibility: ParameterVisibilityDecorator = (
   validateDecoratorUniqueOnNode(context, operation, $parameterVisibility);
 
   if (visibilities.length === 0) {
+    reportDiagnostic(context.program, {
+      code: "operation-visibility-constraint-empty",
+      target: context.decoratorTarget,
+    });
+
     context.program.stateSet(parameterVisibilityIsEmpty).add(operation);
   }
 
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(context, visibilities);
 
   if (modifiers.length > 0 && legacyVisibilities.length > 0) {
     reportDiagnostic(context.program, {
@@ -190,7 +235,7 @@ export const $parameterVisibility: ParameterVisibilityDecorator = (
 /**
  * Returns the visibilities of the parameters of the given operation, if provided with `@parameterVisibility`.
  *
- * @deprecated Use `getParameterVisibilityFilter` instead.
+ * @deprecated Use `getParameterVisibilityFilter` instead. This function will be REMOVED in TypeSpec 1.0-rc.
  *
  * @see {@link getParameterVisibilityFilter}
  * @see {@link $parameterVisibility}
@@ -278,7 +323,14 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, operation, $parameterVisibility);
 
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  if (visibilities.length === 0) {
+    reportDiagnostic(context.program, {
+      code: "operation-visibility-constraint-empty",
+      target: context.decoratorTarget,
+    });
+  }
+
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(context, visibilities);
 
   if (modifiers.length > 0 && legacyVisibilities.length > 0) {
     reportDiagnostic(context.program, {
@@ -299,7 +351,7 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
 /**
  * Returns the visibilities of the return type of the given operation, if provided with `@returnTypeVisibility`.
  *
- * @deprecated Use `getReturnTypeVisibilityFilter` instead.
+ * @deprecated Use `getReturnTypeVisibilityFilter` instead. This function will be REMOVED in TypeSpec 1.0-rc.
  *
  * @see {@link getReturnTypeVisibilityFilter}
  * @see {@link $returnTypeVisibility}
@@ -361,7 +413,7 @@ export const $visibility: VisibilityDecorator = (
   target: ModelProperty,
   ...visibilities: (string | EnumValue)[]
 ) => {
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(context, visibilities);
 
   if (legacyVisibilities.length > 0 || visibilities.length === 0) {
     const isUnique = validateDecoratorUniqueOnNode(context, target, $visibility);
@@ -449,7 +501,7 @@ export const $withVisibility: WithVisibilityDecorator = (
   target: Model,
   ...visibilities: (string | EnumValue)[]
 ) => {
-  const [modifiers, legacyVisibilities] = splitLegacyVisibility(visibilities);
+  const [modifiers, legacyVisibilities] = splitLegacyVisibility(context, visibilities);
 
   if (legacyVisibilities.length > 0) {
     if (modifiers.length > 0) {
