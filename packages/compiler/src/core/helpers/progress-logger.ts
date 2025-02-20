@@ -75,17 +75,3 @@ export function setChildLogPrefix(message: string): void {
 export function addChildLog(message: string): void {
   logMessages.push(`\t${childLogPrefix}${message}`);
 }
-
-// Override console.log to handle spinner
-// eslint-disable-next-line no-console
-const originalConsoleLog = console.log;
-// eslint-disable-next-line no-console
-console.log = function (...args: any[]) {
-  if (spinnerActive) {
-    clearLastLine();
-  }
-  originalConsoleLog.apply(console, args);
-  if (spinnerActive) {
-    displaySpinner();
-  }
-};
