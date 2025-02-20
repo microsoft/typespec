@@ -40,7 +40,8 @@
     "extract-api": "npx api-extractor run --local --verbose"
   },
   "files": [
-    "dist/**"
+    "dist/emitter/src/**",
+    "dist/generator/**"
   ],
   "dependencies": {
     "@typespec/http-client-csharp": "file:",
