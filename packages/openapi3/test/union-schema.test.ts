@@ -288,14 +288,14 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
       model A {
         type: "ay";
         a: string;
-        @visibility("create")
+        @visibility(Lifecycle.Create)
         onACreate: string;
       }
 
       model B {
         type: "bee";
         b: string;
-        @visibility("create")
+        @visibility(Lifecycle.Create)
         onBCreate: string;
       }
 

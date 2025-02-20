@@ -1,4 +1,4 @@
-import { ModelProperty, Namespace, Operation } from "@typespec/compiler";
+import { Diagnostic, ModelProperty, Namespace, Operation } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
@@ -43,7 +43,7 @@ describe("http: decorators", () => {
   });
 
   describe("emit diagnostic if passing arguments to verb decorators", () => {
-    ["get", "post", "put", "patch", "delete", "head"].forEach((verb) => {
+    ["get", "post", "put", "delete", "head"].forEach((verb) => {
       it(`@${verb}`, async () => {
         const diagnostics = await runner.diagnose(`
           @${verb}("/test") op test(): string;
@@ -53,6 +53,17 @@ describe("http: decorators", () => {
           code: "invalid-argument-count",
           message: "Expected 0 arguments, but got 1.",
         });
+      });
+    });
+
+    it(`@patch`, async () => {
+      const diagnostics = await runner.diagnose(`
+        @patch("/test") op test(): string;
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument of type '"/test"' is not assignable to parameter of type 'valueof TypeSpec.Http.PatchOptions'`,
       });
     });
   });
@@ -1182,7 +1193,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           severity: "warning",
-          code: "@typespec/http/write-visibility-not-supported",
+          code: "visibility-legacy",
         },
       ]);
     });
@@ -1268,19 +1279,22 @@ describe("http: decorators", () => {
 
     it("ensures getRequestVisibility and resolveRequestVisibility return expected values for customized PATCH operations", async () => {
       const { testPatch } = await runner.compile(`
-      @parameterVisibility("create", "update")
+      @parameterVisibility(Lifecycle.Create, Lifecycle.Update)
       @patch
       @test op testPatch(): void;
       `);
-      deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
+      deepStrictEqual(
+        getRequestVisibility("patch"),
+        Visibility.Update | Visibility.PatchUpdateOptionality,
+      );
       deepStrictEqual(
         resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
-        Visibility.Update | Visibility.Create | Visibility.Patch,
+        Visibility.Update | Visibility.Create | Visibility.PatchUpdateOptionality,
       );
     });
 
     it("ensures legacy behavior of parameterVisibility with no arguments", async () => {
-      const { test } = (await runner.compile(`
+      const [{ test }, compilerDiagnostics] = (await runner.compileAndDiagnose(`
         model Example {
           @visibility(Lifecycle.Read)
           @path
@@ -1299,11 +1313,17 @@ describe("http: decorators", () => {
       @test
       @route("/test")
       @patch op test(@path id: Example.id, @bodyRoot example: Example): void;
-      `)) as { test: Operation };
+      `)) as [{ test: Operation }, Diagnostic[]];
+
+      expectDiagnostics(compilerDiagnostics, {
+        code: "operation-visibility-constraint-empty",
+        severity: "warning",
+      });
+
       const requestVisibility = resolveRequestVisibility(runner.program, test, "patch");
       deepStrictEqual(
         requestVisibility,
-        Visibility.All | Visibility.Patch | Visibility.LegacyParameterVisibility,
+        Visibility.All | Visibility.PatchUpdateOptionality | Visibility.LegacyParameterVisibility,
       );
       deepStrictEqual(
         resolveRequestVisibility(runner.program, test, "get"),
