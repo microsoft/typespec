@@ -1,20 +1,24 @@
 import {
+  SystemHost,
   type InitProjectConfig,
   type InitProjectTemplate,
   type InitProjectTemplateEmitterTemplate,
   type InitProjectTemplateLibrarySpec,
 } from "@typespec/compiler";
-import {
-  getTypeSpecCoreTemplates,
-  NodeSystemHost,
-  scaffoldNewProject,
-} from "@typespec/compiler/internals/init";
+import { NodeSystemHost, scaffoldNewProject } from "@typespec/compiler/internals/init";
 import { readdir } from "fs/promises";
 import * as semver from "semver";
+import { fileURLToPath } from "url";
 import vscode, { OpenDialogOptions, QuickPickItem } from "vscode";
 import { ExtensionStateManager } from "../extension-state-manager.js";
 import logger from "../log/logger.js";
-import { getBaseFileName, getDirectoryPath, joinPaths, normalizePath } from "../path-utils.js";
+import {
+  getBaseFileName,
+  getDirectoryPath,
+  joinPaths,
+  normalizePath,
+  resolvePath,
+} from "../path-utils.js";
 import { ResultCode, SettingName } from "../types.js";
 import {
   createPromiseWithCancelAndTimeout,
@@ -557,6 +561,37 @@ async function selectTemplate(
     return undefined;
   }
   return selected?.info;
+}
+
+async function findProjectRoot(host: SystemHost) {
+  let current = getDirectoryPath(fileURLToPath(import.meta.url));
+  while (true) {
+    const pkgPath = joinPaths(current, "package.json");
+    try {
+      const stat = await host.stat(pkgPath);
+      if (stat?.isFile()) {
+        return current;
+      }
+    } catch (e) {}
+    const parent = getDirectoryPath(current);
+    if (parent === current) {
+      throw new Error("Unexpected: Failed to resolve project root.");
+    }
+    current = parent;
+  }
+}
+
+async function getTypeSpecCoreTemplates(
+  host: SystemHost,
+): Promise<{ readonly baseUri: string; readonly templates: Record<string, any> }> {
+  const projectRoot = await findProjectRoot(host);
+  const templatesDir = resolvePath(projectRoot, "templates");
+  const file = await host.readFile(resolvePath(templatesDir, "scaffolding.json"));
+  const content = JSON.parse(file.text);
+  return {
+    baseUri: templatesDir,
+    templates: content,
+  };
 }
 
 async function loadInitTemplates(): Promise<Map<string, InitTemplateInfo[]>> {

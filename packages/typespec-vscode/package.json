@@ -225,10 +225,11 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run compile && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
+    "build": "npm run compile && npm run copy-templates && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
     "compile": "rollup --config rollup.config.ts --configPlugin typescript --failAfterWarnings 2>&1",
     "watch": "rollup --config rollup.config.ts --configPlugin typescript --watch",
     "dogfood": "node scripts/dogfood.js",
+    "copy-templates": "node scripts/copy-templates.js",
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
