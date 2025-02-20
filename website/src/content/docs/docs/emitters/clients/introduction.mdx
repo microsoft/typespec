@@ -8,7 +8,7 @@ import { Aside, Steps } from "@astrojs/starlight/components";
 
 ### Introduction
 
-This guide will walk you through the process of using different client emitters (JavaScript, Python, Java, .NET) to generate HTTP clients from TypeSpec. Please note that all client emitters are currently in **preview** and are subject to changes in future versions.
+This guide will walk you through the process of using different client emitters (JavaScript, Python, Java, C#) to generate HTTP clients from TypeSpec. Please note that all client emitters are currently in **preview** and are subject to changes in future versions.
 
 By following this guide, you will learn:
 
@@ -25,7 +25,7 @@ The client emitters are defined in the `package.json` file within your project.
 | @azure-tools/typespec-ts     | JavaScript   | ![](https://img.shields.io/npm/v/@azure-tools/typespec-ts)     |
 | @typespec/http-client-python | Python       | ![](https://img.shields.io/npm/v/@typespec/http-client-python) |
 | @typespec/http-client-java   | Java         | ![](https://img.shields.io/npm/v/@typespec/http-client-java)   |
-| @typespec/http-client-csharp | .NET         | ![](https://img.shields.io/npm/v/@typespec/http-client-csharp) |
+| @typespec/http-client-csharp | C#           | ![](https://img.shields.io/npm/v/@typespec/http-client-csharp) |
 
 Below is an example of the `package.json` snippet where client emitters are defined:
 
@@ -81,9 +81,10 @@ Before using the Java client emitter, ensure the following dependencies are inst
 - **Maven** - [Download here](https://maven.apache.org/download.cgi)  
   _(Verify installation with `mvn --version`)_
 
-### .NET Client Emitter Settings
+### C# Client Emitter Settings
 
-> _(Details to be added by .NET contributors)_
+Before using the C# client emitter, ensure that the [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) (or higher) is installed.
+Full configuration options can be found in the [C# Client Emitter README](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md#configuration)
 
 ## Running Language-Specific Emitters in CLI
 
@@ -133,7 +134,7 @@ Before using the Java client emitter, ensure the following dependencies are inst
 
 **All client emitters are in preview**. These emitters are actively being developed and may experience changes or updates that could affect their functionality. Please follow the official documentation for the latest updates.
 
-- [TypeSpec CSharp emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md)
+- [TypeSpec C# emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/readme.md)
 - [TypeSpec Python emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-python/README.md)
 - [TypeSpec Java emitter library](https://github.com/microsoft/typespec/blob/main/packages/http-client-java/README.md)
 - [TypeSpec JS emitter library](https://github.com/Azure/autorest.typescript/blob/main/packages/typespec-ts/README.md)
