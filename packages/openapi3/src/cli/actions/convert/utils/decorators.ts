@@ -154,7 +154,11 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
     if (schema.oneOf || schema.anyOf) {
       decorators.push({
         name: "discriminated",
-        args: [{ envelope: "none", discriminatorPropertyName: schema.discriminator.propertyName }],
+        args: [
+          createTSValue(
+            `#{ envelope: "none", discriminatorPropertyName: ${JSON.stringify(schema.discriminator.propertyName)} }`,
+          ),
+        ],
       });
     } else {
       decorators.push({ name: "discriminator", args: [schema.discriminator.propertyName] });
@@ -166,6 +170,10 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
   }
 
   return decorators;
+}
+
+function createTSValue(value: string): TSValue {
+  return { __kind: "value", value };
 }
 
 function getOneOfSchemaDecorators(schema: OpenAPI3Schema): TypeSpecDecorator[] {

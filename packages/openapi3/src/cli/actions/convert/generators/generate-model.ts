@@ -1,3 +1,4 @@
+import { OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
   TypeSpecDataTypes,
@@ -89,15 +90,32 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
 
   const schema = union.schema;
 
+  const getVariantName = (member: Refable<OpenAPI3Schema>) => {
+    if (union.schema.discriminator === undefined) {
+      return "";
+    }
+
+    const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref)! : member;
+
+    const value = (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)
+      ?.enum?.[0];
+    return value ? `${value}: ` : "";
+  };
   if (schema.enum) {
     definitions.push(...schema.enum.map((e) => `${JSON.stringify(e)},`));
   } else if (schema.oneOf) {
     definitions.push(
-      ...schema.oneOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope)),
+      ...schema.oneOf.map(
+        (member) =>
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope),
+      ),
     );
   } else if (schema.anyOf) {
     definitions.push(
-      ...schema.anyOf.map((member) => context.generateTypeFromRefableSchema(member, union.scope)),
+      ...schema.anyOf.map(
+        (member) =>
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope),
+      ),
     );
   } else {
     // check if it's a primitive type
