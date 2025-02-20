@@ -7,7 +7,7 @@ try {
 }
 
 import yargs from "yargs";
-import { typespecVersion } from "../../utils/misc.js";
+import { typespecVersion } from "../../manifest.js";
 import { getTypeSpecEngine } from "../engine.js";
 import { installTypeSpecDependencies } from "../install.js";
 import { compileAction } from "./actions/compile/compile.js";

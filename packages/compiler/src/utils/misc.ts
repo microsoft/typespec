@@ -1,26 +1,11 @@
-import { DiagnosticHandler } from "../core/diagnostics.js";
-import { createDiagnostic } from "../core/messages.js";
-import {
-  getDirectoryPath,
-  isPathAbsolute,
-  isUrl,
-  joinPaths,
-  normalizePath,
-  resolvePath,
-} from "../core/path-utils.js";
-import { createSourceFile } from "../core/source-file.js";
-import {
-  CompilerHost,
-  Diagnostic,
-  DiagnosticTarget,
+import { isPathAbsolute, isUrl, normalizePath, resolvePath } from "../core/path-utils.js";
+import type {
   MutableSymbolTable,
-  NoTarget,
   RekeyableMap,
   SourceFile,
   SymbolTable,
+  SystemHost,
 } from "../core/types.js";
-
-export { typespecVersion } from "../manifest.js";
 
 /**
  * Recursively calls Object.freeze such that all objects and arrays
@@ -135,7 +120,7 @@ export function mapEquals<K, V>(
   return true;
 }
 
-export async function getNormalizedRealPath(host: CompilerHost, path: string) {
+export async function getNormalizedRealPath(host: SystemHost, path: string) {
   try {
     return normalizePath(await host.realpath(path));
   } catch (error: any) {
@@ -147,81 +132,7 @@ export async function getNormalizedRealPath(host: CompilerHost, path: string) {
   }
 }
 
-export interface FileHandlingOptions {
-  allowFileNotFound?: boolean;
-  diagnosticTarget?: DiagnosticTarget | typeof NoTarget;
-  jsDiagnosticTarget?: DiagnosticTarget;
-}
-
-export async function doIO<T>(
-  action: (path: string) => Promise<T>,
-  path: string,
-  reportDiagnostic: DiagnosticHandler,
-  options?: FileHandlingOptions,
-): Promise<T | undefined> {
-  let result;
-  try {
-    result = await action(path);
-  } catch (e: any) {
-    let diagnostic: Diagnostic;
-    let target = options?.diagnosticTarget ?? NoTarget;
-
-    // blame the JS file, not the TypeSpec import statement for JS syntax errors.
-    if (e instanceof SyntaxError && options?.jsDiagnosticTarget) {
-      target = options.jsDiagnosticTarget;
-    }
-
-    switch (e.code) {
-      case "ENOENT":
-        if (options?.allowFileNotFound) {
-          return undefined;
-        }
-        diagnostic = createDiagnostic({ code: "file-not-found", target, format: { path } });
-        break;
-      default:
-        diagnostic = createDiagnostic({
-          code: "file-load",
-          target,
-          format: { message: e.message },
-        });
-        break;
-    }
-
-    reportDiagnostic(diagnostic);
-    return undefined;
-  }
-
-  return result;
-}
-
-export async function loadFile<T>(
-  host: CompilerHost,
-  path: string,
-  load: (contents: string) => T,
-  reportDiagnostic: DiagnosticHandler,
-  options?: FileHandlingOptions,
-): Promise<[T | undefined, SourceFile]> {
-  const file = await doIO(host.readFile, path, reportDiagnostic, options);
-  if (!file) {
-    return [undefined, createSourceFile("", path)];
-  }
-  let data: T;
-  try {
-    data = load(file.text);
-  } catch (e: any) {
-    reportDiagnostic({
-      code: "file-load",
-      message: e.message,
-      severity: "error",
-      target: { file, pos: 1, end: 1 },
-    });
-    return [undefined, file];
-  }
-
-  return [data, file];
-}
-
-export async function readUrlOrPath(host: CompilerHost, pathOrUrl: string): Promise<SourceFile> {
+export async function readUrlOrPath(host: SystemHost, pathOrUrl: string): Promise<SourceFile> {
   if (isUrl(pathOrUrl)) {
     return host.readUrl(pathOrUrl);
   }
@@ -297,34 +208,6 @@ export function debounce<T extends (...args: any[]) => any>(fn: T, delayInMs: nu
  */
 export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
-}
-
-/**
- * Look for the project root by looking up until a `package.json` is found.
- * @param path Path to start looking
- * @param lookIn
- */
-export async function findProjectRoot(
-  statFn: CompilerHost["stat"],
-  path: string,
-): Promise<string | undefined> {
-  let current = path;
-  while (true) {
-    const pkgPath = joinPaths(current, "package.json");
-    const stat = await doIO(
-      () => statFn(pkgPath),
-      pkgPath,
-      () => {},
-    );
-    if (stat?.isFile()) {
-      return current;
-    }
-    const parent = getDirectoryPath(current);
-    if (parent === current) {
-      return undefined;
-    }
-    current = parent;
-  }
 }
 
 /**
