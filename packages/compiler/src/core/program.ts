@@ -581,7 +581,7 @@ export async function compile(
    * @param emitter Emitter ref to run
    */
   async function runEmitter(emitter: EmitterRef) {
-    const emitterName = emitter.metadata.name as string;
+    const emitterName = emitter.metadata.name ?? "";
     initializeSpinner(emitterName);
     const context: EmitContext<any> = {
       program,
