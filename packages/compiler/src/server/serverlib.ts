@@ -898,7 +898,10 @@ export function createServer(host: ServerHost): Server {
       visitChildren(searchFile, function visit(node) {
         if (node.kind === SyntaxKind.Identifier) {
           const s = program.checker.resolveIdentifier(node);
-          if (s === sym || (sym[0].type && s && s.length > 0 && s[0].type === sym[0].type)) {
+          if (!s || s.length <= 0) {
+            return;
+          }
+          if (s[0] === sym[0] || (sym[0].type && s[0].type === sym[0].type)) {
             references.push(node);
           }
         }
