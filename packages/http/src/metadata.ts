@@ -17,6 +17,7 @@ import {
 import { TwoLevelMap } from "@typespec/compiler/utils";
 import {
   getOperationVerb,
+  getPatchOptions,
   includeInapplicableMetadataInPayload,
   isBody,
   isBodyIgnore,
@@ -54,12 +55,12 @@ export enum Visibility {
   Item = 1 << 20,
 
   /**
-   * Additional flag to indicate when the verb is path and therefore
-   * will have fields made optional if request visibility includes update.
+   * Additional flag to indicate when the verb is patch and will have fields made
+   * optional if request visibility includes update.
    *
    * Never use this flag. It is used internally by the HTTP core.
    */
-  Patch = 1 << 21,
+  PatchUpdateOptionality = 1 << 21,
 
   /**
    * Additional flag to indicate that legacy parameter visibility behavior
@@ -70,6 +71,8 @@ export enum Visibility {
    * in any other circumstances.
    *
    * Never use this flag. It is used internally by the HTTP core.
+   *
+   * @deprecated This flag will be removed in TypeSpec 1.0-rc.
    */
   LegacyParameterVisibility = 1 << 22,
 
@@ -78,7 +81,9 @@ export enum Visibility {
    *
    * Never use these flags. They are used internally by the HTTP core.
    */
-  Synthetic = Visibility.Item | Visibility.Patch | Visibility.LegacyParameterVisibility,
+  Synthetic = Visibility.Item |
+    Visibility.PatchUpdateOptionality |
+    Visibility.LegacyParameterVisibility,
 }
 
 const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
@@ -295,7 +300,8 @@ function getDefaultVisibilityForVerb(verb: HttpVerb): Visibility {
  * - PUT => Visibility.Create | Update
  * - DELETE => Visibility.Delete
  * @param verb The HTTP verb for the operation.
- * @deprecated Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb, `getDefaultVisibilityForVerb`.
+ * @deprecated Use `resolveRequestVisibility` instead, or if you only want the default visibility for a verb,
+ *   `getDefaultVisibilityForVerb`. This function will be removed in TypeSpec 1.0-rc.
  * @returns The applicable parameter visibility or visibilities for the request.
  */
 export function getRequestVisibility(verb: HttpVerb): Visibility {
@@ -303,7 +309,7 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it
   if (verb === "patch") {
-    visibility |= Visibility.Patch;
+    visibility |= Visibility.PatchUpdateOptionality;
   }
   return visibility;
 }
@@ -409,12 +415,17 @@ export function resolveRequestVisibility(
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it.
   if (verb === "patch") {
-    visibility |= Visibility.Patch;
+    const patchOptionality = getPatchOptions(program, operation)?.implicitOptionality ?? true;
+
+    if (patchOptionality) {
+      visibility |= Visibility.PatchUpdateOptionality;
+    }
   }
 
   const isEmptyParameterVisibility = program.stateSet(parameterVisibilityIsEmpty).has(operation);
 
   if (isEmptyParameterVisibility) {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     visibility |= Visibility.LegacyParameterVisibility;
   }
 
@@ -710,7 +721,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     // update, but not for array elements with the item flag since you must provide
     // all array elements with required properties, even in a patch.
     const hasUpdate = (visibility & Visibility.Update) !== 0;
-    const isPatch = (visibility & Visibility.Patch) !== 0;
+    const isPatch = (visibility & Visibility.PatchUpdateOptionality) !== 0;
     const isItem = (visibility & Visibility.Item) !== 0;
     const skipEffectiveOptionality = (visibility & Visibility.LegacyParameterVisibility) !== 0;
     return property.optional || (!skipEffectiveOptionality && hasUpdate && isPatch && !isItem);
