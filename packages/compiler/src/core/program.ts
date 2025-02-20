@@ -250,20 +250,16 @@ export async function compile(
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
 
-  initializeSpinner("Checker...");
   program.checker = createChecker(program, resolver);
   program.checker.checkProgram();
-  stopSpinner();
   if (!continueToNextStage) {
     return program;
   }
   // onValidate stage
-  initializeSpinner("Validation...");
   await runValidators();
 
   validateRequiredImports();
   await validateLoadedLibraries();
-  stopSpinner();
   if (!continueToNextStage) {
     return program;
   }
