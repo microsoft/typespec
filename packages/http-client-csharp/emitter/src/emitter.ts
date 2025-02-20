@@ -6,7 +6,6 @@ import {
   EmitContext,
   getDirectoryPath,
   joinPaths,
-  logDiagnostics,
   NoTarget,
   Program,
   resolvePath,
@@ -78,13 +77,7 @@ export async function $onEmit(context: EmitContext<CSharpEmitterOptions>) {
         enums: new Map(),
       },
     };
-    if (
-      context.program.diagnostics.length > 0 &&
-      context.program.diagnostics.filter((digs) => digs.severity === "error").length > 0
-    ) {
-      logDiagnostics(context.program.diagnostics, context.program.host.logSink);
-      process.exit(1);
-    }
+    program.reportDiagnostics(sdkContext.diagnostics);
 
     const root = createModel(sdkContext);
 
