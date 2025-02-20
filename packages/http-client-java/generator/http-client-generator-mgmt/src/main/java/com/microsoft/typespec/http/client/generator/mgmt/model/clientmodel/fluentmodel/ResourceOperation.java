@@ -22,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 
 public abstract class ResourceOperation {
@@ -175,12 +177,10 @@ public abstract class ResourceOperation {
 
     protected Optional<FluentCollectionMethod> findMethod(boolean hasContextParameter,
         List<ClientMethodParameter> parameters) {
-        Optional<FluentCollectionMethod> methodOpt = this.getMethodReferencesOfFullParameters()
-            .stream()
-            .filter(m -> hasContextParameter
-                ? m.getInnerClientMethod().getParameters().stream().anyMatch(FluentUtils::isContextParameter)
-                : m.getInnerClientMethod().getParameters().stream().noneMatch(FluentUtils::isContextParameter))
-            .findFirst();
+        Optional<FluentCollectionMethod> methodOpt = findMethodCandidates(hasContextParameter)
+            .filter(method -> !method.getInnerClientMethod().getType().name().endsWith(Utils.METHOD_TYPE_REST_RESPONSE))
+            .findFirst()
+            .or(() -> findMethodCandidates(hasContextParameter).findFirst());
         if (methodOpt.isPresent() && hasContextParameter) {
             ClientMethodParameter contextParameter = methodOpt.get()
                 .getInnerClientMethod()
@@ -192,6 +192,15 @@ public abstract class ResourceOperation {
             parameters.add(contextParameter);
         }
         return methodOpt;
+    }
+
+    private Stream<FluentCollectionMethod> findMethodCandidates(boolean hasContextParameter) {
+        Stream<FluentCollectionMethod> methodCandidates = this.getMethodReferencesOfFullParameters()
+            .stream()
+            .filter(m -> hasContextParameter
+                ? m.getInnerClientMethod().getParameters().stream().anyMatch(FluentUtils::isContextParameter)
+                : m.getInnerClientMethod().getParameters().stream().noneMatch(FluentUtils::isContextParameter));
+        return methodCandidates;
     }
 
     // local variables

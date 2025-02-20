@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 public class Utils {
 
     public final static String METHOD_POSTFIX_WITH_RESPONSE = "WithResponse";
+    public final static String METHOD_TYPE_REST_RESPONSE = "RestResponse";
 
     public static String getDefaultName(Metadata m) {
         return SchemaUtil.getDefaultName(m);
