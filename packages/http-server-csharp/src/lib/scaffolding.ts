@@ -63,12 +63,12 @@ export function getBusinessLogicImplementations(
 ): LibrarySourceFile[] {
   const sourceFiles: LibrarySourceFile[] = [];
   const mocks: BusinessLogicImplementation[] = [];
-  for (const [name, impl] of registrations) {
+  for (const [_, impl] of registrations) {
     sourceFiles.push(
       new LibrarySourceFile({
         filename: `${impl.className}.cs`,
         emitter: emitter,
-        getContents: () => getBusinessLogicImplementation(name, impl),
+        getContents: () => getBusinessLogicImplementation(impl),
         path: "../mocks/",
       }),
     );
@@ -104,14 +104,13 @@ function getReturnStatement(returnType: CSharpType): string {
     return `return Task.FromResult(_initializer.Initialize<${returnType.getTypeReference()}>());`;
   }
 }
-function getBusinessLogicImplementation(iface: string, mock: BusinessLogicImplementation): string {
+function getBusinessLogicImplementation(mock: BusinessLogicImplementation): string {
   const methods: string[] = [];
   for (const method of mock.methods) {
     const methodCode: string =
       method.instantiatedReturnType !== undefined
         ? getReturnStatement(method.returnType)
-        : //`return Task.FromResult(_initializer.Initialize<${method.instantiatedReturnType}>());`
-          "return Task.CompletedTask;";
+        : "return Task.CompletedTask;";
     methods.push(`        public ${method.returnTypeName} ${method.methodName}( ${method.methodParams})
         {
             ${methodCode}

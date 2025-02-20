@@ -804,6 +804,7 @@ export function getCSharpStatusCode(entry: HttpStatusCodesEntry): string | undef
 
 export function isEmptyResponseModel(program: Program, model: Type): boolean {
   if (model.kind !== "Model") return false;
+  if (model.properties.size === 0) return true;
   return model.properties.size === 1 && isStatusCode(program, [...model.properties.values()][0]);
 }
 
@@ -1311,7 +1312,7 @@ export class CSharpOperationHelpers {
     if (propResult === undefined) {
       return {
         typeReference: code`${this.emitter.emitTypeReference(union)}`,
-        nullableType: [...union.variants.values()].filter((v) => isNullType(v.type)).length > 0,
+        nullableType: [...union.variants.values()].some((v) => isNullType(v.type)),
       };
     }
     const candidate = this.getTypeInfo(program, propResult.type);
