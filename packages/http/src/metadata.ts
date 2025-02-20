@@ -51,6 +51,8 @@ export enum Visibility {
    * and therefore no metadata is applicable.
    *
    * Never use this flag. It is used internally by the HTTP core.
+   *
+   * @internal
    */
   Item = 1 << 20,
 
@@ -59,8 +61,10 @@ export enum Visibility {
    * optional if request visibility includes update.
    *
    * Never use this flag. It is used internally by the HTTP core.
+   *
+   * @internal
    */
-  PatchUpdateOptionality = 1 << 21,
+  Patch = 1 << 21,
 
   /**
    * Additional flag to indicate that legacy parameter visibility behavior
@@ -73,6 +77,8 @@ export enum Visibility {
    * Never use this flag. It is used internally by the HTTP core.
    *
    * @deprecated This flag will be removed in TypeSpec 1.0-rc.
+   *
+   * @internal
    */
   LegacyParameterVisibility = 1 << 22,
 
@@ -80,10 +86,10 @@ export enum Visibility {
    * Additional flags to indicate the treatment of properties in specific contexts.
    *
    * Never use these flags. They are used internally by the HTTP core.
+   *
+   * @internal
    */
-  Synthetic = Visibility.Item |
-    Visibility.PatchUpdateOptionality |
-    Visibility.LegacyParameterVisibility,
+  Synthetic = Visibility.Item | Visibility.Patch | Visibility.LegacyParameterVisibility,
 }
 
 const visibilityToArrayMap: Map<Visibility, string[]> = new Map();
@@ -309,7 +315,7 @@ export function getRequestVisibility(verb: HttpVerb): Visibility {
   // If the verb is PATCH, then we need to add the patch flag to the visibility in order for
   // later processes to properly apply it
   if (verb === "patch") {
-    visibility |= Visibility.PatchUpdateOptionality;
+    visibility |= Visibility.Patch;
   }
   return visibility;
 }
@@ -418,7 +424,7 @@ export function resolveRequestVisibility(
     const patchOptionality = getPatchOptions(program, operation)?.implicitOptionality ?? true;
 
     if (patchOptionality) {
-      visibility |= Visibility.PatchUpdateOptionality;
+      visibility |= Visibility.Patch;
     }
   }
 
@@ -722,7 +728,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
     // update, but not for array elements with the item flag since you must provide
     // all array elements with required properties, even in a patch.
     const hasUpdate = (visibility & Visibility.Update) !== 0;
-    const isPatch = (visibility & Visibility.PatchUpdateOptionality) !== 0;
+    const isPatch = (visibility & Visibility.Patch) !== 0;
     const isItem = (visibility & Visibility.Item) !== 0;
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     const skipEffectiveOptionality = (visibility & Visibility.LegacyParameterVisibility) !== 0;

@@ -1283,13 +1283,10 @@ describe("http: decorators", () => {
       @patch
       @test op testPatch(): void;
       `);
-      deepStrictEqual(
-        getRequestVisibility("patch"),
-        Visibility.Update | Visibility.PatchUpdateOptionality,
-      );
+      deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
       deepStrictEqual(
         resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
-        Visibility.Update | Visibility.Create | Visibility.PatchUpdateOptionality,
+        Visibility.Update | Visibility.Create | Visibility.Patch,
       );
     });
 
@@ -1323,7 +1320,7 @@ describe("http: decorators", () => {
       const requestVisibility = resolveRequestVisibility(runner.program, test, "patch");
       deepStrictEqual(
         requestVisibility,
-        Visibility.All | Visibility.PatchUpdateOptionality | Visibility.LegacyParameterVisibility,
+        Visibility.All | Visibility.Patch | Visibility.LegacyParameterVisibility,
       );
       deepStrictEqual(
         resolveRequestVisibility(runner.program, test, "get"),
