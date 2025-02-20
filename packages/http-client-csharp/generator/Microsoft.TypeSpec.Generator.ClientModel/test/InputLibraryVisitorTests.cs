@@ -25,7 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             _mockInputLibrary = new Mock<InputLibrary>();
             _mockPlugin = MockHelpers.LoadMockPlugin(
                 createInputLibrary: () => _mockInputLibrary.Object,
-                createClientCore: inputClient => new ClientProvider(inputClient));
+                createClientCore: inputClient => new ClientProvider(inputClient),
+                packageName: "Sample");
             _mockVisitor = new Mock<ScmLibraryVisitor> { CallBase = true };
         }
 
