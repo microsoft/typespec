@@ -103,6 +103,12 @@ model Thing {
   @doc("required literal string")
   requiredLiteralString: "accept";
 
+  @doc("required nullable string")
+  requiredNullableString: string | null;
+
+  @doc("required optional string")
+  optionalNullableString?: string | null;
+
   @doc("required literal int")
   requiredLiteralInt: 123;
 
