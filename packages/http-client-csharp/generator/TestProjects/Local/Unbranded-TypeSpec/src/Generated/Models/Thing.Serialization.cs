@@ -76,20 +76,13 @@ namespace UnbrandedTypeSpec
             writer.WriteStringValue(RequiredBadDescription);
             if (Optional.IsCollectionDefined(OptionalNullableList))
             {
-                if (OptionalNullableList != null)
+                writer.WritePropertyName("optionalNullableList"u8);
+                writer.WriteStartArray();
+                foreach (int item in OptionalNullableList)
                 {
-                    writer.WritePropertyName("optionalNullableList"u8);
-                    writer.WriteStartArray();
-                    foreach (int item in OptionalNullableList)
-                    {
-                        writer.WriteNumberValue(item);
-                    }
-                    writer.WriteEndArray();
+                    writer.WriteNumberValue(item);
                 }
-                else
-                {
-                    writer.WriteNull("optionalNullableList"u8);
-                }
+                writer.WriteEndArray();
             }
             if (RequiredNullableList != null && Optional.IsCollectionDefined(RequiredNullableList))
             {
