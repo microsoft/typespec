@@ -58,7 +58,11 @@ import {
   ResolveModuleHost,
   typespecVersion,
 } from "../core/index.js";
-import { builtInLinterLibraryName, builtInLinterRule_UnusedUsing } from "../core/linter.js";
+import {
+  builtInLinterLibraryName,
+  builtInLinterRule_UnusedTemplateParameter,
+  builtInLinterRule_UnusedUsing,
+} from "../core/linter.js";
 import { formatLog } from "../core/logger/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
@@ -326,7 +330,7 @@ export function createServer(host: ServerHost): Server {
     if (!validationResult.valid) {
       for (const diag of validationResult.diagnostics) {
         log({
-          level: diag.severity === "hint" ? "trace" : diag.severity,
+          level: diag.severity,
           message: diag.message,
           detail: {
             code: diag.code,
@@ -498,6 +502,7 @@ export function createServer(host: ServerHost): Server {
           };
         }
         const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
+        const unusedTemlateParameterRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedTemplateParameter}`;
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
         } else if (each.code === unusedUsingRule) {
@@ -512,12 +517,17 @@ export function createServer(host: ServerHost): Server {
             // if the unused using is not configured by user explicitly, report it as hint by default
             diagnostic.severity = DiagnosticSeverity.Hint;
           }
-        }
-        if (each.severity === "hint") {
-          if (diagnostic.tags) {
-            diagnostic.tags.push(DiagnosticTag.Unnecessary);
-          } else {
-            diagnostic.tags = [DiagnosticTag.Unnecessary];
+        } else if (each.code === unusedTemlateParameterRule) {
+          // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
+          // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
+          // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
+          if (
+            optionsFromConfig.linterRuleSet?.enable?.[unusedTemlateParameterRule] === undefined &&
+            optionsFromConfig.linterRuleSet?.disable?.[unusedTemlateParameterRule] === undefined
+          ) {
+            // if the unused template parameter is not configured by user explicitly, report it as hint by default
+            diagnostic.severity = DiagnosticSeverity.Hint;
           }
         }
         diagnostic.data = { id: diagnosticIdCounter++ };

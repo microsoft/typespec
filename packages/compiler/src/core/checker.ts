@@ -8,7 +8,6 @@ import {
   createModelToObjectValueCodeFix,
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
-import { removeUnusedTemplateParameterCodeFix } from "./compiler-code-fixes/remove-unused-template-parameter.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -3561,17 +3560,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
          */
         if (node.kind === SyntaxKind.ModelStatement) {
           if (!resolver.isUsedTemplateParameterDeclarationNode(templateParameter)) {
-            reportCheckerDiagnostic(
-              createDiagnostic({
-                code: "unused-template-parameter",
-                format: {
-                  parameterName: templateParameter.id.sv,
-                  type: node.symbol.name,
-                },
-                target: templateParameter,
-                codefixes: [removeUnusedTemplateParameterCodeFix(templateParameter)],
-              }),
-            );
+            resolver.getUnusedTemplateParameterDeclarationNodes().add(templateParameter);
           }
         }
       }

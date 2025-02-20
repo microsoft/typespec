@@ -2309,7 +2309,7 @@ export interface TemplateInstanceTarget {
 
 export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
-export type DiagnosticSeverity = "error" | "warning" | "hint";
+export type DiagnosticSeverity = "error" | "warning";
 
 export interface Diagnostic {
   code: string;
@@ -2538,9 +2538,8 @@ export interface DiagnosticDefinition<M extends DiagnosticMessages> {
    * Diagnostic severity.
    * - `warning` - Suppressable, should be used to represent potential issues but not blocking.
    * - `error` - Non-suppressable, should be used to represent failure to move forward.
-   * - `hint` - Suppressable, should be used to represent suggestions.
    */
-  readonly severity: "warning" | "error" | "hint";
+  readonly severity: "warning" | "error";
   /** Messages that can be reported with the diagnostic. */
   readonly messages: M;
   /** Short description of the diagnostic */

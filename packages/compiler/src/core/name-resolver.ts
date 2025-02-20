@@ -132,6 +132,9 @@ export interface NameResolver {
   /** Set used template parameter */
   setTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void;
 
+  /** Return template parameters which are not used. */
+  getUnusedTemplateParameterDeclarationNodes(): Set<TemplateParameterDeclarationNode>;
+
   /**
    * Resolve the member expression using the given symbol as base.
    * This can be used to follow the name resolution for template instance which are not statically linked.
@@ -201,6 +204,8 @@ export function createResolver(program: Program): NameResolver {
    */
   const usedTemplateParameterDeclarationNodes = new Set<TemplateParameterDeclarationNode>();
 
+  const unusedTemplateParameterDeclarationNodes = new Set<TemplateParameterDeclarationNode>();
+
   return {
     symbols: { global: globalNamespaceSym, null: nullSym },
     resolveProgram() {
@@ -246,6 +251,7 @@ export function createResolver(program: Program): NameResolver {
     isUsedTemplateParameterDeclarationNode,
     setTemplateParameterDeclarationNode,
     getUnusedUsings,
+    getUnusedTemplateParameterDeclarationNodes,
   };
 
   function getUnusedUsings(): UsingStatementNode[] {
@@ -289,6 +295,10 @@ export function createResolver(program: Program): NameResolver {
   function setTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void {
     if (!node) return;
     usedTemplateParameterDeclarationNodes.add(node);
+  }
+
+  function getUnusedTemplateParameterDeclarationNodes(): Set<TemplateParameterDeclarationNode> {
+    return unusedTemplateParameterDeclarationNodes;
   }
   /**
    * @internal

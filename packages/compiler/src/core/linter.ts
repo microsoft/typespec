@@ -1,4 +1,5 @@
 import { removeUnusedCodeCodeFix } from "./compiler-code-fixes/remove-unused-code.codefix.js";
+import { removeUnusedTemplateParameterCodeFix } from "./compiler-code-fixes/remove-unused-template-parameter.codefix.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { createLinterRule, defineLinter, paramMessage } from "./library.js";
@@ -268,6 +269,7 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
 
 export const builtInLinterLibraryName = `@typespec/compiler`;
 export const builtInLinterRule_UnusedUsing = `unused-using`;
+export const builtInLinterRule_UnusedTemplateParameter = `unused-template-parameter`;
 export function createBuiltInLinterLibrary(nameResolver: NameResolver): LinterLibraryInstance {
   const builtInLinter: LinterResolvedDefinition = resolveLinterDefinition(
     builtInLinterLibraryName,
@@ -278,8 +280,10 @@ export function createBuiltInLinterLibrary(nameResolver: NameResolver): LinterLi
 function createBuiltInLinter(nameResolver: NameResolver): LinterDefinition {
   const unusedUsingLinterRule = createUnusedUsingLinterRule();
 
+  const unusedTemplateParameterLinterRule = createUnusedTemplateParameterLinterRule();
+
   return defineLinter({
-    rules: [unusedUsingLinterRule],
+    rules: [unusedUsingLinterRule, unusedTemplateParameterLinterRule],
   });
 
   function createUnusedUsingLinterRule() {
@@ -309,6 +313,36 @@ function createBuiltInLinter(nameResolver: NameResolver): LinterDefinition {
                 codefixes: [removeUnusedCodeCodeFix(target)],
               });
             });
+          },
+        };
+      },
+    });
+  }
+
+  function createUnusedTemplateParameterLinterRule() {
+    return createLinterRule({
+      name: builtInLinterRule_UnusedTemplateParameter,
+      severity: "warning",
+      description: "Linter rules for unused template parameter.",
+      messages: {
+        default: paramMessage`Templates should use all specified parameters, and parameter '${"parameterName"}' does not exist in type '${"type"}'. Consider removing this parameter.`,
+      },
+      create(context) {
+        return {
+          root: (_root) => {
+            nameResolver
+              .getUnusedTemplateParameterDeclarationNodes()
+              .forEach((templateParameter) => {
+                context.reportDiagnostic({
+                  messageId: "default",
+                  format: {
+                    parameterName: templateParameter.id.sv,
+                    type: templateParameter.parent?.symbol.name ?? "",
+                  },
+                  target: templateParameter,
+                  codefixes: [removeUnusedTemplateParameterCodeFix(templateParameter)],
+                });
+              });
           },
         };
       },

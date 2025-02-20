@@ -33,7 +33,7 @@ export type DiagnosticHandler = (diagnostic: Diagnostic) => void;
 export function logDiagnostics(diagnostics: readonly Diagnostic[], logger: LogSink) {
   for (const diagnostic of diagnostics) {
     logger.log({
-      level: diagnostic.severity === "hint" ? "trace" : diagnostic.severity,
+      level: diagnostic.severity,
       message: diagnostic.message,
       code: diagnostic.code,
       url: diagnostic.url,
@@ -52,7 +52,7 @@ export function formatDiagnostic(diagnostic: Diagnostic, options: FormatDiagnost
   return formatLog(
     {
       code: diagnostic.code,
-      level: diagnostic.severity === "hint" ? "trace" : diagnostic.severity,
+      level: diagnostic.severity,
       message: diagnostic.message,
       url: diagnostic.url,
       sourceLocation: getSourceLocation(diagnostic.target, { locateId: true }),

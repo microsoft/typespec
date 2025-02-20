@@ -1,5 +1,6 @@
 import { strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { CompilerOptions } from "../../src/index.js";
 import { createTestHost } from "../../src/testing/test-host.js";
 import { TestHost } from "../../src/testing/types.js";
 
@@ -10,6 +11,20 @@ describe("compiler: unused template parameter in model template", () => {
     testHost = await createTestHost();
   });
 
+  const diagnoseWithUnusedTemplateParameter = async (
+    main: string,
+    options: CompilerOptions = {},
+  ) => {
+    return testHost.diagnose(main, {
+      ...options,
+      linterRuleSet: {
+        enable: {
+          "@typespec/compiler/unused-template-parameter": true,
+        },
+      },
+    });
+  };
+
   it("report unused template parameter", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -19,9 +34,9 @@ describe("compiler: unused template parameter in model template", () => {
         }
       `,
     );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
     strictEqual(diagnostics.length, 1);
-    strictEqual(diagnostics[0].code, "unused-template-parameter");
+    strictEqual(diagnostics[0].code, "@typespec/compiler/unused-template-parameter");
     strictEqual(
       diagnostics[0].message,
       "Templates should use all specified parameters, and parameter 'T' does not exist in type 'A'. Consider removing this parameter.",
@@ -37,7 +52,7 @@ describe("compiler: unused template parameter in model template", () => {
         }
       `,
     );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
     strictEqual(diagnostics.length, 0);
   });
 
@@ -50,7 +65,7 @@ describe("compiler: unused template parameter in model template", () => {
         }
       `,
     );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
     strictEqual(diagnostics.length, 0);
   });
 
@@ -63,7 +78,7 @@ describe("compiler: unused template parameter in model template", () => {
         }
       `,
     );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
     strictEqual(diagnostics.length, 0);
   });
 
@@ -81,7 +96,7 @@ describe("compiler: unused template parameter in model template", () => {
         }
       `,
     );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
     strictEqual(diagnostics.length, 0);
   });
 
@@ -95,7 +110,7 @@ describe("compiler: unused template parameter in model template", () => {
         model IsModel<T> is A<T>;
       `,
     );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
     strictEqual(diagnostics.length, 0);
   });
 
@@ -110,7 +125,7 @@ describe("compiler: unused template parameter in model template", () => {
         }
       `,
     );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
     strictEqual(diagnostics.length, 0);
   });
 
@@ -127,7 +142,7 @@ describe("compiler: unused template parameter in model template", () => {
         }
       `,
     );
-    const diagnostics = await testHost.diagnose("main.tsp");
+    const diagnostics = await diagnoseWithUnusedTemplateParameter("main.tsp");
     strictEqual(diagnostics.length, 0);
   });
 });
