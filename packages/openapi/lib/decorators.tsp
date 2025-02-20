@@ -19,18 +19,18 @@ extern dec operationId(target: Operation, operationId: valueof string);
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param key Extension key. Must start with `x-`
+ * @param key Extension key.
  * @param value Extension value.
  *
  * @example
  *
  * ```typespec
  * @extension("x-custom", "My value")
- * @extension("x-pageable", {nextLink: "x-next-link"})
+ * @extension("x-pageable", #{nextLink: "x-next-link"})
  * op read(): string;
  * ```
  */
-extern dec extension(target: unknown, key: valueof string, value: unknown | (valueof unknown));
+extern dec extension(target: unknown, key: valueof string, value: valueof unknown);
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.

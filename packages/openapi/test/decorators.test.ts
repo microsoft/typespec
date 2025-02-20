@@ -76,11 +76,7 @@ describe("openapi: decorators", () => {
 
     it.for([
       { type: `{ name: "foo" }`, expected: { name: "foo" } },
-      { type: `{ items: [ {foo: "bar" }]}`, expected: { items: [{ foo: "bar" }] } },
       { type: `["foo"]`, expected: ["foo"] },
-      { type: `typeof true`, expected: true },
-      { type: `typeof 42`, expected: 42 },
-      { type: `typeof "hi"`, expected: "hi" },
     ])("treats type $type as raw value and emits diagnostic", async ({ type, expected }) => {
       const [{ Foo }, diagnostics] = await runner.compileAndDiagnose(`
           @extension("x-custom", ${type})
@@ -95,11 +91,6 @@ describe("openapi: decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "deprecated",
         severity: "warning",
-        message: [
-          "Deprecated: Passing extension values as types will emit Open API schemas instead of raw values in a future version of TypeSpec.",
-          "To continue emitting raw values, use value kinds.",
-          "See https://typespec.io/docs/language-basics/values/ for more information.",
-        ].join("\n"),
       });
     });
 

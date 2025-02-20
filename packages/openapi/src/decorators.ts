@@ -9,7 +9,6 @@ import {
   Namespace,
   Operation,
   Program,
-  reportDeprecated,
   Type,
   typespecTypeToJson,
   TypeSpecValue,
@@ -66,15 +65,6 @@ export const $extension: ExtensionDecorator = (
     if (diagnostics.length > 0) {
       context.program.reportDiagnostics(diagnostics);
     }
-    reportDeprecated(
-      context.program,
-      [
-        "Passing extension values as types will emit Open API schemas instead of raw values in a future version of TypeSpec.",
-        "To continue emitting raw values, use value kinds.",
-        "See https://typespec.io/docs/language-basics/values/ for more information.",
-      ].join("\n"),
-      entity,
-    );
     data = result;
   }
 
