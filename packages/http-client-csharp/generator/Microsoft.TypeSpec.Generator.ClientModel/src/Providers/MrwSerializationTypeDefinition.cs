@@ -1464,20 +1464,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool propertyIsNullable,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            // Create the first conditional statement to check if the property is defined
-            if (propertyIsNullable)
-            {
-                writePropertySerializationStatement = CheckPropertyIsInitialized(
-                propertyType,
-                wireInfo,
-                propertyIsRequired,
-                propertyExpression,
-                writePropertySerializationStatement);
-            }
-
             // Directly return the statement if the property is required or a non-nullable value type that is not JsonElement
             if (IsRequiredOrNonNullableValueType(propertyType, propertyIsRequired))
             {
+                // Create the first conditional statement to check if the property is defined
+                if (propertyIsNullable)
+                {
+                    writePropertySerializationStatement = CheckPropertyIsInitialized(
+                        propertyType,
+                        wireInfo,
+                        propertyIsRequired,
+                        propertyExpression,
+                        writePropertySerializationStatement);
+                }
                 return writePropertySerializationStatement;
             }
 
@@ -1507,7 +1506,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfElseStatement(
                 propertyIsInitialized,
                 writePropertySerializationStatement,
-                _utf8JsonWriterSnippet.WriteNull(wireInfo.SerializedName.ToVariableName()));
+                _utf8JsonWriterSnippet.WriteNull(wireInfo.SerializedName));
         }
 
         /// <summary>
