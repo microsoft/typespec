@@ -16,6 +16,8 @@ namespace UnbrandedTypeSpec
         /// <param name="name"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredLiteralString"> required literal string. </param>
+        /// <param name="requiredNullableString"> required nullable string. </param>
+        /// <param name="optionalNullableString"> required optional string. </param>
         /// <param name="requiredLiteralInt"> required literal int. </param>
         /// <param name="requiredLiteralFloat"> required literal float. </param>
         /// <param name="requiredLiteralBool"> required literal bool. </param>
@@ -27,7 +29,7 @@ namespace UnbrandedTypeSpec
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <returns> A new <see cref="UnbrandedTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(string name = default, BinaryData requiredUnion = default, ThingRequiredLiteralString requiredLiteralString = default, ThingRequiredLiteralInt requiredLiteralInt = default, ThingRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
+        public static Thing Thing(string name = default, BinaryData requiredUnion = default, ThingRequiredLiteralString requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, ThingRequiredLiteralInt requiredLiteralInt = default, ThingRequiredLiteralFloat requiredLiteralFloat = default, bool requiredLiteralBool = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
@@ -36,6 +38,8 @@ namespace UnbrandedTypeSpec
                 name,
                 requiredUnion,
                 requiredLiteralString,
+                requiredNullableString,
+                optionalNullableString,
                 requiredLiteralInt,
                 requiredLiteralFloat,
                 requiredLiteralBool,
