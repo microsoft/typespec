@@ -4,11 +4,11 @@ import { DuplicateTracker } from "../utils/duplicate-tracker.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, getSymNode } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
-import { removeUnusedTemplateParameterCodeFix } from "./compiler-code-fixes/remove-unused-template-parameter.codefix.js";
 import {
   createModelToObjectValueCodeFix,
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
+import { removeUnusedTemplateParameterCodeFix } from "./compiler-code-fixes/remove-unused-template-parameter.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
