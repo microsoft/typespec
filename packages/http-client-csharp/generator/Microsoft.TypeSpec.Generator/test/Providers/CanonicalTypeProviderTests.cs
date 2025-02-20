@@ -56,6 +56,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [Test]
         public void ValidateProperties()
         {
+            // customization code provides 4 properties:
+            // - public int IntProperty { get; set; }
+            // - public string StringProperty { get; }
+            // - public string InternalStringProperty { get; }
+            // - public PropertyType PropertyTypeProperty { get; set; }
+            // generated code provides 2 properties:
+            // - public int IntProperty { get; set; }
+            // - public string SpecProperty { get; }
+            // therefore the CanonicalType should have 5 properties:
+            // - public int IntProperty { get; set; } (from customization code)
+            // - public string StringProperty { get; } (from customization code)
+            // - public string InternalStringProperty { get; } (from customization code)
+            // - public PropertyType PropertyTypeProperty { get; set; } (from customization code)
+            // - public string SpecProperty { get; } (from generated code)
             Dictionary<string, PropertyProvider> properties = _typeProvider.CanonicalView.Properties.ToDictionary(p => p.Name);
             Assert.AreEqual(5, properties.Count);
             Assert.AreEqual(1, _typeProvider.Properties.Count);
@@ -83,15 +97,43 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // generated code provides three methods:
             // - internal virtual Task<string> Method1(int p)
             // - public virtual Task<string> Method1(string strParam)
-            // - public virtual Task<string> Method1(string strParam)
             // - public virtual Task Method2(float floatParam)
             // therefore the CanonicalType should have three methods:
             // - public virtual Task<int> Method1(int intParam)
             // - public virtual Task<string> Method1(string strParam)
-            // - public virtual Task<string> Method1(string strParam)
+            // - public virtual Task Method2(float floatParam)
             var methods = _typeProvider.CanonicalView.Methods;
 
             Assert.AreEqual(3, methods.Count);
+            Assert.AreEqual(2, _typeProvider.Methods.Count);
+            Assert.AreEqual(1, _typeProvider.CustomCodeView!.Methods.Count);
+
+            // the first should be public virtual Task<string> Method1(string strParam)
+            var first = methods[0].Signature;
+            Assert.AreEqual("Method1", first.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, first.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(Task<string>)), first.ReturnType);
+            Assert.AreEqual(1, first.Parameters.Count);
+            Assert.AreEqual("strParam", first.Parameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(string)), first.Parameters[0].Type);
+
+            // the second should be public virtual Task Method2(float floatParam)
+            var second = methods[1].Signature;
+            Assert.AreEqual("Method2", second.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, second.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(Task)), second.ReturnType);
+            Assert.AreEqual(1, second.Parameters.Count);
+            Assert.AreEqual("floatParam", second.Parameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(float)), second.Parameters[0].Type);
+
+            // the third should be public virtual Task<int> Method1(int intParam)
+            var third = methods[2].Signature;
+            Assert.AreEqual("Method1", third.Name);
+            Assert.AreEqual(MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual, third.Modifiers);
+            Assert.AreEqual(new CSharpType(typeof(Task<int>)), third.ReturnType);
+            Assert.AreEqual(1, third.Parameters.Count);
+            Assert.AreEqual("intParam", third.Parameters[0].Name);
+            Assert.AreEqual(new CSharpType(typeof(int)), third.Parameters[0].Type);
         }
 
 
