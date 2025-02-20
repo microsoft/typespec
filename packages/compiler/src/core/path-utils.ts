@@ -587,6 +587,7 @@ function getPathComponentsRelativeTo(
   for (; start < fromComponents.length; start++) {
     relative.push("..");
   }
+
   return ["", ...relative, ...components];
 }
 

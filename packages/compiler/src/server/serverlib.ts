@@ -16,6 +16,7 @@ import {
   DocumentSymbol,
   DocumentSymbolParams,
   ExecuteCommandParams,
+  FileEvent,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -27,6 +28,7 @@ import {
   MarkupContent,
   MarkupKind,
   ParameterInformation,
+  Position,
   PrepareRenameParams,
   Range,
   ReferenceParams,
@@ -64,7 +66,9 @@ import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, getNodeAtPositionDetail, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
+  getBaseFileName,
   getDirectoryPath,
+  getPathComponents,
   joinPaths,
   normalizePath,
 } from "../core/path-utils.js";
@@ -348,6 +352,103 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
+  async function updateImportsOnFileChange(changes: FileEvent[]): Promise<void> {
+    const tspChanges = changes.filter((change) => change.uri.endsWith(".tsp"));
+    let newFilePath = "";
+    let oldFilePath = "";
+
+    for (const change of tspChanges) {
+      // type 1: created, type 3: deleted
+      // Modify file name or move the file to a new location,
+      // the original file is marked as delete, and the new file is marked as Create
+      if (change.type === 1) {
+        newFilePath = change.uri;
+      } else if (change.type === 3) {
+        oldFilePath = change.uri;
+      }
+    }
+
+    if (!oldFilePath || !newFilePath) {
+      return;
+    }
+
+    // Diagnostic information in the program can be obtained only through the compilation of the main.tsp file without opening any tsp file.
+    const program = await compileService.compileDocumentOnce({ uri: newFilePath });
+    if (!program) {
+      return;
+    }
+
+    const oldFileName = getBaseFileName(oldFilePath);
+    newFilePath = await fileService.getPath({ uri: newFilePath });
+
+    for (const diagnostic of program.diagnostics) {
+      if (diagnostic.code !== "import-not-found") continue;
+
+      const target = diagnostic.target as Node;
+      if (
+        target.kind !== SyntaxKind.ImportStatement ||
+        !target.path.value.endsWith(oldFileName) ||
+        !target.parent
+      )
+        continue;
+
+      const filePath = target.parent.file.path;
+      const targetPath = target.path;
+      const targetVal = targetPath.value;
+      const changeImpLineAndOffset = target.parent.file.getLineAndCharacterOfPosition(
+        targetPath.pos,
+      );
+
+      const replaceText = getRelativePath(filePath, newFilePath);
+      if (!replaceText) continue;
+
+      log({
+        level: "info",
+        message: `The imports content '${targetVal}' needs to be modified in tsp file '${filePath}' to '${replaceText}'`,
+      });
+
+      const vsEdits = [
+        TextEdit.replace(
+          Range.create(
+            Position.create(changeImpLineAndOffset.line, changeImpLineAndOffset.character + 1),
+            Position.create(
+              changeImpLineAndOffset.line,
+              changeImpLineAndOffset.character + targetVal.length + 1,
+            ),
+          ),
+          replaceText,
+        ),
+      ];
+      await host.applyEdit({ changes: { [fileService.getURL(filePath)]: vsEdits } });
+    }
+  }
+
+  function getRelativePath(from: string, to: string): string {
+    if (!from || !to || from === to) {
+      return "";
+    }
+
+    const fromComponents = getPathComponents(from);
+    const toComponents = getPathComponents(to);
+    let commonLength = 0;
+
+    while (
+      commonLength < fromComponents.length &&
+      commonLength < toComponents.length &&
+      fromComponents[commonLength] === toComponents[commonLength]
+    ) {
+      commonLength++;
+    }
+
+    const fromPaths = fromComponents.slice(commonLength);
+    const toPaths = toComponents.slice(commonLength);
+
+    const result = fromPaths.length === 1 ? ["."] : Array(fromPaths.length - 1).fill("..");
+    result.push(...toPaths);
+
+    return result.join("/");
+  }
+
   async function workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent) {
     log({ level: "info", message: "Workspace Folders Changed", detail: e });
     const map = new Map(workspaceFolders.map((f) => [f.uri, f]));
@@ -364,9 +465,11 @@ export function createServer(host: ServerHost): Server {
     log({ level: "info", message: `Workspace Folders`, detail: workspaceFolders });
   }
 
-  function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
+  async function watchedFilesChanged(params: DidChangeWatchedFilesParams) {
     fileSystemCache.notify(params.changes);
     npmPackageProvider.notify(params.changes);
+
+    await updateImportsOnFileChange(params.changes);
   }
 
   function isTspConfigFile(doc: TextDocument | TextDocumentIdentifier) {
