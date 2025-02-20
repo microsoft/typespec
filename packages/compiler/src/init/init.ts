@@ -161,7 +161,7 @@ async function confirmDirectoryEmpty(directory: string) {
     return true;
   }
 
-  warning(`Folder '${pc.cyan(directory)}' is not empty.`);
+  warning(`Folder ${pc.cyan(directory)} is not empty.`);
   whiteline();
   return confirm(`Initialize a new project here?:`);
 }
