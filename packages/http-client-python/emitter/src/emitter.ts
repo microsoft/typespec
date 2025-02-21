@@ -14,7 +14,7 @@ import { emitCodeModel } from "./code-model.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import { PythonEmitterOptions, PythonSdkContext, reportDiagnostic } from "./lib.js";
 import { runPython3 } from "./run-python3.js";
-import { removeUnderscoresFromNamespace } from "./utils.js";
+import { md2Rst, removeUnderscoresFromNamespace } from "./utils.js";
 export function getModelsMode(context: SdkContext): "dpg" | "none" {
   const specifiedModelsMode = context.emitContext.options["models-mode"];
   if (specifiedModelsMode) {
@@ -75,6 +75,49 @@ async function createPythonSdkContext<TServiceOperation extends SdkServiceOperat
   };
 }
 
+function arrayWalkThroughNodes(item: any) {
+  if (item !== undefined && typeof item === "object") {
+    return walkThroughNodes(item);
+  }
+  return item;
+}
+
+function walkThroughNodes(yamlMap: Record<string, any>): Record<string, any> {
+  const stack = [yamlMap];
+  const seen = new WeakSet();
+
+  while (stack.length > 0) {
+      const current = stack.pop();
+
+      if (seen.has(current!)) {
+          continue;
+      }
+      seen.add(current!);
+
+      if (Array.isArray(current)) {
+          for (let i = 0; i < current.length; i++) {
+              if (current[i] !== undefined && typeof current[i] === "object") {
+                  stack.push(current[i]);
+              }
+          }
+      } else {
+          for (const key in current) {
+              if (key === "description" || key === "summary") {
+                if (current[key] !== undefined) {
+                    current[key] = md2Rst(current[key]);
+                }
+              } else if (Array.isArray(current[key])) {
+                  stack.push(current[key]);
+              } else if (current[key] !== undefined && typeof current[key] === "object") {
+                  stack.push(current[key]);
+              }
+          }
+      }
+  }
+
+  return yamlMap;
+}
+
 export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
   const program = context.program;
   const sdkContext = await createPythonSdkContext<SdkHttpOperation>(context);
@@ -89,7 +132,10 @@ export async function $onEmit(context: EmitContext<PythonEmitterOptions>) {
     });
     return;
   }
-  const yamlPath = await saveCodeModelAsYaml("python-yaml-path", yamlMap);
+
+  const parsedYamlMap = walkThroughNodes(yamlMap);
+
+  const yamlPath = await saveCodeModelAsYaml("python-yaml-path", parsedYamlMap);
   const resolvedOptions = sdkContext.emitContext.options;
   const commandArgs: Record<string, string> = {};
   if (resolvedOptions["packaging-files-config"]) {

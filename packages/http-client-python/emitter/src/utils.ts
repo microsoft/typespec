@@ -289,6 +289,7 @@ export function md2Rst(text?: string): string | undefined {
 
     tokens.forEach((token: Token) => {
       if (token.type === "heading") {
+        // Heading tokens are block level, so we should check if there are additional tokens inside
         const parsedHeadingText = md2Rst(token.text);
         rst += `${"=".repeat(
           parsedHeadingText!.length,
