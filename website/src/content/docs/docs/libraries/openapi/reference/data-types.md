@@ -22,6 +22,7 @@ model TypeSpec.OpenAPI.AdditionalInfo
 | termsOfService? | `url`                                                 | A URL to the Terms of Service for the API. MUST be in the format of a URL.                                                        |
 | contact?        | [`Contact`](./data-types.md#TypeSpec.OpenAPI.Contact) | The contact information for the exposed API.                                                                                      |
 | license?        | [`License`](./data-types.md#TypeSpec.OpenAPI.License) | The license information for the exposed API.                                                                                      |
+|                 | `unknown`                                             | Additional properties                                                                                                             |
 
 ### `Contact` {#TypeSpec.OpenAPI.Contact}
 
