@@ -304,7 +304,7 @@ export function md2Rst(text?: string): string | undefined {
     });
 
     // Trim trailing whitespace or tabs
-    return rst.replace(/[ \t]+$/, '');;
+    return rst.replace(/[ \t]+$/, "");
   } catch (e) {
     if (e instanceof RangeError) {
       // The error is thrown by the tokenizer when the markdown is too long

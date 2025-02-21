@@ -80,34 +80,34 @@ function walkThroughNodes(yamlMap: Record<string, any>): Record<string, any> {
   const seen = new WeakSet();
 
   while (stack.length > 0) {
-      const current = stack.pop();
+    const current = stack.pop();
 
-      if (seen.has(current!)) {
-          continue;
-      }
-      if (current !== undefined && current !== null) {
-        seen.add(current);
-      }
+    if (seen.has(current!)) {
+      continue;
+    }
+    if (current !== undefined && current !== null) {
+      seen.add(current);
+    }
 
-      if (Array.isArray(current)) {
-          for (let i = 0; i < current.length; i++) {
-              if (current[i] !== undefined && typeof current[i] === "object") {
-                  stack.push(current[i]);
-              }
-          }
-      } else {
-          for (const key in current) {
-              if (key === "description" || key === "summary") {
-                if (current[key] !== undefined) {
-                    current[key] = md2Rst(current[key]);
-                }
-              } else if (Array.isArray(current[key])) {
-                  stack.push(current[key]);
-              } else if (current[key] !== undefined && typeof current[key] === "object") {
-                  stack.push(current[key]);
-              }
-          }
+    if (Array.isArray(current)) {
+      for (let i = 0; i < current.length; i++) {
+        if (current[i] !== undefined && typeof current[i] === "object") {
+          stack.push(current[i]);
+        }
       }
+    } else {
+      for (const key in current) {
+        if (key === "description" || key === "summary") {
+          if (current[key] !== undefined) {
+            current[key] = md2Rst(current[key]);
+          }
+        } else if (Array.isArray(current[key])) {
+          stack.push(current[key]);
+        } else if (current[key] !== undefined && typeof current[key] === "object") {
+          stack.push(current[key]);
+        }
+      }
+    }
   }
 
   return yamlMap;
