@@ -39,10 +39,10 @@ it("generates operations with no params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
+    @service(#{
       title: "Test Service",
     })
-    @info({
+    @info(#{
       version: "1.0.0",
     })
     namespace TestService;
@@ -79,10 +79,10 @@ it("generates operations without common params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
+    @service(#{
       title: "Test Service",
     })
-    @info({
+    @info(#{
       version: "1.0.0",
     })
     namespace TestService;
@@ -120,10 +120,10 @@ it("generates operations with common params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
+    @service(#{
       title: "Test Service",
     })
-    @info({
+    @info(#{
       version: "1.0.0",
     })
     namespace TestService;
@@ -161,10 +161,10 @@ it("generates operations with common and specific params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
+    @service(#{
       title: "Test Service",
     })
-    @info({
+    @info(#{
       version: "1.0.0",
     })
     namespace TestService;
@@ -218,10 +218,10 @@ it("supports overriding common params with operation params", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
+    @service(#{
       title: "Test Service",
     })
-    @info({
+    @info(#{
       version: "1.0.0",
     })
     namespace TestService;
@@ -267,10 +267,10 @@ it("supports operation summary", async () => {
     using Http;
     using OpenAPI;
 
-    @service({
+    @service(#{
       title: "Test Service",
     })
-    @info({
+    @info(#{
       version: "1.0.0",
     })
     namespace TestService;
@@ -334,10 +334,10 @@ import "@typespec/openapi3";
 using Http;
 using OpenAPI;
 
-@service({
+@service(#{
   title: "Test Service",
 })
-@info({
+@info(#{
   version: "1.0.0",
 })
 namespace TestService;
@@ -395,10 +395,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -441,10 +441,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -485,10 +485,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -550,10 +550,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -607,10 +607,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -651,10 +651,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -695,10 +695,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -739,10 +739,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -792,10 +792,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -845,10 +845,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -900,10 +900,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -955,10 +955,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -1031,10 +1031,10 @@ model Foo {
         using Http;
         using OpenAPI;
 
-        @service({
+        @service(#{
           title: "Test Service",
         })
-        @info({
+        @info(#{
           version: "1.0.0",
         })
         namespace TestService;
@@ -1094,10 +1094,10 @@ model Foo {
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test Service",
       })
-      @info({
+      @info(#{
         version: "1.0.0",
       })
       namespace TestService;
@@ -1180,10 +1180,10 @@ model Foo {
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test Service",
       })
-      @info({
+      @info(#{
         version: "1.0.0",
       })
       namespace TestService;
@@ -1255,10 +1255,10 @@ model Foo {
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test Service",
       })
-      @info({
+      @info(#{
         version: "1.0.0",
       })
       namespace TestService;
@@ -1351,10 +1351,10 @@ model Foo {
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test Service",
       })
-      @info({
+      @info(#{
         version: "1.0.0",
       })
       namespace TestService;
@@ -1424,10 +1424,10 @@ describe("requestBody", () => {
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test Service",
       })
-      @info({
+      @info(#{
         version: "1.0.0",
       })
       namespace TestService;
@@ -1497,10 +1497,10 @@ describe("requestBody", () => {
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test Service",
       })
-      @info({
+      @info(#{
         version: "1.0.0",
       })
       namespace TestService;
@@ -1571,10 +1571,10 @@ describe("requestBody", () => {
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test Service",
       })
-      @info({
+      @info(#{
         version: "1.0.0",
       })
       namespace TestService;

@@ -31,10 +31,10 @@ it("should convert an OpenAPI3 document to a formatted TypeSpec program", async 
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test Service",
       })
-      @info({
+      @info(#{
         version: "1.0.0",
       })
       namespace TestService;
@@ -72,10 +72,10 @@ it("converts an OpenAPI 3 document with an empty schema to a valid TypeSpec repr
       using Http;
       using OpenAPI;
 
-      @service({
+      @service(#{
         title: "Test",
       })
-      @info({
+      @info(#{
         version: "0.0.0",
       })
       namespace Test;

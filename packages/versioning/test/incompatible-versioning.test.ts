@@ -25,10 +25,10 @@ describe("versioning: incompatible use of decorators", () => {
     });
   });
 
-  it("emit diagnostic when @service({version: 'X'}) is used with @versioned", async () => {
+  it("emit diagnostic when @service(#{version: 'X'}) is used with @versioned", async () => {
     const diagnostics = await runner.diagnose(`
     @versioned(Versions)
-    @service({
+    @service(#{
       title: "Widget Service",
       #suppress "deprecated" "For test"
       version: "v3"

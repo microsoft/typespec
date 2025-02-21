@@ -875,7 +875,7 @@ describe("versioning: dependencies", () => {
   // Test for https://github.com/microsoft/typespec/issues/760
   it("have a nested service namespace", async () => {
     const { MyService } = (await runner.compile(`
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         @useDependency(Lib.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {
@@ -921,7 +921,7 @@ describe("versioning: dependencies", () => {
   // Test for https://github.com/microsoft/typespec/issues/786
   it("have a nested service namespace and libraries sharing common parent namespace", async () => {
     const { MyService } = (await runner.compile(`
-        @service({title: "Test"})
+        @service(#{title: "Test"})
         @useDependency(Lib.One.Versions.v1)
         @test("MyService")
         namespace MyOrg.MyService {

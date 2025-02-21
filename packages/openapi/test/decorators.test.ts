@@ -173,7 +173,7 @@ describe("openapi: decorators", () => {
 
       it("multiple", async () => {
         const diagnostics = await runner.diagnose(`
-          @info({
+          @info(#{
             license:{ name: "Apache 2.0", foo1:"Bar"}, 
             contact:{ "x-custom": "string", foo2:"Bar" }, 
             foo3:"Bar" 
@@ -200,7 +200,7 @@ describe("openapi: decorators", () => {
 
     it("emit diagnostic if termsOfService is not a valid url", async () => {
       const diagnostics = await runner.diagnose(`
-        @info({termsOfService:"notvalidurl"})
+        @info(#{termsOfService:"notvalidurl"})
         @test namespace Service {}
       `);
 
@@ -212,7 +212,7 @@ describe("openapi: decorators", () => {
 
     it("emit diagnostic if use on non namespace", async () => {
       const diagnostics = await runner.diagnose(`
-        @info({})
+        @info(#{})
         model Foo {}
       `);
 
@@ -235,7 +235,7 @@ describe("openapi: decorators", () => {
 
     it("set all properties", async () => {
       const { Service } = (await runner.compile(`
-        @info({
+        @info(#{
           title: "My API",
           version: "1.0.0",
           summary: "My API summary",
@@ -272,14 +272,14 @@ describe("openapi: decorators", () => {
 
     it("resolveInfo() merge with data from @service and @summary", async () => {
       const { Service } = (await runner.compile(`
-        @service({ 
+        @service(#{ 
           title: "Service API", 
           
           #suppress "deprecated" "Test"
           version: "2.0.0" 
         })
         @summary("My summary")
-        @info({
+        @info(#{
           version: "1.0.0",
           termsOfService: "http://example.com/terms/",
         })

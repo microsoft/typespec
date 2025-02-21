@@ -8,7 +8,7 @@ export function generateServiceInformation(serviceInfo: TypeSpecServiceInfo): st
   const { name, doc, ...info } = serviceInfo;
 
   definitions.push(`
-    @service({
+    @service(#{
       title: "${name}"
     })
     @info(${JSON.stringify(info)})

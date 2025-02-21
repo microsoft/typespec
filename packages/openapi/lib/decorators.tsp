@@ -108,7 +108,7 @@ model License {
  * The service `title` and `version` are already specified using `@service`.
  * @param additionalInfo Additional information
  */
-extern dec info(target: Namespace, additionalInfo: AdditionalInfo);
+extern dec info(target: Namespace, additionalInfo: valueof AdditionalInfo);
 
 /** Metadata to a single tag that is used by operations. */
 model TagMetadata {

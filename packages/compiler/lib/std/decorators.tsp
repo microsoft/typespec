@@ -112,7 +112,7 @@ model ServiceOptions {
  * namespace PetStore;
  * ```
  */
-extern dec service(target: Namespace, options?: ServiceOptions);
+extern dec service(target: Namespace, options?: valueof ServiceOptions);
 
 /**
  * Specify that this model is an error type. Operations return error types when the operation has failed.
