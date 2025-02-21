@@ -68,3 +68,9 @@ Before creating pull request, the code is required to be well-formatted.
 
 Run `npm run format` in "packages/http-client-java" folder.
 It formats TypeScript code as well as Java code.
+
+## Add Change Description
+
+A change description is required to pass CI of your pull request.
+
+Run `pnpm chronus add` in repository root to add change description.

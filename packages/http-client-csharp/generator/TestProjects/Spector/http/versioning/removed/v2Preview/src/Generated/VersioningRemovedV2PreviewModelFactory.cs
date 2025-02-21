@@ -3,8 +3,9 @@
 #nullable disable
 
 using System;
+using Versioning.Removed;
 
-namespace Versioning.Removed
+namespace Versioning.Removed.V2Preview
 {
     public static partial class VersioningRemovedV2PreviewModelFactory
     {

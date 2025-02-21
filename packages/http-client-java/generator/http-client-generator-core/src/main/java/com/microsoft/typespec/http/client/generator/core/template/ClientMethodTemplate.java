@@ -389,7 +389,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     if (!alwaysNull) {
                         String methodCall = (parameterWireType == ClassType.STRING)
                             ? "Base64Util.encodeToString"
-                            : "Base64Url.encode";
+                            : (ClassType.BASE_64_URL.getName() + ".encode");
                         expression = methodCall + "(" + parameterName + ")";
                     }
 

@@ -16,7 +16,7 @@
   "keywords": [
     "typespec"
   ],
-  "preview": true,
+  "preview": false,
   "publisher": "typespec",
   "displayName": "TypeSpec",
   "categories": [
@@ -115,16 +115,20 @@
     "menus": {
       "explorer/context": [
         {
+          "command": "typespec.importFromOpenApi3",
+          "group": "typespec@2"
+        },
+        {
           "command": "typespec.generateCode",
           "when": "explorerResourceIsFolder || resourceLangId == typespec",
-          "group": "code_generation"
+          "group": "typespec@1"
         }
       ],
       "editor/context": [
         {
           "command": "typespec.generateCode",
           "when": "resourceLangId == typespec",
-          "group": "code_generation"
+          "group": "typespec@1"
         }
       ]
     },

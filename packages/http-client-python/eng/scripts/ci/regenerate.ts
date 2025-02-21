@@ -220,6 +220,9 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
         // after fix test generation for nested operation group, remove this check
         if (mainTspRelativePath.includes("client-operation-group")) return;
 
+        // after https://github.com/Azure/autorest.python/issues/3043 fixed, remove this check
+        if (mainTspRelativePath.includes("azure/client-generator-core/api-version")) return;
+
         const hasMainTsp = await promises
           .access(mainTspPath)
           .then(() => true)
