@@ -28,7 +28,6 @@ import {
   withCliHostAndDiagnostics,
 } from "./utils.js";
 
-
 async function main() {
   await yargs(process.argv.slice(2))
     .scriptName("tsp")
