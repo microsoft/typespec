@@ -165,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="enumType">The <see cref="InputEnumType"/> to convert.</param>
         /// <param name="declaringType"/> The declaring <see cref="TypeProvider".</param>
         /// <returns>An instance of <see cref="TypeProvider"/>.</returns>
-        public TypeProvider? CreateEnum(InputEnumType enumType, TypeProvider? declaringType = null)
+        public EnumProvider? CreateEnum(InputEnumType enumType, TypeProvider? declaringType = null)
         {
             var enumCacheKey = new EnumCacheKey(enumType, declaringType);
             if (EnumCache.TryGetValue(enumCacheKey, out var enumProvider))
