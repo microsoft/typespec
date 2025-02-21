@@ -1,5 +1,5 @@
 import { SdkContext, SdkServiceOperation } from "@azure-tools/typespec-client-generator-core";
-import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export interface PythonEmitterOptions {
   "package-version"?: string;
@@ -56,6 +56,27 @@ const EmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = {
 const libDef = {
   name: "@typespec/http-client-python",
   diagnostics: {
+    // error
+    "unknown-error": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Can't generate Python client code from this TypeSpec, please run this command again with "--trace http-client-python" to get exception stack, then open an issue on https://github.com/microsoft/typespec'.\n${"stack"}`,
+      },
+    },
+    "invalid-models-mode": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Invalid value '${"inValidValue"}' for 'models-mode' of tspconfig.yaml and expected values are 'dpg'/'none'.`,
+      },
+    },
+    "no-python-installed": {
+      severity: "error",
+      messages: {
+        default:
+          "Python is not installed. Please follow https://www.python.org/ to install Python or set 'use-pyodide' to true.",
+      },
+    },
+    // warning
     "no-valid-client": {
       severity: "warning",
       messages: {
