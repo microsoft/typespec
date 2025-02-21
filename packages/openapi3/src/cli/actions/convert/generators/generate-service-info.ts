@@ -1,6 +1,7 @@
 import { TypeSpecServiceInfo } from "../interfaces.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateNamespaceName } from "../utils/generate-namespace-name.js";
+import { toTspValues } from "../utils/tsp-values.js";
 
 export function generateServiceInformation(serviceInfo: TypeSpecServiceInfo): string {
   const definitions: string[] = [];
@@ -21,27 +22,4 @@ export function generateServiceInformation(serviceInfo: TypeSpecServiceInfo): st
   definitions.push(`namespace ${generateNamespaceName(name)};`);
 
   return definitions.join("\n");
-}
-
-function toTspValues(item: unknown): string {
-  if (typeof item === "object") {
-    if (Array.isArray(item)) {
-      return `#[${item.map(toTspValues).join(", ")}]`;
-    } else {
-      const content = Object.entries(item!)
-        .filter(([, value]) => value !== undefined)
-        .map(([key, value]) => {
-          if (typeof value === "string") {
-            return `${key}: "${value}"`;
-          }
-
-          return `${key}: ${toTspValues(value)}`;
-        })
-        .join(", ");
-
-      return `#{${content}}`;
-    }
-  } else {
-    return JSON.stringify(item);
-  }
 }
