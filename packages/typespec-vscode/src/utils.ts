@@ -409,16 +409,13 @@ export async function loadPackageJsonFile(
   return packageJson as NodePackage;
 }
 
-export async function parseOpenApi3File(filePath: string): Promise<string | undefined> {
+export async function parseJsonFromFile(filePath: string): Promise<string | undefined> {
   try {
     const fileContent = await readFile(filePath, "utf-8");
     const content = JSON.parse(fileContent);
     return content;
   } catch (e) {
-    logger.error(`Failed to load OpenAPI3 file: ${filePath}`, [e], {
-      showOutput: true,
-      showPopup: true,
-    });
+    logger.error(`Failed to load JSON file: ${filePath}`, [e]);
     return;
   }
 }

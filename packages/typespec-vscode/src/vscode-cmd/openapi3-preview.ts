@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import logger from "../log/logger.js";
 import { getBaseFileName, getDirectoryPath, joinPaths } from "../path-utils.js";
 import { TspLanguageClient } from "../tsp-language-client.js";
-import { createTempDir, parseOpenApi3File, throttle } from "../utils.js";
+import { createTempDir, parseJsonFromFile, throttle } from "../utils.js";
 
 const TITLE = "Preview in OpenAPI3";
 
@@ -303,4 +303,17 @@ async function selectAndGetOpenApi3Content(
       return;
     }
   }
+}
+
+async function parseOpenApi3File(filePath: string): Promise<string | undefined> {
+  const json = await parseJsonFromFile(filePath);
+  if (json) {
+    return json;
+  }
+
+  logger.error(`Failed to load OpenAPI3 file: ${filePath}`, [], {
+    showOutput: true,
+    showPopup: true,
+  });
+  return;
 }
