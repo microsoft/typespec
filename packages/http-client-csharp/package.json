@@ -17,9 +17,9 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/emitter/index.js",
+  "main": "dist/emitter/src/index.js",
   "exports": {
-    ".": "./dist/emitter/index.js"
+    ".": "./dist/emitter/src/index.js"
   },
   "scripts": {
     "clean": "rimraf ./dist ./emitter/temp && dotnet clean ./generator",
