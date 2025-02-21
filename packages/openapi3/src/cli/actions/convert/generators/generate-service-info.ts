@@ -23,17 +23,25 @@ export function generateServiceInformation(serviceInfo: TypeSpecServiceInfo): st
   return definitions.join("\n");
 }
 
-function toTspValues(object: Record<string, unknown>): string {
-  const content = Object.entries(object)
-    .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => {
-      if (typeof value === "string") {
-        return `${key}: "${value}"`;
-      }
+function toTspValues(item: unknown): string {
+  if (typeof item === "object") {
+    if (Array.isArray(item)) {
+      return `#[${item.map(toTspValues).join(", ")}]`;
+    } else {
+      const content = Object.entries(item!)
+        .filter(([, value]) => value !== undefined)
+        .map(([key, value]) => {
+          if (typeof value === "string") {
+            return `${key}: "${value}"`;
+          }
 
-      return `${key}: ${JSON.stringify(value)}`;
-    })
-    .join(", ");
+          return `${key}: ${toTspValues(value)}`;
+        })
+        .join(", ");
 
-  return `#{${content}}`;
+      return `#{${content}}`;
+    }
+  } else {
+    return JSON.stringify(item);
+  }
 }
