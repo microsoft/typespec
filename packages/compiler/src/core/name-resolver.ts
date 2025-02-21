@@ -126,14 +126,11 @@ export interface NameResolver {
   /** Return augment decorator nodes that are bound to this symbol */
   getAugmentDecoratorsForSym(symbol: Sym): AugmentDecoratorStatementNode[];
 
-  /** Check if a template parameter delare node is used or not */
-  isUsedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): boolean;
-
-  /** Set used template parameter */
-  setTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void;
-
   /** Return template parameters which are not used. */
   getUnusedTemplateParameterDeclarationNodes(): Set<TemplateParameterDeclarationNode>;
+
+  /** Set unused template parameter */
+  setUnusedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void;
 
   /**
    * Resolve the member expression using the given symbol as base.
@@ -200,10 +197,8 @@ export function createResolver(program: Program): NameResolver {
   const augmentDecoratorsForSym = new Map<Sym, AugmentDecoratorStatementNode[]>();
 
   /**
-   * Tracking the template parameters that are used.
+   * Tracking the template parameters that are not used.
    */
-  const usedTemplateParameterDeclarationNodes = new Set<TemplateParameterDeclarationNode>();
-
   const unusedTemplateParameterDeclarationNodes = new Set<TemplateParameterDeclarationNode>();
 
   return {
@@ -248,10 +243,9 @@ export function createResolver(program: Program): NameResolver {
     resolveTypeReference,
 
     getAugmentDecoratorsForSym,
-    isUsedTemplateParameterDeclarationNode,
-    setTemplateParameterDeclarationNode,
     getUnusedUsings,
     getUnusedTemplateParameterDeclarationNodes,
+    setUnusedTemplateParameterDeclarationNode,
   };
 
   function getUnusedUsings(): UsingStatementNode[] {
@@ -287,14 +281,9 @@ export function createResolver(program: Program): NameResolver {
     return mergedSymbols.get(sym) || sym;
   }
 
-  function isUsedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): boolean {
-    if (!node) return false;
-    return usedTemplateParameterDeclarationNodes.has(node);
-  }
-
-  function setTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void {
+  function setUnusedTemplateParameterDeclarationNode(node: TemplateParameterDeclarationNode): void {
     if (!node) return;
-    usedTemplateParameterDeclarationNodes.add(node);
+    unusedTemplateParameterDeclarationNodes.add(node);
   }
 
   function getUnusedTemplateParameterDeclarationNodes(): Set<TemplateParameterDeclarationNode> {
